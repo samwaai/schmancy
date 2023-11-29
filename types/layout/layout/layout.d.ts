@@ -1,4 +1,4 @@
-declare const Layout_base: any;
+declare const Layout_base: import("../..").Constructor<CustomElementConstructor> & import("../..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("../..").Constructor<import("lit").LitElement> & import("../..").Constructor<import("../..").IBaseMixin>;
 export default class Layout extends Layout_base {
     static styles: any;
     layout: boolean;

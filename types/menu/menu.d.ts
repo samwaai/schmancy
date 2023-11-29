@@ -1,4 +1,4 @@
-declare const SchmancyMenu_base: any;
+declare const SchmancyMenu_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export default class SchmancyMenu extends SchmancyMenu_base {
     open: boolean;
     buttonElement: Array<HTMLElement>;

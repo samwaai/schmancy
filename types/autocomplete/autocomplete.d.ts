@@ -5,7 +5,7 @@ import { SchmancyInputChangeEvent } from '..';
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string;
 }>;
-declare const SchmancyAutocomplete_base: any;
+declare const SchmancyAutocomplete_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export declare class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     required: any;
     placeholder: string;
@@ -24,7 +24,7 @@ export declare class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     handleInputChange(event: SchmancyInputChangeEvent): void;
     handleOptionClick(value: any): void;
     /** Checks for validity of the control and shows the browser message if it's invalid. */
-    reportValidity(): boolean | undefined;
+    reportValidity(): boolean;
     /** Checks for validity of the control and emits the invalid event if it invalid. */
     checkValidity(): boolean;
     render(): import("lit-html").TemplateResult<1>;

@@ -1,5 +1,5 @@
 import { SchmancySheetPosition } from './sheet.service';
-declare const SchmancySheet_base: any;
+declare const SchmancySheet_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export default class SchmancySheet extends SchmancySheet_base {
     uid: string;
     open: boolean;

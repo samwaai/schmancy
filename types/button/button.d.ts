@@ -1,13 +1,14 @@
+import { LitElement } from 'lit';
 export interface szkButtonEventMap {
     szkFocus: CustomEvent<void>;
     szkBlur: CustomEvent<void>;
 }
-declare const SchmnacyButton_base: any;
+declare const SchmnacyButton_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export declare class SchmnacyButton extends SchmnacyButton_base {
     protected static shadowRootOptions: {
         mode: string;
         delegatesFocus: boolean;
-        slotAssignment?: SlotAssignmentMode | undefined;
+        slotAssignment?: SlotAssignmentMode;
     };
     private nativeElement;
     private _ariaLabel;

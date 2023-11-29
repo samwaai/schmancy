@@ -1,9 +1,10 @@
-declare const SchmancyInput_base: any;
+import { LitElement } from 'lit';
+declare const SchmancyInput_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export default class SchmancyInput extends SchmancyInput_base {
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
         mode: ShadowRootMode;
-        slotAssignment?: SlotAssignmentMode | undefined;
+        slotAssignment?: SlotAssignmentMode;
     };
     static formAssociated: boolean;
     internals: ElementInternals | undefined;
@@ -109,13 +110,13 @@ export default class SchmancyInput extends SchmancyInput_base {
     inputElement: HTMLInputElement;
     constructor();
     firstUpdated(): void;
-    get form(): HTMLFormElement | null | undefined;
+    get form(): HTMLFormElement;
     /** Checks for validity of the control and shows the browser message if it's invalid. */
-    reportValidity(): boolean | undefined;
+    reportValidity(): boolean;
     /** Checks for validity of the control and emits the invalid event if it invalid. */
-    checkValidity(): boolean | undefined;
+    checkValidity(): boolean;
     /** Selects all text within the input. */
-    select(): void | undefined;
+    select(): void;
     validity(): ValidityState | undefined;
     focus(options?: FocusOptions): void;
     blur(): void;

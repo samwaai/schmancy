@@ -13,7 +13,7 @@ export default defineConfig({
 	publicDir: resolve(__dirname, './public'),
 	resolve: {
 		alias: {
-			'@mo': resolve(__dirname, '/src'),
+			'@schmancy': resolve(__dirname, '/src'),
 		},
 	},
 	build: {

@@ -22,7 +22,7 @@ export default class SchmancyForm extends SchmancyForm_base {
     protected static shadowRootOptions: {
         mode: string;
         delegatesFocus: boolean;
-        slotAssignment?: SlotAssignmentMode | undefined;
+        slotAssignment?: SlotAssignmentMode;
     };
     static styles: import("lit").CSSResult;
     private _controlsWithChecked;
