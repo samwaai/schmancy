@@ -1,0 +1,12 @@
+:host {
+  border: unset !important;
+  line-height: unset !important;
+  background: unset !important;
+  padding: unset !important;
+  font-size: unset !important;
+  box-shadow: unset !important;
+}
+
+:host:focus {
+  box-shadow: unset !important;
+}

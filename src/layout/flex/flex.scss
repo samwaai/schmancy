@@ -1,0 +1,11 @@
+:host {
+	height: max-content;
+	width: max-content;
+	display: flex;
+	align-items: stretch;
+	justify-content: stretch;
+}
+
+section {
+	flex: 1;
+}

@@ -1,0 +1,78 @@
+:host {
+  --background: transparent;
+  --foreground: #000;
+  --divider: #dcdcdc;
+  --overlay-color: rgba(0, 0, 0, 0.7);
+  --transition-duration: 0.6s;
+  --overlay-position: absolute;
+  --overlay-border-radius: 0;
+  --sheet-position: fixed;
+  --sheet-radius: 0;
+  --max-height: 100vh;
+}
+
+.sheet {
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  position: var(--sheet-position);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  visibility: visible;
+  transition: visibility var(--transition-duration);
+  border-radius: var(--sheet-radius);
+
+  .overlay {
+    position: var(--overlay-position);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background: var(--overlay-color);
+    transition: all var(--transition-duration);
+  }
+
+  .contents {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--background);
+    overflow-y: hidden;
+    --default-transitions: transform var(--transition-duration),
+      border-radius var(--transition-duration);
+    transition: var(--default-transitions);
+    transform: translateY(0);
+    transition-timing-function: cubic-bezier(0.5, 0.01, 0.25, 1);
+    max-height: var(--max-height);
+    box-sizing: border-box;
+  }
+  .close-sheet {
+    border: none;
+    padding: 11.2px;
+  }
+}
+
+.sheet[aria-hidden='true'] {
+  visibility: hidden;
+  pointer-events: none;
+
+  .contents {
+    &[data-position='top-right'] {
+      transform: translateX(100%);
+    }
+    &[data-position='bottom-center'],
+    &[data-position='bottom-left'],
+    &[data-position='bottom-right'] {
+      transform: translateY(100%);
+    }
+    transition-duration: calc(var(--transition-duration) * 0.5);
+  }
+  .overlay {
+    opacity: 0;
+    transition-duration: calc(var(--transition-duration) * 0.25);
+  }
+}

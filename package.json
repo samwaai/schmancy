@@ -1,0 +1,79 @@
+{
+	"name": "schmancy",
+	"version": "0.0.1",
+	"description": "UI library build with web components",
+	"main": "./dist/index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/mhmo91/schmancy.git"
+	},
+	"keywords": [
+		"lit",
+		"UI",
+		"Schmancy"
+	],
+	"type": "module",
+	"types": "./types/index.d.ts",
+	"module": "./dist/index.js",
+	"files": [
+		"dist",
+		"types",
+		"README.md"
+	],
+	"publishConfig": {
+		"@mhmo91:registry": "https://npm.pkg.github.com"
+	},
+	"scripts": {
+		"dev": "vite --host",
+		"dev:demo": "vite --config demo/vite.config.ts --host",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"batch": "npm version patch",
+		"prepare": "husky install",
+		"build:components": "wca ./mo/src --format json --outFile ./hummingbird/src/toolkit/components.json",
+		"watch": "npm-watch build:components"
+	},
+	"author": "@mhmo91",
+	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/mhmo91/schmancy/issues"
+	},
+	"homepage": "https://github.com/mhmo91/schmancy#readme",
+	"dependencies": {
+		"@mhmo91/lit-kit": "^1.0.8",
+		"@lit-labs/context": "^0.3.3",
+		"@lit-labs/motion": "^1.0.3",
+		"@tailwindcss/container-queries": "^0.1.1",
+		"@tailwindcss/forms": "^0.5.3",
+		"animejs": "^3.2.1",
+		"lit": "^2.8.0",
+		"npm": "^9.7.2",
+		"npm-watch": "^0.11.0",
+		"path-to-regexp": "^6.2.1",
+		"rxjs": "^7.8.1",
+		"ts-is-present": "^1.2.2",
+		"uuid": "^9.0.0",
+		"web-component-analyzer": "^1.1.7"
+	},
+	"devDependencies": {
+		"@rollup/plugin-strip": "^3.0.2",
+		"@rollup/plugin-terser": "^0.4.3",
+		"@types/animejs": "^3.1.7",
+		"@types/node": "^20.3.1",
+		"@types/uuid": "^9.0.2",
+		"@typescript-eslint/parser": "^5.60.0",
+		"autoprefixer": "^10.4.14",
+		"concurrently": "^8.2.0",
+		"eslint": "^8.49.0",
+		"husky": "^8.0.3",
+		"path": "^0.12.7",
+		"postcss": "^8.4.24",
+		"prettier": "^3.0.3",
+		"sass": "^1.62.1",
+		"tailwindcss": "^3.3.2",
+		"typescript": "^5.2.2",
+		"vite": "^4.3.2",
+		"vite-plugin-sitemap": "^0.4.2",
+		"vite-plugin-webfont-dl": "^3.7.4"
+	}
+}
