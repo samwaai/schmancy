@@ -40,9 +40,9 @@
 	},
 	"homepage": "https://github.com/mhmo91/schmancy#readme",
 	"dependencies": {
-		"@mhmo91/lit-kit": "^1.0.8",
 		"@lit-labs/context": "^0.3.3",
 		"@lit-labs/motion": "^1.0.3",
+		"@mhmo91/lit-kit": "^1.0.8",
 		"@tailwindcss/container-queries": "^0.1.1",
 		"@tailwindcss/forms": "^0.5.3",
 		"animejs": "^3.2.1",
