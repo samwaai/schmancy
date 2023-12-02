@@ -1,0 +1,79 @@
+Certainly! Below is a basic template for a README file for your Lit element component named `SchmancyGrid`. You can customize it further based on your project's specific details and requirements.
+
+---
+
+# SchmancyGrid
+
+`SchmancyGrid` is a flexible grid layout component built with Lit, incorporating the `animejs` library for animations. This component provides a versatile grid structure with support for various configurations, including flow, alignment, justification, gap size, and animation effects.
+
+## Installation
+
+```bash
+npm install @mhmo91/schmancy
+```
+
+## Usage
+
+```js
+<!-- Import the scrip -->
+import SchmancyGrid from '@mhmo91/schmancy'
+```
+
+```html
+<!-- Use the component in your HTML -->
+<schmancy-grid flow="row" align="center" justify="start" gap="md" cols="3" rows="2" wrap>
+	<!-- Add your content here -->
+	<div>Item 1</div>
+	<div>Item 2</div>
+	<!-- ... -->
+</schmancy-grid>
+```
+
+## Properties
+
+- `flow` (String): Controls the grid flow (`row`, `col`, `dense`, `row-dense`, `col-dense`). Default is `row`.
+- `align` (String): Align items along the cross-axis (`start`, `center`, `end`, `stretch`, `baseline`). Default is `stretch`.
+- `justify` (String): Justify items along the main axis (`start`, `center`, `end`, `stretch`). Default is `stretch`.
+- `gap` (String): Set the gap size between grid items (`none`, `sm`, `md`, `lg`). Default is `none`.
+- `cols` (Number): Number of columns in the grid.
+- `rows` (Number): Number of rows in the grid.
+- `anime` (Object): Animation configuration using the `animejs` library. Default is an empty object.
+- `wrap` (Boolean): Whether to allow items to wrap onto multiple lines. Default is `false`.
+
+## Examples
+
+### Basic Example
+
+```html
+<schmancy-grid>
+	<div>Item 1</div>
+	<div>Item 2</div>
+	<div>Item 3</div>
+</schmancy-grid>
+```
+
+### Grid with Animation
+
+```html
+<schmancy-grid
+	flow="col"
+	align="center"
+	justify="center"
+	gap="md"
+	cols="4"
+	anime="{ easing: 'easeInOutQuad', duration: 1000 }"
+>
+	<div>Item 1</div>
+	<div>Item 2</div>
+	<div>Item 3</div>
+	<!-- ... -->
+</schmancy-grid>
+```
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+Feel free to customize the content according to your specific needs. Include additional sections, such as "Contributing," "Issues," or "Acknowledgments," if applicable to your project.
