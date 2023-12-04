@@ -12,10 +12,8 @@ export class SchmancyGrid extends Layout {
 	@property({ type: String }) align: 'start' | 'center' | 'end' | 'stretch' | 'baseline' = 'stretch'
 	@property({ type: String }) justify: 'start' | 'center' | 'end' | 'stretch' = 'stretch'
 	@property({ type: String }) gap: 'none' | 'sm' | 'md' | 'lg' = 'none'
-	@property({ type: Number }) cols?: number
-	@property({ type: String }) templateCol?: string
-	@property({ type: Number }) rows?: number
-	@property({ type: String }) templateRow?: string
+	@property({ type: String }) cols?: string
+	@property({ type: String }) rows?: string
 	@property({ type: Object }) anime: anime.AnimeParams = {}
 	@property({ type: Boolean }) wrap = false
 
@@ -55,11 +53,9 @@ export class SchmancyGrid extends Layout {
 			'flex-wrap': !this.wrap,
 		}
 		const style = {
-			gridTemplateRows: this.templateRow ? this.templateRow : undefined,
-			gridTemplateColumns: this.templateCol ? this.templateCol : undefined,
+			gridTemplateRows: this.rows ? this.rows : undefined,
+			gridTemplateColumns: this.cols ? this.cols : undefined,
 		}
-		if (typeof this.cols === 'number') style['grid-template-columns'] = `repeat(${this.cols}, minmax(0, 1fr))`
-		if (typeof this.rows === 'number') style['grid-template-rows'] = `repeat(${this.rows}, minmax(0, 1fr))`
 		return html`
 			<section class="${this.classMap(classes)}" style=${this.styleMap(style)}>
 				<slot> </slot>
