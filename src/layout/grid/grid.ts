@@ -55,8 +55,8 @@ export class SchmancyGrid extends Layout {
 			'flex-wrap': !this.wrap,
 		}
 		const style = {
-			gridTemplateRows: this.templateCol ? this.templateCol : undefined,
-			gridTemplateColumns: this.templateRow ? this.templateRow : undefined,
+			gridTemplateRows: this.templateRow ? this.templateRow : undefined,
+			gridTemplateColumns: this.templateCol ? this.templateCol : undefined,
 		}
 		if (typeof this.cols === 'number') style['grid-template-columns'] = `repeat(${this.cols}, minmax(0, 1fr))`
 		if (typeof this.rows === 'number') style['grid-template-rows'] = `repeat(${this.rows}, minmax(0, 1fr))`
