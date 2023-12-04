@@ -1,7 +1,7 @@
 import { LitElement } from 'lit';
-export interface szkButtonEventMap {
-    szkFocus: CustomEvent<void>;
-    szkBlur: CustomEvent<void>;
+export interface SchmancyButtonEventMap {
+    SchmancyFocus: CustomEvent<void>;
+    SchmancyBlur: CustomEvent<void>;
 }
 declare const SchmnacyButton_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export declare class SchmnacyButton extends SchmnacyButton_base {

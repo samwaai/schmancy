@@ -8,8 +8,10 @@ export declare class SchmancyGrid extends Layout {
     align: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
     justify: 'start' | 'center' | 'end' | 'stretch';
     gap: 'none' | 'sm' | 'md' | 'lg';
-    cols: number | 'none' | string | undefined;
-    rows: number | 'none' | string | undefined;
+    cols?: number;
+    templateCol?: string;
+    rows?: number;
+    templateRow?: string;
     anime: anime.AnimeParams;
     wrap: boolean;
     assignedElements: HTMLElement[];
