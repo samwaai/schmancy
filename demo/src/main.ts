@@ -6,7 +6,7 @@ import '@schmancy/index'
 export default class SchmancyDemo extends $LitElement() {
 	render() {
 		return html`
-			<schmancy-grid flow="row" cols="3">
+			<schmancy-grid flow="row" templateRow="1fr auto">
 				<div>Row 1, Column 1</div>
 				<div>Row 1, Column 2</div>
 				<div>Row 1, Column 3</div>

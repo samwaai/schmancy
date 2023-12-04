@@ -3,9 +3,9 @@ import { customElement, property, query, queryAssignedElements } from 'lit/decor
 import { ifDefined } from 'lit/directives/if-defined.js'
 import style from './button.scss?inline'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
-export interface szkButtonEventMap {
-	szkFocus: CustomEvent<void>
-	szkBlur: CustomEvent<void>
+export interface SchmancyButtonEventMap {
+	SchmancyFocus: CustomEvent<void>
+	SchmancyBlur: CustomEvent<void>
 }
 
 @customElement('schmancy-button')
@@ -160,9 +160,9 @@ export class SchmnacyButton extends TailwindElement(style) {
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
 				<slot name="prefix"></slot>
-				<kleen-typography type="body" .token="${this.size === 'sm' ? 'sm' : 'md'}">
-					<slot> placeholder </slot>
-				</kleen-typography>
+				<!-- <schmancy-typography type="body" .token="${this.size === 'sm' ? 'sm' : 'md'}"> </schmancy-typography> -->
+				<slot> placeholder </slot>
+
 				<slot name="suffix"></slot>
 			</button>
 		`

@@ -13,7 +13,9 @@ export class SchmancyGrid extends Layout {
 	@property({ type: String }) justify: 'start' | 'center' | 'end' | 'stretch' = 'stretch'
 	@property({ type: String }) gap: 'none' | 'sm' | 'md' | 'lg' = 'none'
 	@property({ type: Number }) cols?: number
+	@property({ type: String }) templateCol?: string
 	@property({ type: Number }) rows?: number
+	@property({ type: String }) templateRow?: string
 	@property({ type: Object }) anime: anime.AnimeParams = {}
 	@property({ type: Boolean }) wrap = false
 
@@ -52,7 +54,10 @@ export class SchmancyGrid extends Layout {
 			'flex-nowrap': this.wrap,
 			'flex-wrap': !this.wrap,
 		}
-		const style = {}
+		const style = {
+			gridTemplateRows: this.templateCol ? this.templateCol : undefined,
+			gridTemplateColumns: this.templateRow ? this.templateRow : undefined,
+		}
 		if (typeof this.cols === 'number') style['grid-template-columns'] = `repeat(${this.cols}, minmax(0, 1fr))`
 		if (typeof this.rows === 'number') style['grid-template-rows'] = `repeat(${this.rows}, minmax(0, 1fr))`
 		return html`
