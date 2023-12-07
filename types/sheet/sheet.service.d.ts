@@ -39,5 +39,5 @@ declare class BottomSheetService {
     open(target: BottomSheeetTarget): void;
     close(uid?: string): void;
 }
-declare const sheetService: BottomSheetService;
-export default sheetService;
+export declare const sheet: BottomSheetService;
+export {};

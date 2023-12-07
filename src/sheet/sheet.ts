@@ -5,12 +5,7 @@ import { classMap } from 'lit/directives/class-map.js'
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'
 import { hook } from './hook'
 import style from './sheet.scss?inline'
-import bottomsheetService, {
-	HereMorty,
-	SchmancySheetPosition,
-	WhereAreYouRicky,
-	WhereAreYouRickyEvent,
-} from './sheet.service'
+import { HereMorty, SchmancySheetPosition, WhereAreYouRicky, WhereAreYouRickyEvent, sheet } from './sheet.service'
 
 @customElement('schmancy-sheet')
 export default class SchmancySheet extends TailwindElement(style) {
@@ -59,7 +54,7 @@ export default class SchmancySheet extends TailwindElement(style) {
 					const isSheetElementFocused =
 						this.sheet?.contains(event.target as Node) && document.activeElement === event.target
 					if (event.key === 'Escape' && !isSheetElementFocused) {
-						bottomsheetService.dismiss(this.uid)
+						sheet.dismiss(this.uid)
 					}
 				}),
 			),
@@ -157,7 +152,7 @@ export default class SchmancySheet extends TailwindElement(style) {
 				<div
 					class="overlay"
 					@click=${() => {
-						if (this.allowOverlyDismiss) bottomsheetService.dismiss(this.uid)
+						if (this.allowOverlyDismiss) sheet.dismiss(this.uid)
 					}}
 				></div>
 				<div class="contents" data-position=${this.position}>

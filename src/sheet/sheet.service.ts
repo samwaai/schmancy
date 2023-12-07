@@ -171,5 +171,4 @@ class BottomSheetService {
 		// sheet?.remove()
 	}
 }
-const sheet = new BottomSheetService()
-export default sheet
+export const sheet = new BottomSheetService()
