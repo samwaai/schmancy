@@ -1,13 +1,13 @@
 export type schmancyCheckBoxChangeEvent = CustomEvent<{
     value: boolean;
 }>;
-declare const SizekickCheckbox_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("../mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
+declare const SchmancyCheckbox_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("../mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 /**
- * @element sizekick-checkbox
+ * @element schmancy-checkbox
  * @slot - The label for the checkbox.
  * @fires valueChange - Event fired when the checkbox value changes.
  **/
-export declare class SizekickCheckbox extends SizekickCheckbox_base {
+export declare class SchmancyCheckbox extends SchmancyCheckbox_base {
     /**
      * @attr {boolean} value - The value of the checkbox.
      */
@@ -36,7 +36,7 @@ export declare class SizekickCheckbox extends SizekickCheckbox_base {
 }
 declare global {
     interface HTMLElementTagNameMap {
-        'sizekick-checkbox': SizekickCheckbox;
+        'schmancy-checkbox': SchmancyCheckbox;
     }
 }
 export {};
