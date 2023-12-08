@@ -50,7 +50,7 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 
 	render() {
 		const classes = {
-			'hyphens-none': true,
+			'hyphens-none flex items-center': true,
 
 			'text-lg': this.type === 'body' && this.token === 'large',
 			'text-[14px] leading-[18px] tracking-[-0.025em]': this.type === 'body' && this.token === 'medium',
@@ -63,8 +63,8 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 			'text-[22px] leading-[26px] tracking-[-0.025em]': this.type === 'title' && this.token === 'medium',
 			'text-[16px] leading-[18px] tracking-[-0.025em]': this.type === 'title' && this.token === 'small',
 
-			'text-7xl': this.type === 'display',
-			'text-5xl': this.type === 'headline',
+			'text-5xl': this.type === 'display',
+			'text-3xl': this.type === 'headline',
 
 			'font-bold': this.weight === 'bold',
 			'text-white': this.color === 'white' || this.classList.contains('text-white'),

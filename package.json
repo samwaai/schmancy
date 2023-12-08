@@ -1,6 +1,6 @@
 {
 	"name": "@mhmo91/schmancy",
-	"version": "0.0.13",
+	"version": "0.0.14",
 	"description": "UI library build with web components",
 	"main": "./dist/index.js",
 	"repository": {
@@ -24,8 +24,7 @@
 		"@mhmo91:registry": "https://npm.pkg.github.com"
 	},
 	"scripts": {
-		"dev": "vite --host",
-		"dev:demo": "vite --config demo/vite.config.ts --host",
+		"dev": "vite --config demo/vite.config.ts --host",
 		"build": "tsc && vite build --config vite.config.ts",
 		"preview": "vite preview",
 		"batch": "npm version patch",

@@ -12,7 +12,7 @@ export class SchmancyFlex extends Layout {
 	@property({ type: String, reflect: true }) wrap: 'wrap' | 'nowrap' | 'wrap-reverse' = 'wrap'
 	@property({ type: String, reflect: true }) align: 'start' | 'center' | 'end' | 'stretch' | 'baseline' = 'start'
 	@property({ type: String, reflect: true }) justify: 'start' | 'center' | 'end' | 'stretch' = 'start'
-	@property({ type: String, reflect: true }) gap: string | undefined
+	@property({ type: String, reflect: true }) gap: 'none' | 'sm' | 'md' | 'lg' = 'none'
 
 	render() {
 		const classes = {
@@ -38,11 +38,15 @@ export class SchmancyFlex extends Layout {
 			'justify-end': this.justify === 'end',
 			'justify-start': this.justify === 'start',
 			'justify-stretch': this.justify === 'stretch',
+
+			// Gap
+			'gap-0': this.gap === 'none',
+			'gap-2': this.gap === 'sm',
+			'gap-4': this.gap === 'md',
+			'gap-8': this.gap === 'lg',
 		}
 
-		const styles = {
-			gap: this.gap,
-		}
+		const styles = {}
 		return html`
 			<section class=${classMap(classes)} style=${styleMap(styles)}>
 				<slot></slot>

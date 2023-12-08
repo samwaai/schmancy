@@ -1,99 +1,103 @@
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
-import { html } from 'lit'
-import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
+import { css, html } from 'lit'
+import { customElement, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { repeat } from 'lit/directives/repeat.js'
 import SchmancyTab from './tab'
 
 @customElement('schmancy-tab-group')
-export default class SchmancyTabGroup extends TailwindElement() {
-  @property({ type: String, reflect: true }) activeTab!: string
+export default class SchmancyTabGroup extends TailwindElement(css`
+	:host {
+		display: block;
+	}
+`) {
+	@state() private activeTab!: string
 
-  @queryAssignedElements({
-    flatten: true
-  })
-  tabsElements!: Array<SchmancyTab>
+	@queryAssignedElements({
+		flatten: true,
+	})
+	private tabsElements!: Array<SchmancyTab>
 
-  @state() tabs: Array<SchmancyTab> = []
+	@state()
+	private tabs: Array<SchmancyTab> = []
 
-  protected firstUpdated(): void {
-    this.tabs = this.tabsElements
-    this.activeTab = this.tabs.find((tab) => tab.active)?.label ?? this.tabs[0].label
-  }
+	protected firstUpdated(): void {
+		this.tabs = this.tabsElements
+		this.activeTab = this.tabs.find(tab => tab.active)?.label ?? this.tabs[0].label
+	}
 
-  tabChanged() {
-    this.tabsElements.forEach((tab) => {
-      if (tab.label === this.activeTab) tab.active = true
-      else tab.active = false
-    })
-  }
+	tabChanged() {
+		this.tabsElements.forEach(tab => {
+			if (tab.label === this.activeTab) tab.active = true
+			else tab.active = false
+		})
+	}
 
-  protected render(): unknown {
-    const activeTab = {
-      'border-indigo-500': true,
-      'text-indigo-600': true
-    }
-    const inactiveTab = {
-      'border-transparent': true,
-      'hover:text-gray-700': true,
-      'hover:border-gray-300': true,
-      'text-gray-500': true
-    }
-    return html`
-      <div>
-        <div class="sm:hidden">
-          <label for="tabs" class="sr-only">Select a tab</label>
-          <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-          <select
-            id="tabs"
-            name="tabs"
-            class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-            @change=${(e: Event) => {
-              this.activeTab = (e.target as HTMLSelectElement).value
-              this.tabChanged()
-            }}
-          >
-            ${repeat(
-              this.tabs,
-              (tab) => tab.label,
-              (tab) => html` <option selected>${tab.label}</option> `
-            )}
-          </select>
-        </div>
-        <div class="hidden sm:block">
-          <div class="border-b border-gray-200">
-            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-              ${repeat(
-                this.tabs,
-                (tab) => tab.label,
-                (tab) => html`
-                  <a
-                    @click=${() => {
-                      this.activeTab = tab.label
-                      this.tabChanged()
-                    }}
-                    href="javascript:void(0)"
-                    class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${this
-                      .activeTab === tab.label
-                      ? classMap(activeTab)
-                      : classMap(inactiveTab)}}"
-                    aria-current="page"
-                  >
-                    ${tab.label}
-                  </a>
-                `
-              )}
-            </nav>
-          </div>
-        </div>
-      </div>
-      <slot></slot>
-    `
-  }
+	protected render(): unknown {
+		const activeTab = {
+			'border-indigo-500': true,
+			'text-indigo-600': true,
+		}
+		const inactiveTab = {
+			'border-transparent': true,
+			'hover:text-gray-700': true,
+			'hover:border-gray-300': true,
+			'text-gray-500': true,
+		}
+		return html`
+			<div>
+				<div class="sm:hidden">
+					<label for="tabs" class="sr-only">Select a tab</label>
+					<!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
+					<select
+						id="tabs"
+						name="tabs"
+						class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+						@change=${(e: Event) => {
+							this.activeTab = (e.target as HTMLSelectElement).value
+							this.tabChanged()
+						}}
+					>
+						${repeat(
+							this.tabs,
+							tab => tab.label,
+							tab => html` <option selected>${tab.label}</option> `,
+						)}
+					</select>
+				</div>
+				<div class="hidden sm:block">
+					<div class="border-b border-gray-200">
+						<nav class="-mb-px flex space-x-8" aria-label="Tabs">
+							${repeat(
+								this.tabs,
+								tab => tab.label,
+								tab => html`
+									<a
+										@click=${() => {
+											this.activeTab = tab.label
+											this.tabChanged()
+										}}
+										href="javascript:void(0)"
+										class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${this.activeTab === tab.label
+											? classMap(activeTab)
+											: classMap(inactiveTab)}}"
+										aria-current="page"
+									>
+										${tab.label}
+									</a>
+								`,
+							)}
+						</nav>
+					</div>
+				</div>
+			</div>
+			<slot></slot>
+		`
+	}
 }
 
 declare global {
-  interface HTMLElementTagNameMap {
-    'schmancy-tab-group': SchmancyTabGroup
-  }
+	interface HTMLElementTagNameMap {
+		'schmancy-tab-group': SchmancyTabGroup
+	}
 }
