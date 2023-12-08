@@ -14,13 +14,13 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	/**
 	 * @attr {primary |secondary |success |error |warning } color - The color of the typography.
 	 */
-	@property({ type: String })
+	@property({ type: String, reflect: true })
 	color: 'primary' | 'primary-muted' | 'secondary' | 'success' | 'error' | 'warning' | 'white' | null = 'primary'
 
 	/**
 	 * @attr {display | headline | title | body | label } type - The type of the typography.
 	 */
-	@property({ type: String })
+	@property({ type: String, reflect: true })
 	type: 'display' | 'headline' | 'title' | 'body' | 'label' = 'body'
 
 	/**
@@ -28,7 +28,7 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	 * @default md
 	 * @type {'sm' |'md' |'lg'}
 	 */
-	@property({ type: String })
+	@property({ type: String, reflect: true })
 	token: 'sm' | 'md' | 'lg' = 'md'
 
 	/**
@@ -47,6 +47,15 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	 */
 	@property({ type: String })
 	weight: 'normal' | 'bold' = 'normal'
+
+	/**
+	 *
+	 * @attr
+	 * @default normal
+	 * @type {'uppercase' |'lowercase' |'capitalize' |'normal'}
+	 * @public
+	 */
+	@property({ type: String }) transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' = 'normal'
 
 	render() {
 		const classes = {
@@ -83,6 +92,10 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 			'text-error-color': this.color === 'error',
 			'text-warning-40': this.color === 'warning',
 			'text-gray-400': this.color === 'primary-muted',
+
+			uppercase: this.transform === 'uppercase',
+			lowercase: this.transform === 'lowercase',
+			capitalize: this.transform === 'capitalize',
 		}
 
 		return html`
