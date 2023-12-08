@@ -6,7 +6,7 @@ export declare class SchmancyFlex extends Layout {
     wrap: 'wrap' | 'nowrap' | 'wrap-reverse';
     align: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
     justify: 'start' | 'center' | 'end' | 'stretch';
-    gap: string | undefined;
+    gap: 'none' | 'sm' | 'md' | 'lg';
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

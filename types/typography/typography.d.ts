@@ -14,10 +14,10 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
     type: 'display' | 'headline' | 'title' | 'body' | 'label';
     /**
      * @attr token - The token of the typography.
-     * @default medium
-     * @type {'small' |'medium' |'large'}
+     * @default md
+     * @type {'sm' |'md' |'lg'}
      */
-    token: 'small' | 'medium' | 'large';
+    token: 'sm' | 'md' | 'lg';
     /**
      * @attr
      * @default left

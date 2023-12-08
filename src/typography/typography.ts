@@ -1,8 +1,8 @@
+import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import typographyStyle from './typography.scss?inline'
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 // based on M3 typography https://m3.material.io/styles/typography/overview
 
 /**
@@ -25,11 +25,11 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 
 	/**
 	 * @attr token - The token of the typography.
-	 * @default medium
-	 * @type {'small' |'medium' |'large'}
+	 * @default md
+	 * @type {'sm' |'md' |'lg'}
 	 */
 	@property({ type: String })
-	token: 'small' | 'medium' | 'large' = 'medium'
+	token: 'sm' | 'md' | 'lg' = 'md'
 
 	/**
 	 * @attr
@@ -51,22 +51,27 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	render() {
 		const classes = {
 			'hyphens-none flex items-center': true,
+			'text-[64px] leading-[64px] tracking-[-0.025em]': this.type === 'display' && this.token === 'lg',
+			'text-[48px] leading-[48px] tracking-[-0.025em]': this.type === 'display' && this.token === 'md',
+			'text-[36px] leading-[36px] tracking-[-0.025em]': this.type === 'display' && this.token === 'sm',
 
-			'text-lg': this.type === 'body' && this.token === 'large',
-			'text-[14px] leading-[18px] tracking-[-0.025em]': this.type === 'body' && this.token === 'medium',
-			'text-[12px] leading-[16px] tracking-[-0.025em]': this.type === 'body' && this.token === 'small',
+			'text-[32px] leading-[32px] tracking-[-0.025em]': this.type === 'headline' && this.token === 'lg',
+			'text-[28px] leading-[32px] tracking-[-0.025em]': this.type === 'headline' && this.token === 'md',
+			'text-[24px] leading-[28px] tracking-[-0.025em]':
+				(this.type === 'headline' && this.token === 'sm') || (this.type === 'title' && this.token === 'lg'),
 
-			'text-[42px] leading-[42px] tracking-[-0.025em]': this.type === 'label' && this.token === 'large',
-			'text-[24px] leading-[24px] tracking-[-0.025em]': this.type === 'label' && this.token === 'medium',
-			'text-[18px] leading-[18px] tracking-[-0.025em]': this.type === 'label' && this.token === 'small',
+			'text-[20px] leading-[24px] tracking-[-0.025em]': this.type === 'title' && this.token === 'md',
+			'text-[18px] leading-[24px] tracking-[-0.025em]': this.type === 'title' && this.token === 'sm',
 
-			'text-[22px] leading-[26px] tracking-[-0.025em]': this.type === 'title' && this.token === 'medium',
-			'text-[16px] leading-[18px] tracking-[-0.025em]': this.type === 'title' && this.token === 'small',
+			'text-lg': this.type === 'body' && this.token === 'lg',
+			'text-[14px] leading-[18px] tracking-[-0.025em]': this.type === 'body' && this.token === 'md',
+			'text-[12px] leading-[16px] tracking-[-0.025em]': this.type === 'body' && this.token === 'sm',
 
-			'text-5xl': this.type === 'display',
-			'text-3xl': this.type === 'headline',
+			'text-sm': this.type === 'label' && this.token === 'lg',
+			'text-xs': this.type === 'label' && this.token === 'md',
+			'text-[10px] leading-[12px] tracking-[-0.025em]': this.type === 'label' && this.token === 'sm',
 
-			'font-bold': this.weight === 'bold',
+			'font-[700]': this.weight === 'bold',
 			'text-white': this.color === 'white' || this.classList.contains('text-white'),
 			'text-primary-key': this.color === 'primary',
 			'text-accent-50': this.color === 'secondary',

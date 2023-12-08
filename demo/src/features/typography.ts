@@ -11,21 +11,21 @@ export default class DemoTypography extends $LitElement(css`
 	protected render() {
 		return html`
 			<schmancy-grid gap="md">
-				<schmancy-typography type="display" token="large">Display (large)</schmancy-typography>
-				<schmancy-typography type="display" token="medium">Display (medium) </schmancy-typography>
-				<schmancy-typography type="display" token="small">Display (small) </schmancy-typography>
-				<schmancy-typography type="headline" token="large">Headline (large)</schmancy-typography>
-				<schmancy-typography type="headline" token="medium">Headline (medium)</schmancy-typography>
-				<schmancy-typography type="headline" token="small">Headline (small)</schmancy-typography>
-				<schmancy-typography type="title" token="large">Title (large)</schmancy-typography>
-				<schmancy-typography type="title" token="medium">Title (medium)</schmancy-typography>
-				<schmancy-typography type="title" token="small">Title (small)</schmancy-typography>
-				<schmancy-typography type="body" token="large">Body (large)</schmancy-typography>
-				<schmancy-typography type="body" token="medium">Body (medium)</schmancy-typography>
-				<schmancy-typography type="body" token="small">Body (small)</schmancy-typography>
-				<schmancy-typography type="label" token="large">Label (large)</schmancy-typography>
-				<schmancy-typography type="label" token="medium">Label (medium)</schmancy-typography>
-				<schmancy-typography type="label" token="small">Label (small)</schmancy-typography>
+				<schmancy-typography type="display" token="lg">Display (lg)</schmancy-typography>
+				<schmancy-typography type="display" token="md">Display (md) </schmancy-typography>
+				<schmancy-typography type="display" token="sm">Display (sm) </schmancy-typography>
+				<schmancy-typography type="headline" token="lg">Headline (lg)</schmancy-typography>
+				<schmancy-typography type="headline" token="md">Headline (md)</schmancy-typography>
+				<schmancy-typography type="headline" token="sm">Headline (sm)</schmancy-typography>
+				<schmancy-typography type="title" token="lg">Title (lg)</schmancy-typography>
+				<schmancy-typography type="title" token="md">Title (md)</schmancy-typography>
+				<schmancy-typography type="title" token="sm">Title (sm)</schmancy-typography>
+				<schmancy-typography type="body" token="lg">Body (lg)</schmancy-typography>
+				<schmancy-typography type="body" token="md">Body (md)</schmancy-typography>
+				<schmancy-typography type="body" token="sm">Body (sm)</schmancy-typography>
+				<schmancy-typography type="label" token="lg">Label (lg)</schmancy-typography>
+				<schmancy-typography type="label" token="md">Label (md)</schmancy-typography>
+				<schmancy-typography type="label" token="sm">Label (sm)</schmancy-typography>
 			</schmancy-grid>
 		`
 	}

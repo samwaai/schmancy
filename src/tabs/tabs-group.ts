@@ -35,8 +35,8 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 
 	protected render(): unknown {
 		const activeTab = {
-			'border-indigo-500': true,
-			'text-indigo-600': true,
+			'border-[#C6A059]': true,
+			'text-[#C6A059]': true,
 		}
 		const inactiveTab = {
 			'border-transparent': true,
@@ -45,50 +45,47 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 			'text-gray-500': true,
 		}
 		return html`
-			<div>
-				<div class="sm:hidden">
-					<label for="tabs" class="sr-only">Select a tab</label>
-					<!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-					<select
-						id="tabs"
-						name="tabs"
-						class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-						@change=${(e: Event) => {
-							this.activeTab = (e.target as HTMLSelectElement).value
-							this.tabChanged()
-						}}
-					>
+			<div class="sm:hidden">
+				<label for="tabs" class="sr-only">Select a tab</label>
+				<!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
+				<select
+					id="tabs"
+					name="tabs"
+					class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-[#C6A059] focus:outline-none focus:ring-[#C6A059] sm:text-sm"
+					@change=${(e: Event) => {
+						this.activeTab = (e.target as HTMLSelectElement).value
+						this.tabChanged()
+					}}
+				>
+					${repeat(
+						this.tabs,
+						tab => tab.label,
+						tab => html` <option selected>${tab.label}</option> `,
+					)}
+				</select>
+			</div>
+			<div class="hidden sm:block">
+				<div class="border-b border-gray-200">
+					<nav class="-mb-px flex space-x-8" aria-label="Tabs">
 						${repeat(
 							this.tabs,
 							tab => tab.label,
-							tab => html` <option selected>${tab.label}</option> `,
+							tab => html`
+								<a
+									@click=${() => {
+										this.activeTab = tab.label
+										this.tabChanged()
+									}}
+									href="javascript:void(0)"
+									class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${this.activeTab === tab.label
+										? classMap(activeTab)
+										: classMap(inactiveTab)}}"
+									aria-current="page"
+									><schmancy-typography type="title" token="small" weight="bold"> ${tab.label} </schmancy-typography>
+								</a>
+							`,
 						)}
-					</select>
-				</div>
-				<div class="hidden sm:block">
-					<div class="border-b border-gray-200">
-						<nav class="-mb-px flex space-x-8" aria-label="Tabs">
-							${repeat(
-								this.tabs,
-								tab => tab.label,
-								tab => html`
-									<a
-										@click=${() => {
-											this.activeTab = tab.label
-											this.tabChanged()
-										}}
-										href="javascript:void(0)"
-										class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${this.activeTab === tab.label
-											? classMap(activeTab)
-											: classMap(inactiveTab)}}"
-										aria-current="page"
-									>
-										${tab.label}
-									</a>
-								`,
-							)}
-						</nav>
-					</div>
+					</nav>
 				</div>
 			</div>
 			<slot></slot>
