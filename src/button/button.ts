@@ -2,11 +2,12 @@ import { html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
-import { ButtonVariant } from './types'
 export interface SchmancyButtonEventMap {
 	SchmancyFocus: CustomEvent<void>
 	SchmancyBlur: CustomEvent<void>
 }
+
+export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text'
 
 @customElement('schmancy-button')
 export class SchmnacyButton extends TailwindElement() {
@@ -24,7 +25,7 @@ export class SchmnacyButton extends TailwindElement() {
 	/**
 	 * The variant of the button. Defaults to undefined.
 	 * @attr
-	 * @default 'elevated'
+	 * @default 'filled'
 	 * @public
 	 */
 	@property({ reflect: true, type: String })
@@ -104,19 +105,6 @@ export class SchmnacyButton extends TailwindElement() {
 		return ['max-h-[24px]', 'max-w-[24px]', 'object-contain']
 	}
 
-	protected get buttonClasses() {
-		return {
-			'h-[40px] shadow-0 px-[24px] rounded-full inline-flex justify-center items-center focus:outline-none': true,
-			'opacity-40': this.disabled,
-			'w-full tex-center': this.width === 'full',
-			'bg-surface-low text-primary-default shadow-1 hover:shadow-2': this.variant === 'elevated',
-			'bg-transparent text-primary-default border-1 border-outline hover:shadow-1': this.variant === 'outlined',
-			'bg-primary-default text-primary-on hover:shadow-1 hover:bg-primary-default/80': this.variant === 'filled',
-			'bg-secondary-container text-secondary-onContainer hover:shadow-1': this.variant === 'filled tonal',
-			'text-primary-default hover:shadow-1': this.variant === 'text',
-		}
-	}
-
 	firstUpdated() {
 		this.prefixImgs?.forEach(img => {
 			img.classList.add(...this.imgClasses)
@@ -131,12 +119,23 @@ export class SchmnacyButton extends TailwindElement() {
 	}
 
 	protected override render() {
+		const classes = {
+			'opacity-40 shadow-0 hover:shadow-0': this.disabled,
+			'h-[40px] px-[24px] rounded-full inline-flex justify-center items-center focus:outline-none': true,
+			'w-full tex-center': this.width === 'full',
+			'bg-surface-low text-primary-default shadow-1 hover:shadow-2': this.variant === 'elevated',
+			'bg-transparent text-primary-default border-1 border-outline hover:shadow-1': this.variant === 'outlined',
+			'bg-primary-default text-primary-on hover:bg-primary-default/80 shadow-0 hover:shadow-2':
+				this.variant === 'filled',
+			'bg-secondary-container text-secondary-onContainer shadow-0 hover:shadow-2': this.variant === 'filled tonal',
+			'text-primary-default hover:shadow-1': this.variant === 'text',
+		}
 		return html`
 			<button
 				part="base"
 				aria-label=${ifDefined(this.ariaLabel)}
 				?disabled=${this.disabled}
-				class=${this.classMap(this.buttonClasses)}
+				class=${this.classMap(classes)}
 				type=${ifDefined(this.type)}
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>

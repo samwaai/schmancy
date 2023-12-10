@@ -16,9 +16,6 @@ const tailwindTheme: Config = {
 		},
 	},
 	plugins: [require('@tailwindcss/container-queries')],
-	daisyui: {
-		themes: ['light'],
-	},
 }
 
 export default tailwindTheme
