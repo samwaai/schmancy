@@ -43,10 +43,7 @@ export default defineConfig({
 		},
 	},
 	plugins: [
-		webfontDownload([
-			'https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap',
-			'https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap',
-		]),
+		webfontDownload(['https://fonts.googleapis.com/css2?family=Inter:wght@300;500&display=swap']),
 		Sitemap({
 			generateRobotsTxt: true,
 			outDir: resolve(__dirname, './public'),

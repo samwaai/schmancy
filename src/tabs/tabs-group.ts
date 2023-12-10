@@ -81,7 +81,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 										? classMap(activeTab)
 										: classMap(inactiveTab)}}"
 									aria-current="page"
-									><schmancy-typography type="title" token="small" weight="bold"> ${tab.label} </schmancy-typography>
+									><schmancy-typography type="title" token="sm" weight="bold"> ${tab.label} </schmancy-typography>
 								</a>
 							`,
 						)}

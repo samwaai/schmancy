@@ -21,7 +21,7 @@ import '@mhmo91/schmancy/typography'
 ### Use the Component in HTML
 
 ```html
-<schmancy-typography color="primary" type="body" token="medium" align="left" weight="normal">
+<schmancy-typography color="primary" type="body" token="md" align="left" weight="normal">
   Your text goes here.
 </schmancy-typography>
 ```
@@ -30,7 +30,7 @@ import '@mhmo91/schmancy/typography'
 
 - `color`: Color of the typography. Possible values: 'primary', 'primary-muted', 'secondary', 'success', 'error', 'warning', 'white', or null.
 - `type`: Type of the typography. Possible values: 'display', 'headline', 'title', 'body', 'label'.
-- `token`: Token of the typography. Possible values: 'small', 'medium', 'large'.
+- `token`: Token of the typography. Possible values: 'sm', 'md', 'lg'.
 - `align`: Alignment of the text. Possible values: 'left', 'center', 'justify', 'right'.
 - `weight`: Font weight. Possible values: 'normal', 'bold'.
 

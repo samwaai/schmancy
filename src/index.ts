@@ -14,5 +14,6 @@ export * from './radio-group';
 export * from './sheet';
 export * from './table';
 export * from './tabs';
+export * from './theme';
 export * from './tree';
 export * from './typography';

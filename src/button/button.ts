@@ -1,15 +1,15 @@
 import { html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
-import style from './button.scss?inline'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { ButtonVariant } from './types'
 export interface SchmancyButtonEventMap {
 	SchmancyFocus: CustomEvent<void>
 	SchmancyBlur: CustomEvent<void>
 }
 
 @customElement('schmancy-button')
-export class SchmnacyButton extends TailwindElement(style) {
+export class SchmnacyButton extends TailwindElement() {
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		mode: 'open',
@@ -24,11 +24,11 @@ export class SchmnacyButton extends TailwindElement(style) {
 	/**
 	 * The variant of the button. Defaults to undefined.
 	 * @attr
-	 * @default 'primary'
+	 * @default 'elevated'
 	 * @public
 	 */
 	@property({ reflect: true, type: String })
-	public variant: 'primary' | 'secondary' | 'special' | 'basic' = 'primary'
+	public variant: ButtonVariant
 
 	/**
 	 *  The width of the button. Defaults to 'auto'.
@@ -53,18 +53,6 @@ export class SchmnacyButton extends TailwindElement(style) {
 	 */
 	@property()
 	public href!: string
-
-	@property({ type: String, reflect: true })
-	public size: 'sm' | 'md' | 'lg' = 'md'
-
-	/**
-	 * The icon to display in the button.
-	 * @attr
-	 * @type {'next' | 'close' | undefined}
-	 * @default undefined
-	 */
-	@property()
-	icon: 'next' | 'close' | undefined
 
 	/**
 	 * Determines whether the button is disabled.
@@ -112,37 +100,30 @@ export class SchmnacyButton extends TailwindElement(style) {
 		this.nativeElement.blur()
 	}
 
-	protected get imgsClasses(): string[] {
-		if (this.size === 'sm') return ['max-h-[16px]', 'max-w-[16px]', 'object-fit']
-		else return ['max-h-[24px]', 'max-w-[24px]', 'object-contain']
+	protected get imgClasses(): string[] {
+		return ['max-h-[24px]', 'max-w-[24px]', 'object-contain']
 	}
 
 	protected get buttonClasses() {
 		return {
-			'rounded-md inline-flex justify-center items-center focus:outline-none': true,
-			'bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50': this.variant === 'secondary',
-			'text-white border-transparent bg-[#3F3F3F]': this.variant === 'primary',
+			'h-[40px] shadow-0 px-[24px] rounded-full inline-flex justify-center items-center focus:outline-none': true,
 			'opacity-40': this.disabled,
-			'px-[10px] py-[5px] text-sm font-medium gap-[4px] rounded-full': this.size === 'sm',
-			'px-[12px] py-2 text-base gap-[4px]': this.size === 'md',
-			'px-[20px] py-3 text-base font-medium gap-[10px]': this.size === 'lg',
 			'w-full tex-center': this.width === 'full',
+			'bg-surface-low text-primary-default shadow-1 hover:shadow-2': this.variant === 'elevated',
+			'bg-transparent text-primary-default border-1 border-outline hover:shadow-1': this.variant === 'outlined',
+			'bg-primary-default text-primary-on hover:shadow-1 hover:bg-primary-default/80': this.variant === 'filled',
+			'bg-secondary-container text-secondary-onContainer hover:shadow-1': this.variant === 'filled tonal',
+			'text-primary-default hover:shadow-1': this.variant === 'text',
 		}
 	}
 
 	firstUpdated() {
 		this.prefixImgs?.forEach(img => {
-			img.classList.add(...this.imgsClasses)
+			img.classList.add(...this.imgClasses)
 		})
 		this.suffixImgs?.forEach(img => {
-			img.classList.add(...this.imgsClasses)
+			img.classList.add(...this.imgClasses)
 		})
-	}
-
-	buttonVariantToTextColor() {
-		if (this.variant === 'primary') return 'white'
-		if (this.variant === 'secondary') return 'primary'
-		return 'primary'
 	}
 
 	click(): void {
@@ -160,9 +141,7 @@ export class SchmnacyButton extends TailwindElement(style) {
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
 				<slot name="prefix"></slot>
-				<!-- <schmancy-typography type="body" .token="${this.size === 'sm' ? 'sm' : 'md'}"> </schmancy-typography> -->
 				<slot> placeholder </slot>
-
 				<slot name="suffix"></slot>
 			</button>
 		`

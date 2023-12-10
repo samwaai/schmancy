@@ -1,6 +1,6 @@
 {
 	"name": "@mhmo91/schmancy",
-	"version": "0.0.20",
+	"version": "0.0.21",
 	"description": "UI library build with web components",
 	"main": "./dist/index.js",
 	"repository": {
@@ -12,7 +12,6 @@
 		"UI",
 		"Schmancy"
 	],
-	"type": "module",
 	"types": "./types/index.d.ts",
 	"module": "./dist/index.js",
 	"files": [
@@ -53,6 +52,7 @@
 		"path-to-regexp": "^6.2.1",
 		"rxjs": "^7.8.1",
 		"ts-is-present": "^1.2.2",
+		"ts-node": "^10.9.2",
 		"typescript": "^5.3.3",
 		"uuid": "^9.0.0",
 		"web-component-analyzer": "^1.1.7"
@@ -66,6 +66,7 @@
 		"@typescript-eslint/parser": "^5.60.0",
 		"autoprefixer": "^10.4.14",
 		"concurrently": "^8.2.0",
+		"deepmerge": "^4.3.1",
 		"eslint": "^8.49.0",
 		"husky": "^8.0.3",
 		"path": "^0.12.7",

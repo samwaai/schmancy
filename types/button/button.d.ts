@@ -1,4 +1,5 @@
 import { LitElement } from 'lit';
+import { StyleInfo } from 'lit/directives/style-map';
 export interface SchmancyButtonEventMap {
     SchmancyFocus: CustomEvent<void>;
     SchmancyBlur: CustomEvent<void>;
@@ -15,10 +16,10 @@ export declare class SchmnacyButton extends SchmnacyButton_base {
     /**
      * The variant of the button. Defaults to undefined.
      * @attr
-     * @default 'primary'
+     * @default 'elevated'
      * @public
      */
-    variant: 'primary' | 'secondary' | 'special' | 'basic';
+    variant: 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text';
     /**
      *  The width of the button. Defaults to 'auto'.
      *  @attr
@@ -61,16 +62,14 @@ export declare class SchmnacyButton extends SchmnacyButton_base {
     protected get imgsClasses(): string[];
     protected get buttonClasses(): {
         'rounded-md inline-flex justify-center items-center focus:outline-none': boolean;
-        'bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50': boolean;
-        'text-white border-transparent bg-[#3F3F3F]': boolean;
         'opacity-40': boolean;
         'px-[10px] py-[5px] text-sm font-medium gap-[4px] rounded-full': boolean;
         'px-[12px] py-2 text-base gap-[4px]': boolean;
         'px-[20px] py-3 text-base font-medium gap-[10px]': boolean;
         'w-full tex-center': boolean;
     };
+    protected get buttonStyles(): StyleInfo;
     firstUpdated(): void;
-    buttonVariantToTextColor(): "white" | "primary";
     click(): void;
     protected render(): import("lit-html").TemplateResult<1>;
 }
