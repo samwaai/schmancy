@@ -72,7 +72,6 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 	}
 
 	updateInputValue() {
-		console.log(this.options.map(o => o.value))
 		this.input.value = this.options.find(o => o.value === this.value)?.label ?? ''
 	}
 

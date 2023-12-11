@@ -2,6 +2,7 @@ export * from './autocomplete';
 export * from './busy';
 export * from './button';
 export * from './checkbox';
+export * from './container';
 export * from './directives';
 export * from './divider';
 export * from './form';

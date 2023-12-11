@@ -3,13 +3,15 @@ const SchmancyTheme = {
 		color: {
 			outline: 'var(--schmancy-sys-color-outline)',
 			surface: {
+				container: 'var(--schmancy-sys-color-surface-container)',
 				default: 'var(--schmancy-sys-color-surface-default)',
+				variant: 'var(--schmancy-sys-color-surface-variant)',
+				on: 'var(--schmancy-sys-color-surface-on)',
+				onVariant: 'var(--schmancy-sys-color-surface-onVariant)',
 				low: 'var(--schmancy-sys-color-surface-low)',
 				high: 'var(--schmancy-sys-color-surface-high)',
 				highest: 'var(--schmancy-sys-color-surface-highest)',
 				lowest: 'var(--schmancy-sys-color-surface-lowest)',
-				on: 'var(--schmancy-sys-color-surface-on)',
-				onVariant: 'var(--schmancy-sys-color-surface-onVariant)',
 			},
 			primary: {
 				default: 'var(--schmancy-sys-color-primary-default)',

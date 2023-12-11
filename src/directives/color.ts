@@ -15,12 +15,12 @@ class ColorDirective extends Directive {
 	}
 
 	update(part: Part, [config]: [ColorConfig]) {
-		console.log(part, config)
 		if (part.type !== PartType.ELEMENT) {
 			throw new Error('The `classMap` directive must be used in the `class` attribute')
 		}
 		const element = part.element as HTMLElement
 		this.config = config
+		console.log(this.config)
 		if (this.config.bgColor) {
 			element.style.backgroundColor = this.config.bgColor
 		}

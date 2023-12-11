@@ -4,45 +4,46 @@ import { TSchmancyTheme } from './theme.interface'
 export const defaultTheme: TSchmancyTheme = {
 	sys: {
 		color: {
-			outline: '#938F99',
+			outline: '#CAC4D0',
 			surface: {
-				default: '#FFFFFF',
-				low: '#F5F5F5',
-				high: '#FFD54F',
-				highest: '#E6E0E9',
-				lowest: '#CCCCCC',
+				default: '#FEF7FF',
 				on: '#1D1B20',
-				onVariant: '#1D1B20',
+				variant: '#E7E0EC',
+				onVariant: '#49454F',
+				highest: '#E6E0E9',
+				high: '#ECE6F0',
+				container: '#F3EDF7',
+				low: '#F7F2FA',
+				lowest: '#FFFFFF',
 			},
 
 			primary: {
 				default: '#6750A4', // Camel color
 				on: '#FFFFFF',
-				container: '#C19A6B',
-				onContainer: '#FFFFFF',
+				container: '#EADDFF',
+				onContainer: '#21005D',
 			},
 
 			secondary: {
-				default: '#4CAF50',
+				default: '#625B71',
 				on: '#FFFFFF',
-				container: '#4CAF50',
-				onContainer: '#FFFFFF',
+				container: '#E8DEF8',
+				onContainer: '#1D192B',
 			},
 
 			tertiary: {
-				default: '#FFC107',
-				on: '#000000',
-				container: '#FFC107',
-				onContainer: '#000000',
+				default: '#7D5260',
+				on: '#FFFFFF',
+				container: '#FFD8E4',
+				onContainer: '#31111D',
 			},
 
 			error: {
-				default: '#6750A4',
+				default: '#B3261E',
 				on: '#FFFFFF',
-				container: '#FF0000',
-				onContainer: '#FFFFFF',
+				container: '#F9DEDC',
+				onContainer: '#410E0B',
 			},
-
 			success: {
 				default: '#00FF00',
 				on: '#000000',
