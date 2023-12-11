@@ -8,15 +8,15 @@ export const defaultTheme: TSchmancyTheme = {
 			surface: {
 				default: '#FFFFFF',
 				low: '#F5F5F5',
-				high: '#333333',
-				highest: '#000000',
+				high: '#FFD54F',
+				highest: '#E6E0E9',
 				lowest: '#CCCCCC',
-				on: '#000000',
-				onVariant: '#666666',
+				on: '#1D1B20',
+				onVariant: '#1D1B20',
 			},
 
 			primary: {
-				default: '#C19A6B', // Camel color
+				default: '#6750A4', // Camel color
 				on: '#FFFFFF',
 				container: '#C19A6B',
 				onContainer: '#FFFFFF',
@@ -37,7 +37,7 @@ export const defaultTheme: TSchmancyTheme = {
 			},
 
 			error: {
-				default: '#FF0000',
+				default: '#6750A4',
 				on: '#FFFFFF',
 				container: '#FF0000',
 				onContainer: '#FFFFFF',

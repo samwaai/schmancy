@@ -1,7 +1,7 @@
 import { Part, nothing } from 'lit'
 import { Directive, PartInfo, PartType, directive } from 'lit/directive.js'
 
-interface ColorConfig {
+export type ColorConfig = {
 	bgColor?: string
 	color?: string
 }

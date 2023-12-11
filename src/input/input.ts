@@ -1,3 +1,5 @@
+import { SchmancyTheme } from '@schmancy/theme/theme.interface'
+import { color } from '@schmancy/directives'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { LitElement, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
@@ -238,23 +240,40 @@ export default class SchmancyInput extends TailwindElement(style) {
 	}
 
 	protected render(): unknown {
+		const classes = {
+			'block min-w-fit w-full h-[56px] rounded-[4px] border-0 px-2 py-3 text-gray-900 shadow-sm sm:text-sm sm:leading-6':
+				true,
+			'disabled:opacity-40 disabled:cursor-not-allowed': true,
+			'placeholder:text-gray-400': true,
+			'ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-inset focus:ring-primary-default': true,
+		}
+		const labelClasses = {
+			'opacity-40': this.disabled,
+		}
 		return html`
-			<label for=${this.id} class="block text-sm font-medium leading-6 text-gray-500">${this.label}</label>
-
-			<input
-				${ref(this.inputRef)}
-				.value=${this.value}
-				.id=${this.id}
-				.name=${this.name}
-				.type=${this.type}
-				.autocomplete=${this.autocomplete}
-				.placeholder=${this.placeholder}
-				.required=${this.required}
-				minlength=${ifDefined(this.minlength)}
-				.inputMode=${this.inputmode}
-				class="block min-w-fit w-full rounded-md border-0 px-2 py-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:ring-gray-200"
-				.disabled=${this.disabled}
-			/>
+			<label class=${this.classMap(labelClasses)} for=${this.id}>
+				<schmancy-typography type="label" token="lg">${this.label}</schmancy-typography>
+			</label>
+			<schmancy-typography type="body">
+				<input
+					${color({
+						bgColor: SchmancyTheme.sys.color.surface.highest,
+						color: SchmancyTheme.sys.color.surface.on,
+					})}
+					${ref(this.inputRef)}
+					.value=${this.value}
+					.id=${this.id}
+					.name=${this.name}
+					.type=${this.type}
+					.autocomplete=${this.autocomplete}
+					.placeholder=${this.placeholder}
+					.required=${this.required}
+					minlength=${ifDefined(this.minlength)}
+					.inputMode=${this.inputmode}
+					class=${this.classMap(classes)}
+					.disabled=${this.disabled}
+				/>
+			</schmancy-typography>
 
 			<slot name="hint"></slot>
 		`

@@ -1,13 +1,17 @@
 :host {
-  border: unset !important;
-  line-height: unset !important;
-  background: unset !important;
-  padding: unset !important;
-  font-size: unset !important;
-  box-shadow: unset !important;
-  width: -webkit-fill-available;
+	border: unset !important;
+	line-height: unset !important;
+	background: unset !important;
+	padding: unset !important;
+	font-size: unset !important;
+	box-shadow: unset !important;
+	width: -webkit-fill-available;
 }
 
 :host:focus {
-  box-shadow: unset !important;
+	box-shadow: unset !important;
+}
+
+input:focus-visible {
+	outline: none !important;
 }

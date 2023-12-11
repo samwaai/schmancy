@@ -1,3 +1,5 @@
+import { SchmancyTheme } from '@schmancy/theme/theme.interface'
+import { color } from '@schmancy/directives'
 import { ref } from 'lit/directives/ref.js'
 import SchmancyInput from '@schmancy/input/input'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
@@ -128,13 +130,16 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 				</schmancy-input>
 				<ul
 					tabindex="-1"
-					class="absolute z-30 mt-1 max-h-auto w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+					class="absolute z-30 mt-1 max-h-auto w-full overflow-auto rounded-md shadow-2"
 					id="options"
 					role="listbox"
 					hidden
 					@click=${(e: SchmancyOptionChangeEvent) => {
 						this.handleOptionClick(e.detail.value)
 					}}
+					${color({
+						bgColor: SchmancyTheme.sys.color.surface.default,
+					})}
 				>
 					<li
 						id="empty"
