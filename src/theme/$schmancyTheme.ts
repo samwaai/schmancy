@@ -21,7 +21,6 @@ function registerThemeValues(prefix = 'schmancy', path: string, value: Partial<T
 	} else {
 		// register the css variable
 		try {
-			console.log(`--${prefix}-${path}`, value)
 			window.CSS.registerProperty({
 				name: `--${prefix}-${path}`,
 				syntax: '<color>',

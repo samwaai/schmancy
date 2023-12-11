@@ -5,10 +5,6 @@ declare const SchmancyTypography_base: import("..").Constructor<CustomElementCon
  */
 export declare class SchmancyTypography extends SchmancyTypography_base {
     /**
-     * @attr {primary |secondary |success |error |warning } color - The color of the typography.
-     */
-    color: 'primary' | 'primary-muted' | 'secondary' | 'success' | 'error' | 'warning' | 'white' | null;
-    /**
      * @attr {display | headline | title | body | label } type - The type of the typography.
      */
     type: 'display' | 'headline' | 'title' | 'body' | 'label';
@@ -27,10 +23,10 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
     /**
      * @attr
      * @default normal
-     * @type {'normal' |'bold'}
+     * @type {'normal' | 'medium' |'bold'}
      * @public
      */
-    weight: 'normal' | 'bold';
+    weight: 'normal' | 'medium' | 'bold';
     /**
      *
      * @attr

@@ -2,7 +2,7 @@
 import { Config } from 'tailwindcss'
 import { SchmancyTheme } from './src/theme/theme.interface'
 const tailwindTheme: Config = {
-	content: ['./index.html', './src/**/*.{js,ts, html}', './demo/**/*.{js,ts, html}'],
+	content: ['./index.html', './src/**/*.{js,ts}', './demo/**/*.{js,ts,html}'],
 	theme: {
 		container: {
 			center: true,

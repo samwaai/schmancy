@@ -12,12 +12,6 @@ import typographyStyle from './typography.scss?inline'
 @customElement('schmancy-typography')
 export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	/**
-	 * @attr {primary |secondary |success |error |warning } color - The color of the typography.
-	 */
-	@property({ type: String, reflect: true })
-	color: 'primary' | 'primary-muted' | 'secondary' | 'success' | 'error' | 'warning' | 'white' | null = 'primary'
-
-	/**
 	 * @attr {display | headline | title | body | label } type - The type of the typography.
 	 */
 	@property({ type: String, reflect: true })
@@ -42,11 +36,11 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	/**
 	 * @attr
 	 * @default normal
-	 * @type {'normal' |'bold'}
+	 * @type {'normal' | 'medium' |'bold'}
 	 * @public
 	 */
 	@property({ type: String })
-	weight: 'normal' | 'bold' = 'normal'
+	weight: 'normal' | 'medium' | 'bold' = 'normal'
 
 	/**
 	 *
@@ -60,38 +54,45 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	render() {
 		const classes = {
 			'hyphens-none flex items-center': true,
-			'text-[64px] leading-[64px] tracking-[-0.025em]': this.type === 'display' && this.token === 'lg',
-			'text-[48px] leading-[48px] tracking-[-0.025em]': this.type === 'display' && this.token === 'md',
-			'text-[36px] leading-[36px] tracking-[-0.025em]': this.type === 'display' && this.token === 'sm',
 
-			'text-[32px] leading-[32px] tracking-[-0.025em]': this.type === 'headline' && this.token === 'lg',
-			'text-[28px] leading-[32px] tracking-[-0.025em]': this.type === 'headline' && this.token === 'md',
-			'text-[24px] leading-[28px] tracking-[-0.025em]':
-				(this.type === 'headline' && this.token === 'sm') || (this.type === 'title' && this.token === 'lg'),
+			// Display
+			'text-[57px] tracking-[-0.25px] leading-[64px]': this.type === 'display' && this.token === 'lg',
+			'text-[45px] tracking-[0px] leading-[52px]': this.type === 'display' && this.token === 'md',
+			'text-[36px] tracking-[0px] leading-[44px]': this.type === 'display' && this.token === 'sm',
 
-			'text-[20px] leading-[24px] tracking-[-0.025em]': this.type === 'title' && this.token === 'md',
-			'text-[18px] leading-[24px] tracking-[-0.025em]': this.type === 'title' && this.token === 'sm',
+			// Headline
+			'text-[32px] tracking-[0px] leading-[40px]': this.type === 'headline' && this.token === 'lg',
+			'text-[28px] tracking-[0px] leading-[36px]': this.type === 'headline' && this.token === 'md',
+			'text-[24px] tracking-[0px] leading-[32px]': this.type === 'headline' && this.token === 'sm',
 
-			'text-lg': this.type === 'body' && this.token === 'lg',
-			'text-[14px] leading-[18px] tracking-[-0.025em]': this.type === 'body' && this.token === 'md',
-			'text-[12px] leading-[16px] tracking-[-0.025em]': this.type === 'body' && this.token === 'sm',
+			// Title
+			'text-[22px] tracking-[0px] leading-[28px]': this.type === 'title' && this.token === 'lg',
+			'font-medium text-[16px] tracking-[0.15px] leading-[24px]': this.type === 'title' && this.token === 'md',
+			'font-medium text-[14px] tracking-[0.1px] leading-[20px]':
+				(this.type === 'title' && this.token === 'sm') || (this.type === 'label' && this.token === 'lg'),
 
-			'text-sm': this.type === 'label' && this.token === 'lg',
-			'text-xs': this.type === 'label' && this.token === 'md',
-			'text-[10px] leading-[12px] tracking-[-0.025em]': this.type === 'label' && this.token === 'sm',
+			// Body
+			'text-[16px] tracking-[0.5px] leading-[24px]': this.type === 'body' && this.token === 'lg',
+			'text-[14px] tracking-[0.25px] leading-[20px]': this.type === 'body' && this.token === 'md',
+			'text-[12px] tracking-[0.4px] leading-[16px]': this.type === 'body' && this.token === 'sm',
 
-			'font-[500]': this.weight === 'bold',
-			'text-white': this.color === 'white' || this.classList.contains('text-white'),
-			'text-primary-key': this.color === 'primary',
-			'text-accent-50': this.color === 'secondary',
-			'text-green-500': this.color === 'success',
-			'align-center': this.align === 'center',
-			'text-justify': this.align === 'justify',
-			'align-left': this.align === 'left',
-			'align-right': this.align === 'right',
-			'text-error-color': this.color === 'error',
-			'text-warning-40': this.color === 'warning',
-			'text-gray-400': this.color === 'primary-muted',
+			// Label
+			// large label is the same as Title sm
+			'text-[12px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'md',
+			'text-[11px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'sm',
+
+			// 'text-primary-default': this.color === 'primary',
+			// 'text-secondary-default': this.color === 'secondary',
+			// 'text-tertiary-default': this.color === 'tertiary',
+			// 'text-error-default': this.color === 'error',
+			// 'text-success-default': this.color === 'success',
+			// 'text-warning-default': this.color === 'warning',
+			// 'text-info-default': this.color === 'info',
+			// 'text-disabled-default': this.color === 'disabled',
+
+			'font-bold': this.weight === 'bold',
+			'font-medium': this.weight === 'medium',
+			'font-normal': this.weight === 'normal',
 
 			uppercase: this.transform === 'uppercase',
 			lowercase: this.transform === 'lowercase',
@@ -99,17 +100,9 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 		}
 
 		return html`
-			${['display', 'headline', 'title'].includes(this.type)
-				? html` <span class=${classMap(classes)}>
-						<slot></slot>
-				  </span>`
-				: this.type === 'body'
-				  ? html`<span class=${classMap(classes)}>
-							<slot></slot>
-				    </span>`
-				  : html`<span class=${classMap(classes)}>
-							<slot></slot>
-				    </span>`}
+			<span class=${classMap(classes)}>
+				<slot></slot>
+			</span>
 		`
 	}
 }

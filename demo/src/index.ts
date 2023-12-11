@@ -16,7 +16,9 @@ export default class SchmancyDemo extends $LitElement() {
 					<schmancy-tab label="Typography">
 						<demo-typography class="py-4"></demo-typography>
 					</schmancy-tab>
-					<schmancy-tab active label="Buttons" class="py-4"> <demo-button></demo-button> </schmancy-tab>
+					<schmancy-tab active label="Buttons">
+						<demo-button class="py-4"></demo-button>
+					</schmancy-tab>
 				</schmancy-tab-group>
 			</schmancy-flex>
 		`

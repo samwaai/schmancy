@@ -38,20 +38,6 @@ export default defineConfig({
 					'lit/decorators.js': 'lit/decorators.js',
 				},
 			},
-			plugins: [
-				strip({ include: '**/*.(ts|js|html)' }),
-				terser({
-					compress: true,
-					ecma: 2020,
-					module: true,
-					safari10: false,
-					sourceMap: false,
-					mangle: true,
-					format: {
-						semicolons: false,
-					},
-				}),
-			],
 		},
 	},
 })

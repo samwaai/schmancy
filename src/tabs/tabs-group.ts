@@ -1,9 +1,10 @@
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { css, html } from 'lit'
 import { customElement, queryAssignedElements, state } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { repeat } from 'lit/directives/repeat.js'
 import SchmancyTab from './tab'
+import { color } from '@schmancy/directives'
+import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 
 @customElement('schmancy-tab-group')
 export default class SchmancyTabGroup extends TailwindElement(css`
@@ -34,16 +35,21 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 	}
 
 	protected render(): unknown {
-		const activeTab = {
-			'border-[#C6A059]': true,
-			'text-[#C6A059]': true,
+		const surface = {
+			'hidden sm:grid grid-flow-col-dense': true,
 		}
+
+		const activeTab = {
+			'text-primary-default': true,
+		}
+
 		const inactiveTab = {
 			'border-transparent': true,
 			'hover:text-gray-700': true,
 			'hover:border-gray-300': true,
 			'text-gray-500': true,
 		}
+
 		return html`
 			<div class="sm:hidden">
 				<label for="tabs" class="sr-only">Select a tab</label>
@@ -64,30 +70,43 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 					)}
 				</select>
 			</div>
-			<div class="hidden sm:block">
-				<div class="border-b border-gray-200">
-					<nav class="-mb-px flex space-x-8" aria-label="Tabs">
-						${repeat(
-							this.tabs,
-							tab => tab.label,
-							tab => html`
-								<a
-									@click=${() => {
-										this.activeTab = tab.label
-										this.tabChanged()
-									}}
-									href="javascript:void(0)"
-									class="whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium ${this.activeTab === tab.label
-										? classMap(activeTab)
-										: classMap(inactiveTab)}}"
-									aria-current="page"
-									><schmancy-typography type="title" token="sm" weight="bold"> ${tab.label} </schmancy-typography>
-								</a>
-							`,
-						)}
-					</nav>
-				</div>
-			</div>
+
+			<nav
+				${color({
+					bgColor: SchmancyTheme.sys.color.surface.default,
+					color: SchmancyTheme.sys.color.surface.on,
+				})}
+				class="${this.classMap(surface)}"
+				aria-label="Tabs"
+			>
+				${repeat(
+					this.tabs,
+					tab => tab.label,
+					tab => html`
+						<schmancy-button
+							@click=${() => {
+								this.activeTab = tab.label
+								this.tabChanged()
+							}}
+							aria-current="page"
+						>
+							<div
+								class="${this.activeTab === tab.label ? this.classMap(activeTab) : this.classMap(inactiveTab)} h-full"
+							>
+								<schmancy-typography class="h-full align-middle flex" type="title" token="sm" weight="medium">
+									${tab.label}
+								</schmancy-typography>
+								<div
+									.hidden=${this.activeTab != tab.label}
+									class="border-primary-default mt-[-4px]  border-2 rounded-t-full"
+								></div>
+							</div>
+						</schmancy-button>
+					`,
+				)}
+			</nav>
+			<schmancy-divider></schmancy-divider>
+
 			<slot></slot>
 		`
 	}
