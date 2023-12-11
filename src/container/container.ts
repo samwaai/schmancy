@@ -1,5 +1,5 @@
 import { color } from '@schmancy/directives'
-import TailwindElement from '@mhmo91/lit-mixins/src/tailwind/tailwind.mixin'
+import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { SchmancyTheme } from '..'
