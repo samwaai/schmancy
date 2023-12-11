@@ -4,13 +4,15 @@ declare const $schmancyTheme: Subject<Partial<{
         color: {
             outline: string;
             surface: {
+                container: string;
                 default: string;
+                variant: string;
+                on: string;
+                onVariant: string;
                 low: string;
                 high: string;
                 highest: string;
                 lowest: string;
-                on: string;
-                onVariant: string;
             };
             primary: {
                 default: string;

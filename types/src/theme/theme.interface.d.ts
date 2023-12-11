@@ -3,13 +3,15 @@ declare const SchmancyTheme: {
         color: {
             outline: string;
             surface: {
+                container: string;
                 default: string;
+                variant: string;
+                on: string;
+                onVariant: string;
                 low: string;
                 high: string;
                 highest: string;
                 lowest: string;
-                on: string;
-                onVariant: string;
             };
             primary: {
                 default: string;
@@ -61,13 +63,15 @@ declare const theme: {
             color: {
                 outline: string;
                 surface: {
+                    container: string;
                     default: string;
+                    variant: string;
+                    on: string;
+                    onVariant: string;
                     low: string;
                     high: string;
                     highest: string;
                     lowest: string;
-                    on: string;
-                    onVariant: string;
                 };
                 primary: {
                     default: string;

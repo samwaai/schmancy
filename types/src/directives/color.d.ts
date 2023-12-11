@@ -1,9 +1,9 @@
 import { Part } from 'lit';
 import { Directive, PartInfo } from 'lit/directive.js';
-interface ColorConfig {
+export type ColorConfig = {
     bgColor?: string;
     color?: string;
-}
+};
 declare class ColorDirective extends Directive {
     private config;
     constructor(partInfo: PartInfo);
