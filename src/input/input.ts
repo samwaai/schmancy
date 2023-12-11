@@ -241,7 +241,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 
 	protected render(): unknown {
 		const classes = {
-			'block min-w-fit w-full h-[56px] rounded-[4px] border-0 px-2 py-3 text-gray-900 shadow-sm sm:text-sm sm:leading-6':
+			'block min-w-fit w-full h-[56px] rounded-[4px] border-0 px-[16px] py-[8px] text-gray-900 shadow-sm sm:text-sm sm:leading-6':
 				true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-gray-400': true,
@@ -251,7 +251,13 @@ export default class SchmancyInput extends TailwindElement(style) {
 			'opacity-40': this.disabled,
 		}
 		return html`
-			<label class=${this.classMap(labelClasses)} for=${this.id}>
+			<label
+				${color({
+					color: SchmancyTheme.sys.color.primary.default,
+				})}
+				class=${this.classMap(labelClasses)}
+				for=${this.id}
+			>
 				<schmancy-typography type="label" token="lg">${this.label}</schmancy-typography>
 			</label>
 			<schmancy-typography type="body">

@@ -137,7 +137,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 						this.handleOptionClick(e.detail.value)
 					}}
 					${color({
-						bgColor: SchmancyTheme.sys.color.surface.default,
+						bgColor: SchmancyTheme.sys.color.surface.container,
 					})}
 				>
 					<li
