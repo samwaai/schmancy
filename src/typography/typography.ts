@@ -80,7 +80,7 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 			'text-xs': this.type === 'label' && this.token === 'md',
 			'text-[10px] leading-[12px] tracking-[-0.025em]': this.type === 'label' && this.token === 'sm',
 
-			'font-[700]': this.weight === 'bold',
+			'font-[500]': this.weight === 'bold',
 			'text-white': this.color === 'white' || this.classList.contains('text-white'),
 			'text-primary-key': this.color === 'primary',
 			'text-accent-50': this.color === 'secondary',
