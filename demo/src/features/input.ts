@@ -11,7 +11,7 @@ export class DemoInput extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
-				<schmancy-input label="Input" placeholder="placeholder"></schmancy-input>
+				<schmancy-input hint="another day another moment" label="Input" placeholder="placeholder"></schmancy-input>
 				<schmancy-input label="disabled Input" placeholder="placeholder" disabled></schmancy-input>
 
 				<schmancy-autocomplete label="Status" value="All">

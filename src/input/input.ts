@@ -7,6 +7,7 @@ import style from './input.scss?inline'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { distinctUntilChanged, filter, fromEvent, map } from 'rxjs'
 import { ifDefined } from 'lit/directives/if-defined.js'
+import { when } from 'lit/directives/when.js'
 @customElement('schmancy-input')
 export default class SchmancyInput extends TailwindElement(style) {
 	protected static shadowRootOptions = {
@@ -148,6 +149,8 @@ export default class SchmancyInput extends TailwindElement(style) {
 
 	@query('input') inputElement!: HTMLInputElement
 
+	@property() hint: string | undefined
+
 	constructor() {
 		super()
 		try {
@@ -241,21 +244,21 @@ export default class SchmancyInput extends TailwindElement(style) {
 
 	protected render(): unknown {
 		const classes = {
-			'block min-w-fit w-full h-[56px] rounded-[4px] border-0 px-[16px] py-[8px]': true,
+			'block min-w-fit w-full h-[56px] rounded-[4px] border-0 px-[16px]': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
 			'ring-1 ring-inset ring-outline  focus:ring-2 focus:ring-inset focus:ring-primary-default': true,
 		}
 		const labelClasses = {
 			'opacity-40': this.disabled,
-			'-translate-y-6': true,
+			'block mb-[4px]': true,
 		}
 		return html`
 			<label
 				${color({
 					color: SchmancyTheme.sys.color.primary.default,
 				})}
-				class=${this.classMap(labelClasses)}
+				class="${this.classMap(labelClasses)}"
 				for=${this.id}
 			>
 				<schmancy-typography type="label" token="lg">${this.label}</schmancy-typography>
@@ -280,8 +283,10 @@ export default class SchmancyInput extends TailwindElement(style) {
 					.disabled=${this.disabled}
 				/>
 			</schmancy-typography>
-
-			<slot name="hint"></slot>
+			${when(
+				this.hint,
+				() => html` <schmancy-typography class="pt-[4px]" type="body" token="sm"> ${this.hint} </schmancy-typography> `,
+			)}
 		`
 	}
 }
