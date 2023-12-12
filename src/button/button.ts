@@ -1,7 +1,8 @@
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { when } from 'lit/directives/when.js'
 export interface SchmancyButtonEventMap {
 	SchmancyFocus: CustomEvent<void>
 	SchmancyBlur: CustomEvent<void>
@@ -10,7 +11,7 @@ export interface SchmancyButtonEventMap {
 export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text'
 
 @customElement('schmancy-button')
-export class SchmnacyButton extends TailwindElement() {
+export class SchmnacyButton extends $LitElement() {
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		mode: 'open',
@@ -118,27 +119,42 @@ export class SchmnacyButton extends TailwindElement() {
 		this.dispatchEvent(new Event('click', { bubbles: true, composed: true }))
 	}
 
-	protected override render() {
+	render() {
 		const classes = {
-			'opacity-40 shadow-0 hover:shadow-0': this.disabled,
-			'h-[40px] px-[24px] rounded-full inline-flex justify-center items-center focus:outline-none': true,
-			'w-full tex-center': this.width === 'full',
-			'bg-surface-low text-primary-default shadow-1 hover:shadow-2': this.variant === 'elevated',
-			'bg-transparent text-primary-default border-1 border-outline hover:shadow-1': this.variant === 'outlined',
-			'bg-primary-default text-primary-on hover:bg-primary-default/80 shadow-0 hover:shadow-2':
-				this.variant === 'filled',
-			'bg-secondary-container text-secondary-onContainer shadow-0 hover:shadow-2': this.variant === 'filled tonal',
-			'text-primary-default hover:shadow-1': this.variant === 'text',
+			'h-[40px] px-[24px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] focus:outline-none':
+				true,
+			'opacity-[0.38]': this.disabled,
+			'hover:shadow-1':
+				!this.disabled &&
+				(this.variant == 'outlined' ||
+					this.variant == 'text' ||
+					this.variant == 'filled' ||
+					this.variant == 'filled tonal'),
+			'hover:shadow-2': !this.disabled && this.variant == 'elevated',
+			'w-full tex-center': this.width == 'full',
+			'bg-surface-low text-primary-default shadow-1': this.variant == 'elevated',
+			'bg-transparent text-primary-default border-1 border-outline': this.variant == 'outlined',
+			'bg-primary-default text-primary-on': this.variant == 'filled',
+			'bg-secondary-container text-secondary-onContainer': this.variant == 'filled tonal',
+			'text-primary-default': this.variant == 'text',
+		}
+
+		const stateLayerClasses = {
+			'hover:opacity-[0.08] rounded-full': true,
+			'hover:bg-primary-on': this.variant == 'filled',
+			'hover:bg-primary-default': this.variant == 'outlined' || this.variant == 'elevated' || this.variant == 'text',
+			'hover:bg-secondary-container': this.variant == 'filled tonal',
 		}
 		return html`
 			<button
 				part="base"
 				aria-label=${ifDefined(this.ariaLabel)}
 				?disabled=${this.disabled}
-				class=${this.classMap(classes)}
+				class="${this.classMap(classes)}"
 				type=${ifDefined(this.type)}
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
+				${when(!this.disabled, () => html` <div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div> `)}
 				<slot name="prefix"></slot>
 				<slot> placeholder </slot>
 				<slot name="suffix"></slot>

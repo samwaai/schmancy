@@ -241,14 +241,14 @@ export default class SchmancyInput extends TailwindElement(style) {
 
 	protected render(): unknown {
 		const classes = {
-			'block min-w-fit w-full h-[56px] rounded-[4px] border-0 px-[16px] py-[8px] text-gray-900 shadow-sm sm:text-sm sm:leading-6':
-				true,
+			'block min-w-fit w-full h-[56px] rounded-[4px] border-0 px-[16px] py-[8px]': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
-			'placeholder:text-gray-400': true,
-			'ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-inset focus:ring-primary-default': true,
+			'placeholder:text-muted': true,
+			'ring-1 ring-inset ring-outline  focus:ring-2 focus:ring-inset focus:ring-primary-default': true,
 		}
 		const labelClasses = {
 			'opacity-40': this.disabled,
+			'-translate-y-6': true,
 		}
 		return html`
 			<label
@@ -260,7 +260,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 			>
 				<schmancy-typography type="label" token="lg">${this.label}</schmancy-typography>
 			</label>
-			<schmancy-typography type="body">
+			<schmancy-typography type="body" token="lg">
 				<input
 					${color({
 						bgColor: SchmancyTheme.sys.color.surface.highest,
