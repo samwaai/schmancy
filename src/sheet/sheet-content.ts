@@ -23,9 +23,8 @@ export default class SchmancySheetContent extends TailwindElement(css`
 
 	render() {
 		return html`
-			<div class="absolute right-2 top-2  z-10">
-				<button
-					class="relative transition-all w-8 h-8 hover:scale-110 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-full  shadow-gray-500 shadow-sm   "
+			<schmancy-grid align="center" justify="stretch" cols="auto 1fr auto">
+				<schmancy-button
 					@click=${() => {
 						this.dispatchEvent(
 							new CustomEvent('bottomSheetCloseRequested', {
@@ -35,10 +34,26 @@ export default class SchmancySheetContent extends TailwindElement(css`
 						)
 					}}
 				>
-					<span class="text-md">✕</span>
-				</button>
-			</div>
-			<div class="bg-neutral-50 shadow-md  rounded-md overflow-scroll" tabindex="0">
+					<span class="text-[24px]">&#8592; </span>
+				</schmancy-button>
+				<schmancy-typography type="headline" token="lg">
+					<slot name="title">Title</slot>
+				</schmancy-typography>
+				<schmancy-button
+					@click=${() => {
+						this.dispatchEvent(
+							new CustomEvent('bottomSheetCloseRequested', {
+								bubbles: true,
+								composed: true,
+							}),
+						)
+					}}
+				>
+					<span class="text-[24px]">✕</span>
+				</schmancy-button>
+			</schmancy-grid>
+
+			<div class="overflow-scroll transition-all  p-[24px]" tabindex="0">
 				<slot></slot>
 			</div>
 		`

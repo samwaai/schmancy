@@ -30,7 +30,7 @@ export class SchmnacyButton extends $LitElement() {
 	 * @public
 	 */
 	@property({ reflect: true, type: String })
-	public variant: ButtonVariant
+	public variant: ButtonVariant = 'text'
 
 	/**
 	 *  The width of the button. Defaults to 'auto'.

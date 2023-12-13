@@ -65,21 +65,19 @@ export default class SchmancyTree extends TailwindElement(css`
 	}
 	render() {
 		return html`
-			<schmancy-list>
-				<schmancy-list-item .active=${this.active} id="toggler">
-					<slot name="root"></slot>
-					<span
-						class="pointer-events-none"
-						slot="trailing"
-						@click=${e => {
-							e.stopPropagation()
-						}}
-						id="chevron"
-						>⌅
-					</span>
-				</schmancy-list-item>
-				<slot></slot>
-			</schmancy-list>
+			<div class="flex content-center items-center justify-between">
+				<slot id="toggler" name="root"> </slot>
+				<schmancy-button
+					slot="trailing"
+					@click=${e => {
+						e.stopPropagation()
+					}}
+					id="chevron"
+					>⌅
+				</schmancy-button>
+			</div>
+
+			<slot></slot>
 		`
 	}
 }

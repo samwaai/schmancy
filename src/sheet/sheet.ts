@@ -147,6 +147,7 @@ export default class SchmancySheet extends TailwindElement(style) {
 				this.position === SchmancySheetPosition.Side,
 		}
 		const contentClasses = {
+			'pt-[24px]': true,
 			'h-full': this.position === SchmancySheetPosition.Side,
 			'bg-surface-low text-surface-onVariant border-outline shadow-1': this.mode === 'modal',
 			'bg-surface text-surface-onPrimary min-w-[256px]': this.mode === 'standard',

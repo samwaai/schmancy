@@ -11,10 +11,10 @@ export class DemoTree extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
-				<schmancy-tree active>
-					<div slot="root">root</div>
+				<schmancy-tree>
+					<schmancy-list-item slot="root"> root</schmancy-list-item>
 					<schmancy-list>
-						<schmancy-list-item>Item 1.1</schmancy-list-item>
+						<schmancy-list-item active>Item 1.1</schmancy-list-item>
 						<schmancy-list-item>Item 1.2</schmancy-list-item>
 						<schmancy-list-item>Item 1.3</schmancy-list-item>
 					</schmancy-list>
