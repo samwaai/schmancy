@@ -14,14 +14,28 @@ export class DemoSheet extends $LitElement(css`
 		return html`
 			<schmancy-grid gap="md">
 				<schmancy-button
+					variant="elevated"
 					@click=${() => {
 						sheet.open({
 							component: new DemoList(),
-							position: SchmancySheetPosition.BottomCenter,
+							position: SchmancySheetPosition.Bottom,
 						})
 					}}
-					>left Side sheet</schmancy-button
 				>
+					Bottom Sheet
+				</schmancy-button>
+
+				<schmancy-button
+					variant="elevated"
+					@click=${() => {
+						sheet.open({
+							component: new DemoList(),
+							position: SchmancySheetPosition.Side,
+						})
+					}}
+				>
+					Side Sheet
+				</schmancy-button>
 			</schmancy-grid>
 		`
 	}

@@ -44,7 +44,7 @@ export class SchmancyListItem extends TailwindElement() {
 		}
 
 		const stateLayerClasses = {
-			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0': !this.readonly,
+			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0 rounded-full': !this.readonly,
 		}
 		return html`<li class=${this.classMap(classes)}>
 			${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}

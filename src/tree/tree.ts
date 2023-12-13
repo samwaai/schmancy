@@ -4,11 +4,24 @@ import { css, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'
 
+/**
+ * @element schmancy-tree
+ * @slot root - The root element of the tree
+ * @slot - The children of the tree
+ */
 @customElement('schmancy-tree')
 export default class SchmancyTree extends TailwindElement(css`
 	:host {
 		display: block;
 		position: relative;
+		background-color: var(--schmancy-sys-color-surface-default);
+	}
+	::slotted([slot='root']) {
+		width: 100%;
+		text-align: left;
+	}
+	::slotted([slot='root'] + *) {
+		margin-top: 0.5rem;
 	}
 `) {
 	@property({ type: Boolean }) open: boolean = false
@@ -51,26 +64,28 @@ export default class SchmancyTree extends TailwindElement(css`
 		})
 	}
 	render() {
-		const classes = {
-			'bg-gray-800 text-white': this.active,
-			'text-gray-400 hover:text-white hover:bg-gray-800': !this.active,
-			'w-full group flex justify-between items-center  rounded-md p-2 text-sm leading-6 font-semibold': true,
-		}
 		return html`
-			<li class="w-full" id="toggler">
-				<button class="${this.classMap(classes)} ">
+			<schmancy-list>
+				<schmancy-list-item .active=${this.active} id="toggler">
 					<slot name="root"></slot>
 					<span
+						class="pointer-events-none"
+						slot="trailing"
 						@click=${e => {
 							e.stopPropagation()
 						}}
 						id="chevron"
-						class="rotate-180 flex items-center transition-all duration-100 w-[34px] h-[34px] hover:bg-gray-100 hover:bg-opacity-10 hover:scale-110   hover:rounded-full p-2 text-xl font-bold"
 						>⌅
 					</span>
-				</button>
-			</li>
-			<slot></slot>
+				</schmancy-list-item>
+				<slot></slot>
+			</schmancy-list>
 		`
+	}
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'schmancy-tree': SchmancyTree
 	}
 }

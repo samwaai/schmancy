@@ -98,6 +98,8 @@ class BottomSheetService {
 						sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
 						document.body.appendChild(sheet)
 					} else {
+						// if sheet is found, set the new position
+						sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
 						// to make sure that the sheet is not removed later
 						target.persist = target.persist ?? false
 					}

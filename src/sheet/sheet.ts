@@ -142,19 +142,14 @@ export default class SchmancySheet extends TailwindElement(style) {
 	render() {
 		const classes = {
 			'transition-all duration-[600]': true,
-			'items-center justify-end': this.position === SchmancySheetPosition.BottomCenter,
-			'bottom-0 mx-auto': this.position === SchmancySheetPosition.BottomCenter,
-			'items-end justify-start': this.position === SchmancySheetPosition.TopRight,
-			'items-end justify-end bottom-0 right-0': this.position === SchmancySheetPosition.BottomRight,
-			'top-0 right-0 rounded-[16px 0 0 16px]': [
-				SchmancySheetPosition.BottomRight,
-				SchmancySheetPosition.TopRight,
-				SchmancySheetPosition.BottomRight,
-			].includes(this.position),
+			'bottom-0 items-center justify-end': this.position === SchmancySheetPosition.Bottom,
+			'top-0 right-0 rounded-[16px 0 0 16px] bottom-0 mx-auto items-end justify-start h-full w-full':
+				this.position === SchmancySheetPosition.Side,
 		}
 		const contentClasses = {
-			'bg-surface-low text-surface-onVariant border-outline shadow-1 h-[100%]': this.mode === 'modal',
-			'bg-surface text-surface-onPrimary w-[256px]': this.mode === 'standard',
+			'h-full': this.position === SchmancySheetPosition.Side,
+			'bg-surface-low text-surface-onVariant border-outline shadow-1': this.mode === 'modal',
+			'bg-surface text-surface-onPrimary min-w-[256px]': this.mode === 'standard',
 		}
 		const overlayClasses = {
 			'bg-scrim transition-all duration-[600] opacity-[0.4] absolute inset-0': this.mode === 'modal',
@@ -168,7 +163,7 @@ export default class SchmancySheet extends TailwindElement(style) {
 					}}
 				></div>
 				<div class="content ${this.classMap(contentClasses)}" data-position=${this.position}>
-					<schmancy-sheet-content .closeButton=${true}>
+					<schmancy-sheet-content>
 						<slot></slot>
 					</schmancy-sheet-content>
 				</div>
