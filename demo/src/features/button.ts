@@ -11,17 +11,22 @@ export class DemoButton extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
+				<schmancy-typography type="title">Normal</schmancy-typography>
 				<schmancy-button variant="elevated">elevated</schmancy-button>
 				<schmancy-button variant="filled">filled</schmancy-button>
 				<schmancy-button variant="filled tonal">filled tonal</schmancy-button>
 				<schmancy-button variant="text">text</schmancy-button>
 				<schmancy-button variant="outlined">outlined</schmancy-button>
 
+				<schmancy-typography type="title">Disable variants</schmancy-typography>
 				<schmancy-button disabled variant="elevated">elevated disabled</schmancy-button>
 				<schmancy-button disabled variant="filled">filled disabled</schmancy-button>
 				<schmancy-button disabled variant="filled tonal">filled tonal disabled</schmancy-button>
 				<schmancy-button disabled variant="text">text disabled</schmancy-button>
 				<schmancy-button disabled variant="outlined">text disabled</schmancy-button>
+
+				<schmancy-typography type="title">Width variant</schmancy-typography>
+				<schmancy-button variant="filled" width="full">filled</schmancy-button>
 			</schmancy-grid>
 		`
 	}

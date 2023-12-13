@@ -1,5 +1,5 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { html, LitElement } from 'lit'
+import { css, html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
@@ -11,7 +11,11 @@ export interface SchmancyButtonEventMap {
 export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text'
 
 @customElement('schmancy-button')
-export class SchmnacyButton extends $LitElement() {
+export class SchmnacyButton extends $LitElement(css`
+	:host {
+		display: block;
+	}
+`) {
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		mode: 'open',
@@ -154,7 +158,7 @@ export class SchmnacyButton extends $LitElement() {
 				type=${ifDefined(this.type)}
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
-				${when(!this.disabled, () => html` <div class="absolute ${this.classMap(stateLayerClasses)}"></div> `)}
+				${when(!this.disabled, () => html` <div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div> `)}
 				<slot name="prefix"></slot>
 				<slot> placeholder </slot>
 				<slot name="suffix"></slot>

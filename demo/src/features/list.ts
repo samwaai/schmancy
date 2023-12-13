@@ -11,7 +11,7 @@ export class DemoList extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
-				<schmancy-list>
+				<schmancy-list class="rounded-full">
 					<schmancy-list-item>
 						<div slot="leading"><img src="house.svg" /></div>
 						Mahatma Gandhi
