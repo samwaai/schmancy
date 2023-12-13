@@ -9,6 +9,7 @@ import {
 	of,
 	Subject,
 	switchMap,
+	take,
 	takeUntil,
 	tap,
 	timer,
@@ -16,8 +17,19 @@ import {
 import SchmancySheet from './sheet'
 
 export enum SchmancySheetPosition {
+	Side = 'side',
+	Bottom = 'bottom',
+	/**
+	 *  @deprecated use bottom instead
+	 */
 	BottomCenter = 'bottom-center',
+	/**
+	 *  @deprecated use side instead
+	 */
 	TopRight = 'top-right',
+	/**
+	 *  @deprecated use side instead
+	 */
 	BottomRight = 'bottom-right',
 }
 type BottomSheeetTarget = {
@@ -82,7 +94,7 @@ class BottomSheetService {
 						// if sheet is not found, create it
 						sheet = document.createElement('schmancy-sheet')
 						sheet.setAttribute('uid', target.component.tagName)
-						sheet.setAttribute('position', target.position ?? SchmancySheetPosition.BottomCenter)
+						sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
 						sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
 						document.body.appendChild(sheet)
 					} else {
@@ -131,6 +143,13 @@ class BottomSheetService {
 				tap(({ sheet }) => {
 					sheet?.setAttribute('open', 'true')
 				}),
+				tap(({ sheet }) => {
+					fromEvent(sheet, 'close')
+						.pipe(take(1))
+						.subscribe(() => {
+							document.body.style.overflow = 'auto' // unlock the scroll of the host
+						})
+				}),
 			)
 			.subscribe()
 
@@ -139,7 +158,7 @@ class BottomSheetService {
 				mergeMap(uid =>
 					forkJoin([
 						fromEvent<HereMortyEvent>(window, HereMorty).pipe(
-							takeUntil(timer(10)), // Some people say why 10? I say why not?
+							takeUntil(timer(100)), // Some people say why 10? I say why not?
 							map(e => e.detail.sheet),
 							defaultIfEmpty(undefined),
 						),

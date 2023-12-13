@@ -1,6 +1,7 @@
 const ThemeDef = {
 	sys: {
 		color: {
+			scrim: 'var(--schmancy-sys-color-scrim)',
 			outline: 'var(--schmancy-sys-color-outline)',
 			surface: {
 				container: 'var(--schmancy-sys-color-surface-container)',

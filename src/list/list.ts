@@ -5,7 +5,7 @@ import { customElement } from 'lit/decorators.js'
 @customElement('schmancy-list')
 export class List extends TailwindElement() {
 	render() {
-		return html`<ul class="py-[8px]">
+		return html`<ul class="py-[8px] bg-surface-default px-[12px]">
 			<slot></slot>
 		</ul>`
 	}

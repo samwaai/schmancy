@@ -2,6 +2,7 @@ import { Subject } from 'rxjs';
 declare const $schmancyTheme: Subject<Partial<{
     sys: {
         color: {
+            scrim: string;
             outline: string;
             surface: {
                 container: string;

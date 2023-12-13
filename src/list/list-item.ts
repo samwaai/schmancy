@@ -3,12 +3,13 @@ import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
-import { ColorConfig, color } from '..'
-import { ripple } from './../directives/ripple'
+import { color } from '..'
 
 @customElement('schmancy-list-item')
 export class SchmancyListItem extends TailwindElement() {
 	@property({ type: Boolean }) readonly: boolean = false
+
+	@property({ type: Boolean }) active: boolean = false
 
 	@queryAssignedElements({
 		slot: 'leading',
@@ -37,19 +38,16 @@ export class SchmancyListItem extends TailwindElement() {
 
 	render() {
 		const classes = {
-			'min-h-[56px] relative flex items-center gap-[16px] py-[8px] px-[16px]': true,
-			'hover:bg-s': true,
+			'min-h-[56px] relative flex items-center gap-[16px] py-[8px] px-[16px] rounded-full': true,
+			'bg-secondary-container text-secondery-onContainer': this.active,
+			'text-surface-on bg-surface-default': !this.active,
 		}
 
-		const colorConfig: ColorConfig = {
-			bgColor: SchmancyTheme.sys.color.surface.default,
-			color: SchmancyTheme.sys.color.surface.on,
-		}
 		const stateLayerClasses = {
 			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0': !this.readonly,
 		}
-		return html`<li ${color(colorConfig)} class=${this.classMap(classes)}>
-			${when(!this.readonly, () => html` <div ${ripple()} class="${this.classMap(stateLayerClasses)}"></div> `)}
+		return html`<li class=${this.classMap(classes)}>
+			${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}
 			<slot name="leading"> </slot>
 			<schmancy-grid class="flex-1">
 				<schmancy-typography type="body" token="lg">

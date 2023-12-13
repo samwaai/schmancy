@@ -18,9 +18,6 @@ export class DemoList extends $LitElement(css`
 						<div slot="support">Be the change that you wish to see in the world.</div>
 						<div slot="trailing"><img src="telephone.svg" /></div>
 					</schmancy-list-item>
-				</schmancy-list>
-
-				<schmancy-list>
 					<schmancy-list-item>
 						<div slot="leading"><img src="house.svg" /></div>
 						J.K. Rowling
@@ -29,6 +26,21 @@ export class DemoList extends $LitElement(css`
 						</div>
 					</schmancy-list-item>
 				</schmancy-list>
+
+
+				<schmancy-list>
+					<schmancy-list-item active>
+						Bookings
+					</schmancy-list-item>
+					<schmancy-list-item>
+						Rooms
+					</schmancy-list-item>
+					<schmancy-list-item>
+						locks
+					</schmancy-list-item>
+					
+				</schmancy-list>
+
 			</schmancy-grid>
 		`
 	}

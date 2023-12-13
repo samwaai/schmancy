@@ -38,8 +38,11 @@ export default class SchmancyDemo extends $LitElement() {
 						<schmancy-tab label="Buttons">
 							<demo-button class="py-4"></demo-button>
 						</schmancy-tab>
-						<schmancy-tab active label="Lists">
+						<schmancy-tab label="Lists">
 							<demo-list class="py-4"></demo-list>
+						</schmancy-tab>
+						<schmancy-tab active label="Sheet">
+							<demo-sheet class="py-4"></demo-sheet>
 						</schmancy-tab>
 					</schmancy-tab-group>
 				</schmancy-flex>

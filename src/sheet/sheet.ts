@@ -9,11 +9,12 @@ import { HereMorty, SchmancySheetPosition, WhereAreYouRicky, WhereAreYouRickyEve
 
 @customElement('schmancy-sheet')
 export default class SchmancySheet extends TailwindElement(style) {
+	@property({ type: String }) mode: 'modal' | 'standard' = 'modal'
+
 	@property({ type: String, reflect: true }) uid!: string
 	@property({ type: Boolean }) open = false
 	@property({ type: String }) position: SchmancySheetPosition = SchmancySheetPosition.BottomCenter
 	@property({ type: Boolean }) persist = false
-	@property({ type: Boolean }) closeButton = true
 	@property({ type: Boolean }) allowOverlyDismiss = true
 
 	@query('.sheet') sheet!: HTMLElement | undefined
@@ -140,22 +141,33 @@ export default class SchmancySheet extends TailwindElement(style) {
 
 	render() {
 		const classes = {
+			'transition-all duration-[600]': true,
 			'items-center justify-end': this.position === SchmancySheetPosition.BottomCenter,
 			'bottom-0 mx-auto': this.position === SchmancySheetPosition.BottomCenter,
 			'items-end justify-start': this.position === SchmancySheetPosition.TopRight,
-			'top-0 right-0': this.position === SchmancySheetPosition.TopRight,
-			'items-end justify-end': this.position === SchmancySheetPosition.BottomRight,
-			'bottom-0 right-0': this.position === SchmancySheetPosition.BottomRight,
+			'items-end justify-end bottom-0 right-0': this.position === SchmancySheetPosition.BottomRight,
+			'top-0 right-0 rounded-[16px 0 0 16px]': [
+				SchmancySheetPosition.BottomRight,
+				SchmancySheetPosition.TopRight,
+				SchmancySheetPosition.BottomRight,
+			].includes(this.position),
+		}
+		const contentClasses = {
+			'bg-surface-low text-surface-onVariant border-outline shadow-1 h-[100%]': this.mode === 'modal',
+			'bg-surface text-surface-onPrimary w-[256px]': this.mode === 'standard',
+		}
+		const overlayClasses = {
+			'bg-scrim transition-all duration-[600] opacity-[0.4] absolute inset-0': this.mode === 'modal',
 		}
 		return html`
 			<div class="sheet ${classMap(classes)}" role="dialog" aria-hidden="true">
 				<div
-					class="overlay"
+					class="overlay ${this.classMap(overlayClasses)}"
 					@click=${() => {
 						if (this.allowOverlyDismiss) sheet.dismiss(this.uid)
 					}}
 				></div>
-				<div class="contents" data-position=${this.position}>
+				<div class="content ${this.classMap(contentClasses)}" data-position=${this.position}>
 					<schmancy-sheet-content .closeButton=${true}>
 						<slot></slot>
 					</schmancy-sheet-content>

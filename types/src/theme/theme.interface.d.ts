@@ -2,6 +2,7 @@ declare const theme: {
     theme: {
         sys: {
             color: {
+                scrim: string;
                 outline: string;
                 surface: {
                     container: string;
