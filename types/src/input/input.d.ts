@@ -108,6 +108,7 @@ export default class SchmancyInput extends SchmancyInput_base {
     autocomplete: AutoFill;
     tabIndex: number;
     inputElement: HTMLInputElement;
+    hint: string | undefined;
     constructor();
     firstUpdated(): void;
     get form(): HTMLFormElement;

@@ -20,7 +20,6 @@ class ColorDirective extends Directive {
 		}
 		const element = part.element as HTMLElement
 		this.config = config
-		console.log(this.config)
 		if (this.config.bgColor) {
 			element.style.backgroundColor = this.config.bgColor
 		}

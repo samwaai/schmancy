@@ -1,4 +1,4 @@
-const SchmancyTheme = {
+const ThemeDef = {
 	sys: {
 		color: {
 			outline: 'var(--schmancy-sys-color-outline)',
@@ -58,9 +58,10 @@ const SchmancyTheme = {
 	},
 }
 const theme = {
-	theme: SchmancyTheme,
+	theme: ThemeDef,
 }
 
 export type TSchmancyTheme = (typeof theme)[keyof typeof theme]
+const SchmancyTheme: TSchmancyTheme = ThemeDef
 
 export { SchmancyTheme }

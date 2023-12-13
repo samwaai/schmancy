@@ -154,7 +154,7 @@ export class SchmnacyButton extends $LitElement() {
 				type=${ifDefined(this.type)}
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
-				${when(!this.disabled, () => html` <div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div> `)}
+				${when(!this.disabled, () => html` <div class="absolute ${this.classMap(stateLayerClasses)}"></div> `)}
 				<slot name="prefix"></slot>
 				<slot> placeholder </slot>
 				<slot name="suffix"></slot>

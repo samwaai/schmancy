@@ -81,15 +81,6 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 			'text-[12px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'md',
 			'text-[11px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'sm',
 
-			// 'text-primary-default': this.color === 'primary',
-			// 'text-secondary-default': this.color === 'secondary',
-			// 'text-tertiary-default': this.color === 'tertiary',
-			// 'text-error-default': this.color === 'error',
-			// 'text-success-default': this.color === 'success',
-			// 'text-warning-default': this.color === 'warning',
-			// 'text-info-default': this.color === 'info',
-			// 'text-disabled-default': this.color === 'disabled',
-
 			'font-bold': this.weight === 'bold',
 			'font-medium': this.weight === 'medium',
 			'font-normal': this.weight === 'normal',

@@ -4,7 +4,7 @@ export interface SchmancyButtonEventMap {
     SchmancyBlur: CustomEvent<void>;
 }
 export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text';
-declare const SchmnacyButton_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<LitElement> & import("..").Constructor<import("..").IBaseMixin>;
+declare const SchmnacyButton_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
 export declare class SchmnacyButton extends SchmnacyButton_base {
     protected static shadowRootOptions: {
         mode: string;
@@ -54,7 +54,7 @@ export declare class SchmnacyButton extends SchmnacyButton_base {
     protected get imgClasses(): string[];
     firstUpdated(): void;
     click(): void;
-    protected render(): import("lit-html").TemplateResult<1>;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

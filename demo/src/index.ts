@@ -29,7 +29,7 @@ export default class SchmancyDemo extends $LitElement() {
 				<schmancy-flex class="w-full px-4 py-6" gap="md" flow="row" align="center">
 					<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
 					<schmancy-tab-group>
-						<schmancy-tab active label="Inputs">
+						<schmancy-tab label="Inputs">
 							<demo-input class="py-4"></demo-input>
 						</schmancy-tab>
 						<schmancy-tab label="Typography">
@@ -37,6 +37,9 @@ export default class SchmancyDemo extends $LitElement() {
 						</schmancy-tab>
 						<schmancy-tab label="Buttons">
 							<demo-button class="py-4"></demo-button>
+						</schmancy-tab>
+						<schmancy-tab active label="Lists">
+							<demo-list class="py-4"></demo-list>
 						</schmancy-tab>
 					</schmancy-tab-group>
 				</schmancy-flex>
