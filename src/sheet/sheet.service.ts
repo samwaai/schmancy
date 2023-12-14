@@ -100,7 +100,7 @@ class BottomSheetService {
 					} else {
 						// if sheet is found, set the new position
 						sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
-						// to make sure that the sheet is not removed later
+						// to make sure that the sheet is not removed when dismissed
 						target.persist = target.persist ?? false
 					}
 					document.body.style.overflow = 'hidden' // lock the scroll of the host

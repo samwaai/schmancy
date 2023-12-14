@@ -4,25 +4,9 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import './features/index'
-// import { Hct, argbFromHex, themeFromSourceColor } from '@material/material-color-utilities'
 
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
-	connectedCallback(): void {
-		super.connectedCallback()
-
-		// Get the theme from a hex color
-		// const theme = themeFromSourceColor(argbFromHex('#008000'))
-
-		// Print out the theme as JSON
-		// console.log(JSON.stringify(theme, null, 2))
-
-		// Simple demonstration of HCT.
-		// const color = Hct.fromInt(0xff4285f4)
-		// console.log(`Hue: ${color.hue}`)
-		// console.log(`Chrome: ${color.chroma}`)
-		// console.log(`Tone: ${color.tone}`)
-	}
 	render() {
 		return html`
 			<schmancy-container>

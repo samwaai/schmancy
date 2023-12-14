@@ -15,3 +15,21 @@
 input:focus-visible {
 	outline: none !important;
 }
+
+input {
+	// inherit typographic styles
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	color: inherit;
+	letter-spacing: inherit;
+	text-transform: inherit;
+	text-decoration: inherit;
+	text-indent: inherit;
+	text-shadow: inherit;
+	text-overflow: inherit;
+	text-rendering: inherit;
+	text-size-adjust: inherit;
+	text-align-last: inherit;
+}

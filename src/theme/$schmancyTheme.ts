@@ -19,19 +19,9 @@ function registerThemeValues(prefix = 'schmancy', path: string, value: Partial<T
 			})
 			.join('\n')
 	} else {
-		// register the css variable
-		try {
-			window.CSS.registerProperty({
-				name: `--${prefix}-${path}`,
-				syntax: '<color>',
-				inherits: false,
-				initialValue: value,
-			})
-		} catch (error) {
-			// update the css property
-			document.documentElement.style.setProperty(`--${prefix}-${path}`, value)
-		}
-		return undefined
+		document.documentElement.style.setProperty(`--${prefix}-${path}`, value)
+
+		return
 	}
 }
 
