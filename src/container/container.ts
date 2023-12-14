@@ -9,7 +9,7 @@ export class SchmancyContainer extends TailwindElement() {
 	protected render(): unknown {
 		return html`
 			<div
-				class="w-full h-full"
+				class="w-full h-full overflow-auto"
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.container,
 				})}
