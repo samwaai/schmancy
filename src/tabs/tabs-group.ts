@@ -36,7 +36,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 
 	protected render(): unknown {
 		const surface = {
-			'hidden sm:grid grid-flow-col-dense': true,
+			'grid grid-flow-col-dense overflow-x-auto p-1': true,
 		}
 
 		const activeTab = {
@@ -51,26 +51,6 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 		}
 
 		return html`
-			<div class="sm:hidden">
-				<label for="tabs" class="sr-only">Select a tab</label>
-				<!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-				<select
-					id="tabs"
-					name="tabs"
-					class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-[#C6A059] focus:outline-none focus:ring-[#C6A059] sm:text-sm"
-					@change=${(e: Event) => {
-						this.activeTab = (e.target as HTMLSelectElement).value
-						this.tabChanged()
-					}}
-				>
-					${repeat(
-						this.tabs,
-						tab => tab.label,
-						tab => html` <option selected>${tab.label}</option> `,
-					)}
-				</select>
-			</div>
-
 			<nav
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.default,

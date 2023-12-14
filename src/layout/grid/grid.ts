@@ -28,6 +28,7 @@ export class SchmancyGrid extends Layout {
 
 	render() {
 		const classes = {
+			'h-full': true,
 			'grid flex-1': true,
 			// flow classes: https://tailwindcss.com/docs/grid-auto-flow
 			'grid-flow-row': this.flow === 'row',
