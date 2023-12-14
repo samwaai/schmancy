@@ -143,12 +143,13 @@ export default class SchmancySheet extends TailwindElement(style) {
 		const classes = {
 			'transition-all duration-[600]': true,
 			'bottom-0 items-center justify-end': this.position === SchmancySheetPosition.Bottom,
-			'top-0 right-0 rounded-[16px 0 0 16px] bottom-0 mx-auto items-end justify-start h-full w-full':
+			'top-0 right-0 bottom-0 mx-auto items-end justify-start h-full w-full':
 				this.position === SchmancySheetPosition.Side,
 		}
 		const contentClasses = {
 			'pt-[24px]': true,
-			'h-full': this.position === SchmancySheetPosition.Side,
+			'h-full rounded-l-[16px]': this.position === SchmancySheetPosition.Side,
+			'rounded-t-[16px]': this.position === SchmancySheetPosition.Bottom,
 			'bg-surface-low text-surface-onVariant border-outline shadow-1': this.mode === 'modal',
 			'bg-surface text-surface-onPrimary min-w-[256px]': this.mode === 'standard',
 		}
