@@ -1,12 +1,18 @@
+import { consume } from '@lit/context'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
-import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
+import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { color } from '..'
+import { SchmancyListContext, SchmancyListVariant } from './context'
 
 @customElement('schmancy-list-item')
 export class SchmancyListItem extends TailwindElement() {
+	@consume({ context: SchmancyListContext, subscribe: true })
+	@state()
+	variant: SchmancyListVariant
+
 	@property({ type: Boolean }) readonly: boolean = false
 
 	@property({ type: Boolean }) active: boolean = false
@@ -39,8 +45,10 @@ export class SchmancyListItem extends TailwindElement() {
 	render() {
 		const classes = {
 			'min-h-[56px] relative flex items-center gap-[16px] py-[8px] px-[16px] rounded-full': true,
-			'bg-secondary-container text-secondery-onContainer': this.active,
-			'text-surface-on bg-surface-default': !this.active,
+			'bg-secondary-container text-secondery-onContainer': this.active && this.variant === 'container',
+			'text-surface-on bg-surface-default': !this.active && this.variant === 'surface',
+			'text-surface-on bg-surface-variant-default': !this.active && this.variant === 'surfaceVariant',
+			'text-surface-on bg-surface-container': !this.active && this.variant === 'container',
 		}
 
 		const stateLayerClasses = {

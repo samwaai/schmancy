@@ -38,7 +38,6 @@ export class DemoList extends $LitElement(css`
 					<schmancy-list-item>
 						locks
 					</schmancy-list-item>
-					
 				</schmancy-list>
 
 			</schmancy-grid>

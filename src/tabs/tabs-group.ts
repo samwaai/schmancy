@@ -36,7 +36,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 
 	protected render(): unknown {
 		const surface = {
-			'grid grid-flow-col-dense overflow-x-auto p-1': true,
+			'grid grid-flow-col-dense': true,
 		}
 
 		const activeTab = {

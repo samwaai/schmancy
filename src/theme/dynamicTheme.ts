@@ -3,7 +3,7 @@ import { interval, map } from 'rxjs'
 import { $schmancyTheme } from './$schmancyTheme'
 import { formateTheme } from './theme.format'
 
-interval(import.meta.env.DEV ? 3000 : 30000)
+interval(5000)
 	.pipe(
 		map(generateRandomColor),
 		map(color => themeFromSourceColor(argbFromHex(color))),

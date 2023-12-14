@@ -14,6 +14,7 @@ export class SchmancyDrawerSidebar extends $LitElement(css`
 		background-color: var(--schmancy-sys-color-surface-container);
 		padding-left: 16px;
 		padding-right: 16px;
+		padding-top: 16px;
 	}
 `) {
 	@state() private lg = false
