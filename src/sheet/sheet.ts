@@ -1,21 +1,20 @@
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements, queryAsync } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'
 import { hook } from './hook'
 import style from './sheet.scss?inline'
 import { HereMorty, SchmancySheetPosition, WhereAreYouRicky, WhereAreYouRickyEvent, sheet } from './sheet.service'
 
 @customElement('schmancy-sheet')
-export default class SchmancySheet extends TailwindElement(style) {
+export default class SchmancySheet extends $LitElement(style) {
 	@property({ type: String }) mode: 'modal' | 'standard' = 'modal'
 
 	@property({ type: String, reflect: true }) uid!: string
-	@property({ type: Boolean }) open = false
-	@property({ type: String }) position: SchmancySheetPosition = SchmancySheetPosition.BottomCenter
-	@property({ type: Boolean }) persist = false
-	@property({ type: Boolean }) allowOverlyDismiss = true
+	@property({ type: Boolean, reflect: true }) open = false
+	@property({ type: String, reflect: true }) position: SchmancySheetPosition = SchmancySheetPosition.BottomCenter
+	@property({ type: Boolean, reflect: true }) persist = false
+	@property({ type: Boolean, reflect: true }) allowOverlyDismiss = true
 
 	@query('.sheet') sheet!: HTMLElement | undefined
 	@queryAsync('.sheet') sheetAsync!: Promise<HTMLElement> | undefined
@@ -157,7 +156,7 @@ export default class SchmancySheet extends TailwindElement(style) {
 			'bg-scrim transition-all duration-[600] opacity-[0.4] absolute inset-0': this.mode === 'modal',
 		}
 		return html`
-			<div class="sheet ${classMap(classes)}" role="dialog" aria-hidden="true">
+			<div class="sheet ${this.classMap(classes)}" role="dialog" aria-hidden="true">
 				<div
 					class="overlay ${this.classMap(overlayClasses)}"
 					@click=${() => {
@@ -165,9 +164,7 @@ export default class SchmancySheet extends TailwindElement(style) {
 					}}
 				></div>
 				<div class="content ${this.classMap(contentClasses)}" data-position=${this.position}>
-					<schmancy-sheet-content>
-						<slot></slot>
-					</schmancy-sheet-content>
+					<slot></slot>
 				</div>
 			</div>
 		`

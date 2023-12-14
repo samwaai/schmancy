@@ -96,17 +96,13 @@ class BottomSheetService {
 						sheet.setAttribute('uid', target.component.tagName)
 						sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
 						sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
+						target.persist && sheet.setAttribute('persist', target.persist ?? false)
 						document.body.appendChild(sheet)
-					} else {
-						// if sheet is found, set the new position
-						sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
-						// to make sure that the sheet is not removed when dismissed
-						target.persist = target.persist ?? false
 					}
 					document.body.style.overflow = 'hidden' // lock the scroll of the host
 					return { target, sheet }
 				}),
-				delay(1),
+				delay(20),
 				filter(({ target, sheet }) => {
 					//  if the sheet has already the component, just show it
 					if (
@@ -119,10 +115,6 @@ class BottomSheetService {
 						sheet?.setAttribute('open', 'true')
 						return false
 					} else {
-						sheet?.shadowRoot
-							?.querySelector('slot')
-							?.assignedElements()
-							.forEach(e => e.remove()) // remove all the components from the sheet
 						return true // if the sheet does not have the component, continue to the next step
 					}
 				}),
@@ -146,9 +138,14 @@ class BottomSheetService {
 					sheet?.setAttribute('open', 'true')
 				}),
 				tap(({ sheet }) => {
-					fromEvent(sheet, 'close')
+					fromEvent<CustomEvent>(sheet, 'close')
 						.pipe(take(1))
-						.subscribe(() => {
+						.pipe(delay(300))
+						.subscribe(e => {
+							const target = e.target as SchmancySheet
+							console.log(target)
+
+							if (!target.persist) target.remove()
 							document.body.style.overflow = 'auto' // unlock the scroll of the host
 						})
 				}),
