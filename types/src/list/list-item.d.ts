@@ -1,5 +1,7 @@
+import { SchmancyListVariant } from './context';
 declare const SchmancyListItem_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export declare class SchmancyListItem extends SchmancyListItem_base {
+    variant: SchmancyListVariant;
     readonly: boolean;
     active: boolean;
     private leading;
