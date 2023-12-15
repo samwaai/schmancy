@@ -2,7 +2,7 @@ import { consume } from '@lit/context'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
-import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
+import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { color } from '..'
 import { SchmancyListContext, SchmancyListVariant } from './context'
@@ -10,7 +10,7 @@ import { SchmancyListContext, SchmancyListVariant } from './context'
 @customElement('schmancy-list-item')
 export class SchmancyListItem extends TailwindElement() {
 	@consume({ context: SchmancyListContext, subscribe: true })
-	@state()
+	@property()
 	variant: SchmancyListVariant
 
 	@property({ type: Boolean }) readonly: boolean = false
