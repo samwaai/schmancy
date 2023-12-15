@@ -10,6 +10,7 @@ export default class SchmancySheetContent extends TailwindElement(css`
 		inset: 0;
 		max-width: 100vw;
 		max-height: 100vh;
+		overflow: scroll;
 	}
 `) {
 	/**

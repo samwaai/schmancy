@@ -15,7 +15,7 @@ export default class SchmancyDemo extends $LitElement() {
 						<demo-nav> </demo-nav>
 					</schmancy-drawer-sidebar>
 					<schmancy-drawer-content>
-						<schmancy-grid gap="md" class="h-full" flow="col" rows="auto 1fr">
+						<schmancy-grid gap="md" class="h-full pb-4 pt-[16px]" flow="col" rows="auto 1fr">
 							<schmancy-surface type="container">
 								<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
 							</schmancy-surface>
