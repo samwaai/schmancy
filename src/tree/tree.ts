@@ -14,7 +14,7 @@ export default class SchmancyTree extends TailwindElement(css`
 	:host {
 		display: block;
 		position: relative;
-		background-color: var(--schmancy-sys-color-surface-default);
+		background-color: inherit;
 	}
 	::slotted([slot='root']) {
 		width: 100%;

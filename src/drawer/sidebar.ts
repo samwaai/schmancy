@@ -46,6 +46,31 @@ export class SchmancyDrawerSidebar extends $LitElement(css`
 		this.lg = width >= tabletWidth
 	}
 
+	// @query('#sidebar') private _sidebar!: HTMLElement
+
+	// openSidebar() {
+	//   anime({
+	// 	targets: [this._sidebar],
+	// 	translateX: ['-100%', 0],
+	// 	duration: 300,
+	// 	easing: 'cubicBezier(0.5, 0.01, 0.25, 1)'
+	//   })
+
+	//   this._open = true
+	// }
+
+	// closeSidebar() {
+	//   anime({
+	// 	targets: [this._sidebar],
+	// 	translateX: [0, '-100%'],
+	// 	duration: 300,
+	// 	easing: 'cubicBezier(0.5, 0.01, 0.25, 1)',
+	// 	complete: () => {
+	// 	  this._open = false
+	// 	}
+	//   })
+	// }
+
 	protected render() {
 		const sidebarClasses = {
 			'w-[360px] transition-all duration-[600] fixed inset-y-0 z-50': this.sidebarOpen && !this.lg,

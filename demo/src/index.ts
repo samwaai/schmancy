@@ -40,7 +40,7 @@ export default class SchmancyDemo extends $LitElement() {
 										<schmancy-tab active label="Sheet">
 											<demo-sheet class="py-4"></demo-sheet>
 										</schmancy-tab>
-										<schmancy-tab label="Root">
+										<schmancy-tab label="Tree">
 											<demo-tree class="py-4"></demo-tree>
 										</schmancy-tab>
 									</schmancy-tab-group>
