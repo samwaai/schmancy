@@ -3,6 +3,7 @@ const ThemeDef = {
 		color: {
 			scrim: 'var(--schmancy-sys-color-scrim)',
 			outline: 'var(--schmancy-sys-color-outline)',
+			outlineVariant: 'var(--schmancy-sys-color-outlineVariant)',
 			surface: {
 				container: 'var(--schmancy-sys-color-surface-container)',
 				default: 'var(--schmancy-sys-color-surface-default)',

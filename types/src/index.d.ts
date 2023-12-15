@@ -13,7 +13,7 @@ export * from './menu';
 export * from './mixin';
 export * from './notification';
 export * from './option';
-export * from './paper';
+export * from './card';
 export * from './radio-group';
 export * from './sheet';
 export * from './surface';

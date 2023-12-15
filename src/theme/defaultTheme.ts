@@ -5,6 +5,7 @@ export const defaultTheme: TSchmancyTheme = {
 	sys: {
 		color: {
 			scrim: '#000000',
+			outlineVariant: '#CAC4D0',
 			outline: '#CAC4D0',
 			surface: {
 				default: '#FEF7FF',

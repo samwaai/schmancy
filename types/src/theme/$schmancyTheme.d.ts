@@ -4,6 +4,7 @@ declare const $schmancyTheme: Subject<Partial<{
         color: {
             scrim: string;
             outline: string;
+            outlineVariant: string;
             surface: {
                 container: string;
                 default: string;

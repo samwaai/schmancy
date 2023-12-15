@@ -14,6 +14,7 @@ export function formateTheme(originalScheme: Theme): Partial<TSchmancyTheme> {
 		sys: {
 			color: {
 				scrim: argbToHex(lightScheme.scrim),
+				outlineVariant: argbToHex(lightScheme.outlineVariant),
 				outline: argbToHex(lightScheme.outline),
 				surface: {
 					default: argbToHex(lightScheme.surface),

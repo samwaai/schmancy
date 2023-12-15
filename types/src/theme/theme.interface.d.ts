@@ -4,6 +4,7 @@ declare const theme: {
             color: {
                 scrim: string;
                 outline: string;
+                outlineVariant: string;
                 surface: {
                     container: string;
                     default: string;

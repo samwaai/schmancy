@@ -85,7 +85,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 					`,
 				)}
 			</nav>
-			<schmancy-divider></schmancy-divider>
+			<schmancy-divider outline="variant"></schmancy-divider>
 
 			<slot></slot>
 		`

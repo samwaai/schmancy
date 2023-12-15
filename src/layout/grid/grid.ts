@@ -11,7 +11,7 @@ export class SchmancyGrid extends Layout {
 	@property({ type: String }) flow: 'row' | 'col' | 'dense' | 'row-dense' | 'col-dense' = 'row'
 	@property({ type: String }) align: 'start' | 'center' | 'end' | 'stretch' | 'baseline' = 'stretch'
 	@property({ type: String }) justify: 'start' | 'center' | 'end' | 'stretch' = 'stretch'
-	@property({ type: String }) gap: 'none' | 'sm' | 'md' | 'lg' = 'none'
+	@property({ type: String }) gap: 'none' | 'xs' | 'sm' | 'md' | 'lg' = 'none'
 	@property({ type: String }) cols?: string
 	@property({ type: String }) rows?: string
 	@property({ type: Object }) anime: anime.AnimeParams = {}
@@ -47,6 +47,7 @@ export class SchmancyGrid extends Layout {
 			'items-stretch': this.align === 'stretch',
 			'items-baseline': this.align === 'baseline',
 			'gap-0': this.gap === 'none',
+			'gap-1': this.gap === 'xs',
 			'gap-2': this.gap === 'sm',
 			'gap-4': this.gap === 'md',
 			'gap-8': this.gap === 'lg',

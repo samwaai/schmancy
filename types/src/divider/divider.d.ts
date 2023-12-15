@@ -1,5 +1,6 @@
-declare const SchmancyDivider_base: import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement>;
+declare const SchmancyDivider_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
 export default class SchmancyDivider extends SchmancyDivider_base {
+    outline: 'default' | 'variant';
     protected render(): unknown;
 }
 declare global {
