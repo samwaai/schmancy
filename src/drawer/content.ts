@@ -9,7 +9,6 @@ export class SchmancyDrawerContent extends $LitElement(css`
 		position: relative;
 		inset: 0;
 		overflow-y: auto;
-		padding-top: 16px;
 	}
 `) {
 	render() {
