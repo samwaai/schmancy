@@ -37,7 +37,7 @@ export default class SchmancySheetContent extends TailwindElement(css`
 				>
 					<span class="text-[24px]">&#8592; </span>
 				</schmancy-button>
-				<schmancy-typography type="headline" token="lg">
+				<schmancy-typography transform="capitalize" type="headline" token="lg">
 					<slot name="title">Title</slot>
 				</schmancy-typography>
 				<schmancy-button

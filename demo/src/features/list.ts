@@ -1,6 +1,6 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { customElement } from 'lit/decorators.js'
 import { css, html } from 'lit'
+import { customElement } from 'lit/decorators.js'
 
 @customElement('demo-list')
 export class DemoList extends $LitElement(css`
@@ -11,6 +11,7 @@ export class DemoList extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
+				<schmancy-typography type="title">Standard list items</schmancy-typography>
 				<schmancy-list class="rounded-full">
 					<schmancy-list-item>
 						<div slot="leading"><img src="house.svg" /></div>
@@ -27,15 +28,17 @@ export class DemoList extends $LitElement(css`
 					</schmancy-list-item>
 				</schmancy-list>
 
+				<schmancy-divider></schmancy-divider>
 
+				<schmancy-typography type="title">Rounded list items</schmancy-typography>
 				<schmancy-list>
-					<schmancy-list-item active>
+					<schmancy-list-item rounded active>
 						Bookings
 					</schmancy-list-item>
-					<schmancy-list-item>
+					<schmancy-list-item rounded>
 						Rooms
 					</schmancy-list-item>
-					<schmancy-list-item>
+					<schmancy-list-item rounded>
 						locks
 					</schmancy-list-item>
 				</schmancy-list>

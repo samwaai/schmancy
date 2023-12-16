@@ -8,7 +8,7 @@ export default class SchmancyDivider extends $LitElement(css`
 		display: block;
 	}
 `) {
-	@property() outline: 'default' | 'variant' = 'default'
+	@property() outline: 'default' | 'variant' = 'variant'
 	protected render(): unknown {
 		const classes = {
 			'border-t': true,

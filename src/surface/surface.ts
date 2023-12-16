@@ -1,7 +1,10 @@
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-
+/**
+ * @element schmancy-surface
+ * @slot - default content
+ */
 @customElement('schmancy-surface')
 export class SchmancySurface extends TailwindElement(css`
 	:host {

@@ -12,10 +12,24 @@ export class DemoNav extends $LitElement(css`
 		return html`
 			<schmancy-grid gap="md" justify="center">
 				<img class="inline-block h-[80px] w-[80px] rounded-full" src="schmancy.jpg" alt="Schmancy Logo" />
-				<schmancy-list variant="container">
-					<schmancy-list-item active> Bookings </schmancy-list-item>
-					<schmancy-list-item> Rooms </schmancy-list-item>
-					<schmancy-list-item> locks </schmancy-list-item>
+				<schmancy-list type="container">
+					<schmancy-list-item rounded selected> Books </schmancy-list-item>
+					<schmancy-list-item
+						rounded
+						@click=${e => {
+							e.target.selected = true
+						}}
+					>
+						Songs
+					</schmancy-list-item>
+					<schmancy-list-item
+						@click=${e => {
+							e.target.selected = true
+						}}
+						rounded
+					>
+						Movies
+					</schmancy-list-item>
 				</schmancy-list>
 			</schmancy-grid>
 		`
