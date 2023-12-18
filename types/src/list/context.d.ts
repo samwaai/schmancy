@@ -1,4 +1,4 @@
-export type SchmancyListVariant = 'surface' | 'surfaceVariant' | 'container';
-export declare const SchmancyListContext: {
-    __context__: SchmancyListVariant;
+export type SchmancyListType = 'surface' | 'surfaceVariant' | 'container';
+export declare const SchmancyListTypeContext: {
+    __context__: SchmancyListType;
 };

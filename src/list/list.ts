@@ -4,18 +4,24 @@ import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { SchmancyListType, SchmancyListTypeContext } from './context'
 
+/**
+ * @slot - The default slot.
+ */
 @customElement('schmancy-list')
 export class List extends TailwindElement(css`
 	:host {
 		display: block;
 	}
 `) {
+	/**
+	 * The type of list.
+	 * @attr type
+	 * @type {SchmancyListType}
+	 * @default 'surface'
+	 */
 	@provide({ context: SchmancyListTypeContext })
 	@property()
 	type: SchmancyListType = 'surface'
-
-	@property({ type: Boolean })
-	rounded: boolean
 
 	render() {
 		const classes = {

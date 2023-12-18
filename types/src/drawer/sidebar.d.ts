@@ -1,11 +1,12 @@
+import { TSchmancyDrawerSidebarMode } from './context';
 declare const SchmancyDrawerSidebar_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
 export declare class SchmancyDrawerSidebar extends SchmancyDrawerSidebar_base {
-    private lg;
-    private sidebarOpen;
-    private resizeSubscription;
+    mode: TSchmancyDrawerSidebarMode;
+    private state;
+    private _sidebar;
     connectedCallback(): void;
-    disconnectedCallback(): void;
-    manageVisibility(width?: number): void;
+    openSidebar(): void;
+    closeSidebar(): void;
     protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

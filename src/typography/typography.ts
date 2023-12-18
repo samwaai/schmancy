@@ -12,44 +12,46 @@ import typographyStyle from './typography.scss?inline'
 @customElement('schmancy-typography')
 export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	/**
-	 * @attr {display | headline | title | body | label } type - The type of the typography.
+	 * @attr type - The type of the typography.
+	 * @default inherit
+	 * @type {'display' | 'headline' | 'title' | 'body' | 'label'}
 	 */
 	@property({ type: String, reflect: true })
-	type: 'display' | 'headline' | 'title' | 'body' | 'label' = 'body'
+	type: 'display' | 'headline' | 'title' | 'body' | 'label'
 
 	/**
 	 * @attr token - The token of the typography.
-	 * @default md
+	 * @default inherit
 	 * @type {'sm' |'md' |'lg'}
 	 */
 	@property({ type: String, reflect: true })
-	token: 'sm' | 'md' | 'lg' = 'md'
+	token: 'sm' | 'md' | 'lg' | undefined
 
 	/**
 	 * @attr
-	 * @default left
+	 * @default inherit
 	 * @type {'left' |'center' |'right'}
 	 */
 	@property({ type: String })
-	align: 'left' | 'center' | 'justify' | 'right' = 'left'
+	align: 'left' | 'center' | 'justify' | 'right' | undefined
 
 	/**
 	 * @attr
-	 * @default normal
+	 * @default inherit
 	 * @type {'normal' | 'medium' |'bold'}
 	 * @public
 	 */
 	@property({ type: String })
-	weight: 'normal' | 'medium' | 'bold' = 'normal'
+	weight: 'normal' | 'medium' | 'bold' | undefined
 
 	/**
 	 *
 	 * @attr
-	 * @default normal
+	 * @default inherit
 	 * @type {'uppercase' |'lowercase' |'capitalize' |'normal'}
 	 * @public
 	 */
-	@property({ type: String }) transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' = 'normal'
+	@property({ type: String }) transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined
 
 	render() {
 		const classes = {
