@@ -15,10 +15,12 @@ export default class SchmancyDemo extends $LitElement() {
 						<demo-nav> </demo-nav>
 					</schmancy-drawer-sidebar>
 					<schmancy-drawer-content>
-						<schmancy-grid gap="md" class="h-full pb-4 pt-[16px]" flow="col" rows="auto 1fr">
+						<schmancy-drawer-appbar>
 							<schmancy-surface type="container">
 								<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
 							</schmancy-surface>
+						</schmancy-drawer-appbar>
+						<schmancy-grid gap="md" class="h-full " flow="col" rows="1fr">
 							<schmancy-surface rounded="left" fill type="surfaceVariant" elevation="1">
 								<schmancy-flex class="w-full px-4 py-4" gap="md" flow="row" align="center">
 									<schmancy-tab-group>

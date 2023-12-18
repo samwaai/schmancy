@@ -1,117 +1,110 @@
+import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
+import anime from 'animejs'
 import { css, html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, query, state } from 'lit/decorators.js'
 import { fromEvent } from 'rxjs'
-import { distinctUntilChanged, map } from 'rxjs/operators'
-import mc from './mc.svg?inline'
-import mo from './mo.svg?inline'
-import { cache } from 'lit/directives/cache.js'
+import { takeUntil } from 'rxjs/operators'
 import { SchmancyTheme, color } from '..'
+import {
+	TSchmancyDrawerSidebarMode,
+	SchmancyDrawerSidebarState,
+	TSchmancyDrawerSidebarState,
+	SchmancyDrawerSidebarMode,
+} from './context'
 @customElement('schmancy-drawer-sidebar')
 export class SchmancyDrawerSidebar extends $LitElement(css`
-	:host {
+	/* :host {
 		max-width: 360px;
 		background-color: var(--schmancy-sys-color-surface-container);
 		padding-left: 16px;
 		padding-right: 16px;
 		padding-top: 16px;
-	}
+	} */
 `) {
-	@state() private lg = false
-	@state() private sidebarOpen = false
-	private resizeSubscription
+	@consume({ context: SchmancyDrawerSidebarMode, subscribe: true })
+	@state()
+	mode: TSchmancyDrawerSidebarMode
+
+	@consume({ context: SchmancyDrawerSidebarState, subscribe: true })
+	@state()
+	private state: TSchmancyDrawerSidebarState
+
+	@query('#sidebar') private _sidebar!: HTMLElement
 
 	connectedCallback() {
 		super.connectedCallback()
-		this.manageVisibility()
-		this.resizeSubscription = fromEvent(window, 'resize')
-			.pipe(
-				map(() => window.innerWidth),
-				distinctUntilChanged(),
-			)
-			.subscribe(width => {
-				this.manageVisibility(width)
+
+		fromEvent<CustomEvent>(window, 'SchmancytoggleSidebar')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(event => {
+				console.log(event.detail.open)
+				if (event.detail.open) this.openSidebar()
+				else this.closeSidebar()
 			})
 	}
 
-	disconnectedCallback() {
-		super.disconnectedCallback()
-		if (this.resizeSubscription) {
-			this.resizeSubscription.unsubscribe()
-		}
+	openSidebar() {
+		anime({
+			targets: [this._sidebar],
+			translateX: ['-100%', 0],
+			duration: 300,
+			easing: 'cubicBezier(0.5, 0.01, 0.25, 1)',
+		})
 	}
 
-	manageVisibility(width = window.innerWidth) {
-		const tabletWidth = 768 // Adjust as needed
-		this.lg = width >= tabletWidth
+	closeSidebar() {
+		anime({
+			targets: [this._sidebar],
+			translateX: [0, '-100%'],
+			duration: 300,
+			easing: 'cubicBezier(0.5, 0.01, 0.25, 1)',
+			complete: () => {
+				this.state = 'close'
+			},
+		})
 	}
-
-	// @query('#sidebar') private _sidebar!: HTMLElement
-
-	// openSidebar() {
-	//   anime({
-	// 	targets: [this._sidebar],
-	// 	translateX: ['-100%', 0],
-	// 	duration: 300,
-	// 	easing: 'cubicBezier(0.5, 0.01, 0.25, 1)'
-	//   })
-
-	//   this._open = true
-	// }
-
-	// closeSidebar() {
-	//   anime({
-	// 	targets: [this._sidebar],
-	// 	translateX: [0, '-100%'],
-	// 	duration: 300,
-	// 	easing: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-	// 	complete: () => {
-	// 	  this._open = false
-	// 	}
-	//   })
-	// }
 
 	protected render() {
 		const sidebarClasses = {
-			'w-[360px] transition-all duration-[600] fixed inset-y-0 z-50': this.sidebarOpen && !this.lg,
-			hidden: !this.lg && !this.sidebarOpen,
+			'p-[16px] max-w-[360px]': true,
+			'transition-all': true,
+			block: this.mode === 'push',
+			'fixed inset-0 z-50': this.mode === 'overlay',
+			'min-w-[360px]': this.mode === 'overlay' && this.state === 'open',
+			'translate-x-[-100%]': this.mode === 'overlay' && this.state === 'close',
 		}
 		const overlayClass = {
-			'fixed inset-0 transition-all duration-[600] opacity-[0.4] z-50': this.sidebarOpen && !this.lg,
-			hidden: this.lg,
+			'fixed inset-0 opacity-[0.4] z-[49]': true,
+			hidden: this.mode === 'push' || this.state === 'close',
 		}
-		const sidebarToggler = {
-			'fixed left-[16px] top-[16px] z-50': !this.lg,
-			hidden: this.lg,
-		}
+
 		return html`
-			<div
-				${color({
-					bgColor: SchmancyTheme.sys.color.scrim,
-				})}
-				@click=${() => {
-					this.sidebarOpen = !this.sidebarOpen
-				}}
-				class="${this.classMap(overlayClass)}"
-			></div>
-			<div
+			<nav
 				class="${this.classMap(sidebarClasses)}"
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.container,
 				})}
 			>
-				<slot></slot>
-			</div>
-
-			<div class="${this.classMap(sidebarToggler)}">
-				<schmancy-button
-					@click=${() => {
-						this.sidebarOpen = !this.sidebarOpen
-					}}
-				>
-					${cache(this.sidebarOpen ? html` <object data=${mc}></object> ` : html` <object data=${mo}></object> `)}
-				</schmancy-button>
-			</div>
+				<div id="sidebar">
+					<slot></slot>
+				</div>
+			</nav>
+			<div
+				${color({
+					bgColor: SchmancyTheme.sys.color.scrim,
+				})}
+				@click=${() => {
+					this.dispatchEvent(
+						new CustomEvent('SchmancytoggleSidebar', {
+							detail: { open: false },
+							bubbles: true,
+							composed: true,
+						}),
+					)
+				}}
+				class="${this.classMap(overlayClass)}"
+			></div>
 		`
 	}
 }
