@@ -21,11 +21,11 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 
 	/**
 	 * @attr token - The token of the typography.
-	 * @default inherit
+	 * @default 'md'
 	 * @type {'sm' |'md' |'lg'}
 	 */
 	@property({ type: String, reflect: true })
-	token: 'sm' | 'md' | 'lg' | undefined
+	token: 'sm' | 'md' | 'lg' = 'md'
 
 	/**
 	 * @attr
