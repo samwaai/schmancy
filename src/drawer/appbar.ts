@@ -14,8 +14,7 @@ import {
 /**
  * @element schmancy-drawer-appbar
  * @slot toggler - The toggler slot
- * @slot title - The title slot
- * @slot actions - The actions slot
+ * @slot - The default slot
  */
 @customElement('schmancy-drawer-appbar')
 export class SchmancyDrawerAppbar extends TailwindElement() {
@@ -30,7 +29,7 @@ export class SchmancyDrawerAppbar extends TailwindElement() {
 	render() {
 		console.log(this.sidebarOpen)
 		const appbarClasses = {
-			'block  py-[16px]  z-50': true,
+			'block z-50': true,
 		}
 		const sidebarToggler = {
 			'block left-[16px] top-[16px] z-50': this.sidebarMode === 'overlay',
