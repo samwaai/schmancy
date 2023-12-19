@@ -10,6 +10,13 @@ export interface SchmancyButtonEventMap {
 
 export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text'
 
+/**
+ * A button component.
+ * @element schmancy-button
+ * @slot - The default slot.
+ * @slot prefix - The prefix slot.
+ * @slot suffix - The suffix slot.
+ */
 @customElement('schmancy-button')
 export class SchmnacyButton extends $LitElement(css`
 	:host {

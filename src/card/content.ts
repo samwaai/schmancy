@@ -36,7 +36,13 @@ export default class SchmancyCardContent extends TailwindElement() {
 					><slot name="subhead"></slot>
 				</schmancy-typography>
 			</schmancy-grid>
-			<schmancy-typography><slot></slot> </schmancy-typography>
+			<schmancy-typography
+				type="body"
+				${color({
+					color: onSurfaceVariant,
+				})}
+				><slot></slot>
+			</schmancy-typography>
 		</schmancy-grid>`
 	}
 }
