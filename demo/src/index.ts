@@ -14,9 +14,9 @@ export default class SchmancyDemo extends $LitElement() {
 					<schmancy-drawer-sidebar>
 						<demo-nav> </demo-nav>
 					</schmancy-drawer-sidebar>
-					<schmancy-drawer-content>
+					<schmancy-drawer-content class="p-8">
 						<schmancy-drawer-appbar>
-							<schmancy-surface type="container">
+							<schmancy-surface class="pb-8" type="container">
 								<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
 							</schmancy-surface>
 						</schmancy-drawer-appbar>

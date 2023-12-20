@@ -18,7 +18,7 @@ export class DemoNav extends $LitElement(css`
 				<schmancy-list type="container">
 					<schmancy-list-item rounded selected @click=${this.toggle}> Books </schmancy-list-item>
 					<schmancy-list-item rounded @click=${this.toggle}> Songs </schmancy-list-item>
-					<schmancy-list-item @click=${this.toggle} rounded> Movies </schmancy-list-item>
+					<schmancy-list-item rounded @click=${this.toggle}> Movies </schmancy-list-item>
 				</schmancy-list>
 			</schmancy-grid>
 		`
