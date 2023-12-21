@@ -5,6 +5,13 @@ export interface SchmancyButtonEventMap {
 }
 export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text';
 declare const SchmnacyButton_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
+/**
+ * A button component.
+ * @element schmancy-button
+ * @slot - The default slot.
+ * @slot prefix - The prefix slot.
+ * @slot suffix - The suffix slot.
+ */
 export declare class SchmnacyButton extends SchmnacyButton_base {
     protected static shadowRootOptions: {
         mode: string;

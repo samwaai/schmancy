@@ -3,8 +3,7 @@ declare const SchmancyDrawerAppbar_base: import("..").Constructor<CustomElementC
 /**
  * @element schmancy-drawer-appbar
  * @slot toggler - The toggler slot
- * @slot title - The title slot
- * @slot actions - The actions slot
+ * @slot - The default slot
  */
 export declare class SchmancyDrawerAppbar extends SchmancyDrawerAppbar_base {
     sidebarMode: TSchmancyDrawerSidebarMode;

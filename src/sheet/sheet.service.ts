@@ -53,15 +53,15 @@ export type BottomSheetStyle = {
 }
 
 // Events for communication between bottom-sheet component and bottom-sheet.service
-export type WhereAreYouRickyEvent = CustomEvent<{
+export type SheetWhereAreYouRickyEvent = CustomEvent<{
 	uid: string
 }>
-export const WhereAreYouRicky = 'are-you-there-sheet'
+export const SheetWhereAreYouRicky = 'are-you-there-sheet'
 
-export type HereMortyEvent = CustomEvent<{
+export type SheetHereMortyEvent = CustomEvent<{
 	sheet: SchmancySheet
 }>
-export const HereMorty = 'yes-here'
+export const SheetHereMorty = 'yes-here'
 class BottomSheetService {
 	bottomSheet = new Subject<BottomSheeetTarget>()
 	$dismiss = new Subject<string>()
@@ -73,7 +73,7 @@ class BottomSheetService {
 				tap(() => this.counter++),
 				switchMap(target =>
 					forkJoin([
-						fromEvent<HereMortyEvent>(window, HereMorty).pipe(
+						fromEvent<SheetHereMortyEvent>(window, SheetHereMorty).pipe(
 							takeUntil(timer(0)),
 							map(e => e.detail.sheet),
 							defaultIfEmpty(undefined),
@@ -81,7 +81,7 @@ class BottomSheetService {
 						of(target).pipe(
 							tap(() => {
 								window.dispatchEvent(
-									new CustomEvent(WhereAreYouRicky, {
+									new CustomEvent(SheetWhereAreYouRicky, {
 										detail: { uid: target.uid ?? target.component.tagName },
 									}),
 								)
@@ -156,14 +156,14 @@ class BottomSheetService {
 			.pipe(
 				mergeMap(uid =>
 					forkJoin([
-						fromEvent<HereMortyEvent>(window, HereMorty).pipe(
+						fromEvent<SheetHereMortyEvent>(window, SheetHereMorty).pipe(
 							takeUntil(timer(100)), // Some people say why 10? I say why not?
 							map(e => e.detail.sheet),
 							defaultIfEmpty(undefined),
 						),
 						of(uid).pipe(
 							tap(() => {
-								window.dispatchEvent(new CustomEvent(WhereAreYouRicky, { detail: { uid } }))
+								window.dispatchEvent(new CustomEvent(SheetWhereAreYouRicky, { detail: { uid } }))
 							}),
 						),
 					]),

@@ -5,36 +5,38 @@ declare const SchmancyTypography_base: import("..").Constructor<CustomElementCon
  */
 export declare class SchmancyTypography extends SchmancyTypography_base {
     /**
-     * @attr {display | headline | title | body | label } type - The type of the typography.
+     * @attr type - The type of the typography.
+     * @default inherit
+     * @type {'display' | 'headline' | 'title' | 'body' | 'label'}
      */
     type: 'display' | 'headline' | 'title' | 'body' | 'label';
     /**
      * @attr token - The token of the typography.
-     * @default md
+     * @default 'md'
      * @type {'sm' |'md' |'lg'}
      */
     token: 'sm' | 'md' | 'lg';
     /**
      * @attr
-     * @default left
+     * @default inherit
      * @type {'left' |'center' |'right'}
      */
-    align: 'left' | 'center' | 'justify' | 'right';
+    align: 'left' | 'center' | 'justify' | 'right' | undefined;
     /**
      * @attr
-     * @default normal
+     * @default inherit
      * @type {'normal' | 'medium' |'bold'}
      * @public
      */
-    weight: 'normal' | 'medium' | 'bold';
+    weight: 'normal' | 'medium' | 'bold' | undefined;
     /**
      *
      * @attr
-     * @default normal
+     * @default inherit
      * @type {'uppercase' |'lowercase' |'capitalize' |'normal'}
      * @public
      */
-    transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal';
+    transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

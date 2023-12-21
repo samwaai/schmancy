@@ -4,7 +4,13 @@ import { customElement, property, query, queryAssignedElements, queryAsync } fro
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'
 import { hook } from './hook'
 import style from './sheet.scss?inline'
-import { HereMorty, SchmancySheetPosition, WhereAreYouRicky, WhereAreYouRickyEvent, sheet } from './sheet.service'
+import {
+	SheetHereMorty,
+	SchmancySheetPosition,
+	SheetWhereAreYouRicky,
+	SheetWhereAreYouRickyEvent,
+	sheet,
+} from './sheet.service'
 
 @customElement('schmancy-sheet')
 export default class SchmancySheet extends $LitElement(style) {
@@ -63,12 +69,12 @@ export default class SchmancySheet extends $LitElement(style) {
 			.subscribe()
 
 		// Handshaking communication between Ricky and Morty
-		fromEvent<WhereAreYouRickyEvent>(window, WhereAreYouRicky)
+		fromEvent<SheetWhereAreYouRickyEvent>(window, SheetWhereAreYouRicky)
 			.pipe(takeUntil(this.disconnecting))
 			.subscribe(e => {
 				if (e.detail.uid === this.uid) {
 					this.dispatchEvent(
-						new CustomEvent(HereMorty, {
+						new CustomEvent(SheetHereMorty, {
 							detail: {
 								sheet: this,
 							},

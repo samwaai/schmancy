@@ -33,14 +33,14 @@ export type BottomSheetStyle = {
     '--sheet-position'?: 'absolute' | 'fixed' | 'relative';
     '--sheet-radius'?: string;
 };
-export type WhereAreYouRickyEvent = CustomEvent<{
+export type SheetWhereAreYouRickyEvent = CustomEvent<{
     uid: string;
 }>;
-export declare const WhereAreYouRicky = "are-you-there-sheet";
-export type HereMortyEvent = CustomEvent<{
+export declare const SheetWhereAreYouRicky = "are-you-there-sheet";
+export type SheetHereMortyEvent = CustomEvent<{
     sheet: SchmancySheet;
 }>;
-export declare const HereMorty = "yes-here";
+export declare const SheetHereMorty = "yes-here";
 declare class BottomSheetService {
     bottomSheet: Subject<BottomSheeetTarget>;
     $dismiss: Subject<string>;

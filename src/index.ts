@@ -1,4 +1,6 @@
+export * from './animate';
 export * from './appbar';
+export * from './area';
 export * from './autocomplete';
 export * from './busy';
 export * from './button';
@@ -20,6 +22,7 @@ export * from './sheet';
 export * from './surface';
 export * from './table';
 export * from './tabs';
+export * from './teleport';
 export * from './theme';
 export * from './tree';
 export * from './typography';
