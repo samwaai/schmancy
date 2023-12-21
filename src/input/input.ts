@@ -281,6 +281,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 					.inputMode=${this.inputmode}
 					class=${this.classMap(classes)}
 					.disabled=${this.disabled}
+					class="flex"
 				/>
 			</schmancy-typography>
 			${when(
