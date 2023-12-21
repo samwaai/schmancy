@@ -12,7 +12,7 @@ import {
 	WhereAreYouRickyEvent,
 } from './teleport.service'
 
-@customElement('mo-teleport')
+@customElement('schmancy-teleport')
 export class SchmancyTeleportation extends $LitElement() {
 	static styles = [
 		css`
@@ -104,6 +104,6 @@ export class SchmancyTeleportation extends $LitElement() {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'mo-teleport': SchmancyTeleportation
+		'schmancy-teleport': SchmancyTeleportation
 	}
 }
