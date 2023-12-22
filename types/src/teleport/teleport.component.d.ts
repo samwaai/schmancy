@@ -19,7 +19,7 @@ export declare class SchmancyTeleportation extends SchmancyTeleportation_base {
 }
 declare global {
     interface HTMLElementTagNameMap {
-        'mo-teleport': SchmancyTeleportation;
+        'schmancy-teleport': SchmancyTeleportation;
     }
 }
 export {};

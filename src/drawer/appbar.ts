@@ -1,15 +1,14 @@
+import { consume } from '@lit/context'
+import {
+	SchmancyDrawerSidebarMode,
+	SchmancyDrawerSidebarState,
+	TSchmancyDrawerSidebarMode,
+} from '@schmancy/drawer/context'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { cache } from 'lit/directives/cache.js'
 import mc from './mc.svg?inline'
 import mo from './mo.svg?inline'
-import { consume } from '@lit/context'
-import {
-	TSchmancyDrawerSidebarMode,
-	SchmancyDrawerSidebarState,
-	SchmancyDrawerSidebarMode,
-} from '@schmancy/drawer/context'
 
 /**
  * @element schmancy-drawer-appbar
@@ -27,7 +26,6 @@ export class SchmancyDrawerAppbar extends TailwindElement() {
 	sidebarOpen
 
 	render() {
-		console.log(this.sidebarOpen)
 		const appbarClasses = {
 			'block z-50': true,
 		}
@@ -47,18 +45,14 @@ export class SchmancyDrawerAppbar extends TailwindElement() {
 							@click=${() => {
 								this.dispatchEvent(
 									new CustomEvent('SchmancytoggleSidebar', {
-										detail: { open: this.sidebarOpen === 'open' ? 'close' : 'open' },
+										detail: { state: this.sidebarOpen === 'open' ? 'close' : 'open' },
 										bubbles: true,
 										composed: true,
 									}),
 								)
 							}}
 						>
-							${cache(
-								this.sidebarOpen === 'close'
-									? html` <object data=${mo}></object> `
-									: html` <object data=${mc}></object> `,
-							)}
+							<object data=${this.sidebarOpen === 'close' ? mo : mc} width="24px" height="24px"></object>
 						</schmancy-button>
 					</div>
 				</slot>

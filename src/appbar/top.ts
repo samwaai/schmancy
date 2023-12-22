@@ -38,7 +38,7 @@ export class SchmancyAppbarTop extends TailwindElement() {
 							@click=${() => {
 								this.dispatchEvent(
 									new CustomEvent('SchmancytoggleSidebar', {
-										detail: { open: this.sidebarOpen === 'open' ? 'close' : 'open' },
+										detail: { state: this.sidebarOpen === 'open' ? 'close' : 'open' },
 										bubbles: true,
 										composed: true,
 									}),

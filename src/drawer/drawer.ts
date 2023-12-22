@@ -22,6 +22,8 @@ export class SchmancyDrawer extends $LitElement(css`
 		height: 100vh;
 		width: 100vw;
 		overflow: hidden;
+		position: relative;
+		inset: 0;
 	}
 `) {
 	@provide({ context: SchmancyDrawerSidebarMode })
@@ -48,8 +50,8 @@ export class SchmancyDrawer extends $LitElement(css`
 				takeUntil(this.disconnecting),
 				debounceTime(100),
 			)
-			.subscribe(state => {
-				if (state) {
+			.subscribe(lgScreen => {
+				if (lgScreen) {
 					this.mode = 'push'
 					this.open = 'open'
 				} else {
@@ -63,7 +65,7 @@ export class SchmancyDrawer extends $LitElement(css`
 				tap(event => {
 					event.stopPropagation()
 				}),
-				map(event => event.detail.open),
+				map(event => event.detail.state),
 				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
 			)
@@ -76,9 +78,6 @@ export class SchmancyDrawer extends $LitElement(css`
 		return html`
 			<schmancy-grid cols="auto 1fr" rows="1fr" flow="col" justify="stretch" align="stretch" class="flex h-[100%]">
 				<slot></slot>
-				<slot name="appbar">
-					<!-- <schmancy-drawer-appbar></schmancy-drawer-appbar> -->
-				</slot>
 			</schmancy-grid>
 		`
 	}
