@@ -1,6 +1,6 @@
 import { provide } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { css, html } from 'lit'
+import { css, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil, tap } from 'rxjs'
 import {
@@ -9,6 +9,7 @@ import {
 	TSchmancyDrawerSidebarMode,
 	TSchmancyDrawerSidebarState,
 } from './context'
+import { SchmancyEvents } from '..'
 
 /**
  * @element schmancy-drawer
@@ -26,20 +27,31 @@ export class SchmancyDrawer extends $LitElement(css`
 		inset: 0;
 	}
 `) {
+	/**
+	 * The minimum width of the sidebar
+	 * @attr	min-width
+	 * @type {number}
+	 * @memberof SchmancyDrawer
+	 */
+	@property({ type: Number })
+	minWidth: number = 768
+
+	/**
+	 * The mode of the sidebar
+	 * @type {TSchmancyDrawerSidebarMode}
+	 * @memberof SchmancyDrawer
+	 * @protected
+	 */
 	@provide({ context: SchmancyDrawerSidebarMode })
 	@state()
 	mode: TSchmancyDrawerSidebarMode
 
-	@property({ type: Number })
-	minWidth: number = 768
-
 	@provide({ context: SchmancyDrawerSidebarState })
-	@state()
+	@property()
 	open: TSchmancyDrawerSidebarState
 
 	connectedCallback(): void {
 		super.connectedCallback()
-
 		fromEvent<CustomEvent>(window, 'resize')
 			.pipe(
 				map(event => event.target as Window),
@@ -55,12 +67,15 @@ export class SchmancyDrawer extends $LitElement(css`
 					this.mode = 'push'
 					this.open = 'open'
 				} else {
-					this.open = 'close'
 					this.mode = 'overlay'
+					this.open = 'close'
 				}
 			})
 
-		fromEvent<CustomEvent>(this, 'SchmancytoggleSidebar')
+		/*
+		 * Listen to the toggle event
+		 */
+		fromEvent<CustomEvent>(this, SchmancyEvents.DRAWER_TOGGLE)
 			.pipe(
 				tap(event => {
 					event.stopPropagation()
@@ -75,6 +90,7 @@ export class SchmancyDrawer extends $LitElement(css`
 	}
 
 	protected render() {
+		if (!this.mode || !this.open) return nothing
 		return html`
 			<schmancy-grid cols="auto 1fr" rows="1fr" flow="col" justify="stretch" align="stretch" class="flex h-[100%]">
 				<slot></slot>

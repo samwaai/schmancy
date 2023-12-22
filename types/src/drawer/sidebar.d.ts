@@ -3,7 +3,8 @@ declare const SchmancyDrawerSidebar_base: CustomElementConstructor & import("@mh
 export declare class SchmancyDrawerSidebar extends SchmancyDrawerSidebar_base {
     mode: TSchmancyDrawerSidebarMode;
     private state;
-    connectedCallback(): void;
+    overlay: HTMLElement;
+    updated(changedProperties: Map<string, any>): void;
     protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

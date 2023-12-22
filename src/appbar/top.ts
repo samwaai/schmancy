@@ -10,6 +10,7 @@ import {
 	SchmancyDrawerSidebarState,
 	SchmancyDrawerSidebarMode,
 } from '@schmancy/drawer/context'
+import { SchmancyEvents } from '..'
 
 @customElement('schmancy-appbar-top')
 export class SchmancyAppbarTop extends TailwindElement() {
@@ -37,7 +38,7 @@ export class SchmancyAppbarTop extends TailwindElement() {
 						<schmancy-button
 							@click=${() => {
 								this.dispatchEvent(
-									new CustomEvent('SchmancytoggleSidebar', {
+									new CustomEvent(SchmancyEvents.DRAWER_TOGGLE, {
 										detail: { state: this.sidebarOpen === 'open' ? 'close' : 'open' },
 										bubbles: true,
 										composed: true,
