@@ -1,8 +1,8 @@
 import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
-import { fromEvent } from 'rxjs'
+import { customElement, query, state } from 'lit/decorators.js'
+import { timer } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { SchmancyTheme, color } from '..'
 import {
@@ -21,14 +21,20 @@ export class SchmancyDrawerSidebar extends $LitElement(css``) {
 	@state()
 	private state: TSchmancyDrawerSidebarState
 
-	connectedCallback() {
-		super.connectedCallback()
-		fromEvent<CustomEvent>(this, 'SchmancytoggleSidebar')
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe(event => {
-				const { state } = event.detail
-				this.state = state
-			})
+	@query('#overlay') overlay!: HTMLElement
+
+	updated(changedProperties: Map<string, any>) {
+		if (changedProperties.has('state')) {
+			if (this.mode === 'overlay') {
+				if (this.state === 'close') {
+					timer(500)
+						.pipe(takeUntil(this.disconnecting))
+						.subscribe(() => {
+							this.overlay.style.display = 'none'
+						})
+				} else this.overlay.style.display = 'block'
+			}
+		}
 	}
 
 	protected render() {
@@ -38,13 +44,12 @@ export class SchmancyDrawerSidebar extends $LitElement(css``) {
 		const sidebarClasses = {
 			'p-[16px] max-w-[360px] w-fit': true,
 			block: this.mode === 'push',
-			'fixed inset-0 z-50': this.mode === 'overlay',
-			'min-w-[360px]': this.mode === 'overlay' && this.state === 'open',
+			'fixed inset-0 z-50 min-w-[360px]': this.mode === 'overlay',
 			'translate-x-[-100%]': this.mode === 'overlay' && this.state === 'close',
 		}
 		const overlayClass = {
-			'fixed inset-0 opacity-[0.4] z-[49]': true,
-			'opacity-[0] z-[-1]': this.mode === 'push' || this.state === 'close',
+			'fixed block inset-0 opacity-[0.4] z-[49]': true,
+			'opacity-[0]': this.mode === 'push' || this.state === 'close',
 		}
 
 		return html`
@@ -59,6 +64,7 @@ export class SchmancyDrawerSidebar extends $LitElement(css``) {
 				</div>
 			</nav>
 			<div
+				id="overlay"
 				${color({
 					bgColor: SchmancyTheme.sys.color.scrim,
 				})}
@@ -67,7 +73,6 @@ export class SchmancyDrawerSidebar extends $LitElement(css``) {
 						new CustomEvent('SchmancytoggleSidebar', {
 							detail: { state: 'close' },
 							bubbles: true,
-							composed: true,
 						}),
 					)
 				}}
