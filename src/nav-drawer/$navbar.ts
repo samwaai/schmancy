@@ -1,8 +1,5 @@
+import { SchmancyEvents } from '@schmancy/events'
 import { Subject } from 'rxjs'
-
-export enum SchmancyEvents {
-	DRAWER_TOGGLE = 'SchmancytoggleSidebar',
-}
 
 class Drawer {
 	private $drawer = new Subject<{
@@ -13,7 +10,7 @@ class Drawer {
 		this.$drawer.subscribe(data => {
 			if (data.state) {
 				data.self.dispatchEvent(
-					new CustomEvent(SchmancyEvents.DRAWER_TOGGLE, {
+					new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
 						detail: {
 							state: 'open',
 						},
@@ -23,7 +20,7 @@ class Drawer {
 				)
 			} else {
 				data.self.dispatchEvent(
-					new CustomEvent(SchmancyEvents.DRAWER_TOGGLE, {
+					new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
 						detail: {
 							state: 'close',
 						},
@@ -48,4 +45,4 @@ class Drawer {
 	}
 }
 
-export const schmancyDrawer = new Drawer()
+export const schmancyNavDrawer = new Drawer()

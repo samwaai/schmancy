@@ -1,5 +1,5 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import anime from 'animejs/lib/anime.es.js'
+import { animate } from '@juliangarnierorg/anime-beta'
 import { TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import {
@@ -115,46 +115,49 @@ export class SchmancyArea extends $LitElement(css`
 								}),
 							)
 							.pipe(
-								// create the new view and add it to the DOM
 								map(component => {
-									const newView = typeof component === 'function' ? new component() : document.createElement(component)
+									if (typeof component === 'string') {
+										return document.createElement(component)
+									} else if (component instanceof HTMLElement) {
+										return component
+									} else if (typeof component === 'function') {
+										return new component()
+									}
+								}),
+								// create the new view and add it to the DOM
+								map(newView => {
 									const oldView = this.shadowRoot?.children[0]
 									oldView?.classList.add('absolute', 'inset-0')
 									// newView?.classList.add('absolute', 'inset-0')
 									this.shadowRoot?.prepend(newView)
-									anime({
-										targets: [newView],
+									animate(newView, {
 										opacity: [0, 1],
 										duration: oldView ? 300 : 0,
 										delay: oldView ? 50 : 0,
-										easing: 'easeInQuad',
-										begin: () => {
+										ease: 'easeInQuad',
+										onBegin: () => {
 											if (oldView)
-												anime({
+												animate(oldView, {
 													targets: oldView,
 													opacity: [1, 0],
-													duration: 300,
+													duration: 150,
 													scale: [1, 0.95],
-													delay: 100,
-													easing: 'easeOutQuad',
-													complete: () => {
+													ease: 'easeOutQuad',
+													onComplete: () => {
 														oldView?.remove()
 													},
 												})
 										},
-										complete: () => {
+										onComplete: () => {
 											oldView?.remove()
 										},
 									})
 									return { newView, oldView }
 								}),
 								tap(({ newView }) => {
-									if (typeof route.historyStrategy === 'undefined' || route.historyStrategy === HISTORY_STRATEGY.push)
+									if (typeof route.historyStrategy === 'undefined' || route.historyStrategy === 'push')
 										history.pushState(route.state, '', this.newPath(newView.tagName))
-									else if (
-										route.historyStrategy &&
-										[HISTORY_STRATEGY.replace, HISTORY_STRATEGY.pop].includes(route.historyStrategy)
-									)
+									else if (route.historyStrategy && ['replace', 'pop'].includes(route.historyStrategy))
 										history.replaceState(route.state, '', this.newPath(newView.tagName))
 									area.$current.next({
 										component: newView.tagName,

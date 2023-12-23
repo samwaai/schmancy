@@ -3,8 +3,8 @@ export default class SchmancyMenu extends SchmancyMenu_base {
     open: boolean;
     buttonElement: Array<HTMLElement>;
     menuElement: HTMLElement;
-    openMenu(): void;
-    closeMenu(): void;
+    openMenu(): any;
+    closeMenu(): any;
     protected firstUpdated(): void;
     render(): import("lit-html").TemplateResult<1>;
 }

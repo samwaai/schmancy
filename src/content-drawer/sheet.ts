@@ -2,26 +2,30 @@ import { animate } from '@juliangarnierorg/anime-beta'
 import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
-import { customElement, query, state } from 'lit/decorators.js'
+import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { SchmancyEvents, SchmancyTheme, color } from '..'
 import {
-	SchmancyDrawerNavbarMode,
-	SchmancyDrawerNavbarState,
-	TSchmancyDrawerNavbarMode,
-	TSchmancyDrawerNavbarState,
+	SchmancyContentDrawerID,
+	SchmancyContentDrawerSheetMode,
+	SchmancyContentDrawerSheetState,
+	TSchmancyContentDrawerSheetMode,
+	TSchmancyContentDrawerSheetState,
 } from './context'
-@customElement('schmancy-nav-drawer-navbar')
-export class SchmancyNavigationDrawerSidebar extends $LitElement(css``) {
-	@consume({ context: SchmancyDrawerNavbarMode, subscribe: true })
+@customElement('schmancy-content-drawer-sheet')
+export class SchmancyContentDrawerSheet extends $LitElement(css``) {
+	@consume({ context: SchmancyContentDrawerSheetMode, subscribe: true })
 	@state()
-	mode: TSchmancyDrawerNavbarMode
+	mode: TSchmancyContentDrawerSheetMode
 
-	@consume({ context: SchmancyDrawerNavbarState, subscribe: true })
+	@consume({ context: SchmancyContentDrawerSheetState, subscribe: true })
 	@state()
-	private state: TSchmancyDrawerNavbarState
+	private state: TSchmancyContentDrawerSheetState
+
+	@consume({ context: SchmancyContentDrawerID })
+	schmancyContentDrawerID
 
 	@query('#overlay') overlay!: HTMLElement
-
+	@queryAssignedElements({ flatten: true, slot: undefined }) defaultSlot!: HTMLElement[]
 	updated(changedProperties: Map<string, any>) {
 		if (changedProperties.has('state')) {
 			if (this.mode === 'overlay') {
@@ -59,30 +63,26 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement(css``) {
 	}
 
 	protected render() {
-		const animate = {
-			'transition-all transform-gpu duration-[500ms] ease-[cubicBezier(0.5, 0.01, 0.25, 1)]': true,
-		}
-
-		const sidebarClasses = {
-			'p-[16px] max-w-[360px] w-fit': true,
+		const sheetClasses = {
+			'p-[16px] min-w-[360px] w-fit': true,
 			block: this.mode === 'push',
-			'fixed inset-0 translate-x-[-100%] z-50 min-w-[360px]': this.mode === 'overlay',
-			'translate-x-0': this.mode === 'overlay' && this.state === 'open',
-			'translate-x-[-100%]': this.mode === 'overlay' && this.state === 'close',
+			'absolute opacity-0 r-0 t-0 z-50': this.mode === 'overlay',
+			'opacity-1': this.mode === 'overlay' && this.state === 'open',
+			'opacity-0': this.mode === 'overlay' && this.state === 'close',
 		}
 		const overlayClass = {
 			'fixed inset-0 z-[49] hidden': true,
 		}
 
 		return html`
-			<nav
-				class="${this.classMap({ ...sidebarClasses, ...animate })}"
+			<div
+				class="${this.classMap(sheetClasses)}"
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.container,
 				})}
 			>
-				<slot></slot>
-			</nav>
+				<schmancy-area name="${this.schmancyContentDrawerID}"> </schmancy-area>
+			</div>
 			<div
 				id="overlay"
 				${color({
@@ -90,13 +90,14 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement(css``) {
 				})}
 				@click=${() => {
 					this.dispatchEvent(
-						new CustomEvent(SchmancyEvents.DRAWER_TOGGLE, {
+						new CustomEvent(SchmancyEvents.ContentDrawerToggle, {
 							detail: { state: 'close' },
 							bubbles: true,
+							composed: true,
 						}),
 					)
 				}}
-				class="${this.classMap({ ...overlayClass })}"
+				class="${this.classMap(overlayClass)}"
 			></div>
 		`
 	}
@@ -104,6 +105,6 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement(css``) {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-nav-drawer-navbar': SchmancyNavigationDrawerSidebar
+		'schmancy-content-drawer-sheet': SchmancyContentDrawerSheet
 	}
 }

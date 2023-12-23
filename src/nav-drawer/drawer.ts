@@ -75,7 +75,7 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 		/*
 		 * Listen to the toggle event
 		 */
-		fromEvent<CustomEvent>(this, SchmancyEvents.DRAWER_TOGGLE)
+		fromEvent<CustomEvent>(this, SchmancyEvents.NavDrawer_toggle)
 			.pipe(
 				tap(event => {
 					event.stopPropagation()

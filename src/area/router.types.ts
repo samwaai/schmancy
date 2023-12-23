@@ -1,8 +1,8 @@
 export type RouteAction = {
-	component: CustomElementConstructor | string | Promise<NodeModule>
+	component: CustomElementConstructor | string | Promise<NodeModule> | HTMLElement | Promise<NodeModule>
 	area: string
 	state?: object
-	historyStrategy?: HISTORY_STRATEGY
+	historyStrategy?: THistoryStrategy
 }
 
 export type ActiveRoute = {
@@ -10,6 +10,8 @@ export type ActiveRoute = {
 	area: string
 	state?: object
 }
+
+export type THistoryStrategy = 'push' | 'replace' | 'pop' | 'silent'
 
 export enum HISTORY_STRATEGY {
 	push = 'push',

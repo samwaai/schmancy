@@ -16,22 +16,18 @@ export declare enum SchmancySheetPosition {
      */
     BottomRight = "bottom-right"
 }
+export declare enum SchmancySheetType {
+    standard = "standard",
+    modal = "modal"
+}
 type BottomSheeetTarget = {
     component: HTMLElement;
+    type?: SchmancySheetType;
     uid?: string;
     position?: SchmancySheetPosition;
     persist?: boolean;
     close?: () => void;
-    style?: BottomSheetStyle;
     allowOverlyDismiss?: boolean;
-};
-export type BottomSheetStyle = {
-    '--overlay-color'?: string;
-    '--overlay-opacity'?: string;
-    '--overlay-position'?: string;
-    '--overlay-border-radius'?: string;
-    '--sheet-position'?: 'absolute' | 'fixed' | 'relative';
-    '--sheet-radius'?: string;
 };
 export type SheetWhereAreYouRickyEvent = CustomEvent<{
     uid: string;
@@ -44,11 +40,9 @@ export declare const SheetHereMorty = "yes-here";
 declare class BottomSheetService {
     bottomSheet: Subject<BottomSheeetTarget>;
     $dismiss: Subject<string>;
-    counter: number;
     constructor();
     dismiss(uid: string): void;
     open(target: BottomSheeetTarget): void;
-    close(uid?: string): void;
 }
 export declare const sheet: BottomSheetService;
 export {};

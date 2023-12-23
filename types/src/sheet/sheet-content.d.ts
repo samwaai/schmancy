@@ -1,13 +1,5 @@
 declare const SchmancySheetContent_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export default class SchmancySheetContent extends SchmancySheetContent_base {
-    /**
-     * color of the component
-     * @type {'primary' | 'secondary'}
-     * @attr
-     * @default 'primary'
-     * @description primary: white background, secondary: grey background
-     */
-    color: 'primary' | 'secondary';
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

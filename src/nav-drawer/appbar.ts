@@ -3,9 +3,9 @@ import {
 	SchmancyDrawerNavbarMode,
 	SchmancyDrawerNavbarState,
 	TSchmancyDrawerNavbarMode,
-} from '@schmancy/drawer/context'
+} from '@schmancy/nav-drawer/context'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import mc from './mc.svg?inline'
@@ -18,7 +18,11 @@ import { SchmancyEvents } from '..'
  * @slot - The default slot
  */
 @customElement('schmancy-nav-drawer-appbar')
-export class SchmancyDrawerAppbar extends TailwindElement() {
+export class SchmancyDrawerAppbar extends TailwindElement(css`
+	:host {
+		display: block;
+	}
+`) {
 	@consume({ context: SchmancyDrawerNavbarMode, subscribe: true })
 	@state()
 	sidebarMode: TSchmancyDrawerNavbarMode
@@ -32,7 +36,7 @@ export class SchmancyDrawerAppbar extends TailwindElement() {
 			'block z-50': true,
 		}
 		const sidebarToggler = {
-			'block left-[16px] top-[16px] z-50': this.sidebarMode === 'overlay',
+			'block left-[16px]  z-50': this.sidebarMode === 'overlay',
 			hidden: this.sidebarMode === 'push',
 		}
 		return html`
@@ -40,6 +44,8 @@ export class SchmancyDrawerAppbar extends TailwindElement() {
 				cols=${this.sidebarMode === 'push' ? '1fr' : 'auto 1fr'}
 				flow="col"
 				class=${this.classMap(appbarClasses)}
+				gap="md"
+				align="center"
 			>
 				${when(
 					this.sidebarMode === 'overlay',
@@ -49,7 +55,7 @@ export class SchmancyDrawerAppbar extends TailwindElement() {
 								<schmancy-button
 									@click=${() => {
 										this.dispatchEvent(
-											new CustomEvent(SchmancyEvents.DRAWER_TOGGLE, {
+											new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
 												detail: { state: this.sidebarOpen === 'open' ? 'close' : 'open' },
 												bubbles: true,
 												composed: true,

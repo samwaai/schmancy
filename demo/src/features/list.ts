@@ -32,7 +32,7 @@ export class DemoList extends $LitElement(css`
 
 				<schmancy-typography type="title">Rounded list items</schmancy-typography>
 				<schmancy-list>
-					<schmancy-list-item rounded active>
+					<schmancy-list-item rounded selected>
 						Bookings
 					</schmancy-list-item>
 					<schmancy-list-item rounded>

@@ -1,4 +1,3 @@
-/// <reference types="animejs" />
 import anime from 'animejs/lib/anime.es.js';
 import Layout from '../layout/layout';
 export declare class SchmancyGrid extends Layout {

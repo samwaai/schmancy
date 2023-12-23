@@ -1,7 +1,7 @@
-import { SchmancySheetPosition } from './sheet.service';
+import { SchmancySheetPosition, SchmancySheetType } from './sheet.service';
 declare const SchmancySheet_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
 export default class SchmancySheet extends SchmancySheet_base {
-    mode: 'modal' | 'standard';
+    type: SchmancySheetType;
     uid: string;
     open: boolean;
     position: SchmancySheetPosition;

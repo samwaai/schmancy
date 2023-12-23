@@ -1,5 +1,5 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { schmancyDrawer } from '@schmancy/drawer'
+import { schmancyNavDrawer } from '@schmancy/nav-drawer'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -11,7 +11,7 @@ export class DemoNav extends $LitElement(css`
 `) {
 	toggle(e) {
 		e.target.selected = !e.target.selected
-		schmancyDrawer.close(this)
+		schmancyNavDrawer.close(this)
 	}
 	render() {
 		return html`
