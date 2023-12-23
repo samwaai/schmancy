@@ -1,8 +1,8 @@
 import { consume } from '@lit/context'
 import {
-	SchmancyDrawerSidebarMode,
-	SchmancyDrawerSidebarState,
-	TSchmancyDrawerSidebarMode,
+	SchmancyDrawerNavbarMode,
+	SchmancyDrawerNavbarState,
+	TSchmancyDrawerNavbarMode,
 } from '@schmancy/drawer/context'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
@@ -13,17 +13,17 @@ import mo from './mo.svg?inline'
 import { SchmancyEvents } from '..'
 
 /**
- * @element schmancy-drawer-appbar
+ * @element schmancy-nav-drawer-appbar
  * @slot toggler - The toggler slot
  * @slot - The default slot
  */
-@customElement('schmancy-drawer-appbar')
+@customElement('schmancy-nav-drawer-appbar')
 export class SchmancyDrawerAppbar extends TailwindElement() {
-	@consume({ context: SchmancyDrawerSidebarMode, subscribe: true })
+	@consume({ context: SchmancyDrawerNavbarMode, subscribe: true })
 	@state()
-	sidebarMode: TSchmancyDrawerSidebarMode
+	sidebarMode: TSchmancyDrawerNavbarMode
 
-	@consume({ context: SchmancyDrawerSidebarState, subscribe: true })
+	@consume({ context: SchmancyDrawerNavbarState, subscribe: true })
 	@state()
 	sidebarOpen
 
@@ -71,6 +71,6 @@ export class SchmancyDrawerAppbar extends TailwindElement() {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-drawer-appbar': SchmancyDrawerAppbar
+		'schmancy-nav-drawer-appbar': SchmancyDrawerAppbar
 	}
 }

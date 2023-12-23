@@ -1,6 +1,6 @@
 import { createContext } from '@lit/context'
-export type TSchmancyDrawerSidebarMode = 'push' | 'overlay' | undefined
-export const SchmancyDrawerSidebarMode = createContext<TSchmancyDrawerSidebarMode>('push')
+export type TSchmancyDrawerNavbarMode = 'push' | 'overlay' | undefined
+export const SchmancyDrawerNavbarMode = createContext<TSchmancyDrawerNavbarMode>('push')
 
-export type TSchmancyDrawerSidebarState = 'open' | 'close' | undefined
-export const SchmancyDrawerSidebarState = createContext<TSchmancyDrawerSidebarState>('close')
+export type TSchmancyDrawerNavbarState = 'open' | 'close' | undefined
+export const SchmancyDrawerNavbarState = createContext<TSchmancyDrawerNavbarState>('close')

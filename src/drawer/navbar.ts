@@ -1,24 +1,24 @@
+import { animate } from '@juliangarnierorg/anime-beta'
 import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import anime from 'animejs'
 import { css, html } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
 import { SchmancyEvents, SchmancyTheme, color } from '..'
 import {
-	SchmancyDrawerSidebarMode,
-	SchmancyDrawerSidebarState,
-	TSchmancyDrawerSidebarMode,
-	TSchmancyDrawerSidebarState,
+	SchmancyDrawerNavbarMode,
+	SchmancyDrawerNavbarState,
+	TSchmancyDrawerNavbarMode,
+	TSchmancyDrawerNavbarState,
 } from './context'
-@customElement('schmancy-drawer-sidebar')
-export class SchmancyDrawerSidebar extends $LitElement(css``) {
-	@consume({ context: SchmancyDrawerSidebarMode, subscribe: true })
+@customElement('schmancy-nav-drawer-navbar')
+export class SchmancyNavigationDrawerSidebar extends $LitElement(css``) {
+	@consume({ context: SchmancyDrawerNavbarMode, subscribe: true })
 	@state()
-	mode: TSchmancyDrawerSidebarMode
+	mode: TSchmancyDrawerNavbarMode
 
-	@consume({ context: SchmancyDrawerSidebarState, subscribe: true })
+	@consume({ context: SchmancyDrawerNavbarState, subscribe: true })
 	@state()
-	private state: TSchmancyDrawerSidebarState
+	private state: TSchmancyDrawerNavbarState
 
 	@query('#overlay') overlay!: HTMLElement
 
@@ -31,30 +31,28 @@ export class SchmancyDrawerSidebar extends $LitElement(css``) {
 					this.openOverlay()
 				}
 			} else if (this.mode === 'push') {
-				this.overlay.style.display = 'none'
+				this.closeOverlay()
 			}
 		}
 	}
 
 	openOverlay() {
-		anime({
-			targets: this.overlay,
+		animate(this.overlay, {
 			opacity: 0.4,
 			duration: 500,
-			easing: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-			begin: () => {
+			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
+			onBegin: () => {
 				this.overlay.style.display = 'block'
 			},
 		})
 	}
 
 	closeOverlay() {
-		anime({
-			targets: this.overlay,
+		animate(this.overlay, {
 			opacity: [0.4, 0],
 			duration: 500,
-			easing: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-			complete: () => {
+			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
+			onComplete: () => {
 				this.overlay.style.display = 'none'
 			},
 		})
@@ -106,6 +104,6 @@ export class SchmancyDrawerSidebar extends $LitElement(css``) {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-drawer-sidebar': SchmancyDrawerSidebar
+		'schmancy-nav-drawer-navbar': SchmancyNavigationDrawerSidebar
 	}
 }

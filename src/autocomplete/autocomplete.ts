@@ -4,11 +4,11 @@ import { ref } from 'lit/directives/ref.js'
 import SchmancyInput from '@schmancy/input/input'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import SchmancyOption, { SchmancyOptionChangeEvent } from '@schmancy/option/option'
-import anime from 'animejs'
+import { animate, utils } from '@juliangarnierorg/anime-beta'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
-import { BehaviorSubject, fromEvent } from 'rxjs'
-import { debounceTime, distinctUntilChanged, filter, takeUntil, tap } from 'rxjs/operators'
+import { BehaviorSubject, from, fromEvent } from 'rxjs'
+import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil, tap } from 'rxjs/operators'
 import { SchmancyInputChangeEvent } from '..'
 import style from './autocomplete.scss?inline'
 import { createRef } from 'lit/directives/ref.js'
@@ -55,19 +55,23 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 			.pipe(
 				takeUntil(this.disconnecting),
 				filter(e => (e.relatedTarget as SchmancyOption)?.tagName !== 'SCHMANCY-OPTION'),
+				switchMap(() =>
+					from(
+						utils.promisify(
+							animate(this.ul, {
+								opacity: 0,
+								duration: 250,
+								ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
+								onComplete: () => {
+									this.ul?.style.setProperty('display', 'none')
+									this.ul?.style.setProperty('opacity', '1')
+								},
+							}),
+						),
+					),
+				),
 			)
-			.subscribe(() => {
-				anime({
-					targets: this.ul,
-					opacity: 0,
-					duration: 250,
-					easing: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-					complete: () => {
-						this.ul?.style.setProperty('display', 'none')
-						this.ul?.style.setProperty('opacity', '1')
-					},
-				})
-			})
+			.subscribe()
 		this.updateInputValue()
 	}
 

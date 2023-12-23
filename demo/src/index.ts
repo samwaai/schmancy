@@ -10,19 +10,19 @@ export default class SchmancyDemo extends $LitElement() {
 	render() {
 		return html`
 			<schmancy-surface fill type="container">
-				<schmancy-drawer>
-					<schmancy-drawer-sidebar>
+				<schmancy-nav-drawer>
+					<schmancy-nav-drawer-navbar>
 						<demo-nav> </demo-nav>
-					</schmancy-drawer-sidebar>
-					<schmancy-drawer-content class="p-8">
-						<schmancy-drawer-appbar>
+					</schmancy-nav-drawer-navbar>
+					<schmancy-nav-drawer-content class="p-8">
+						<schmancy-nav-drawer-appbar>
 							<schmancy-surface class="pb-8" type="container">
 								<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
 							</schmancy-surface>
-						</schmancy-drawer-appbar>
+						</schmancy-nav-drawer-appbar>
 						${content()}
-					</schmancy-drawer-content>
-				</schmancy-drawer>
+					</schmancy-nav-drawer-content>
+				</schmancy-nav-drawer>
 			</schmancy-surface>
 		`
 	}

@@ -34,13 +34,13 @@ class Drawer {
 			}
 		})
 	}
-	open(self: HTMLElement) {
+	open(self?: HTMLElement) {
 		this.$drawer.next({
 			self,
 			state: true,
 		})
 	}
-	close(self: HTMLElement) {
+	close(self?: HTMLElement) {
 		this.$drawer.next({
 			self,
 			state: false,

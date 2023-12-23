@@ -1,8 +1,8 @@
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
-import anime from 'animejs'
+import { animate, utils } from '@juliangarnierorg/anime-beta'
 import { css, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import { fromEvent, merge, takeUntil, tap } from 'rxjs'
+import { from, fromEvent, merge, switchMap, takeUntil, tap } from 'rxjs'
 
 /**
  * @element schmancy-tree
@@ -14,7 +14,7 @@ export default class SchmancyTree extends TailwindElement(css`
 	:host {
 		display: block;
 		position: relative;
-		background-color: inherit;
+		background-color: initial;
 	}
 	::slotted([slot='root']) {
 		width: 100%;
@@ -46,22 +46,38 @@ export default class SchmancyTree extends TailwindElement(css`
 				}),
 			),
 			fromEvent(this.chevron, 'click'),
-		).subscribe({
-			next: () => {
-				anime({
-					targets: this.chevron,
-					rotate: this.open ? [0, 180] : [180, 0],
-					easing: 'easeInQuad',
-					duration: 150,
-				})
-				if (this.open) {
-					this.defaultSlot.style.display = 'none'
-				} else {
-					this.defaultSlot.style.display = 'block'
-				}
-				this.open = !this.open
-			},
-		})
+		)
+			.pipe(
+				switchMap(() =>
+					merge(
+						from(
+							utils.promisify(
+								animate(this.chevron, {
+									rotate: this.open ? [0, 180] : [180, 0],
+									ease: 'easeInQuad',
+									duration: 150,
+								}),
+							),
+						),
+						from(
+							utils.promisify(
+								animate(this.defaultSlot, {
+									display: { to: this.open ? 'none' : 'block', ease: 'outExpo' },
+									opacity: { to: this.open ? 0 : 1, ease: 'outExpo' },
+									ease: 'easeInQuad',
+									duration: 150,
+									onComplete: () => {
+										this.open = !this.open
+									},
+								}),
+							),
+						),
+					),
+				),
+				takeUntil(this.disconnecting),
+			)
+
+			.subscribe()
 	}
 	render() {
 		return html`

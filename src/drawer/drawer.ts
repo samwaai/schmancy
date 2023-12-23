@@ -4,20 +4,20 @@ import { css, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil, tap } from 'rxjs'
 import {
-	SchmancyDrawerSidebarMode,
-	SchmancyDrawerSidebarState,
-	TSchmancyDrawerSidebarMode,
-	TSchmancyDrawerSidebarState,
+	SchmancyDrawerNavbarMode,
+	SchmancyDrawerNavbarState,
+	TSchmancyDrawerNavbarMode,
+	TSchmancyDrawerNavbarState,
 } from './context'
 import { SchmancyEvents } from '..'
 
 /**
- * @element schmancy-drawer
+ * @element schmancy-nav-drawer
  * @slot appbar - The appbar slot
  * @slot - The content slot
  */
-@customElement('schmancy-drawer')
-export class SchmancyDrawer extends $LitElement(css`
+@customElement('schmancy-nav-drawer')
+export class SchmancyNavigationDrawer extends $LitElement(css`
 	:host {
 		display: block;
 		height: 100vh;
@@ -31,24 +31,24 @@ export class SchmancyDrawer extends $LitElement(css`
 	 * The minimum width of the sidebar
 	 * @attr	min-width
 	 * @type {number}
-	 * @memberof SchmancyDrawer
+	 * @memberof SchmancyNavigationDrawer
 	 */
 	@property({ type: Number })
-	minWidth: number = 768
+	minWidth: number = 1240
 
 	/**
 	 * The mode of the sidebar
-	 * @type {TSchmancyDrawerSidebarMode}
-	 * @memberof SchmancyDrawer
+	 * @type {TSchmancyDrawerNavbarMode}
+	 * @memberof SchmancyNavigationDrawer
 	 * @protected
 	 */
-	@provide({ context: SchmancyDrawerSidebarMode })
+	@provide({ context: SchmancyDrawerNavbarMode })
 	@state()
-	mode: TSchmancyDrawerSidebarMode
+	mode: TSchmancyDrawerNavbarMode
 
-	@provide({ context: SchmancyDrawerSidebarState })
+	@provide({ context: SchmancyDrawerNavbarState })
 	@property()
-	open: TSchmancyDrawerSidebarState
+	open: TSchmancyDrawerNavbarState
 
 	connectedCallback(): void {
 		super.connectedCallback()
@@ -101,6 +101,6 @@ export class SchmancyDrawer extends $LitElement(css`
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-drawer': SchmancyDrawer
+		'schmancy-nav-drawer': SchmancyNavigationDrawer
 	}
 }

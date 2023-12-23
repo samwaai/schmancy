@@ -2,8 +2,8 @@ import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-@customElement('schmancy-drawer-content')
-export class SchmancyDrawerContent extends $LitElement(css`
+@customElement('schmancy-nav-drawer-content')
+export class SchmancyNavigationDrawerContent extends $LitElement(css`
 	:host {
 		display: block;
 		position: relative;
@@ -18,6 +18,6 @@ export class SchmancyDrawerContent extends $LitElement(css`
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-drawer-content': SchmancyDrawerContent
+		'schmancy-nav-drawer-content': SchmancyNavigationDrawerContent
 	}
 }
