@@ -32,24 +32,19 @@ export enum SchmancySheetPosition {
 	 */
 	BottomRight = 'bottom-right',
 }
+export enum SchmancySheetType {
+	standard = 'standard',
+	modal = 'modal',
+}
+
 type BottomSheeetTarget = {
 	component: HTMLElement
+	type?: SchmancySheetType
 	uid?: string
 	position?: SchmancySheetPosition
 	persist?: boolean
-	// host?: Element | ShadowRoot | null | undefined
 	close?: () => void
-	style?: BottomSheetStyle
 	allowOverlyDismiss?: boolean
-}
-
-export type BottomSheetStyle = {
-	'--overlay-color'?: string
-	'--overlay-opacity'?: string
-	'--overlay-position'?: string
-	'--overlay-border-radius'?: string
-	'--sheet-position'?: 'absolute' | 'fixed' | 'relative'
-	'--sheet-radius'?: string
 }
 
 // Events for communication between bottom-sheet component and bottom-sheet.service
@@ -65,12 +60,9 @@ export const SheetHereMorty = 'yes-here'
 class BottomSheetService {
 	bottomSheet = new Subject<BottomSheeetTarget>()
 	$dismiss = new Subject<string>()
-	counter: number
 	constructor() {
-		this.counter = 0
 		this.bottomSheet
 			.pipe(
-				tap(() => this.counter++),
 				switchMap(target =>
 					forkJoin([
 						fromEvent<SheetHereMortyEvent>(window, SheetHereMorty).pipe(
@@ -93,12 +85,14 @@ class BottomSheetService {
 					if (!sheet) {
 						// if sheet is not found, create it
 						sheet = document.createElement('schmancy-sheet')
-						sheet.setAttribute('uid', target.component.tagName)
-						sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
-						sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
-						target.persist && sheet.setAttribute('persist', target.persist ?? false)
 						document.body.appendChild(sheet)
 					}
+					sheet.setAttribute('uid', target.component.tagName)
+					sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
+					sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
+					sheet.setAttribute('type', target.type ?? SchmancySheetType.modal)
+					target.persist && sheet.setAttribute('persist', target.persist ?? false)
+
 					document.body.style.overflow = 'hidden' // lock the scroll of the host
 					return { target, sheet }
 				}),
@@ -118,18 +112,6 @@ class BottomSheetService {
 						return true // if the sheet does not have the component, continue to the next step
 					}
 				}),
-				map(({ target, sheet }) => {
-					Object.keys(target.style ?? {}).forEach(key => {
-						if (key.startsWith('--')) {
-							sheet?.style.setProperty(key, target.style?.[key])
-						}
-					})
-
-					return {
-						target,
-						sheet,
-					}
-				}),
 				tap(({ target, sheet }) => {
 					sheet?.appendChild(target.component)
 				}),
@@ -145,7 +127,7 @@ class BottomSheetService {
 							const target = e.target as SchmancySheet
 							console.log(target)
 
-							if (!target.persist) target.remove()
+							if (!target?.persist) target?.remove()
 							document.body.style.overflow = 'auto' // unlock the scroll of the host
 						})
 				}),
@@ -181,12 +163,6 @@ class BottomSheetService {
 
 	open(target: BottomSheeetTarget) {
 		this.bottomSheet.next(target)
-	}
-
-	close(uid?: string) {
-		const sheet = document.querySelector(uid ? `schmancy-sheet[uid="${uid}"]` : 'schmancy-sheet') as SchmancySheet
-		sheet?.closeSheet()
-		// sheet?.remove()
 	}
 }
 export const sheet = new BottomSheetService()
