@@ -2,18 +2,7 @@ import { provide } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html, nothing } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
-import {
-	debounceTime,
-	distinctUntilChanged,
-	from,
-	fromEvent,
-	map,
-	of,
-	startWith,
-	switchMap,
-	takeUntil,
-	tap,
-} from 'rxjs'
+import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil, tap } from 'rxjs'
 import { SchmancyEvents, area } from '..'
 import {
 	SchmancyContentDrawerID,
@@ -105,13 +94,6 @@ export class SchmancyContentDrawer extends $LitElement(css`
 					event.stopPropagation()
 				}),
 				map(event => event.detail.component),
-				switchMap(c => {
-					if (c instanceof Promise) {
-						return from(c).pipe(map(x => x.exports.default as CustomElementConstructor))
-					} else {
-						return of(c)
-					}
-				}),
 				takeUntil(this.disconnecting),
 			)
 			.subscribe(component => {
