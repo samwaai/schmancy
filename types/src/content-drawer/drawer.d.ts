@@ -9,7 +9,7 @@ declare const SchmancyContentDrawer_base: CustomElementConstructor & import("@mh
 export declare class SchmancyContentDrawer extends SchmancyContentDrawer_base {
     /**
      * The minimum width of the sheet
-     * @attr	min-width
+     * @attr	minWidth
      * @type {number}
      * @memberof SchmancyContentDrawer
      */

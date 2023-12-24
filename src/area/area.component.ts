@@ -1,12 +1,11 @@
-import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { animate } from '@juliangarnierorg/anime-beta'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import {
 	EMPTY,
 	bufferTime,
 	catchError,
-	distinctUntilChanged,
 	filter,
 	from,
 	fromEvent,
@@ -91,16 +90,16 @@ export class SchmancyArea extends $LitElement(css`
 			.pipe(
 				filter(request => !!request.component),
 				takeUntil(this.disconnecting),
-				distinctUntilChanged((a, b) => {
-					let aComponent, bComponent
-					if (typeof a.component === 'function')
-						return false // TODO: maybe check if the function is a custom element constructor
-					else if (typeof a.component === 'string') aComponent = a.component
-					if (typeof b.component === 'function')
-						return false // TODO: maybe check if the function is a custom element constructor
-					else if (typeof b.component === 'string') bComponent = b.component
-					return bComponent?.replaceAll('-', '').toLowerCase() === aComponent?.replaceAll('-', '').toLowerCase()
-				}),
+				// distinctUntilChanged((a, b) => {
+				// 	let aComponent, bComponent
+				// 	if (typeof a.component === 'function')
+				// 		return false // TODO: maybe check if the function is a custom element constructor
+				// 	else if (typeof a.component === 'string') aComponent = a.component
+				// 	if (typeof b.component === 'function')
+				// 		return false // TODO: maybe check if the function is a custom element constructor
+				// 	else if (typeof b.component === 'string') bComponent = b.component
+				// 	return bComponent?.replaceAll('-', '').toLowerCase() === aComponent?.replaceAll('-', '').toLowerCase()
+				// }),
 			)
 			.pipe(
 				switchMap(async route =>

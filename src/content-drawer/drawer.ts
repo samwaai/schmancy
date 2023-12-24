@@ -27,7 +27,7 @@ export class SchmancyContentDrawer extends $LitElement(css`
 `) {
 	/**
 	 * The minimum width of the sheet
-	 * @attr	min-width
+	 * @attr	minWidth
 	 * @type {number}
 	 * @memberof SchmancyContentDrawer
 	 */
