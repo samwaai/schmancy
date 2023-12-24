@@ -87,7 +87,7 @@ export class SchmancyContentDrawer extends $LitElement(css`
 		/*
 		 * Listen to the toggle event
 		 */
-		fromEvent<CustomEvent>((this.parentNode as ShadowRoot).host, SchmancyEvents.ContentDrawerToggle)
+		fromEvent<CustomEvent>(window, SchmancyEvents.ContentDrawerToggle)
 			.pipe(
 				tap(event => {
 					event.stopPropagation()
@@ -99,7 +99,7 @@ export class SchmancyContentDrawer extends $LitElement(css`
 				this.open = state
 			})
 
-		fromEvent<CustomEvent>((this.parentNode as ShadowRoot).host, 'schmancy-content-drawer-render')
+		fromEvent<CustomEvent>(window, 'schmancy-content-drawer-render')
 			.pipe(
 				tap(event => {
 					event.stopPropagation()

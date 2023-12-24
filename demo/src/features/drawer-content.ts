@@ -20,7 +20,7 @@ export class DemoContentDrawer extends $LitElement(css`
 						<schmancy-list-item
 							rounded
 							selected
-							@click=${() => {
+							@click=${e => {
 								schmancyContentDrawer.render(this, DemoButton)
 							}}
 						>
