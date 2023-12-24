@@ -25,33 +25,48 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 	schmancyContentDrawerID
 
 	@query('#overlay') overlay!: HTMLElement
+	@query('#sheet') sheet!: HTMLElement
 	@queryAssignedElements({ flatten: true, slot: undefined }) defaultSlot!: HTMLElement[]
 	updated(changedProperties: Map<string, any>) {
 		if (changedProperties.has('state')) {
 			if (this.mode === 'overlay') {
 				if (this.state === 'close') {
-					this.closeOverlay()
+					this.close()
 				} else if (this.state === 'open') {
-					this.openOverlay()
+					this.open()
 				}
 			} else if (this.mode === 'push') {
-				this.closeOverlay()
+				if (this.state === 'close') this.close()
+				else if (this.state === 'open') this.open()
 			}
 		}
 	}
 
-	openOverlay() {
-		animate(this.overlay, {
-			opacity: 0.4,
+	open() {
+		if (this.mode === 'overlay')
+			animate(this.overlay, {
+				opacity: 0.4,
+				duration: 500,
+				ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
+				onBegin: () => {
+					this.overlay.style.display = 'block'
+					this.overlay.style.position = 'fixed'
+				},
+			})
+		animate(this.sheet, {
+			opacity: 1,
 			duration: 500,
+			translateX: ['100%', '0%'],
 			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
 			onBegin: () => {
-				this.overlay.style.display = 'block'
+				if (this.mode === 'overlay') this.sheet.style.position = 'fixed'
+				else this.sheet.style.position = 'relative'
+				this.sheet.style.display = 'block'
 			},
 		})
 	}
 
-	closeOverlay() {
+	close() {
 		animate(this.overlay, {
 			opacity: [0.4, 0],
 			duration: 500,
@@ -60,29 +75,29 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 				this.overlay.style.display = 'none'
 			},
 		})
+		animate(this.sheet, {
+			opacity: 1,
+			duration: 500,
+			translateX: ['0%', '100%'],
+			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
+			onComplete: () => {
+				this.sheet.style.display = 'none'
+			},
+		})
 	}
 
 	protected render() {
 		const sheetClasses = {
-			'p-[16px] min-w-[360px] w-fit': true,
+			'min-w-[360px]': true,
 			block: this.mode === 'push',
-			'absolute opacity-0 r-0 t-0 z-50': this.mode === 'overlay',
+			'absolute z-[50]': this.mode === 'overlay',
 			'opacity-1': this.mode === 'overlay' && this.state === 'open',
-			'opacity-0': this.mode === 'overlay' && this.state === 'close',
 		}
 		const overlayClass = {
-			'fixed inset-0 z-[49] hidden': true,
+			'hidden inset-0 z-[49]': true,
 		}
 
 		return html`
-			<div
-				class="${this.classMap(sheetClasses)}"
-				${color({
-					bgColor: SchmancyTheme.sys.color.surface.container,
-				})}
-			>
-				<schmancy-area name="${this.schmancyContentDrawerID}"> </schmancy-area>
-			</div>
 			<div
 				id="overlay"
 				${color({
@@ -99,6 +114,16 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 				}}
 				class="${this.classMap(overlayClass)}"
 			></div>
+			<schmancy-surface
+				id="sheet"
+				class="${this.classMap(sheetClasses)}"
+				rounded="all"
+				fill
+				elevation="1"
+				type="containerHigh"
+			>
+				<schmancy-area name="${this.schmancyContentDrawerID}"> </schmancy-area>
+			</schmancy-surface>
 		`
 	}
 }

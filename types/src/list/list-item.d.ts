@@ -1,4 +1,4 @@
-import { SchmancyListType } from './context';
+import { TSurfaceColor } from '@schmancy/types/surface';
 declare const SchmancyListItem_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 /**
  * @element schmancy-list-item
@@ -7,7 +7,7 @@ declare const SchmancyListItem_base: import("..").Constructor<CustomElementConst
  * @slot - default content
  */
 export declare class SchmancyListItem extends SchmancyListItem_base {
-    variant: SchmancyListType;
+    variant: TSurfaceColor;
     rounded: boolean;
     readonly: boolean;
     selected: boolean;

@@ -1,8 +1,9 @@
 import { provide } from '@lit/context'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { SchmancyListType, SchmancyListTypeContext } from './context'
+import { SchmancyListTypeContext } from './context'
 
 /**
  * @slot - The default slot.
@@ -21,18 +22,19 @@ export class List extends TailwindElement(css`
 	 */
 	@provide({ context: SchmancyListTypeContext })
 	@property()
-	type: SchmancyListType = 'surface'
+	surface: TSurfaceColor
 
 	render() {
 		const classes = {
 			'py-[8px]': true,
-			'bg-surface-default': this.type === 'surface',
-			'bg-surface-variant-default': this.type === 'surfaceVariant',
-			'bg-surface-container': this.type === 'container',
 		}
-		return html`<ul class="${this.classMap(classes)}">
-			<slot></slot>
-		</ul>`
+		return html`
+			<schmancy-surface type=${this.surface}>
+				<ul class="${this.classMap(classes)}">
+					<slot></slot>
+				</ul>
+			</schmancy-surface>
+		`
 	}
 }
 

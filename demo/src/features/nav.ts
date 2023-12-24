@@ -1,7 +1,18 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
+import { area } from '@schmancy/area'
 import { schmancyNavDrawer } from '@schmancy/nav-drawer'
 import { css, html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
+import { repeat } from 'lit/directives/repeat.js'
+import { filter } from 'rxjs'
+import { DemoButton } from './button'
+import { DemoCard } from './card'
+import { DemoContentDrawer } from './drawer-content'
+import { DemoInput } from './input'
+import { DemoList } from './list'
+import { DemoSheet } from './sheet'
+import { DemoTree } from './tree'
+import DemoTypography from './typography'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -9,18 +20,77 @@ export class DemoNav extends $LitElement(css`
 		display: block;
 	}
 `) {
-	toggle(e) {
-		e.target.selected = !e.target.selected
-		schmancyNavDrawer.close(this)
+	@state() activeTab: string
+
+	Demos: Array<{
+		name: string
+		component: CustomElementConstructor
+	}> = [
+		{
+			name: 'Typography',
+			component: DemoTypography,
+		},
+		{
+			name: 'Button',
+			component: DemoButton,
+		},
+		{
+			name: 'Card',
+			component: DemoCard,
+		},
+		{
+			name: 'Input',
+			component: DemoInput,
+		},
+		{
+			name: 'List',
+			component: DemoList,
+		},
+
+		{
+			name: 'Sheet',
+			component: DemoSheet,
+		},
+		{
+			name: 'Tree',
+			component: DemoTree,
+		},
+		{
+			name: 'Content Drawer',
+			component: DemoContentDrawer,
+		},
+	]
+
+	connectedCallback(): void {
+		super.connectedCallback()
+		area.$current.pipe(filter(r => r.area === 'main')).subscribe(r => {
+			this.activeTab = r.component.toLowerCase().replaceAll('-', '')
+			console.log(this.activeTab)
+		})
 	}
 	render() {
 		return html`
 			<schmancy-grid gap="md" justify="center">
 				<img class="inline-block h-[80px] w-[80px] rounded-full" src="schmancy.jpg" alt="Schmancy Logo" />
-				<schmancy-list type="container">
-					<schmancy-list-item rounded selected @click=${this.toggle}> Books </schmancy-list-item>
-					<schmancy-list-item rounded @click=${this.toggle}> Songs </schmancy-list-item>
-					<schmancy-list-item rounded @click=${this.toggle}> Movies </schmancy-list-item>
+				<schmancy-list>
+					${repeat(
+						this.Demos,
+						d => d.name,
+						d =>
+							html` <schmancy-list-item
+								rounded
+								.selected=${this.activeTab === d.component.name.toLowerCase()}
+								@click=${() => {
+									schmancyNavDrawer.close(this)
+									area.push({
+										area: 'main',
+										component: d.component,
+									})
+								}}
+							>
+								${d.name}
+							</schmancy-list-item>`,
+					)}
 				</schmancy-list>
 			</schmancy-grid>
 		`

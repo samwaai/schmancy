@@ -1,6 +1,9 @@
+import { provide } from '@lit/context'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { SchmancySurfaceTypeContext } from './context'
 /**
  * @element schmancy-surface
  * @slot - default content
@@ -10,17 +13,17 @@ export class SchmancySurface extends TailwindElement(css`
 	:host {
 		display: block;
 	}
+	:host([fill]) {
+		height: -webkit-fill-available;
+		width: -webkit-fill-available;
+	}
 `) {
 	@property({ type: Boolean }) fill = false
 	@property() rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' = 'none'
-	@property() type:
-		| 'surface'
-		| 'surfaceVariant'
-		| 'containerLowest'
-		| 'containerLow'
-		| 'container'
-		| 'containerHigh'
-		| 'containerHighest' = 'surface'
+
+	@provide({ context: SchmancySurfaceTypeContext })
+	@property()
+	type: TSurfaceColor = 'surface'
 	@property({ type: Number }) elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
 	protected render(): unknown {
 		const classes = {
@@ -38,7 +41,8 @@ export class SchmancySurface extends TailwindElement(css`
 			'shadow-4': this.elevation === 4,
 
 			'bg-surface-default': this.type === 'surface',
-			'bg-surface-variant': this.type === 'surfaceVariant',
+			'bg-surface-dim': this.type === 'surfaceDim',
+			'bg-surface-bright': this.type === 'surfaceBright',
 			'bg-surface-lowest': this.type === 'containerLowest',
 			'bg-surface-low': this.type === 'containerLow',
 			'bg-surface-container': this.type === 'container',

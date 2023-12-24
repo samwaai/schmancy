@@ -33,6 +33,7 @@ export class SchmancyContentDrawer extends $LitElement(css`
 	:host {
 		position: relative;
 		inset: 0;
+		display: block;
 	}
 `) {
 	/**
@@ -63,8 +64,7 @@ export class SchmancyContentDrawer extends $LitElement(css`
 
 	@queryAssignedElements({ flatten: true })
 	assignedElements!: HTMLElement[]
-	connectedCallback(): void {
-		super.connectedCallback()
+	firstUpdated(): void {
 		fromEvent<CustomEvent>(window, 'resize')
 			.pipe(
 				map(event => event.target as Window),
@@ -94,7 +94,6 @@ export class SchmancyContentDrawer extends $LitElement(css`
 					event.stopPropagation()
 				}),
 				map(event => event.detail.state),
-				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
 			)
 			.subscribe(state => {
@@ -117,7 +116,6 @@ export class SchmancyContentDrawer extends $LitElement(css`
 				takeUntil(this.disconnecting),
 			)
 			.subscribe(component => {
-				console.log(component)
 				area.push({
 					area: this.schmancyContentDrawerID,
 					component: component,
@@ -129,7 +127,7 @@ export class SchmancyContentDrawer extends $LitElement(css`
 	protected render() {
 		if (!this.mode || !this.open) return nothing
 		return html`
-			<schmancy-grid flow="col">
+			<schmancy-grid cols="auto 1fr" rows="1fr" flow="col" justify="stretch" align="stretch" class="flex h-[100%]">
 				<slot></slot>
 			</schmancy-grid>
 		`

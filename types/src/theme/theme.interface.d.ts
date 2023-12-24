@@ -6,15 +6,16 @@ declare const theme: {
                 outline: string;
                 outlineVariant: string;
                 surface: {
-                    container: string;
                     default: string;
-                    variant: string;
-                    on: string;
-                    onVariant: string;
+                    dim: string;
+                    bright: string;
+                    container: string;
                     low: string;
                     high: string;
                     highest: string;
                     lowest: string;
+                    on: string;
+                    onVariant: string;
                 };
                 primary: {
                     default: string;

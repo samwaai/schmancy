@@ -1,11 +1,12 @@
 import { consume } from '@lit/context'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { SchmancySurfaceTypeContext } from '@schmancy/surface/context'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
+import { TSurfaceColor } from '@schmancy/types/surface'
 import { html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { color } from '..'
-import { SchmancyListType, SchmancyListTypeContext } from './context'
 
 /**
  * @element schmancy-list-item
@@ -15,9 +16,9 @@ import { SchmancyListType, SchmancyListTypeContext } from './context'
  */
 @customElement('schmancy-list-item')
 export class SchmancyListItem extends TailwindElement() {
-	@consume({ context: SchmancyListTypeContext, subscribe: true })
+	@consume({ context: SchmancySurfaceTypeContext, subscribe: true })
 	@property()
-	variant: SchmancyListType
+	variant: TSurfaceColor
 
 	@property({ type: Boolean })
 	rounded: boolean
@@ -52,14 +53,12 @@ export class SchmancyListItem extends TailwindElement() {
 	}
 
 	render() {
+		console.log(this.selected)
 		const classes = {
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
 			'min-h-[56px] relative flex items-center gap-[16px] py-[8px] px-[16px]': true,
-			'bg-secondary-container text-secondery-onContainer': this.selected && this.variant === 'container',
-			'text-surface-on bg-surface-default': !this.selected && this.variant === 'surface',
-			'text-surface-on bg-surface-variant-default': !this.selected && this.variant === 'surfaceVariant',
-			'text-surface-on bg-surface-container': !this.selected && this.variant === 'container',
+			'bg-secondary-container text-secondery-onContainer': this.selected,
 		}
 
 		const stateLayerClasses = {

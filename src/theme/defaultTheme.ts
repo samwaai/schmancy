@@ -9,8 +9,9 @@ export const defaultTheme: TSchmancyTheme = {
 			outline: '#CAC4D0',
 			surface: {
 				default: '#FEF7FF',
+				dim: '#E7E0EC',
+				bright: '#FFFFFF',
 				on: '#1D1B20',
-				variant: '#E7E0EC',
 				onVariant: '#49454F',
 				highest: '#E6E0E9',
 				high: '#ECE6F0',

@@ -4,6 +4,7 @@ import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { DemoButton } from './button'
 import { DemoInput } from './input'
+import DemoTypography from './typography'
 
 @customElement('demo-content-drawer')
 export class DemoContentDrawer extends $LitElement(css`
@@ -13,7 +14,7 @@ export class DemoContentDrawer extends $LitElement(css`
 `) {
 	render() {
 		return html`
-			<schmancy-content-drawer>
+			<schmancy-content-drawer minWidth="700">
 				<schmancy-content-drawer-main>
 					<schmancy-list>
 						<schmancy-list-item
@@ -23,7 +24,7 @@ export class DemoContentDrawer extends $LitElement(css`
 								schmancyContentDrawer.render(this, DemoButton)
 							}}
 						>
-							Bookings
+							Buttons
 						</schmancy-list-item>
 						<schmancy-list-item
 							@click=${() => {
@@ -31,12 +32,19 @@ export class DemoContentDrawer extends $LitElement(css`
 							}}
 							rounded
 						>
-							Rooms
+							Input
 						</schmancy-list-item>
-						<schmancy-list-item rounded> locks </schmancy-list-item>
+						<schmancy-list-item
+							@click=${() => {
+								schmancyContentDrawer.render(this, DemoTypography)
+							}}
+							rounded
+						>
+							Typography
+						</schmancy-list-item>
 					</schmancy-list>
 				</schmancy-content-drawer-main>
-				<schmancy-content-drawer-sheet>
+				<schmancy-content-drawer-sheet class="py-0">
 					<demo-sheet slot="placeholder"></demo-sheet>
 				</schmancy-content-drawer-sheet>
 			</schmancy-content-drawer>

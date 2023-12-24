@@ -5,10 +5,11 @@ export declare class SchmancyContentDrawerSheet extends SchmancyContentDrawerShe
     private state;
     schmancyContentDrawerID: any;
     overlay: HTMLElement;
+    sheet: HTMLElement;
     defaultSlot: HTMLElement[];
     updated(changedProperties: Map<string, any>): void;
-    openOverlay(): void;
-    closeOverlay(): void;
+    open(): void;
+    close(): void;
     protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

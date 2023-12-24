@@ -26,4 +26,4 @@ export * from './teleport';
 export * from './theme';
 export * from './tree';
 export * from './typography';
-export * from './events';
+export * from './types/events';

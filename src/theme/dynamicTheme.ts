@@ -1,5 +1,5 @@
 import { argbFromHex, themeFromSourceColor } from '@material/material-color-utilities'
-import { interval, map } from 'rxjs'
+import { interval, map, tap } from 'rxjs'
 import { $schmancyTheme } from './$schmancyTheme'
 import { formateTheme } from './theme.format'
 
@@ -7,6 +7,7 @@ interval(5000)
 	.pipe(
 		map(generateRandomColor),
 		map(color => themeFromSourceColor(argbFromHex(color))),
+		tap(console.log),
 		map(theme => formateTheme(theme)),
 	)
 	.subscribe(theme => {

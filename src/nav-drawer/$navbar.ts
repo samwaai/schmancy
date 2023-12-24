@@ -1,4 +1,4 @@
-import { SchmancyEvents } from '@schmancy/events'
+import { SchmancyEvents } from '@schmancy/types/events'
 import { Subject } from 'rxjs'
 
 class Drawer {

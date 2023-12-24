@@ -1,4 +1,4 @@
-import { SchmancyEvents } from '@schmancy/events'
+import { SchmancyEvents } from '@schmancy/types/events'
 import { Subject } from 'rxjs'
 
 type DrawerAction = 'dismiss' | 'render'

@@ -24,7 +24,7 @@ export declare class SchmancyContentDrawer extends SchmancyContentDrawer_base {
     open: TSchmancyContentDrawerSheetState;
     schmancyContentDrawerID: string;
     assignedElements: HTMLElement[];
-    connectedCallback(): void;
+    firstUpdated(): void;
     protected render(): import("lit-html").TemplateResult<1> | typeof nothing;
 }
 declare global {

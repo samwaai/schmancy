@@ -6,7 +6,7 @@ export function formateTheme(originalScheme: Theme): Partial<TSchmancyTheme> {
 		return '#' + argb.toString(16).slice(2)
 	}
 	const lightScheme = originalScheme.schemes.light
-	const container = createTonalPaletteFromBaseColor(
+	const exralightColors = createLightTonalPaletteFromBaseColor(
 		originalScheme.palettes.neutral.hue,
 		originalScheme.palettes.neutral.chroma,
 	)
@@ -18,14 +18,15 @@ export function formateTheme(originalScheme: Theme): Partial<TSchmancyTheme> {
 				outline: argbToHex(lightScheme.outline),
 				surface: {
 					default: argbToHex(lightScheme.surface),
+					dim: argbToHex(exralightColors.sDim),
+					bright: argbToHex(exralightColors.sBright),
 					on: argbToHex(lightScheme.onSurface),
-					variant: argbToHex(lightScheme.surfaceVariant),
 					onVariant: argbToHex(lightScheme.onSurfaceVariant),
-					highest: argbToHex(container.highest),
-					high: argbToHex(container.high), // Placeholder, as there's no direct mapping
-					container: argbToHex(container.container), // Placeholder, as there's no direct mapping
-					low: argbToHex(container.low), // Placeholder, as there's no direct mapping
-					lowest: argbToHex(container.lowest), // Assuming white as a default
+					highest: argbToHex(exralightColors.cHighest),
+					high: argbToHex(exralightColors.cHigh), // Placeholder, as there's no direct mapping
+					container: argbToHex(exralightColors.c), // Placeholder, as there's no direct mapping
+					low: argbToHex(exralightColors.cLow), // Placeholder, as there's no direct mapping
+					lowest: argbToHex(exralightColors.cLowest), // Assuming white as a default
 				},
 				primary: {
 					default: argbToHex(lightScheme.primary),
@@ -76,15 +77,18 @@ export function formateTheme(originalScheme: Theme): Partial<TSchmancyTheme> {
 	return newScheme
 }
 // Create a tonal palette from a base color
-function createTonalPaletteFromBaseColor(hue, chroma) {
+function createLightTonalPaletteFromBaseColor(hue, chroma) {
 	// Generate the tonal palette
 	const tonalPalette = TonalPalette.fromHueAndChroma(hue, chroma)
 	// Return an object with the desired tones
 	return {
-		lowest: tonalPalette.tone(100),
-		low: tonalPalette.tone(96),
-		container: tonalPalette.tone(94),
-		high: tonalPalette.tone(92),
-		highest: tonalPalette.tone(90),
+		cLowest: tonalPalette.tone(100),
+		cLow: tonalPalette.tone(96),
+		c: tonalPalette.tone(94),
+		cHigh: tonalPalette.tone(92),
+		cHighest: tonalPalette.tone(90),
+		sDim: tonalPalette.tone(87),
+		s: tonalPalette.tone(98),
+		sBright: tonalPalette.tone(10),
 	}
 }

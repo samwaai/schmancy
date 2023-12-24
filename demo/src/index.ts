@@ -4,6 +4,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import './features/index'
+import { DemoButton } from './features/index'
 
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
@@ -14,13 +15,13 @@ export default class SchmancyDemo extends $LitElement() {
 					<schmancy-nav-drawer-navbar>
 						<demo-nav> </demo-nav>
 					</schmancy-nav-drawer-navbar>
-					<schmancy-nav-drawer-content class="p-4">
-						<schmancy-nav-drawer-appbar class="pb-4">
-							<schmancy-surface type="container">
-								<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
-							</schmancy-surface>
+					<schmancy-nav-drawer-content class="pl-4">
+						<schmancy-nav-drawer-appbar class="py-4">
+							<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
 						</schmancy-nav-drawer-appbar>
-						${content()}
+						<schmancy-surface fill type="surfaceVariant" rounded="left">
+							<schmancy-area class="p-4" name="main" .default=${DemoButton}></schmancy-area>
+						</schmancy-surface>
 					</schmancy-nav-drawer-content>
 				</schmancy-nav-drawer>
 			</schmancy-surface>
