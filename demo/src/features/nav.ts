@@ -13,6 +13,7 @@ import { DemoList } from './list'
 import { DemoSheet } from './sheet'
 import { DemoTree } from './tree'
 import DemoTypography from './typography'
+import { DemoTabs } from './tabs'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -59,13 +60,16 @@ export class DemoNav extends $LitElement(css`
 			name: 'Content Drawer',
 			component: DemoContentDrawer,
 		},
+		{
+			name: 'Tabs',
+			component: DemoTabs,
+		},
 	]
 
 	connectedCallback(): void {
 		super.connectedCallback()
 		area.$current.pipe(filter(r => r.area === 'main')).subscribe(r => {
 			this.activeTab = r.component.toLowerCase().replaceAll('-', '')
-			console.log(this.activeTab)
 		})
 	}
 	render() {

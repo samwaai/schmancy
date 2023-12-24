@@ -53,7 +53,6 @@ export class SchmancyListItem extends TailwindElement() {
 	}
 
 	render() {
-		console.log(this.selected)
 		const classes = {
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,

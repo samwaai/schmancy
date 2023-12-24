@@ -6,5 +6,6 @@ export * from './layout';
 export * from './list';
 export * from './nav';
 export * from './sheet';
+export * from './tabs';
 export * from './tree';
 export * from './typography';

@@ -19,7 +19,7 @@ export default class SchmancyDemo extends $LitElement() {
 						<schmancy-nav-drawer-appbar class="py-4">
 							<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
 						</schmancy-nav-drawer-appbar>
-						<schmancy-surface fill type="surfaceVariant" rounded="left">
+						<schmancy-surface fill type="surface" rounded="left">
 							<schmancy-area class="p-4" name="main" .default=${DemoButton}></schmancy-area>
 						</schmancy-surface>
 					</schmancy-nav-drawer-content>
@@ -34,42 +34,3 @@ declare global {
 		'schmancy-demo': SchmancyDemo
 	}
 }
-
-const content = () => html`
-	<schmancy-grid gap="md" class="h-full " flow="col" rows="1fr">
-		<schmancy-surface rounded="all" fill type="surfaceVariant" elevation="1">
-			<schmancy-flex class="w-full px-4 py-4" gap="md" flow="row" align="center">
-				<schmancy-tab-group>
-					<!-- <schmancy-tab label="Layout">
-											<demo-layout class="py-4"></demo-layout>
-										</schmancy-tab> -->
-					<schmancy-tab label="Lists">
-						<demo-list class="py-4"></demo-list>
-					</schmancy-tab>
-					<schmancy-tab label="Card">
-						<demo-card class="py-4"></demo-card>
-					</schmancy-tab>
-					<schmancy-tab label="Inputs">
-						<demo-input class="py-4"></demo-input>
-					</schmancy-tab>
-					<schmancy-tab label="Typography">
-						<demo-typography class="py-4"></demo-typography>
-					</schmancy-tab>
-					<schmancy-tab label="Buttons">
-						<demo-button class="py-4"></demo-button>
-					</schmancy-tab>
-
-					<schmancy-tab label="Sheet">
-						<demo-sheet class="py-4"></demo-sheet>
-					</schmancy-tab>
-					<schmancy-tab label="Tree">
-						<demo-tree class="py-4"></demo-tree>
-					</schmancy-tab>
-					<schmancy-tab active label="Content Drawer">
-						<demo-content-drawer class="py-4"></demo-content-drawer>
-					</schmancy-tab>
-				</schmancy-tab-group>
-			</schmancy-flex>
-		</schmancy-surface>
-	</schmancy-grid>
-`

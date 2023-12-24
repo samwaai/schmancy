@@ -67,9 +67,8 @@ export class SchmancyContentDrawer extends $LitElement(css`
 	firstUpdated(): void {
 		fromEvent<CustomEvent>(window, 'resize')
 			.pipe(
-				map(event => event.target as Window),
-				startWith(window),
-				map(window => window.innerWidth),
+				startWith(true),
+				map(() => (this.clientWidth ? this.clientWidth : window.innerWidth)),
 				map(width => width >= this.minWidth),
 				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
