@@ -93,9 +93,15 @@ export class SchmancyArea extends $LitElement(css`
 				takeUntil(this.disconnecting),
 				distinctUntilChanged((a, b) => {
 					let aComponent, bComponent
-					if (typeof a.component === 'function') aComponent = (a.component as CustomElementConstructor).name
+					if (typeof a.component === 'function')
+						aComponent = (a.component as CustomElementConstructor).name.concat(
+							(a.component as CustomElementConstructor).arguments?.toString(),
+						)
 					else if (typeof a.component === 'string') aComponent = a.component
-					if (typeof b.component === 'function') bComponent = (b.component as CustomElementConstructor).name
+					if (typeof b.component === 'function')
+						bComponent = (b.component as CustomElementConstructor).name.concat(
+							(b.component as CustomElementConstructor).arguments?.toString(),
+						)
 					else if (typeof b.component === 'string') bComponent = b.component
 					return bComponent?.replaceAll('-', '').toLowerCase() === aComponent?.replaceAll('-', '').toLowerCase()
 				}),
