@@ -10,19 +10,16 @@ import {
 	SheetWhereAreYouRicky,
 	SheetWhereAreYouRickyEvent,
 	sheet,
-	SchmancySheetType,
 } from './sheet.service'
-import { when } from 'lit/directives/when.js'
 
 @customElement('schmancy-sheet')
 export default class SchmancySheet extends $LitElement(style) {
-	@property({ type: String }) type: SchmancySheetType
-
 	@property({ type: String, reflect: true }) uid!: string
 	@property({ type: Boolean, reflect: true }) open = false
-	@property({ type: String, reflect: true }) position: SchmancySheetPosition = SchmancySheetPosition.BottomCenter
+	@property({ type: String, reflect: true }) position: SchmancySheetPosition = SchmancySheetPosition.Side
 	@property({ type: Boolean, reflect: true }) persist = false
 	@property({ type: Boolean, reflect: true }) allowOverlyDismiss = true
+	@property({ type: String, reflect: true }) title = ''
 
 	@query('.sheet') sheet!: HTMLElement | undefined
 	@queryAsync('.sheet') sheetAsync!: Promise<HTMLElement> | undefined
@@ -151,9 +148,7 @@ export default class SchmancySheet extends $LitElement(style) {
 
 	render() {
 		const classes = {
-			'inset-0': true,
-			fixed: this.type === SchmancySheetType.modal,
-			'relative block': this.type === SchmancySheetType.standard,
+			'inset-0 fixed': true,
 			'transition-all duration-[600]': true,
 			'bottom-0 items-center justify-end': this.position === SchmancySheetPosition.Bottom,
 			'top-0 right-0 bottom-0 mx-auto items-end justify-start h-full w-full':
@@ -162,26 +157,26 @@ export default class SchmancySheet extends $LitElement(style) {
 		const contentClasses = {
 			'h-full rounded-l-[16px]': this.position === SchmancySheetPosition.Side,
 			'rounded-t-[16px]': this.position === SchmancySheetPosition.Bottom,
-			'bg-surface-low text-surface-onVariant border-outline shadow-1': this.type === 'modal',
-			'bg-surface text-surface-onPrimary min-w-[256px]': this.type === 'standard',
+			'bg-surface-low text-surface-onVariant border-outline shadow-1': true,
 		}
 		const overlayClasses = {
-			'bg-scrim transition-all duration-[600] opacity-[0.4] absolute inset-0': this.type === 'modal',
+			'bg-scrim transition-all duration-[600] opacity-[0.4] absolute inset-0': true,
 		}
 		return html`
 			<div class="sheet ${this.classMap(classes)}" role="dialog" aria-hidden="true">
-				${when(
-					this.type === SchmancySheetType.modal,
-					() =>
-						html`<div
-							class="overlay ${this.classMap(overlayClasses)}"
-							@click=${() => {
-								if (this.allowOverlyDismiss) sheet.dismiss(this.uid)
-							}}
-						></div>`,
-				)}
+				<div
+					class="overlay ${this.classMap(overlayClasses)}"
+					@click=${() => {
+						if (this.allowOverlyDismiss) sheet.dismiss(this.uid)
+					}}
+				></div>
 				<schmancy-sheet-content class="content ${this.classMap(contentClasses)}" data-position=${this.position}>
-					<slot></slot>
+					<schmancy-sheet-header>
+						<slot name="header"> ${this.title} </slot>
+					</schmancy-sheet-header>
+					<section class="flex flex-1 px-16">
+						<slot></slot>
+					</section>
 				</schmancy-sheet-content>
 			</div>
 		`

@@ -6,7 +6,7 @@ import { customElement } from 'lit/decorators.js'
 export default class SchmancySheetHeader extends TailwindElement(css`
 	:host {
 		display: block;
-		padding-bottom: 24px;
+		padding-bottom: 16px;
 	}
 `) {
 	render() {

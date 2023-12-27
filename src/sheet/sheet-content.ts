@@ -6,7 +6,7 @@ import { customElement } from 'lit/decorators.js'
 export default class SchmancySheetContent extends TailwindElement() {
 	render() {
 		return html`
-			<div class="p-[24px]" tabindex="0">
+			<div class="py-[16px]" tabindex="0">
 				<slot></slot>
 			</div>
 		`

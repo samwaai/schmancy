@@ -18,6 +18,7 @@ export class DemoSheet extends $LitElement(css`
 						sheet.open({
 							component: new SheetDemoExample(),
 							position: SchmancySheetPosition.Bottom,
+							title: 'Bottom Sheet',
 						})
 					}}
 				>
@@ -30,6 +31,7 @@ export class DemoSheet extends $LitElement(css`
 						sheet.open({
 							component: new SheetDemoExample(),
 							position: SchmancySheetPosition.Side,
+							title: 'Side Sheet',
 						})
 					}}
 				>
@@ -50,10 +52,9 @@ declare global {
 class SheetDemoExample extends $LitElement() {
 	render() {
 		return html`
-			<schmancy-sheet-header>
-				<slot name="title">Title </slot>
-			</schmancy-sheet-header>
-			<demo-list></demo-list>
+			<schmancy-surface type="surface" rounded="all">
+				<demo-list class="p-4"></demo-list>
+			</schmancy-surface>
 		`
 	}
 }

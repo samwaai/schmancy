@@ -3,7 +3,7 @@ import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html, nothing } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil, tap } from 'rxjs'
-import { SchmancyEvents, area, sheet } from '..'
+import { SchmancyEvents, TRenderCustomEvent, area, sheet } from '..'
 import {
 	SchmancyContentDrawerID,
 	SchmancyContentDrawerSheetMode,
@@ -88,15 +88,15 @@ export class SchmancyContentDrawer extends $LitElement(css`
 				this.open = state
 			})
 
-		fromEvent<CustomEvent>(window, 'schmancy-content-drawer-render')
+		fromEvent<TRenderCustomEvent>(window, 'schmancy-content-drawer-render')
 			.pipe(
 				tap(event => {
 					event.stopPropagation()
 				}),
-				map(event => event.detail.component),
+				map(event => event.detail),
 				takeUntil(this.disconnecting),
 			)
-			.subscribe(component => {
+			.subscribe(({ component, title }) => {
 				if (this.mode === 'push')
 					area.push({
 						area: this.schmancyContentDrawerID,
@@ -104,7 +104,7 @@ export class SchmancyContentDrawer extends $LitElement(css`
 						historyStrategy: 'silent',
 					})
 				else if ((this.mode = 'overlay')) {
-					sheet.open({ component: component, uid: this.schmancyContentDrawerID })
+					sheet.open({ component: component, uid: this.schmancyContentDrawerID, title })
 				}
 			})
 	}

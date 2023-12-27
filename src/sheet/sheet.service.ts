@@ -32,19 +32,15 @@ export enum SchmancySheetPosition {
 	 */
 	BottomRight = 'bottom-right',
 }
-export enum SchmancySheetType {
-	standard = 'standard',
-	modal = 'modal',
-}
 
 type BottomSheeetTarget = {
 	component: HTMLElement
-	type?: SchmancySheetType
 	uid?: string
 	position?: SchmancySheetPosition
 	persist?: boolean
 	close?: () => void
 	allowOverlyDismiss?: boolean
+	title?: string
 }
 
 // Events for communication between bottom-sheet component and bottom-sheet.service
@@ -90,7 +86,7 @@ class BottomSheetService {
 					sheet.setAttribute('uid', target.uid ?? target.component.tagName)
 					sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
 					sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
-					sheet.setAttribute('type', target.type ?? SchmancySheetType.modal)
+					target.title && sheet.setAttribute('title', target.title)
 					target.persist && sheet.setAttribute('persist', target.persist ?? false)
 
 					document.body.style.overflow = 'hidden' // lock the scroll of the host

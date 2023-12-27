@@ -3,15 +3,17 @@ import { Subject } from 'rxjs'
 
 type DrawerAction = 'dismiss' | 'render'
 type TRef = Element | Window
-type TRenderRequest = HTMLElement | CustomElementConstructor | string | Promise<NodeModule>
+type TRenderRequest = HTMLElement
 export type TRenderCustomEvent = CustomEvent<{
 	component: TRenderRequest
+	title?: string
 }>
 class Drawer {
 	private $drawer = new Subject<{
 		ref: TRef
 		action: DrawerAction
 		component?: TRenderRequest
+		title?: string
 	}>()
 	constructor() {
 		this.$drawer.pipe().subscribe(data => {
@@ -39,6 +41,7 @@ class Drawer {
 					new CustomEvent('schmancy-content-drawer-render', {
 						detail: {
 							component: data.component,
+							title: data.title,
 						},
 						bubbles: true,
 						composed: true,
@@ -55,12 +58,13 @@ class Drawer {
 		})
 	}
 
-	render(ref: TRef, component: TRenderRequest) {
+	render(ref: TRef, component: TRenderRequest, title?: string) {
 		ref.dispatchEvent(new CustomEvent('custom-event'))
 		this.$drawer.next({
 			action: 'render',
 			ref: ref,
 			component: component,
+			title,
 		})
 	}
 }
