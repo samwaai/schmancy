@@ -181,9 +181,9 @@ export default class SchmancySheet extends $LitElement(style) {
 							}}
 						></div>`,
 				)}
-				<div class="content ${this.classMap(contentClasses)}" data-position=${this.position}>
+				<schmancy-sheet-content class="content ${this.classMap(contentClasses)}" data-position=${this.position}>
 					<slot></slot>
-				</div>
+				</schmancy-sheet-content>
 			</div>
 		`
 	}

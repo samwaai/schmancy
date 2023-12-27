@@ -88,7 +88,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 		}
 
 		return html`
-			<schmancy-grid gap="sm" cols="auto 1fr" rows="1fr" flow="col" align="stretch" justify="stretch">
+			<schmancy-grid cols="auto 1fr" rows="1fr" flow="col" align="stretch" justify="stretch">
 				<schmancy-divider class="px-4" orientation="vertical"></schmancy-divider>
 				<section id="sheet" class="${this.classMap(sheetClasses)}">
 					<schmancy-area name="${this.schmancyContentDrawerID}">
