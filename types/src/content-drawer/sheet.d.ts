@@ -4,13 +4,12 @@ export declare class SchmancyContentDrawerSheet extends SchmancyContentDrawerShe
     mode: TSchmancyContentDrawerSheetMode;
     state: TSchmancyContentDrawerSheetState;
     schmancyContentDrawerID: any;
-    overlay: HTMLElement;
     sheet: HTMLElement;
     defaultSlot: HTMLElement[];
     updated(changedProperties: Map<string, any>): void;
     open(): void;
     closeAll(): void;
-    closeOverlay(): any;
+    closeModalSheet(): import("rxjs").Observable<boolean>;
     closeSheet(): any;
     protected render(): import("lit-html").TemplateResult<1>;
 }

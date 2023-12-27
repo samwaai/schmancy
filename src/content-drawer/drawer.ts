@@ -3,7 +3,7 @@ import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html, nothing } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil, tap } from 'rxjs'
-import { SchmancyEvents, area } from '..'
+import { SchmancyEvents, area, sheet } from '..'
 import {
 	SchmancyContentDrawerID,
 	SchmancyContentDrawerSheetMode,
@@ -97,18 +97,29 @@ export class SchmancyContentDrawer extends $LitElement(css`
 				takeUntil(this.disconnecting),
 			)
 			.subscribe(component => {
-				area.push({
-					area: this.schmancyContentDrawerID,
-					component: component,
-					historyStrategy: 'silent',
-				})
+				if (this.mode === 'push')
+					area.push({
+						area: this.schmancyContentDrawerID,
+						component: component,
+						historyStrategy: 'silent',
+					})
+				else if ((this.mode = 'overlay')) {
+					sheet.open({ component: new component(), uid: this.schmancyContentDrawerID })
+				}
 			})
 	}
 
 	protected render() {
 		if (!this.mode || !this.open) return nothing
 		return html`
-			<schmancy-grid cols="auto 1fr" rows="1fr" flow="col" justify="stretch" align="stretch" class="flex h-[100%]">
+			<schmancy-grid
+				cols=${this.mode === 'overlay' ? '1fr' : 'auto 1fr'}
+				rows="1fr"
+				flow="col"
+				justify="stretch"
+				align="stretch"
+				class="flex h-[100%]"
+			>
 				<slot></slot>
 			</schmancy-grid>
 		`

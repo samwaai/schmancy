@@ -4,7 +4,9 @@ import { Subject } from 'rxjs'
 type DrawerAction = 'dismiss' | 'render'
 type TRef = Element | Window
 type TRenderRequest = HTMLElement | CustomElementConstructor | string | Promise<NodeModule>
-
+export type TRenderCustomEvent = CustomEvent<{
+	component: TRenderRequest
+}>
 class Drawer {
 	private $drawer = new Subject<{
 		ref: TRef

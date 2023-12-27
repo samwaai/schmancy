@@ -3,7 +3,7 @@ import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
-import { SchmancyEvents, SchmancyTheme, color } from '..'
+import { from, merge, of, takeUntil, tap } from 'rxjs'
 import {
 	SchmancyContentDrawerID,
 	SchmancyContentDrawerSheetMode,
@@ -11,7 +11,7 @@ import {
 	TSchmancyContentDrawerSheetMode,
 	TSchmancyContentDrawerSheetState,
 } from './context'
-import { from, merge, takeUntil } from 'rxjs'
+import { sheet } from '..'
 @customElement('schmancy-content-drawer-sheet')
 export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 	@consume({ context: SchmancyContentDrawerSheetMode, subscribe: true })
@@ -25,7 +25,6 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 	@consume({ context: SchmancyContentDrawerID })
 	schmancyContentDrawerID
 
-	@query('#overlay') overlay!: HTMLElement
 	@query('#sheet') sheet!: HTMLElement
 	@queryAssignedElements({ flatten: true, slot: undefined }) defaultSlot!: HTMLElement[]
 	updated(changedProperties: Map<string, any>) {
@@ -34,9 +33,10 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 				if (this.state === 'close') {
 					this.closeAll()
 				} else if (this.state === 'open') {
-					this.open()
+					// this.open()
 				}
 			} else if (this.mode === 'push') {
+				sheet.dismiss(this.schmancyContentDrawerID)
 				if (this.state === 'close') this.closeAll()
 				else if (this.state === 'open') this.open()
 			}
@@ -44,18 +44,6 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 	}
 
 	open() {
-		if (this.mode === 'overlay')
-			animate(this.overlay, {
-				opacity: 0.4,
-				duration: 500,
-				ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-				onBegin: () => {
-					this.overlay.style.display = 'block'
-					this.overlay.style.position = 'fixed'
-				},
-			})
-		else if (this.mode === 'push') from(this.closeOverlay()).pipe(takeUntil(this.disconnecting)).subscribe()
-
 		animate(this.sheet, {
 			opacity: 1,
 			duration: 500,
@@ -70,20 +58,11 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 	}
 
 	closeAll() {
-		merge(from(this.closeOverlay()), from(this.closeSheet())).pipe(takeUntil(this.disconnecting)).subscribe()
+		merge(from(this.closeModalSheet()), from(this.closeSheet())).pipe(takeUntil(this.disconnecting)).subscribe()
 	}
 
-	closeOverlay() {
-		return utils.promisify(
-			animate(this.overlay, {
-				opacity: [0.4, 0],
-				duration: 500,
-				ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-				onComplete: () => {
-					this.overlay.style.display = 'none'
-				},
-			}),
-		)
+	closeModalSheet() {
+		return of(true).pipe(tap(() => sheet.dismiss(this.schmancyContentDrawerID)))
 	}
 
 	closeSheet() {
@@ -107,30 +86,16 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 			'absolute z-[50]': this.mode === 'overlay',
 			'opacity-1': this.mode === 'overlay' && this.state === 'open',
 		}
-		const overlayClass = {
-			'hidden inset-0 z-[49]': true,
-		}
 
 		return html`
-			<div
-				id="overlay"
-				${color({
-					bgColor: SchmancyTheme.sys.color.scrim,
-				})}
-				@click=${() => {
-					this.dispatchEvent(
-						new CustomEvent(SchmancyEvents.ContentDrawerToggle, {
-							detail: { state: 'close' },
-							bubbles: true,
-							composed: true,
-						}),
-					)
-				}}
-				class="${this.classMap(overlayClass)}"
-			></div>
-			<section id="sheet" class="${this.classMap(sheetClasses)}">
-				<schmancy-area name="${this.schmancyContentDrawerID}"> </schmancy-area>
-			</section>
+			<schmancy-grid gap="sm" cols="auto 1fr" rows="1fr" flow="col" align="stretch" justify="stretch">
+				<schmancy-divider class="px-4" orientation="vertical"></schmancy-divider>
+				<section id="sheet" class="${this.classMap(sheetClasses)}">
+					<schmancy-area name="${this.schmancyContentDrawerID}">
+						<slot name="placeholder"></slot>
+					</schmancy-area>
+				</section>
+			</schmancy-grid>
 		`
 	}
 }

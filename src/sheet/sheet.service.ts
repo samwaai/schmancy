@@ -87,7 +87,7 @@ class BottomSheetService {
 						sheet = document.createElement('schmancy-sheet')
 						document.body.appendChild(sheet)
 					}
-					sheet.setAttribute('uid', target.component.tagName)
+					sheet.setAttribute('uid', target.uid ?? target.component.tagName)
 					sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
 					sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
 					sheet.setAttribute('type', target.type ?? SchmancySheetType.modal)
