@@ -104,7 +104,7 @@ export class SchmancyContentDrawer extends $LitElement(css`
 						historyStrategy: 'silent',
 					})
 				else if ((this.mode = 'overlay')) {
-					sheet.open({ component: new component(), uid: this.schmancyContentDrawerID })
+					sheet.open({ component: component, uid: this.schmancyContentDrawerID })
 				}
 			})
 	}
