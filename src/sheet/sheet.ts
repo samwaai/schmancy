@@ -160,7 +160,6 @@ export default class SchmancySheet extends $LitElement(style) {
 				this.position === SchmancySheetPosition.Side,
 		}
 		const contentClasses = {
-			'pt-[24px]': true,
 			'h-full rounded-l-[16px]': this.position === SchmancySheetPosition.Side,
 			'rounded-t-[16px]': this.position === SchmancySheetPosition.Bottom,
 			'bg-surface-low text-surface-onVariant border-outline shadow-1': this.type === 'modal',

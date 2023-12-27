@@ -50,10 +50,10 @@ declare global {
 class SheetDemoExample extends $LitElement() {
 	render() {
 		return html`
-			<schmancy-sheet-content>
-				<span slot="title">New title</span>
-				<demo-list></demo-list>
-			</schmancy-sheet-content>
+			<schmancy-sheet-header>
+				<slot name="title">Title </slot>
+			</schmancy-sheet-header>
+			<demo-list></demo-list>
 		`
 	}
 }
