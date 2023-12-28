@@ -89,6 +89,6 @@ function createLightTonalPaletteFromBaseColor(hue, chroma) {
 		cHighest: tonalPalette.tone(90),
 		sDim: tonalPalette.tone(87),
 		s: tonalPalette.tone(98),
-		sBright: tonalPalette.tone(10),
+		sBright: tonalPalette.tone(98),
 	}
 }
