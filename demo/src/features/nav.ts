@@ -14,6 +14,7 @@ import { DemoSheet } from './sheet'
 import { DemoTree } from './tree'
 import DemoTypography from './typography'
 import { DemoTabs } from './tabs'
+import { DemoSurface } from './surface'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -63,6 +64,10 @@ export class DemoNav extends $LitElement(css`
 		{
 			name: 'Tabs',
 			component: DemoTabs,
+		},
+		{
+			name: 'Surface',
+			component: DemoSurface,
 		},
 	]
 

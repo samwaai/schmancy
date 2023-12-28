@@ -25,7 +25,9 @@ export class SchmancySurface extends TailwindElement(css`
 	@property()
 	type: TSurfaceColor = 'surface'
 	@property({ type: Number }) elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
-	protected render(): unknown {
+
+	connectedCallback(): void {
+		super.connectedCallback()
 		const classes = {
 			'rounded-none': this.rounded === 'none',
 			'rounded-t-[16px]': this.rounded === 'top',
@@ -49,11 +51,10 @@ export class SchmancySurface extends TailwindElement(css`
 			'bg-surface-high': this.type === 'containerHigh',
 			'bg-surface-highest': this.type === 'containerHighest',
 		}
-		return html`
-			<div class="${this.classMap(classes)}">
-				<slot></slot>
-			</div>
-		`
+		this.shadowRoot.host.classList.add(...Object.keys(classes).filter(key => classes[key]))
+	}
+	protected render(): unknown {
+		return html` <slot></slot> `
 	}
 }
 declare global {
