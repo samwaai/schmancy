@@ -8,7 +8,7 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 
 	if (isDark) {
 		const darkScheme = originalScheme.schemes.dark
-		const exralightColors = createDarkTonalPaletteFromBaseColor(
+		const exraDarkColors = createDarkTonalPaletteFromBaseColor(
 			originalScheme.palettes.primary.hue,
 			originalScheme.palettes.primary.chroma,
 		)
@@ -20,15 +20,15 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 					outline: argbToHex(darkScheme.outline),
 					surface: {
 						default: argbToHex(darkScheme.surface),
-						dim: argbToHex(exralightColors.sDim),
-						bright: argbToHex(exralightColors.sBright),
+						dim: argbToHex(exraDarkColors.sDim),
+						bright: argbToHex(exraDarkColors.sBright),
 						on: argbToHex(darkScheme.onSurface),
 						onVariant: argbToHex(darkScheme.onSurfaceVariant),
-						highest: argbToHex(exralightColors.cHighest),
-						high: argbToHex(exralightColors.cHigh), // Placeholder, as there's no direct mapping
-						container: argbToHex(exralightColors.c), // Placeholder, as there's no direct mapping
-						low: argbToHex(exralightColors.cLow), // Placeholder, as there's no direct mapping
-						lowest: argbToHex(exralightColors.cLowest), // Assuming white as a default
+						highest: argbToHex(exraDarkColors.cHighest),
+						high: argbToHex(exraDarkColors.cHigh), // Placeholder, as there's no direct mapping
+						container: argbToHex(exraDarkColors.c), // Placeholder, as there's no direct mapping
+						low: argbToHex(exraDarkColors.cLow), // Placeholder, as there's no direct mapping
+						lowest: argbToHex(exraDarkColors.cLowest), // Assuming white as a default
 					},
 					primary: {
 						default: argbToHex(darkScheme.primary),
@@ -39,7 +39,7 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 					secondary: {
 						default: argbToHex(darkScheme.secondary),
 						on: argbToHex(darkScheme.onSecondary),
-						container: argbToHex(exralightColors.sBright),
+						container: argbToHex(exraDarkColors.sBright),
 						onContainer: argbToHex(darkScheme.onSecondaryContainer),
 					},
 					tertiary: {
