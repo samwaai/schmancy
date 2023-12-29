@@ -88,7 +88,7 @@ export class DemoNav extends $LitElement(css`
 						d =>
 							html` <schmancy-list-item
 								rounded
-								.selected=${this.activeTab === d.component.name.toLowerCase()}
+								.selected=${this.activeTab.toLowerCase().replaceAll('-', '') === d.component.name.toLowerCase()}
 								@click=${() => {
 									schmancyNavDrawer.close(this)
 									area.push({
