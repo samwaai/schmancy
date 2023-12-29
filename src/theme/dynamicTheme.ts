@@ -1,19 +1,39 @@
 import { argbFromHex, themeFromSourceColor } from '@material/material-color-utilities'
-import { interval, map } from 'rxjs'
+import { merge, interval, map } from 'rxjs'
 import { $schmancyTheme } from './$schmancyTheme'
 import { formateTheme } from './theme.format'
+import { Observable } from 'rxjs';
 
-interval(5000)
+let isDark = false
+
+
+
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+const colorScheme$ = new Observable<string>(subscriber => {
+	const handler = (e: MediaQueryListEvent) => {
+		const newColorScheme = e.matches ? 'dark' : 'light';
+		subscriber.next(newColorScheme);
+	};
+
+	mediaQuery.addEventListener('change', handler);
+
+	// Emit the initial value
+	const initialColorScheme = mediaQuery.matches ? 'dark' : 'light';
+
+	subscriber.next(initialColorScheme);
+
+	// On unsubscribe, remove the event listener
+	return () => mediaQuery.removeEventListener('change', handler);
+});
+
+
+
+merge(colorScheme$.pipe(map(colorScheme => isDark = colorScheme === 'dark')), interval(5000))
 	.pipe(
 		map(generateRandomColor),
 		map(color => themeFromSourceColor(argbFromHex(color))),
-		map(theme => {
-			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-				return formateTheme(theme, true)
-			} else {
-				return formateTheme(theme)
-			}
-		})
+		map(theme => formateTheme(theme, isDark))
 	)
 	.subscribe(theme => {
 		$schmancyTheme.next(theme)
