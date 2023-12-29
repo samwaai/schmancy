@@ -5,16 +5,16 @@ import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { filter } from 'rxjs'
-import { DemoButton } from './button'
-import { DemoCard } from './card'
-import { DemoContentDrawer } from './drawer-content'
-import { DemoInput } from './input'
-import { DemoList } from './list'
-import { DemoSheet } from './sheet'
-import { DemoTree } from './tree'
-import DemoTypography from './typography'
-import { DemoTabs } from './tabs'
-import { DemoSurface } from './surface'
+import { DemoButton } from './features/button'
+import { DemoCard } from './features/card'
+import { DemoContentDrawer } from './features/drawer-content'
+import { DemoInput } from './features/input'
+import { DemoList } from './features/list'
+import { DemoSheet } from './features/sheet'
+import { DemoTree } from './features/tree'
+import DemoTypography from './features/typography'
+import { DemoTabs } from './features/tabs'
+import { DemoSurface } from './features/surface'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -74,7 +74,7 @@ export class DemoNav extends $LitElement(css`
 	connectedCallback(): void {
 		super.connectedCallback()
 		area.$current.pipe(filter(r => r.area === 'main')).subscribe(r => {
-			this.activeTab = r.component.toLowerCase().replaceAll('-', '')
+			this.activeTab = r.component?.toLowerCase().replaceAll('-', '')
 		})
 	}
 	render() {
@@ -88,7 +88,7 @@ export class DemoNav extends $LitElement(css`
 						d =>
 							html` <schmancy-list-item
 								rounded
-								.selected=${this.activeTab.toLowerCase().replaceAll('-', '') === d.component.name.toLowerCase()}
+								.selected=${this.activeTab.toLowerCase()?.replaceAll('-', '') === d.component.name?.toLowerCase()}
 								@click=${() => {
 									schmancyNavDrawer.close(this)
 									area.push({
