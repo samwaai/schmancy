@@ -15,6 +15,7 @@ import { DemoTree } from './features/tree'
 import DemoTypography from './features/typography'
 import { DemoTabs } from './features/tabs'
 import { DemoSurface } from './features/surface'
+import { DemoIcons } from './features/icons'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -28,6 +29,10 @@ export class DemoNav extends $LitElement(css`
 		name: string
 		component: CustomElementConstructor
 	}> = [
+		{
+			name: 'Icons',
+			component: DemoIcons,
+		},
 		{
 			name: 'Typography',
 			component: DemoTypography,
