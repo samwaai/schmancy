@@ -100,7 +100,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 
 	protected render() {
 		const sheetClasses = {
-			block: this.mode === 'push',
+			'block px-4': this.mode === 'push',
 			'absolute z-[50]': this.mode === 'overlay',
 			'opacity-1': this.mode === 'overlay' && this.state === 'open',
 		}
@@ -109,17 +109,11 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 			minWidth: `${this.minWidth}px`,
 		}
 		return html`
-			<schmancy-grid class="h-full" cols="auto 1fr" rows="1fr" flow="col" align="stretch" justify="stretch">
-				${when(
-					this.mode === 'push',
-					() => html` <schmancy-divider class="px-4" orientation="vertical"></schmancy-divider>`,
-				)}
-				<section id="sheet" class="${this.classMap(sheetClasses)}" style=${this.styleMap(styles)}>
-					<schmancy-area name="${this.schmancyContentDrawerID}">
-						<slot name="placeholder"></slot>
-					</schmancy-area>
-				</section>
-			</schmancy-grid>
+			<section id="sheet" class="${this.classMap(sheetClasses)}" style=${this.styleMap(styles)}>
+				<schmancy-area name="${this.schmancyContentDrawerID}">
+					<slot name="placeholder"></slot>
+				</schmancy-area>
+			</section>
 		`
 	}
 }

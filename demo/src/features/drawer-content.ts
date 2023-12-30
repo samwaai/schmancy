@@ -18,7 +18,6 @@ export class DemoContentDrawer extends $LitElement(css`
 				<schmancy-content-drawer-main>
 					<schmancy-list>
 						<schmancy-list-item
-							rounded
 							selected
 							@click=${e => {
 								schmancyContentDrawer.render(this, new DemoButton())
@@ -30,7 +29,6 @@ export class DemoContentDrawer extends $LitElement(css`
 							@click=${() => {
 								schmancyContentDrawer.render(this, new DemoInput())
 							}}
-							rounded
 						>
 							Input
 						</schmancy-list-item>
@@ -38,7 +36,6 @@ export class DemoContentDrawer extends $LitElement(css`
 							@click=${() => {
 								schmancyContentDrawer.render(this, new DemoTypography(), 'Typography')
 							}}
-							rounded
 						>
 							Typography
 						</schmancy-list-item>

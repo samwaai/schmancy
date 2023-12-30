@@ -1,9 +1,14 @@
 import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { PropertyValueMap, css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { SchmancyEvents } from '..'
-import { SchmancyContentDrawerMinWidth } from './context'
+import {
+	SchmancyContentDrawerMinWidth,
+	SchmancyContentDrawerSheetMode,
+	TSchmancyContentDrawerSheetMode,
+} from './context'
+import { when } from 'lit/directives/when.js'
 
 @customElement('schmancy-content-drawer-main')
 export class SchmancyContentDrawerMain extends $LitElement(css`
@@ -17,6 +22,10 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 
 	@consume({ context: SchmancyContentDrawerMinWidth, subscribe: true })
 	drawerMinWidth: typeof SchmancyContentDrawerMinWidth.__context__
+
+	@consume({ context: SchmancyContentDrawerSheetMode, subscribe: true })
+	@state()
+	mode: TSchmancyContentDrawerSheetMode
 
 	connectedCallback(): void {
 		super.connectedCallback()
@@ -37,9 +46,22 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 			minWidth: `${this.minWidth}px`,
 		}
 		return html`
-			<section style=${this.styleMap(styles)}>
-				<slot></slot>
-			</section>
+			<schmancy-grid
+				class="h-full"
+				cols="${this.mode === 'push' ? 'auto 1fr' : '1fr'}"
+				rows="1fr"
+				flow="col"
+				align="stretch"
+				justify="stretch"
+			>
+				<section style=${this.styleMap(styles)}>
+					<slot></slot>
+				</section>
+				${when(
+					this.mode === 'push',
+					() => html` <schmancy-divider class="py-[8px]" orientation="vertical"></schmancy-divider>`,
+				)}
+			</schmancy-grid>
 		`
 	}
 }
