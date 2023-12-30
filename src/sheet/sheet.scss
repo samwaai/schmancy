@@ -21,7 +21,7 @@
 		z-index: 1;
 		display: flex;
 		flex-direction: column;
-		overflow-y: hidden;
+		overflow-y: auto;
 		--default-transitions: transform var(--transition-duration), border-radius var(--transition-duration);
 		transition: var(--default-transitions);
 		transform: translateY(0);

@@ -14,7 +14,7 @@ export class DemoContentDrawer extends $LitElement(css`
 `) {
 	render() {
 		return html`
-			<schmancy-content-drawer minWidth="700">
+			<schmancy-content-drawer>
 				<schmancy-content-drawer-main>
 					<schmancy-list>
 						<schmancy-list-item

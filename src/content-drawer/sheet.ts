@@ -2,18 +2,23 @@ import { animate, utils } from '@juliangarnierorg/anime-beta'
 import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
-import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
+import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
+import { when } from 'lit/directives/when.js'
 import { from, merge, of, takeUntil, tap } from 'rxjs'
+import { SchmancyEvents, sheet } from '..'
 import {
 	SchmancyContentDrawerID,
+	SchmancyContentDrawerMinWidth,
 	SchmancyContentDrawerSheetMode,
 	SchmancyContentDrawerSheetState,
 	TSchmancyContentDrawerSheetMode,
 	TSchmancyContentDrawerSheetState,
 } from './context'
-import { sheet } from '..'
 @customElement('schmancy-content-drawer-sheet')
 export class SchmancyContentDrawerSheet extends $LitElement(css``) {
+	@property({ type: Number })
+	minWidth
+
 	@consume({ context: SchmancyContentDrawerSheetMode, subscribe: true })
 	@state()
 	mode: TSchmancyContentDrawerSheetMode
@@ -27,8 +32,22 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 
 	@query('#sheet') sheet!: HTMLElement
 	@queryAssignedElements({ flatten: true, slot: undefined }) defaultSlot!: HTMLElement[]
+
+	@consume({ context: SchmancyContentDrawerMinWidth, subscribe: true })
+	drawerMinWidth: typeof SchmancyContentDrawerMinWidth.__context__
+
+	connectedCallback(): void {
+		super.connectedCallback()
+		if (this.minWidth) this.drawerMinWidth.sheet = this.minWidth
+		else this.minWidth = this.drawerMinWidth.sheet
+	}
+
 	updated(changedProperties: Map<string, any>) {
-		if (changedProperties.has('state') || changedProperties.has('mode')) {
+		super.updated(changedProperties)
+		if (changedProperties.has('minWidth') && this.minWidth) {
+			this.drawerMinWidth.sheet = this.minWidth
+			this.dispatchEvent(new CustomEvent(SchmancyEvents.ContentDrawerResize, { bubbles: true, composed: true }))
+		} else if (changedProperties.has('state') || changedProperties.has('mode')) {
 			if (this.mode === 'overlay') {
 				if (this.state === 'close') {
 					this.closeAll()
@@ -81,16 +100,21 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 
 	protected render() {
 		const sheetClasses = {
-			'min-w-[360px]': true,
 			block: this.mode === 'push',
 			'absolute z-[50]': this.mode === 'overlay',
 			'opacity-1': this.mode === 'overlay' && this.state === 'open',
 		}
 
+		const styles = {
+			minWidth: `${this.minWidth}px`,
+		}
 		return html`
 			<schmancy-grid class="h-full" cols="auto 1fr" rows="1fr" flow="col" align="stretch" justify="stretch">
-				<schmancy-divider class="px-4" orientation="vertical"></schmancy-divider>
-				<section id="sheet" class="${this.classMap(sheetClasses)}">
+				${when(
+					this.mode === 'push',
+					() => html` <schmancy-divider class="px-4" orientation="vertical"></schmancy-divider>`,
+				)}
+				<section id="sheet" class="${this.classMap(sheetClasses)}" style=${this.styleMap(styles)}>
 					<schmancy-area name="${this.schmancyContentDrawerID}">
 						<slot name="placeholder"></slot>
 					</schmancy-area>

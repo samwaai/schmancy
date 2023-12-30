@@ -6,3 +6,7 @@ export type TSchmancyContentDrawerSheetState = 'open' | 'close'
 export const SchmancyContentDrawerSheetState = createContext<TSchmancyContentDrawerSheetState>('close')
 
 export const SchmancyContentDrawerID = createContext<string>(Math.floor(Math.random() * Date.now()).toString())
+export const SchmancyContentDrawerMinWidth = createContext<{
+	main: number
+	sheet: number
+}>({})

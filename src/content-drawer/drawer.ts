@@ -2,10 +2,11 @@ import { provide } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html, nothing } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
-import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil, tap } from 'rxjs'
+import { debounceTime, distinctUntilChanged, fromEvent, map, merge, startWith, takeUntil, tap } from 'rxjs'
 import { SchmancyEvents, TRenderCustomEvent, area, sheet } from '..'
 import {
 	SchmancyContentDrawerID,
+	SchmancyContentDrawerMinWidth,
 	SchmancyContentDrawerSheetMode,
 	SchmancyContentDrawerSheetState,
 	TSchmancyContentDrawerSheetMode,
@@ -31,8 +32,21 @@ export class SchmancyContentDrawer extends $LitElement(css`
 	 * @type {number}
 	 * @memberof SchmancyContentDrawer
 	 */
-	@property({ type: Number })
-	minWidth: number = 1240
+
+	@provide({ context: SchmancyContentDrawerMinWidth })
+	minWidth: typeof SchmancyContentDrawerMinWidth.__context__ = {
+		main: 360,
+		sheet: 576,
+	}
+
+	/**
+	 * The state of the sheet
+	 * @attr open
+	 * @type {TSchmancyContentDrawerSheetState}
+	 */
+	@provide({ context: SchmancyContentDrawerSheetState })
+	@property()
+	open: TSchmancyContentDrawerSheetState
 
 	/**
 	 * The mode of the sheet
@@ -44,21 +58,18 @@ export class SchmancyContentDrawer extends $LitElement(css`
 	@state()
 	mode: TSchmancyContentDrawerSheetMode
 
-	@provide({ context: SchmancyContentDrawerSheetState })
-	@property()
-	open: TSchmancyContentDrawerSheetState
-
 	@provide({ context: SchmancyContentDrawerID })
 	schmancyContentDrawerID = Math.floor(Math.random() * Date.now()).toString()
 
 	@queryAssignedElements({ flatten: true })
 	assignedElements!: HTMLElement[]
 	firstUpdated(): void {
-		fromEvent<CustomEvent>(window, 'resize')
+		merge(fromEvent<CustomEvent>(window, 'resize'), fromEvent<CustomEvent>(window, SchmancyEvents.ContentDrawerResize))
 			.pipe(
 				startWith(true),
+				tap(() => console.log(this.minWidth)),
 				map(() => (this.clientWidth ? this.clientWidth : window.innerWidth)),
-				map(width => width >= this.minWidth),
+				map(width => width >= this.minWidth.main + this.minWidth.sheet),
 				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
 				debounceTime(100),
