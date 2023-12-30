@@ -12,6 +12,8 @@ import { SchmancyListTypeContext } from './context'
 export class List extends TailwindElement(css`
 	:host {
 		display: block;
+		padding-top: 8px;
+		padding-bottom: 8px;
 	}
 `) {
 	/**
@@ -25,12 +27,9 @@ export class List extends TailwindElement(css`
 	surface: TSurfaceColor
 
 	render() {
-		const classes = {
-			'py-[8px]': true,
-		}
 		return html`
 			<schmancy-surface type=${this.surface}>
-				<ul class="${this.classMap(classes)}">
+				<ul>
 					<slot></slot>
 				</ul>
 			</schmancy-surface>

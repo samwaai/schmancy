@@ -16,7 +16,7 @@ export class DemoContentDrawer extends $LitElement(css`
 		return html`
 			<schmancy-content-drawer>
 				<schmancy-content-drawer-main>
-					<schmancy-list>
+					<schmancy-list class="p-0">
 						<schmancy-list-item
 							selected
 							@click=${e => {

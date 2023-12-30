@@ -57,10 +57,7 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 				<section style=${this.styleMap(styles)}>
 					<slot></slot>
 				</section>
-				${when(
-					this.mode === 'push',
-					() => html` <schmancy-divider class="py-[8px]" orientation="vertical"></schmancy-divider>`,
-				)}
+				${when(this.mode === 'push', () => html` <schmancy-divider orientation="vertical"></schmancy-divider>`)}
 			</schmancy-grid>
 		`
 	}

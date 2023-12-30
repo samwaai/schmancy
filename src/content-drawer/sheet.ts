@@ -3,7 +3,6 @@ import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
-import { when } from 'lit/directives/when.js'
 import { from, merge, of, takeUntil, tap } from 'rxjs'
 import { SchmancyEvents, sheet } from '..'
 import {
@@ -15,7 +14,12 @@ import {
 	TSchmancyContentDrawerSheetState,
 } from './context'
 @customElement('schmancy-content-drawer-sheet')
-export class SchmancyContentDrawerSheet extends $LitElement(css``) {
+export class SchmancyContentDrawerSheet extends $LitElement(css`
+	:host {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+`) {
 	@property({ type: Number })
 	minWidth
 
@@ -100,7 +104,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css``) {
 
 	protected render() {
 		const sheetClasses = {
-			'block px-4': this.mode === 'push',
+			block: this.mode === 'push',
 			'absolute z-[50]': this.mode === 'overlay',
 			'opacity-1': this.mode === 'overlay' && this.state === 'open',
 		}
