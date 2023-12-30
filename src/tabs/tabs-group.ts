@@ -36,7 +36,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 
 	protected render(): unknown {
 		const surface = {
-			'grid grid-flow-col-dense': true,
+			flex: true,
 		}
 
 		const activeTab = {
@@ -51,7 +51,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 		}
 
 		return html`
-			<nav
+			<section
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.default,
 					color: SchmancyTheme.sys.color.surface.on,
@@ -84,9 +84,8 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 						</schmancy-button>
 					`,
 				)}
-			</nav>
-			<schmancy-divider outline="variant"></schmancy-divider>
-
+			</section>
+			<schmancy-divider></schmancy-divider>
 			<slot></slot>
 		`
 	}

@@ -171,14 +171,13 @@ function createDarkTonalPaletteFromBaseColor(hue, chroma) {
 	const tonalPalette = TonalPalette.fromHueAndChroma(hue, chroma)
 	// Return an object with the desired tones
 	return {
-		cLowest: tonalPalette.tone(1),
-		cLow: tonalPalette.tone(4),
-		c: tonalPalette.tone(50),
-		cHigh: tonalPalette.tone(7),
-		cHighest: tonalPalette.tone(10),
-		sDim: tonalPalette.tone(13),
-		s: tonalPalette.tone(2),
-		sBright: tonalPalette.tone(40),
+		cLowest: tonalPalette.tone(4),
+		cLow: tonalPalette.tone(10),
+		c: tonalPalette.tone(12),
+		cHigh: tonalPalette.tone(17),
+		cHighest: tonalPalette.tone(22),
+		sDim: tonalPalette.tone(6),
+		s: tonalPalette.tone(6),
+		sBright: tonalPalette.tone(24),
 	}
 }
-

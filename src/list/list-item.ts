@@ -56,11 +56,12 @@ export class SchmancyListItem extends TailwindElement() {
 		const classes = {
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
-			'min-h-[56px] relative flex items-center gap-[16px] py-[8px] px-[16px]': true,
+			'min-h-[56px] relative flex items-center gap-[16px] py-[8px] px-[16px] duration-500 transition-colors': true,
 			'bg-secondary-container text-secondery-onContainer': this.selected,
 		}
 
 		const stateLayerClasses = {
+			'duration-500 transition-opacity': true,
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
 			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0': !this.readonly,
