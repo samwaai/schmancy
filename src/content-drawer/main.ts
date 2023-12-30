@@ -14,8 +14,8 @@ import { when } from 'lit/directives/when.js'
 @customElement('schmancy-content-drawer-main')
 export class SchmancyContentDrawerMain extends $LitElement(css`
 	:host {
-		display: flow;
-		overflow-y: auto;
+		display: block;
+		overflow: hidden;
 	}
 `) {
 	@property({ type: Number })
@@ -52,19 +52,24 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 			maxHeight: this.maxHeight,
 		}
 		return html`
-			<schmancy-grid
-				class="h-full"
-				cols="${this.mode === 'push' ? 'auto 1fr' : '1fr'}"
-				rows="1fr"
-				flow="col"
-				align="stretch"
-				justify="stretch"
-			>
-				<section style=${this.styleMap(styles)}>
-					<slot></slot>
-				</section>
-				${when(this.mode === 'push', () => html` <schmancy-divider orientation="vertical"></schmancy-divider>`)}
-			</schmancy-grid>
+			<section class="relative inset-0">
+				<schmancy-grid
+					class="h-full relative overflow-scroll"
+					cols="${this.mode === 'push' ? 'auto 1fr' : '1fr'}"
+					rows="1fr"
+					flow="col"
+					align="stretch"
+					justify="stretch"
+				>
+					<section style=${this.styleMap(styles)}>
+						<slot></slot>
+					</section>
+				</schmancy-grid>
+				${when(
+					this.mode === 'push',
+					() => html` <schmancy-divider class="absolute right-0 top-0" orientation="vertical"></schmancy-divider>`,
+				)}
+			</section>
 		`
 	}
 }

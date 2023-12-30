@@ -39,6 +39,92 @@ export class DemoContentDrawer extends $LitElement(css`
 						>
 							Typography
 						</schmancy-list-item>
+						<schmancy-list-item
+							selected
+							@click=${e => {
+								schmancyContentDrawer.render(this, new DemoButton())
+							}}
+						>
+							Buttons
+						</schmancy-list-item>
+						<schmancy-list-item
+							@click=${() => {
+								schmancyContentDrawer.render(this, new DemoInput())
+							}}
+						>
+							Input
+						</schmancy-list-item>
+						<schmancy-list-item
+							@click=${() => {
+								schmancyContentDrawer.render(this, new DemoTypography(), 'Typography')
+							}}
+						>
+							Typography
+						</schmancy-list-item>
+						<schmancy-list-item
+							selected
+							@click=${e => {
+								schmancyContentDrawer.render(this, new DemoButton())
+							}}
+						>
+							Buttons
+						</schmancy-list-item>
+						<schmancy-list-item
+							@click=${() => {
+								schmancyContentDrawer.render(this, new DemoInput())
+							}}
+						>
+							Input
+						</schmancy-list-item>
+						<schmancy-list-item
+							@click=${() => {
+								schmancyContentDrawer.render(this, new DemoTypography(), 'Typography')
+							}}
+						>
+							Typography </schmancy-list-item
+						><schmancy-list-item
+							selected
+							@click=${e => {
+								schmancyContentDrawer.render(this, new DemoButton())
+							}}
+						>
+							Buttons
+						</schmancy-list-item>
+						<schmancy-list-item
+							@click=${() => {
+								schmancyContentDrawer.render(this, new DemoInput())
+							}}
+						>
+							Input
+						</schmancy-list-item>
+						<schmancy-list-item
+							@click=${() => {
+								schmancyContentDrawer.render(this, new DemoTypography(), 'Typography')
+							}}
+						>
+							Typography </schmancy-list-item
+						><schmancy-list-item
+							selected
+							@click=${e => {
+								schmancyContentDrawer.render(this, new DemoButton())
+							}}
+						>
+							Buttons
+						</schmancy-list-item>
+						<schmancy-list-item
+							@click=${() => {
+								schmancyContentDrawer.render(this, new DemoInput())
+							}}
+						>
+							Input
+						</schmancy-list-item>
+						<schmancy-list-item
+							@click=${() => {
+								schmancyContentDrawer.render(this, new DemoTypography(), 'Typography')
+							}}
+						>
+							Typography
+						</schmancy-list-item>
 					</schmancy-list>
 				</schmancy-content-drawer-main>
 				<schmancy-content-drawer-sheet class="px-4">
