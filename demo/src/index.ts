@@ -10,7 +10,7 @@ import { DemoButton } from './features/index'
 export default class SchmancyDemo extends $LitElement() {
 	render() {
 		return html`
-			<schmancy-surface fill type="container">
+			<schmancy-surface type="container">
 				<schmancy-nav-drawer>
 					<schmancy-nav-drawer-navbar>
 						<demo-nav> </demo-nav>
@@ -19,7 +19,7 @@ export default class SchmancyDemo extends $LitElement() {
 						<schmancy-nav-drawer-appbar class="py-4">
 							<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
 						</schmancy-nav-drawer-appbar>
-						<schmancy-surface fill type="surface" rounded="left">
+						<schmancy-surface type="surface" rounded="left">
 							<schmancy-area class="p-4" name="main" .default=${DemoButton}></schmancy-area>
 						</schmancy-surface>
 					</schmancy-nav-drawer-content>

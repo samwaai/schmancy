@@ -24,6 +24,8 @@ export class SchmancyContentDrawer extends $LitElement(css`
 		position: relative;
 		inset: 0;
 		display: block;
+		overflow: hidden;
+		max-height: 50vh;
 	}
 `) {
 	/**
@@ -70,9 +72,12 @@ export class SchmancyContentDrawer extends $LitElement(css`
 				tap(() => console.log(this.minWidth)),
 				map(() => (this.clientWidth ? this.clientWidth : window.innerWidth)),
 				map(width => width >= this.minWidth.main + this.minWidth.sheet),
+				debounceTime(100),
+				tap(() => {
+					this.style.setProperty('max-height', `${window.innerHeight - this.getOffsetTop(this) - 32}px`)
+				}),
 				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
-				debounceTime(100),
 			)
 			.subscribe(lgScreen => {
 				if (lgScreen) {
@@ -120,6 +125,15 @@ export class SchmancyContentDrawer extends $LitElement(css`
 			})
 	}
 
+	getOffsetTop(element) {
+		let offsetTop = 0
+		while (element) {
+			offsetTop += element.offsetTop
+			element = element.offsetParent
+		}
+		return offsetTop
+	}
+
 	protected render() {
 		if (!this.mode || !this.open) return nothing
 		return html`
@@ -129,7 +143,6 @@ export class SchmancyContentDrawer extends $LitElement(css`
 				flow="col"
 				justify="stretch"
 				align="stretch"
-				class="flex h-[100%]"
 			>
 				<slot></slot>
 			</schmancy-grid>

@@ -41,7 +41,7 @@ export class DemoContentDrawer extends $LitElement(css`
 						</schmancy-list-item>
 					</schmancy-list>
 				</schmancy-content-drawer-main>
-				<schmancy-content-drawer-sheet>
+				<schmancy-content-drawer-sheet class="px-4">
 					<section slot="placeholder">
 						<schmancy-typography> Placeholder </schmancy-typography>
 					</section>
