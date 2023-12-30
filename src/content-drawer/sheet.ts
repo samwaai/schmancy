@@ -7,6 +7,7 @@ import { from, merge, of, takeUntil, tap } from 'rxjs'
 import { SchmancyEvents, sheet } from '..'
 import {
 	SchmancyContentDrawerID,
+	SchmancyContentDrawerMaxHeight,
 	SchmancyContentDrawerMinWidth,
 	SchmancyContentDrawerSheetMode,
 	SchmancyContentDrawerSheetState,
@@ -38,6 +39,10 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 
 	@consume({ context: SchmancyContentDrawerMinWidth, subscribe: true })
 	drawerMinWidth: typeof SchmancyContentDrawerMinWidth.__context__
+
+	@consume({ context: SchmancyContentDrawerMaxHeight, subscribe: true })
+	@state()
+	maxHeight
 
 	connectedCallback(): void {
 		super.connectedCallback()
@@ -110,6 +115,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 
 		const styles = {
 			minWidth: `${this.minWidth}px`,
+			maxHeight: this.maxHeight,
 		}
 		return html`
 			<section id="sheet" class="${this.classMap(sheetClasses)}" style=${this.styleMap(styles)}>

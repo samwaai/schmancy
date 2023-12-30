@@ -4,6 +4,7 @@ import { PropertyValueMap, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { SchmancyEvents } from '..'
 import {
+	SchmancyContentDrawerMaxHeight,
 	SchmancyContentDrawerMinWidth,
 	SchmancyContentDrawerSheetMode,
 	TSchmancyContentDrawerSheetMode,
@@ -27,6 +28,10 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 	@state()
 	mode: TSchmancyContentDrawerSheetMode
 
+	@consume({ context: SchmancyContentDrawerMaxHeight, subscribe: true })
+	@state()
+	maxHeight
+
 	connectedCallback(): void {
 		super.connectedCallback()
 		if (this.minWidth) this.drawerMinWidth.main = this.minWidth
@@ -44,6 +49,7 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 	render() {
 		const styles = {
 			minWidth: `${this.minWidth}px`,
+			maxHeight: this.maxHeight,
 		}
 		return html`
 			<schmancy-grid

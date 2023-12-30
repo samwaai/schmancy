@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged, fromEvent, map, merge, startWith, t
 import { SchmancyEvents, TRenderCustomEvent, area, sheet } from '..'
 import {
 	SchmancyContentDrawerID,
+	SchmancyContentDrawerMaxHeight,
 	SchmancyContentDrawerMinWidth,
 	SchmancyContentDrawerSheetMode,
 	SchmancyContentDrawerSheetState,
@@ -25,7 +26,6 @@ export class SchmancyContentDrawer extends $LitElement(css`
 		inset: 0;
 		display: block;
 		overflow: hidden;
-		max-height: 50vh;
 	}
 `) {
 	/**
@@ -63,6 +63,9 @@ export class SchmancyContentDrawer extends $LitElement(css`
 	@provide({ context: SchmancyContentDrawerID })
 	schmancyContentDrawerID = Math.floor(Math.random() * Date.now()).toString()
 
+	@provide({ context: SchmancyContentDrawerMaxHeight })
+	maxHeight = '100%'
+
 	@queryAssignedElements({ flatten: true })
 	assignedElements!: HTMLElement[]
 	firstUpdated(): void {
@@ -74,7 +77,8 @@ export class SchmancyContentDrawer extends $LitElement(css`
 				map(width => width >= this.minWidth.main + this.minWidth.sheet),
 				debounceTime(100),
 				tap(() => {
-					this.style.setProperty('max-height', `${window.innerHeight - this.getOffsetTop(this) - 32}px`)
+					this.maxHeight = `${window.innerHeight - this.getOffsetTop(this) - 32}px`
+					this.style.setProperty('max-height', this.maxHeight)
 				}),
 				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
