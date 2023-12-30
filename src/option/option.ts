@@ -23,14 +23,19 @@ export default class SchmancyOption extends TailwindElement() {
   }
 
   protected render(): unknown {
-    const selectedClass = {
-      'font-semibold': true
+    const classes = {
+      'font-semibold relative cursor-pointer py-2 pl-3 pr-9': true,
+      'bg-secondary-container text-secondery-onContainer': this.selected,
     }
+    const stateLayerClasses = {
+      'duration-500 transition-opacity': true,
+      'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0': true,
+
+    }
+
     return html` <li
       tabindex="0"
-      class="relative cursor-pointer py-2 pl-3 pr-9 text-gray-900  hover:bg-gray-100 ${this.classMap(
-        selectedClass
-      )}"
+      class="${this.classMap(classes)}"
       role="option"
       @click=${(e) => {
         e.stopPropagation()
@@ -45,6 +50,7 @@ export default class SchmancyOption extends TailwindElement() {
         }
       }}
     >
+    <div class="${this.classMap(stateLayerClasses)}"></div> 
       <slot></slot>
     </li>`
   }
