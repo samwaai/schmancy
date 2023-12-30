@@ -52,7 +52,7 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 			maxHeight: this.maxHeight,
 		}
 		return html`
-			<section class="relative inset-0">
+			<section class="relative inset-0 h-full">
 				<schmancy-grid
 					class="h-full relative overflow-scroll"
 					cols="${this.mode === 'push' ? 'auto 1fr' : '1fr'}"

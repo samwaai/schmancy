@@ -8,7 +8,7 @@ import { customElement } from 'lit/decorators.js'
  * @element schmancy-card-content
  * @slot headline
  * @slot subhead
- * @slot body - The main content of the card
+ * @slot default - The content of the card
  */
 @customElement('schmancy-card-content')
 export default class SchmancyCardContent extends TailwindElement() {
@@ -41,7 +41,8 @@ export default class SchmancyCardContent extends TailwindElement() {
 				${color({
 					color: onSurfaceVariant,
 				})}
-				><slot></slot>
+			>
+				<slot></slot>
 			</schmancy-typography>
 		</schmancy-grid>`
 	}
