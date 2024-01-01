@@ -22,6 +22,12 @@ export class SchmancySurface extends TailwindElement(css`
 	@property() rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' = 'none'
 
 	@provide({ context: SchmancySurfaceTypeContext })
+
+	/**
+	 * @attr type - surface color
+	 * @type {TSurfaceColor}
+	 * @default 'surface'
+	 */
 	@property()
 	type: TSurfaceColor = 'surface'
 	@property({ type: Number }) elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0

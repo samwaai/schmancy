@@ -1,5 +1,5 @@
 import { nothing } from 'lit';
-import { TSchmancyContentDrawerSheetMode, TSchmancyContentDrawerSheetState } from './context';
+import { SchmancyContentDrawerMinWidth, TSchmancyContentDrawerSheetMode, TSchmancyContentDrawerSheetState } from './context';
 declare const SchmancyContentDrawer_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
 /**
  * @element schmancy-content-drawer
@@ -13,7 +13,13 @@ export declare class SchmancyContentDrawer extends SchmancyContentDrawer_base {
      * @type {number}
      * @memberof SchmancyContentDrawer
      */
-    minWidth: number;
+    minWidth: typeof SchmancyContentDrawerMinWidth.__context__;
+    /**
+     * The state of the sheet
+     * @attr open
+     * @type {TSchmancyContentDrawerSheetState}
+     */
+    open: TSchmancyContentDrawerSheetState;
     /**
      * The mode of the sheet
      * @type {TSchmancyContentDrawerSheetMode}
@@ -21,10 +27,11 @@ export declare class SchmancyContentDrawer extends SchmancyContentDrawer_base {
      * @protected
      */
     mode: TSchmancyContentDrawerSheetMode;
-    open: TSchmancyContentDrawerSheetState;
     schmancyContentDrawerID: string;
+    maxHeight: string;
     assignedElements: HTMLElement[];
     firstUpdated(): void;
+    getOffsetTop(element: any): number;
     protected render(): import("lit-html").TemplateResult<1> | typeof nothing;
 }
 declare global {

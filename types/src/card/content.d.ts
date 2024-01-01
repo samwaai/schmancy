@@ -3,7 +3,7 @@ declare const SchmancyCardContent_base: import("..").Constructor<CustomElementCo
  * @element schmancy-card-content
  * @slot headline
  * @slot subhead
- * @slot body - The main content of the card
+ * @slot default - The content of the card
  */
 export default class SchmancyCardContent extends SchmancyCardContent_base {
     protected render(): unknown;

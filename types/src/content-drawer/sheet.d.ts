@@ -1,11 +1,15 @@
-import { TSchmancyContentDrawerSheetMode, TSchmancyContentDrawerSheetState } from './context';
+import { SchmancyContentDrawerMinWidth, TSchmancyContentDrawerSheetMode, TSchmancyContentDrawerSheetState } from './context';
 declare const SchmancyContentDrawerSheet_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
 export declare class SchmancyContentDrawerSheet extends SchmancyContentDrawerSheet_base {
+    minWidth: any;
     mode: TSchmancyContentDrawerSheetMode;
     state: TSchmancyContentDrawerSheetState;
     schmancyContentDrawerID: any;
     sheet: HTMLElement;
     defaultSlot: HTMLElement[];
+    drawerMinWidth: typeof SchmancyContentDrawerMinWidth.__context__;
+    maxHeight: any;
+    connectedCallback(): void;
     updated(changedProperties: Map<string, any>): void;
     open(): void;
     closeAll(): void;

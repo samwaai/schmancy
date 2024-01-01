@@ -16,18 +16,14 @@ export declare enum SchmancySheetPosition {
      */
     BottomRight = "bottom-right"
 }
-export declare enum SchmancySheetType {
-    standard = "standard",
-    modal = "modal"
-}
 type BottomSheeetTarget = {
     component: HTMLElement;
-    type?: SchmancySheetType;
     uid?: string;
     position?: SchmancySheetPosition;
     persist?: boolean;
     close?: () => void;
     allowOverlyDismiss?: boolean;
+    title?: string;
 };
 export type SheetWhereAreYouRickyEvent = CustomEvent<{
     uid: string;

@@ -9,3 +9,12 @@ export declare const SchmancyContentDrawerSheetState: {
 export declare const SchmancyContentDrawerID: {
     __context__: string;
 };
+export declare const SchmancyContentDrawerMaxHeight: {
+    __context__: string;
+};
+export declare const SchmancyContentDrawerMinWidth: {
+    __context__: {
+        main: number;
+        sheet: number;
+    };
+};
