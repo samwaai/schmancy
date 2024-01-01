@@ -1,17 +1,23 @@
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { css, html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 @customElement('schmancy-sheet-header')
 export default class SchmancySheetHeader extends TailwindElement(css`
 	:host {
+		inset: 0;
 		display: block;
 		padding-bottom: 16px;
 	}
 `) {
+	@property() title: string
 	render() {
+		const classes = {
+			absolute: this.title.length === 0,
+			relative: this.title.length > 0,
+		}
 		return html`
-			<schmancy-grid align="center" justify="stretch" cols="auto 1fr auto">
+			<schmancy-grid class="${this.classMap(classes)}" align="center" justify="stretch" cols="auto 1fr auto">
 				<slot name="back">
 					<schmancy-button
 						@click=${() => {
@@ -26,9 +32,7 @@ export default class SchmancySheetHeader extends TailwindElement(css`
 						<span class="text-[24px]">&#8592; </span>
 					</schmancy-button>
 				</slot>
-				<schmancy-typography transform="capitalize" type="headline" token="lg">
-					<slot></slot>
-				</schmancy-typography>
+				<schmancy-typography transform="capitalize" type="headline" token="lg"> ${this.title} </schmancy-typography>
 				<slot name="actions">
 					<schmancy-button
 						@click=${() => {

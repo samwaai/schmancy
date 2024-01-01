@@ -171,9 +171,7 @@ export default class SchmancySheet extends $LitElement(style) {
 					}}
 				></div>
 				<schmancy-sheet-content class="content ${this.classMap(contentClasses)}" data-position=${this.position}>
-					<schmancy-sheet-header>
-						<slot name="header"> ${this.title} </slot>
-					</schmancy-sheet-header>
+					<schmancy-sheet-header title="${this.title}"> </schmancy-sheet-header>
 					<section class="flex flex-1 px-16">
 						<slot></slot>
 					</section>
