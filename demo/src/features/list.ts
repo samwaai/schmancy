@@ -14,13 +14,13 @@ export class DemoList extends $LitElement(css`
 				<schmancy-typography type="title">Standard list items</schmancy-typography>
 				<schmancy-list class="rounded-full">
 					<schmancy-list-item>
-						<div slot="leading"><img src="house.svg" /></div>
-						Mahatma Gandhi
+					<schmancy-icon slot="leading">book_online</schmancy-icon>
+					Mahatma Gandhi
 						<div slot="support">Be the change that you wish to see in the world.</div>
 						<div slot="trailing"><img src="telephone.svg" /></div>
 					</schmancy-list-item>
 					<schmancy-list-item>
-						<div slot="leading"><img src="house.svg" /></div>
+					<schmancy-icon slot="leading">book_online</schmancy-icon>
 						J.K. Rowling
 						<div slot="support">
 							“If you want to know what a man's like, </br> take a good look at how he treats his inferiors, not his equals.”
@@ -33,7 +33,8 @@ export class DemoList extends $LitElement(css`
 				<schmancy-typography type="title">Rounded list items</schmancy-typography>
 				<schmancy-list>
 					<schmancy-list-item rounded selected>
-						Bookings
+					<schmancy-icon slot="leading">book_online</schmancy-icon>
+					Bookings
 					</schmancy-list-item>
 					<schmancy-list-item rounded>
 						Rooms

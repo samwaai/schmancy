@@ -69,7 +69,7 @@ export class SchmancyListItem extends TailwindElement() {
 		return html`<li class=${this.classMap(classes)}>
 			${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}
 			<slot name="leading"> </slot>
-			<schmancy-grid class="flex-1">
+			<schmancy-grid class="flex-1" justify="stretch" align="center">
 				<schmancy-typography type="body" token="lg">
 					<slot></slot>
 				</schmancy-typography>
