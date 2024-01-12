@@ -27,6 +27,9 @@ export default class SchmancyIcon extends $LitElement(css`
 			'GRAD' 0,
 			'opsz' 24;
 	}
+	:host {
+		display: flex;
+	}
 `) {
 	connectedCallback(): void {
 		super.connectedCallback()
