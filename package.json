@@ -1,6 +1,6 @@
 {
 	"name": "@mhmo91/schmancy",
-	"version": "0.0.91",
+	"version": "0.0.92",
 	"description": "UI library build with web components",
 	"main": "./dist/index.js",
 	"repository": {
@@ -46,7 +46,7 @@
 		"@material/material-color-utilities": "^0.2.7",
 		"@mhmo91/lit-kit": "latest",
 		"@mhmo91/lit-mixins": "latest",
-		"lit": "^3.1.0",
+		"lit": "^3.1.1",
 		"rxjs": "^7.8.1",
 		"ts-is-present": "^1.2.2",
 		"typescript": "^5.3.3",
