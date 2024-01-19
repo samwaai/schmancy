@@ -115,7 +115,7 @@ export default class SchmancyAnimatedText extends $LitElement(css`
 									console.log('begin')
 								},
 							},
-							stagger(50),
+							stagger(this.stagger),
 						)
 					},
 				}),
