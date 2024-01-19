@@ -11,7 +11,7 @@ import { $newSchmancyTheme } from '@schmancy/index'
 export default class SchmancyDemo extends $LitElement() {
 	connectedCallback(): void {
 		super.connectedCallback()
-		$newSchmancyTheme.next('#fff')
+		$newSchmancyTheme.next('#f5f5f5')
 	}
 	render() {
 		return html`

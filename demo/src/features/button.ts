@@ -25,6 +25,10 @@ export class DemoButton extends $LitElement(css`
 				<schmancy-button disabled variant="text">text disabled</schmancy-button>
 				<schmancy-button disabled variant="outlined">text disabled</schmancy-button>
 
+				<schmancy-typography type="title">custom variant</schmancy-typography>
+
+				<schmancy-button variant="custom">elevated</schmancy-button>
+
 				<schmancy-typography type="title">Width variant</schmancy-typography>
 				<schmancy-button variant="filled" width="full">filled</schmancy-button>
 			</schmancy-grid>
