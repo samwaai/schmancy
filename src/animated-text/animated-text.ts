@@ -23,7 +23,7 @@ import {
 export default class SchmancyAnimatedText extends $LitElement(css`
 	:host {
 		display: block;
-		line-height: 1;
+		line-height: 1 !important;
 	}
 	.ml7 {
 		position: relative;
