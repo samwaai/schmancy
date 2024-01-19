@@ -1,4 +1,4 @@
-import anime from 'animejs/lib/anime.es.js'
+import { animate } from '@juliangarnierorg/anime-beta'
 import { bufferTime, concatMap, filter, fromEvent, map, of, Subject, take, tap, timeout, zip } from 'rxjs'
 import { SchmancyTeleportation } from './teleport.component'
 
@@ -101,40 +101,38 @@ class Teleportation {
 		hanger.appendChild(from.element.shadowRoot?.firstElementChild?.cloneNode(true) as HTMLElement)
 		document.body?.appendChild(hanger)
 		const originalZIndex = to.element.style.zIndex
-		anime({
-			targets: [to.element],
+		animate(to.element, {
 			translateX: [from.rect.left - to.rect.left, 0],
 			translateY: [from.rect.top - to.rect.top, 0],
 			scaleX: [from.rect.width / to.rect.width, 1],
 			scaleY: [from.rect.height / to.rect.height, 1],
 			duration: 500,
 			delay: i * 100,
-			easing: 'easeInOutQuad',
-			begin: () => {
+			ease: 'inOutQuad',
+			onBegin: () => {
 				to.element.style.transformOrigin = 'top left'
 				to.element.style.setProperty('visibility', 'visible')
 				to.element.style.zIndex = '1000'
 			},
-			complete: () => {
+			onComplete: () => {
 				to.element.style.zIndex = originalZIndex
 				to.element.style.transformOrigin = ''
 			},
 		})
 		const hangerRec = hanger.getBoundingClientRect()
-		anime({
-			targets: [hanger],
+		animate(hanger, {
 			translateX: [to.rect.left - hangerRec.left],
 			translateY: [to.rect.top - hangerRec.top],
 			scaleX: [to.rect.width / hangerRec.width],
 			scaleY: [to.rect.height / hangerRec.height],
 			duration: 500,
 			delay: i * 100,
-			easing: 'easeInOutQuad',
-			begin: () => {
+			ease: 'easeInOutQuad',
+			onBegin: () => {
 				hanger.style.transformOrigin = 'top left'
 				hanger.style.zIndex = '2000'
 			},
-			complete: () => {
+			onComplete: () => {
 				hanger.remove()
 			},
 		})

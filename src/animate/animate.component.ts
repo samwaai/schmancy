@@ -1,6 +1,5 @@
+import { animate, stagger } from '@juliangarnierorg/anime-beta'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { EasingOptions } from 'animejs'
-import anime from 'animejs/lib/anime.es.js'
 import { css, html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 
@@ -29,16 +28,15 @@ export class SchmancyAnimate extends $LitElement(css`
 	 */
 	@property({ type: Array }) translateX!: Array<number | string>
 	@property({ type: Array }) translateY!: Array<number | string>
-	@property() easing?: EasingOptions | string = 'easeOutExpo'
+	@property() easing?: string = 'outExpo'
 	@property({ type: Boolean }) stagger?: boolean
 
 	@queryAssignedElements() assignedElements!: HTMLElement[]
 
 	firstUpdated() {
-		anime({
-			targets: this.assignedElements,
+		animate(this.assignedElements, {
 			opacity: this.opacity,
-			delay: this.stagger ? anime.stagger(this.delay) : this.delay,
+			delay: this.stagger ? stagger(this.delay) : this.delay,
 			translateX: this.translateX,
 			duration: this.duration,
 			translateY: this.translateY,

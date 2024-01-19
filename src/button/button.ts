@@ -8,7 +8,7 @@ export interface SchmancyButtonEventMap {
 	SchmancyBlur: CustomEvent<void>
 }
 
-export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text' | 'custom'
+export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text'
 
 /**
  * A button component.

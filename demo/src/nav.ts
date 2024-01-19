@@ -16,6 +16,7 @@ import DemoTypography from './features/typography'
 import { DemoTabs } from './features/tabs'
 import { DemoSurface } from './features/surface'
 import { DemoIcons } from './features/icons'
+import { DemoAnimatedText } from './features/animated-text'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -73,6 +74,10 @@ export class DemoNav extends $LitElement(css`
 		{
 			name: 'Surface',
 			component: DemoSurface,
+		},
+		{
+			name: 'Animated text',
+			component: DemoAnimatedText,
 		},
 	]
 

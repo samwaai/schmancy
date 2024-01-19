@@ -1,4 +1,4 @@
-import anime from 'animejs/lib/anime.es.js'
+import { animate } from '@juliangarnierorg/anime-beta'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import Layout from '../layout/layout'
@@ -14,14 +14,13 @@ export class SchmancyGrid extends Layout {
 	@property({ type: String }) gap: 'none' | 'xs' | 'sm' | 'md' | 'lg' = 'none'
 	@property({ type: String }) cols?: string
 	@property({ type: String }) rows?: string
-	@property({ type: Object }) anime: anime.AnimeParams = {}
+	@property({ type: Object }) anime = {}
 	@property({ type: Boolean }) wrap = false
 
 	@queryAssignedElements() assignedElements!: HTMLElement[]
 
 	firstUpdated() {
-		anime({
-			targets: this.assignedElements,
+		animate(this.assignedElements, {
 			...this.anime,
 		})
 	}
