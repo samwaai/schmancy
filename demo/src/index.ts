@@ -3,9 +3,9 @@ import '@schmancy/index'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
+import { $newSchmancyTheme } from '@schmancy/index'
 import './features/index'
 import { DemoButton } from './features/index'
-import { $newSchmancyTheme } from '@schmancy/index'
 
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
