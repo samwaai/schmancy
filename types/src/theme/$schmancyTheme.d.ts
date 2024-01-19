@@ -1,4 +1,5 @@
 import { Subject } from 'rxjs';
+declare const $newSchmancyTheme: Subject<string>;
 declare const $schmancyTheme: Subject<Partial<{
     sys: {
         color: {
@@ -61,4 +62,4 @@ declare const $schmancyTheme: Subject<Partial<{
         };
     };
 }>>;
-export { $schmancyTheme };
+export { $schmancyTheme, $newSchmancyTheme };
