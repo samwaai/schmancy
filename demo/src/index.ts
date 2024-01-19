@@ -5,9 +5,14 @@ import { customElement } from 'lit/decorators.js'
 
 import './features/index'
 import { DemoButton } from './features/index'
+import { $newSchmancyTheme } from '@schmancy/index'
 
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
+	connectedCallback(): void {
+		super.connectedCallback()
+		$newSchmancyTheme.next('#fff')
+	}
 	render() {
 		return html`
 			<schmancy-surface type="container">

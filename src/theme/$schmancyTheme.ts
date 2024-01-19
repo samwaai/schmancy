@@ -25,10 +25,12 @@ function registerThemeValues(prefix = 'schmancy', path: string, value: Partial<T
 	}
 }
 
+const $newSchmancyTheme = new Subject<string | undefined>()
+
 const $schmancyTheme = new Subject<Partial<TSchmancyTheme>>()
 
 $schmancyTheme.pipe(startWith(defaultTheme)).subscribe(theme => {
 	registerThemeValues('schmancy', '', merge(defaultTheme, theme))
 })
 
-export { $schmancyTheme }
+export { $schmancyTheme, $newSchmancyTheme }

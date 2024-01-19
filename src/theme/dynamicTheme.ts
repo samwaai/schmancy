@@ -1,39 +1,35 @@
 import { argbFromHex, themeFromSourceColor } from '@material/material-color-utilities'
-import { merge, interval, map } from 'rxjs'
-import { $schmancyTheme } from './$schmancyTheme'
+import { Observable, combineLatestWith, map } from 'rxjs'
+import { $newSchmancyTheme, $schmancyTheme } from './$schmancyTheme'
 import { formateTheme } from './theme.format'
-import { Observable } from 'rxjs';
 
-let isDark = false
-
-
-
-const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
 const colorScheme$ = new Observable<string>(subscriber => {
 	const handler = (e: MediaQueryListEvent) => {
-		const newColorScheme = e.matches ? 'dark' : 'light';
-		subscriber.next(newColorScheme);
-	};
+		const newColorScheme = e.matches ? 'dark' : 'light'
+		subscriber.next(newColorScheme)
+	}
 
-	mediaQuery.addEventListener('change', handler);
+	mediaQuery.addEventListener('change', handler)
 
 	// Emit the initial value
-	const initialColorScheme = mediaQuery.matches ? 'dark' : 'light';
+	const initialColorScheme = mediaQuery.matches ? 'dark' : 'light'
 
-	subscriber.next(initialColorScheme);
+	subscriber.next(initialColorScheme)
 
 	// On unsubscribe, remove the event listener
-	return () => mediaQuery.removeEventListener('change', handler);
-});
+	return () => mediaQuery.removeEventListener('change', handler)
+})
 
-
-
-merge(colorScheme$.pipe(map(colorScheme => isDark = colorScheme === 'dark')), interval(5000))
+$newSchmancyTheme
+	.pipe(map(color => color || generateRandomColor()))
+	.pipe(combineLatestWith(colorScheme$.pipe(map(colorScheme => colorScheme === 'dark'))))
 	.pipe(
-		map(generateRandomColor),
-		map(color => themeFromSourceColor(argbFromHex(color))),
-		map(theme => formateTheme(theme, isDark))
+		map(([color, isDark]) => {
+			return { theme: themeFromSourceColor(argbFromHex(color)), isDark }
+		}),
+		map(data => formateTheme(data.theme, data.isDark)),
 	)
 	.subscribe(theme => {
 		$schmancyTheme.next(theme)
