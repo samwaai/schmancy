@@ -39,6 +39,7 @@ export default class SchmancyAnimatedText extends $LitElement(css`
 	}
 `) {
 	@property({ type: String }) ease = 'outExpo'
+	@property({ type: Number }) delay = 0
 	@property({ type: Number }) stagger = 50
 	@property({ type: Number }) duration = 750
 	@property({ type: Array }) scale = [0, 1]
@@ -108,6 +109,7 @@ export default class SchmancyAnimatedText extends $LitElement(css`
 								translateZ: this.translateZ,
 								rotateZ: this.rotateZ,
 								duration: this.duration,
+								delay: this.delay,
 								onBegin: () => {
 									console.log('begin')
 								},

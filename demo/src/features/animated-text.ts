@@ -16,7 +16,7 @@ export class DemoAnimatedText extends $LitElement(css`
 				</schmancy-typography>
 
 				<schmancy-typography type="display">
-					<schmancy-animated-text>Animated Text</schmancy-animated-text>
+					<schmancy-animated-text delay=${2000}>Animated Text</schmancy-animated-text>
 				</schmancy-typography>
 
 				<schmancy-typography type="display">

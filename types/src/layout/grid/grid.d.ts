@@ -1,4 +1,3 @@
-import anime from 'animejs/lib/anime.es.js';
 import Layout from '../layout/layout';
 export declare class SchmancyGrid extends Layout {
     static styles: any[];
@@ -9,7 +8,7 @@ export declare class SchmancyGrid extends Layout {
     gap: 'none' | 'xs' | 'sm' | 'md' | 'lg';
     cols?: string;
     rows?: string;
-    anime: anime.AnimeParams;
+    anime: {};
     wrap: boolean;
     assignedElements: HTMLElement[];
     firstUpdated(): void;

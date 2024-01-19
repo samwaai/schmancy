@@ -1,4 +1,3 @@
-import { EasingOptions } from 'animejs';
 declare const SchmancyAnimate_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
 export declare class SchmancyAnimate extends SchmancyAnimate_base {
     layout: boolean;
@@ -17,7 +16,7 @@ export declare class SchmancyAnimate extends SchmancyAnimate_base {
      */
     translateX: Array<number | string>;
     translateY: Array<number | string>;
-    easing?: EasingOptions | string;
+    easing?: string;
     stagger?: boolean;
     assignedElements: HTMLElement[];
     firstUpdated(): void;

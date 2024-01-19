@@ -1,7 +1,7 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { fromEvent, takeUntil, throttleTime } from 'rxjs'
+import { fromEvent, takeUntil } from 'rxjs'
 
 @customElement('schmancy-nav-drawer-content')
 export class SchmancyNavigationDrawerContent extends $LitElement(css`

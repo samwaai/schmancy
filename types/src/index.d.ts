@@ -1,4 +1,5 @@
 export * from './animate';
+export * from './animated-text';
 export * from './area';
 export * from './autocomplete';
 export * from './busy';
