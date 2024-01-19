@@ -2,11 +2,23 @@ import { createTimeline, stagger } from '@juliangarnierorg/anime-beta'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedNodes } from 'lit/decorators.js'
-import { delay, filter, fromEvent, map, startWith, take, tap, throttleTime } from 'rxjs'
+import {
+	concat,
+	distinctUntilChanged,
+	filter,
+	fromEvent,
+	interval,
+	map,
+	startWith,
+	take,
+	tap,
+	throttleTime,
+} from 'rxjs'
 /**
  * @element schmancy-animated-text
  * Inspired by https://tobiasahlin.com/moving-letters/#1
  */
+
 @customElement('schmancy-animated-text')
 export default class SchmancyAnimatedText extends $LitElement(css`
 	:host {
@@ -35,6 +47,7 @@ export default class SchmancyAnimatedText extends $LitElement(css`
 	@property({ type: Array }) translateY = ['1.1em', 0]
 	@property({ type: Array }) translateZ = [0, 0]
 	@property({ type: Array }) rotateZ = [180, 0]
+	@property({ type: Boolean }) resetOnScroll = true
 
 	@queryAssignedNodes() defaultSlot!: HTMLElement[]
 	@query('.letters') letters!: HTMLElement
@@ -53,33 +66,58 @@ export default class SchmancyAnimatedText extends $LitElement(css`
 
 	async firstUpdated() {
 		this.letters.innerHTML = this.defaultSlot[0].textContent.replace(/\S/g, "<span  class='letter'>$&</span>")
-		fromEvent(window, 'scroll')
-			.pipe(
-				throttleTime(100), // Throttle the events to improve performance
-				startWith(true), // Emit an event on subscription
-				delay(100),
-				map(() => this.isInViewport(this)), // Filter events where the element is in viewport
-				filter(isInViewport => isInViewport),
-				take(1),
-			)
-			.subscribe({
-				next: () => {
-					// Wrap every letter in a span
 
-					createTimeline({ loop: 0, default: { ease: this.ease } }).add(
-						this.shadowRoot.querySelectorAll('.ml7 .letter'),
-						{
-							translateY: this.translateY,
-							translateX: this.translateX,
-							opacity: this.opacity,
-							translateZ: this.translateZ,
-							rotateZ: this.rotateZ,
-							duration: this.duration,
-						},
-						stagger(50),
-					)
-				},
-			})
+		concat(
+			interval(10).pipe(
+				startWith(true),
+				filter(() => {
+					const rect = this.getBoundingClientRect()
+					return rect.width > 0 && rect.height > 0
+				}),
+				take(1),
+			),
+			fromEvent(window, 'scroll').pipe(
+				// pipe to only emit when the element has getBoundingClientRect() in viewport
+				throttleTime(0, undefined, {
+					leading: true,
+					trailing: true,
+				}), // Throttle the events to improve performance
+				startWith(true), // Emit an event on subscription
+				map(() => this.isInViewport(this)), // Filter events where the element is in viewport
+				distinctUntilChanged(), // Only emit when the value has changed
+				tap(inViewPort => {
+					if (!inViewPort)
+						Array.from(this.letters.children).forEach((letter: HTMLElement) => (letter.style.opacity = '0'))
+				}),
+				filter(isInViewport => isInViewport),
+				this.resetOnScroll ? tap(() => {}) : take(1),
+
+				tap({
+					next: () => {
+						// Wrap every letter in a span
+						createTimeline({
+							default: {
+								ease: this.ease,
+							},
+						}).add(
+							this.shadowRoot.querySelectorAll('.ml7 .letter'),
+							{
+								translateY: this.translateY,
+								translateX: this.translateX,
+								opacity: this.opacity,
+								translateZ: this.translateZ,
+								rotateZ: this.rotateZ,
+								duration: this.duration,
+								onBegin: () => {
+									console.log('begin')
+								},
+							},
+							stagger(50),
+						)
+					},
+				}),
+			),
+		).subscribe({})
 	}
 	render() {
 		return html`<span class="ml7">
