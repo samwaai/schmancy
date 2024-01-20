@@ -26,8 +26,9 @@ export class DemoButton extends $LitElement(css`
 				<schmancy-button disabled variant="outlined">text disabled</schmancy-button>
 
 				<schmancy-typography type="title">custom variant</schmancy-typography>
-
-				<schmancy-button variant="custom">elevated</schmancy-button>
+				<schmancy-button variant="filled" class="text-white mt-8  h-auto">
+					<schmancy-typography class="px-7 py-5" type="headline" token="sm"> Book now </schmancy-typography>
+				</schmancy-button>
 
 				<schmancy-typography type="title">Width variant</schmancy-typography>
 				<schmancy-button variant="filled" width="full">filled</schmancy-button>

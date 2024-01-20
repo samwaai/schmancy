@@ -21,6 +21,7 @@ export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' 
 export class SchmnacyButton extends $LitElement(css`
 	:host {
 		display: block;
+		height: 40px;
 	}
 `) {
 	protected static shadowRootOptions = {
@@ -132,7 +133,7 @@ export class SchmnacyButton extends $LitElement(css`
 
 	render() {
 		const classes = {
-			'h-[40px] px-[24px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] focus:outline-none':
+			'h-full px-[24px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] focus:outline-none':
 				true,
 			'opacity-[0.38]': this.disabled,
 			'hover:shadow-1':
