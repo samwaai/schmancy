@@ -11,7 +11,7 @@ import { DemoButton } from './features/index'
 export default class SchmancyDemo extends $LitElement() {
 	connectedCallback(): void {
 		super.connectedCallback()
-		$newSchmancyTheme.next('#f5f5f5')
+		$newSchmancyTheme.next(undefined)
 	}
 	render() {
 		return html`

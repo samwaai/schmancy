@@ -44,7 +44,7 @@ export default class SchmancyIcon extends $LitElement(css`
 		}
 	}
 	protected render(): unknown {
-		return html` <span class="material-symbols-outlined"> <slot></slot> </span> `
+		return html` <span class="material-symbols-outlined size-[24px]"> <slot></slot> </span> `
 	}
 }
 
