@@ -22,6 +22,7 @@ import {
 @customElement('schmancy-animated-text')
 export default class SchmancyAnimatedText extends $LitElement(css`
 	:host {
+		font-family: var(--schmancy-font-family);
 		display: block;
 		line-height: inherit !important;
 	}
