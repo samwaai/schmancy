@@ -24,10 +24,10 @@ export default class SchmancyAnimatedText extends $LitElement(css`
 	:host {
 		font-family: var(--schmancy-font-family) !important;
 		display: block;
-		line-height: inherit !important;
 	}
 	.ml7 {
 		position: relative;
+		display: flex;
 	}
 	.ml7 .text-wrapper {
 		position: relative;
