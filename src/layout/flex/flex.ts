@@ -11,7 +11,7 @@ export class SchmancyFlex extends Layout {
 	@property({ type: String, reflect: true }) flow: 'row' | 'row-reverse' | 'col' | 'col-reverse' = 'col'
 	@property({ type: String, reflect: true }) wrap: 'wrap' | 'nowrap' | 'wrap-reverse' = 'wrap'
 	@property({ type: String, reflect: true }) align: 'start' | 'center' | 'end' | 'stretch' | 'baseline' = 'start'
-	@property({ type: String, reflect: true }) justify: 'start' | 'center' | 'end' | 'stretch' = 'start'
+	@property({ type: String, reflect: true }) justify: 'start' | 'center' | 'end' | 'stretch' | 'between' = 'start'
 	@property({ type: String, reflect: true }) gap: 'none' | 'sm' | 'md' | 'lg' = 'none'
 
 	render() {
@@ -38,6 +38,7 @@ export class SchmancyFlex extends Layout {
 			'justify-end': this.justify === 'end',
 			'justify-start': this.justify === 'start',
 			'justify-stretch': this.justify === 'stretch',
+			'justify-between': this.justify === 'between',
 
 			// Gap
 			'gap-0': this.gap === 'none',

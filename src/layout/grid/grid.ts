@@ -3,6 +3,7 @@ import { html, unsafeCSS } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import Layout from '../layout/layout'
 import style from './grid.scss?inline'
+import { debounceTime, distinctUntilChanged, from, fromEvent, map, startWith, switchMap, takeUntil } from 'rxjs'
 
 @customElement('schmancy-grid')
 export class SchmancyGrid extends Layout {
@@ -12,8 +13,18 @@ export class SchmancyGrid extends Layout {
 	@property({ type: String }) align: 'start' | 'center' | 'end' | 'stretch' | 'baseline' = 'stretch'
 	@property({ type: String }) justify: 'start' | 'center' | 'end' | 'stretch' = 'stretch'
 	@property({ type: String }) gap: 'none' | 'xs' | 'sm' | 'md' | 'lg' = 'none'
+
 	@property({ type: String }) cols?: string
 	@property({ type: String }) rows?: string
+	@property({ type: Object }) rcols?: {
+		xs?: string
+		sm?: string
+		md?: string
+		lg?: string
+		xl?: string
+		'2xl'?: string
+	}
+
 	@property({ type: Object }) anime = {}
 	@property({ type: Boolean }) wrap = false
 
@@ -23,6 +34,26 @@ export class SchmancyGrid extends Layout {
 		animate(this.assignedElements, {
 			...this.anime,
 		})
+		if (this.rcols)
+			fromEvent<CustomEvent>(window, 'resize')
+				.pipe(
+					map(event => event.target as Window),
+					startWith(1),
+					map(() => (this.clientWidth ? this.clientWidth : window.innerWidth)),
+					distinctUntilChanged(),
+					takeUntil(this.disconnecting),
+					debounceTime(10),
+					map(w => {
+						console.log(w)
+						if (this.rcols?.xs && w < 640) return this.rcols?.xs
+						if (this.rcols?.sm && w < 768) return this.rcols?.sm
+						if (this.rcols?.md && w < 1024) return this.rcols?.md
+						if (this.rcols?.lg && w < 1280) return this.rcols?.lg
+						if (this.rcols?.xl && w < 1536) return this.rcols?.xl
+						return this.rcols?.['2xl']
+					}),
+				)
+				.subscribe(cols => (this.cols = cols))
 	}
 
 	render() {
@@ -30,8 +61,8 @@ export class SchmancyGrid extends Layout {
 			'h-full': true,
 			'grid flex-1': true,
 			// flow classes: https://tailwindcss.com/docs/grid-auto-flow
-			'grid-flow-row': this.flow === 'row',
-			'grid-flow-col': this.flow === 'col',
+			'grid-flow-row auto-rows-max': this.flow === 'row',
+			'grid-flow-col auto-cols-max md:auto-cols-min': this.flow === 'col',
 			'grid-flow-row-dense': this.flow === 'row-dense',
 			'grid-flow-col-dense': this.flow === 'col-dense',
 			'grid-flow-dense': this.flow === 'dense',
