@@ -12,6 +12,7 @@ export default class SchmancyDemo extends $LitElement() {
 	connectedCallback(): void {
 		super.connectedCallback()
 		$newSchmancyTheme.next(undefined)
+		// $newSchmancyTheme.next('#004a76')
 	}
 	render() {
 		return html`

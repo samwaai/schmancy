@@ -6,12 +6,14 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 		return '#' + argb.toString(16).slice(2)
 	}
 
+	console.log(isDark)
 	if (isDark) {
 		const darkScheme = originalScheme.schemes.dark
 		const exraDarkColors = createDarkTonalPaletteFromBaseColor(
-			originalScheme.palettes.primary.hue,
-			originalScheme.palettes.primary.chroma,
+			originalScheme.palettes.neutral.hue,
+			originalScheme.palettes.neutral.chroma,
 		)
+		console.log(exraDarkColors)
 		const newDarkScheme: TSchmancyTheme = {
 			sys: {
 				color: {
