@@ -32,6 +32,9 @@ export class DemoCard extends $LitElement(css`
 							<span slot="subhead"> 86573 likes</span>
 							A friend is someone who knows all about you and still loves you.
 						</schmancy-card-content>
+						<schmancy-card-action>
+							<schmancy-button variant="filled">Click me</schmancy-button>
+						</schmancy-card-action>
 					</schmancy-card>
 
 					<schmancy-card type="elevated">

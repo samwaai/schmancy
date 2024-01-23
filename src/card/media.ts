@@ -4,9 +4,6 @@ import { customElement, property } from 'lit/decorators.js'
 
 /**
  * @element schmancy-card-media
- * @slot headline
- * @slot subhead
- * @slot default - The content of the card
  */
 @customElement('schmancy-card-media')
 export default class SchmancyCardMedia extends TailwindElement(css`
