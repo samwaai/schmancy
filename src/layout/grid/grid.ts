@@ -1,9 +1,9 @@
 import { animate } from '@juliangarnierorg/anime-beta'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
+import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil } from 'rxjs'
 import Layout from '../layout/layout'
 import style from './grid.scss?inline'
-import { debounceTime, distinctUntilChanged, from, fromEvent, map, startWith, switchMap, takeUntil } from 'rxjs'
 
 @customElement('schmancy-grid')
 export class SchmancyGrid extends Layout {

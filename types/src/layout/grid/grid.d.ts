@@ -8,6 +8,14 @@ export declare class SchmancyGrid extends Layout {
     gap: 'none' | 'xs' | 'sm' | 'md' | 'lg';
     cols?: string;
     rows?: string;
+    rcols?: {
+        xs?: string | number;
+        sm?: string | number;
+        md?: string | number;
+        lg?: string | number;
+        xl?: string | number;
+        '2xl'?: string | number;
+    };
     anime: {};
     wrap: boolean;
     assignedElements: HTMLElement[];

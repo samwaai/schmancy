@@ -5,7 +5,7 @@ export declare class SchmancyFlex extends Layout {
     flow: 'row' | 'row-reverse' | 'col' | 'col-reverse';
     wrap: 'wrap' | 'nowrap' | 'wrap-reverse';
     align: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
-    justify: 'start' | 'center' | 'end' | 'stretch';
+    justify: 'start' | 'center' | 'end' | 'stretch' | 'between';
     gap: 'none' | 'sm' | 'md' | 'lg';
     render(): import("lit-html").TemplateResult<1>;
 }

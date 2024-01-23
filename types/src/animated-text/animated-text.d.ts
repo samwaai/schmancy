@@ -5,6 +5,7 @@ declare const SchmancyAnimatedText_base: CustomElementConstructor & import("@mhm
  */
 export default class SchmancyAnimatedText extends SchmancyAnimatedText_base {
     ease: string;
+    delay: number;
     stagger: number;
     duration: number;
     scale: number[];
