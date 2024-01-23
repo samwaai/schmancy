@@ -16,12 +16,14 @@ export class DemoCard extends $LitElement(css`
 						sm: '1fr',
 						md: '1fr 1fr',
 						lg: '1fr 1fr 1fr',
+						xl: '1fr 1fr 1fr 1fr',
 					}}
 					class="p-[32px]"
 					gap="md"
 				>
 					<schmancy-card type="outlined">
 						<schmancy-card-media
+							fit="contain"
 							src="https://www.imigrantesbebidas.com.br/img/bebida/images/products/full/1884-refrigerante-coca-cola-2l.jpg?fm=webp&s=f8f15fd600bf0d5e660b1f178060ddf2"
 						>
 						</schmancy-card-media>

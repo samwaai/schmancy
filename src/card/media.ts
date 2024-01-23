@@ -17,12 +17,23 @@ export default class SchmancyCardMedia extends TailwindElement(css`
 	@property({ type: String, reflect: true })
 	src: string = ''
 
+	@property({ type: String })
+	fit: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down' = 'contain'
+
 	protected render(): unknown {
 		const styles = {
 			height: '200px',
 		}
+		const classes = {
+			'object-center': true,
+			'object-contain': this.fit === 'contain',
+			'object-cover w-full': this.fit === 'cover',
+			'object-fill': this.fit === 'fill',
+			'object-none': this.fit === 'none',
+			'object-scale-down': this.fit === 'scale-down',
+		}
 		return html`<schmancy-grid align="stretch" justify="stretch" gap="md">
-			<img src="${this.src}" style=${this.styleMap(styles)} class="w-full object-cover object-center" />
+			<img src="${this.src}" style=${this.styleMap(styles)} class="${this.classMap(classes)}" />
 		</schmancy-grid>`
 	}
 }

@@ -17,12 +17,12 @@ export class SchmancyGrid extends Layout {
 	@property({ type: String }) cols?: string
 	@property({ type: String }) rows?: string
 	@property({ type: Object }) rcols?: {
-		xs?: string
-		sm?: string
-		md?: string
-		lg?: string
-		xl?: string
-		'2xl'?: string
+		xs?: string | number
+		sm?: string | number
+		md?: string | number
+		lg?: string | number
+		xl?: string | number
+		'2xl'?: string | number
 	}
 
 	@property({ type: Object }) anime = {}
@@ -44,16 +44,19 @@ export class SchmancyGrid extends Layout {
 					takeUntil(this.disconnecting),
 					debounceTime(10),
 					map(w => {
-						console.log(w)
-						if (this.rcols?.xs && w < 640) return this.rcols?.xs
-						if (this.rcols?.sm && w < 768) return this.rcols?.sm
-						if (this.rcols?.md && w < 1024) return this.rcols?.md
-						if (this.rcols?.lg && w < 1280) return this.rcols?.lg
-						if (this.rcols?.xl && w < 1536) return this.rcols?.xl
-						return this.rcols?.['2xl']
+						let cols
+						if (this.rcols?.['2xl'] && w >= 1536) cols = this.rcols?.['2xl']
+						else if (this.rcols?.xl && w >= 1280) cols = this.rcols?.xl
+						else if (this.rcols?.lg && w >= 1024) cols = this.rcols?.lg
+						else if (this.rcols?.md && w >= 768) cols = this.rcols?.md
+						else if (this.rcols?.sm && w >= 640) cols = this.rcols?.sm
+						else if (this.rcols?.xs && w < 640) cols = this.rcols?.xs
+						return cols
 					}),
 				)
-				.subscribe(cols => (this.cols = cols))
+				.subscribe(cols => {
+					this.cols = cols
+				})
 	}
 
 	render() {
