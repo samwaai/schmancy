@@ -8,8 +8,6 @@ import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
-import mc from './mc.svg?inline'
-import mo from './mo.svg?inline'
 import { SchmancyEvents } from '..'
 
 /**
@@ -63,7 +61,11 @@ export class SchmancyDrawerAppbar extends TailwindElement(css`
 										)
 									}}
 								>
-									<object data=${this.sidebarOpen === 'close' ? mo : mc} width="24px" height="24px"></object>
+									${when(
+										this.sidebarOpen === 'close',
+										() => html`<schmancy-icon>menu</schmancy-icon>`,
+										() => html`<schmancy-icon>menu_open</schmancy-icon>`,
+									)}
 								</schmancy-button>
 							</div>
 						</slot>`,
