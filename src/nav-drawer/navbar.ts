@@ -1,8 +1,8 @@
 import { animate } from '@juliangarnierorg/anime-beta'
 import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { css, html } from 'lit'
-import { customElement, query, state } from 'lit/decorators.js'
+import { html } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { SchmancyEvents, SchmancyTheme, color } from '..'
 import {
 	SchmancyDrawerNavbarMode,
@@ -11,7 +11,7 @@ import {
 	TSchmancyDrawerNavbarState,
 } from './context'
 @customElement('schmancy-nav-drawer-navbar')
-export class SchmancyNavigationDrawerSidebar extends $LitElement(css``) {
+export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 	@consume({ context: SchmancyDrawerNavbarMode, subscribe: true })
 	@state()
 	mode: TSchmancyDrawerNavbarMode
@@ -21,6 +21,8 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement(css``) {
 	private state: TSchmancyDrawerNavbarState
 
 	@query('#overlay') overlay!: HTMLElement
+
+	@property({ type: String }) width = '320px'
 
 	updated(changedProperties: Map<string, any>) {
 		if (changedProperties.has('state')) {
@@ -66,7 +68,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement(css``) {
 		const sidebarClasses = {
 			'p-[16px] max-w-[360px] w-fit h-full': true,
 			block: this.mode === 'push',
-			'fixed inset-0 translate-x-[-100%] z-50 min-w-[360px]': this.mode === 'overlay',
+			'fixed inset-0 translate-x-[-100%] z-50': this.mode === 'overlay',
 			'translate-x-0': this.mode === 'overlay' && this.state === 'open',
 			'translate-x-[-100%]': this.mode === 'overlay' && this.state === 'close',
 		}
@@ -74,8 +76,12 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement(css``) {
 			'fixed inset-0 z-[49] hidden': true,
 		}
 
+		const styleMap = {
+			width: this.width,
+		}
 		return html`
 			<nav
+				style=${this.styleMap(styleMap)}
 				class="${this.classMap({ ...sidebarClasses, ...animate })}"
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.container,

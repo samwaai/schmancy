@@ -18,12 +18,12 @@ export default class SchmancyDemo extends $LitElement() {
 		return html`
 			<schmancy-surface type="container">
 				<schmancy-nav-drawer>
-					<schmancy-nav-drawer-navbar>
+					<schmancy-nav-drawer-navbar width="220px">
 						<demo-nav> </demo-nav>
 					</schmancy-nav-drawer-navbar>
-					<schmancy-nav-drawer-content class="pl-4">
-						<schmancy-nav-drawer-appbar class="py-4">
-							<schmancy-typography type="display">Schmancy Demo</schmancy-typography>
+					<schmancy-nav-drawer-content class="pl-2">
+						<schmancy-nav-drawer-appbar class="py-2">
+							<!-- <schmancy-typography type="display">Schmancy Demo</schmancy-typography> -->
 						</schmancy-nav-drawer-appbar>
 						<schmancy-surface type="surface" rounded="left">
 							<schmancy-area class="p-4" name="main" .default=${DemoButton}></schmancy-area>
