@@ -6,6 +6,7 @@ import {
 	EMPTY,
 	bufferTime,
 	catchError,
+	distinctUntilChanged,
 	filter,
 	from,
 	fromEvent,
@@ -13,12 +14,14 @@ import {
 	merge,
 	of,
 	switchMap,
+	take,
 	takeUntil,
 	tap,
 	timeout,
 } from 'rxjs'
 import area from './area.service'
 import { HISTORY_STRATEGY, RouteAction } from './router.types'
+import { isPresent } from 'ts-is-present'
 
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
@@ -47,12 +50,13 @@ export class SchmancyArea extends $LitElement(css`
 	 */
 	getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY) {
 		return of(pathname).pipe(
-			map(() => location.pathname),
 			map(pathname => pathname.split('/').pop() ?? ''),
 			map(pathname => decodeURIComponent(pathname)),
 			map(pathname => JSON.parse(pathname)),
+			tap(console.log),
 			map(routes => routes[this.name]),
-			map(component => (component === undefined ? this.default : component)),
+			map(component => (component === undefined && this.default ? this.default : component)),
+			filter(x => isPresent(x)),
 			map(component => ({
 				area: this.name,
 				component: component ?? this.default,
@@ -76,30 +80,34 @@ export class SchmancyArea extends $LitElement(css`
 			// TOOD: maybe enforce this to be unique
 			throw new Error('Area name or default component not set')
 		}
+
 		// active outlet changes
 		merge(
-			area.request.pipe(filter(({ area }) => area === this.name)),
 			of(location.pathname).pipe(
 				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.replace)),
+				map(route => route as RouteAction),
+				take(1),
 			),
+			area.request.pipe(filter(({ area }) => area === this.name)),
 			fromEvent<PopStateEvent>(window, 'popstate').pipe(
 				map(e => (e.target as Window).location.pathname),
 				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
+				map(route => route as RouteAction),
 			),
 		)
 			.pipe(
 				filter(request => !!request.component),
 				takeUntil(this.disconnecting),
-				// distinctUntilChanged((a, b) => {
-				// 	let aComponent, bComponent
-				// 	if (typeof a.component === 'function')
-				// 		return false // TODO: maybe check if the function is a custom element constructor
-				// 	else if (typeof a.component === 'string') aComponent = a.component
-				// 	if (typeof b.component === 'function')
-				// 		return false // TODO: maybe check if the function is a custom element constructor
-				// 	else if (typeof b.component === 'string') bComponent = b.component
-				// 	return bComponent?.replaceAll('-', '').toLowerCase() === aComponent?.replaceAll('-', '').toLowerCase()
-				// }),
+				distinctUntilChanged((a, b) => {
+					let aComponent, bComponent
+					if (typeof a.component === 'function')
+						return false // TODO: maybe check if the function is a custom element constructor
+					else if (typeof a.component === 'string') aComponent = a.component
+					if (typeof b.component === 'function')
+						return false // TODO: maybe check if the function is a custom element constructor
+					else if (typeof b.component === 'string') bComponent = b.component
+					return bComponent?.replaceAll('-', '').toLowerCase() === aComponent?.replaceAll('-', '').toLowerCase()
+				}),
 			)
 			.pipe(
 				switchMap(async route =>
@@ -163,7 +171,7 @@ export class SchmancyArea extends $LitElement(css`
 									area.$current.next({
 										component: newView.tagName,
 										area: route.area,
-										state: route.state,
+										state: route?.state,
 									})
 								}),
 							),
@@ -202,7 +210,7 @@ export class SchmancyArea extends $LitElement(css`
 	disconnectedCallback(): void {
 		super.disconnectedCallback()
 		this.disconnecting.next(true)
-		area.pop(this.name)
+		// area.pop(this.name)
 	}
 
 	render() {
