@@ -40,7 +40,6 @@ export class DemoCard extends $LitElement(css`
 					<schmancy-card type="elevated">
 						<schmancy-card-content>
 							<span slot="headline">Elbert Hubbard </span>
-							<span slot="subhead"> 86573 likes</span>
 							A friend is someone who knows all about you and still loves you.
 						</schmancy-card-content>
 					</schmancy-card>

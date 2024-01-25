@@ -3,6 +3,7 @@ import { color } from '..'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
+import { queryAssignedElements } from 'lit/decorators.js'
 
 /**
  * @element schmancy-card-content
@@ -12,7 +13,22 @@ import { customElement } from 'lit/decorators.js'
  */
 @customElement('schmancy-card-content')
 export default class SchmancyCardContent extends TailwindElement() {
+	@queryAssignedElements({ slot: 'headline', flatten: true })
+	headline: any[]
+
+	@queryAssignedElements({
+		slot: 'subhead',
+		flatten: true,
+	})
+	subhead: any[]
+
+	@queryAssignedElements({
+		flatten: true,
+	})
+	content: any[]
+
 	protected render(): unknown {
+		console.log(this.headline, this.subhead, this.content)
 		const classes = {
 			'px-[16px] py-[24px]': true,
 		}
