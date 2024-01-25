@@ -1,6 +1,6 @@
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { css, html } from 'lit'
-import { customElement, queryAssignedElements, state } from 'lit/decorators.js'
+import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import SchmancyTab from './tab'
 import { color } from '@schmancy/directives'
@@ -12,6 +12,8 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 		display: block;
 	}
 `) {
+	@property({ type: Boolean }) rounded = true
+
 	@state() private activeTab!: string
 
 	@queryAssignedElements({
@@ -37,6 +39,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 	protected render(): unknown {
 		const surface = {
 			flex: true,
+			'rounded-full': this.rounded,
 		}
 
 		const activeTab = {
