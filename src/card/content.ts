@@ -13,20 +13,6 @@ import { queryAssignedElements } from 'lit/decorators.js'
  */
 @customElement('schmancy-card-content')
 export default class SchmancyCardContent extends TailwindElement() {
-	@queryAssignedElements({ slot: 'headline', flatten: true })
-	headline: any[]
-
-	@queryAssignedElements({
-		slot: 'subhead',
-		flatten: true,
-	})
-	subhead: any[]
-
-	@queryAssignedElements({
-		flatten: true,
-	})
-	content: any[]
-
 	protected render(): unknown {
 		console.log(this.headline, this.subhead, this.content)
 		const classes = {
