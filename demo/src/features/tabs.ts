@@ -9,7 +9,7 @@ export class DemoTabs extends $LitElement(css`
 		display: block;
 	}
 `) {
-	@state() tabs!: string[]
+	@state() tabs: string[] = []
 
 	connectedCallback(): void {
 		super.connectedCallback()

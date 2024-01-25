@@ -25,13 +25,12 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 	private tabs: Array<SchmancyTab> = []
 
 	protected firstUpdated(): void {
-		this.hydrateTabs()
+		// this.hydrateTabs()
 	}
 
 	hydrateTabs() {
 		this.tabs = this.tabsElements
-		console.log(this.tabsElements)
-		this.activeTab = this.tabs.find(tab => tab.active)?.label ?? this.tabs[0].label
+		this.activeTab = this.tabs?.find(tab => tab.active)?.label ?? this.tabs[0]?.label
 	}
 
 	tabChanged() {
