@@ -1,10 +1,10 @@
+import { color } from '@schmancy/directives'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import SchmancyTab from './tab'
-import { color } from '@schmancy/directives'
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 
 @customElement('schmancy-tab-group')
 export default class SchmancyTabGroup extends TailwindElement(css`
@@ -25,7 +25,12 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 	private tabs: Array<SchmancyTab> = []
 
 	protected firstUpdated(): void {
+		this.hydrateTabs()
+	}
+
+	hydrateTabs() {
 		this.tabs = this.tabsElements
+		console.log(this.tabsElements)
 		this.activeTab = this.tabs.find(tab => tab.active)?.label ?? this.tabs[0].label
 	}
 
@@ -89,7 +94,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 				)}
 			</section>
 			<schmancy-divider></schmancy-divider>
-			<slot></slot>
+			<slot @slotchange="${() => this.hydrateTabs()}"></slot>
 		`
 	}
 }

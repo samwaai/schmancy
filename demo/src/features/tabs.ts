@@ -1,6 +1,7 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
+import { timer } from 'rxjs'
 
 @customElement('demo-tabs')
 export class DemoTabs extends $LitElement(css`
@@ -8,9 +9,23 @@ export class DemoTabs extends $LitElement(css`
 		display: block;
 	}
 `) {
+	@state() tabs!: string[]
+
+	connectedCallback(): void {
+		super.connectedCallback()
+		timer(2000).subscribe({
+			next: () => {
+				this.tabs = ['Card', 'Inputs', 'Typography', 'Sheet', 'Content Drawer']
+
+				this.requestUpdate()
+			},
+		})
+	}
+
 	render() {
 		return html`<schmancy-tab-group>
-			<schmancy-tab label="Card">
+			${this.tabs.map(label => html`<schmancy-tab label=${label}></schmancy-tab>`)}
+			<!-- <schmancy-tab label="Card">
 				<demo-card class="py-4"></demo-card>
 			</schmancy-tab>
 			<schmancy-tab label="Inputs">
@@ -26,7 +41,7 @@ export class DemoTabs extends $LitElement(css`
 
 			<schmancy-tab active label="Content Drawer">
 				<demo-content-drawer class="py-4"></demo-content-drawer>
-			</schmancy-tab>
+			</schmancy-tab> -->
 		</schmancy-tab-group>`
 	}
 }
