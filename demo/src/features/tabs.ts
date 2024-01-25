@@ -9,13 +9,22 @@ export class DemoTabs extends $LitElement(css`
 		display: block;
 	}
 `) {
-	@state() tabs: string[] = []
+	@state() tabs: {
+		label: string
+		value: string
+	}[] = []
 
 	connectedCallback(): void {
 		super.connectedCallback()
-		timer(2000).subscribe({
+		timer(0).subscribe({
 			next: () => {
-				this.tabs = ['Card', 'Inputs', 'Typography', 'Sheet', 'Content Drawer']
+				this.tabs = [
+					{ label: 'Card', value: 'card' },
+					{ label: 'Inputs', value: 'inputs' },
+					{ label: 'Typography', value: 'typography' },
+					{ label: 'Sheet', value: 'sheet' },
+					{ label: 'Content Drawer', value: 'content-drawer' },
+				]
 
 				this.requestUpdate()
 			},
@@ -23,25 +32,12 @@ export class DemoTabs extends $LitElement(css`
 	}
 
 	render() {
-		return html`<schmancy-tab-group>
-			${this.tabs.map(label => html`<schmancy-tab label=${label}></schmancy-tab>`)}
-			<!-- <schmancy-tab label="Card">
-				<demo-card class="py-4"></demo-card>
-			</schmancy-tab>
-			<schmancy-tab label="Inputs">
-				<demo-input class="py-4"></demo-input>
-			</schmancy-tab>
-			<schmancy-tab label="Typography">
-				<demo-typography class="py-4"></demo-typography>
-			</schmancy-tab>
-
-			<schmancy-tab label="Sheet">
-				<demo-sheet class="py-4"></demo-sheet>
-			</schmancy-tab>
-
-			<schmancy-tab active label="Content Drawer">
-				<demo-content-drawer class="py-4"></demo-content-drawer>
-			</schmancy-tab> -->
+		return html`<schmancy-tab-group
+			@tab-changed=${() => {
+				console.log('click')
+			}}
+		>
+			${this.tabs.map(tab => html`<schmancy-tab value=${tab.value} label=${tab.label}> Hello</schmancy-tab>`)}
 		</schmancy-tab-group>`
 	}
 }

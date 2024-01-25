@@ -6,6 +6,10 @@ import { customElement, property, queryAssignedElements, state } from 'lit/decor
 import { repeat } from 'lit/directives/repeat.js'
 import SchmancyTab from './tab'
 
+/**
+ * @slot - The content of the tab group
+ * @fires tab-changed - The event fired when the tab is changed
+ */
 @customElement('schmancy-tab-group')
 export default class SchmancyTabGroup extends TailwindElement(css`
 	:host {
@@ -14,7 +18,10 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 `) {
 	@property({ type: Boolean }) rounded = true
 
-	@state() private activeTab!: string
+	@state() private activeTab: {
+		label: string
+		value: string
+	}
 
 	@queryAssignedElements({
 		flatten: true,
@@ -24,20 +31,24 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 	@state()
 	private tabs: Array<SchmancyTab> = []
 
-	protected firstUpdated(): void {
-		// this.hydrateTabs()
-	}
-
 	hydrateTabs() {
 		this.tabs = this.tabsElements
-		this.activeTab = this.tabs?.find(tab => tab.active)?.label ?? this.tabs[0]?.label
+		this.activeTab = this.tabsElements.find(tab => tab.active)
+		if (!this.activeTab && this.tabsElements[0]) {
+			this.activeTab = {
+				label: this.tabsElements[0].label,
+				value: this.tabsElements[0].value,
+			}
+			this.tabsElements[0].active = true
+		}
 	}
 
 	tabChanged() {
 		this.tabsElements.forEach(tab => {
-			if (tab.label === this.activeTab) tab.active = true
+			if (tab.value === this.activeTab.value) tab.active = true
 			else tab.active = false
 		})
+		this.dispatchEvent(new CustomEvent('tab-changed', { detail: this.activeTab }))
 	}
 
 	protected render(): unknown {
@@ -72,19 +83,24 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 					tab => html`
 						<schmancy-button
 							@click=${() => {
-								this.activeTab = tab.label
+								this.activeTab = {
+									label: tab.label,
+									value: tab.value,
+								}
 								this.tabChanged()
 							}}
 							aria-current="page"
 						>
 							<div
-								class="${this.activeTab === tab.label ? this.classMap(activeTab) : this.classMap(inactiveTab)} h-full"
+								class="${this.activeTab.value === tab.value
+									? this.classMap(activeTab)
+									: this.classMap(inactiveTab)} h-full"
 							>
 								<schmancy-typography class="h-full align-middle flex" type="title" token="sm" weight="medium">
 									${tab.label}
 								</schmancy-typography>
 								<div
-									.hidden=${this.activeTab != tab.label}
+									.hidden=${this.activeTab.value !== tab.value}
 									class="border-primary-default mt-[-4px]  border-2 rounded-t-full"
 								></div>
 							</div>
