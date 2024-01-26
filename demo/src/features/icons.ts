@@ -11,6 +11,8 @@ export class DemoIcons extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
+				<schmancy-icon size="80px">delete</schmancy-icon>
+				<schmancy-icon size="40px">delete</schmancy-icon>
 				<schmancy-icon>delete</schmancy-icon>
 			</schmancy-grid>
 		`

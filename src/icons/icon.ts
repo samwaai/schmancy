@@ -1,6 +1,6 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 /**
  * @element schmancy-icon
@@ -31,6 +31,9 @@ export default class SchmancyIcon extends $LitElement(css`
 		display: flex;
 	}
 `) {
+	@property({ type: String, reflect: true })
+	size: string = '24px'
+
 	connectedCallback(): void {
 		super.connectedCallback()
 		if (!document.head.querySelector('#material-icons')) {
@@ -44,7 +47,10 @@ export default class SchmancyIcon extends $LitElement(css`
 		}
 	}
 	protected render(): unknown {
-		return html` <span class="material-symbols-outlined size-[24px]"> <slot></slot> </span> `
+		const style = {
+			fontSize: this.size,
+		}
+		return html` <span class="material-symbols-outlined" style=${this.styleMap(style)}> <slot></slot> </span> `
 	}
 }
 
