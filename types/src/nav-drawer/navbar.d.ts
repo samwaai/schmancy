@@ -4,6 +4,7 @@ export declare class SchmancyNavigationDrawerSidebar extends SchmancyNavigationD
     mode: TSchmancyDrawerNavbarMode;
     private state;
     overlay: HTMLElement;
+    width: string;
     updated(changedProperties: Map<string, any>): void;
     openOverlay(): void;
     closeOverlay(): void;

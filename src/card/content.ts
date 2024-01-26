@@ -1,9 +1,8 @@
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
-import { color } from '..'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { queryAssignedElements } from 'lit/decorators.js'
+import { color } from '..'
 
 /**
  * @element schmancy-card-content
@@ -14,7 +13,6 @@ import { queryAssignedElements } from 'lit/decorators.js'
 @customElement('schmancy-card-content')
 export default class SchmancyCardContent extends TailwindElement() {
 	protected render(): unknown {
-		console.log(this.headline, this.subhead, this.content)
 		const classes = {
 			'px-[16px] py-[24px]': true,
 		}
