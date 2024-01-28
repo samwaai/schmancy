@@ -1,5 +1,5 @@
 import { argbFromHex, themeFromSourceColor } from '@material/material-color-utilities'
-import { Observable, combineLatestWith, map } from 'rxjs'
+import { Observable, combineLatestWith, map, startWith, tap } from 'rxjs'
 import { $newSchmancyTheme, $schmancyTheme } from './$schmancyTheme'
 import { formateTheme } from './theme.format'
 
@@ -23,7 +23,11 @@ const colorScheme$ = new Observable<string>(subscriber => {
 })
 
 $newSchmancyTheme
-	.pipe(map(color => color || generateRandomColor()))
+	.pipe(
+		startWith(localStorage.getItem('schmancy-theme')),
+		map(color => color || generateRandomColor()),
+		tap(color => localStorage.setItem('schmancy-theme', color)),
+	)
 	.pipe(combineLatestWith(colorScheme$.pipe(map(colorScheme => colorScheme === 'dark'))))
 	.pipe(
 		map(([color, isDark]) => {

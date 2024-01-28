@@ -3,17 +3,11 @@ import '@schmancy/index'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
-import { $newSchmancyTheme } from '@schmancy/index'
 import './features/index'
 import { DemoButton } from './features/index'
 
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
-	connectedCallback(): void {
-		super.connectedCallback()
-		$newSchmancyTheme.next(undefined)
-		// $newSchmancyTheme.next('#004a76')
-	}
 	render() {
 		return html`
 			<schmancy-surface type="container">

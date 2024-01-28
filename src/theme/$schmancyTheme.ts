@@ -1,6 +1,4 @@
-import { Subject, startWith } from 'rxjs'
-import { defaultTheme } from './defaultTheme'
-import merge from 'deepmerge'
+import { Subject } from 'rxjs'
 import { TSchmancyTheme } from './theme.interface'
 
 function registerThemeValues(prefix = 'schmancy', path: string, value: Partial<TSchmancyTheme>): string | undefined {
@@ -29,8 +27,8 @@ const $newSchmancyTheme = new Subject<string | undefined>()
 
 const $schmancyTheme = new Subject<Partial<TSchmancyTheme>>()
 
-$schmancyTheme.pipe(startWith(defaultTheme)).subscribe(theme => {
-	registerThemeValues('schmancy', '', merge(defaultTheme, theme))
+$schmancyTheme.pipe().subscribe(theme => {
+	registerThemeValues('schmancy', '', theme)
 })
 
-export { $schmancyTheme, $newSchmancyTheme }
+export { $newSchmancyTheme, $schmancyTheme }

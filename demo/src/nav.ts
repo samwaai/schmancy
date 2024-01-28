@@ -94,8 +94,8 @@ export class DemoNav extends $LitElement(css`
 	}
 	render() {
 		return html`
-			<schmancy-grid gap="md" justify="center">
-				<img class="inline-block h-[80px] w-[80px] rounded-full" src="schmancy.jpg" alt="Schmancy Logo" />
+			<schmancy-grid class="max-h-[90vh]" gap="md" justify="center">
+				<img class="inline-block h-[80px] w-[80px] rounded-full sticky top-0" src="schmancy.jpg" alt="Schmancy Logo" />
 				<schmancy-list>
 					${repeat(
 						this.Demos,
@@ -116,6 +116,9 @@ export class DemoNav extends $LitElement(css`
 							</schmancy-list-item>`,
 					)}
 				</schmancy-list>
+				<div class="sticky bottom-0 ">
+					<schmancy-theme-button></schmancy-theme-button>
+				</div>
 			</schmancy-grid>
 		`
 	}

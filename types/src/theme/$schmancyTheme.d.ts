@@ -62,4 +62,4 @@ declare const $schmancyTheme: Subject<Partial<{
         };
     };
 }>>;
-export { $schmancyTheme, $newSchmancyTheme };
+export { $newSchmancyTheme, $schmancyTheme };
