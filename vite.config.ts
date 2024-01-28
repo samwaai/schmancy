@@ -38,6 +38,26 @@ export default defineConfig({
 					'lit/decorators.js': 'lit/decorators.js',
 				},
 			},
+			plugins: [
+				strip({
+					include: '**/*.(ts|js)',
+					functions: ['console.log', 'assert.*', 'debug', 'alert'],
+					sourceMap: true,
+				}),
+				terser({
+					compress: {
+						drop_console: true,
+					},
+					format: {
+						comments: false,
+					},
+					mangle: {
+						properties: {
+							regex: /^__/,
+						},
+					},
+				}),
+			],
 		},
 	},
 })
