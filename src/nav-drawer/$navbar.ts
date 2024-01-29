@@ -9,7 +9,7 @@ class Drawer {
 	constructor() {
 		this.$drawer.subscribe(data => {
 			if (data.state) {
-				data.self.dispatchEvent(
+				window.dispatchEvent(
 					new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
 						detail: {
 							state: 'open',
@@ -19,7 +19,7 @@ class Drawer {
 					}),
 				)
 			} else {
-				data.self.dispatchEvent(
+				window.dispatchEvent(
 					new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
 						detail: {
 							state: 'close',

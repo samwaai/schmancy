@@ -3,13 +3,13 @@ import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil, tap } from 'rxjs'
+import { SchmancyEvents } from '..'
 import {
 	SchmancyDrawerNavbarMode,
 	SchmancyDrawerNavbarState,
 	TSchmancyDrawerNavbarMode,
 	TSchmancyDrawerNavbarState,
 } from './context'
-import { SchmancyEvents } from '..'
 
 /**
  * @element schmancy-nav-drawer
@@ -75,7 +75,7 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 		/*
 		 * Listen to the toggle event
 		 */
-		fromEvent<CustomEvent>(this, SchmancyEvents.NavDrawer_toggle)
+		fromEvent<CustomEvent>(window, SchmancyEvents.NavDrawer_toggle)
 			.pipe(
 				tap(event => {
 					event.stopPropagation()

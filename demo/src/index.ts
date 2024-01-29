@@ -8,6 +8,10 @@ import { DemoButton } from './features/index'
 
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
+	connectedCallback(): void {
+		super.connectedCallback()
+	}
+
 	render() {
 		return html`
 			<schmancy-surface type="container">
