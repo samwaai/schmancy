@@ -95,10 +95,11 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 					bgColor: SchmancyTheme.sys.color.scrim,
 				})}
 				@click=${() => {
-					this.dispatchEvent(
+					window.dispatchEvent(
 						new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
 							detail: { state: 'close' },
 							bubbles: true,
+							composed: true,
 						}),
 					)
 				}}
