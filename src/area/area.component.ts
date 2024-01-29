@@ -136,27 +136,24 @@ export class SchmancyArea extends $LitElement(css`
 								// create the new view and add it to the DOM
 								map(newView => {
 									const oldView = this.shadowRoot?.children[0]
-									oldView?.classList.add('absolute', 'inset-0')
-									// newView?.classList.add('absolute', 'inset-0')
+									oldView?.remove()
 									this.shadowRoot?.prepend(newView)
 									animate(newView, {
 										opacity: [0, 1],
 										duration: oldView ? 300 : 0,
-										delay: oldView ? 50 : 0,
-										ease: 'easeInQuad',
-										onBegin: () => {
-											if (oldView)
-												animate(oldView, {
-													targets: oldView,
-													opacity: [1, 0],
-													duration: 150,
-													scale: [1, 0.95],
-													ease: 'easeOutQuad',
-													onComplete: () => {
-														oldView?.remove()
-													},
-												})
-										},
+										ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+										// onBegin: () => {
+										// 	if (oldView)
+										// 		animate(oldView, {
+										// 			targets: oldView,
+										// 			opacity: [1, 0],
+										// 			duration: 50,
+										// 			ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+										// 			onComplete: () => {
+										// 				oldView?.remove()
+										// 			},
+										// 		})
+										// },
 										onComplete: () => {
 											oldView?.remove()
 										},
@@ -210,7 +207,6 @@ export class SchmancyArea extends $LitElement(css`
 	disconnectedCallback(): void {
 		super.disconnectedCallback()
 		this.disconnecting.next(true)
-		// area.pop(this.name)
 	}
 
 	render() {
