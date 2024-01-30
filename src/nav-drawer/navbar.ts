@@ -3,8 +3,7 @@ import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
-import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
-import { SchmancyEvents, SchmancyTheme, color, schmancyNavDrawer } from '..'
+import { SchmancyEvents, SchmancyTheme, color } from '..'
 import {
 	SchmancyDrawerNavbarMode,
 	SchmancyDrawerNavbarState,
@@ -27,38 +26,38 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 
 	connectedCallback(): void {
 		super.connectedCallback()
-		const touchStart$ = fromEvent<TouchEvent>(document, 'touchstart')
-		const touchMove$ = fromEvent<TouchEvent>(document, 'touchmove')
-		const touchEnd$ = fromEvent<TouchEvent>(document, 'touchend')
-		const swipeRight$ = touchStart$.pipe(
-			takeUntil(this.disconnecting),
-			switchMap(start => {
-				const startX = start.touches[0].clientX
-				const startY = start.touches[0].clientY
+		// const touchStart$ = fromEvent<TouchEvent>(document, 'touchstart')
+		// const touchMove$ = fromEvent<TouchEvent>(document, 'touchmove')
+		// const touchEnd$ = fromEvent<TouchEvent>(document, 'touchend')
+		// const swipeRight$ = touchStart$.pipe(
+		// 	takeUntil(this.disconnecting),
+		// 	switchMap(start => {
+		// 		const startX = start.touches[0].clientX
+		// 		const startY = start.touches[0].clientY
 
-				return touchMove$.pipe(
-					map(move => {
-						return {
-							startX,
-							startY,
-							moveX: move.touches[0].clientX,
-							moveY: move.touches[0].clientY,
-						}
-					}),
-					takeUntil(touchEnd$),
-				)
-			}),
-			filter(position => {
-				const xDist = position.moveX - position.startX
-				const yDist = Math.abs(position.moveY - position.startY)
-				return xDist > 120 && yDist < 30 // Thresholds for swipe right and vertical tolerance
-			}),
-		)
+		// 		return touchMove$.pipe(
+		// 			map(move => {
+		// 				return {
+		// 					startX,
+		// 					startY,
+		// 					moveX: move.touches[0].clientX,
+		// 					moveY: move.touches[0].clientY,
+		// 				}
+		// 			}),
+		// 			takeUntil(touchEnd$),
+		// 		)
+		// 	}),
+		// 	filter(position => {
+		// 		const xDist = position.moveX - position.startX
+		// 		const yDist = Math.abs(position.moveY - position.startY)
+		// 		return xDist > 120 && yDist < 30 // Thresholds for swipe right and vertical tolerance
+		// 	}),
+		// )
 
-		swipeRight$.subscribe(() => {
-			schmancyNavDrawer.open(this)
-			// Add your logic here for what should happen on a swipe right
-		})
+		// swipeRight$.subscribe(() => {
+		// 	schmancyNavDrawer.open(this)
+		// 	// Add your logic here for what should happen on a swipe right
+		// })
 	}
 
 	updated(changedProperties: Map<string, any>) {
