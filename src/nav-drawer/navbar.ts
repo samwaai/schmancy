@@ -3,7 +3,8 @@ import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
-import { SchmancyEvents, SchmancyTheme, color } from '..'
+import { filter, fromEvent, map, switchMap, takeUntil } from 'rxjs'
+import { SchmancyEvents, SchmancyTheme, color, schmancyNavDrawer } from '..'
 import {
 	SchmancyDrawerNavbarMode,
 	SchmancyDrawerNavbarState,
@@ -24,6 +25,42 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 
 	@property({ type: String }) width = '320px'
 
+	connectedCallback(): void {
+		super.connectedCallback()
+		const touchStart$ = fromEvent<TouchEvent>(document, 'touchstart')
+		const touchMove$ = fromEvent<TouchEvent>(document, 'touchmove')
+		const touchEnd$ = fromEvent<TouchEvent>(document, 'touchend')
+		const swipeRight$ = touchStart$.pipe(
+			takeUntil(this.disconnecting),
+			switchMap(start => {
+				const startX = start.touches[0].clientX
+				const startY = start.touches[0].clientY
+
+				return touchMove$.pipe(
+					map(move => {
+						return {
+							startX,
+							startY,
+							moveX: move.touches[0].clientX,
+							moveY: move.touches[0].clientY,
+						}
+					}),
+					takeUntil(touchEnd$),
+				)
+			}),
+			filter(position => {
+				const xDist = position.moveX - position.startX
+				const yDist = Math.abs(position.moveY - position.startY)
+				return xDist > 120 && yDist < 30 // Thresholds for swipe right and vertical tolerance
+			}),
+		)
+
+		swipeRight$.subscribe(() => {
+			schmancyNavDrawer.open(this)
+			// Add your logic here for what should happen on a swipe right
+		})
+	}
+
 	updated(changedProperties: Map<string, any>) {
 		if (changedProperties.has('state')) {
 			if (this.mode === 'overlay') {
@@ -41,7 +78,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 	openOverlay() {
 		animate(this.overlay, {
 			opacity: 0.4,
-			duration: 500,
+			duration: 300,
 			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
 			onBegin: () => {
 				this.overlay.style.display = 'block'
@@ -52,7 +89,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 	closeOverlay() {
 		animate(this.overlay, {
 			opacity: [0.4, 0],
-			duration: 500,
+			duration: 250,
 			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
 			onComplete: () => {
 				this.overlay.style.display = 'none'
@@ -62,7 +99,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 
 	protected render() {
 		const animate = {
-			'transition-all transform-gpu duration-[500ms] ease-[cubicBezier(0.5, 0.01, 0.25, 1)]': true,
+			'transition-all transform-gpu duration-[300ms] ease-[cubicBezier(0.5, 0.01, 0.25, 1)]': true,
 		}
 
 		const sidebarClasses = {
