@@ -4,6 +4,7 @@ import { css, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil, tap } from 'rxjs'
 import { SchmancyEvents } from '..'
+import { fullHeight } from './../directives/height'
 import {
 	SchmancyDrawerNavbarMode,
 	SchmancyDrawerNavbarState,
@@ -19,12 +20,9 @@ import {
 @customElement('schmancy-nav-drawer')
 export class SchmancyNavigationDrawer extends $LitElement(css`
 	:host {
-		display: block;
-		height: 100vh;
-		width: 100vw;
+		display: flex;
+		flex-grow: 1;
 		overflow: hidden;
-		position: relative;
-		inset: 0;
 	}
 `) {
 	/**
@@ -92,7 +90,7 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 	protected render() {
 		if (!this.mode || !this.open) return nothing
 		return html`
-			<schmancy-grid cols="auto 1fr" rows="1fr" flow="col" justify="stretch" align="stretch" class="flex h-[100%]">
+			<schmancy-grid cols="auto 1fr" rows="1fr" flow="col" justify="stretch" align="stretch" ${fullHeight()}>
 				<slot></slot>
 			</schmancy-grid>
 		`
