@@ -1,4 +1,4 @@
-import { animate, utils } from '@juliangarnierorg/anime-beta'
+import { animate } from '@juliangarnierorg/anime-beta'
 import { consume } from '@lit/context'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
@@ -93,17 +93,15 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 	}
 
 	closeSheet() {
-		return utils.promisify(
-			animate(this.sheet, {
-				opacity: 1,
-				duration: 500,
-				translateX: ['0%', '100%'],
-				ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-				onComplete: () => {
-					this.sheet.style.display = 'none'
-				},
-			}),
-		)
+		return animate(this.sheet, {
+			opacity: 1,
+			duration: 500,
+			translateX: ['0%', '100%'],
+			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
+			onComplete: () => {
+				this.sheet.style.display = 'none'
+			},
+		})
 	}
 
 	protected render() {

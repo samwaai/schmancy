@@ -14,7 +14,7 @@ export declare class SchmancyContentDrawerSheet extends SchmancyContentDrawerShe
     open(): void;
     closeAll(): void;
     closeModalSheet(): import("rxjs").Observable<boolean>;
-    closeSheet(): any;
+    closeSheet(): import("@juliangarnierorg/anime-beta").Animation;
     protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

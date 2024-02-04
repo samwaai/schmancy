@@ -1,9 +1,9 @@
+import { animate } from '@juliangarnierorg/anime-beta'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
 import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { from, fromEvent, switchMap, takeUntil, tap } from 'rxjs'
 import style from './menu.scss?inline'
-import { animate, utils } from '@juliangarnierorg/anime-beta'
 
 @customElement('schmancy-menu')
 export default class SchmancyMenu extends TailwindElement(style) {
@@ -12,32 +12,28 @@ export default class SchmancyMenu extends TailwindElement(style) {
 	@query('#menu') menuElement!: HTMLElement
 
 	openMenu() {
-		return utils.promisify(
-			animate(this.menuElement, {
-				targets: [],
-				opacity: [0, 1],
-				scale: [0.95, 1],
-				duration: 100,
-				ease: 'easeInQuad',
-				onBegin: () => {
-					this.open = true
-				},
-			}),
-		)
+		return animate(this.menuElement, {
+			targets: [],
+			opacity: [0, 1],
+			scale: [0.95, 1],
+			duration: 100,
+			ease: 'easeInQuad',
+			onBegin: () => {
+				this.open = true
+			},
+		})
 	}
 
 	closeMenu() {
-		return utils.promisify(
-			animate(this.menuElement, {
-				opacity: [1, 0],
-				scale: [1, 0.95],
-				duration: 75,
-				ease: 'easeInQuad',
-				onComplete: () => {
-					this.open = false
-				},
-			}),
-		)
+		return animate(this.menuElement, {
+			opacity: [1, 0],
+			scale: [1, 0.95],
+			duration: 75,
+			ease: 'easeInQuad',
+			onComplete: () => {
+				this.open = false
+			},
+		})
 	}
 
 	protected firstUpdated(): void {

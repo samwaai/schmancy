@@ -1,5 +1,5 @@
+import { animate } from '@juliangarnierorg/anime-beta'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
-import { animate, utils } from '@juliangarnierorg/anime-beta'
 import { css, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { from, fromEvent, merge, switchMap, takeUntil, tap } from 'rxjs'
@@ -51,26 +51,22 @@ export default class SchmancyTree extends TailwindElement(css`
 				switchMap(() =>
 					merge(
 						from(
-							utils.promisify(
-								animate(this.chevron, {
-									rotate: this.open ? [0, 180] : [180, 0],
-									ease: 'easeInQuad',
-									duration: 150,
-								}),
-							),
+							animate(this.chevron, {
+								rotate: this.open ? [0, 180] : [180, 0],
+								ease: 'easeInQuad',
+								duration: 150,
+							}),
 						),
 						from(
-							utils.promisify(
-								animate(this.defaultSlot, {
-									display: { to: this.open ? 'none' : 'block', ease: 'outExpo' },
-									opacity: { to: this.open ? 0 : 1, ease: 'outExpo' },
-									ease: 'easeInQuad',
-									duration: 150,
-									onComplete: () => {
-										this.open = !this.open
-									},
-								}),
-							),
+							animate(this.defaultSlot, {
+								display: { to: this.open ? 'none' : 'block', ease: 'outExpo' },
+								opacity: { to: this.open ? 0 : 1, ease: 'outExpo' },
+								ease: 'easeInQuad',
+								duration: 150,
+								onComplete: () => {
+									this.open = !this.open
+								},
+							}),
 						),
 					),
 				),

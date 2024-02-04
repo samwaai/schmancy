@@ -98,11 +98,7 @@ export default class SchmancyAnimatedText extends $LitElement(css`
 				tap({
 					next: () => {
 						// Wrap every letter in a span
-						createTimeline({
-							default: {
-								ease: this.ease,
-							},
-						}).add(
+						createTimeline().add(
 							this.shadowRoot.querySelectorAll('.ml7 .letter'),
 							{
 								translateY: this.translateY,
