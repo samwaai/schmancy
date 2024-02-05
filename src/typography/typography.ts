@@ -53,9 +53,18 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	 */
 	@property({ type: String }) transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined
 
+	@property({ type: Number }) maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+
 	render() {
 		const classes = {
-			'hyphens-none flex items-center': true,
+			'hyphens-none items-center': true,
+			'line-clamp-1': this.maxLines === 1,
+			'line-clamp-2': this.maxLines === 2,
+			'line-clamp-3': this.maxLines === 3,
+			'line-clamp-4': this.maxLines === 4,
+			'line-clamp-5': this.maxLines === 5,
+			'line-clamp-6': this.maxLines === 6,
+			'line-clamp-none flex': this.maxLines === undefined,
 
 			// Display
 			'text-[57px] tracking-[-0.25px] leading-[64px]': this.type === 'display' && this.token === 'lg',

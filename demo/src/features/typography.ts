@@ -27,6 +27,12 @@ export default class DemoTypography extends $LitElement(css`
 					<schmancy-typography type="label" token="lg">Label (lg)</schmancy-typography>
 					<schmancy-typography type="label" token="md">Label (md)</schmancy-typography>
 					<schmancy-typography type="label" token="sm">Label (sm)</schmancy-typography>
+
+					<schmancy-typography type="display" token="lg">Max lines</schmancy-typography>
+					<schmancy-typography maxLines="2">
+						“I'm selfish, impatient and a little insecure. I make mistakes, I am out of control and at times hard to
+						handle. But if you can't handle me at my worst, then you sure as hell don't deserve me at my best.”
+					</schmancy-typography>
 				</schmancy-grid>
 			</div>
 		`
