@@ -19,9 +19,9 @@ import {
 	tap,
 	timeout,
 } from 'rxjs'
+import { isPresent } from 'ts-is-present'
 import area from './area.service'
 import { HISTORY_STRATEGY, RouteAction } from './router.types'
-import { isPresent } from 'ts-is-present'
 
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
@@ -188,7 +188,9 @@ export class SchmancyArea extends $LitElement(css`
 		} catch {
 			oldAreaState = {}
 		}
-		return encodeURIComponent(JSON.stringify({ ...oldAreaState, [this.name]: tag.toLowerCase() }))
+		return encodeURIComponent(JSON.stringify({ ...oldAreaState, [this.name]: tag.toLowerCase() })).concat(
+			document.location.search,
+		)
 	}
 
 	checkForTeleportationRequests() {
