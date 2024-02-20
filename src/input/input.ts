@@ -237,6 +237,11 @@ export default class SchmancyInput extends TailwindElement(style) {
 		this.dispatchEvent(new Event('focus'))
 	}
 
+	public override click() {
+		this.inputRef.value?.click()
+		this.dispatchEvent(new Event('click'))
+	}
+
 	public override blur() {
 		this.inputRef.value?.blur()
 		this.dispatchEvent(new Event('blur'))
