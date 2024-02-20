@@ -80,6 +80,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	 * @default ''
 	 * @public
 	 */
+	@property() pattern = undefined
 	@property({ type: Boolean, reflect: true }) required = false
 	@property({ type: Boolean, reflect: true }) disabled = false
 	@property({ type: Boolean, reflect: true }) readonly = false
@@ -289,6 +290,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 					class="flex"
 					.min=${this.min}
 					.max=${this.max}
+					.pattern=${this.pattern}
 				/>
 			</schmancy-typography>
 			${when(
