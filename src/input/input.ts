@@ -282,6 +282,8 @@ export default class SchmancyInput extends TailwindElement(style) {
 					class=${this.classMap(classes)}
 					.disabled=${this.disabled}
 					class="flex"
+					.min=${this.min}
+					.max=${this.max}
 				/>
 			</schmancy-typography>
 			${when(
