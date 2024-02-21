@@ -1,7 +1,7 @@
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { color } from '@schmancy/directives'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
-import { LitElement, html } from 'lit'
+import { LitElement, html, nothing } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import style from './input.scss?inline'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -77,10 +77,10 @@ export default class SchmancyInput extends TailwindElement(style) {
 	 * The pattern attribute of the control.
 	 * @attr
 	 * @type {string}
-	 * @default ''
+	 * @default undefiend
 	 * @public
 	 */
-	@property() pattern = ''
+	@property({ type: String, reflect: true }) pattern
 	@property({ type: Boolean, reflect: true }) required = false
 	@property({ type: Boolean, reflect: true }) disabled = false
 	@property({ type: Boolean, reflect: true }) readonly = false
@@ -283,16 +283,15 @@ export default class SchmancyInput extends TailwindElement(style) {
 					.autocomplete=${this.autocomplete}
 					.placeholder=${this.placeholder}
 					.required=${this.required}
-					minlength=${ifDefined(this.minlength)}
 					.inputMode=${this.inputmode}
 					class=${this.classMap(classes)}
 					.disabled=${this.disabled}
 					class="flex"
-					.min=${this.min}
-					.max=${this.max}
-					.pattern=${this.pattern}
-					.maxLength=${this.maxlength}
-					.minLength=${this.minlength}
+					min=${ifDefined(this.min)}
+					max=${ifDefined(this.max)}
+					minlength=${ifDefined(this.minlength)}
+					maxlength=${ifDefined(this.maxlength)}
+					.pattern=${ifDefined(this.pattern) ?? nothing}
 				/>
 			</schmancy-typography>
 			${when(
