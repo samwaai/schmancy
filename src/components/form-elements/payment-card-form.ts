@@ -1,0 +1,115 @@
+import { $LitElement } from '@mhmo91/lit-mixins/src'
+import { html } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators.js'
+import Cleave from 'cleave.js'
+import { SchmancyInputChangeEvent } from '@schmancy/input'
+import SchmancyForm from '@schmancy/form/form'
+
+@customElement('schmancy-payment-card-form')
+export class SchmancyPaymentCardForm extends $LitElement() {
+	@property({ type: Object }) public value: {
+		cardName: string
+		cardNumber: string
+		expirationDate: string
+		cvv: string
+	} = {
+		cardName: '',
+		cardNumber: '',
+		expirationDate: '',
+		cvv: '',
+	}
+	@state() cardName: string | undefined
+	@state() cardNumber: string | undefined
+	@state() expirationDate: string | undefined
+	@state() cvv: string | undefined
+
+	@query('#cardNumber') cardNumberInput!: HTMLElement
+	@query('#expirationDate') expirationDateInput!: HTMLElement
+	@query('#cvv') cvvInput!: HTMLElement
+	@query('#cardName') cardNameInput!: HTMLElement
+	@query('schmancy-form') form!: SchmancyForm
+
+	firstUpdated(): void {
+		new Cleave(this.cardNumberInput, {
+			creditCard: true,
+		})
+		new Cleave(this.expirationDateInput, {
+			date: true,
+			datePattern: ['m', 'y'],
+		})
+		new Cleave(this.cvvInput, {
+			blocks: [4],
+		})
+	}
+
+	/** Checks for validity of the control and shows the browser message if it's invalid. */
+	public reportValidity() {
+		return this.form.reportValidity()
+	}
+
+	/** Checks for validity of the control and emits the invalid event if it invalid. */
+	public checkValidity() {
+		return !!this.form.reportValidity()
+	}
+
+	protected render(): unknown {
+		return html` <schmancy-form>
+			<schmancy-input
+				id="cardName"
+				.value=${this.cardName ?? ''}
+				type="text"
+				label="Name on card"
+				required
+				pattern="[a-zA-Zs]+"
+				hint="Please enter a valid name."
+				@change=${(e: SchmancyInputChangeEvent) => {
+					this.cardName = e.detail.value
+					this.value.cardName = e.detail.value
+				}}
+			></schmancy-input>
+			<schmancy-input
+				id="cardNumber"
+				type="text"
+				label="Card number"
+				required
+				hint="Card number must be 16 digits."
+				@change=${(e: SchmancyInputChangeEvent) => {
+					this.cardNumber = e.detail.value
+					this.value.cardNumber = e.detail.value
+				}}
+			></schmancy-input>
+			<schmancy-grid gap="sm" cols="1fr 1fr">
+				<schmancy-input
+					id="expirationDate"
+					@change=${(e: SchmancyInputChangeEvent) => {
+						this.expirationDate = e.detail.value
+						this.value.expirationDate = e.detail.value
+					}}
+					type="text"
+					label="Expiration date"
+					placeholder="MM/YY"
+					required
+				></schmancy-input>
+				<schmancy-input
+					id="cvv"
+					@change=${(e: SchmancyInputChangeEvent) => {
+						this.cvv = e.detail.value
+						this.value.cvv = e.detail.value
+					}}
+					label="CVV"
+					required
+					type="text"
+					maxlength="4"
+					minlength="3"
+					hint="CVV must be 3 or 4 digits."
+				></schmancy-input>
+			</schmancy-grid>
+		</schmancy-form>`
+	}
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'schmancy-payment-card-form': SchmancyPaymentCardForm
+	}
+}

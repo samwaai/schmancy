@@ -6,6 +6,7 @@ export * from './busy';
 export * from './button';
 export * from './card';
 export * from './checkbox';
+export * from './components';
 export * from './content-drawer';
 export * from './directives';
 export * from './divider';
