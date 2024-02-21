@@ -80,7 +80,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	 * @default ''
 	 * @public
 	 */
-	@property() pattern = undefined
+	@property() pattern = ''
 	@property({ type: Boolean, reflect: true }) required = false
 	@property({ type: Boolean, reflect: true }) disabled = false
 	@property({ type: Boolean, reflect: true }) readonly = false
