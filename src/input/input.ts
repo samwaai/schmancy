@@ -291,6 +291,8 @@ export default class SchmancyInput extends TailwindElement(style) {
 					.min=${this.min}
 					.max=${this.max}
 					.pattern=${this.pattern}
+					.maxLength=${this.maxlength}
+					.minLength=${this.minlength}
 				/>
 			</schmancy-typography>
 			${when(
