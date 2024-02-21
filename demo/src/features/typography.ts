@@ -34,6 +34,30 @@ export default class DemoTypography extends $LitElement(css`
 						handle. But if you can't handle me at my worst, then you sure as hell don't deserve me at my best.”
 					</schmancy-typography>
 				</schmancy-grid>
+				<schmancy-grid gap="md">
+					<schmancy-surface type="surfaceBright" elevation="1" rounded="all">
+						<schmancy-typography align="center" type="display" token="lg">Centered</schmancy-typography>
+					</schmancy-surface>
+					<schmancy-surface type="surfaceBright" elevation="1" rounded="all">
+						<schmancy-typography align="left" type="display" token="lg">Left</schmancy-typography>
+					</schmancy-surface>
+
+					<schmancy-surface type="surfaceBright" elevation="1" rounded="all">
+						<schmancy-typography align="center" type="headline" token="lg">Centered</schmancy-typography>
+					</schmancy-surface>
+
+					<schmancy-surface type="surfaceBright" elevation="1" rounded="all">
+						<schmancy-typography align="right" type="headline" token="lg">Right</schmancy-typography>
+					</schmancy-surface>
+
+					<schmancy-surface type="surfaceBright" elevation="1" rounded="all">
+						<schmancy-typography align="justify" type="title" token="lg">
+							Justify this text to see how it looks like with a longer text that spans multiple lines and how it looks
+							like with a longer text that spans multiple lines and how it looks like with a longer text that spans
+							multiple lines and how it looks like with a longer text that spans multiple lines
+						</schmancy-typography>
+					</schmancy-surface>
+				</schmancy-grid>
 			</div>
 		`
 	}

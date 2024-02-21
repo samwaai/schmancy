@@ -58,6 +58,10 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	render() {
 		const classes = {
 			'hyphens-none items-center': true,
+			'justify-center': this.align === 'center',
+			'justify-start': this.align === 'left',
+			'justify-end': this.align === 'right',
+			'justify-between text-justify': this.align === 'justify',
 			'line-clamp-1': this.maxLines === 1,
 			'line-clamp-2': this.maxLines === 2,
 			'line-clamp-3': this.maxLines === 3,
