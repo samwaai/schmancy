@@ -76,6 +76,10 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 		return !!this.form.reportValidity()
 	}
 
+	emitChange() {
+		this.dispatchEvent(new CustomEvent('change', { detail: { value: this.value } }))
+	}
+
 	protected render(): unknown {
 		return html` <schmancy-form>
 			<schmancy-grid gap="sm">
@@ -90,6 +94,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 					@change=${(e: SchmancyInputChangeEvent) => {
 						this.cardName = e.detail.value
 						this.value.cardName = e.detail.value
+						this.emitChange()
 					}}
 				></schmancy-input>
 				<schmancy-input
@@ -101,6 +106,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 					@change=${(e: SchmancyInputChangeEvent) => {
 						this.cardNumber = e.detail.value
 						this.value.cardNumber = e.detail.value
+						this.emitChange()
 					}}
 				></schmancy-input>
 				<schmancy-grid gap="sm" cols="1fr 1fr">
@@ -109,6 +115,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 						@change=${(e: SchmancyInputChangeEvent) => {
 							this.expirationDate = e.detail.value
 							this.value.expirationDate = e.detail.value
+							this.emitChange()
 						}}
 						type="text"
 						label="Expiration date"
@@ -120,6 +127,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 						@change=${(e: SchmancyInputChangeEvent) => {
 							this.cvv = e.detail.value
 							this.value.cvv = e.detail.value
+							this.emitChange()
 						}}
 						label="CVV"
 						required
