@@ -220,6 +220,11 @@ export default class SchmancyInput extends TailwindElement(style) {
 		return this.inputRef.value?.checkValidity()
 	}
 
+	/** Sets a custom validity message. */
+	public setCustomValidity(message: string) {
+		return this.inputRef.value?.setCustomValidity(message)
+	}
+
 	/** Selects all text within the input. */
 	public select() {
 		return this.inputRef.value?.select()
@@ -283,7 +288,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 					.autocomplete=${this.autocomplete}
 					.placeholder=${this.placeholder}
 					.required=${this.required}
-					.inputMode=${this.inputmode}
+					inputmode=${ifDefined(this.inputmode)}
 					class=${this.classMap(classes)}
 					.disabled=${this.disabled}
 					class="flex"

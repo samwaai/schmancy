@@ -37,6 +37,7 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
      * @public
      */
     transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined;
+    maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

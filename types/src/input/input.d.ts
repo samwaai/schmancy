@@ -53,9 +53,10 @@ export default class SchmancyInput extends SchmancyInput_base {
      * The pattern attribute of the control.
      * @attr
      * @type {string}
-     * @default ''
+     * @default undefiend
      * @public
      */
+    pattern: any;
     required: boolean;
     disabled: boolean;
     readonly: boolean;
@@ -116,10 +117,13 @@ export default class SchmancyInput extends SchmancyInput_base {
     reportValidity(): boolean;
     /** Checks for validity of the control and emits the invalid event if it invalid. */
     checkValidity(): boolean;
+    /** Sets a custom validity message. */
+    setCustomValidity(message: string): void;
     /** Selects all text within the input. */
     select(): void;
     validity(): ValidityState | undefined;
     focus(options?: FocusOptions): void;
+    click(): void;
     blur(): void;
     protected render(): unknown;
 }

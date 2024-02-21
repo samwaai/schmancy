@@ -45,7 +45,6 @@ export default class SchmancyForm extends TailwindElement() {
 		'schmancy-checkbox',
 		'schmancy-radio-group',
 		'schmancy-autocomplete',
-		// 'schmancy-payment-card-form',
 	]
 	private _controlsWithValue = [
 		'input',

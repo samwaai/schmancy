@@ -11,15 +11,18 @@ export class DemoInput extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
-				<schmancy-form
-					@submit=${(e: SubmitEvent) => {
-						// e.preventDefault()
-						console.log('submit')
-					}}
-				>
-					<schmancy-payment-card-form></schmancy-payment-card-form>
-					<schmancy-button type="submit">Submit</schmancy-button>
-				</schmancy-form>
+				<schmancy-surface type="containerLow" rounded="all">
+					<schmancy-form
+						class="p-4"
+						@submit=${(e: SubmitEvent) => {
+							// e.preventDefault()
+							console.log('submit')
+						}}
+					>
+						<schmancy-payment-card-form></schmancy-payment-card-form>
+						<schmancy-button type="submit">Submit</schmancy-button>
+					</schmancy-form>
+				</schmancy-surface>
 				<schmancy-input hint="another day another moment" label="Input" placeholder="placeholder"></schmancy-input>
 				<schmancy-input label="disabled Input" placeholder="placeholder" disabled></schmancy-input>
 

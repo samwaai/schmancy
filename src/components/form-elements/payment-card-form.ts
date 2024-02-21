@@ -1,9 +1,10 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
+import SchmancyForm from '@schmancy/form/form'
+import { SchmancyInputChangeEvent } from '@schmancy/input'
+import SchmancyInput from '@schmancy/input/input'
+import Cleave from 'cleave.js'
 import { html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
-import Cleave from 'cleave.js'
-import { SchmancyInputChangeEvent } from '@schmancy/input'
-import SchmancyForm from '@schmancy/form/form'
 
 @customElement('schmancy-payment-card-form')
 export class SchmancyPaymentCardForm extends $LitElement() {
@@ -23,22 +24,45 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 	@state() expirationDate: string | undefined
 	@state() cvv: string | undefined
 
-	@query('#cardNumber') cardNumberInput!: HTMLElement
-	@query('#expirationDate') expirationDateInput!: HTMLElement
-	@query('#cvv') cvvInput!: HTMLElement
-	@query('#cardName') cardNameInput!: HTMLElement
+	@query('#cardNumber') cardNumberInput!: SchmancyInput
+	@query('#expirationDate') expirationDateInput!: SchmancyInput
+	@query('#cvv') cvvInput!: SchmancyInput
+	@query('#cardName') cardNameInput!: SchmancyInput
 	@query('schmancy-form') form!: SchmancyForm
 
 	firstUpdated(): void {
 		new Cleave(this.cardNumberInput, {
 			creditCard: true,
+			creditCardStrictMode: true,
+			onCreditCardTypeChanged: type => {
+				if (type === 'unknown') {
+					this.cardNumberInput.setCustomValidity('Please enter a valid card number.')
+				} else {
+					this.cardNumberInput.setCustomValidity('')
+				}
+			},
 		})
 		new Cleave(this.expirationDateInput, {
 			date: true,
 			datePattern: ['m', 'y'],
+			onValueChanged: e => {
+				if (!e.target.value || e.target.value.length < 5) {
+					this.expirationDateInput.setCustomValidity('Please enter a valid expiration date.')
+				} else {
+					this.expirationDateInput.setCustomValidity('')
+				}
+			},
 		})
 		new Cleave(this.cvvInput, {
 			blocks: [4],
+			numericOnly: true,
+			onValueChanged: e => {
+				if (e.target.value.length < 3) {
+					this.cvvInput.setCustomValidity('Please enter a valid CVV.')
+				} else {
+					this.cvvInput.setCustomValidity('')
+				}
+			},
 		})
 	}
 
