@@ -23,9 +23,7 @@ export default class SchmancyBusy extends TailwindElement(css`
 					})}
 					class="absolute transform-gpu inset-0 rounded-[inherit]   opacity-50 flex align-middle justify-center items-center "
 				>
-					<slot>
-						<schmancy-spinner></schmancy-spinner>
-					</slot>
+					<slot> </slot>
 				</div>
 			</div>
 		`

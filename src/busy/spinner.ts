@@ -21,7 +21,7 @@ export default class SchmnacySpinner extends TailwindElement(css`
 	@property({ type: String }) color: string = 'gray'
 
 	protected render(): unknown {
-		return html` <schmancy-icon size="48px">refresh</schmancy-icon> `
+		return html` <schmancy-icon class="spinner" size="48px">sync</schmancy-icon> `
 	}
 }
 
