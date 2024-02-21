@@ -8,7 +8,7 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 
 @customElement('schmancy-payment-card-form')
 export class SchmancyPaymentCardForm extends $LitElement() {
-	@property({ type: Object }) public value: {
+	@property({ type: Object, reflect: true }) public value: {
 		cardName: string
 		cardNumber: string
 		expirationDate: string

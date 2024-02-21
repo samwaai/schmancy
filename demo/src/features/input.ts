@@ -19,7 +19,11 @@ export class DemoInput extends $LitElement(css`
 							console.log('submit')
 						}}
 					>
-						<schmancy-payment-card-form></schmancy-payment-card-form>
+						<schmancy-payment-card-form
+							@change=${e => {
+								console.log(e.detail)
+							}}
+						></schmancy-payment-card-form>
 						<schmancy-button type="submit">Submit</schmancy-button>
 					</schmancy-form>
 				</schmancy-surface>
