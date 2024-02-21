@@ -86,7 +86,12 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 	}
 
 	protected render(): unknown {
-		return html` <schmancy-form>
+		return html` <schmancy-form
+			@change=${e => {
+				e.stopPropagation()
+				e.preventDefault()
+			}}
+		>
 			<schmancy-grid gap="sm">
 				<schmancy-input
 					id="cardName"
