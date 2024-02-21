@@ -64,6 +64,11 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 				}
 			},
 		})
+
+		new Cleave(this.cardNameInput, {
+			uppercase: true,
+			delimiter: ' ',
+		})
 	}
 
 	/** Checks for validity of the control and shows the browser message if it's invalid. */
@@ -89,7 +94,6 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 					type="text"
 					label="Name on card"
 					required
-					pattern="[a-zA-Zs]+"
 					hint="Please enter a valid name."
 					@change=${(e: SchmancyInputChangeEvent) => {
 						this.cardName = e.detail.value
