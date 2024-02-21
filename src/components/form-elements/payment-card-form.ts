@@ -78,55 +78,57 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 
 	protected render(): unknown {
 		return html` <schmancy-form>
-			<schmancy-input
-				id="cardName"
-				.value=${this.cardName ?? ''}
-				type="text"
-				label="Name on card"
-				required
-				pattern="[a-zA-Zs]+"
-				hint="Please enter a valid name."
-				@change=${(e: SchmancyInputChangeEvent) => {
-					this.cardName = e.detail.value
-					this.value.cardName = e.detail.value
-				}}
-			></schmancy-input>
-			<schmancy-input
-				id="cardNumber"
-				type="text"
-				label="Card number"
-				required
-				hint="Card number must be 16 digits."
-				@change=${(e: SchmancyInputChangeEvent) => {
-					this.cardNumber = e.detail.value
-					this.value.cardNumber = e.detail.value
-				}}
-			></schmancy-input>
-			<schmancy-grid gap="sm" cols="1fr 1fr">
+			<schmancy-grid gap="sm">
 				<schmancy-input
-					id="expirationDate"
-					@change=${(e: SchmancyInputChangeEvent) => {
-						this.expirationDate = e.detail.value
-						this.value.expirationDate = e.detail.value
-					}}
+					id="cardName"
+					.value=${this.cardName ?? ''}
 					type="text"
-					label="Expiration date"
-					placeholder="MM/YY"
+					label="Name on card"
 					required
+					pattern="[a-zA-Zs]+"
+					hint="Please enter a valid name."
+					@change=${(e: SchmancyInputChangeEvent) => {
+						this.cardName = e.detail.value
+						this.value.cardName = e.detail.value
+					}}
 				></schmancy-input>
 				<schmancy-input
-					id="cvv"
-					@change=${(e: SchmancyInputChangeEvent) => {
-						this.cvv = e.detail.value
-						this.value.cvv = e.detail.value
-					}}
-					label="CVV"
-					required
+					id="cardNumber"
 					type="text"
-					maxlength="4"
-					minlength="3"
-					hint="CVV must be 3 or 4 digits."
+					label="Card number"
+					required
+					hint="Card number must be 16 digits."
+					@change=${(e: SchmancyInputChangeEvent) => {
+						this.cardNumber = e.detail.value
+						this.value.cardNumber = e.detail.value
+					}}
 				></schmancy-input>
+				<schmancy-grid gap="sm" cols="1fr 1fr">
+					<schmancy-input
+						id="expirationDate"
+						@change=${(e: SchmancyInputChangeEvent) => {
+							this.expirationDate = e.detail.value
+							this.value.expirationDate = e.detail.value
+						}}
+						type="text"
+						label="Expiration date"
+						placeholder="MM/YY"
+						required
+					></schmancy-input>
+					<schmancy-input
+						id="cvv"
+						@change=${(e: SchmancyInputChangeEvent) => {
+							this.cvv = e.detail.value
+							this.value.cvv = e.detail.value
+						}}
+						label="CVV"
+						required
+						type="text"
+						maxlength="4"
+						minlength="3"
+						hint="CVV must be 3 or 4 digits."
+					></schmancy-input>
+				</schmancy-grid>
 			</schmancy-grid>
 		</schmancy-form>`
 	}
