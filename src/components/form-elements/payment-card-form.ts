@@ -77,7 +77,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 	}
 
 	emitChange() {
-		this.dispatchEvent(new CustomEvent('change', { detail: { value: this.value } }))
+		this.dispatchEvent(new CustomEvent('change', { detail: { ...this.value } }))
 	}
 
 	protected render(): unknown {
