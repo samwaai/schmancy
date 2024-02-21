@@ -1,29 +1,39 @@
+import { SchmancyTheme } from '@schmancy/theme'
+import { color } from '@schmancy/directives'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 @customElement('schmancy-busy')
 export default class SchmancyBusy extends TailwindElement(css`
-  :host {
-    display: inline;
-    position: absolute;
-    inset: 0;
-  }
+	:host {
+		display: inline;
+		position: absolute;
+		inset: 0;
+	}
 `) {
-  protected render(): unknown {
-    return html`
-      <div class="absolute inset-0 flex justify-center items-center">
-        <!-- glass window -->
-        <div
-          class="absolute transform-gpu inset-0 rounded-[inherit] blur-3xl bg-slate-300 opacity-50"
-        ></div>
-      </div>
-    `
-  }
+	protected render(): unknown {
+		return html`
+			<div class="absolute inset-0 flex justify-center items-center animate-pulse">
+				<!-- glass window -->
+				<div
+					${color({
+						bgColor: SchmancyTheme.sys.color.secondary.container,
+						color: SchmancyTheme.sys.color.tertiary.onContainer,
+					})}
+					class="absolute transform-gpu inset-0 rounded-[inherit]   opacity-50 flex align-middle justify-center items-center "
+				>
+					<slot>
+						<schmancy-spinner></schmancy-spinner>
+					</slot>
+				</div>
+			</div>
+		`
+	}
 }
 
 declare global {
-  interface HTMLElementTagNameMap {
-    'schmancy-busy': SchmancyBusy
-  }
+	interface HTMLElementTagNameMap {
+		'schmancy-busy': SchmancyBusy
+	}
 }
