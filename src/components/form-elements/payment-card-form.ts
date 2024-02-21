@@ -94,6 +94,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 		>
 			<schmancy-grid gap="sm">
 				<schmancy-input
+					autocomplete="cc-name"
 					id="cardName"
 					.value=${this.cardName ?? ''}
 					type="text"
@@ -107,6 +108,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 					}}
 				></schmancy-input>
 				<schmancy-input
+					autocomplete="cc-number"
 					id="cardNumber"
 					type="text"
 					label="Card number"
@@ -120,6 +122,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 				></schmancy-input>
 				<schmancy-grid gap="sm" cols="1fr 1fr">
 					<schmancy-input
+						autocomplete="cc-exp"
 						id="expirationDate"
 						@change=${(e: SchmancyInputChangeEvent) => {
 							this.expirationDate = e.detail.value
@@ -133,6 +136,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 					></schmancy-input>
 					<schmancy-input
 						id="cvv"
+						autocomplete="cc-csc"
 						@change=${(e: SchmancyInputChangeEvent) => {
 							this.cvv = e.detail.value
 							this.value.cvv = e.detail.value
