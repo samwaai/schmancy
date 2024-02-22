@@ -117,13 +117,19 @@ export class SchmancyContentDrawer extends $LitElement(css`
 				takeUntil(this.disconnecting),
 			)
 			.subscribe(({ component, title }) => {
-				if (this.mode === 'push')
+				if (this.mode === 'push') {
+					// TODO: Fix the router to render if constructor has different arguments
+					area.push({
+						area: this.schmancyContentDrawerID,
+						component: 'empty',
+						historyStrategy: 'silent',
+					})
 					area.push({
 						area: this.schmancyContentDrawerID,
 						component: component,
 						historyStrategy: 'silent',
 					})
-				else if ((this.mode = 'overlay')) {
+				} else if ((this.mode = 'overlay')) {
 					sheet.open({ component: component, uid: this.schmancyContentDrawerID, title })
 				}
 			})
