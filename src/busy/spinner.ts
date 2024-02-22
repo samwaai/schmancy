@@ -6,7 +6,7 @@ import { customElement, property } from 'lit/decorators.js'
 export default class SchmnacySpinner extends TailwindElement(css`
 	.spinner {
 		animation: spin 1s linear infinite;
-		font-size: 48px; /* Adjust the size as needed */
+		animation-direction: reverse;
 	}
 
 	@keyframes spin {
@@ -19,9 +19,10 @@ export default class SchmnacySpinner extends TailwindElement(css`
 	}
 `) {
 	@property({ type: String }) color: string = 'gray'
+	@property({ type: String }) size: string = '24px'
 
 	protected render(): unknown {
-		return html` <schmancy-icon class="spinner" size="48px">sync</schmancy-icon> `
+		return html` <schmancy-icon class="spinner" size=${this.size}>sync</schmancy-icon> `
 	}
 }
 

@@ -18,6 +18,7 @@ import { DemoSurface } from './features/surface'
 import { DemoIcons } from './features/icons'
 import { DemoAnimatedText } from './features/animated-text'
 import { DemoRouter } from './features/router'
+import { DemoBusy } from './features/busy'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -31,6 +32,10 @@ export class DemoNav extends $LitElement(css`
 		name: string
 		component: CustomElementConstructor
 	}> = [
+		{
+			name: 'Busy',
+			component: DemoBusy,
+		},
 		{
 			name: 'Icons',
 			component: DemoIcons,
