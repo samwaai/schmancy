@@ -23,8 +23,8 @@ export class DemoTabs extends $LitElement(css`
 	render() {
 		return html`<schmancy-tab-group
 			.activeTab=${'inputs'}
-			@tab-changed=${() => {
-				console.log('click')
+			@tab-changed=${v => {
+				console.log('tab change', v)
 			}}
 		>
 			${this.tabs.map(tab => html`<schmancy-tab value=${tab.value} label=${tab.label}> Hello</schmancy-tab>`)}
