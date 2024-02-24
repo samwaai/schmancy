@@ -18,11 +18,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 `) {
 	@property({ type: Boolean }) rounded = true
 
-	@state() private activeTab: {
-		label: string
-		value: string
-	}
-
+	@property({ type: String, reflect: true }) activeTab: string
 	@queryAssignedElements({
 		flatten: true,
 	})
@@ -33,19 +29,17 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 
 	hydrateTabs() {
 		this.tabs = this.tabsElements
-		this.activeTab = this.tabsElements.find(tab => tab.active)
 		if (!this.activeTab && this.tabsElements[0]) {
-			this.activeTab = {
-				label: this.tabsElements[0].label,
-				value: this.tabsElements[0].value,
-			}
+			this.activeTab = this.tabsElements[0].value
 			this.tabsElements[0].active = true
+		} else {
+			// this.tabsElements.find(tab => tab.value === this.activeTab)?.active = true
 		}
 	}
 
-	tabChanged() {
+	tabChanged(selectedTab: { label: string; value: string }) {
 		this.tabsElements.forEach(tab => {
-			if (tab.value === this.activeTab.value) tab.active = true
+			if (tab.value === selectedTab.value) tab.active = true
 			else tab.active = false
 		})
 		this.dispatchEvent(new CustomEvent('tab-changed', { detail: this.activeTab }))
@@ -83,24 +77,21 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 					tab => html`
 						<schmancy-button
 							@click=${() => {
-								this.activeTab = {
+								this.tabChanged({
 									label: tab.label,
 									value: tab.value,
-								}
-								this.tabChanged()
+								})
 							}}
 							aria-current="page"
 						>
 							<div
-								class="${this.activeTab.value === tab.value
-									? this.classMap(activeTab)
-									: this.classMap(inactiveTab)} h-full"
+								class="${this.activeTab === tab.value ? this.classMap(activeTab) : this.classMap(inactiveTab)} h-full"
 							>
 								<schmancy-typography class="h-full align-middle flex" type="title" token="sm" weight="medium">
 									${tab.label}
 								</schmancy-typography>
 								<div
-									.hidden=${this.activeTab.value !== tab.value}
+									.hidden=${this.activeTab !== tab.value}
 									class="border-primary-default mt-[-4px]  border-2 rounded-t-full"
 								></div>
 							</div>

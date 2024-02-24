@@ -22,6 +22,7 @@ export declare class SchmancyPaymentCardForm extends SchmancyPaymentCardForm_bas
     reportValidity(): boolean;
     /** Checks for validity of the control and emits the invalid event if it invalid. */
     checkValidity(): boolean;
+    emitChange(): void;
     protected render(): unknown;
 }
 declare global {

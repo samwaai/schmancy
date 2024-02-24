@@ -1,5 +1,5 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { css, html } from 'lit'
+import { PropertyValueMap, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { timer } from 'rxjs'
 
@@ -12,27 +12,17 @@ export class DemoTabs extends $LitElement(css`
 	@state() tabs: {
 		label: string
 		value: string
-	}[] = []
-
-	connectedCallback(): void {
-		super.connectedCallback()
-		timer(0).subscribe({
-			next: () => {
-				this.tabs = [
-					{ label: 'Card', value: 'card' },
-					{ label: 'Inputs', value: 'inputs' },
-					{ label: 'Typography', value: 'typography' },
-					{ label: 'Sheet', value: 'sheet' },
-					{ label: 'Content Drawer', value: 'content-drawer' },
-				]
-
-				this.requestUpdate()
-			},
-		})
-	}
+	}[] = [
+		{ label: 'Card', value: 'card' },
+		{ label: 'Inputs', value: 'inputs' },
+		{ label: 'Typography', value: 'typography' },
+		{ label: 'Sheet', value: 'sheet' },
+		{ label: 'Content Drawer', value: 'content-drawer' },
+	]
 
 	render() {
 		return html`<schmancy-tab-group
+			.activeTab=${'inputs'}
 			@tab-changed=${() => {
 				console.log('click')
 			}}

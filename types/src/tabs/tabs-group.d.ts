@@ -5,11 +5,14 @@ declare const SchmancyTabGroup_base: import("..").Constructor<CustomElementConst
  */
 export default class SchmancyTabGroup extends SchmancyTabGroup_base {
     rounded: boolean;
-    private activeTab;
+    activeTab: string;
     private tabsElements;
     private tabs;
     hydrateTabs(): void;
-    tabChanged(): void;
+    tabChanged(selectedTab: {
+        label: string;
+        value: string;
+    }): void;
     protected render(): unknown;
 }
 declare global {
