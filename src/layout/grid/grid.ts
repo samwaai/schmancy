@@ -12,6 +12,7 @@ export class SchmancyGrid extends Layout {
 	@property({ type: String }) flow: 'row' | 'col' | 'dense' | 'row-dense' | 'col-dense' = 'row'
 	@property({ type: String }) align: 'start' | 'center' | 'end' | 'stretch' | 'baseline' = 'stretch'
 	@property({ type: String }) justify: 'start' | 'center' | 'end' | 'stretch' = 'stretch'
+	@property({ type: String }) content: 'start' | 'center' | 'end' | 'stretch' = 'stretch'
 	@property({ type: String }) gap: 'none' | 'xs' | 'sm' | 'md' | 'lg' = 'none'
 
 	@property({ type: String }) cols?: string
@@ -69,6 +70,11 @@ export class SchmancyGrid extends Layout {
 			'grid-flow-row-dense': this.flow === 'row-dense',
 			'grid-flow-col-dense': this.flow === 'col-dense',
 			'grid-flow-dense': this.flow === 'dense',
+
+			'content-center': this.content === 'center',
+			'content-end': this.content === 'end',
+			'content-start': this.content === 'start',
+			'content-stretch': this.content === 'stretch',
 
 			'justify-items-center': this.justify === 'center',
 			'justify-items-end': this.justify === 'end',
