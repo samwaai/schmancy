@@ -84,23 +84,26 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 								})
 							}}
 							aria-current="page"
+							class="h-auto relative"
 						>
 							<div
-								class="${this.activeTab === tab.value ? this.classMap(activeTab) : this.classMap(inactiveTab)} h-full"
+								class="px-4 py-3 ${this.activeTab === tab.value
+									? this.classMap(activeTab)
+									: this.classMap(inactiveTab)}"
 							>
-								<schmancy-typography class="h-full align-middle flex" type="title" token="sm" weight="medium">
+								<schmancy-typography class="h-full align-middle flex " type="title" token="md" weight="medium">
 									${tab.label}
 								</schmancy-typography>
 								<div
 									.hidden=${this.activeTab !== tab.value}
-									class="border-primary-default mt-[-4px]  border-2 rounded-t-full"
+									class="border-primary-default absolute bottom-0 inset-x-6  border-2 rounded-t-full"
 								></div>
 							</div>
 						</schmancy-button>
 					`,
 				)}
 			</section>
-			<schmancy-divider></schmancy-divider>
+			<schmancy-divider class="mx-6"></schmancy-divider>
 			<slot @slotchange="${() => this.hydrateTabs()}"></slot>
 		`
 	}
