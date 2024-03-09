@@ -103,7 +103,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 					`,
 				)}
 			</section>
-			<schmancy-divider class="mx-6"></schmancy-divider>
+			<schmancy-divider class="px-6"></schmancy-divider>
 			<slot @slotchange="${() => this.hydrateTabs()}"></slot>
 		`
 	}

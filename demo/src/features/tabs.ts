@@ -21,14 +21,16 @@ export class DemoTabs extends $LitElement(css`
 	]
 
 	render() {
-		return html`<schmancy-tab-group
-			.activeTab=${'inputs'}
-			@tab-changed=${v => {
-				console.log('tab change', v)
-			}}
-		>
-			${this.tabs.map(tab => html`<schmancy-tab value=${tab.value} label=${tab.label}> Hello</schmancy-tab>`)}
-		</schmancy-tab-group>`
+		return html` <schmancy-flex justify="center">
+			<schmancy-tab-group
+				.activeTab=${'inputs'}
+				@tab-changed=${v => {
+					console.log('tab change', v)
+				}}
+			>
+				${this.tabs.map(tab => html`<schmancy-tab value=${tab.value} label=${tab.label}> Hello</schmancy-tab>`)}
+			</schmancy-tab-group>
+		</schmancy-flex>`
 	}
 }
 declare global {
