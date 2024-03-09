@@ -1,7 +1,12 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { PropertyValueMap, css, html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { timer } from 'rxjs'
+import { DemoCard } from './card'
+import { Constructor } from '@schmancy/mixin'
+import { DemoInput } from './input'
+import DemoTypography from './typography'
+import { DemoSheet } from './sheet'
+import { DemoContentDrawer } from './drawer-content'
 
 @customElement('demo-tabs')
 export class DemoTabs extends $LitElement(css`
@@ -12,25 +17,32 @@ export class DemoTabs extends $LitElement(css`
 	@state() tabs: {
 		label: string
 		value: string
+		component: Constructor<HTMLElement>
 	}[] = [
-		{ label: 'Card', value: 'card' },
-		{ label: 'Inputs', value: 'inputs' },
-		{ label: 'Typography', value: 'typography' },
-		{ label: 'Sheet', value: 'sheet' },
-		{ label: 'Content Drawer', value: 'content-drawer' },
+		{ label: 'Card', value: 'card', component: DemoCard },
+		{ label: 'Inputs', value: 'inputs', component: DemoInput },
+		{ label: 'Typography', value: 'typography', component: DemoTypography },
+		{ label: 'Sheet', value: 'sheet', component: DemoSheet },
+		{ label: 'Content Drawer', value: 'content-drawer', component: DemoContentDrawer },
 	]
 
 	render() {
-		return html` <schmancy-flex justify="center">
-			<schmancy-tab-group
-				.activeTab=${'inputs'}
-				@tab-changed=${v => {
-					console.log('tab change', v)
-				}}
-			>
-				${this.tabs.map(tab => html`<schmancy-tab value=${tab.value} label=${tab.label}> Hello</schmancy-tab>`)}
-			</schmancy-tab-group>
-		</schmancy-flex>`
+		return html`
+			<section class="relative inset-0">
+				<schmancy-tab-group
+					class="sticky top-0"
+					mode="scroll"
+					.activeTab=${'inputs'}
+					@tab-changed=${v => {
+						console.log('tab change', v)
+					}}
+				>
+					${this.tabs.map(
+						tab => html`<schmancy-tab value=${tab.value} label=${tab.label}> ${new tab.component()} </schmancy-tab>`,
+					)}
+				</schmancy-tab-group>
+			</section>
+		`
 	}
 }
 declare global {

@@ -58,7 +58,6 @@ export default class DemoTypography extends $LitElement(css`
 						</schmancy-typography>
 					</schmancy-surface>
 				</schmancy-grid>
-				<schmancy-busy></schmancy-busy>
 			</div>
 		`
 	}

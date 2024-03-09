@@ -1,6 +1,8 @@
+import { consume } from '@lit/context'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
+import { SchmancyTabsModeContext } from './context'
 
 @customElement('schmancy-tab')
 export default class SchmancyTab extends TailwindElement() {
@@ -8,8 +10,11 @@ export default class SchmancyTab extends TailwindElement() {
 	@property({ type: String, reflect: true }) value
 	@property({ type: Boolean, reflect: true }) active!: boolean
 
+	@consume({ context: SchmancyTabsModeContext, subscribe: true })
+	@state()
+	mode
 	protected render(): unknown {
-		return html` <slot .hidden=${!this.active}></slot> `
+		return html` <slot .hidden=${this.mode === 'tabs' ? !this.active : false}></slot> `
 	}
 }
 

@@ -1,9 +1,12 @@
+import { provide } from '@lit/context'
 import { color } from '@schmancy/directives'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html } from 'lit'
-import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
+import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
+import { filter, fromEvent, map, tap, throttleTime } from 'rxjs'
+import { SchmancyTabsModeContext, TSchmancyTabsMode } from './context'
 import SchmancyTab from './tab'
 
 /**
@@ -16,6 +19,10 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 		display: block;
 	}
 `) {
+	@provide({ context: SchmancyTabsModeContext })
+	@property({ type: String })
+	mode: TSchmancyTabsMode = 'tabs'
+
 	@property({ type: Boolean }) rounded = true
 
 	@property({ type: String, reflect: true }) activeTab: string
@@ -24,16 +31,53 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 	})
 	private tabsElements!: Array<SchmancyTab>
 
+	@query('#tabs') navElement!: HTMLElement
+
 	@state()
 	private tabs: Array<SchmancyTab> = []
 
+	connectedCallback(): void {
+		super.connectedCallback()
+		fromEvent(window, 'scroll')
+			.pipe(
+				filter(() => this.mode === 'scroll'),
+				throttleTime(100, undefined, { leading: true, trailing: false }),
+				tap(console.log),
+
+				map(() => {
+					let closestDiv = null
+					let closestDistance = Infinity
+					this.tabsElements.forEach(div => {
+						const distance =
+							div.getBoundingClientRect().top -
+							this.navElement.clientHeight +
+							Math.max(document.body.scrollHeight, document.body.offsetHeight) / 1.6
+
+						if (distance < closestDistance && distance > 0) {
+							closestDistance = distance
+							closestDiv = div
+						}
+					})
+					return closestDiv
+				}),
+			)
+			.subscribe({
+				next: (el: SchmancyTab) => {
+					this.activeTab = el.value
+					console.log('el', el.value)
+				},
+			})
+	}
 	hydrateTabs() {
 		this.tabs = this.tabsElements
 		if (!this.activeTab && this.tabsElements[0]) {
 			this.activeTab = this.tabsElements[0].value
 			this.tabsElements[0].active = true
 		} else {
-			// this.tabsElements.find(tab => tab.value === this.activeTab)?.active = true
+			this.tabsElements.forEach(tab => {
+				if (tab.value === this.activeTab) tab.active = true
+				else tab.active = false
+			})
 		}
 	}
 
@@ -47,8 +91,9 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 	}
 
 	protected render(): unknown {
-		const surface = {
-			flex: true,
+		const tabs = {
+			'flex z-50': true,
+			'sticky top-0 shadow-md': this.mode === 'scroll',
 			'rounded-full': this.rounded,
 		}
 
@@ -65,11 +110,12 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 
 		return html`
 			<section
+				id="tabs"
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.default,
 					color: SchmancyTheme.sys.color.surface.on,
 				})}
-				class="${this.classMap(surface)}"
+				class="${this.classMap(tabs)}"
 				aria-label="Tabs"
 			>
 				${repeat(
@@ -104,7 +150,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 				)}
 			</section>
 			<schmancy-divider class="px-6"></schmancy-divider>
-			<slot @slotchange="${() => this.hydrateTabs()}"></slot>
+			<slot @slotchange=${() => this.hydrateTabs()}></slot>
 		`
 	}
 }
