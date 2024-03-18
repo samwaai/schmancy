@@ -1,6 +1,9 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { customElement } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
 import { css, html } from 'lit'
+import { SchmancyAutocompleteChangeEvent } from '@schmancy/autocomplete'
+import countries from './data/countries'
+import { repeat } from 'lit/directives/repeat.js'
 
 @customElement('demo-input')
 export class DemoInput extends $LitElement(css`
@@ -8,6 +11,7 @@ export class DemoInput extends $LitElement(css`
 		display: block;
 	}
 `) {
+	@state() country?: string
 	render() {
 		return html`
 			<schmancy-grid gap="md">
@@ -49,6 +53,24 @@ export class DemoInput extends $LitElement(css`
 						'Paid bank',
 						'Completed',
 					].map(o => html` <schmancy-option .value="${o}"> ${o}</schmancy-option>`)}
+				</schmancy-autocomplete>
+
+				<schmancy-autocomplete
+					@change=${(e: SchmancyAutocompleteChangeEvent) => {
+						this.country = e.detail.value
+						console.log('this.country', this.country)
+					}}
+					label="Country"
+					.value=${this.country ?? ''}
+				>
+					${repeat(
+						countries ?? [],
+						c => c.code,
+						category =>
+							html` <schmancy-option label=${category.name ?? ''} value=${category.code ?? 0}>
+								${category.name}
+							</schmancy-option>`,
+					)}
 				</schmancy-autocomplete>
 			</schmancy-grid>
 		`

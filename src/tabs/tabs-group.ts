@@ -5,7 +5,7 @@ import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { filter, fromEvent, map, tap, throttleTime } from 'rxjs'
+import { filter, fromEvent, interval, map, take, throttleTime } from 'rxjs'
 import { SchmancyTabsModeContext, TSchmancyTabsMode } from './context'
 import SchmancyTab from './tab'
 
@@ -31,7 +31,8 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 	})
 	private tabsElements!: Array<SchmancyTab>
 
-	@query('#tabs') navElement!: HTMLElement
+	@query('#tabsNavigation') navElement!: HTMLElement
+	@query('#tabsContent') tabsContent!: HTMLElement
 
 	@state()
 	private tabs: Array<SchmancyTab> = []
@@ -40,18 +41,14 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 		super.connectedCallback()
 		fromEvent(window, 'scroll')
 			.pipe(
+				throttleTime(1000),
 				filter(() => this.mode === 'scroll'),
-				throttleTime(100, undefined, { leading: true, trailing: false }),
-				tap(console.log),
-
 				map(() => {
 					let closestDiv = null
 					let closestDistance = Infinity
 					this.tabsElements.forEach(div => {
 						const distance =
-							div.getBoundingClientRect().top -
-							this.navElement.clientHeight +
-							Math.max(document.body.scrollHeight, document.body.offsetHeight) / 1.6
+							div.getBoundingClientRect().top - this.navElement.clientHeight + document.body.offsetHeight / 3
 
 						if (distance < closestDistance && distance > 0) {
 							closestDistance = distance
@@ -60,14 +57,28 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 					})
 					return closestDiv
 				}),
+				filter((el: SchmancyTab | null) => el !== null),
 			)
 			.subscribe({
 				next: (el: SchmancyTab) => {
 					this.activeTab = el.value
-					console.log('el', el.value)
 				},
 			})
 	}
+
+	firstUpdated() {
+		interval(0)
+			.pipe(
+				filter(() => !!this.navElement.clientHeight),
+				take(1),
+			)
+			.subscribe(() => {
+				this.tabsElements.forEach(tab => {
+					tab.style.paddingTop = this.navElement.clientHeight + 'px'
+				})
+			})
+	}
+
 	hydrateTabs() {
 		this.tabs = this.tabsElements
 		if (!this.activeTab && this.tabsElements[0]) {
@@ -79,14 +90,32 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 				else tab.active = false
 			})
 		}
+		const lastTab = this.tabs?.[-1]
+		if (lastTab) {
+			lastTab.style.paddingBottom = lastTab.offsetHeight + 'px'
+		}
 	}
 
 	tabChanged(selectedTab: { label: string; value: string }) {
+		let activeTabElement: SchmancyTab | undefined
 		this.tabsElements.forEach(tab => {
-			if (tab.value === selectedTab.value) tab.active = true
-			else tab.active = false
+			if (tab.value === selectedTab.value) {
+				tab.active = true
+				activeTabElement = tab
+				// scroll to the tab
+				if (this.mode === 'scroll') {
+					// Scroll the desired element into view
+					activeTabElement.scrollIntoView({
+						behavior: 'smooth',
+						block: 'start',
+						inline: 'start',
+					})
+				}
+			} else {
+				tab.active = false
+			}
 		})
-		this.activeTab = selectedTab.value
+		this.mode === 'tabs' && (this.activeTab = selectedTab.value)
 		this.dispatchEvent(new CustomEvent('tab-changed', { detail: this.activeTab }))
 	}
 
@@ -110,7 +139,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 
 		return html`
 			<section
-				id="tabs"
+				id="tabsNavigation"
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.default,
 					color: SchmancyTheme.sys.color.surface.on,
@@ -150,7 +179,9 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 				)}
 			</section>
 			<schmancy-divider class="px-6"></schmancy-divider>
-			<slot @slotchange=${() => this.hydrateTabs()}></slot>
+			<section id="tabsContent">
+				<slot @slotchange=${() => this.hydrateTabs()}></slot>
+			</section>
 		`
 	}
 }

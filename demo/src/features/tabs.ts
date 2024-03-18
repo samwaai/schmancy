@@ -30,7 +30,7 @@ export class DemoTabs extends $LitElement(css`
 		return html`
 			<section class="relative inset-0">
 				<schmancy-tab-group
-					class="sticky top-0"
+					class="sticky top-0 pb-[300px]"
 					mode="scroll"
 					.activeTab=${'inputs'}
 					@tab-changed=${v => {
