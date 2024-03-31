@@ -110,6 +110,7 @@ export default class SchmancyInput extends SchmancyInput_base {
     tabIndex: number;
     inputElement: HTMLInputElement;
     hint: string | undefined;
+    error: boolean;
     constructor();
     firstUpdated(): void;
     get form(): HTMLFormElement;

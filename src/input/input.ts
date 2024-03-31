@@ -152,6 +152,8 @@ export default class SchmancyInput extends TailwindElement(style) {
 
 	@property() hint: string | undefined
 
+	@property({ type: Boolean, reflect: true }) public error = false
+
 	constructor() {
 		super()
 		try {
@@ -259,6 +261,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
 			'ring-1 ring-inset ring-outline  focus:ring-2 focus:ring-inset focus:ring-primary-default': true,
+			'ring-error-default focus:ring-error-default': this.error,
 		}
 		const labelClasses = {
 			'opacity-40': this.disabled,
@@ -267,7 +270,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 		return html`
 			<label
 				${color({
-					color: SchmancyTheme.sys.color.primary.default,
+					color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
 				})}
 				class="${this.classMap(labelClasses)}"
 				for=${this.id}
@@ -301,7 +304,18 @@ export default class SchmancyInput extends TailwindElement(style) {
 			</schmancy-typography>
 			${when(
 				this.hint,
-				() => html` <schmancy-typography class="pt-[4px]" type="body" token="sm"> ${this.hint} </schmancy-typography> `,
+				() => html`
+					<schmancy-typography
+						${color({
+							color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
+						})}
+						class="pt-[4px]"
+						type="body"
+						token="sm"
+					>
+						${this.hint}
+					</schmancy-typography>
+				`,
 			)}
 		`
 	}

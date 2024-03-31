@@ -5,6 +5,7 @@ export declare class SchmancyGrid extends Layout {
     flow: 'row' | 'col' | 'dense' | 'row-dense' | 'col-dense';
     align: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
     justify: 'start' | 'center' | 'end' | 'stretch';
+    content: 'start' | 'center' | 'end' | 'stretch' | 'around' | 'evenly' | 'between';
     gap: 'none' | 'xs' | 'sm' | 'md' | 'lg';
     cols?: string;
     rows?: string;

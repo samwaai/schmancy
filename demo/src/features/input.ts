@@ -1,9 +1,9 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { customElement, state } from 'lit/decorators.js'
-import { css, html } from 'lit'
 import { SchmancyAutocompleteChangeEvent } from '@schmancy/autocomplete'
-import countries from './data/countries'
+import { css, html } from 'lit'
+import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
+import countries from './data/countries'
 
 @customElement('demo-input')
 export class DemoInput extends $LitElement(css`
@@ -31,7 +31,12 @@ export class DemoInput extends $LitElement(css`
 						<schmancy-button type="submit">Submit</schmancy-button>
 					</schmancy-form>
 				</schmancy-surface>
-				<schmancy-input hint="another day another moment" label="Input" placeholder="placeholder"></schmancy-input>
+				<schmancy-input
+					.error=${true}
+					hint="another day another moment"
+					label="Input"
+					placeholder="placeholder"
+				></schmancy-input>
 				<schmancy-input label="disabled Input" placeholder="placeholder" disabled></schmancy-input>
 
 				<schmancy-autocomplete label="Status" value="All">

@@ -3,6 +3,7 @@ export default class SchmancyTab extends SchmancyTab_base {
     label: any;
     value: any;
     active: boolean;
+    mode: any;
     protected render(): unknown;
 }
 declare global {
