@@ -107,30 +107,36 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 		return !!this.value
 	}
 
+	public show() {
+		this.ul?.style.setProperty('display', 'block')
+	}
+
 	render() {
 		return html`
 			<div class="relative">
-				<schmancy-input
-					${ref(this.inputRef)}
-					.required=${this.required}
-					id="input"
-					.label=${this.label}
-					@focus=${() => {
-						this.ul?.style.setProperty('display', 'block')
-					}}
-					type="search"
-					inputmode="text"
-					placeholder=${this.placeholder}
-					@change=${this.handleInputChange}
-					@reset=${() => {
-						this.value = ''
-						this.updateInputValue()
-					}}
-				>
-				</schmancy-input>
+				<slot name="trigger">
+					<schmancy-input
+						${ref(this.inputRef)}
+						.required=${this.required}
+						id="input"
+						.label=${this.label}
+						@focus=${() => {
+							this.show()
+						}}
+						type="search"
+						inputmode="text"
+						placeholder=${this.placeholder}
+						@change=${this.handleInputChange}
+						@reset=${() => {
+							this.value = ''
+							this.updateInputValue()
+						}}
+					>
+					</schmancy-input>
+				</slot>
 				<ul
 					tabindex="-1"
-					class="absolute z-30 mt-1 max-h-auto w-full overflow-auto rounded-md shadow-2"
+					class="absolute z-30 mt-1 max-h-[50vh] w-full overflow-auto rounded-md shadow-2"
 					id="options"
 					role="listbox"
 					hidden
@@ -141,14 +147,8 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 						bgColor: SchmancyTheme.sys.color.surface.container,
 					})}
 				>
-					<li
-						id="empty"
-						class="relative cursor-default select-none py-2 pl-3 pr-9 text-gray-500
-                hover:text-white hover:bg-indigo-600
-                "
-						tabindex="-1"
-					>
-						No results found
+					<li id="empty" tabindex="-1">
+						<schmancy-typography type="label">No results found</schmancy-typography>
 					</li>
 					<slot
 						@slotchange=${() => {
