@@ -19,6 +19,7 @@ export class DemoSheet extends $LitElement(css`
 							component: new SheetDemoExample(),
 							position: SchmancySheetPosition.Bottom,
 							title: 'Bottom Sheet',
+							header: 'visible',
 						})
 					}}
 				>
@@ -31,7 +32,7 @@ export class DemoSheet extends $LitElement(css`
 						sheet.open({
 							component: new SheetDemoExample(),
 							position: SchmancySheetPosition.Side,
-							title: 'Side Sheet',
+							header: 'hidden',
 						})
 					}}
 				>

@@ -41,6 +41,7 @@ type BottomSheeetTarget = {
 	close?: () => void
 	allowOverlyDismiss?: boolean
 	title?: string
+	header?: 'hidden' | 'visible'
 }
 
 // Events for communication between bottom-sheet component and bottom-sheet.service
@@ -78,6 +79,7 @@ class BottomSheetService {
 					]),
 				),
 				map(([sheet, target]) => {
+					console.log(sheet, target)
 					if (!sheet) {
 						// if sheet is not found, create it
 						sheet = document.createElement('schmancy-sheet')
@@ -88,7 +90,7 @@ class BottomSheetService {
 					sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
 					target.title && sheet.setAttribute('title', target.title)
 					target.persist && sheet.setAttribute('persist', target.persist ?? false)
-
+					target.header && sheet.setAttribute('header', target.header)
 					document.body.style.overflow = 'hidden' // lock the scroll of the host
 					return { target, sheet }
 				}),

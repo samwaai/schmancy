@@ -5,8 +5,8 @@ import { fromEvent, merge, takeUntil, tap } from 'rxjs'
 import { hook } from './hook'
 import style from './sheet.scss?inline'
 import {
-	SheetHereMorty,
 	SchmancySheetPosition,
+	SheetHereMorty,
 	SheetWhereAreYouRicky,
 	SheetWhereAreYouRickyEvent,
 	sheet,
@@ -16,6 +16,7 @@ import {
 export default class SchmancySheet extends $LitElement(style) {
 	@property({ type: String, reflect: true }) uid!: string
 	@property({ type: Boolean, reflect: true }) open = false
+	@property({ type: String, reflect: true }) header: 'hidden' | 'visible' = 'visible'
 	@property({ type: String, reflect: true }) position: SchmancySheetPosition = SchmancySheetPosition.Side
 	@property({ type: Boolean, reflect: true }) persist = false
 	@property({ type: Boolean, reflect: true }) allowOverlyDismiss = true
@@ -162,6 +163,7 @@ export default class SchmancySheet extends $LitElement(style) {
 		const overlayClasses = {
 			'bg-scrim transition-all duration-[600] opacity-[0.4] absolute inset-0': true,
 		}
+		console.log('rendering sheet', this.header)
 		return html`
 			<div class="sheet ${this.classMap(classes)}" role="dialog" aria-hidden="true">
 				<div
@@ -171,8 +173,8 @@ export default class SchmancySheet extends $LitElement(style) {
 					}}
 				></div>
 				<schmancy-sheet-content class="content ${this.classMap(contentClasses)}" data-position=${this.position}>
-					<schmancy-sheet-header title="${this.title}"> </schmancy-sheet-header>
-					<section class="flex flex-1 px-[16px]">
+					<schmancy-sheet-header .hidden=${this.header === 'hidden'} title="${this.title}"> </schmancy-sheet-header>
+					<section class="flex flex-1">
 						<slot></slot>
 					</section>
 				</schmancy-sheet-content>

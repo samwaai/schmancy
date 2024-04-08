@@ -1,7 +1,6 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { customElement } from 'lit/decorators.js'
 import { css, html } from 'lit'
-import { tooltip } from '../../../src/directives/tooltip'
 
 @customElement('demo-button')
 export class DemoButton extends $LitElement(css`
@@ -13,7 +12,7 @@ export class DemoButton extends $LitElement(css`
 		return html`
 			<schmancy-grid gap="md">
 				<schmancy-typography type="title">Normal</schmancy-typography>
-				<schmancy-button ${tooltip('Hi')} variant="elevated">elevated</schmancy-button>
+				<schmancy-button variant="elevated">elevated</schmancy-button>
 				<schmancy-button variant="filled">filled</schmancy-button>
 				<schmancy-button variant="filled tonal">filled tonal</schmancy-button>
 				<schmancy-button variant="text">text</schmancy-button>
