@@ -27,6 +27,7 @@ export declare class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     reportValidity(): boolean;
     /** Checks for validity of the control and emits the invalid event if it invalid. */
     checkValidity(): boolean;
+    show(): void;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
