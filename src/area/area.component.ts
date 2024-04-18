@@ -133,27 +133,42 @@ export class SchmancyArea extends $LitElement(css`
 										return new component()
 									}
 								}),
+								distinctUntilChanged((a, b) => {
+									return (
+										a.tagName === b.tagName &&
+										// a properties are the same as b properties
+										Object.keys(a).every(key => a[key] === b[key]) &&
+										// a attributes are the same as b attributes
+										Object.keys(a.attributes).every(key => a.attributes[key] === b.attributes[key]) &&
+										// a children are the same as b children
+										a.children === b.children &&
+										// a styles are the same as b styles
+										a.style === b.style &&
+										// a classes are the same as b classes
+										a.classList === b.classList
+									)
+								}),
 								// create the new view and add it to the DOM
 								map(newView => {
 									const oldView = this.shadowRoot?.children[0]
-									oldView?.remove()
+									oldView?.classList.add('absolute', 'inset-0', 'z-10')
 									this.shadowRoot?.prepend(newView)
 									animate(newView, {
 										opacity: [0, 1],
 										duration: oldView ? 300 : 0,
 										ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-										// onBegin: () => {
-										// 	if (oldView)
-										// 		animate(oldView, {
-										// 			targets: oldView,
-										// 			opacity: [1, 0],
-										// 			duration: 50,
-										// 			ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-										// 			onComplete: () => {
-										// 				oldView?.remove()
-										// 			},
-										// 		})
-										// },
+										onBegin: () => {
+											if (oldView)
+												animate(oldView, {
+													opacity: [1, 0],
+													position: 'absolute',
+													duration: 150,
+													ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+													onComplete: () => {
+														oldView?.remove()
+													},
+												})
+										},
 										onComplete: () => {
 											oldView?.remove()
 										},
