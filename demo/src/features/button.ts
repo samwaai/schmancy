@@ -12,6 +12,7 @@ export class DemoButton extends $LitElement(css`
 		return html`
 			<schmancy-grid gap="md">
 				<schmancy-typography type="title">Normal</schmancy-typography>
+				<schmancy-icon-button variant="elevated">add</schmancy-icon-button>
 				<schmancy-button variant="elevated">elevated</schmancy-button>
 				<schmancy-button variant="filled">filled</schmancy-button>
 				<schmancy-button variant="filled tonal">filled tonal</schmancy-button>
