@@ -260,7 +260,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 			'block min-w-fit w-full h-[50px] rounded-[8px] border-0 px-[16px]': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
-			'ring-1 ring-inset focus:ring-2 focus:ring-inset': true,
+			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
 			'ring-primary-default ring-outline focus:ring-primary-default': !this.error,
 			'ring-error-default focus:ring-error-default': this.error,
 		}
