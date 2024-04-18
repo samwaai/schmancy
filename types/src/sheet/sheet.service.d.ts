@@ -24,6 +24,7 @@ type BottomSheeetTarget = {
     close?: () => void;
     allowOverlyDismiss?: boolean;
     title?: string;
+    header?: 'hidden' | 'visible';
 };
 export type SheetWhereAreYouRickyEvent = CustomEvent<{
     uid: string;

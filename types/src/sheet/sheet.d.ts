@@ -3,6 +3,7 @@ declare const SchmancySheet_base: CustomElementConstructor & import("@mhmo91/lit
 export default class SchmancySheet extends SchmancySheet_base {
     uid: string;
     open: boolean;
+    header: 'hidden' | 'visible';
     position: SchmancySheetPosition;
     persist: boolean;
     allowOverlyDismiss: boolean;

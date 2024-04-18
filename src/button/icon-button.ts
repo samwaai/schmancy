@@ -3,12 +3,7 @@ import { css, html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
-export interface SchmancyButtonEventMap {
-	SchmancyFocus: CustomEvent<void>
-	SchmancyBlur: CustomEvent<void>
-}
-
-export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text'
+import { ButtonVariant } from './button'
 
 /**
  * A button component.
@@ -18,7 +13,7 @@ export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' 
  * @slot suffix - The suffix slot.
  */
 @customElement('schmancy-icon-button')
-export class SchmnacyButton extends $LitElement(css`
+export class SchmnacyIconButton extends $LitElement(css`
 	:host {
 		display: block;
 		height: 40px;
@@ -175,6 +170,6 @@ export class SchmnacyButton extends $LitElement(css`
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-icon-button': SchmnacyButton
+		'schmancy-icon-button': SchmnacyIconButton
 	}
 }
