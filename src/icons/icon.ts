@@ -1,7 +1,6 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { from } from 'rxjs'
 
 /**
  * @element schmancy-icon
@@ -39,24 +38,15 @@ export default class SchmancyIcon extends $LitElement(css`
 	connectedCallback(): void {
 		super.connectedCallback()
 		if (!document.head.querySelector('#material-icons')) {
-			this.busy = true
-			from(
-				fetch(
-					'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200',
-				),
-			).subscribe({
-				next: () => {
-					let link = document.createElement('link', {
-						is: 'material-icons',
-					})
-					link.rel = 'stylesheet'
-					link.id = 'material-icons'
-					link.href =
-						'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
-					document.querySelector('head')?.append(link)
-					this.busy = false
-				},
+			let link = document.createElement('link', {
+				is: 'material-icons',
 			})
+			link.rel = 'stylesheet'
+			link.id = 'material-icons'
+			link.href =
+				'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
+			document.querySelector('head')?.append(link)
+			this.busy = false
 		}
 	}
 	protected render(): unknown {
