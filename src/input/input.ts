@@ -86,6 +86,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	@property({ type: Boolean, reflect: true }) readonly = false
 	@property({ type: Boolean, reflect: true }) spellcheck = false
 
+	@property({ type: String, reflect: true }) align: 'left' | 'center' | 'right' = 'left'
 	/**
 	 * The inputmode attribute of the control.
 	 * @attr
@@ -263,6 +264,8 @@ export default class SchmancyInput extends TailwindElement(style) {
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
 			'ring-primary-default ring-outline focus:ring-primary-default': !this.error,
 			'ring-error-default focus:ring-error-default': this.error,
+			'text-center': this.align === 'center',
+			'text-right': this.align === 'right',
 		}
 		const labelClasses = {
 			'opacity-40': this.disabled,
