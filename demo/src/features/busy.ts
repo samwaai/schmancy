@@ -14,8 +14,7 @@ export class DemoBusy extends $LitElement(css`
 			<schmancy-grid ${fullHeight()} gap="md">
 				<!-- <schmancy-busy>
 				</schmancy-busy> -->
-				<schmancy-spinner ></schmancy-spinner>
-
+				<schmancy-spinner size="24px"></schmancy-spinner>
 			</schmancy-grid>
 		`
 	}
