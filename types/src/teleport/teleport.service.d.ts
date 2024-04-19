@@ -9,8 +9,14 @@ export type HereMortyEvent = CustomEvent<{
     component: SchmancyTeleportation;
 }>;
 export type FLIP_REQUEST = {
-    from: HTMLElement;
-    to: HTMLElement;
+    from: {
+        rect: DOMRect;
+        element?: HTMLElement;
+    };
+    to: {
+        rect: DOMRect;
+        element: HTMLElement;
+    };
     stagger?: number;
     host: HTMLElement;
 };
@@ -22,7 +28,6 @@ declare class Teleportation {
     find: (component: SchmancyTeleportation) => import("rxjs").Observable<SchmancyTeleportation>;
     flip: (request: {
         from: {
-            element: HTMLElement;
             rect: DOMRect;
         };
         to: {

@@ -61,6 +61,7 @@ export default class SchmancyInput extends SchmancyInput_base {
     disabled: boolean;
     readonly: boolean;
     spellcheck: boolean;
+    align: 'left' | 'center' | 'right';
     /**
      * The inputmode attribute of the control.
      * @attr

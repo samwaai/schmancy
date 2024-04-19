@@ -26,7 +26,6 @@ class FullHeight extends AsyncDirective {
 	constructor(_partInfo: PartInfo) {
 		super(_partInfo)
 		$SchmancyResize.pipe(takeUntil(this.disconnecting)).subscribe(() => {
-			console.log(window.innerHeight, this.element)
 			this.element.style.setProperty('height', `${window.innerHeight}px`)
 			setTimeout(() => {
 				this.element.style.setProperty('height', `${window.innerHeight}px`)
@@ -46,9 +45,7 @@ class FullHeight extends AsyncDirective {
 		this.disconnecting.next(true)
 	}
 
-	reconnected() {
-		console.log('connected')
-	}
+	reconnected() {}
 }
 
 export const fullHeight = directive(FullHeight)

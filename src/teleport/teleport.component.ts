@@ -1,29 +1,20 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { fromEvent, merge, takeUntil, tap } from 'rxjs'
+import { filter, fromEvent, merge, of, takeUntil, tap, throwIfEmpty } from 'rxjs'
 import { FINDING_MORTIES, FINDING_MORTIES_EVENT, HERE_RICKY, HERE_RICKY_EVENT } from '..'
 import {
-	default as teleport,
-	default as teleportationService,
 	HereMorty,
 	HereMortyEvent,
 	WhereAreYouRicky,
 	WhereAreYouRickyEvent,
+	default as teleport,
+	default as teleportationService,
 } from './teleport.service'
+import { watchElementRect } from './watcher'
 
 @customElement('schmancy-teleport')
-export class SchmancyTeleportation extends $LitElement() {
-	static styles = [
-		css`
-			:host {
-				display: flex;
-				height: 100%;
-				width: fit-content;
-			}
-		`,
-	] // It's not really unsafe 🐈
-
+export class SchmancyTeleportation extends $LitElement(css``) {
 	/**
 	 * @attr {string} uuid - The component tag to teleport
 	 * @readonly
@@ -39,6 +30,11 @@ export class SchmancyTeleportation extends $LitElement() {
 	@property({ type: Number }) delay = 0
 
 	debugging = import.meta.env.DEV ? true : false
+
+	get _slottedChildren() {
+		const slot = this.shadowRoot.querySelector('slot')
+		return slot.assignedElements({ flatten: true })
+	}
 
 	connectedCallback(): void {
 		if (this.id === undefined) throw new Error('id is required')
@@ -82,18 +78,48 @@ export class SchmancyTeleportation extends $LitElement() {
 	}
 
 	async firstUpdated() {
-		teleportationService
-			.find(this)
-			.pipe(takeUntil(this.disconnecting))
+		of(teleportationService.activeTeleportations.get(this.id))
+			.pipe(
+				filter(a => !!a),
+				takeUntil(this.disconnecting),
+				throwIfEmpty(),
+			)
 			.subscribe({
-				next: component => {
+				next: domRect => {
+					console.count('teleport')
 					this.style.setProperty('visibility', 'hidden')
 					// teleport.flipRequests.next({ from: component, to: this, stagger: 0 })
-					teleport.flipRequests.next({ from: component, to: this, host: this })
+					watchElementRect(this)
+						.pipe(takeUntil(this.disconnecting))
+						.subscribe({
+							next: e => {
+								// console.log(e)
+								teleportationService.activeTeleportations.set(this.id, e)
+								teleport.flipRequests.next({
+									from: {
+										rect: domRect,
+									},
+									to: {
+										rect: e,
+										element: this._slottedChildren[0] as HTMLElement,
+									},
+									host: this,
+								})
+							},
+						})
 				},
 				error: () => {
 					this.style.setProperty('visibility', 'visible')
+					watchElementRect(this)
+						.pipe(takeUntil(this.disconnecting))
+						.subscribe({
+							next: e => {
+								console.log(e)
+								teleportationService.activeTeleportations.set(this.id, e)
+							},
+						})
 				},
+				complete: () => {},
 			})
 	}
 

@@ -14,8 +14,14 @@ export type HereMortyEvent = CustomEvent<{
 }>
 
 export type FLIP_REQUEST = {
-	from: HTMLElement
-	to: HTMLElement
+	from: {
+		rect: DOMRect
+		element?: HTMLElement
+	}
+	to: {
+		rect: DOMRect
+		element: HTMLElement
+	}
 	stagger?: number
 	host: HTMLElement
 }
@@ -30,14 +36,8 @@ class Teleportation {
 				bufferTime(1),
 				map(requests =>
 					requests.map(({ from, to, host }, i) => ({
-						from: {
-							element: from,
-							rect: from.getBoundingClientRect(),
-						},
-						to: {
-							element: to,
-							rect: to.getBoundingClientRect(),
-						},
+						from,
+						to,
 						host,
 						i,
 					})),
@@ -80,7 +80,6 @@ class Teleportation {
 
 	flip = (request: {
 		from: {
-			element: HTMLElement
 			rect: DOMRect
 		}
 		to: {
@@ -90,24 +89,26 @@ class Teleportation {
 		host: HTMLElement
 		i: number
 	}) => {
-		const { from, to, i } = request
-		const hanger = document.createElement('div')
-		hanger.style.setProperty('position', 'fixed')
-		hanger.style.setProperty('top', from.rect.top + 'px')
-		hanger.style.setProperty('left', from.rect.left + 'px')
-		hanger.style.setProperty('width', from.rect.width + 'px')
-		hanger.style.setProperty('height', from.rect.height + 'px')
-		hanger.style.setProperty('z-index', '2000')
-		hanger.appendChild(from.element.shadowRoot?.firstElementChild?.cloneNode(true) as HTMLElement)
-		document.body?.appendChild(hanger)
+		const { from, to } = request
+		// const hanger = document.createElement('div')
+		// hanger.style.setProperty('position', 'fixed')
+		// hanger.style.setProperty('top', from.rect.top + 'px')
+		// hanger.style.setProperty('left', from.rect.left + 'px')
+		// hanger.style.setProperty('width', from.rect.width + 'px')
+		// hanger.style.setProperty('height', from.rect.height + 'px')
+		// hanger.style.setProperty('z-index', '2000')
+		// document.body?.appendChild(to.element)
+		to.element.style.transformOrigin = 'top left'
+		to.element.style.setProperty('visibility', 'visible')
+		to.element.style.zIndex = '1000'
 		const originalZIndex = to.element.style.zIndex
 		animate(to.element, {
 			translateX: [from.rect.left - to.rect.left, 0],
 			translateY: [from.rect.top - to.rect.top, 0],
 			scaleX: [from.rect.width / to.rect.width, 1],
 			scaleY: [from.rect.height / to.rect.height, 1],
-			duration: 500,
-			delay: i * 100,
+			duration: 250,
+			delay: 10,
 			ease: 'inOutQuad',
 			onBegin: () => {
 				to.element.style.transformOrigin = 'top left'
@@ -119,23 +120,23 @@ class Teleportation {
 				to.element.style.transformOrigin = ''
 			},
 		})
-		const hangerRec = hanger.getBoundingClientRect()
-		animate(hanger, {
-			translateX: [to.rect.left - hangerRec.left],
-			translateY: [to.rect.top - hangerRec.top],
-			scaleX: [to.rect.width / hangerRec.width],
-			scaleY: [to.rect.height / hangerRec.height],
-			duration: 500,
-			delay: i * 100,
-			ease: 'easeInOutQuad',
-			onBegin: () => {
-				hanger.style.transformOrigin = 'top left'
-				hanger.style.zIndex = '2000'
-			},
-			onComplete: () => {
-				hanger.remove()
-			},
-		})
+		// const hangerRec = hanger.getBoundingClientRect()
+		// animate(hanger, {
+		// 	translateX: [to.rect.left - hangerRec.left, 0],
+		// 	translateY: [to.rect.top - hangerRec.top, 0],
+		// 	scaleX: [to.rect.width / hangerRec.width, 0],
+		// 	scaleY: [to.rect.height / hangerRec.height],
+		// 	duration: 500,
+		// 	delay: i * 100,
+		// 	ease: 'easeInOutQuad',
+		// 	onBegin: () => {
+		// 		hanger.style.transformOrigin = 'top left'
+		// 		hanger.style.zIndex = '2000'
+		// 	},
+		// 	onComplete: () => {
+		// 		hanger.remove()
+		// 	},
+		// })
 	}
 }
 export const teleport = new Teleportation()
