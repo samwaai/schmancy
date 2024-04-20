@@ -1,4 +1,3 @@
-import { animate } from '@juliangarnierorg/anime-beta'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -53,7 +52,6 @@ export class SchmancyArea extends $LitElement(css`
 			map(pathname => pathname.split('/').pop() ?? ''),
 			map(pathname => decodeURIComponent(pathname)),
 			map(pathname => JSON.parse(pathname)),
-			tap(console.log),
 			map(routes => routes[this.name]),
 			map(component => (component === undefined && this.default ? this.default : component)),
 			filter(x => isPresent(x)),
@@ -110,73 +108,64 @@ export class SchmancyArea extends $LitElement(css`
 				}),
 			)
 			.pipe(
-				switchMap(async route =>
-					merge(
-						// load the new view if a promise was passed instead of a component
-						of(route.component)
-							.pipe(
-								switchMap(c => {
-									if (c instanceof Promise) {
-										return from(c).pipe(map(x => x.exports.default as CustomElementConstructor))
-									} else {
-										return of(c)
-									}
-								}),
-							)
-							.pipe(
-								map(component => {
-									if (typeof component === 'string') {
-										return document.createElement(component)
-									} else if (component instanceof HTMLElement) {
-										return component
-									} else if (typeof component === 'function') {
-										return new component()
-									}
-								}),
-								distinctUntilChanged(
-									(prev, curr) => prev.tagName === curr.tagName && prev.isConnected === curr.isConnected,
-								),
-								// create the new view and add it to the DOM
-								map(newView => {
-									const oldView = this.shadowRoot?.children[0]
-									oldView?.remove()
-									// newView.classList.add('absolute', 'inset-0', 'z-20')
-									// oldView?.classList.add('absolute', 'inset-0')
-									this.shadowRoot?.append(newView)
-									// animate(newView, {
-									// 	opacity: [0, 1],
-									// 	duration: oldView ? 100 : 0,
-									// 	ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-									// 	onBegin: () => {
-									// 		if (oldView)
-									// 			animate(oldView, {
-									// 				opacity: [1, 1],
-									// 				duration: 100,
-									// 				ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-									// 				onComplete: () => {
-									// 					oldView?.remove()
-									// 				},
-									// 			})
-									// 	},
-									// })
-									return { newView }
-								}),
-								tap(({ newView }) => {
-									if (typeof route.historyStrategy === 'undefined' || route.historyStrategy === 'push')
-										history.pushState(route.state, '', this.newPath(newView.tagName))
-									else if (route.historyStrategy && ['replace', 'pop'].includes(route.historyStrategy))
-										history.replaceState(route.state, '', this.newPath(newView.tagName))
-									area.$current.next({
-										component: newView.tagName,
-										area: route.area,
-										state: route?.state,
-									})
-								}),
-							),
-					)
-						.pipe(takeUntil(this.disconnecting))
-						.subscribe(),
-				),
+				switchMap(route => {
+					const c = route.component
+					if (c instanceof Promise) {
+						return from(c).pipe(map(x => ({ component: x.exports.default as CustomElementConstructor, route })))
+					} else {
+						return of({ component: c, route })
+					}
+				}),
+				map(({ component, route }) => {
+					if (typeof component === 'string') {
+						return { component: document.createElement(component), route }
+					} else if (component instanceof HTMLElement) {
+						return { component, route }
+					} else if (typeof component === 'function') {
+						return { component: new component(), route }
+					}
+				}),
+				distinctUntilChanged((prev, curr) => prev.component.tagName === curr.component.tagName),
+				tap(r => {
+					console.log(this.name, r)
+				}),
+				// create the new view and add it to the DOM
+				map(({ component, route }) => {
+					const oldView = this.shadowRoot?.children[0]
+					// oldView?.remove()
+					// newView.classList.add('absolute', 'inset-0', 'z-20')
+					oldView?.classList.add('absolute', 'inset-0')
+					this.shadowRoot?.append(component)
+					// animate(newView, {
+					// 	opacity: [0, 1],
+					// 	duration: oldView ? 100 : 0,
+					// 	ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+					// 	onBegin: () => {
+					// 		if (oldView)
+					// 			animate(oldView, {
+					// 				opacity: [1, 1],
+					// 				duration: 100,
+					// 				ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+					// 				onComplete: () => {
+					// 					oldView?.remove()
+					// 				},
+					// 			})
+					// 	},
+					// })
+					return { component, route }
+				}),
+				tap(({ component, route }) => {
+					if (typeof route.historyStrategy === 'undefined' || route.historyStrategy === 'push')
+						history.pushState(route.state, '', this.newPath(component.tagName))
+					else if (route.historyStrategy && ['replace', 'pop'].includes(route.historyStrategy))
+						history.replaceState(route.state, '', this.newPath(component.tagName))
+					area.$current.next({
+						component: component.tagName,
+						area: route.area,
+						state: route?.state,
+					})
+				}),
+				takeUntil(this.disconnecting),
 			)
 			.subscribe()
 	}

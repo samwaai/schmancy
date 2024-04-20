@@ -8,15 +8,13 @@ import './events'
 import stripe, { $stripe, $stripeElements, appearance, stripeIntent } from './stripe'
 
 @customElement('funkhaus-app')
-export default class App extends $LitElement(
-	css`
-		:host {
-			display: block;
-			position: relative;
-			inset: 0;
-		}
-	`,
-) {
+export default class App extends $LitElement(css`
+	:host {
+		display: block;
+		position: relative;
+		inset: 0;
+	}
+`) {
 	@query('#color') color!: HTMLElement
 	@state() busy = false
 	@state() activeTab: string = 'door'
