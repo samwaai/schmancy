@@ -1,4 +1,5 @@
 import { Subject } from 'rxjs'
+import { ThemeStorage } from './dynamicTheme'
 import { TSchmancyTheme } from './theme.interface'
 
 function registerThemeValues(prefix = 'schmancy', path: string, value: Partial<TSchmancyTheme>): string | undefined {
@@ -23,7 +24,7 @@ function registerThemeValues(prefix = 'schmancy', path: string, value: Partial<T
 	}
 }
 
-const $newSchmancyTheme = new Subject<{ color: string | undefined; scheme: 'light' | 'dark' | 'auto' }>()
+const $newSchmancyTheme = new Subject<ThemeStorage>()
 
 const $schmancyTheme = new Subject<Partial<TSchmancyTheme>>()
 

@@ -1,5 +1,5 @@
 import { argbFromHex, themeFromSourceColor } from '@material/material-color-utilities'
-import { Observable, combineLatestWith, map, startWith, tap } from 'rxjs'
+import { Observable, catchError, combineLatestWith, map, of, startWith, tap } from 'rxjs'
 import { $newSchmancyTheme, $schmancyTheme } from './$schmancyTheme'
 import { formateTheme } from './theme.format'
 
@@ -22,25 +22,18 @@ const $colorScheme = new Observable<string>(subscriber => {
 	return () => mediaQuery.removeEventListener('change', handler)
 })
 
-let savedValue: {
-	color?: string
-	scheme?: 'light' | 'dark' | 'auto'
-}
-
-try {
-	const currentValue = JSON.parse(localStorage.getItem('schmancy-theme') || '{}')
-	// validate if current value is a valid object matching the type of savedValue
-	if (typeof currentValue === 'object' && currentValue !== null) {
-		savedValue = currentValue
-	}
-} catch (error) {
-	savedValue = undefined
-}
+export type ThemeStorage = { color: string; scheme: 'light' | 'dark' | 'auto' }
 
 $newSchmancyTheme
 	.pipe(
-		startWith(savedValue),
-		map(color => color || { color: generateRandomColor(), scheme: 'auto' }),
+		startWith(safeJSONParse<ThemeStorage>(localStorage.getItem('schmancy-theme'))),
+		map(theme => {
+			if (!theme) {
+				return { color: generateRandomColor(), scheme: 'auto' }
+			} else return theme
+		}),
+		catchError(() => of({ color: generateRandomColor(), scheme: 'auto' })),
+		tap(console.log),
 		tap(color => localStorage.setItem('schmancy-theme', JSON.stringify(color))),
 	)
 	.pipe(combineLatestWith($colorScheme.pipe(map(colorScheme => colorScheme === 'dark'))))
@@ -59,4 +52,12 @@ function generateRandomColor() {
 	const randomColor = Math.floor(Math.random() * 16777215).toString(16)
 	// Pad with leading zeros if necessary to ensure 6 characters
 	return '#' + randomColor.padStart(6, '0')
+}
+
+function safeJSONParse<T>(json: string): T | undefined {
+	try {
+		return JSON.parse(json)
+	} catch (e) {
+		return undefined
+	}
 }
