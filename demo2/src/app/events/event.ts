@@ -28,7 +28,7 @@ export default class FunkhausEvent extends $LitElement() {
 					this.eventInfo = event
 					$newSchmancyTheme.next({
 						color: this.eventInfo.theme,
-						// scheme: 'dark',
+						scheme: 'dark',
 					})
 					$stripeElements.value?.update({
 						appearance: appearance(),
@@ -60,7 +60,7 @@ export default class FunkhausEvent extends $LitElement() {
 					<schmancy-surface type="container" rounded="all" elevation="0">
 						<schmancy-grid gap="lg">
 							<schmancy-grid class="block md:hidden px-6 md:px-12" gap="lg">
-								<schmancy-typography class="" type="display" token="sm"> ${this.eventInfo.name} </schmancy-typography>
+								<schmancy-typography type="display" token="sm"> ${this.eventInfo.name} </schmancy-typography>
 								<schmancy-flex gap="md" align="center">
 									<schmancy-icon class="pb-1" size="28px">event</schmancy-icon>
 									<schmancy-typography type="headline">

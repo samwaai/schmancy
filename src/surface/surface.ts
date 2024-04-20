@@ -47,7 +47,21 @@ export class SchmancySurface extends TailwindElement(css`
 			'shadow-2': this.elevation === 2,
 			'shadow-3': this.elevation === 3,
 			'shadow-4': this.elevation === 4,
-
+			'text-surface-on':
+				this.type === 'surface' ||
+				this.type === 'surfaceDim' ||
+				this.type === 'surfaceBright' ||
+				this.type === 'containerLowest' ||
+				this.type === 'containerLow' ||
+				this.type === 'container' ||
+				this.type === 'containerHigh' ||
+				this.type === 'containerHighest',
+			// 'text-surface-onVariant':
+			// 	this.type === 'containerLowest' ||
+			// 	this.type === 'containerLow' ||
+			// 	this.type === 'container' ||
+			// 	this.type === 'containerHigh' ||
+			// 	this.type === 'containerHighest',
 			'bg-surface-default': this.type === 'surface',
 			'bg-surface-dim': this.type === 'surfaceDim',
 			'bg-surface-bright': this.type === 'surfaceBright',
