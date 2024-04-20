@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs'
 
-const mutationObserver = (
+export const mutationObserver = (
 	target: HTMLElement,
 	config: MutationObserverInit = {
 		attributes: true,
