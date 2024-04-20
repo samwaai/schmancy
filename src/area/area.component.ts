@@ -132,9 +132,9 @@ export class SchmancyArea extends $LitElement(css`
 				// create the new view and add it to the DOM
 				map(({ component, route }) => {
 					const oldView = this.shadowRoot?.children[0]
-					// oldView?.remove()
+					oldView?.remove()
 					// newView.classList.add('absolute', 'inset-0', 'z-20')
-					oldView?.classList.add('absolute', 'inset-0')
+					// oldView?.classList.add('absolute', 'inset-0')
 					this.shadowRoot?.append(component)
 					// animate(newView, {
 					// 	opacity: [0, 1],
