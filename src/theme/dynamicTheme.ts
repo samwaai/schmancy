@@ -5,7 +5,7 @@ import { formateTheme } from './theme.format'
 
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
-const colorScheme$ = new Observable<string>(subscriber => {
+const $colorScheme = new Observable<string>(subscriber => {
 	const handler = (e: MediaQueryListEvent) => {
 		const newColorScheme = e.matches ? 'dark' : 'light'
 		subscriber.next(newColorScheme)
@@ -22,16 +22,31 @@ const colorScheme$ = new Observable<string>(subscriber => {
 	return () => mediaQuery.removeEventListener('change', handler)
 })
 
+let savedValue: {
+	color?: string
+	scheme?: 'light' | 'dark' | 'auto'
+}
+
+try {
+	const currentValue = JSON.parse(localStorage.getItem('schmancy-theme') || '{}')
+	// validate if current value is a valid object matching the type of savedValue
+	if (typeof currentValue === 'object' && currentValue !== null) {
+		savedValue = currentValue
+	}
+} catch (error) {
+	savedValue = undefined
+}
+
 $newSchmancyTheme
 	.pipe(
-		startWith(localStorage.getItem('schmancy-theme')),
-		map(color => color || generateRandomColor()),
-		tap(color => localStorage.setItem('schmancy-theme', color)),
+		startWith(savedValue),
+		map(color => color || { color: generateRandomColor(), scheme: 'auto' }),
+		tap(color => localStorage.setItem('schmancy-theme', JSON.stringify(color))),
 	)
-	.pipe(combineLatestWith(colorScheme$.pipe(map(colorScheme => colorScheme === 'dark'))))
+	.pipe(combineLatestWith($colorScheme.pipe(map(colorScheme => colorScheme === 'dark'))))
 	.pipe(
 		map(([color, isDark]) => {
-			return { theme: themeFromSourceColor(argbFromHex(color)), isDark }
+			return { theme: themeFromSourceColor(argbFromHex(color.color)), isDark: color.scheme === 'dark' || isDark }
 		}),
 		map(data => formateTheme(data.theme, data.isDark)),
 	)

@@ -22,7 +22,7 @@ export default class FunkhausTicketEvent extends $LitElement(css`
 		background-color: red;
 	} */
 `) {
-	@property({ type: Object }) eventInfo: IFunkhausEvent | undefined
+	@property({ type: Object }) eventInfo!: IFunkhausEvent
 
 	protected render() {
 		return html`

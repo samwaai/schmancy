@@ -57,7 +57,7 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 
 	render() {
 		const classes = {
-			'hyphens-none items-center': true,
+			'hyphens-none items-center text-surface-on': true,
 			'justify-center': this.align === 'center',
 			'justify-start': this.align === 'left',
 			'justify-end': this.align === 'right',

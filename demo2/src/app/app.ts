@@ -1,4 +1,5 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
+import { $newSchmancyTheme } from '@schmancy/index'
 import { StripeElements, StripePaymentElement } from '@stripe/stripe-js'
 import { css, html } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
@@ -29,6 +30,10 @@ export default class App extends $LitElement(css`
 	paymentElement: StripePaymentElement | undefined
 	async connectedCallback() {
 		super.connectedCallback()
+		$newSchmancyTheme.next({
+			color: '#005CDD',
+			scheme: 'auto',
+		})
 
 		const slot = document.createElement('slot')
 		slot.name = 'stripe-element'

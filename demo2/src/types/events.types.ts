@@ -1,5 +1,5 @@
 export interface IFunkhausEvent {
-	id: number
+	id: string
 	image_url: string
 	endDate: string
 	location: string

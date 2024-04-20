@@ -1,5 +1,8 @@
 import { Subject } from 'rxjs';
-declare const $newSchmancyTheme: Subject<string>;
+declare const $newSchmancyTheme: Subject<{
+    color: string | undefined;
+    scheme: 'light' | 'dark' | 'auto';
+}>;
 declare const $schmancyTheme: Subject<Partial<{
     sys: {
         color: {

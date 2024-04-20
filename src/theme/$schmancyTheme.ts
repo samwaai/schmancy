@@ -23,7 +23,7 @@ function registerThemeValues(prefix = 'schmancy', path: string, value: Partial<T
 	}
 }
 
-const $newSchmancyTheme = new Subject<string | undefined>()
+const $newSchmancyTheme = new Subject<{ color: string | undefined; scheme: 'light' | 'dark' | 'auto' }>()
 
 const $schmancyTheme = new Subject<Partial<TSchmancyTheme>>()
 

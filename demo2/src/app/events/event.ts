@@ -26,7 +26,10 @@ export default class FunkhausEvent extends $LitElement() {
 			.subscribe({
 				next: event => {
 					this.eventInfo = event
-					$newSchmancyTheme.next(this.eventInfo.theme)
+					$newSchmancyTheme.next({
+						color: this.eventInfo.theme,
+						// scheme: 'dark',
+					})
 					$stripeElements.value?.update({
 						appearance: appearance(),
 					})
