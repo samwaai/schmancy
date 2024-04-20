@@ -5,7 +5,7 @@ import { SchmancyInputChangeEvent } from '..';
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string;
 }>;
-declare const SchmancyAutocomplete_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
+declare const SchmancyAutocomplete_base: import("@schmancy/mixin/shared/constructor").Constructor<CustomElementConstructor> & import("@schmancy/mixin/shared/constructor").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("@schmancy/mixin/shared/constructor").Constructor<import("lit").LitElement> & import("@schmancy/mixin/shared/constructor").Constructor<import("@schmancy/mixin/shared/baseElement").IBaseMixin>;
 export declare class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     required: any;
     placeholder: string;

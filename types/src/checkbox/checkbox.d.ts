@@ -1,7 +1,7 @@
 export type schmancyCheckBoxChangeEvent = CustomEvent<{
     value: boolean;
 }>;
-declare const SchmancyCheckbox_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("../mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
+declare const SchmancyCheckbox_base: import("@schmancy/mixin").Constructor<CustomElementConstructor> & import("@schmancy/mixin").Constructor<import("../mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("@schmancy/mixin").Constructor<import("lit").LitElement> & import("@schmancy/mixin").Constructor<import("@schmancy/mixin").IBaseMixin>;
 /**
  * @element schmancy-checkbox
  * @slot - The label for the checkbox.
