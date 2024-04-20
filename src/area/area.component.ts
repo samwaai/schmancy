@@ -142,24 +142,24 @@ export class SchmancyArea extends $LitElement(css`
 									oldView?.remove()
 									// newView.classList.add('absolute', 'inset-0', 'z-20')
 									// oldView?.classList.add('absolute', 'inset-0')
-									this.shadowRoot?.prepend(newView)
-									animate(newView, {
-										opacity: [0, 1],
-										duration: oldView ? 100 : 0,
-										ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-										// onBegin: () => {
-										// 	if (oldView)
-										// 		animate(oldView, {
-										// 			opacity: [1, 1],
-										// 			duration: 100,
-										// 			ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-										// 			onComplete: () => {
-										// 				oldView?.remove()
-										// 			},
-										// 		})
-										// },
-									})
-									return { newView, oldView }
+									this.shadowRoot?.append(newView)
+									// animate(newView, {
+									// 	opacity: [0, 1],
+									// 	duration: oldView ? 100 : 0,
+									// 	ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+									// 	onBegin: () => {
+									// 		if (oldView)
+									// 			animate(oldView, {
+									// 				opacity: [1, 1],
+									// 				duration: 100,
+									// 				ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+									// 				onComplete: () => {
+									// 					oldView?.remove()
+									// 				},
+									// 			})
+									// 	},
+									// })
+									return { newView }
 								}),
 								tap(({ newView }) => {
 									if (typeof route.historyStrategy === 'undefined' || route.historyStrategy === 'push')
