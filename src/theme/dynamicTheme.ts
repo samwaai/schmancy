@@ -39,7 +39,10 @@ $newSchmancyTheme
 	.pipe(combineLatestWith($colorScheme.pipe(map(colorScheme => colorScheme === 'dark'))))
 	.pipe(
 		map(([color, isDark]) => {
-			return { theme: themeFromSourceColor(argbFromHex(color.color)), isDark: color.scheme === 'dark' || isDark }
+			return {
+				theme: themeFromSourceColor(argbFromHex(color.color)),
+				isDark: color.scheme === 'dark' ? true : color.scheme === 'light' ? false : isDark,
+			}
 		}),
 		map(data => formateTheme(data.theme, data.isDark)),
 	)
