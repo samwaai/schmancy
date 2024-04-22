@@ -21,6 +21,7 @@ import {
 import { isPresent } from 'ts-is-present'
 import area from './area.service'
 import { HISTORY_STRATEGY, RouteAction } from './router.types'
+import { animate } from '@juliangarnierorg/anime-beta'
 
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
@@ -132,26 +133,29 @@ export class SchmancyArea extends $LitElement(css`
 				// create the new view and add it to the DOM
 				map(({ component, route }) => {
 					const oldView = this.shadowRoot?.children[0]
+					const oldViewExists = !!oldView
+					const newView = component
+					newView.classList.add('opacity-0')
 					oldView?.remove()
 					// newView.classList.add('absolute', 'inset-0', 'z-20')
 					// oldView?.classList.add('absolute', 'inset-0')
 					this.shadowRoot?.append(component)
-					// animate(newView, {
-					// 	opacity: [0, 1],
-					// 	duration: oldView ? 100 : 0,
-					// 	ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-					// 	onBegin: () => {
-					// 		if (oldView)
-					// 			animate(oldView, {
-					// 				opacity: [1, 1],
-					// 				duration: 100,
-					// 				ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-					// 				onComplete: () => {
-					// 					oldView?.remove()
-					// 				},
-					// 			})
-					// 	},
-					// })
+					animate(component, {
+						opacity: [0, 1],
+						duration: oldViewExists ? 250 : 150,
+						ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+						// onBegin: () => {
+						// 	if (oldView)
+						// 		animate(oldView, {
+						// 			opacity: [1, 1],
+						// 			duration: 100,
+						// 			ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+						// 			onComplete: () => {
+						// 				oldView?.remove()
+						// 			},
+						// 		})
+						// },
+					})
 					return { component, route }
 				}),
 				tap(({ component, route }) => {
