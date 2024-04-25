@@ -28,12 +28,16 @@ $newSchmancyTheme
 	.pipe(
 		startWith(safeJSONParse<ThemeStorage>(localStorage.getItem('schmancy-theme'))),
 		map(theme => {
-			if (!theme) {
+			try {
+				argbFromHex(theme.color)
+				if (!theme) {
+					return { color: generateRandomColor(), scheme: 'auto' }
+				} else return theme
+			} catch (error) {
 				return { color: generateRandomColor(), scheme: 'auto' }
-			} else return theme
+			}
 		}),
 		catchError(() => of({ color: generateRandomColor(), scheme: 'auto' })),
-		tap(console.log),
 		tap(color => localStorage.setItem('schmancy-theme', JSON.stringify(color))),
 	)
 	.pipe(combineLatestWith($colorScheme.pipe(map(colorScheme => colorScheme === 'dark'))))
