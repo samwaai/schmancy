@@ -111,11 +111,11 @@ export class DemoNav extends $LitElement(css`
 								.selected=${this.activeTab?.toLowerCase()?.replaceAll('-', '') === d.component.name?.toLowerCase()}
 								@click=${() => {
 									schmancyNavDrawer.close(this)
-									area.queryParamClear(['jsd'])
 									area.push({
 										area: 'main',
 										component: d.component,
 										state: { id: 'ajdkfkadsjflsa' },
+										clearQueryParams: ['id'],
 									})
 								}}
 							>

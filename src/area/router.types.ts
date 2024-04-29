@@ -3,6 +3,7 @@ export type RouteAction = {
 	area: string
 	state?: object
 	historyStrategy?: THistoryStrategy
+	clearQueryParams?: string[] | undefined
 }
 
 export type ActiveRoute = {

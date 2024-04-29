@@ -200,9 +200,24 @@ export class SchmancyArea extends $LitElement(css`
 			oldAreaState = {}
 		}
 		route.state = route.state ?? {}
+		const queryParams = route.clearQueryParams ? this.queryParamClear(route.clearQueryParams) : document.location.search
+
 		return encodeURIComponent(
 			JSON.stringify({ ...oldAreaState, [this.name]: { component: tag.toLowerCase(), state: route.state } }),
-		).concat(document.location.search)
+		).concat(`${queryParams}`)
+	}
+
+	queryParamClear(params?: string[]) {
+		if (!params) {
+			return ''
+		}
+		// get query params from url
+		const urlParams = new URLSearchParams(location.search)
+		// remove query params
+		params.forEach(param => urlParams.delete(param))
+		// update url
+		if (urlParams.toString() === '') return ''
+		return `?${urlParams.toString()}`
 	}
 
 	checkForTeleportationRequests() {
