@@ -5,20 +5,20 @@ import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { filter } from 'rxjs'
+import { DemoAnimatedText } from './features/animated-text'
+import { DemoBusy } from './features/busy'
 import { DemoButton } from './features/button'
 import { DemoCard } from './features/card'
 import { DemoContentDrawer } from './features/drawer-content'
+import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoList } from './features/list'
+import { DemoRouter } from './features/router'
 import { DemoSheet } from './features/sheet'
+import { DemoSurface } from './features/surface'
+import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import DemoTypography from './features/typography'
-import { DemoTabs } from './features/tabs'
-import { DemoSurface } from './features/surface'
-import { DemoIcons } from './features/icons'
-import { DemoAnimatedText } from './features/animated-text'
-import { DemoRouter } from './features/router'
-import { DemoBusy } from './features/busy'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -114,6 +114,7 @@ export class DemoNav extends $LitElement(css`
 									area.push({
 										area: 'main',
 										component: d.component,
+										state: { id: 'ajdkfkadsjflsa' },
 									})
 								}}
 							>

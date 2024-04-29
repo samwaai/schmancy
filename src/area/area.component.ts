@@ -1,3 +1,4 @@
+import { animate } from '@juliangarnierorg/anime-beta'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -21,8 +22,11 @@ import {
 import { isPresent } from 'ts-is-present'
 import area from './area.service'
 import { HISTORY_STRATEGY, RouteAction } from './router.types'
-import { animate } from '@juliangarnierorg/anime-beta'
 
+type TRouteArea = {
+	component: string
+	state: object | undefined
+}
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
 	:host {
@@ -53,12 +57,22 @@ export class SchmancyArea extends $LitElement(css`
 			map(pathname => pathname.split('/').pop() ?? ''),
 			map(pathname => decodeURIComponent(pathname)),
 			map(pathname => JSON.parse(pathname)),
-			map(routes => routes[this.name]),
-			map(component => (component === undefined && this.default ? this.default : component)),
+			map(routes => routes[this.name] as TRouteArea),
+			tap(console.log),
+			map(component =>
+				component === undefined && this.default
+					? {
+							component: this.default,
+							state: undefined,
+						}
+					: component,
+			),
 			filter(x => isPresent(x)),
-			map(component => ({
+			tap(console.log),
+			map((component: TRouteArea) => ({
 				area: this.name,
-				component: component ?? this.default,
+				component: component.component,
+				state: component.state,
 				historyStrategy,
 			})),
 			map(x => x as RouteAction),
@@ -83,7 +97,10 @@ export class SchmancyArea extends $LitElement(css`
 		// active outlet changes
 		merge(
 			of(location.pathname).pipe(
+				tap(console.log),
 				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.replace)),
+				tap(console.log),
+
 				map(route => route as RouteAction),
 				take(1),
 			),
@@ -160,9 +177,9 @@ export class SchmancyArea extends $LitElement(css`
 				}),
 				tap(({ component, route }) => {
 					if (typeof route.historyStrategy === 'undefined' || route.historyStrategy === 'push')
-						history.pushState(route.state, '', this.newPath(component.tagName))
+						history.pushState(route.state, '', this.newPath(component.tagName, route))
 					else if (route.historyStrategy && ['replace', 'pop'].includes(route.historyStrategy))
-						history.replaceState(route.state, '', this.newPath(component.tagName))
+						history.replaceState(route.state, '', this.newPath(component.tagName, route))
 					area.$current.next({
 						component: component.tagName,
 						area: route.area,
@@ -174,7 +191,7 @@ export class SchmancyArea extends $LitElement(css`
 			.subscribe()
 	}
 
-	newPath(tag: string) {
+	newPath(tag: string, route: RouteAction) {
 		const oldPathname = location.pathname.split('/').pop()
 		let oldAreaState = {}
 		try {
@@ -182,9 +199,10 @@ export class SchmancyArea extends $LitElement(css`
 		} catch {
 			oldAreaState = {}
 		}
-		return encodeURIComponent(JSON.stringify({ ...oldAreaState, [this.name]: tag.toLowerCase() })).concat(
-			document.location.search,
-		)
+		route.state = route.state ?? {}
+		return encodeURIComponent(
+			JSON.stringify({ ...oldAreaState, [this.name]: { component: tag.toLowerCase(), state: route.state } }),
+		).concat(document.location.search)
 	}
 
 	checkForTeleportationRequests() {
