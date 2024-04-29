@@ -71,7 +71,7 @@ export class SchmancyArea extends $LitElement(css`
 			tap(console.log),
 			map((component: TRouteArea) => ({
 				area: this.name,
-				component: component.component,
+				component: component.component ?? this.default,
 				state: component.state,
 				historyStrategy,
 			})),
