@@ -52,6 +52,17 @@ class AreaService {
 		return AreaService.instance
 	}
 
+	queryParamClear(params?: string[]) {
+		if (!params) {
+			history.replaceState(null, '', `${location.pathname}`)
+		}
+		// get query params from url
+		const urlParams = new URLSearchParams(location.search)
+		// remove query params
+		params.forEach(param => urlParams.delete(param))
+		// update url
+		history.replaceState(null, '', `${location.pathname}?${urlParams.toString()}`)
+	}
 	get state() {
 		const pathname = location.pathname.split('/').pop()
 		let areaState = {}
