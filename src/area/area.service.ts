@@ -16,8 +16,8 @@ export type FINDING_MORTIES_EVENT = CustomEvent<{
 class AreaService {
 	private static instance: AreaService
 	public mode: 'SILENT' | 'HISTORY' = 'HISTORY'
-	public request = new ReplaySubject<RouteAction>()
-	public $current = new ReplaySubject<ActiveRoute>()
+	public request = new ReplaySubject<RouteAction>(1)
+	public $current = new ReplaySubject<ActiveRoute>(1)
 	public enableHistoryMode = true
 	private findingMortiesEvent = new CustomEvent<FINDING_MORTIES_EVENT['detail']>(FINDING_MORTIES)
 

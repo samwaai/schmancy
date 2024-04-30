@@ -54,7 +54,7 @@ $newSchmancyTheme
 		$schmancyTheme.next(theme)
 	})
 
-function generateRandomColor() {
+export function generateRandomColor() {
 	// Generates a random hexadecimal color code
 	const randomColor = Math.floor(Math.random() * 16777215).toString(16)
 	// Pad with leading zeros if necessary to ensure 6 characters
