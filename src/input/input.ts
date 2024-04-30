@@ -31,7 +31,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	/**
 	 * The type of the control.
 	 * @attr
-	 * @type {'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'datetime-local' | 'date'} type
+	 * @type {'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'color' | 'file'}
 	 * @default 'text'
 	 * @public
 	 **/
@@ -44,7 +44,12 @@ export default class SchmancyInput extends TailwindElement(style) {
 		| 'text'
 		| 'url'
 		| 'date'
-		| 'datetime-local' = 'text'
+		| 'datetime-local'
+		| 'time'
+		| 'month'
+		| 'week'
+		| 'color'
+		| 'file' = 'text'
 
 	/**
 	 * The name of the control.
