@@ -8,6 +8,7 @@ export * from './card';
 export * from './checkbox';
 export * from './components';
 export * from './content-drawer';
+export * from './data';
 export * from './directives';
 export * from './divider';
 export * from './form';
