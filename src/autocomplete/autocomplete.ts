@@ -21,6 +21,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 	@property({ type: String }) placeholder = ''
 	@property({ type: String, reflect: true }) value = ''
 	@property({ type: String, reflect: true }) label = ''
+	@property({ type: String }) maxHeight = '25vh'
 	@state() valueLabel = ''
 	inputRef = createRef<HTMLInputElement>()
 
@@ -112,6 +113,12 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 	}
 
 	render() {
+		const classes = {
+			'absolute z-30 mt-1 w-full overflow-auto rounded-md shadow-2': true,
+		}
+		const styles = {
+			maxHeight: this.maxHeight,
+		}
 		return html`
 			<div class="relative">
 				<slot name="trigger">
@@ -136,7 +143,8 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 				</slot>
 				<ul
 					tabindex="-1"
-					class="absolute z-30 mt-1 max-h-[50vh] w-full overflow-auto rounded-md shadow-2"
+					class=${this.classMap(classes)}
+					style=${this.styleMap(styles)}
 					id="options"
 					role="listbox"
 					hidden
