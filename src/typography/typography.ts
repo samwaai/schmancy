@@ -1,7 +1,6 @@
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import typographyStyle from './typography.scss?inline'
 // based on M3 typography https://m3.material.io/styles/typography/overview
 
@@ -55,6 +54,8 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 
 	@property({ type: Number }) maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined
 
+	@property({ type: String }) letterSpacing: string | undefined
+
 	render() {
 		const classes = {
 			'hyphens-none items-center': true,
@@ -105,8 +106,12 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 			capitalize: this.transform === 'capitalize',
 		}
 
+		const styles = {
+			letterSpacing: this.letterSpacing,
+		}
+
 		return html`
-			<span class=${classMap(classes)}>
+			<span style=${this.styleMap(styles)} class=${this.classMap(classes)}>
 				<slot></slot>
 			</span>
 		`
