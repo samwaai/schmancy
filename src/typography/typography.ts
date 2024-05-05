@@ -55,6 +55,7 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	@property({ type: Number }) maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined
 
 	@property({ type: String }) letterSpacing: string | undefined
+	@property({ type: String }) fontSize: string | undefined
 
 	render() {
 		const classes = {
@@ -108,6 +109,7 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 
 		const styles = {
 			letterSpacing: this.letterSpacing,
+			fontSize: this.fontSize,
 		}
 
 		return html`
