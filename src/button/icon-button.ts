@@ -121,7 +121,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 			'bg-primary-default text-primary-on': this.variant == 'filled',
 			'bg-secondary-container text-secondary-onContainer': this.variant == 'filled tonal',
 			'text-primary-default': this.variant == 'text',
-			'px-[4px]': this.size == 'sm',
+			'px-[6px] py-[6px]': this.size == 'sm',
 			'px-[8px] py-[8px]': this.size == 'md',
 			'px-[12px] py-[12px]': this.size == 'lg',
 		}
@@ -142,7 +142,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
 				${when(!this.disabled, () => html` <div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div> `)}
-				<schmancy-icon size=${this.size === 'sm' ? '16px' : this.size === 'md' ? '24px' : '32px'}>
+				<schmancy-icon size=${this.size === 'sm' ? '18px' : this.size === 'md' ? '24px' : '32px'}>
 					<slot> </slot
 				></schmancy-icon>
 			</button>
