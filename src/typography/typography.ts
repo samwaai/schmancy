@@ -43,6 +43,7 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	@property({ type: String })
 	weight: 'normal' | 'medium' | 'bold' | undefined
 
+	@property({ type: String }) lineHeight: string | undefined
 	/**
 	 *
 	 * @attr
@@ -110,6 +111,7 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 		const styles = {
 			letterSpacing: this.letterSpacing,
 			fontSize: this.fontSize,
+			lineHeight: this.lineHeight,
 		}
 
 		return html`

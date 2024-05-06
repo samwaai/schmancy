@@ -12,7 +12,7 @@ export default class DemoTypography extends $LitElement(css`
 		return html`
 			<div>
 				<schmancy-grid gap="md">
-					<schmancy-typography fontSize="30px" letterSpacing="1px" type="display" token="lg"
+					<schmancy-typography lineHeight="50px" fontSize="80px" letterSpacing="1px" type="display" token="lg"
 						>Display (lg)</schmancy-typography
 					>
 					<schmancy-typography type="display">Display (md) </schmancy-typography>
