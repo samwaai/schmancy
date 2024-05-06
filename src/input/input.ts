@@ -277,15 +277,20 @@ export default class SchmancyInput extends TailwindElement(style) {
 			'block mb-[4px]': true,
 		}
 		return html`
-			<label
-				${color({
-					color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
-				})}
-				class="${this.classMap(labelClasses)}"
-				for=${this.id}
-			>
-				<schmancy-typography type="label" token="lg">${this.label}</schmancy-typography>
-			</label>
+			${when(
+				this.label,
+				() =>
+					html`<label
+						${color({
+							color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
+						})}
+						class="${this.classMap(labelClasses)}"
+						for=${this.id}
+					>
+						<schmancy-typography type="label" token="lg">${this.label}</schmancy-typography>
+					</label>`,
+			)}
+
 			<schmancy-typography type="body" token="lg">
 				<input
 					${color({
