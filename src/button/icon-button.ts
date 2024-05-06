@@ -1,6 +1,6 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { css, html, LitElement } from 'lit'
-import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
+import { css, html, LitElement, PropertyValueMap } from 'lit'
+import { customElement, property, query } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
 import { ButtonVariant } from './button'
@@ -16,7 +16,6 @@ import { ButtonVariant } from './button'
 export class SchmnacyIconButton extends $LitElement(css`
 	:host {
 		display: block;
-		height: 40px;
 	}
 `) {
 	protected static shadowRootOptions = {
@@ -29,6 +28,9 @@ export class SchmnacyIconButton extends $LitElement(css`
 	private nativeElement!: HTMLElement
 
 	private _ariaLabel!: string
+
+	@property({ type: String })
+	public size: 'sm' | 'md' | 'lg' = 'md'
 
 	/**
 	 * The variant of the button. Defaults to undefined.
@@ -85,20 +87,6 @@ export class SchmnacyIconButton extends $LitElement(css`
 		return this._ariaLabel
 	}
 
-	@queryAssignedElements({
-		slot: 'prefix',
-		flatten: true,
-		selector: 'img',
-	})
-	private prefixImgs!: HTMLImageElement[]
-
-	@queryAssignedElements({
-		slot: 'suffix',
-		flatten: true,
-		selector: 'img',
-	})
-	private suffixImgs!: HTMLImageElement[]
-
 	/** Sets focus in the button. */
 	public override focus(options?: FocusOptions) {
 		this.nativeElement.focus(options)
@@ -109,26 +97,15 @@ export class SchmnacyIconButton extends $LitElement(css`
 		this.nativeElement.blur()
 	}
 
-	protected get imgClasses(): string[] {
-		return ['max-h-[24px]', 'max-w-[24px]', 'object-contain']
-	}
-
-	firstUpdated() {
-		this.prefixImgs?.forEach(img => {
-			img.classList.add(...this.imgClasses)
-		})
-		this.suffixImgs?.forEach(img => {
-			img.classList.add(...this.imgClasses)
-		})
-	}
-
 	click(): void {
 		this.dispatchEvent(new Event('click', { bubbles: true, composed: true }))
 	}
 
+	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {}
+
 	render() {
 		const classes = {
-			'h-full px-[8px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] focus:outline-none':
+			'h-full transition-all duration-200 relative rounded-full inline-flex justify-center items-center focus:outline-none':
 				true,
 			'opacity-[0.38]': this.disabled,
 			'hover:shadow-1':
@@ -144,6 +121,9 @@ export class SchmnacyIconButton extends $LitElement(css`
 			'bg-primary-default text-primary-on': this.variant == 'filled',
 			'bg-secondary-container text-secondary-onContainer': this.variant == 'filled tonal',
 			'text-primary-default': this.variant == 'text',
+			'px-[4px]': this.size == 'sm',
+			'px-[8px] py-[8px]': this.size == 'md',
+			'px-[12px] py-[12px]': this.size == 'lg',
 		}
 
 		const stateLayerClasses = {
@@ -162,7 +142,9 @@ export class SchmnacyIconButton extends $LitElement(css`
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
 				${when(!this.disabled, () => html` <div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div> `)}
-				<schmancy-icon size="24px"> <slot> </slot></schmancy-icon>
+				<schmancy-icon size=${this.size === 'sm' ? '16px' : this.size === 'md' ? '24px' : '32px'}>
+					<slot> </slot
+				></schmancy-icon>
 			</button>
 		`
 	}
