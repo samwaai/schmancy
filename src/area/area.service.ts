@@ -15,6 +15,7 @@ export type FINDING_MORTIES_EVENT = CustomEvent<{
 
 class AreaService {
 	private static instance: AreaService
+	public prettyURL = false
 	public mode: 'SILENT' | 'HISTORY' = 'HISTORY'
 	public request = new ReplaySubject<RouteAction>(1)
 	public $current = new ReplaySubject<ActiveRoute>(1)

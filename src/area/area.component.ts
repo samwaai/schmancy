@@ -60,7 +60,7 @@ export class SchmancyArea extends $LitElement(css`
 			map(routes => routes[this.name] as TRouteArea),
 			tap(console.log),
 			map(component =>
-				component === undefined && this.default
+				!component && this.default
 					? {
 							component: this.default,
 							state: undefined,
@@ -98,7 +98,7 @@ export class SchmancyArea extends $LitElement(css`
 		merge(
 			of(location.pathname).pipe(
 				tap(console.log),
-				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.replace)),
+				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
 				tap(console.log),
 
 				map(route => route as RouteAction),
