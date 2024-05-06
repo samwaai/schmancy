@@ -36,11 +36,11 @@ export class SchmancySurface extends TailwindElement(css`
 	get classes(): Record<string, boolean> {
 		return {
 			'rounded-none': this.rounded === 'none',
-			'rounded-t-[16px]': this.rounded === 'top',
-			'rounded-l-[16px]': this.rounded === 'left',
-			'rounded-r-[16px]': this.rounded === 'right',
-			'rounded-b-[16px]': this.rounded === 'bottom',
-			'rounded-[16px]': this.rounded === 'all',
+			'rounded-t-[8px]': this.rounded === 'top',
+			'rounded-l-[8px]': this.rounded === 'left',
+			'rounded-r-[8px]': this.rounded === 'right',
+			'rounded-b-[8px]': this.rounded === 'bottom',
+			'rounded-[8px]': this.rounded === 'all',
 
 			'w-full h-full overflow-auto': this.fill,
 			'shadow-1': this.elevation === 1,

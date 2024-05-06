@@ -44,7 +44,7 @@ $newSchmancyTheme
 	.pipe(
 		map(([color, isDark]) => {
 			return {
-				theme: themeFromSourceColor(argbFromHex(color.color)),
+				theme: themeFromSourceColor(argbFromHex('#000')),
 				isDark: color.scheme === 'dark' ? true : color.scheme === 'light' ? false : isDark,
 			}
 		}),
