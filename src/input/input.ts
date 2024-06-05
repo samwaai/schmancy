@@ -188,6 +188,21 @@ export default class SchmancyInput extends TailwindElement(style) {
 					}),
 				)
 			})
+		fromEvent(this.inputElement, 'change')
+			.pipe(
+				map(event => (event.target as HTMLInputElement).value),
+				distinctUntilChanged(),
+			)
+			.subscribe(value => {
+				this.value = value
+				this.dispatchEvent(
+					new CustomEvent<EventDetails>('change', {
+						detail: { value },
+						bubbles: true,
+						composed: true,
+					}),
+				)
+			})
 		// emit on enter
 		fromEvent<KeyboardEvent>(this.inputElement, 'keyup')
 			.pipe(
@@ -206,6 +221,21 @@ export default class SchmancyInput extends TailwindElement(style) {
 				)
 				this.dispatchEvent(
 					new CustomEvent<EventDetails>('enter', {
+						detail: { value },
+						bubbles: true,
+						composed: true,
+					}),
+				)
+			})
+		fromEvent<AnimationEvent>(this.inputElement, 'animationstart')
+			.pipe(
+				filter(event => (event as AnimationEvent).animationName === 'onAutoFillStart'),
+				map(event => (event.target as HTMLInputElement).value),
+			)
+			.subscribe(value => {
+				this.value = value
+				this.dispatchEvent(
+					new CustomEvent<EventDetails>('change', {
 						detail: { value },
 						bubbles: true,
 						composed: true,

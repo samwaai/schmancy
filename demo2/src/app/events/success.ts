@@ -26,7 +26,7 @@ export default class FunkhausOrderSuccess extends $LitElement() {
 					class="px-6 md:px-12"
 					${fullHeight()}
 					.rcols=${{
-						xs: '1fr',
+						sm: '1fr',
 						md: '1fr 1fr',
 					}}
 					rows="auto 1fr"

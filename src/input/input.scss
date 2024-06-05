@@ -43,3 +43,14 @@ input[type='number']::-webkit-outer-spin-button {
 input[type='number'] {
 	-moz-appearance: textfield;
 }
+
+@keyframes onAutoFillStart {
+	from {
+	}
+	to {
+	}
+}
+
+input:-webkit-autofill {
+	animation-name: onAutoFillStart;
+}
