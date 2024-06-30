@@ -1,6 +1,6 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { SchmancyAutocompleteChangeEvent } from '@schmancy/autocomplete'
-import { css, html } from 'lit'
+import { PropertyValueMap, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import countries from './data/countries'
@@ -11,7 +11,13 @@ export class DemoInput extends $LitElement(css`
 		display: block;
 	}
 `) {
-	@state() country?: string
+	@state() country?: string 
+
+	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+		super.firstUpdated(_changedProperties)
+	
+		this.country = 'US'
+	}
 	render() {
 		return html`
 			<schmancy-grid gap="md">
@@ -57,7 +63,7 @@ export class DemoInput extends $LitElement(css`
 						'Paid',
 						'Paid bank',
 						'Completed',
-					].map(o => html` <schmancy-option .value="${o}"> ${o}</schmancy-option>`)}
+					].map(o => html` <schmancy-option .value="${o}" .label=${o}> ${o}</schmancy-option>`)}
 				</schmancy-autocomplete>
 
 				<schmancy-autocomplete

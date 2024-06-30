@@ -27,6 +27,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 
 	@query('ul') ul!: HTMLUListElement
 	@query('#empty') empty!: HTMLLIElement
+	@query('#options') optionsContainer!: HTMLUListElement
 	@query('schmancy-input') input!: SchmancyInput
 	searchTerm$ = new BehaviorSubject('')
 	searchTermSubscription: any
@@ -151,6 +152,8 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 					@click=${(e: SchmancyOptionChangeEvent) => {
 						this.handleOptionClick(e.detail.value)
 					}}
+					@touchstart=${this.preventScroll}
+					@touchmove=${this.preventScroll}
 					${color({
 						bgColor: SchmancyTheme.sys.color.surface.container,
 					})}
@@ -168,6 +171,25 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 				</ul>
 			</div>
 		`
+	}
+	preventScroll(event) {
+		// Check if the target element is the ul element
+		const target = event.target
+
+		if (this.optionsContainer.contains(target)) {
+			const scrollTop = this.optionsContainer.scrollTop
+			const scrollHeight = this.optionsContainer.scrollHeight
+			const offsetHeight = this.optionsContainer.offsetHeight
+			const contentHeight = scrollHeight - offsetHeight
+
+			// Prevent default only when scrolling reaches the top or bottom
+			if (
+				(scrollTop === 0 && event.touches[0].clientY > event.touches[0].clientY) ||
+				(scrollTop === contentHeight && event.touches[0].clientY < event.touches[0].clientY)
+			) {
+				event.preventDefault()
+			}
+		}
 	}
 }
 
