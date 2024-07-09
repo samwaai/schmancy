@@ -83,6 +83,9 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 		event.stopPropagation()
 		const term = event.detail.value
 		this.searchTerm$.next(term)
+		if (!term) {
+			this.handleOptionClick('')
+		}
 	}
 
 	handleOptionClick(value) {
@@ -135,10 +138,6 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 						inputmode="text"
 						placeholder=${this.placeholder}
 						@change=${this.handleInputChange}
-						@reset=${() => {
-							this.value = ''
-							this.updateInputValue()
-						}}
 					>
 					</schmancy-input>
 				</slot>

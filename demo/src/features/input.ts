@@ -11,11 +11,11 @@ export class DemoInput extends $LitElement(css`
 		display: block;
 	}
 `) {
-	@state() country?: string 
+	@state() country?: string
 
 	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
 		super.firstUpdated(_changedProperties)
-	
+
 		this.country = 'US'
 	}
 	render() {
@@ -45,7 +45,14 @@ export class DemoInput extends $LitElement(css`
 				></schmancy-input>
 				<schmancy-input label="disabled Input" placeholder="placeholder" disabled></schmancy-input>
 
-				<schmancy-autocomplete label="Status" value="All">
+				<schmancy-autocomplete
+					@change=${(e: SchmancyAutocompleteChangeEvent) => {
+						console.log('e.detail', e.detail)
+					}}
+					@reset=${() => {}}
+					label="Status"
+					value="All"
+				>
 					${[
 						'All',
 						'New',
