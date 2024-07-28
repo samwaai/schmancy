@@ -15,13 +15,20 @@ export class DemoInput extends $LitElement(css`
 
 	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
 		super.firstUpdated(_changedProperties)
-
 		this.country = 'US'
 	}
 	render() {
 		return html`
 			<schmancy-grid gap="md">
 				<schmancy-surface type="containerLow" rounded="all">
+					<schmancy-input
+						type="date"
+						label="Input"
+						placeholder="placeholder"
+						@change=${(e: Event) => {
+							console.log('change', e)
+						}}
+					></schmancy-input>
 					<schmancy-form
 						class="p-4"
 						@submit=${(e: SubmitEvent) => {

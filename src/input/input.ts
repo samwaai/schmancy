@@ -293,7 +293,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 
 	protected render(): unknown {
 		const classes = {
-			'block min-w-fit w-full h-[50px] rounded-[8px] border-0 px-[16px]': true,
+			'flex min-w-fit w-full h-[50px] rounded-[8px] border-0 px-[16px]': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
@@ -338,7 +338,6 @@ export default class SchmancyInput extends TailwindElement(style) {
 					inputmode=${ifDefined(this.inputmode)}
 					class=${this.classMap(classes)}
 					.disabled=${this.disabled}
-					class="flex"
 					min=${ifDefined(this.min)}
 					max=${ifDefined(this.max)}
 					minlength=${ifDefined(this.minlength)}
