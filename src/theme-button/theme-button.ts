@@ -1,11 +1,11 @@
 import { animate } from '@juliangarnierorg/anime-beta'
-import { $LitElement } from '@mhmo91/lit-mixins/src'
+import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
 import { $newSchmancyTheme } from '..'
 
 @customElement('schmancy-theme-button')
-export default class SchmancyThemeButton extends $LitElement() {
+export default class SchmancyThemeButton extends TailwindElement() {
 	@query('#color') color!: HTMLElement
 
 	protected render(): unknown {
