@@ -1,4 +1,4 @@
-declare const SchmancyScroll_base: import("@schmancy/mixin").Constructor<CustomElementConstructor> & import("@schmancy/mixin").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("@schmancy/mixin").Constructor<import("lit").LitElement> & import("@schmancy/mixin").Constructor<import("@schmancy/mixin").IBaseMixin>;
+declare const SchmancyScroll_base: import("../..").Constructor<CustomElementConstructor> & import("../..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("../..").Constructor<import("lit").LitElement> & import("../..").Constructor<import("../..").IBaseMixin>;
 export declare class SchmancyScroll extends SchmancyScroll_base {
     render(): import("lit-html").TemplateResult<1>;
 }

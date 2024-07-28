@@ -5,16 +5,18 @@ import { SchmancyInputChangeEvent } from '..';
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string;
 }>;
-declare const SchmancyAutocomplete_base: import("@schmancy/mixin/shared/constructor").Constructor<CustomElementConstructor> & import("@schmancy/mixin/shared/constructor").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("@schmancy/mixin/shared/constructor").Constructor<import("lit").LitElement> & import("@schmancy/mixin/shared/constructor").Constructor<import("@schmancy/mixin/shared/baseElement").IBaseMixin>;
+declare const SchmancyAutocomplete_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export declare class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     required: any;
     placeholder: string;
     value: string;
     label: string;
+    maxHeight: string;
     valueLabel: string;
     inputRef: import("lit-html/directives/ref").Ref<HTMLInputElement>;
     ul: HTMLUListElement;
     empty: HTMLLIElement;
+    optionsContainer: HTMLUListElement;
     input: SchmancyInput;
     searchTerm$: BehaviorSubject<string>;
     searchTermSubscription: any;
@@ -29,6 +31,7 @@ export declare class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     checkValidity(): boolean;
     show(): void;
     render(): import("lit-html").TemplateResult<1>;
+    preventScroll(event: any): void;
 }
 declare global {
     interface HTMLElementTagNameMap {

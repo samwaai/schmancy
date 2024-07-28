@@ -1,5 +1,5 @@
-import { SchmancyTeleportation } from '../teleport';
 import { ReplaySubject, Subject } from 'rxjs';
+import { SchmancyTeleportation } from '../teleport';
 import { ActiveRoute, RouteAction } from './router.types';
 export declare const routerHistory: Subject<RouteAction>;
 export declare const FINDING_MORTIES = "FINDING_MORTIES";
@@ -12,6 +12,7 @@ export type FINDING_MORTIES_EVENT = CustomEvent<{
 }>;
 declare class AreaService {
     private static instance;
+    prettyURL: boolean;
     mode: 'SILENT' | 'HISTORY';
     request: ReplaySubject<RouteAction>;
     $current: ReplaySubject<ActiveRoute>;

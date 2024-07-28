@@ -3,7 +3,7 @@ export interface FormEventMap {
     submit: CustomEvent<FormData>;
     reset: CustomEvent;
 }
-declare const SchmancyForm_base: import("@schmancy/mixin").Constructor<CustomElementConstructor> & import("@schmancy/mixin").Constructor<import("../mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("@schmancy/mixin").Constructor<LitElement> & import("@schmancy/mixin").Constructor<import("@schmancy/mixin").IBaseMixin>;
+declare const SchmancyForm_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("../mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 /**
  * The form is a component used to collect user input from
  * interactive controls.
@@ -22,6 +22,7 @@ export default class SchmancyForm extends SchmancyForm_base {
     protected static shadowRootOptions: {
         mode: string;
         delegatesFocus: boolean;
+        serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };
     static styles: import("lit").CSSResult;

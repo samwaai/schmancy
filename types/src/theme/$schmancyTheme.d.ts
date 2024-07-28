@@ -1,8 +1,6 @@
 import { Subject } from 'rxjs';
-declare const $newSchmancyTheme: Subject<{
-    color: string | undefined;
-    scheme: 'light' | 'dark' | 'auto';
-}>;
+import { ThemeStorage } from './dynamicTheme';
+declare const $newSchmancyTheme: Subject<ThemeStorage>;
 declare const $schmancyTheme: Subject<Partial<{
     sys: {
         color: {

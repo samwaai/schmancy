@@ -1,9 +1,10 @@
 import { LitElement } from 'lit';
-declare const SchmancyInput_base: import("@schmancy/mixin").Constructor<CustomElementConstructor> & import("@schmancy/mixin").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("@schmancy/mixin").Constructor<LitElement> & import("@schmancy/mixin").Constructor<import("@schmancy/mixin").IBaseMixin>;
+declare const SchmancyInput_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export default class SchmancyInput extends SchmancyInput_base {
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
         mode: ShadowRootMode;
+        serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };
     static formAssociated: boolean;
@@ -20,11 +21,11 @@ export default class SchmancyInput extends SchmancyInput_base {
     /**
      * The type of the control.
      * @attr
-     * @type {'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'datetime-local' | 'date'} type
+     * @type {'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'color' | 'file'}
      * @default 'text'
      * @public
      **/
-    type: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'date' | 'datetime-local';
+    type: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'color' | 'file';
     /**
      * The name of the control.
      * @attr name

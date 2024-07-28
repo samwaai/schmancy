@@ -1,4 +1,4 @@
-declare const SchmancyTypography_base: import("@schmancy/mixin").Constructor<CustomElementConstructor> & import("@schmancy/mixin").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("@schmancy/mixin").Constructor<import("lit").LitElement> & import("@schmancy/mixin").Constructor<import("@schmancy/mixin").IBaseMixin>;
+declare const SchmancyTypography_base: import("..").Constructor<CustomElementConstructor> & import("..").Constructor<import("@schmancy/mixin/tailwind/tailwind.mixin").ITailwindElementMixin> & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 /**
  * @element schmancy-typography
  * @slot - The text for the typography.
@@ -29,6 +29,7 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
      * @public
      */
     weight: 'normal' | 'medium' | 'bold' | undefined;
+    lineHeight: string | undefined;
     /**
      *
      * @attr
@@ -38,6 +39,8 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
      */
     transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined;
     maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined;
+    letterSpacing: string | undefined;
+    fontSize: string | undefined;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

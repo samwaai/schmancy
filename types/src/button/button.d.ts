@@ -16,6 +16,7 @@ export declare class SchmnacyButton extends SchmnacyButton_base {
     protected static shadowRootOptions: {
         mode: string;
         delegatesFocus: boolean;
+        serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };
     private nativeElement;
