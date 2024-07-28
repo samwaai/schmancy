@@ -7,7 +7,6 @@ import { SchmancyTabsModeContext } from './context'
 @customElement('schmancy-tab')
 export default class SchmancyTab extends TailwindElement(css`
 	:host {
-		position: relative;
 		display: block;
 	}
 `) {

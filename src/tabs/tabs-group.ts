@@ -74,7 +74,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 			)
 			.subscribe(() => {
 				this.tabsElements.forEach(tab => {
-					tab.style.paddingTop = this.navElement.clientHeight + 'px'
+					if (this.mode === 'scroll') tab.style.paddingTop = this.navElement.clientHeight + 'px'
 				})
 			})
 	}
@@ -149,7 +149,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 			>
 				${repeat(
 					this.tabs,
-					tab => tab.label,
+					tab => tab.value,
 					tab => html`
 						<schmancy-button
 							@click=${() => {
