@@ -21,6 +21,18 @@ export class DemoInput extends $LitElement(css`
 		return html`
 			<schmancy-grid gap="md">
 				<schmancy-surface type="containerLow" rounded="all">
+					<schmancy-autocomplete
+						placeholder="Search for options"
+						label="Select options"
+						value="option1"
+						multi
+						@change="${e => console.log('Selected values:', e.detail.value)}"
+					>
+						<schmancy-option value="option1" label="Option 1">Option 1</schmancy-option>
+						<schmancy-option value="option2" label="Option 2">Option 2</schmancy-option>
+						<schmancy-option value="option3" label="Option 3">Option 3</schmancy-option>
+						<schmancy-option value="option4" label="Option 4">Option 4</schmancy-option>
+					</schmancy-autocomplete>
 					<schmancy-input
 						type="date"
 						label="Input"
@@ -82,7 +94,7 @@ export class DemoInput extends $LitElement(css`
 
 				<schmancy-autocomplete
 					@change=${(e: SchmancyAutocompleteChangeEvent) => {
-						this.country = e.detail.value
+						this.country = e.detail.value as string
 						console.log('this.country', this.country)
 					}}
 					label="Country"

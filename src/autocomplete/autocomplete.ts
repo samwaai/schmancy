@@ -7,14 +7,15 @@ import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
-import { BehaviorSubject, from, fromEvent } from 'rxjs'
+import { from, fromEvent, Subject } from 'rxjs'
 import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil, tap } from 'rxjs/operators'
 import { SchmancyInputChangeEvent } from '..'
 import style from './autocomplete.scss?inline'
 
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
-	value: string
+	value: string | string[]
 }>
+
 @customElement('schmancy-autocomplete')
 export class SchmancyAutocomplete extends TailwindElement(style) {
 	@property({ type: Boolean }) required
@@ -22,6 +23,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 	@property({ type: String, reflect: true }) value = ''
 	@property({ type: String, reflect: true }) label = ''
 	@property({ type: String }) maxHeight = '25vh'
+	@property({ type: Boolean }) multi = false
 	@state() valueLabel = ''
 	inputRef = createRef<HTMLInputElement>()
 
@@ -29,7 +31,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 	@query('#empty') empty!: HTMLLIElement
 	@query('#options') optionsContainer!: HTMLUListElement
 	@query('schmancy-input') input!: SchmancyInput
-	searchTerm$ = new BehaviorSubject('')
+	searchTerm$ = new Subject<string>()
 	searchTermSubscription: any
 
 	@queryAssignedElements({ flatten: true }) options!: SchmancyOption[]
@@ -50,7 +52,9 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 						.some(option => !option.hidden)
 				}),
 			)
-			.subscribe(() => {})
+			.subscribe(() => {
+				this.ul.style.setProperty('display', 'block')
+			})
 
 		fromEvent<FocusEvent>(this, 'focusout')
 			.pipe(
@@ -70,12 +74,31 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 					),
 				),
 			)
-			.subscribe()
+			.subscribe({
+				next: () => {
+					if (this.multi) {
+						this.inputRef.value?.setAttribute(
+							'value',
+							this.options
+								.filter(o => o.selected)
+								.map(o => o.label)
+								.join(', '),
+						)
+					} else {
+						this.inputRef.value?.setAttribute('value', this.options.find(o => o.value === this.value)?.label ?? '')
+					}
+				},
+			})
 		this.updateInputValue()
 	}
 
 	updateInputValue() {
-		this.input.value = this.options.find(o => o.value === this.value)?.label ?? ''
+		if (this.multi) {
+			const selectedOptions = this.options.filter(o => o.selected).map(o => o.label)
+			this.input.value = selectedOptions.join(', ')
+		} else {
+			this.input.value = this.options.find(o => o.value === this.value)?.label ?? ''
+		}
 	}
 
 	handleInputChange(event: SchmancyInputChangeEvent) {
@@ -83,23 +106,38 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 		event.stopPropagation()
 		const term = event.detail.value
 		this.searchTerm$.next(term)
-		if (!term) {
-			this.handleOptionClick('')
-		}
+		// if (!term && !this.multi) {
+		// 	this.handleOptionClick('')
+		// }
 	}
 
-	handleOptionClick(value) {
-		this.ul?.style.setProperty('display', 'none')
-		this.value = value
-		this.searchTerm$.next('')
-		this.updateInputValue()
-		this.dispatchEvent(
-			new CustomEvent('change', {
-				detail: { value: value },
-				bubbles: true,
-				composed: true,
-			}),
-		)
+	handleOptionClick(value: string) {
+		if (this.multi) {
+			const option = this.options.find(o => o.value === value)
+			if (option) {
+				option.selected = !option.selected
+			}
+			this.updateInputValue()
+			this.dispatchEvent(
+				new CustomEvent('change', {
+					detail: { value: this.options.filter(o => o.selected).map(o => o.value) },
+					bubbles: true,
+					composed: true,
+				}),
+			)
+		} else {
+			this.ul?.style.setProperty('display', 'none')
+			this.value = value
+			this.searchTerm$.next('')
+			this.updateInputValue()
+			this.dispatchEvent(
+				new CustomEvent('change', {
+					detail: { value: value },
+					bubbles: true,
+					composed: true,
+				}),
+			)
+		}
 	}
 
 	/** Checks for validity of the control and shows the browser message if it's invalid. */
@@ -109,7 +147,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 
 	/** Checks for validity of the control and emits the invalid event if it invalid. */
 	public checkValidity() {
-		return !!this.value
+		return this.multi ? this.options.some(o => o.selected) : !!this.value
 	}
 
 	public show() {
@@ -171,8 +209,8 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 			</div>
 		`
 	}
+
 	preventScroll(event) {
-		// Check if the target element is the ul element
 		const target = event.target
 
 		if (this.optionsContainer.contains(target)) {
@@ -181,7 +219,6 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 			const offsetHeight = this.optionsContainer.offsetHeight
 			const contentHeight = scrollHeight - offsetHeight
 
-			// Prevent default only when scrolling reaches the top or bottom
 			if (
 				(scrollTop === 0 && event.touches[0].clientY > event.touches[0].clientY) ||
 				(scrollTop === contentHeight && event.touches[0].clientY < event.touches[0].clientY)
