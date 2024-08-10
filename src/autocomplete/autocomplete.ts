@@ -94,7 +94,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 
 	updateInputValue() {
 		if (this.multi) {
-			const selectedOptions = this.options.filter(o => o.selected).map(o => o.label)
+			const selectedOptions = this.value.split(',').map(v => this.options.find(o => o.value === v)?.label)
 			this.input.value = selectedOptions.join(', ')
 		} else {
 			this.input.value = this.options.find(o => o.value === this.value)?.label ?? ''

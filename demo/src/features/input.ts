@@ -22,9 +22,10 @@ export class DemoInput extends $LitElement(css`
 			<schmancy-grid gap="md">
 				<schmancy-surface type="containerLow" rounded="all">
 					<schmancy-autocomplete
+						multi
 						placeholder="Search for options"
 						label="Select options"
-						value="option1"
+						value="option1,option2"
 						multi
 						@change="${e => console.log('Selected values:', e.detail.value)}"
 					>
