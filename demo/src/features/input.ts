@@ -20,43 +20,42 @@ export class DemoInput extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
-				<schmancy-surface type="containerLow" rounded="all">
-					<schmancy-autocomplete
-						multi
-						placeholder="Search for options"
-						label="Select options"
-						value="option1,option2"
-						multi
-						@change="${e => console.log('Selected values:', e.detail.value)}"
-					>
-						<schmancy-option value="option1" label="Option 1">Option 1</schmancy-option>
-						<schmancy-option value="option2" label="Option 2">Option 2</schmancy-option>
-						<schmancy-option value="option3" label="Option 3">Option 3</schmancy-option>
-						<schmancy-option value="option4" label="Option 4">Option 4</schmancy-option>
-					</schmancy-autocomplete>
-					<schmancy-input
-						type="date"
-						label="Input"
-						placeholder="placeholder"
-						@change=${(e: Event) => {
-							console.log('change', e)
+				<schmancy-textarea label="Textarea" placeholder="placeholder"></schmancy-textarea>
+
+				<schmancy-autocomplete
+					multi
+					placeholder="Search for options"
+					label="Select options"
+					value="option1,option2"
+					multi
+					@change="${e => console.log('Selected values:', e.detail.value)}"
+				>
+					<schmancy-option value="option1" label="Option 1">Option 1</schmancy-option>
+					<schmancy-option value="option2" label="Option 2">Option 2</schmancy-option>
+					<schmancy-option value="option3" label="Option 3">Option 3</schmancy-option>
+					<schmancy-option value="option4" label="Option 4">Option 4</schmancy-option>
+				</schmancy-autocomplete>
+				<schmancy-input
+					type="date"
+					label="Input"
+					placeholder="placeholder"
+					@change=${(e: Event) => {
+						console.log('change', e)
+					}}
+				></schmancy-input>
+				<schmancy-form
+					@submit=${() => {
+						// e.preventDefault()
+						console.log('submit')
+					}}
+				>
+					<schmancy-payment-card-form
+						@change=${e => {
+							console.log(e.detail)
 						}}
-					></schmancy-input>
-					<schmancy-form
-						class="p-4"
-						@submit=${(e: SubmitEvent) => {
-							// e.preventDefault()
-							console.log('submit')
-						}}
-					>
-						<schmancy-payment-card-form
-							@change=${e => {
-								console.log(e.detail)
-							}}
-						></schmancy-payment-card-form>
-						<schmancy-button type="submit">Submit</schmancy-button>
-					</schmancy-form>
-				</schmancy-surface>
+					></schmancy-payment-card-form>
+					<!-- <schmancy-button type="submit">Submit</schmancy-button> -->
+				</schmancy-form>
 				<schmancy-input
 					.error=${true}
 					hint="another day another moment"

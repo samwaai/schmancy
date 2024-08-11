@@ -28,6 +28,7 @@ export * from './surface';
 export * from './table';
 export * from './tabs';
 export * from './teleport';
+export * from './textarea';
 export * from './theme';
 export * from './theme-button';
 export * from './tree';

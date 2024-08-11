@@ -1,0 +1,48 @@
+:host {
+	border: unset !important;
+	line-height: unset !important;
+	background: unset !important;
+	padding: unset !important;
+	font-size: unset !important;
+	box-shadow: unset !important;
+	width: -webkit-fill-available;
+}
+
+:host:focus {
+	box-shadow: unset !important;
+}
+
+textarea:focus-visible {
+	outline: none !important;
+}
+
+textarea {
+	/* Inherit typographic styles */
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	color: inherit;
+	letter-spacing: inherit;
+	text-transform: inherit;
+	text-decoration: inherit;
+	text-indent: inherit;
+	text-shadow: inherit;
+	text-overflow: inherit;
+	text-rendering: inherit;
+	text-size-adjust: inherit;
+	text-align-last: inherit;
+	resize: none; /* Prevent resizing for a more controlled layout, adjust based on needs */
+	overflow-y: auto; /* Ensure content is scrollable if it exceeds the visible area */
+}
+
+@keyframes onAutoFillStart {
+	from {
+	}
+	to {
+	}
+}
+
+textarea:-webkit-autofill {
+	animation-name: onAutoFillStart;
+}
