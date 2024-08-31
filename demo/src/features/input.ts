@@ -1,5 +1,6 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { SchmancyAutocompleteChangeEvent } from '@schmancy/autocomplete'
+import { SchmancyChipsChangeEvent } from '@schmancy/chips'
 import { PropertyValueMap, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
@@ -20,6 +21,46 @@ export class DemoInput extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
+				<schmancy-autocomplete
+					@change=${(e: SchmancyAutocompleteChangeEvent) => {
+						this.country = e.detail.value as string
+						console.log('this.country', this.country)
+					}}
+					label="Country"
+					.value=${this.country ?? ''}
+				>
+					${repeat(
+						countries ?? [],
+						c => c.code,
+						category =>
+							html` <schmancy-option label=${category.name ?? ''} value=${category.code ?? 0}>
+								${category.name}
+							</schmancy-option>`,
+					)}
+				</schmancy-autocomplete>
+				<schmancy-chips
+					.values=${['chip1']}
+					multi
+					@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
+						console.log('e.detail', e.detail)
+					}}
+				>
+					<schmancy-chip label="Chip 1" value="chip1"></schmancy-chip>
+					<schmancy-chip label="Chip 2" value="chip2"></schmancy-chip>
+					<schmancy-chip label="Chip 3" value="chip3"></schmancy-chip>
+				</schmancy-chips>
+
+				<!-- single -->
+				<schmancy-chips
+					.value=${'chip1'}
+					@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
+						console.log('e.detail', e.detail)
+					}}
+				>
+					<schmancy-chip label="Chip 1" value="chip1"></schmancy-chip>
+					<schmancy-chip label="Chip 2" value="chip2"></schmancy-chip>
+					<schmancy-chip label="Chip 3" value="chip3"></schmancy-chip>
+				</schmancy-chips>
 				<schmancy-textarea label="Textarea" placeholder="placeholder"></schmancy-textarea>
 
 				<schmancy-autocomplete
@@ -90,24 +131,6 @@ export class DemoInput extends $LitElement(css`
 						'Paid bank',
 						'Completed',
 					].map(o => html` <schmancy-option .value="${o}" .label=${o}> ${o}</schmancy-option>`)}
-				</schmancy-autocomplete>
-
-				<schmancy-autocomplete
-					@change=${(e: SchmancyAutocompleteChangeEvent) => {
-						this.country = e.detail.value as string
-						console.log('this.country', this.country)
-					}}
-					label="Country"
-					.value=${this.country ?? ''}
-				>
-					${repeat(
-						countries ?? [],
-						c => c.code,
-						category =>
-							html` <schmancy-option label=${category.name ?? ''} value=${category.code ?? 0}>
-								${category.name}
-							</schmancy-option>`,
-					)}
 				</schmancy-autocomplete>
 			</schmancy-grid>
 		`

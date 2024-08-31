@@ -5,7 +5,7 @@ import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import SchmancyOption, { SchmancyOptionChangeEvent } from '@schmancy/option/option'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
-import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
+import { customElement, eventOptions, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { from, fromEvent, Subject } from 'rxjs'
 import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil, tap } from 'rxjs/operators'
@@ -40,7 +40,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 		this.searchTermSubscription = this.searchTerm$
 			.pipe(
 				takeUntil(this.disconnecting),
-				debounceTime(50),
+				debounceTime(10),
 				distinctUntilChanged(),
 				tap(term => {
 					const regex = new RegExp(term.trim(), 'i')
@@ -93,24 +93,35 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 	}
 
 	updateInputValue() {
-		if (this.multi) {
-			const selectedOptions = this.value.split(',').map(v => this.options.find(o => o.value === v)?.label)
-			this.input.value = selectedOptions.join(', ')
-		} else {
-			this.input.value = this.options.find(o => o.value === this.value)?.label ?? ''
-		}
+		requestAnimationFrame(() => {
+			if (this.multi) {
+				const selectedOptions = this.value.split(',').map(v => this.options.find(o => o.value === v)?.label)
+				this.input.value = selectedOptions.join(', ')
+			} else {
+				this.input.value = this.options.find(o => o.value === this.value)?.label ?? ''
+			}
+		})
 	}
 
 	handleInputChange(event: SchmancyInputChangeEvent) {
 		event.preventDefault()
 		event.stopPropagation()
 		const term = event.detail.value
-		this.searchTerm$.next(term)
-		// if (!term && !this.multi) {
-		// 	this.handleOptionClick('')
-		// }
+		if (term !== this.valueLabel) {
+			// Prevent unnecessary state update
+			this.searchTerm$.next(term)
+		}
 	}
 
+	shouldUpdate(changedProperties) {
+		// Prevent re-render if only specific properties have changed, e.g., input value that doesn’t need a re-render.
+		if (changedProperties.has('valueLabel')) {
+			return false
+		}
+		return true
+	}
+
+	@eventOptions({ passive: true })
 	handleOptionClick(value: string) {
 		if (this.multi) {
 			const option = this.options.find(o => o.value === value)
@@ -128,7 +139,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 		} else {
 			this.ul?.style.setProperty('display', 'none')
 			this.value = value
-			this.searchTerm$.next('')
+			// this.searchTerm$.next('')
 			this.updateInputValue()
 			this.dispatchEvent(
 				new CustomEvent('change', {
@@ -137,6 +148,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 					composed: true,
 				}),
 			)
+			setTimeout(() => {})
 		}
 	}
 
