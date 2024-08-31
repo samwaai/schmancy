@@ -64,10 +64,9 @@ export class SchmancyListItem extends TailwindElement() {
 			'duration-500 transition-opacity': true,
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
-			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0': !this.readonly,
+			'hover:bg-surface-on opacity-[0.08] cursor-pointer': !this.readonly,
 		}
 		return html`<li class=${this.classMap(classes)}>
-			${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}
 			<slot name="leading"> </slot>
 			<schmancy-grid class="flex-1" justify="stretch" align="center">
 				<schmancy-typography type="body" token="lg">
@@ -83,6 +82,7 @@ export class SchmancyListItem extends TailwindElement() {
 				>
 					<slot name="support"></slot>
 				</schmancy-typography>
+				${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}
 			</schmancy-grid>
 			<slot name="trailing"></slot>
 		</li>`
