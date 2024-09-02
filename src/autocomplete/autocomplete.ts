@@ -113,14 +113,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		}
 	}
 
-	shouldUpdate(changedProperties) {
-		// Prevent re-render if only specific properties have changed, e.g., input value that doesn’t need a re-render.
-		if (changedProperties.has('valueLabel')) {
-			return false
-		}
-		return true
-	}
-
 	@eventOptions({ passive: true })
 	handleOptionClick(value: string) {
 		if (this.multi) {
