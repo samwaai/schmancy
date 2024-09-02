@@ -21,6 +21,12 @@ export class DemoInput extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
+				<schmancy-menu>
+					<schmancy-menu-item>Item 1</schmancy-menu-item>
+					<schmancy-menu-item>Item 2</schmancy-menu-item>
+					<schmancy-menu-item>Item 3</schmancy-menu-item>
+				</schmancy-menu>
+
 				<!-- Single-select example -->
 				<schmancy-select label="Choose an option" placeholder="Select an option">
 					<schmancy-option value="option1" label="Option 1"> Option 1 </schmancy-option>

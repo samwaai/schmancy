@@ -1,38 +1,35 @@
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { fromEvent } from 'rxjs'
+import { fromEvent, takeUntil } from 'rxjs'
 
 @customElement('schmancy-menu-item')
-export default class SchmancyMenuItem extends TailwindElement() {
-  connectedCallback(): void {
-    super.connectedCallback()
-    fromEvent(this, 'click').subscribe((e) => {
-      e.stopPropagation()
-      this.dispatchEvent(
-        new CustomEvent('schmancy-menu-item-click', {
-          bubbles: true,
-          composed: true
-        })
-      )
-    })
-  }
-  protected render(): unknown {
-    return html`
-      <a
-        href="javascript:void(0)"
-        class="block px-3 py-1 text-sm leading-6 text-gray-900  hover:bg-gray-100"
-        role="menuitem"
-        tabindex="0"
-      >
-        <slot></slot>
-      </a>
-    `
-  }
+export default class SchmancyMenuItem extends $LitElement() {
+	connectedCallback(): void {
+		super.connectedCallback()
+		fromEvent(this, 'click')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(e => {
+				e.stopPropagation()
+				this.dispatchEvent(
+					new CustomEvent('schmancy-menu-item-click', {
+						bubbles: true,
+						composed: true,
+					}),
+				)
+			})
+	}
+	protected render(): unknown {
+		return html`
+			<schmancy-list-item variant="containerHighest">
+				<slot></slot>
+			</schmancy-list-item>
+		`
+	}
 }
 
 declare global {
-  interface HTMLElementTagNameMap {
-    'schmancy-menu-item': SchmancyMenuItem
-  }
+	interface HTMLElementTagNameMap {
+		'schmancy-menu-item': SchmancyMenuItem
+	}
 }

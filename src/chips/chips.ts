@@ -38,17 +38,18 @@ export default class SchmancyChips extends $LitElement() {
 		e.preventDefault()
 		e.stopPropagation()
 		const target = e.target as SchmancyChip
+		const { value, selected } = e.detail
 		if (this.multi) {
-			if (target.selected) {
-				this.values = [...this.values, e.detail.value]
+			if (selected) {
+				this.values = [...this.values, value]
 				// find the chip that was selected
-				const chip = this.chips.find(c => c.value === e.detail.value)
+				const chip = this.chips.find(c => c.value === value)
 				// if it exists, select it
 				if (chip) chip.selected = true
 			} else {
-				this.values = this.values.filter(v => v !== e.detail.value)
+				this.values = this.values.filter(v => v !== value)
 				// find the chip that was deselected
-				const chip = this.chips.find(c => c.value === e.detail.value)
+				const chip = this.chips.find(c => c.value === value)
 				// if it exists, deselect it
 				if (chip) chip.selected = false
 			}
