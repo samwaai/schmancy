@@ -1,5 +1,5 @@
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { color } from '@schmancy/directives'
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import SchmancyOption from '@schmancy/option/option'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
@@ -12,7 +12,7 @@ export type SchmancySelectChangeEvent = CustomEvent<{
 }>
 
 @customElement('schmancy-select')
-export default class SchmancySelect extends TailwindElement(style) {
+export default class SchmancySelect extends $LitElement(style) {
 	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = 'Select an option'
 	@property({ type: String, reflect: true }) value = ''

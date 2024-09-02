@@ -1,7 +1,7 @@
 import { animate } from '@juliangarnierorg/anime-beta'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { color } from '@schmancy/directives'
 import SchmancyInput from '@schmancy/input/input'
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import SchmancyOption, { SchmancyOptionChangeEvent } from '@schmancy/option/option'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
@@ -17,7 +17,7 @@ export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 }>
 
 @customElement('schmancy-autocomplete')
-export default class SchmancyAutocomplete extends TailwindElement(style) {
+export default class SchmancyAutocomplete extends $LitElement(style) {
 	@property({ type: Boolean }) required
 	@property({ type: String }) placeholder = ''
 	@property({ type: String, reflect: true }) value = ''
