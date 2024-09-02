@@ -21,6 +21,22 @@ export class DemoInput extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
+				<!-- Single-select example -->
+				<schmancy-select label="Choose an option" placeholder="Select an option">
+					<schmancy-option value="option1" label="Option 1"> Option 1 </schmancy-option>
+					<schmancy-option value="option2" label="Option 2"> Option 2 </schmancy-option>
+					<schmancy-option value="option3" label="Option 3"> Option 3 </schmancy-option>
+				</schmancy-select>
+
+				<br />
+
+				<!-- Multi-select example -->
+				<schmancy-select label="Choose multiple options" placeholder="Select options" multi>
+					<schmancy-option value="option1" label="Option 1"> Option 1</schmancy-option>
+					<schmancy-option value="option2" label="Option 2"> Option 2</schmancy-option>
+					<schmancy-option value="option3" label="Option 3">Option 3</schmancy-option>
+					<schmancy-option value="option4" label="Option 4">Option 4</schmancy-option>
+				</schmancy-select>
 				<schmancy-autocomplete
 					@change=${(e: SchmancyAutocompleteChangeEvent) => {
 						this.country = e.detail.value as string

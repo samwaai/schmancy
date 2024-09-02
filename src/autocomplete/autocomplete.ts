@@ -177,6 +177,7 @@ export class SchmancyAutocomplete extends TailwindElement(style) {
 			<div class="relative">
 				<slot name="trigger">
 					<schmancy-input
+						class="w-full"
 						${ref(this.inputRef)}
 						.required=${this.required}
 						id="input"

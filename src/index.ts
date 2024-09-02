@@ -24,6 +24,7 @@ export * from './notification';
 export * from './option';
 export * from './radio-group';
 export * from './rxjs-utils';
+export * from './select';
 export * from './sheet';
 export * from './surface';
 export * from './table';
