@@ -12,7 +12,7 @@ export type SchmancySelectChangeEvent = CustomEvent<{
 }>
 
 @customElement('schmancy-select')
-export class SchmancySelect extends TailwindElement(style) {
+export default class SchmancySelect extends TailwindElement(style) {
 	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = 'Select an option'
 	@property({ type: String, reflect: true }) value = ''

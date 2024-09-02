@@ -17,7 +17,7 @@ export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 }>
 
 @customElement('schmancy-autocomplete')
-export class SchmancyAutocomplete extends TailwindElement(style) {
+export default class SchmancyAutocomplete extends TailwindElement(style) {
 	@property({ type: Boolean }) required
 	@property({ type: String }) placeholder = ''
 	@property({ type: String, reflect: true }) value = ''
