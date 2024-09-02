@@ -24,13 +24,14 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     options: SchmancyOption[];
     firstUpdated(): void;
     updateInputValue(): void;
+    showOptions(): Promise<void>;
+    hideOptions(): void;
     handleInputChange(event: SchmancyInputChangeEvent): void;
     handleOptionClick(value: string): void;
     /** Checks for validity of the control and shows the browser message if it's invalid. */
     reportValidity(): boolean;
     /** Checks for validity of the control and emits the invalid event if it invalid. */
     checkValidity(): boolean;
-    show(): void;
     render(): import("lit-html").TemplateResult<1>;
     preventScroll(event: any): void;
 }

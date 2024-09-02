@@ -15,7 +15,7 @@ export default class SchmancySelect extends SchmancySelect_base {
     firstUpdated(): void;
     updateDisplayLabel(): void;
     handleOptionClick(value: string): void;
-    showOptions(): void;
+    showOptions(): Promise<void>;
     hideOptions(): void;
     render(): import("lit-html").TemplateResult<1>;
 }
