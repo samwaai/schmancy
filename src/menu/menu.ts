@@ -1,6 +1,6 @@
+import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { animate } from '@juliangarnierorg/anime-beta'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
 import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { from, fromEvent, switchMap, takeUntil, tap } from 'rxjs'
@@ -21,6 +21,7 @@ export default class SchmancyMenu extends TailwindElement(style) {
 			easing: 'easeInQuad',
 			onBegin: () => {
 				this.open = true
+				this.positionMenu()
 			},
 		})
 	}
@@ -35,6 +36,27 @@ export default class SchmancyMenu extends TailwindElement(style) {
 				this.open = false
 			},
 		})
+	}
+
+	async positionMenu() {
+		if (this.buttonElement.length && this.menuElement) {
+			// Compute the position of the menu relative to the button
+			const { x, y } = await computePosition(this.buttonElement[0], this.menuElement, {
+				placement: 'bottom-start', // Initial placement
+				middleware: [
+					offset(5), // Optional: Adds space between the button and the menu
+					flip(), // Automatically flips the menu if there's not enough space
+					shift({ padding: 5 }), // Adjusts the position to stay within the viewport
+				],
+			})
+
+			// Apply the computed styles
+			Object.assign(this.menuElement.style, {
+				left: `${x}px`,
+				top: `${y}px`,
+				position: 'absolute',
+			})
+		}
 	}
 
 	protected firstUpdated(): void {
@@ -59,24 +81,14 @@ export default class SchmancyMenu extends TailwindElement(style) {
 		return html`
 			<div class="relative flex-none">
 				<slot name="button">
-					<button
-						slot="button"
-						type="button"
-						class="relative p-2.5 text-[${SchmancyTheme.sys.color.surface.on}] hover:text-[${SchmancyTheme.sys.color
-							.primary}] hover:bg-[${SchmancyTheme.sys.color.surface.default}] hover:rounded-full"
-					>
-						<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-							<path
-								d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"
-							/>
-						</svg>
-					</button>
+					<schmancy-icon-button> more_vert</schmancy-icon-button>
 				</slot>
 				<div class="fixed inset-0 z-10" .hidden=${!this.open} @click=${this.closeMenu}></div>
 				<schmancy-list
 					id="menu"
 					.hidden=${!this.open}
-					class="absolute z-50 bg-surface-default elevation-2 rounded-md"
+					class="absolute z-50 bg-surface-default elevation-2 rounded-md 
+					min-w-[160px] max-w-[320px]"
 					role="menu"
 					aria-orientation="vertical"
 					aria-labelledby="options-menu-4-button"

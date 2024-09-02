@@ -1,6 +1,6 @@
 {
 	"name": "@mhmo91/schmancy",
-	"version": "0.0.224",
+	"version": "0.0.225",
 	"description": "UI library build with web components",
 	"main": "./dist/index.js",
 	"repository": {
@@ -41,6 +41,7 @@
 	},
 	"homepage": "https://github.com/mhmo91/schmancy#readme",
 	"dependencies": {
+		"@floating-ui/dom": "^1.6.10",
 		"@juliangarnierorg/anime-beta": "^4.0.0-beta.98",
 		"@lit-labs/motion": "^1.0.3",
 		"@lit/context": "^1.1.0",

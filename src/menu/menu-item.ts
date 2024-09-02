@@ -1,10 +1,14 @@
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { fromEvent, takeUntil } from 'rxjs'
 
 @customElement('schmancy-menu-item')
-export default class SchmancyMenuItem extends $LitElement() {
+export default class SchmancyMenuItem extends $LitElement(css`
+	:host {
+		display: block;
+	}
+`) {
 	connectedCallback(): void {
 		super.connectedCallback()
 		fromEvent(this, 'click')
@@ -21,7 +25,7 @@ export default class SchmancyMenuItem extends $LitElement() {
 	}
 	protected render(): unknown {
 		return html`
-			<schmancy-list-item variant="containerHighest">
+			<schmancy-list-item>
 				<slot></slot>
 			</schmancy-list-item>
 		`

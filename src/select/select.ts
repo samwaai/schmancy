@@ -1,3 +1,4 @@
+import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { color } from '@schmancy/directives'
 import SchmancyOption from '@schmancy/option/option'
@@ -65,33 +66,40 @@ export default class SchmancySelect extends $LitElement(style) {
 		}
 	}
 
-	showOptions() {
-		this.ul.style.display = 'block'
+	async showOptions() {
+		this.ul.removeAttribute('hidden')
 		this.overlay.removeAttribute('hidden')
 		this.overlay.style.display = 'block'
+
+		// Position the dropdown using Floating UI
+		const { x, y } = await computePosition(this.renderRoot.querySelector('div') as HTMLElement, this.ul, {
+			placement: 'bottom-start',
+			middleware: [
+				offset(5), // Adds a small gap between the input and the dropdown
+				flip(), // Automatically flips the dropdown if there's not enough space
+				shift({ padding: 5 }), // Adjusts the dropdown to stay within the viewport
+			],
+		})
+
+		Object.assign(this.ul.style, {
+			left: `${x}px`,
+			top: `${y}px`,
+			position: 'absolute',
+			zIndex: '9999', // Ensure it's on top of other elements
+			maxHeight: '25vh', // Limit the height of the dropdown
+			overflowY: 'auto', // Enable scrolling if the content is too tall
+		})
 	}
 
 	hideOptions() {
 		this.ul.setAttribute('hidden', 'true')
-		this.ul.style.display = 'none'
 		this.overlay.setAttribute('hidden', 'true')
 		this.overlay.style.display = 'none'
-		// animate(this.ul, {
-		// 	opacity: 0,
-		// 	duration: 100,
-		// 	easing: 'easeOutQuad',
-		// 	complete: () => {
-		// 		this.ul.setAttribute('hidden', 'true')
-		// 	},
-		// })
 	}
 
 	render() {
 		const classes = {
-			'absolute z-30 top-[0px] mt-1 w-full overflow-auto rounded-md shadow-2': true,
-		}
-		const styles = {
-			maxHeight: '25vh',
+			'absolute z-30 mt-1 w-full overflow-auto rounded-md shadow-2': true,
 		}
 		return html`
 			<div class="relative">
@@ -117,7 +125,6 @@ export default class SchmancySelect extends $LitElement(style) {
 				<ul
 					tabindex="-1"
 					class=${this.classMap(classes)}
-					style=${this.styleMap(styles)}
 					id="options"
 					role="listbox"
 					hidden
@@ -130,7 +137,21 @@ export default class SchmancySelect extends $LitElement(style) {
 						() => html`
 							<li id="confirm" class="py-2" tabindex="-1">
 								<schmancy-grid justify="center">
-									<schmancy-button variant="filled"> save </schmancy-button>
+									<schmancy-button
+										@click=${() => {
+											this.hideOptions()
+											this.dispatchEvent(
+												new CustomEvent('change', {
+													detail: { value: this.options.filter(o => o.selected).map(o => o.value) },
+													bubbles: true,
+													composed: true,
+												}),
+											)
+										}}
+										variant="filled"
+									>
+										save
+									</schmancy-button>
 								</schmancy-grid>
 							</li>
 						`,

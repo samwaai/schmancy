@@ -11,6 +11,7 @@ import { from, fromEvent, Subject } from 'rxjs'
 import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil, tap } from 'rxjs/operators'
 import { SchmancyInputChangeEvent } from '..'
 import style from './autocomplete.scss?inline'
+import { computePosition, offset, flip, shift } from '@floating-ui/dom'
 
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 	value: string | string[]
@@ -53,7 +54,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 				}),
 			)
 			.subscribe(() => {
-				this.ul.style.setProperty('display', 'block')
+				this.showOptions()
 			})
 
 		fromEvent<FocusEvent>(this, 'focusout')
@@ -103,6 +104,35 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		})
 	}
 
+	async showOptions() {
+		this.ul?.removeAttribute('hidden')
+		this.ul?.style.setProperty('display', 'block')
+
+		// Position the dropdown using Floating UI
+		const { x, y } = await computePosition(this.input, this.ul, {
+			placement: 'bottom-start',
+			middleware: [
+				offset(5), // Adds a small gap between the input and the dropdown
+				flip(), // Automatically flips the dropdown if there's not enough space
+				shift({ padding: 5 }), // Adjusts the dropdown to stay within the viewport
+			],
+		})
+
+		Object.assign(this.ul.style, {
+			left: `${x}px`,
+			top: `${y}px`,
+			position: 'absolute',
+			zIndex: '9999', // Ensure it's on top of other elements
+			maxHeight: this.maxHeight, // Limit the height of the dropdown
+			overflowY: 'auto', // Enable scrolling if the content is too tall
+		})
+	}
+
+	hideOptions() {
+		this.ul?.setAttribute('hidden', 'true')
+		this.ul?.style.setProperty('display', 'none')
+	}
+
 	handleInputChange(event: SchmancyInputChangeEvent) {
 		event.preventDefault()
 		event.stopPropagation()
@@ -129,9 +159,8 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 				}),
 			)
 		} else {
-			this.ul?.style.setProperty('display', 'none')
+			this.hideOptions()
 			this.value = value
-			// this.searchTerm$.next('')
 			this.updateInputValue()
 			this.dispatchEvent(
 				new CustomEvent('change', {
@@ -140,7 +169,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 					composed: true,
 				}),
 			)
-			setTimeout(() => {})
 		}
 	}
 
@@ -152,10 +180,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	/** Checks for validity of the control and emits the invalid event if it invalid. */
 	public checkValidity() {
 		return this.multi ? this.options.some(o => o.selected) : !!this.value
-	}
-
-	public show() {
-		this.ul?.style.setProperty('display', 'block')
 	}
 
 	render() {
@@ -175,7 +199,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 						id="input"
 						.label=${this.label}
 						@focus=${() => {
-							this.show()
+							this.showOptions()
 						}}
 						type="search"
 						inputmode="text"
