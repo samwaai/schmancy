@@ -21,6 +21,22 @@ export class DemoInput extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
+				<!-- date range -->
+
+				<schmancy-date-range
+					.dateFrom=${{
+						label: 'Check-in',
+						value: '2021-01-01',
+					}}
+					.dateTo=${{
+						label: 'Check-out',
+						value: '2021-01-02',
+					}}
+					@change=${(e: CustomEvent) => {
+						console.log('e.detail', e.detail)
+					}}
+				></schmancy-date-range>
+
 				<schmancy-grid justify="end">
 					<schmancy-menu>
 						<schmancy-menu-item>Item 1</schmancy-menu-item>

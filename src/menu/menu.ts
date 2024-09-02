@@ -74,7 +74,11 @@ export default class SchmancyMenu extends TailwindElement(style) {
 				takeUntil(this.disconnecting),
 				switchMap(() => from(this.closeMenu())),
 			)
-			.subscribe()
+			.subscribe({
+				next: () => {
+					alert('Menu item clicked')
+				},
+			})
 	}
 
 	render() {
