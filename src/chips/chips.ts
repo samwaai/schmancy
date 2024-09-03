@@ -2,12 +2,20 @@ import '@material/web/chips/chip-set.js'
 import '@material/web/chips/filter-chip.js'
 import { ChipSet } from '@material/web/chips/internal/chip-set'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { html, PropertyValues } from 'lit'
+import { css, html, PropertyValues } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import SchmancyChip, { SchmancyChipChangeEvent } from './chip'
 
 @customElement('schmancy-chips')
-export default class SchmancyChips extends $LitElement() {
+export default class SchmancyChips extends $LitElement(css`
+	:host {
+		font-family: 'GT-Eesti-Display-Regular';
+		--md-ref-typeface-brand: 'GT-Eesti-Display-Regular';
+		--md-ref-typeface-plain: 'GT-Eesti-Display-Regular';
+		--md-sys-color-primary: var(--schmancy-sys-color-primary-default);
+		--md-sys-color-secondary: var(--schmancy-sys-color-secondary-default);
+	}
+`) {
 	@query('md-chip-set') chipSet!: ChipSet
 
 	@property({

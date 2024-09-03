@@ -3,6 +3,7 @@ import { resolve } from 'path'
 import { readdir } from 'fs/promises'
 import strip from '@rollup/plugin-strip'
 import terser from '@rollup/plugin-terser'
+import Sitemap from 'vite-plugin-sitemap'
 
 const getDirectories = async source =>
 	(await readdir(source, { withFileTypes: true })).filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
@@ -60,4 +61,16 @@ export default defineConfig({
 			],
 		},
 	},
+	plugins: [
+		// VitePWA({
+		//   ...basePWAConfig,
+		// }),
+		// @ts-ignore - vite-plugin-webfont-dl
+		webfontDownload(['https://ticket.funkhaus-berlin.net/assets/GT-Eesti-Pro-Display-Regular-Czpp09nv.woff']),
+		Sitemap({
+			generateRobotsTxt: true,
+			outDir: resolve(__dirname, './public'),
+			// hostname: 'https://lit-kit.web.app/',
+		}),
+	],
 })

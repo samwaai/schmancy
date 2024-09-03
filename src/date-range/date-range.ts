@@ -50,11 +50,27 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 				dateTo: moment().endOf('week'),
 			},
 		},
+		// last week
+		{
+			label: 'Last Week',
+			range: {
+				dateFrom: moment().subtract(1, 'week').startOf('week'),
+				dateTo: moment().subtract(1, 'week').endOf('week'),
+			},
+		},
 		{
 			label: 'This Month',
 			range: {
 				dateFrom: moment().startOf('month'),
 				dateTo: moment().endOf('month'),
+			},
+		},
+		// last month
+		{
+			label: 'Last Month',
+			range: {
+				dateFrom: moment().subtract(1, 'month').startOf('month'),
+				dateTo: moment().subtract(1, 'month').endOf('month'),
 			},
 		},
 		// { label: "Custom", range: () => this.setCustomRange() },
