@@ -1,8 +1,7 @@
 import SchmancyMenu from '@schmancy/menu/menu';
-import moment from 'moment';
 declare const SwiftHRAdminDateRange_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
 export default class SwiftHRAdminDateRange extends SwiftHRAdminDateRange_base {
-    type: 'date';
+    type: 'date' | 'datetime-local';
     dateFrom: {
         label: string;
         value: string;
@@ -16,14 +15,16 @@ export default class SwiftHRAdminDateRange extends SwiftHRAdminDateRange_base {
     minDate: string | undefined;
     maxDate: string | undefined;
     schmancyMenu: SchmancyMenu;
+    selectedDateRange: string;
     presetRanges: Array<{
         label: string;
         range: {
-            dateFrom: moment.Moment;
-            dateTo: moment.Moment;
+            dateFrom: string;
+            dateTo: string;
         };
     }>;
-    setDateRange(fromDate: moment.Moment, toDate: moment.Moment): void;
+    connectedCallback(): void;
+    setDateRange(fromDate: string, toDate: string): void;
     handlePresetChange(presetLabel: string): void;
     render(): import("lit-html").TemplateResult<1>;
 }
