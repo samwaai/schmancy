@@ -67,10 +67,10 @@ export default defineConfig({
 		//   ...basePWAConfig,
 		// }),
 		webfontDownload(['https://ticket.funkhaus-berlin.net/assets/GT-Eesti-Pro-Display-Regular-Czpp09nv.woff']),
-		Sitemap({
-			generateRobotsTxt: true,
-			outDir: resolve(__dirname, './public'),
-			// hostname: 'https://lit-kit.web.app/',
-		}),
+		// Sitemap({
+		// 	generateRobotsTxt: true,
+		// 	outDir: resolve(__dirname, './public'),
+		// 	// hostname: 'https://lit-kit.web.app/',
+		// }),
 	],
 })
