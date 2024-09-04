@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://lit-kit.web.app/sitemap.xml
