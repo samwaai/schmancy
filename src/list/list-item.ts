@@ -61,7 +61,7 @@ export class SchmancyListItem extends TailwindElement() {
 		}
 
 		const stateLayerClasses = {
-			'duration-500 transition-opacity': true,
+			'z-[-1] duration-500 transition-opacity': true,
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
 			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0': !this.readonly,

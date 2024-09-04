@@ -103,14 +103,7 @@ export default class SchmancySelect extends $LitElement(style) {
 		}
 		return html`
 			<div class="relative">
-				<div
-					class="cursor-pointer bg-[${SchmancyTheme.sys.color.surface.container}] border border-[${SchmancyTheme.sys
-						.color.outline}] rounded px-3 py-2"
-					@click=${() => this.showOptions()}
-					${color({ bgColor: SchmancyTheme.sys.color.surface.container })}
-				>
-					<span class="text-[${SchmancyTheme.sys.color.surface.on}]"> ${this.valueLabel} </span>
-				</div>
+				<schmancy-button variant="outlined"> ${this.valueLabel} </schmancy-button>
 				<div
 					id="overlay"
 					hidden
