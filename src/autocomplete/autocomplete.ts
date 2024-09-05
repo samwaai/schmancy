@@ -55,7 +55,10 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 							return { option, levDistance }
 						})
 						// Filter out distant matches with a threshold (e.g., 3 or customizable)
-						.filter(({ levDistance }) => searchTerm.length < 3 || levDistance <= Math.max(3, searchTerm.length / 2))
+						.filter(
+							({ option, levDistance }) =>
+								searchTerm.length < 3 || levDistance <= option.label.toLowerCase().length - searchTerm.length,
+						)
 						// Sort by closest match (smallest Levenshtein distance)
 						.sort((a, b) => a.levDistance - b.levDistance)
 
