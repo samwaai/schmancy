@@ -17,7 +17,11 @@ export class DemoList extends $LitElement(css`
 					<schmancy-icon slot="leading">book_online</schmancy-icon>
 					Mahatma Gandhi
 						<div slot="support">Be the change that you wish to see in the world.</div>
-						<div slot="trailing"><img src="telephone.svg" /></div>
+						<div slot="trailing">
+		<schmancy-icon-button >edit</schmancy-icon-button>
+
+						</div>
+
 					</schmancy-list-item>
 					<schmancy-list-item>
 					<schmancy-icon slot="leading">book_online</schmancy-icon>
