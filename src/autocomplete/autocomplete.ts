@@ -1,17 +1,18 @@
+import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { animate } from '@juliangarnierorg/anime-beta'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { color } from '@schmancy/directives'
 import SchmancyInput from '@schmancy/input/input'
 import SchmancyOption, { SchmancyOptionChangeEvent } from '@schmancy/option/option'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
+import { distance } from 'fastest-levenshtein'
 import { html } from 'lit'
 import { customElement, eventOptions, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { from, fromEvent, Subject } from 'rxjs'
-import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil, tap } from 'rxjs/operators'
+import { distinctUntilChanged, filter, switchMap, takeUntil, tap } from 'rxjs/operators'
 import { SchmancyInputChangeEvent } from '..'
 import style from './autocomplete.scss?inline'
-import { computePosition, offset, flip, shift } from '@floating-ui/dom'
 
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 	value: string | string[]
@@ -41,16 +42,41 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		this.searchTermSubscription = this.searchTerm$
 			.pipe(
 				takeUntil(this.disconnecting),
-				debounceTime(10),
+				// debounceTime(10),
 				distinctUntilChanged(),
 				tap(term => {
-					const regex = new RegExp(term.trim(), 'i')
-					this.empty.hidden = this.options
+					const searchTerm = term.trim().toLowerCase()
+					console.log(this.options)
+					// Calculate Levenshtein distance for each option
+					const matches = this.options
 						.map(option => {
-							option.hidden = !regex.test(option.innerText)
+							const optionText = option.label.toLowerCase()
+							const levDistance = distance(searchTerm, optionText.toLowerCase())
+							return { option, levDistance }
+						})
+						// Filter out distant matches with a threshold (e.g., 3 or customizable)
+						.filter(({ levDistance }) => searchTerm.length < 3 || levDistance <= Math.max(3, searchTerm.length / 2))
+						// Sort by closest match (smallest Levenshtein distance)
+						.sort((a, b) => a.levDistance - b.levDistance)
+
+					console.log('matches', matches)
+					// Hide options that aren't close matches
+					this.empty.hidden = matches
+						.map(({ option }) => {
+							option.hidden = false // Show matched options
 							return option
 						})
 						.some(option => !option.hidden)
+
+					// Hide unmatched options
+					this.options.forEach(option => {
+						if (!matches.some(match => match.option === option)) {
+							option.hidden = true
+						} else {
+							option.hidden = false
+						}
+					})
+					this.requestUpdate()
 				}),
 			)
 			.subscribe(() => {
@@ -137,10 +163,8 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		event.preventDefault()
 		event.stopPropagation()
 		const term = event.detail.value
-		if (term !== this.valueLabel) {
-			// Prevent unnecessary state update
-			this.searchTerm$.next(term)
-		}
+		console.log('term', term)
+		this.searchTerm$.next(term)
 	}
 
 	@eventOptions({ passive: true })
@@ -201,6 +225,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 						@focus=${() => {
 							this.showOptions()
 						}}
+						clickable
 						type="search"
 						inputmode="text"
 						placeholder=${this.placeholder}

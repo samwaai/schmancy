@@ -51,6 +51,8 @@ export default class SchmancyInput extends TailwindElement(style) {
 		| 'color'
 		| 'file' = 'text'
 
+	@property({ type: Boolean, reflect: true }) public clickable = false
+
 	/**
 	 * The name of the control.
 	 * @attr name
@@ -299,8 +301,11 @@ export default class SchmancyInput extends TailwindElement(style) {
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
 			'ring-primary-default ring-outline focus:ring-primary-default': !this.error,
 			'ring-error-default focus:ring-error-default': this.error,
+			'caret-transparent focus:outline-none cursor-pointer text-select-none': this.readonly,
+			'cursor-pointer': this.clickable,
 			'text-center': this.align === 'center',
 			'text-right': this.align === 'right',
+			// read only
 		}
 		const labelClasses = {
 			'opacity-40': this.disabled,
@@ -338,6 +343,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 					inputmode=${ifDefined(this.inputmode)}
 					class=${this.classMap(classes)}
 					.disabled=${this.disabled}
+					.readOnly=${this.readonly}
 					min=${ifDefined(this.min)}
 					max=${ifDefined(this.max)}
 					minlength=${ifDefined(this.minlength)}

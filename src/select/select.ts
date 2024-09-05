@@ -107,9 +107,10 @@ export default class SchmancySelect extends $LitElement(style) {
 				<schmancy-input
 					.label=${this.label}
 					.placeholder=${this.placeholder}
-					readonly
 					@click=${() => this.showOptions()}
 					.value=${this.valueLabel}
+					readonly
+					clickable
 				>
 					${this.valueLabel}
 				</schmancy-input>
