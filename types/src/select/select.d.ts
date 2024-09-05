@@ -8,6 +8,7 @@ export default class SchmancySelect extends SchmancySelect_base {
     placeholder: string;
     value: string;
     multi: boolean;
+    label: string;
     valueLabel: string;
     ul: HTMLUListElement;
     overlay: HTMLElement;

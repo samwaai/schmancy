@@ -133,7 +133,7 @@ export class SchmnacyButton extends $LitElement(css`
 
 	render() {
 		const classes = {
-			'h-full px-[24px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] focus:outline-none':
+			'h-full z-10 px-[24px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] focus:outline-none':
 				true,
 			'opacity-[0.38]': this.disabled,
 			'hover:shadow-1':
@@ -152,7 +152,7 @@ export class SchmnacyButton extends $LitElement(css`
 		}
 
 		const stateLayerClasses = {
-			'hover:opacity-[0.08] rounded-full': true,
+			'hover:opacity-[0.08] z-0 rounded-full': true,
 			'hover:bg-primary-on': this.variant == 'filled',
 			'hover:bg-primary-default': this.variant == 'outlined' || this.variant == 'elevated' || this.variant == 'text',
 			'hover:bg-secondary-container': this.variant == 'filled tonal',

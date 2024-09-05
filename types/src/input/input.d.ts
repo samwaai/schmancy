@@ -26,6 +26,7 @@ export default class SchmancyInput extends SchmancyInput_base {
      * @public
      **/
     type: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'color' | 'file';
+    clickable: boolean;
     /**
      * The name of the control.
      * @attr name
