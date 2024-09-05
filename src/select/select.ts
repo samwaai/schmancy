@@ -18,6 +18,7 @@ export default class SchmancySelect extends $LitElement(style) {
 	@property({ type: String }) placeholder = 'Select an option'
 	@property({ type: String, reflect: true }) value = ''
 	@property({ type: Boolean }) multi = false
+	@property({ type: String }) label = ''
 	@state() valueLabel = ''
 	@query('ul') ul!: HTMLUListElement
 	@query('#overlay') overlay!: HTMLElement
@@ -103,7 +104,16 @@ export default class SchmancySelect extends $LitElement(style) {
 		}
 		return html`
 			<div class="relative">
-				<schmancy-button variant="outlined"> ${this.valueLabel} </schmancy-button>
+				<schmancy-input
+					.label=${this.label}
+					.placeholder=${this.placeholder}
+					readonly
+					@click=${() => this.showOptions()}
+					.value=${this.valueLabel}
+				>
+					${this.valueLabel}
+				</schmancy-input>
+
 				<div
 					id="overlay"
 					hidden
