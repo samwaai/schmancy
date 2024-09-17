@@ -67,7 +67,7 @@ export class SchmancyGrid extends Layout {
 			'grid flex-1': true,
 			// flow classes: https://tailwindcss.com/docs/grid-auto-flow
 			'grid-flow-row auto-rows-max': this.flow === 'row',
-			'grid-flow-col auto-cols-max md:auto-cols-min': this.flow === 'col',
+			'grid-flow-col auto-cols-max': this.flow === 'col',
 			'grid-flow-row-dense': this.flow === 'row-dense',
 			'grid-flow-col-dense': this.flow === 'col-dense',
 			'grid-flow-dense': this.flow === 'dense',
