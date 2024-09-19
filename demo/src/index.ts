@@ -5,6 +5,7 @@ import { customElement } from 'lit/decorators.js'
 
 import './features/index'
 import { DemoButton } from './features/index'
+import { fullHeight } from '../../src/directives/height'
 
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
@@ -14,7 +15,7 @@ export default class SchmancyDemo extends $LitElement() {
 
 	render() {
 		return html`
-			<schmancy-surface type="container">
+			<schmancy-surface ${fullHeight()} type="container">
 				<schmancy-nav-drawer>
 					<schmancy-nav-drawer-navbar width="220px">
 						<demo-nav> </demo-nav>

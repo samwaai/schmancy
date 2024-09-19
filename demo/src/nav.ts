@@ -19,6 +19,7 @@ import { DemoSurface } from './features/surface'
 import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import DemoTypography from './features/typography'
+import { fullHeight } from '../../src/directives/height'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -99,10 +100,10 @@ export class DemoNav extends $LitElement(css`
 	}
 	render() {
 		return html`
-			<schmancy-grid class="max-h-[90vh]" gap="md" justify="center">
-				<schmancy-surface class="stick top-0" type="surface" rounded="all" class="w-full">
-					<schmancy-typography type="headline" token="lg">Components</schmancy-typography>
-				</schmancy-surface>
+			<schmancy-grid ${fullHeight()} gap="md" justify="center">
+				<schmancy-typography type="headline" token="lg">
+					<schmancy-animated-text> Schmancy Components</schmancy-animated-text>
+				</schmancy-typography>
 				<schmancy-list>
 					${repeat(
 						this.Demos,
