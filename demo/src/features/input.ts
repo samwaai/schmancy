@@ -22,6 +22,8 @@ export class DemoInput extends $LitElement(css`
 		return html`
 			<schmancy-grid flow="row" justify="start" gap="md">
 				<!-- date range -->
+				<!-- input number -->
+				<schmancy-input step="0.01" type="number" label="Input number" placeholder="placeholder"></schmancy-input>
 
 				<schmancy-date-range
 					.dateFrom=${{
