@@ -337,6 +337,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 					.id=${this.id}
 					.name=${this.name}
 					.type=${this.type}
+					.step=${this.step?.toString()}
 					.autocomplete=${this.autocomplete}
 					.placeholder=${this.placeholder}
 					.required=${this.required}
