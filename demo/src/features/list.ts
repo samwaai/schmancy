@@ -22,6 +22,11 @@ export class DemoList extends $LitElement(css`
 		<schmancy-icon-button >edit</schmancy-icon-button>
 
 
+			<schmancy-menu>
+				<schmancy-menu-item>Bookings</schmancy-menu-item>
+				<schmancy-menu-item>Rooms</schmancy-menu-item>
+				<schmancy-menu-item>Locks</schmancy-menu-item>
+			</schmancy-menu>
 					</schmancy-list-item>
 					<schmancy-list-item>
 					<schmancy-icon slot="leading">book_online</schmancy-icon>

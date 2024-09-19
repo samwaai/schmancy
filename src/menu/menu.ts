@@ -4,10 +4,9 @@ import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { html } from 'lit'
 import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { from, fromEvent, switchMap, takeUntil, tap } from 'rxjs'
-import style from './menu.scss?inline'
 
 @customElement('schmancy-menu')
-export default class SchmancyMenu extends TailwindElement(style) {
+export default class SchmancyMenu extends TailwindElement() {
 	@state() open = false
 	@queryAssignedElements({ flatten: true, slot: 'button' }) buttonElement!: Array<HTMLElement>
 	@query('#menu') menuElement!: HTMLElement
@@ -85,12 +84,12 @@ export default class SchmancyMenu extends TailwindElement(style) {
 				<slot name="button">
 					<schmancy-icon-button> more_vert</schmancy-icon-button>
 				</slot>
-				<div class="fixed inset-0 z-10" .hidden=${!this.open} @click=${this.closeMenu}></div>
+				<div class="fixed inset-0 z-50" .hidden=${!this.open} @click=${this.closeMenu}></div>
 				<schmancy-list
 					id="menu"
 					.hidden=${!this.open}
-					class="absolute z-50 bg-surface-default elevation-2 rounded-md 
-					min-w-[160px] max-w-[320px]"
+					class="absolute z-50 elevation-2 rounded-md 
+					min-w-[160px] max-w-[320px] bg-surface-default"
 					role="menu"
 					aria-orientation="vertical"
 					aria-labelledby="options-menu-4-button"
