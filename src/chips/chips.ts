@@ -37,7 +37,6 @@ export default class SchmancyChips extends $LitElement() {
 	async change(e: CustomEvent<SchmancyChipChangeEvent>) {
 		e.preventDefault()
 		e.stopPropagation()
-		const target = e.target as SchmancyChip
 		const { value, selected } = e.detail
 		if (this.multi) {
 			if (selected) {
@@ -55,10 +54,15 @@ export default class SchmancyChips extends $LitElement() {
 			}
 			this.requestUpdate()
 		} else {
-			this.value = target.value
+			const { value, selected } = e.detail
+			this.value = selected ? value : ''
+			const chip = this.chips.find(c => c.value === value)
+			if (selected) chip.selected = selected
+			else chip.selected = false
+			// deselect all other chips
 			this.chips.forEach(c => {
-				if (c.value === target.value) c.selected = true
-				else c.removeAttribute('selected')
+				if (this.value && this.value === c.value) c.selected = true
+				else c.selected = false
 			})
 			this.requestUpdate()
 		}
@@ -75,12 +79,37 @@ export default class SchmancyChips extends $LitElement() {
 		this.hydrateTabs()
 	}
 
+	// when value changes, update the selected chip
+	// protected updated(_changedProperties: PropertyValues): void {
+	// 	super.updated(_changedProperties)
+	// 	if (_changedProperties.has('value')) {
+	// 		this.chips.forEach(chip => {
+	// 			chip.selected = chip.value === this.value
+	// 			if (chip.selected) chip.setAttribute('selected', '')
+	// 			else chip.removeAttribute('selected')
+	// 		})
+	// 	}
+	// }
+
+	// attribute changes
+	// when values change, update the selected chips
+	attributeChangedCallback(name: string, old: string, value: string): void {
+		super.attributeChangedCallback(name, old, value)
+		if (name === 'values') {
+			this.hydrateTabs()
+		} else if (name === 'value') {
+			this.hydrateTabs()
+		}
+	}
+
 	hydrateTabs() {
 		this.chips.forEach(chip => {
 			if (this.multi) {
 				if (this.values.includes(chip.value)) chip.selected = true
+				else chip.selected = false
 			} else {
 				if (this.value === chip.value) chip.selected = true
+				else chip.selected = false
 			}
 		})
 	}

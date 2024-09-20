@@ -13,31 +13,55 @@ export class DemoInput extends $LitElement(css`
 	}
 `) {
 	@state() country?: string
-
+	@state() chip = 'chip2'
 	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
 		super.firstUpdated(_changedProperties)
 		this.country = 'US'
 	}
 	render() {
+		const options = [
+			{
+				value: 'option1',
+				label: 'Option 1',
+			},
+			{
+				value: 'option2',
+				label: 'Option 2',
+			},
+			{
+				value: 'option3',
+				label: 'Option 3',
+			},
+		]
+		const v = undefined
 		return html`
 			<schmancy-grid flow="row" justify="start" gap="md">
+				<!-- Single-select example -->
+				<schmancy-select .value=${v ?? ''} label="Choose an option">
+					${repeat(
+						options,
+						o => o.value,
+						option =>
+							html` <schmancy-option value=${option.value} label=${option.label}> ${option.label} </schmancy-option>`,
+					)}
+				</schmancy-select>
 				<!-- date range -->
 				<!-- input number -->
 				<schmancy-input step="0.01" type="number" label="Input number" placeholder="placeholder"></schmancy-input>
 
-				<schmancy-date-range
+				<!-- <schmancy-date-range
 					.dateFrom=${{
-						label: 'Check-in',
-						value: '2021-01-01',
-					}}
+					label: 'Check-in',
+					value: '2021-01-01',
+				}}
 					.dateTo=${{
-						label: 'Check-out',
-						value: '2021-01-02',
-					}}
+					label: 'Check-out',
+					value: '2021-01-02',
+				}}
 					@change=${(e: CustomEvent) => {
-						console.log('e.detail', e.detail)
-					}}
-				></schmancy-date-range>
+					console.log('e.detail', e.detail)
+				}}
+				></schmancy-date-range> -->
 
 				<schmancy-grid justify="end">
 					<schmancy-menu>
@@ -64,21 +88,28 @@ export class DemoInput extends $LitElement(css`
 							</schmancy-option>`,
 					)}
 				</schmancy-autocomplete>
-				<schmancy-chips
+
+				<!-- <schmancy-chips
 					.values=${['chip1']}
 					multi
 					@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
-						console.log('e.detail', e.detail)
-					}}
+					console.log('e.detail', e.detail)
+				}}
 				>
 					<schmancy-chip label="Chip 1" value="chip1"></schmancy-chip>
 					<schmancy-chip label="Chip 2" value="chip2"></schmancy-chip>
 					<schmancy-chip label="Chip 3" value="chip3"></schmancy-chip>
-				</schmancy-chips>
+				</schmancy-chips> -->
 
 				<!-- single -->
+				<schmancy-button
+					@click=${() => {
+						this.chip = undefined
+					}}
+					>reset Chips</schmancy-button
+				>
 				<schmancy-chips
-					.value=${'chip1'}
+					.value=${this.chip}
 					@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
 						console.log('e.detail', e.detail)
 					}}
