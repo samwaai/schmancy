@@ -1,12 +1,17 @@
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { animate } from '@juliangarnierorg/anime-beta'
 import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { from, fromEvent, switchMap, takeUntil, tap } from 'rxjs'
 
 @customElement('schmancy-menu')
-export default class SchmancyMenu extends TailwindElement() {
+export default class SchmancyMenu extends TailwindElement(css`
+	:host {
+		position: relative;
+		display: inline-block;
+	}
+`) {
 	@state() open = false
 	@queryAssignedElements({ flatten: true, slot: 'button' }) buttonElement!: Array<HTMLElement>
 	@query('#menu') menuElement!: HTMLElement
@@ -25,7 +30,11 @@ export default class SchmancyMenu extends TailwindElement() {
 		})
 	}
 
-	closeMenu() {
+	closeMenu(e?: Event) {
+		if (e && e instanceof Event) {
+			e.preventDefault()
+			e.stopPropagation()
+		}
 		return animate(this.menuElement, {
 			opacity: [1, 0],
 			scale: [1, 0.95],
@@ -80,23 +89,21 @@ export default class SchmancyMenu extends TailwindElement() {
 
 	render() {
 		return html`
-			<div class="relative flex-none">
-				<slot name="button">
-					<schmancy-icon-button> more_vert</schmancy-icon-button>
-				</slot>
-				<div class="fixed inset-0 z-50" .hidden=${!this.open} @click=${this.closeMenu}></div>
-				<schmancy-list
-					id="menu"
-					.hidden=${!this.open}
-					class="absolute z-50 elevation-2 rounded-md 
+			<slot name="button">
+				<schmancy-icon-button> more_vert</schmancy-icon-button>
+			</slot>
+			<div class="fixed inset-0 z-50" .hidden=${!this.open} @click=${this.closeMenu}></div>
+			<schmancy-list
+				id="menu"
+				.hidden=${!this.open}
+				class="absolute z-50 elevation-2 rounded-md 
 					min-w-[160px] max-w-[320px] bg-surface-default"
-					role="menu"
-					aria-orientation="vertical"
-					aria-labelledby="options-menu-4-button"
-				>
-					<slot></slot>
-				</schmancy-list>
-			</div>
+				role="menu"
+				aria-orientation="vertical"
+				aria-labelledby="options-menu-4-button"
+			>
+				<slot></slot>
+			</schmancy-list>
 		`
 	}
 }

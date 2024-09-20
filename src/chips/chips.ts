@@ -72,6 +72,10 @@ export default class SchmancyChips extends $LitElement() {
 
 	protected firstUpdated(_changedProperties: PropertyValues): void {
 		super.firstUpdated(_changedProperties)
+		this.hydrateTabs()
+	}
+
+	hydrateTabs() {
 		this.chips.forEach(chip => {
 			if (this.multi) {
 				if (this.values.includes(chip.value)) chip.selected = true
@@ -83,7 +87,7 @@ export default class SchmancyChips extends $LitElement() {
 
 	protected render(): unknown {
 		return html` <md-chip-set @change=${this.change}>
-			<slot></slot>
+			<slot @slotchange=${() => this.hydrateTabs()}></slot>
 		</md-chip-set>`
 	}
 }
