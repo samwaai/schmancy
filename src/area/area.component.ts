@@ -58,7 +58,6 @@ export class SchmancyArea extends $LitElement(css`
 			map(pathname => decodeURIComponent(pathname)),
 			map(pathname => JSON.parse(pathname)),
 			map(routes => routes[this.name] as TRouteArea),
-			tap(console.log),
 			map(component =>
 				!component && this.default
 					? {
@@ -68,7 +67,6 @@ export class SchmancyArea extends $LitElement(css`
 					: component,
 			),
 			filter(x => isPresent(x)),
-			tap(console.log),
 			map((component: TRouteArea) => ({
 				area: this.name,
 				component: component.component ?? this.default,
@@ -97,10 +95,7 @@ export class SchmancyArea extends $LitElement(css`
 		// active outlet changes
 		merge(
 			of(location.pathname).pipe(
-				tap(console.log),
 				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
-				tap(console.log),
-
 				map(route => route as RouteAction),
 				take(1),
 			),
@@ -144,9 +139,6 @@ export class SchmancyArea extends $LitElement(css`
 					}
 				}),
 				distinctUntilChanged((prev, curr) => prev.component.tagName === curr.component.tagName),
-				tap(r => {
-					console.log(this.name, r)
-				}),
 				// create the new view and add it to the DOM
 				map(({ component, route }) => {
 					const oldView = this.shadowRoot?.children[0]
@@ -180,11 +172,13 @@ export class SchmancyArea extends $LitElement(css`
 						history.pushState(route.state, '', this.newPath(component.tagName, route))
 					else if (route.historyStrategy && ['replace', 'pop'].includes(route.historyStrategy))
 						history.replaceState(route.state, '', this.newPath(component.tagName, route))
-					area.$current.next({
-						component: component.tagName,
-						area: route.area,
-						state: route?.state,
-					})
+					area.$current.next(
+						area.$current.value.set(this.name, {
+							component: component.tagName,
+							area: route.area,
+							state: route?.state,
+						}),
+					)
 				}),
 				takeUntil(this.disconnecting),
 			)

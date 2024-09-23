@@ -108,9 +108,7 @@ export default class SchmancyAnimatedText extends $LitElement(css`
 								rotateZ: this.rotateZ,
 								duration: this.duration,
 								delay: this.delay,
-								onBegin: () => {
-									console.log('begin')
-								},
+								onBegin: () => {},
 							},
 							stagger(this.stagger),
 						)
