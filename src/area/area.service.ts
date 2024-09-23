@@ -1,4 +1,4 @@
-import { BehaviorSubject, ReplaySubject, Subject, bufferTime, fromEvent, map, of, tap, timeout, zip } from 'rxjs'
+import { ReplaySubject, Subject, bufferTime, fromEvent, map, of, tap, timeout, zip } from 'rxjs'
 import { SchmancyTeleportation } from '../teleport'
 import { ActiveRoute, RouteAction } from './router.types'
 
@@ -18,7 +18,7 @@ class AreaService {
 	public prettyURL = false
 	public mode: 'SILENT' | 'HISTORY' = 'HISTORY'
 	public request = new ReplaySubject<RouteAction>(1)
-	public $current = new BehaviorSubject<Map<string, ActiveRoute>>(new Map())
+	public $current = new ReplaySubject<Map<string, ActiveRoute>>(1)
 	public enableHistoryMode = true
 	private findingMortiesEvent = new CustomEvent<FINDING_MORTIES_EVENT['detail']>(FINDING_MORTIES)
 
