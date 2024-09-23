@@ -172,12 +172,9 @@ export class SchmancyArea extends $LitElement(css`
 						history.pushState(route.state, '', this.newPath(component.tagName, route))
 					else if (route.historyStrategy && ['replace', 'pop'].includes(route.historyStrategy))
 						history.replaceState(route.state, '', this.newPath(component.tagName, route))
-					area.$current.pipe(take(1), takeUntil(this.disconnecting)).subscribe({
-						next: map => {
-							map.set(this.name, { component: component.tagName, state: route.state, area: this.name })
-							area.$current.next(map)
-						},
-					})
+					area.current.set(this.name, { component: component.tagName, state: route.state, area: this.name })
+
+					area.$current.next(area.current)
 				}),
 				takeUntil(this.disconnecting),
 			)

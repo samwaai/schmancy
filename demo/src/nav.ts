@@ -4,7 +4,8 @@ import { schmancyNavDrawer } from '@schmancy/nav-drawer'
 import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { filter } from 'rxjs'
+import { filter, map } from 'rxjs'
+import { fullHeight } from '../../src/directives/height'
 import { DemoAnimatedText } from './features/animated-text'
 import { DemoBusy } from './features/busy'
 import { DemoButton } from './features/button'
@@ -19,7 +20,6 @@ import { DemoSurface } from './features/surface'
 import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import DemoTypography from './features/typography'
-import { fullHeight } from '../../src/directives/height'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -94,9 +94,14 @@ export class DemoNav extends $LitElement(css`
 
 	connectedCallback(): void {
 		super.connectedCallback()
-		area.$current.pipe(filter(r => r.area === 'main')).subscribe(r => {
-			this.activeTab = r.component?.toLowerCase().replaceAll('-', '')
-		})
+		area.$current
+			.pipe(
+				filter(r => r.has('main')),
+				map(r => r.get('main')),
+			)
+			.subscribe(r => {
+				this.activeTab = r.component?.toLowerCase().replaceAll('-', '')
+			})
 	}
 	render() {
 		return html`

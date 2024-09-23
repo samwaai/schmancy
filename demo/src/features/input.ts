@@ -5,7 +5,6 @@ import { PropertyValueMap, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import countries from './data/countries'
-import { area } from '@schmancy/area'
 
 @customElement('demo-input')
 export class DemoInput extends $LitElement(css`
@@ -22,7 +21,6 @@ export class DemoInput extends $LitElement(css`
 
 	connectedCallback(): void {
 		super.connectedCallback()
-		console.log('area', area.$current.value)
 	}
 	render() {
 		const options = [

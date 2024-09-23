@@ -18,9 +18,14 @@ class AreaService {
 	public prettyURL = false
 	public mode: 'SILENT' | 'HISTORY' = 'HISTORY'
 	public request = new ReplaySubject<RouteAction>(1)
+	public current = new Map<string, ActiveRoute>()
 	public $current = new ReplaySubject<Map<string, ActiveRoute>>(1)
 	public enableHistoryMode = true
 	private findingMortiesEvent = new CustomEvent<FINDING_MORTIES_EVENT['detail']>(FINDING_MORTIES)
+
+	constructor() {
+		this.$current.next(this.current)
+	}
 
 	find() {
 		return zip([
