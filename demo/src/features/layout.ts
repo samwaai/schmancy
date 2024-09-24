@@ -1,8 +1,8 @@
-import { ColorConfig, color } from '@schmancy/directives'
 import { $LitElement } from '@mhmo91/lit-mixins/src'
-import { customElement } from 'lit/decorators.js'
-import { css, html } from 'lit'
+import { ColorConfig, color } from '@schmancy/directives'
 import { SchmancyTheme } from '@schmancy/theme'
+import { css, html } from 'lit'
+import { customElement } from 'lit/decorators.js'
 
 @customElement('demo-layout')
 export class DemoLayout extends $LitElement(css`

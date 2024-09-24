@@ -149,7 +149,7 @@ export default class SchmancySheet extends $LitElement(style) {
 
 	render() {
 		const classes = {
-			'inset-0 fixed min-w-[360px]': true,
+			'inset-0 fixed min-w-[100vw] md:min-w-[360px]': true,
 			'transition-all duration-[600]': true,
 			'bottom-0 items-center justify-end': this.position === SchmancySheetPosition.Bottom,
 			'top-0 right-0 bottom-0 mx-auto items-end justify-start h-full w-full':
