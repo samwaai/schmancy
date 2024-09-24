@@ -12,6 +12,8 @@ export default class SchmancyChips extends SchmancyChips_base {
     chips: SchmancyChip[];
     change(e: CustomEvent<SchmancyChipChangeEvent>): Promise<void>;
     protected firstUpdated(_changedProperties: PropertyValues): void;
+    attributeChangedCallback(name: string, old: string, value: string): void;
+    hydrateTabs(): void;
     protected render(): unknown;
 }
 declare global {

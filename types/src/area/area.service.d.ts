@@ -15,9 +15,11 @@ declare class AreaService {
     prettyURL: boolean;
     mode: 'SILENT' | 'HISTORY';
     request: ReplaySubject<RouteAction>;
-    $current: ReplaySubject<ActiveRoute>;
+    current: Map<string, ActiveRoute>;
+    $current: ReplaySubject<Map<string, ActiveRoute>>;
     enableHistoryMode: boolean;
     private findingMortiesEvent;
+    constructor();
     find(): import("rxjs").Observable<any>;
     push(r: RouteAction): void;
     pop(name: string): void;

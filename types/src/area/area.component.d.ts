@@ -17,7 +17,7 @@ export declare class SchmancyArea extends SchmancyArea_base {
      * @param historyStrategy  the history strategy to use for the route like PUSH, REPLACE, or SILENT
      * @returns rxjs pipes that will return the component to render and the history strategy to use
      */
-    getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY): import("rxjs").Observable<unknown>;
+    getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY): import("rxjs").Observable<RouteAction>;
     protected firstUpdated(): void;
     newPath(tag: string, route: RouteAction): string;
     queryParamClear(params?: string[]): string;

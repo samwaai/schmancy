@@ -7,6 +7,7 @@ declare const SchmancyNavigationDrawer_base: CustomElementConstructor & import("
  * @slot - The content slot
  */
 export declare class SchmancyNavigationDrawer extends SchmancyNavigationDrawer_base {
+    fullscreen: boolean;
     /**
      * The minimum width of the sidebar
      * @attr	min-width
