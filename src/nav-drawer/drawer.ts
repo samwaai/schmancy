@@ -25,6 +25,10 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 		overflow: hidden;
 	}
 `) {
+	// fullscreen property
+	@property({ type: Boolean })
+	fullscreen: boolean = false
+
 	/**
 	 * The minimum width of the sidebar
 	 * @attr	min-width
@@ -90,7 +94,14 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 	protected render() {
 		if (!this.mode || !this.open) return nothing
 		return html`
-			<schmancy-grid cols="auto 1fr" rows="1fr" flow="col" justify="stretch" align="stretch" ${fullHeight()}>
+			<schmancy-grid
+				cols=${this.fullscreen ? '1fr' : 'auto 1fr'}
+				rows="1fr"
+				flow="col"
+				justify="stretch"
+				align="stretch"
+				${fullHeight()}
+			>
 				<slot></slot>
 			</schmancy-grid>
 		`
