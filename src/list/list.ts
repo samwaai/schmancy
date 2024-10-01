@@ -24,7 +24,7 @@ export class List extends TailwindElement(css`
 	 */
 	@provide({ context: SchmancyListTypeContext })
 	@property()
-	surface: TSurfaceColor
+	surface: TSurfaceColor = 'container'
 
 	render() {
 		return html`

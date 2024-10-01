@@ -1,0 +1,132 @@
+import { computePosition, flip, offset, shift } from '@floating-ui/dom'
+import { animate } from '@juliangarnierorg/anime-beta'
+import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { css, html } from 'lit'
+import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
+import { from, fromEvent, switchMap, takeUntil, tap } from 'rxjs'
+
+@customElement('schmancy-menu')
+export default class SchmancyMenu extends TailwindElement(css`
+	:host {
+		display: inline-block;
+		position: relative;
+	}
+`) {
+	@state() open = false
+	@queryAssignedElements({ flatten: true, slot: 'button' }) buttonElement!: Array<HTMLElement>
+	@query('#menu') menuElement!: HTMLElement
+
+	openMenu() {
+		return animate(this.menuElement, {
+			targets: [],
+			opacity: [0, 1],
+			scale: [0.95, 1],
+			duration: 100,
+			easing: 'easeInQuad',
+			onBegin: () => {
+				this.open = true
+				this.positionMenu()
+			},
+			onComplete: () => {
+				document.body.appendChild(this.createBackdrop())
+			},
+		})
+	}
+
+	closeMenu(e?: Event) {
+		if (e && e instanceof Event) {
+			e.preventDefault()
+			e.stopPropagation()
+		}
+		return animate(this.menuElement, {
+			opacity: [1, 0],
+			scale: [1, 0.95],
+			duration: 75,
+			easing: 'easeInQuad',
+			onBegin: () => {
+				document.body.removeChild(document.getElementById('schmancy-menu-backdrop') as HTMLElement | null)
+			},
+			onComplete: () => {
+				this.open = false
+			},
+		})
+	}
+
+	async positionMenu() {
+		if (this.buttonElement.length && this.menuElement) {
+			// Compute the position of the menu relative to the button
+			const { x, y } = await computePosition(this.buttonElement[0], this.menuElement, {
+				placement: 'bottom-start', // Initial placement
+				middleware: [
+					offset(5), // Optional: Adds space between the button and the menu
+					flip(), // Automatically flips the menu if there's not enough space
+					shift({ padding: 5 }), // Adjusts the position to stay within the viewport
+				],
+			})
+
+			// Apply the computed styles
+			Object.assign(this.menuElement.style, {
+				left: `${x}px`,
+				top: `${y}px`,
+				position: 'absolute',
+			})
+		}
+	}
+
+	protected firstUpdated(): void {
+		fromEvent(this.buttonElement, 'click')
+			.pipe(
+				tap(e => e.stopPropagation()),
+				takeUntil(this.disconnecting),
+				switchMap(() => from(this.openMenu())),
+			)
+			.subscribe({
+				next: () => {},
+			})
+
+		fromEvent(this, 'schmancy-menu-item-click')
+			.pipe(
+				tap(e => e.stopPropagation()),
+				takeUntil(this.disconnecting),
+				switchMap(() => from(this.closeMenu())),
+			)
+			.subscribe({
+				next: () => {},
+			})
+	}
+
+	createBackdrop() {
+		const backdrop = document.createElement('div')
+		backdrop.id = 'schmancy-menu-backdrop'
+		backdrop.style.height = '100%'
+		backdrop.style.width = '100%'
+		backdrop.style.position = 'fixed'
+		backdrop.style.inset = '0'
+		backdrop.style.zIndex = '0'
+		backdrop.onclick = () => this.closeMenu()
+		return backdrop
+	}
+
+	render() {
+		return html`
+			<slot name="button">
+				<schmancy-icon-button class="z-0"> more_vert</schmancy-icon-button>
+			</slot>
+
+			<ul
+				.hidden=${!this.open}
+				id="menu"
+				class="elevation-2 rounded-md 
+			min-w-[160px] max-w-[320px] bg-surface-default z-50"
+			>
+				<slot></slot>
+			</ul>
+		`
+	}
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'schmancy-menu': SchmancyMenu
+	}
+}

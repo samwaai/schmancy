@@ -1,10 +1,10 @@
 import { consume } from '@lit/context'
+import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import {
 	SchmancyDrawerNavbarMode,
 	SchmancyDrawerNavbarState,
 	TSchmancyDrawerNavbarMode,
 } from '@schmancy/nav-drawer/context'
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
@@ -34,7 +34,7 @@ export class SchmancyDrawerAppbar extends TailwindElement(css`
 			'block z-50': true,
 		}
 		const sidebarToggler = {
-			'block left-[16px]  z-50': this.sidebarMode === 'overlay',
+			'block left-3  z-50': this.sidebarMode === 'overlay',
 			hidden: this.sidebarMode === 'push',
 		}
 		return html`
@@ -42,7 +42,7 @@ export class SchmancyDrawerAppbar extends TailwindElement(css`
 				cols=${this.sidebarMode === 'push' ? '1fr' : 'auto 1fr'}
 				flow="col"
 				class=${this.classMap(appbarClasses)}
-				gap="md"
+				gap="sm"
 				align="center"
 			>
 				${when(
@@ -50,7 +50,7 @@ export class SchmancyDrawerAppbar extends TailwindElement(css`
 					() =>
 						html`<slot name="toggler">
 							<div class="${this.classMap(sidebarToggler)}">
-								<schmancy-button
+								<schmancy-icon-button
 									@click=${() => {
 										this.dispatchEvent(
 											new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
@@ -63,10 +63,10 @@ export class SchmancyDrawerAppbar extends TailwindElement(css`
 								>
 									${when(
 										this.sidebarOpen === 'close',
-										() => html`<schmancy-icon>menu</schmancy-icon>`,
-										() => html`<schmancy-icon>menu_open</schmancy-icon>`,
+										() => html`menu`,
+										() => html`menu_open`,
 									)}
-								</schmancy-button>
+								</schmancy-icon-button>
 							</div>
 						</slot>`,
 				)}

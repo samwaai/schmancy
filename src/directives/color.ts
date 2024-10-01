@@ -1,3 +1,4 @@
+// color.ts
 import { Part, nothing } from 'lit'
 import { Directive, PartInfo, PartType, directive } from 'lit/directive.js'
 

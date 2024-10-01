@@ -11,14 +11,26 @@ export class DemoList extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
+				<lit-virtualizer
+					.items=${[...Array(1000).keys()].map(i => ({ id: i, url: `https://picsum.photos/200/200?random=${i}` }))} // prettier-ignore
+					.renderItem=${photo => html`
+						<schmancy-list-item class="w-full">
+							<schmancy-grid cols="1fr 1fr" gap="md">
+								<img class="h-4 w-full" src=${photo.url} />
+								<schmancy-menu>
+									<schmancy-menu-item>Bookings</schmancy-menu-item>
+									<schmancy-menu-item>Rooms</schmancy-menu-item>
+								</schmancy-menu>
+							</schmancy-grid>
+						</schmancy-list-item>
+					`}
+				></lit-virtualizer>
+
 				<schmancy-typography type="title">Standard list items</schmancy-typography>
 				<schmancy-list class="rounded-full">
 					<schmancy-icon slot="leading">book_online</schmancy-icon>
 					Mahatma Gandhi
 					<div slot="support">Be the change that you wish to see in the world.</div>
-
-					<schmancy-button>edit</schmancy-button>
-					<schmancy-icon-button>edit</schmancy-icon-button>
 
 					<schmancy-menu>
 						<schmancy-menu-item>Bookings</schmancy-menu-item>
