@@ -97,7 +97,7 @@ export default class SchmancyMenu extends TailwindElement(css`
 				id="menu"
 				.hidden=${!this.open}
 				class="absolute z-50 elevation-2 rounded-md 
-					min-w-[160px] max-w-[320px] bg-surface-default"
+					min-w-[160px] max-w-[320px] w-max bg-surface-default"
 				role="menu"
 				aria-orientation="vertical"
 				aria-labelledby="options-menu-4-button"

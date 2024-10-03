@@ -69,7 +69,7 @@ export class DemoInput extends $LitElement(css`
 
 				<schmancy-grid justify="end">
 					<schmancy-menu>
-						<schmancy-menu-item>Item 1</schmancy-menu-item>
+						<schmancy-menu-item>Item 1 with very long text </schmancy-menu-item>
 						<schmancy-menu-item>Item 2</schmancy-menu-item>
 						<schmancy-menu-item>Item 3</schmancy-menu-item>
 					</schmancy-menu>
