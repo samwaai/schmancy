@@ -12,7 +12,7 @@ export class DemoList extends $LitElement(css`
 		return html`
 			<schmancy-grid gap="md">
 				<lit-virtualizer
-					.items=${[...Array(1000).keys()].map(i => ({ id: i, url: `https://picsum.photos/200/200?random=${i}` }))} // prettier-ignore
+					.items=${[...Array(5).keys()].map(i => ({ id: i, url: `https://picsum.photos/200/200?random=${i}` }))} // prettier-ignore
 					.renderItem=${photo => html`
 						<schmancy-list-item class="w-full">
 							<schmancy-grid cols="1fr 1fr" gap="md">
