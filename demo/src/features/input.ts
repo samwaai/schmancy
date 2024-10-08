@@ -5,6 +5,7 @@ import { PropertyValueMap, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import countries from './data/countries'
+import moment from 'moment'
 
 @customElement('demo-input')
 export class DemoInput extends $LitElement(css`
@@ -54,13 +55,14 @@ export class DemoInput extends $LitElement(css`
 				<schmancy-input step="0.01" type="number" label="Input number" placeholder="placeholder"></schmancy-input>
 
 				<schmancy-date-range
+					type="datetime-local"
 					.dateFrom=${{
 						label: 'Check-in',
-						value: '2021-01-01',
+						value: moment().startOf('day').format('YYYY-MM-DDTHH:mm'),
 					}}
 					.dateTo=${{
 						label: 'Check-out',
-						value: '2021-01-02',
+						value: moment().endOf('D').format('YYYY-MM-DDTHH:mm'),
 					}}
 					@change=${(e: CustomEvent) => {
 						console.log('e.detail', e.detail)

@@ -29,7 +29,12 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 
 	presetRanges!: Array<{
 		label: string
-		range: { dateFrom: string; dateTo: string }
+		range: {
+			dateFrom: string
+			dateTo: string
+		}
+		step: moment.unitOfTime.DurationConstructor | moment.unitOfTime._isoWeek
+		selected?: boolean
 	}>
 
 	connectedCallback(): void {
@@ -47,6 +52,7 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 						.endOf('day')
 						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
 				},
+				step: 'day',
 			},
 			{
 				label: 'Today',
@@ -58,19 +64,19 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 						.endOf('day')
 						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
 				},
+				step: 'day',
 			},
 			{
 				label: 'This Week',
 				range: {
 					dateFrom: moment()
 						.startOf('week')
-						.startOf('day')
 						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
 					dateTo: moment()
 						.endOf('week')
-						.endOf('day')
 						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
 				},
+				step: 'weeks',
 			},
 			// last week
 			{
@@ -78,28 +84,26 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 				range: {
 					dateFrom: moment()
 						.subtract(1, 'weeks')
-						.startOf('week')
-						.startOf('day')
+						.startOf('isoWeek')
 						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
 					dateTo: moment()
 						.subtract(1, 'weeks')
-						.endOf('week')
-						.endOf('day')
+						.endOf('isoWeek')
 						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
 				},
+				step: 'weeks',
 			},
 			{
 				label: 'This Month',
 				range: {
 					dateFrom: moment()
 						.startOf('month')
-						.startOf('day')
 						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
 					dateTo: moment()
 						.endOf('month')
-						.endOf('day')
 						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
 				},
+				step: 'month',
 			},
 			// { label: "Custom", range: () => this.setCustomRange() },
 		]
@@ -110,7 +114,9 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 		if (preset) {
 			this.selectedDateRange = preset.label
 		} else {
-			this.selectedDateRange = this.dateFrom.value.concat(' - ', this.dateTo.value)
+			this.selectedDateRange = moment(this.dateFrom.value)
+				.format('MMM DD, YYYY')
+				.concat(' To ', moment(this.dateTo.value).format('MMM DD, YYYY'))
 		}
 	}
 
@@ -140,19 +146,64 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 	render() {
 		return html`
 			<div class="date-range-selector relative">
-				<schmancy-menu class="z-100">
-					<schmancy-button variant="outlined" slot="button" type="button"
-						>${this.selectedDateRange || 'Date range'}
-					</schmancy-button>
+				<schmancy-menu class="z-100 w-max">
+					<schmancy-grid slot="button" align="center" cols="auto 1fr auto">
+						<schmancy-icon-button
+							@click=${(e: Event) => {
+								e.preventDefault()
+								e.stopPropagation()
+								// Calculate the difference between dateFrom and dateTo in days
+								const dateDiff = moment(this.dateTo.value).diff(moment(this.dateFrom.value), 'days') || 1
 
-					${this.presetRanges.map(
-						preset => html`
-							<schmancy-menu-item @click=${() => this.handlePresetChange(preset.label)}>
-								${preset.label}
-							</schmancy-menu-item>
-						`,
-					)}
+								// Subtract the date difference from both dateFrom and dateTo
+								this.dateFrom.value = moment(this.dateFrom.value)
+									.subtract(dateDiff, 'days')
+									.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm')
+
+								this.dateTo.value = moment(this.dateTo.value)
+									.subtract(dateDiff, 'days')
+									.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm')
+
+								// Call the function to handle the date range change
+								this.handleDateRangeChange()
+							}}
+						>
+							arrow_left
+						</schmancy-icon-button>
+						<schmancy-button class="w-max" variant="outlined" type="button"
+							>${this.selectedDateRange || 'Date range'}
+						</schmancy-button>
+						<schmancy-icon-button
+							@click=${(e: Event) => {
+								e.preventDefault()
+								e.stopPropagation()
+								// Calculate the difference between dateFrom and dateTo in days
+								const dateDiff = moment(this.dateTo.value).diff(moment(this.dateFrom.value), 'days') || 1
+
+								// Add the date difference to both dateFrom and dateTo
+								this.dateFrom.value = moment(this.dateFrom.value)
+									.add(dateDiff, 'days')
+									.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm')
+
+								this.dateTo.value = moment(this.dateTo.value)
+									.add(dateDiff, 'days')
+									.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm')
+
+								// Call the function to handle the date range change
+								this.handleDateRangeChange()
+							}}
+							>arrow_right</schmancy-icon-button
+						>
+					</schmancy-grid>
+
 					<schmancy-surface elevation="2">
+						${this.presetRanges.map(
+							preset => html`
+								<schmancy-menu-item class="w-full" @click=${() => this.handlePresetChange(preset.label)}>
+									<schmancy-grid class="w-full" align="center" cols="auto 1fr auto"> ${preset.label} </schmancy-grid>
+								</schmancy-menu-item>
+							`,
+						)}
 						<schmancy-grid gap="sm" flow="row" class="p-4">
 							<schmancy-input
 								id="checkin"
@@ -192,9 +243,7 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 								@click=${(e: Event) => {
 									e.preventDefault()
 									e.stopPropagation()
-									this.setDateRange(this.dateFrom.value, this.dateTo.value)
-									this.selectedDateRange = this.dateFrom.value.concat(' - ', this.dateTo.value)
-									this.schmancyMenu.open = false
+									this.handleDateRangeChange()
 								}}
 							>
 								Apply
@@ -204,6 +253,22 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 				</schmancy-menu>
 			</div>
 		`
+	}
+
+	handleDateRangeChange() {
+		this.setDateRange(this.dateFrom.value, this.dateTo.value)
+		// check if the selected date range is a preset
+		const preset = this.presetRanges.find(
+			range => range.range.dateFrom === this.dateFrom.value && range.range.dateTo === this.dateTo.value,
+		)
+		if (preset) {
+			this.selectedDateRange = preset.label
+		} else {
+			this.selectedDateRange = moment(this.dateFrom.value)
+				.format(this.type === 'date' ? 'MMM DD, YYYY' : 'MMM DD, YYYY hh:mm A')
+				.concat(' - ', moment(this.dateTo.value).format(this.type === 'date' ? 'MMM DD, YYYY' : 'MMM DD, YYYY hh:mm A'))
+			this.schmancyMenu.open = false
+		}
 	}
 }
 
