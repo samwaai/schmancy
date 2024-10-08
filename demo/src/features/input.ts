@@ -53,19 +53,19 @@ export class DemoInput extends $LitElement(css`
 				<!-- input number -->
 				<schmancy-input step="0.01" type="number" label="Input number" placeholder="placeholder"></schmancy-input>
 
-				<!-- <schmancy-date-range
+				<schmancy-date-range
 					.dateFrom=${{
-					label: 'Check-in',
-					value: '2021-01-01',
-				}}
+						label: 'Check-in',
+						value: '2021-01-01',
+					}}
 					.dateTo=${{
-					label: 'Check-out',
-					value: '2021-01-02',
-				}}
+						label: 'Check-out',
+						value: '2021-01-02',
+					}}
 					@change=${(e: CustomEvent) => {
-					console.log('e.detail', e.detail)
-				}}
-				></schmancy-date-range> -->
+						console.log('e.detail', e.detail)
+					}}
+				></schmancy-date-range>
 
 				<schmancy-grid justify="end">
 					<schmancy-menu>
