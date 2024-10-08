@@ -8,7 +8,7 @@ import moment from 'moment'
 
 @customElement('schmancy-date-range')
 export default class SwiftHRAdminDateRange extends $LitElement() {
-	@property({ type: String }) type: 'date' | 'datetime-local' = 'date'
+	@property({ type: String }) type: 'date' | 'datetime' = 'date'
 	@property({ type: Object }) dateFrom!: {
 		label: string
 		value: string
