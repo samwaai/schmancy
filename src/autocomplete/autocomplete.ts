@@ -220,6 +220,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			<div class="relative">
 				<slot name="trigger">
 					<schmancy-input
+						autocomplete=${'off'}
 						class="w-full"
 						${ref(this.inputRef)}
 						.required=${this.required}

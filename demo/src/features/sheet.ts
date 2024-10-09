@@ -54,6 +54,13 @@ class SheetDemoExample extends $LitElement() {
 	render() {
 		return html`
 			<schmancy-surface type="surface" rounded="all">
+				<schmancy-grid gap="md" flow="col">
+					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+				</schmancy-grid>
 				<demo-list class="p-4"></demo-list>
 			</schmancy-surface>
 		`
