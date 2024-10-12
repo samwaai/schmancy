@@ -6,7 +6,7 @@ import {
 	TSchmancyDrawerNavbarMode,
 } from '@schmancy/nav-drawer/context'
 import { css, html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { SchmancyEvents } from '..'
 
@@ -29,6 +29,8 @@ export class SchmancyDrawerAppbar extends TailwindElement(css`
 	@state()
 	sidebarOpen
 
+	@property({ type: Boolean }) toggler = true
+
 	render() {
 		const appbarClasses = {
 			'block z-50': true,
@@ -39,14 +41,14 @@ export class SchmancyDrawerAppbar extends TailwindElement(css`
 		}
 		return html`
 			<schmancy-grid
-				cols=${this.sidebarMode === 'push' ? '1fr' : 'auto 1fr'}
+				cols=${this.sidebarMode === 'overlay' && this.toggler ? 'auto 1fr' : '1fr'}
 				flow="col"
 				class=${this.classMap(appbarClasses)}
 				gap="sm"
 				align="center"
 			>
 				${when(
-					this.sidebarMode === 'overlay',
+					this.sidebarMode === 'overlay' && this.toggler,
 					() =>
 						html`<slot name="toggler">
 							<div class="${this.classMap(sidebarToggler)}">
