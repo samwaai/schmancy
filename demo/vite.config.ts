@@ -42,12 +42,5 @@ export default defineConfig({
 			},
 		},
 	},
-	plugins: [
-		webfontDownload(['https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap']),
-		Sitemap({
-			generateRobotsTxt: true,
-			outDir: resolve(__dirname, './public'),
-			hostname: 'https://lit-kit.web.app/',
-		}),
-	],
+	plugins: [webfontDownload(['https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap'])],
 })
