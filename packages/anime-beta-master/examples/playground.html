@@ -1,0 +1,88 @@
+<html>
+  <head>
+    <title>Playground</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <style>:root {
+      --ts: 80px;
+      --foreground-color: rgb(79, 99, 253);
+      --background-color: rgb(49, 47, 49);
+      --dark-color: rgb(32, 31, 32);
+    }
+
+    * {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--background-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #drag-container {
+      position: relative;
+      background-color: var(--dark-color);
+      width: var(--ts);
+      height: calc(var(--ts) * 5);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #option1 {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px;
+      background-color: var(--background-color);
+      color: var(--foreground-color);
+      border: 1px solid var(--foreground-color);
+    }
+
+    #option1:hover {
+      cursor: pointer;
+    }
+
+    #option1:active,
+    #option1.active {
+      background-color: var(--foreground-color);
+      color: var(--dark-color);
+      border: none;
+    }
+
+    #option1.active::after {
+      content: "Force Refresh: On";
+    }
+
+    #option1:not(.active)::after {
+      content: "Force Refresh: Off";
+    }
+
+    .square {
+      transform-style: preserve-3d;
+      position: relative;
+      width: var(--ts);
+      height: calc(var(--ts)*2);
+      left: 0;
+      top: 0;
+      background-color: var(--foreground-color);
+      transform-origin: center;
+    }</style>
+  </head>
+  <body>
+    <div id="drag-container">
+      <div id="drag-target" class="square red"></div>
+    </div>
+    <button id="option1"></button>
+    <script type="module" src="./assets/js/playground.js"></script>
+  </body>
+</html>
