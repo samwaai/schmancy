@@ -1,7 +1,3 @@
-Here’s how to update the documentation section in your README to make use of the GitHub Wiki for the Schmancy UI library:
-
----
-
 # Schmancy UI Library
 
 Schmancy is a UI library built as web components, designed to provide a collection of reusable and customizable UI elements for modern web applications. It offers an uncomplicated implementation of Material Design 3 (M3), with minor deviations, utilizing [lit.dev](https://lit.dev/) and [Tailwind CSS](https://tailwindcss.com/), and employs [Vite](https://vitejs.dev/) as the build process.
