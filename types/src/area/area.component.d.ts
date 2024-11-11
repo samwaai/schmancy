@@ -1,6 +1,6 @@
 import { TemplateResult } from 'lit';
 import { HISTORY_STRATEGY, RouteAction } from './router.types';
-declare const SchmancyArea_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
+declare const SchmancyArea_base: CustomElementConstructor & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export declare class SchmancyArea extends SchmancyArea_base {
     /**
      * The name of the router outlet

@@ -1,6 +1,6 @@
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { animate } from '@juliangarnierorg/anime-beta'
-import { $LitElement } from '@mhmo91/lit-mixins/src'
+import { $LitElement } from '@schmancy/mixin/lit'
 import { color } from '@schmancy/directives'
 import SchmancyInput from '@schmancy/input/input'
 import SchmancyOption, { SchmancyOptionChangeEvent } from '@schmancy/option/option'

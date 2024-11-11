@@ -1,4 +1,4 @@
-import { $LitElement } from '@mhmo91/lit-mixins/src'
+import { $LitElement } from '@schmancy/mixin/lit'
 import { area } from '@schmancy/area'
 import { schmancyNavDrawer } from '@schmancy/nav-drawer'
 import { css, html } from 'lit'

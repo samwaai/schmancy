@@ -1,4 +1,3 @@
-import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { filter, fromEvent, merge, of, takeUntil, tap, throwIfEmpty } from 'rxjs'
@@ -12,6 +11,7 @@ import {
 	default as teleportationService,
 } from './teleport.service'
 import { watchElementRect } from './watcher'
+import { $LitElement } from '@schmancy/mixin/lit'
 
 @customElement('schmancy-teleport')
 export class SchmancyTeleportation extends $LitElement(css``) {

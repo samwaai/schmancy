@@ -1,4 +1,4 @@
-import { $LitElement } from '@mhmo91/lit-mixins/src'
+import { $LitElement } from '@schmancy/mixin/lit'
 import { SchmancyInputChangeEvent } from '@schmancy/input'
 import SchmancyMenu from '@schmancy/menu/menu'
 import { html } from 'lit'

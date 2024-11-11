@@ -1,7 +1,8 @@
 import SchmancyMenu from '@schmancy/menu/menu';
-declare const SwiftHRAdminDateRange_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
+import moment from 'moment';
+declare const SwiftHRAdminDateRange_base: CustomElementConstructor & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export default class SwiftHRAdminDateRange extends SwiftHRAdminDateRange_base {
-    type: 'date' | 'datetime-local';
+    type: 'date' | 'datetime';
     dateFrom: {
         label: string;
         value: string;
@@ -22,11 +23,14 @@ export default class SwiftHRAdminDateRange extends SwiftHRAdminDateRange_base {
             dateFrom: string;
             dateTo: string;
         };
+        step: moment.unitOfTime.DurationConstructor | moment.unitOfTime._isoWeek;
+        selected?: boolean;
     }>;
     connectedCallback(): void;
     setDateRange(fromDate: string, toDate: string): void;
     handlePresetChange(presetLabel: string): void;
     render(): import("lit-html").TemplateResult<1>;
+    handleDateRangeChange(): void;
 }
 export type SchmancyDateRangeChangeEvent = CustomEvent<TSchmancDateRangePayload>;
 type TSchmancDateRangePayload = {

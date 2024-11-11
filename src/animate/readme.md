@@ -67,7 +67,7 @@ This example will stagger the animation for each child element, with a delay of 
 ## Dependencies
 
 - [`@juliangarnierorg/anime-beta`](https://github.com/juliangarnier/anime): For handling animations.
-- [`@mhmo91/lit-mixins`](https://github.com/mhmo91/lit-mixins): Provides base class `$LitElement` with custom styles.
+- [`@schmancy/mixin/lit`](https://github.com/mhmo91/lit-mixins): Provides base class `$LitElement` with custom styles.
 - [`lit`](https://lit.dev/): For web component and rendering support.
 
 ## Styling

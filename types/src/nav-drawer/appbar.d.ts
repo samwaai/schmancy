@@ -8,6 +8,7 @@ declare const SchmancyDrawerAppbar_base: import("..").Constructor<CustomElementC
 export declare class SchmancyDrawerAppbar extends SchmancyDrawerAppbar_base {
     sidebarMode: TSchmancyDrawerNavbarMode;
     sidebarOpen: any;
+    toggler: boolean;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

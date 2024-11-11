@@ -1,6 +1,6 @@
 import { nothing } from 'lit';
 import { TSchmancyDrawerNavbarMode, TSchmancyDrawerNavbarState } from './context';
-declare const SchmancyNavigationDrawer_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
+declare const SchmancyNavigationDrawer_base: CustomElementConstructor & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 /**
  * @element schmancy-nav-drawer
  * @slot appbar - The appbar slot

@@ -1,5 +1,5 @@
 import { createTimeline, stagger } from '@juliangarnierorg/anime-beta'
-import { $LitElement } from '@mhmo91/lit-mixins/src'
+import { $LitElement } from '@schmancy/mixin/lit'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedNodes } from 'lit/decorators.js'
 import {

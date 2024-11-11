@@ -1,4 +1,4 @@
-declare const SchmancyMenuItem_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
+declare const SchmancyMenuItem_base: CustomElementConstructor & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export default class SchmancyMenuItem extends SchmancyMenuItem_base {
     connectedCallback(): void;
     protected render(): unknown;

@@ -1,4 +1,4 @@
-declare const SchmancyNavigationDrawerContent_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
+declare const SchmancyNavigationDrawerContent_base: CustomElementConstructor & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
 export declare class SchmancyNavigationDrawerContent extends SchmancyNavigationDrawerContent_base {
     connectedCallback(): void;
     render(): import("lit-html").TemplateResult<1>;
