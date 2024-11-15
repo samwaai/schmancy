@@ -20,6 +20,9 @@
 		"types",
 		"README.md"
 	],
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
 	"scripts": {
 		"dev": "vite --config demo/vite.config.ts --host",
 		"dev2": "vite --config demo2/vite.config.ts --host",
