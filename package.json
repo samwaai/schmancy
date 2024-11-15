@@ -20,9 +20,6 @@
 		"types",
 		"README.md"
 	],
-	"publishConfig": {
-		"@mhmo91:registry": "https://npm.pkg.github.com"
-	},
 	"scripts": {
 		"dev": "vite --config demo/vite.config.ts --host",
 		"dev2": "vite --config demo2/vite.config.ts --host",
