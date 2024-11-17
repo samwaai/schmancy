@@ -1,6 +1,7 @@
 import { provide } from '@lit/context'
 import { color } from '@schmancy/directives'
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { TailwindElement } from '@mhmo91/lit-mixins/src'
+
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'

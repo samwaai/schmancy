@@ -4,5 +4,3 @@
 # set default registry as a string
 registry = "https://registry.npmjs.org"
 
-[install.scopes]
-"@mhmo91" = { token = "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", url = "https://npm.pkg.github.com/" }

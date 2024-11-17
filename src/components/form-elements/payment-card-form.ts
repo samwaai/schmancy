@@ -1,4 +1,4 @@
-import { $LitElement } from '@schmancy/mixin/lit'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import SchmancyForm from '@schmancy/form/form'
 import { SchmancyInputChangeEvent } from '@schmancy/input'
 import SchmancyInput from '@schmancy/input/input'

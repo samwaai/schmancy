@@ -1,6 +1,6 @@
 import { animate } from '@juliangarnierorg/anime-beta'
 import { consume } from '@lit/context'
-import { $LitElement } from '@schmancy/mixin/lit'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { SchmancyEvents, SchmancyTheme, color } from '..'

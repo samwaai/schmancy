@@ -1,6 +1,6 @@
 {
 	"name": "@mhmo91/schmancy",
-	"version": "0.0.273",
+	"version": "0.0.274",
 	"description": "UI library build with web components",
 	"main": "./dist/index.js",
 	"repository": {
@@ -42,13 +42,14 @@
 	},
 	"homepage": "https://github.com/mhmo91/schmancy#readme",
 	"dependencies": {
-		"@juliangarnierorg/anime-beta": "./packages/anime-beta-master",
 		"@floating-ui/dom": "^1.6.11",
+		"@juliangarnierorg/anime-beta": "./packages/anime-beta-master",
 		"@lit-labs/motion": "^1.0.7",
 		"@lit-labs/virtualizer": "^2.0.14",
 		"@lit/context": "^1.1.2",
 		"@material/material-color-utilities": "^0.3.0",
 		"@material/web": "^2.2.0",
+		"@mhmo91/lit-mixins": "^0.3.11",
 		"@rollup/plugin-strip": "^3.0.4",
 		"@rollup/plugin-terser": "^0.4.4",
 		"@types/cleave.js": "^1.4.12",

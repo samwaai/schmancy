@@ -1,5 +1,4 @@
 import { color } from '@schmancy/directives'
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { LitElement, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
@@ -8,6 +7,7 @@ import { createRef, ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
 import { distinctUntilChanged, filter, fromEvent, map } from 'rxjs'
 import style from './textarea.scss?inline'
+import { TailwindElement } from '@mhmo91/lit-mixins/src'
 
 @customElement('schmancy-textarea')
 export default class SchmancyTextarea extends TailwindElement(style) {

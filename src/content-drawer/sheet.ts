@@ -1,6 +1,6 @@
 import { animate } from '@juliangarnierorg/anime-beta'
 import { consume } from '@lit/context'
-import { $LitElement } from '@schmancy/mixin/lit'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { from, merge, of, takeUntil, tap } from 'rxjs'

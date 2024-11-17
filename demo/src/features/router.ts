@@ -1,4 +1,4 @@
-import { $LitElement } from '@schmancy/mixin/lit'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { customElement } from 'lit/decorators.js'
 import { css, html } from 'lit'
 import { area } from '@schmancy/area'

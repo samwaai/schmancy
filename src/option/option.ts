@@ -1,4 +1,4 @@
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { TailwindElement } from '@mhmo91/lit-mixins/src'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 export type SchmancyOptionChangeEvent = CustomEvent<{

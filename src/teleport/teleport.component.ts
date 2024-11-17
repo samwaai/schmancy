@@ -11,7 +11,7 @@ import {
 	default as teleportationService,
 } from './teleport.service'
 import { watchElementRect } from './watcher'
-import { $LitElement } from '@schmancy/mixin/lit'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 
 @customElement('schmancy-teleport')
 export class SchmancyTeleportation extends $LitElement(css``) {

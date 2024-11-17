@@ -1,4 +1,5 @@
-import TailwindElement from '@schmancy/mixin/tailwind/tailwind.mixin'
+import { TailwindElement } from '@mhmo91/lit-mixins/src'
+
 import { property } from 'lit/decorators.js'
 
 export default class Layout extends TailwindElement() {

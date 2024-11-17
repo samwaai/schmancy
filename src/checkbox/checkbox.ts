@@ -1,7 +1,7 @@
+import { TailwindElement } from '@mhmo91/lit-mixins/src'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
-import TailwindElement from '../mixin/tailwind/tailwind.mixin'
 
 export type schmancyCheckBoxChangeEvent = CustomEvent<{
 	value: boolean

@@ -1,7 +1,7 @@
 import '@material/web/chips/chip-set.js'
 import '@material/web/chips/filter-chip.js'
 import { ChipSet } from '@material/web/chips/internal/chip-set'
-import { $LitElement } from '@schmancy/mixin/lit'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import SchmancyChip, { SchmancyChipChangeEvent } from './chip'

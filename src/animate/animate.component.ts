@@ -1,5 +1,5 @@
 import { animate, stagger } from '@juliangarnierorg/anime-beta'
-import { $LitElement } from '@schmancy/mixin/lit'
+import { $LitElement } from '@mhmo91/lit-mixins/src'
 import { css, html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 

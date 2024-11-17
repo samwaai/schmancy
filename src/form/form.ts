@@ -1,7 +1,7 @@
+import { TailwindElement } from '@mhmo91/lit-mixins/src'
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { fromEvent, merge, Subject, takeUntil, tap } from 'rxjs'
-import TailwindElement from '../mixin/tailwind/tailwind.mixin'
 
 export interface FormEventMap {
 	submit: CustomEvent<FormData>
