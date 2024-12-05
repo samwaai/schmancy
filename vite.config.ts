@@ -32,7 +32,7 @@ export default defineConfig({
 		},
 		sourcemap: true,
 		rollupOptions: {
-			external: /^(lit|rxjs|animejs)/,
+			external: /^(lit|rxjs|animejs|moment|@floating-ui)/,
 			output: {
 				dir: resolve(__dirname, './dist'),
 				globals: {

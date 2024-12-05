@@ -1,4 +1,4 @@
-declare const SchmancyAnimate_base: CustomElementConstructor & import("..").Constructor<import("lit").LitElement> & import("..").Constructor<import("..").IBaseMixin>;
+declare const SchmancyAnimate_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
 export declare class SchmancyAnimate extends SchmancyAnimate_base {
     layout: boolean;
     opacity: Array<number>;

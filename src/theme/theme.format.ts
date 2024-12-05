@@ -6,6 +6,7 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 		return '#' + argb.toString(16).slice(2)
 	}
 
+	console.log(originalScheme)
 	console.log(isDark)
 	if (isDark) {
 		const darkScheme = originalScheme.schemes.dark

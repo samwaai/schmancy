@@ -18,7 +18,6 @@ export * from './input';
 export * from './layout';
 export * from './list';
 export * from './menu';
-export * from './mixin';
 export * from './nav-drawer';
 export * from './notification';
 export * from './option';
