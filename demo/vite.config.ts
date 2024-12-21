@@ -3,7 +3,6 @@
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import webfontDownload from 'vite-plugin-webfont-dl'
-import Sitemap from 'vite-plugin-sitemap'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,6 +11,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@schmancy': resolve(__dirname, '../src'),
+			'@mixins': resolve(__dirname, '../mixins'),
 		},
 	},
 	server: {

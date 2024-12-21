@@ -1,6 +1,5 @@
 import { provide } from '@lit/context'
-import { TailwindElement } from '@mhmo91/lit-mixins/src'
-
+import { TailwindElement } from '@mixins/tailwind'
 import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'

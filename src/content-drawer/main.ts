@@ -1,5 +1,5 @@
 import { consume } from '@lit/context'
-import { $LitElement } from '@mhmo91/lit-mixins/src'
+import { $LitElement } from '@mixins/lit'
 import { PropertyValueMap, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { SchmancyEvents } from '..'

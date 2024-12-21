@@ -1,6 +1,6 @@
 import SchmancyMenu from '@schmancy/menu/menu';
 import moment from 'moment';
-declare const SwiftHRAdminDateRange_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
+declare const SwiftHRAdminDateRange_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export default class SwiftHRAdminDateRange extends SwiftHRAdminDateRange_base {
     type: 'date' | 'datetime';
     dateFrom: {

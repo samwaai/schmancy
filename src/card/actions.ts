@@ -1,5 +1,4 @@
-import { TailwindElement } from '@mhmo91/lit-mixins/src'
-
+import { TailwindElement } from '@mixins/tailwind'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 

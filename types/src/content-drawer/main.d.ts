@@ -1,6 +1,6 @@
 import { PropertyValueMap } from 'lit';
 import { SchmancyContentDrawerMinWidth, TSchmancyContentDrawerSheetMode } from './context';
-declare const SchmancyContentDrawerMain_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
+declare const SchmancyContentDrawerMain_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyContentDrawerMain extends SchmancyContentDrawerMain_base {
     minWidth: any;
     drawerMinWidth: typeof SchmancyContentDrawerMinWidth.__context__;

@@ -1,4 +1,4 @@
-import { $LitElement } from '@mhmo91/lit-mixins/src'
+import { $LitElement } from '@mixins/lit'
 import { schmancyContentDrawer } from '@schmancy/content-drawer'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'

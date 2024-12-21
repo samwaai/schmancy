@@ -1,7 +1,6 @@
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { animate } from '@juliangarnierorg/anime-beta'
-import { TailwindElement } from '@mhmo91/lit-mixins/src'
-
+import { TailwindElement } from '@mixins/tailwind'
 import { css, html } from 'lit'
 import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { from, fromEvent, switchMap, takeUntil, tap } from 'rxjs'

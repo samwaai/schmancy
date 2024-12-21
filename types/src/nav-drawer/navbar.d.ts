@@ -1,5 +1,5 @@
 import { TSchmancyDrawerNavbarMode } from './context';
-declare const SchmancyNavigationDrawerSidebar_base: CustomElementConstructor & import("@mhmo91/lit-mixins/src").Constructor<import("lit").LitElement> & import("@mhmo91/lit-mixins/src").Constructor<import("@mhmo91/lit-mixins/src").IBaseMixin>;
+declare const SchmancyNavigationDrawerSidebar_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyNavigationDrawerSidebar extends SchmancyNavigationDrawerSidebar_base {
     mode: TSchmancyDrawerNavbarMode;
     private state;

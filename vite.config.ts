@@ -1,21 +1,23 @@
-import { defineConfig } from 'vite'
-import { resolve } from 'path'
-import { readdir } from 'fs/promises'
 import strip from '@rollup/plugin-strip'
 import terser from '@rollup/plugin-terser'
-import Sitemap from 'vite-plugin-sitemap'
+import { readdir } from 'fs/promises'
+import { resolve } from 'path'
+import copy from 'rollup-plugin-copy'
+import { defineConfig } from 'vite'
 import webfontDownload from 'vite-plugin-webfont-dl'
 
 const getDirectories = async source =>
 	(await readdir(source, { withFileTypes: true })).filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
-const components = await getDirectories(resolve(__dirname, './src/')) // |> ["animate", "teleport"]
-// https://vitejs.dev/config/
+
+const components = await getDirectories(resolve(__dirname, './src/'))
+
 export default defineConfig({
 	root: resolve(__dirname),
 	publicDir: resolve(__dirname, './public'),
 	resolve: {
 		alias: {
 			'@schmancy': resolve(__dirname, '/src'),
+			'@mixins': resolve(__dirname, '/mixins'),
 		},
 	},
 	build: {
@@ -59,18 +61,32 @@ export default defineConfig({
 						},
 					},
 				}),
+				copy({
+					// Copy the mixins folder into dist/mixins
+					targets: [
+						{
+							src: resolve(__dirname, 'mixins') + '/**/*',
+							dest: resolve(__dirname, 'dist/mixins'),
+						},
+					],
+					// Ensures it runs after everything else is bundled
+					hook: 'writeBundle',
+				}),
+				// existing plugins...
+				// dts({
+				// 	// e.g., if your TS build outputs to `dist/types`
+				// 	tsconfig: resolve(__dirname, 'tsconfig.json'),
+				// }),
 			],
 		},
 	},
 	plugins: [
-		// VitePWA({
-		//   ...basePWAConfig,
-		// }),
 		webfontDownload(['https://ticket.funkhaus-berlin.net/assets/GT-Eesti-Pro-Display-Regular-Czpp09nv.woff']),
+		// Uncomment if you want to use the sitemap plugin
 		// Sitemap({
-		// 	generateRobotsTxt: true,
-		// 	outDir: resolve(__dirname, './public'),
-		// 	// hostname: 'https://lit-kit.web.app/',
+		//   generateRobotsTxt: true,
+		//   outDir: resolve(__dirname, './public'),
+		//   // hostname: 'https://lit-kit.web.app/',
 		// }),
 	],
 })

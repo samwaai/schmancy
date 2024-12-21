@@ -1,6 +1,5 @@
 import { animate } from '@juliangarnierorg/anime-beta'
-import { TailwindElement } from '@mhmo91/lit-mixins/src'
-
+import { TailwindElement } from '@mixins/tailwind'
 import { css, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { from, fromEvent, merge, switchMap, takeUntil, tap } from 'rxjs'
