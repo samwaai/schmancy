@@ -281,7 +281,7 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 
 	protected render(): unknown {
 		const classes = {
-			'w-full rounded-[8px] border-0 px-[16px] py-[8px]': true,
+			'w-full rounded-[8px] border-0 px-[8px] sm:px-[12px] md:px-[16px] py-[8px]': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,

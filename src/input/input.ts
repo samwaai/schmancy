@@ -298,7 +298,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 
 	protected render(): unknown {
 		const classes = {
-			'flex-1 h-[50px] rounded-[8px] border-0 px-[4px] md:px-[16px]': true,
+			'w-full flex-1 h-[50px] rounded-[8px] border-0 px-[8px] sm:px-[12px] md:px-[16px]': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
