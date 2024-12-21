@@ -1,5 +1,5 @@
 import { animate } from '@juliangarnierorg/anime-beta'
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import {

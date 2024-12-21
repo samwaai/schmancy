@@ -1,13 +1,13 @@
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
+import { TailwindElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
-import { TailwindElement } from '@mixins/tailwind'
+import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { LitElement, html, nothing } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import style from './input.scss?inline'
-import { createRef, ref } from 'lit/directives/ref.js'
-import { distinctUntilChanged, filter, fromEvent, map } from 'rxjs'
 import { ifDefined } from 'lit/directives/if-defined.js'
+import { createRef, ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
+import { distinctUntilChanged, filter, fromEvent, map } from 'rxjs'
+import style from './input.scss?inline'
 @customElement('schmancy-input')
 export default class SchmancyInput extends TailwindElement(style) {
 	protected static shadowRootOptions = {
@@ -298,7 +298,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 
 	protected render(): unknown {
 		const classes = {
-			'flex-1 h-[50px] rounded-[8px] border-0 px-[16px]': true,
+			'flex-1 h-[50px] rounded-[8px] border-0 px-[4px] md:px-[16px]': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
@@ -329,32 +329,30 @@ export default class SchmancyInput extends TailwindElement(style) {
 					</label>`,
 			)}
 
-			<schmancy-typography type="body" token="lg">
-				<input
-					${color({
-						bgColor: SchmancyTheme.sys.color.surface.highest,
-						color: SchmancyTheme.sys.color.surface.on,
-					})}
-					${ref(this.inputRef)}
-					.value=${this.value}
-					.id=${this.id}
-					.name=${this.name}
-					.type=${this.type}
-					step=${ifDefined(this.step)}
-					.autocomplete=${this.autocomplete}
-					.placeholder=${this.placeholder}
-					.required=${this.required}
-					inputmode=${ifDefined(this.inputmode)}
-					class=${this.classMap(classes)}
-					.disabled=${this.disabled}
-					.readOnly=${this.readonly}
-					min=${ifDefined(this.min)}
-					max=${ifDefined(this.max)}
-					minlength=${ifDefined(this.minlength)}
-					maxlength=${ifDefined(this.maxlength)}
-					.pattern=${ifDefined(this.pattern) ?? nothing}
-				/>
-			</schmancy-typography>
+			<input
+				${color({
+					bgColor: SchmancyTheme.sys.color.surface.highest,
+					color: SchmancyTheme.sys.color.surface.on,
+				})}
+				${ref(this.inputRef)}
+				.value=${this.value}
+				.id=${this.id}
+				.name=${this.name}
+				.type=${this.type}
+				step=${ifDefined(this.step)}
+				.autocomplete=${this.autocomplete}
+				.placeholder=${this.placeholder}
+				.required=${this.required}
+				inputmode=${ifDefined(this.inputmode)}
+				class=${this.classMap(classes)}
+				.disabled=${this.disabled}
+				.readOnly=${this.readonly}
+				min=${ifDefined(this.min)}
+				max=${ifDefined(this.max)}
+				minlength=${ifDefined(this.minlength)}
+				maxlength=${ifDefined(this.maxlength)}
+				.pattern=${ifDefined(this.pattern) ?? nothing}
+			/>
 			${when(
 				this.hint,
 				() => html`

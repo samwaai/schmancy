@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { SchmancyAutocompleteChangeEvent } from '@schmancy/autocomplete'
 import { SchmancyChipsChangeEvent } from '@schmancy/chips'
 import { PropertyValueMap, css, html } from 'lit'

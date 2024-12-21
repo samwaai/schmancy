@@ -1,6 +1,6 @@
 import { SchmancyTheme } from '@schmancy/theme'
 import { color } from '@schmancy/directives'
-import { TailwindElement } from '@mixins/tailwind'
+import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 

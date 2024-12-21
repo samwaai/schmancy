@@ -1,7 +1,8 @@
 import { CSSResult, LitElement, unsafeCSS } from 'lit'
 
 import style from './tailwind.css?inline'
-import { BaseElement, Constructor, IBaseMixin } from '../'
+import { BaseElement, IBaseMixin } from './baseElement'
+import { Constructor } from './constructor'
 
 export declare class ITailwindElementMixin {
 	styles: (typeof CSSResult)[]

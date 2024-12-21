@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements, queryAsync } from 'lit/decorators.js'
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'

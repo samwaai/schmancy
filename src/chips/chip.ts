@@ -1,7 +1,7 @@
 import '@material/web/chips/chip-set.js'
 import '@material/web/chips/filter-chip.js'
 import { ChipSet } from '@material/web/chips/internal/chip-set'
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 

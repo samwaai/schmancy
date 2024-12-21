@@ -1,6 +1,7 @@
 import { CSSResult, LitElement } from 'lit'
-import { BaseElement, Constructor, IBaseMixin } from '..'
-import { TailwindElement } from '../tailwind/tailwind.mixin'
+import { TailwindElement } from './tailwind.mixin'
+import { BaseElement, IBaseMixin } from './baseElement'
+import { Constructor } from './constructor'
 
 export const $LitElement = <T extends CSSResult>(componentStyle?: T) => {
 	class TailwindMixinClass extends BaseElement(TailwindElement(componentStyle)) {

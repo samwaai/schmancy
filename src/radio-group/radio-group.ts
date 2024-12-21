@@ -2,7 +2,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { Subject } from 'rxjs'
 import style from './radio-group.scss?inline'
-import { TailwindElement } from '@mixins/tailwind'
+import { TailwindElement } from '@mixins/index'
 import { when } from 'lit/directives/when.js'
 
 export type SchmancyRadioGroupOption = {

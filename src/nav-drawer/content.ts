@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { fromEvent, takeUntil } from 'rxjs'

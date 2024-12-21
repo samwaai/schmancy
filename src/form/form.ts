@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/tailwind'
+import { TailwindElement } from '@mixins/index'
 import { LitElement, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { fromEvent, merge, Subject, takeUntil, tap } from 'rxjs'

@@ -1,5 +1,5 @@
 import { consume } from '@lit/context'
-import { TailwindElement } from '@mixins/tailwind'
+import { TailwindElement } from '@mixins/index'
 import {
 	SchmancyDrawerNavbarMode,
 	SchmancyDrawerNavbarState,

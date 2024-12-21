@@ -1,5 +1,5 @@
 // divider.ts
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 

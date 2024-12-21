@@ -1,4 +1,7 @@
-declare const SchmancyCardContent_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyCardContent_base: import('../../mixins').Constructor<CustomElementConstructor> &
+	import('../../mixins').Constructor<import('@mixins/index').ITailwindElementMixin> &
+	import('../../mixins').Constructor<import('lit').LitElement> &
+	import('../../mixins').Constructor<import('../../mixins').IBaseMixin>
 /**
  * @element schmancy-card-content
  * @slot headline
@@ -6,11 +9,11 @@ declare const SchmancyCardContent_base: import("../../mixins").Constructor<Custo
  * @slot default - The content of the card
  */
 export default class SchmancyCardContent extends SchmancyCardContent_base {
-    protected render(): unknown;
+	protected render(): unknown
 }
 declare global {
-    interface HTMLElementTagNameMap {
-        'schmancy-card-content': SchmancyCardContent;
-    }
+	interface HTMLElementTagNameMap {
+		'schmancy-card-content': SchmancyCardContent
+	}
 }
-export {};
+export {}

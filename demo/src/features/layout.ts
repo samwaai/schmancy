@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { ColorConfig, color } from '@schmancy/directives'
 import { SchmancyTheme } from '@schmancy/theme'
 import { css, html } from 'lit'

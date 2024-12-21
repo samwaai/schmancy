@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { DemoCard } from './card'

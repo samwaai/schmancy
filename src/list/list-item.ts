@@ -1,5 +1,5 @@
 import { consume } from '@lit/context'
-import { TailwindElement } from '@mixins/tailwind'
+import { TailwindElement } from '@mixins/index'
 import { SchmancySurfaceTypeContext } from '@schmancy/surface/context'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { TSurfaceColor } from '@schmancy/types/surface'

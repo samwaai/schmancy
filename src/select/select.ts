@@ -1,5 +1,5 @@
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import SchmancyOption from '@schmancy/option/option'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'

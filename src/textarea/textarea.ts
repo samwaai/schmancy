@@ -7,7 +7,7 @@ import { createRef, ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
 import { distinctUntilChanged, filter, fromEvent, map } from 'rxjs'
 import style from './textarea.scss?inline'
-import { TailwindElement } from '@mixins/tailwind'
+import { TailwindElement } from '@mixins/index'
 @customElement('schmancy-textarea')
 export default class SchmancyTextarea extends TailwindElement(style) {
 	protected static shadowRootOptions = {

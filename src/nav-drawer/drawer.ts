@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { css, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil, tap } from 'rxjs'

@@ -1,9 +1,12 @@
-import { LitElement } from 'lit';
+import { LitElement } from 'lit'
 export interface FormEventMap {
-    submit: CustomEvent<FormData>;
-    reset: CustomEvent;
+	submit: CustomEvent<FormData>
+	reset: CustomEvent
 }
-declare const SchmancyForm_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind").ITailwindElementMixin> & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyForm_base: import('../../mixins').Constructor<CustomElementConstructor> &
+	import('../../mixins').Constructor<import('@mixins/index').ITailwindElementMixin> &
+	import('../../mixins').Constructor<LitElement> &
+	import('../../mixins').Constructor<import('../../mixins').IBaseMixin>
 /**
  * The form is a component used to collect user input from
  * interactive controls.
@@ -16,40 +19,40 @@ declare const SchmancyForm_base: import("../../mixins").Constructor<CustomElemen
  * @fires reset - Emitted when the form is reset.
  */
 export default class SchmancyForm extends SchmancyForm_base {
-    private $disconnecting;
-    static readonly tagName = "schmancy-form";
-    tabIndex: number;
-    protected static shadowRootOptions: {
-        mode: string;
-        delegatesFocus: boolean;
-        serializable?: boolean;
-        slotAssignment?: SlotAssignmentMode;
-    };
-    static styles: import("lit").CSSResult;
-    private _controlsWithChecked;
-    private _controlsWithValue;
-    private _controlsThatSubmit;
-    /** Specifies if form data validation should be skipped on submit.
-     * @attr novalidate
-     * @type {boolean}
-     * @public
-     */
-    novalidate: boolean;
-    constructor();
-    /** Submits the form. */
-    submit(): boolean;
-    /** Resets the form. */
-    reset(): void;
-    private getFormElements;
-    getFormData(): FormData;
-    /** Checks for validity of the form. */
-    reportValidity(): boolean;
-    private handleSubmitRequest;
-    protected render(): import("lit-html").TemplateResult<1>;
+	private $disconnecting
+	static readonly tagName = 'schmancy-form'
+	tabIndex: number
+	protected static shadowRootOptions: {
+		mode: string
+		delegatesFocus: boolean
+		serializable?: boolean
+		slotAssignment?: SlotAssignmentMode
+	}
+	static styles: import('lit').CSSResult
+	private _controlsWithChecked
+	private _controlsWithValue
+	private _controlsThatSubmit
+	/** Specifies if form data validation should be skipped on submit.
+	 * @attr novalidate
+	 * @type {boolean}
+	 * @public
+	 */
+	novalidate: boolean
+	constructor()
+	/** Submits the form. */
+	submit(): boolean
+	/** Resets the form. */
+	reset(): void
+	private getFormElements
+	getFormData(): FormData
+	/** Checks for validity of the form. */
+	reportValidity(): boolean
+	private handleSubmitRequest
+	protected render(): import('lit-html').TemplateResult<1>
 }
 declare global {
-    interface HTMLElementTagNameMap {
-        'schmancy-form': SchmancyForm;
-    }
+	interface HTMLElementTagNameMap {
+		'schmancy-form': SchmancyForm
+	}
 }
-export {};
+export {}

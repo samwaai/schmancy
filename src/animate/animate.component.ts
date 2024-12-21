@@ -1,7 +1,7 @@
 import { animate, stagger } from '@juliangarnierorg/anime-beta'
 import { css, html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 @customElement('schmancy-animate')
 export class SchmancyAnimate extends $LitElement(css`
 	:host {

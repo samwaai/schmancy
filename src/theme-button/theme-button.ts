@@ -1,5 +1,5 @@
 import { animate } from '@juliangarnierorg/anime-beta'
-import { TailwindElement } from '@mixins/tailwind'
+import { TailwindElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
 import { $newSchmancyTheme } from '..'

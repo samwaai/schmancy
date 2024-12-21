@@ -1,5 +1,5 @@
 import { fullHeight } from './../../../src/directives/height'
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { customElement } from 'lit/decorators.js'
 import { css, html } from 'lit'
 

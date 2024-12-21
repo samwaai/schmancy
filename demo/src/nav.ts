@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/lit'
+import { $LitElement } from '@mixins/index'
 import { area } from '@schmancy/area'
 import { schmancyNavDrawer } from '@schmancy/nav-drawer'
 import { css, html } from 'lit'
@@ -20,6 +20,7 @@ import { DemoSurface } from './features/surface'
 import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import DemoTypography from './features/typography'
+import { DemoSlider } from './features/slider'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -34,8 +35,8 @@ export class DemoNav extends $LitElement(css`
 		component: CustomElementConstructor
 	}> = [
 		{
-			name: 'Busy',
-			component: DemoBusy,
+			name: 'Sliders',
+			component: DemoSlider,
 		},
 		{
 			name: 'Icons',
@@ -89,6 +90,10 @@ export class DemoNav extends $LitElement(css`
 		{
 			name: 'Router',
 			component: DemoRouter,
+		},
+		{
+			name: 'Busy',
+			component: DemoBusy,
 		},
 	]
 
