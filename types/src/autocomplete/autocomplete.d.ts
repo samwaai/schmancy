@@ -5,7 +5,7 @@ import { SchmancyInputChangeEvent } from '..';
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string | string[];
 }>;
-declare const SchmancyAutocomplete_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     required: any;
     placeholder: string;

@@ -2,7 +2,7 @@ import SchmancyOption from '@schmancy/option/option';
 export type SchmancySelectChangeEvent = CustomEvent<{
     value: string | string[];
 }>;
-declare const SchmancySelect_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancySelect_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancySelect extends SchmancySelect_base {
     required: boolean;
     placeholder: string;

@@ -1,5 +1,5 @@
 import { SchmancyContentDrawerMinWidth, TSchmancyContentDrawerSheetMode, TSchmancyContentDrawerSheetState } from './context';
-declare const SchmancyContentDrawerSheet_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyContentDrawerSheet_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyContentDrawerSheet extends SchmancyContentDrawerSheet_base {
     minWidth: any;
     mode: TSchmancyContentDrawerSheetMode;

@@ -1,4 +1,4 @@
-declare const SchmancyTeleportation_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyTeleportation_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyTeleportation extends SchmancyTeleportation_base {
     /**
      * @attr {string} uuid - The component tag to teleport

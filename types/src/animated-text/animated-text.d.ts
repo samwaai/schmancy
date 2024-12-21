@@ -1,4 +1,4 @@
-declare const SchmancyAnimatedText_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyAnimatedText_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element schmancy-animated-text
  * Inspired by https://tobiasahlin.com/moving-letters/#1

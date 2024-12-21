@@ -1,6 +1,6 @@
 import { LitElement, PropertyValueMap } from 'lit';
 import { ButtonVariant } from './button';
-declare const SchmnacyIconButton_base: CustomElementConstructor & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmnacyIconButton_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A button component.
  * @element schmancy-icon-button

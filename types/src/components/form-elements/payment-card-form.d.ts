@@ -1,6 +1,6 @@
 import SchmancyForm from '@schmancy/form/form';
 import SchmancyInput from '@schmancy/input/input';
-declare const SchmancyPaymentCardForm_base: CustomElementConstructor & import("../../../mixins").Constructor<import("lit").LitElement> & import("../../../mixins").Constructor<import("../../../mixins").IBaseMixin>;
+declare const SchmancyPaymentCardForm_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyPaymentCardForm extends SchmancyPaymentCardForm_base {
     value: {
         cardName: string;
