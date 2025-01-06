@@ -1,4 +1,4 @@
-import { createTimeline, stagger } from '@juliangarnierorg/anime-beta'
+import { createTimeline, stagger } from '@packages/anime-beta-master'
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedNodes } from 'lit/decorators.js'

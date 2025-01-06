@@ -1,4 +1,4 @@
-import { animate } from '@juliangarnierorg/anime-beta'
+import { animate } from '@packages/anime-beta-master'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil } from 'rxjs'

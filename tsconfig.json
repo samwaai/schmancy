@@ -22,7 +22,8 @@
 		"noFallthroughCasesInSwitch": true,
 		"paths": {
 			"@schmancy/*": ["./src/*"],
-			"@mixins/*": ["./mixins/*"]
+			"@mixins/*": ["./mixins/*"],
+			"@packages/*": ["./packages/*"]
 		},
 		"plugins": [
 			{

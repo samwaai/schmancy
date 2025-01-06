@@ -1,4 +1,4 @@
-import { animate } from '@juliangarnierorg/anime-beta'
+import { animate } from '@packages/anime-beta-master'
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'

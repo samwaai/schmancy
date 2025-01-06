@@ -1,4 +1,4 @@
-import { animate } from '@juliangarnierorg/anime-beta'
+import { animate } from '@packages/anime-beta-master'
 import { bufferTime, concatMap, filter, fromEvent, map, of, Subject, take, tap, timeout, zip } from 'rxjs'
 import { SchmancyTeleportation } from './teleport.component'
 

@@ -18,6 +18,7 @@ export default defineConfig({
 		alias: {
 			'@schmancy': resolve(__dirname, '/src'),
 			'@mixins': resolve(__dirname, '/mixins'),
+			'@packages': resolve(__dirname, '/packages'),
 		},
 	},
 	build: {

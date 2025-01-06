@@ -3,8 +3,8 @@ export default class SchmancyMenu extends SchmancyMenu_base {
     open: boolean;
     buttonElement: Array<HTMLElement>;
     menuElement: HTMLElement;
-    openMenu(): import("@juliangarnierorg/anime-beta").Animation;
-    closeMenu(e?: Event): import("@juliangarnierorg/anime-beta").Animation;
+    openMenu(): import("@packages/anime-beta-master").Animation;
+    closeMenu(e?: Event): import("@packages/anime-beta-master").Animation;
     positionMenu(): Promise<void>;
     protected firstUpdated(): void;
     render(): import("lit-html").TemplateResult<1>;

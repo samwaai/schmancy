@@ -1,4 +1,4 @@
-import { animate } from '@juliangarnierorg/anime-beta'
+import { animate } from '@packages/anime-beta-master'
 import { $LitElement } from '@mixins/index'
 import { TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'

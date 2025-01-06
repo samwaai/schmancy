@@ -1,4 +1,4 @@
-import { animate } from '@juliangarnierorg/anime-beta'
+import { animate } from '@packages/anime-beta-master'
 import { consume } from '@lit/context'
 import { $LitElement } from '@mixins/index'
 import { html } from 'lit'

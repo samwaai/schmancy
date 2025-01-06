@@ -1,5 +1,5 @@
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
-import { animate } from '@juliangarnierorg/anime-beta'
+import { animate } from '@packages/anime-beta-master'
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'

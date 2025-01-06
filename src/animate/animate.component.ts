@@ -1,4 +1,4 @@
-import { animate, stagger } from '@juliangarnierorg/anime-beta'
+import { animate, stagger } from '@packages/anime-beta-master'
 import { css, html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { $LitElement } from '@mixins/index'
