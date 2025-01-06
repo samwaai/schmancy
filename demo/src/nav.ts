@@ -112,8 +112,9 @@ export class DemoNav extends $LitElement(css`
 		return html`
 			<schmancy-grid ${fullHeight()} gap="md" justify="center">
 				<schmancy-typography type="headline" token="lg">
-					<schmancy-animated-text> Schmancy Components</schmancy-animated-text>
+					<schmancy-animated-text> Schmancy </schmancy-animated-text>
 				</schmancy-typography>
+
 				<schmancy-list>
 					${repeat(
 						this.Demos,

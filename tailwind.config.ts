@@ -8,6 +8,10 @@ const tailwindTheme: Config = {
 			center: true,
 		},
 		extend: {
+			fontFamily: {
+				sans: ['inherit'], // Or a different fallback like 'Arial'
+			},
+
 			boxShadow: {
 				...SchmancyTheme.sys.elevation,
 			},
