@@ -1,6 +1,0 @@
-# Documentation: https://bun.sh/docs/install/registries
-
-[install]
-# set default registry as a string
-registry = "https://registry.npmjs.org"
-
