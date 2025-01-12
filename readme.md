@@ -61,8 +61,6 @@ Below is a table linking to each component’s documentation on the GitHub Wiki:
 
 | Component                 | Description                     | Documentation                                                                                     |
 | ------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `schmancy-animate`        | Animation component             | [Wiki - schmancy-animate](https://github.com/mhmo91/schmancy/wiki/schmancy-animate)               |
-| `schmancy-animated-text`  | Animated text component         | [Wiki - schmancy-animated-text](https://github.com/mhmo91/schmancy/wiki/schmancy-animated-text)   |
 | `schmancy-area`           | Area component                  | [Wiki - schmancy-area](https://github.com/mhmo91/schmancy/wiki/schmancy-area)                     |
 | `schmancy-autocomplete`   | Autocomplete field              | [Wiki - schmancy-autocomplete](https://github.com/mhmo91/schmancy/wiki/schmancy-autocomplete)     |
 | `schmancy-busy`           | Loading/busy indicator          | [Wiki - schmancy-busy](https://github.com/mhmo91/schmancy/wiki/schmancy-busy)                     |

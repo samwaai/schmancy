@@ -1,5 +1,4 @@
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
-import { animate } from '@packages/anime-beta-master'
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
@@ -13,20 +12,30 @@ export default class SchmancyMenu extends TailwindElement(css`
 	}
 `) {
 	@state() open = false
-	@queryAssignedElements({ flatten: true, slot: 'button' }) buttonElement!: Array<HTMLElement>
+
+	@queryAssignedElements({ flatten: true, slot: 'button' })
+	buttonElement!: Array<HTMLElement>
+
 	@query('#menu') menuElement!: HTMLElement
 
 	openMenu() {
-		return animate(this.menuElement, {
-			targets: [],
-			opacity: [0, 1],
-			scale: [0.95, 1],
-			duration: 100,
-			easing: 'easeInQuad',
-			onBegin: () => {
-				this.open = true
-				this.positionMenu()
+		this.open = true
+		this.positionMenu()
+
+		// Approx. "easeInQuad" with a cubic-bezier:
+		const animation = this.menuElement.animate(
+			[
+				{ opacity: 0, transform: 'scale(0.95)' },
+				{ opacity: 1, transform: 'scale(1)' },
+			],
+			{
+				duration: 100,
+				easing: 'cubic-bezier(0.55, 0.085, 0.68, 0.53)',
 			},
+		)
+
+		return new Promise<void>(resolve => {
+			animation.onfinish = () => resolve()
 		})
 	}
 
@@ -35,30 +44,33 @@ export default class SchmancyMenu extends TailwindElement(css`
 			e.preventDefault()
 			e.stopPropagation()
 		}
-		return animate(this.menuElement, {
-			opacity: [1, 0],
-			scale: [1, 0.95],
-			duration: 75,
-			easing: 'easeInQuad',
-			onComplete: () => {
-				this.open = false
+
+		const animation = this.menuElement.animate(
+			[
+				{ opacity: 1, transform: 'scale(1)' },
+				{ opacity: 0, transform: 'scale(0.95)' },
+			],
+			{
+				duration: 75,
+				easing: 'cubic-bezier(0.55, 0.085, 0.68, 0.53)',
 			},
+		)
+
+		return new Promise<void>(resolve => {
+			animation.onfinish = () => {
+				this.open = false
+				resolve()
+			}
 		})
 	}
 
 	async positionMenu() {
 		if (this.buttonElement.length && this.menuElement) {
-			// Compute the position of the menu relative to the button
 			const { x, y } = await computePosition(this.buttonElement[0], this.menuElement, {
-				placement: 'bottom-start', // Initial placement
-				middleware: [
-					offset(5), // Optional: Adds space between the button and the menu
-					flip(), // Automatically flips the menu if there's not enough space
-					shift({ padding: 5 }), // Adjusts the position to stay within the viewport
-				],
+				placement: 'bottom-start',
+				middleware: [offset(5), flip(), shift({ padding: 5 })],
 			})
 
-			// Apply the computed styles
 			Object.assign(this.menuElement.style, {
 				left: `${x}px`,
 				top: `${y}px`,
@@ -82,9 +94,7 @@ export default class SchmancyMenu extends TailwindElement(css`
 				takeUntil(this.disconnecting),
 				switchMap(() => from(this.closeMenu())),
 			)
-			.subscribe({
-				next: () => {},
-			})
+			.subscribe()
 	}
 
 	render() {
@@ -97,7 +107,7 @@ export default class SchmancyMenu extends TailwindElement(css`
 				id="menu"
 				.hidden=${!this.open}
 				class="absolute z-50 elevation-2 rounded-md 
-					min-w-[160px] max-w-[320px] w-max bg-surface-default"
+          min-w-[160px] max-w-[320px] w-max bg-surface-default"
 				role="menu"
 				aria-orientation="vertical"
 				aria-labelledby="options-menu-4-button"

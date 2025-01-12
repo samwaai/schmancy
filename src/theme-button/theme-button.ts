@@ -1,4 +1,3 @@
-import { animate } from '@packages/anime-beta-master'
 import { TailwindElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
@@ -12,11 +11,14 @@ export default class SchmancyThemeButton extends TailwindElement() {
 		return html`
 			<schmancy-button
 				@click=${() => {
-					// @ts-ignore TODO: fix
+					// Trigger any other effects you have
 					$newSchmancyTheme.next(undefined)
-					animate(this.color, {
-						rotate: [0, 360],
+
+					// Native Web Animations API usage:
+					this.color.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], {
 						duration: 300,
+						// fill: 'forwards',    // Use if you want it to remain rotated at 360°
+						// easing: 'ease-out',  // Or another easing function
 					})
 				}}
 				variant="text"

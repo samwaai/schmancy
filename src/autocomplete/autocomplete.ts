@@ -1,5 +1,4 @@
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
-import { animate } from '@packages/anime-beta-master'
 import { $LitElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import SchmancyInput from '@schmancy/input/input'
@@ -33,51 +32,41 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	@query('#empty') empty!: HTMLLIElement
 	@query('#options') optionsContainer!: HTMLUListElement
 	@query('schmancy-input') input!: SchmancyInput
-	searchTerm$ = new Subject<string>()
-	searchTermSubscription: any
 
 	@queryAssignedElements({ flatten: true }) options!: SchmancyOption[]
+
+	searchTerm$ = new Subject<string>()
+	searchTermSubscription: any
 
 	firstUpdated() {
 		this.searchTermSubscription = this.searchTerm$
 			.pipe(
 				takeUntil(this.disconnecting),
-				// debounceTime(10),
 				distinctUntilChanged(),
 				tap(term => {
 					const searchTerm = term.trim().toLowerCase()
-					console.log(this.options)
-					// Calculate Levenshtein distance for each option
+					// ... filter logic ...
 					const matches = this.options
 						.map(option => {
 							const optionText = option.label.toLowerCase()
-							const levDistance = distance(searchTerm, optionText.toLowerCase())
+							const levDistance = distance(searchTerm, optionText)
 							return { option, levDistance }
 						})
-						// Filter out distant matches with a threshold (e.g., 3 or customizable)
 						.filter(
 							({ option, levDistance }) =>
 								searchTerm.length < 3 || levDistance <= option.label.toLowerCase().length - searchTerm.length,
 						)
-						// Sort by closest match (smallest Levenshtein distance)
 						.sort((a, b) => a.levDistance - b.levDistance)
 
-					console.log('matches', matches)
-					// Hide options that aren't close matches
 					this.empty.hidden = matches
 						.map(({ option }) => {
-							option.hidden = false // Show matched options
+							option.hidden = false
 							return option
 						})
 						.some(option => !option.hidden)
 
-					// Hide unmatched options
 					this.options.forEach(option => {
-						if (!matches.some(match => match.option === option)) {
-							option.hidden = true
-						} else {
-							option.hidden = false
-						}
+						option.hidden = !matches.some(match => match.option === option)
 					})
 					this.requestUpdate()
 				}),
@@ -90,22 +79,35 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			.pipe(
 				takeUntil(this.disconnecting),
 				filter(e => (e.relatedTarget as SchmancyOption)?.tagName !== 'SCHMANCY-OPTION'),
-				switchMap(() =>
-					from(
-						animate(this.ul, {
-							opacity: 0,
+				switchMap(() => {
+					// --- Native Web Animations API replacement ---
+					const animation = this.ul.animate(
+						[
+							{ opacity: 1 }, // from
+							{ opacity: 0 }, // to
+						],
+						{
 							duration: 250,
-							ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-							onComplete: () => {
-								this.ul?.style.setProperty('display', 'none')
-								this.ul?.style.setProperty('opacity', '1')
-							},
-						}),
-					),
-				),
+							easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
+						},
+					)
+
+					// Turn the onfinish callback into a Promise so RxJS can `from(...)` it
+					const animationPromise = new Promise<void>(resolve => {
+						animation.onfinish = () => {
+							// This is where you'd do your cleanup (like onComplete before)
+							this.ul?.style.setProperty('display', 'none')
+							this.ul?.style.setProperty('opacity', '1')
+							resolve()
+						}
+					})
+
+					return from(animationPromise)
+				}),
 			)
 			.subscribe({
 				next: () => {
+					// Once animation completes
 					if (this.multi) {
 						this.inputRef.value?.setAttribute(
 							'value',
@@ -119,6 +121,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 					}
 				},
 			})
+
 		this.updateInputValue()
 	}
 
@@ -140,20 +143,16 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		// Position the dropdown using Floating UI
 		const { x, y } = await computePosition(this.input, this.ul, {
 			placement: 'bottom-start',
-			middleware: [
-				offset(5), // Adds a small gap between the input and the dropdown
-				flip(), // Automatically flips the dropdown if there's not enough space
-				shift({ padding: 5 }), // Adjusts the dropdown to stay within the viewport
-			],
+			middleware: [offset(5), flip(), shift({ padding: 5 })],
 		})
 
 		Object.assign(this.ul.style, {
 			left: `${x}px`,
 			top: `${y}px`,
 			position: 'absolute',
-			zIndex: '9999', // Ensure it's on top of other elements
-			maxHeight: this.maxHeight, // Limit the height of the dropdown
-			overflowY: 'auto', // Enable scrolling if the content is too tall
+			zIndex: '9999',
+			maxHeight: this.maxHeight,
+			overflowY: 'auto',
 		})
 	}
 
@@ -166,7 +165,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		event.preventDefault()
 		event.stopPropagation()
 		const term = event.detail.value
-		console.log('term', term)
 		this.searchTerm$.next(term)
 	}
 
@@ -174,9 +172,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	handleOptionClick(value: string) {
 		if (this.multi) {
 			const option = this.options.find(o => o.value === value)
-			if (option) {
-				option.selected = !option.selected
-			}
+			if (option) option.selected = !option.selected
 			this.updateInputValue()
 			this.dispatchEvent(
 				new CustomEvent('change', {
@@ -191,7 +187,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			this.updateInputValue()
 			this.dispatchEvent(
 				new CustomEvent('change', {
-					detail: { value: value },
+					detail: { value },
 					bubbles: true,
 					composed: true,
 				}),
@@ -199,12 +195,10 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		}
 	}
 
-	/** Checks for validity of the control and shows the browser message if it's invalid. */
 	public reportValidity() {
 		return this.inputRef.value?.reportValidity()
 	}
 
-	/** Checks for validity of the control and emits the invalid event if it invalid. */
 	public checkValidity() {
 		return this.multi ? this.options.some(o => o.selected) : !!this.value
 	}
@@ -220,15 +214,13 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			<div class="relative">
 				<slot name="trigger">
 					<schmancy-input
-						autocomplete=${'off'}
+						autocomplete="off"
 						class="w-full"
 						${ref(this.inputRef)}
 						.required=${this.required}
 						id="input"
 						.label=${this.label}
-						@focus=${() => {
-							this.showOptions()
-						}}
+						@focus=${this.showOptions}
 						clickable
 						type="search"
 						inputmode="text"

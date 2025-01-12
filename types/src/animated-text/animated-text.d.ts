@@ -10,15 +10,15 @@ export default class SchmancyAnimatedText extends SchmancyAnimatedText_base {
     duration: number;
     scale: number[];
     opacity: number[];
-    translateX: (string | number)[];
-    translateY: (string | number)[];
+    translateX: string[];
+    translateY: string[];
     translateZ: number[];
     rotateZ: number[];
     resetOnScroll: boolean;
     defaultSlot: HTMLElement[];
     letters: HTMLElement;
     ml7: HTMLElement;
-    isInViewport(element: any): boolean;
+    isInViewport(element: HTMLElement): boolean;
     firstUpdated(): Promise<void>;
     render(): import("lit-html").TemplateResult<1>;
 }

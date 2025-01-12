@@ -1,4 +1,3 @@
-import { animate } from '@packages/anime-beta-master'
 import { bufferTime, concatMap, filter, fromEvent, map, of, Subject, take, tap, timeout, zip } from 'rxjs'
 import { SchmancyTeleportation } from './teleport.component'
 
@@ -26,6 +25,7 @@ export type FLIP_REQUEST = {
 	host: HTMLElement
 }
 export const HereMorty = 'hereMorty'
+
 class Teleportation {
 	activeTeleportations = new Map<string, DOMRect>()
 	flipRequests = new Subject<FLIP_REQUEST>()
@@ -90,54 +90,52 @@ class Teleportation {
 		i: number
 	}) => {
 		const { from, to } = request
-		// const hanger = document.createElement('div')
-		// hanger.style.setProperty('position', 'fixed')
-		// hanger.style.setProperty('top', from.rect.top + 'px')
-		// hanger.style.setProperty('left', from.rect.left + 'px')
-		// hanger.style.setProperty('width', from.rect.width + 'px')
-		// hanger.style.setProperty('height', from.rect.height + 'px')
-		// hanger.style.setProperty('z-index', '2000')
-		// document.body?.appendChild(to.element)
+
+		// Prepare the element for animation
+		const originalZIndex = to.element.style.zIndex
 		to.element.style.transformOrigin = 'top left'
 		to.element.style.setProperty('visibility', 'visible')
 		to.element.style.zIndex = '1000'
-		const originalZIndex = to.element.style.zIndex
-		animate(to.element, {
-			translateX: [from.rect.left - to.rect.left, 0],
-			translateY: [from.rect.top - to.rect.top, 0],
-			scaleX: [from.rect.width / to.rect.width, 1],
-			scaleY: [from.rect.height / to.rect.height, 1],
+
+		// "onBegin" logic goes here (since Web Animations doesn't have onBegin).
+		// If you had more logic, place it here:
+		// e.g., console.log('Starting FLIP animation...');
+
+		// Calculate starting and ending transforms
+		const startX = from.rect.left - to.rect.left
+		const startY = from.rect.top - to.rect.top
+		const startScaleX = from.rect.width / to.rect.width
+		const startScaleY = from.rect.height / to.rect.height
+
+		// Create keyframes
+		const keyframes: Keyframe[] = [
+			{
+				transform: `translate(${startX}px, ${startY}px) scale(${startScaleX}, ${startScaleY})`,
+			},
+			{
+				transform: 'translate(0, 0) scale(1, 1)',
+			},
+		]
+
+		// Use native Web Animations API
+		const animation = to.element.animate(keyframes, {
 			duration: 250,
-			delay: 10,
-			ease: 'inOutQuad',
-			onBegin: () => {
-				to.element.style.transformOrigin = 'top left'
-				to.element.style.setProperty('visibility', 'visible')
-				to.element.style.zIndex = '1000'
-			},
-			onComplete: () => {
-				to.element.style.zIndex = originalZIndex
-				to.element.style.transformOrigin = ''
-			},
+			delay: 10, // if desired
+			// Approximate 'inOutQuad' via a cubic-bezier easing.
+			// You can adjust these values to taste, or use a standard one:
+			easing: 'cubic-bezier(0.455, 0.03, 0.515, 0.955)',
+			// or simply 'ease-in-out'
 		})
-		// const hangerRec = hanger.getBoundingClientRect()
-		// animate(hanger, {
-		// 	translateX: [to.rect.left - hangerRec.left, 0],
-		// 	translateY: [to.rect.top - hangerRec.top, 0],
-		// 	scaleX: [to.rect.width / hangerRec.width, 0],
-		// 	scaleY: [to.rect.height / hangerRec.height],
-		// 	duration: 500,
-		// 	delay: i * 100,
-		// 	ease: 'easeInOutQuad',
-		// 	onBegin: () => {
-		// 		hanger.style.transformOrigin = 'top left'
-		// 		hanger.style.zIndex = '2000'
-		// 	},
-		// 	onComplete: () => {
-		// 		hanger.remove()
-		// 	},
-		// })
+
+		// "onComplete" logic goes here
+		animation.onfinish = () => {
+			to.element.style.zIndex = originalZIndex
+			to.element.style.transformOrigin = ''
+			// If you have additional cleanup, place it here
+			// e.g., console.log('FLIP animation completed!');
+		}
 	}
 }
+
 export const teleport = new Teleportation()
 export default teleport

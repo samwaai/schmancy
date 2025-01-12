@@ -1,6 +1,6 @@
 {
 	"name": "@mhmo91/schmancy",
-	"version": "0.0.283",
+	"version": "0.0.284",
 	"description": "UI library build with web components",
 	"main": "./dist/index.js",
 	"repository": {
@@ -31,8 +31,6 @@
 		"build": "tsc && vite build --config vite.config.ts",
 		"preview": "vite preview",
 		"batch": "npm version patch",
-		"prepare": "husky install",
-		"build:components": "wca ./src --format json --outFile ./hummingbird/src/toolkit/components.json",
 		"watch": "npm-watch build:components"
 	},
 	"author": "@mhmo91",
@@ -53,8 +51,9 @@
 		"@types/cleave.js": "^1.4.12",
 		"cleave.js": "^1.6.0",
 		"fastest-levenshtein": "^1.0.16",
-		"lit": "^3.2.1",
+		"lit": "^3.2.0",
 		"moment": "^2.30.1",
+		"playground-elements": "^0.19.1",
 		"rxjs": "latest",
 		"tippy.js": "^6.3.7",
 		"ts-is-present": "^1.2.2",
@@ -71,7 +70,6 @@
 		"autoprefixer": "^10.4.20",
 		"deepmerge": "^4.3.1",
 		"eslint": "^9.17.0",
-		"husky": "^9.1.7",
 		"postcss": "^8.4.49",
 		"prettier": "^3.4.2",
 		"rollup-plugin-copy": "^3.5.0",

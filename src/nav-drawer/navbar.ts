@@ -1,4 +1,3 @@
-import { animate } from '@packages/anime-beta-master'
 import { consume } from '@lit/context'
 import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
@@ -10,8 +9,11 @@ import {
 	TSchmancyDrawerNavbarMode,
 	TSchmancyDrawerNavbarState,
 } from './context'
+
 @customElement('schmancy-nav-drawer-navbar')
 export class SchmancyNavigationDrawerSidebar extends $LitElement() {
+	// Removed: import { animate } from '@packages/src'
+
 	@consume({ context: SchmancyDrawerNavbarMode, subscribe: true })
 	@state()
 	mode: TSchmancyDrawerNavbarMode
@@ -26,38 +28,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 
 	connectedCallback(): void {
 		super.connectedCallback()
-		// const touchStart$ = fromEvent<TouchEvent>(document, 'touchstart')
-		// const touchMove$ = fromEvent<TouchEvent>(document, 'touchmove')
-		// const touchEnd$ = fromEvent<TouchEvent>(document, 'touchend')
-		// const swipeRight$ = touchStart$.pipe(
-		// 	takeUntil(this.disconnecting),
-		// 	switchMap(start => {
-		// 		const startX = start.touches[0].clientX
-		// 		const startY = start.touches[0].clientY
-
-		// 		return touchMove$.pipe(
-		// 			map(move => {
-		// 				return {
-		// 					startX,
-		// 					startY,
-		// 					moveX: move.touches[0].clientX,
-		// 					moveY: move.touches[0].clientY,
-		// 				}
-		// 			}),
-		// 			takeUntil(touchEnd$),
-		// 		)
-		// 	}),
-		// 	filter(position => {
-		// 		const xDist = position.moveX - position.startX
-		// 		const yDist = Math.abs(position.moveY - position.startY)
-		// 		return xDist > 120 && yDist < 30 // Thresholds for swipe right and vertical tolerance
-		// 	}),
-		// )
-
-		// swipeRight$.subscribe(() => {
-		// 	schmancyNavDrawer.open(this)
-		// 	// Add your logic here for what should happen on a swipe right
-		// })
+		// Your touch event logic can stay here if needed
 	}
 
 	updated(changedProperties: Map<string, any>) {
@@ -75,25 +46,30 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 	}
 
 	openOverlay() {
-		animate(this.overlay, {
-			opacity: 0.4,
+		// Equivalent to onBegin
+		this.overlay.style.display = 'block'
+
+		// Animate opacity from 0 to 0.4
+		this.overlay.animate([{ opacity: '0' }, { opacity: '0.4' }], {
 			duration: 300,
-			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-			onBegin: () => {
-				this.overlay.style.display = 'block'
-			},
+			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
+			fill: 'forwards', // <-- This keeps the final keyframe (0.4) after finishing
 		})
+		// If you want an onfinish here, you can add it:
+		// .onfinish = () => console.log('overlay opened!')
 	}
 
 	closeOverlay() {
-		animate(this.overlay, {
-			opacity: [0.4, 0],
+		// Animate opacity from 0.4 to 0
+		const animation = this.overlay.animate([{ opacity: '0.4' }, { opacity: '0' }], {
 			duration: 250,
-			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-			onComplete: () => {
-				this.overlay.style.display = 'none'
-			},
+			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
 		})
+
+		// Equivalent to onComplete
+		animation.onfinish = () => {
+			this.overlay.style.display = 'none'
+		}
 	}
 
 	protected render() {
@@ -115,6 +91,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 		const styleMap = {
 			width: this.width,
 		}
+
 		return html`
 			<nav
 				style=${this.styleMap(styleMap)}

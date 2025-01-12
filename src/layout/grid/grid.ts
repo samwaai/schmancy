@@ -1,4 +1,3 @@
-import { animate } from '@packages/anime-beta-master'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil } from 'rxjs'
@@ -27,15 +26,11 @@ export class SchmancyGrid extends Layout {
 		'2xl'?: string | number
 	}
 
-	@property({ type: Object }) anime = {}
 	@property({ type: Boolean }) wrap = false
 
 	@queryAssignedElements() assignedElements!: HTMLElement[]
 
 	firstUpdated() {
-		animate(this.assignedElements, {
-			...this.anime,
-		})
 		if (this.rcols)
 			fromEvent<CustomEvent>(window, 'resize')
 				.pipe(

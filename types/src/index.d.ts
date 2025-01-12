@@ -1,4 +1,3 @@
-export * from './animate';
 export * from './animated-text';
 export * from './area';
 export * from './autocomplete';
@@ -10,6 +9,7 @@ export * from './chips';
 export * from './components';
 export * from './content-drawer';
 export * from './data';
+export * from './date-range';
 export * from './directives';
 export * from './divider';
 export * from './form';

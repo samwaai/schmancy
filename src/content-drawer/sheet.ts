@@ -1,9 +1,8 @@
-import { animate } from '@packages/anime-beta-master'
 import { consume } from '@lit/context'
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
-import { from, merge, of, takeUntil, tap } from 'rxjs'
+import { from, merge, Observable, of, takeUntil, tap } from 'rxjs'
 import { SchmancyEvents, sheet } from '..'
 import {
 	SchmancyContentDrawerID,
@@ -14,6 +13,10 @@ import {
 	TSchmancyContentDrawerSheetMode,
 	TSchmancyContentDrawerSheetState,
 } from './context'
+
+// --- 1) Removed the custom animate import
+// import { animate } from '@packages/anime-beta-master'
+
 @customElement('schmancy-content-drawer-sheet')
 export class SchmancyContentDrawerSheet extends $LitElement(css`
 	:host {
@@ -46,13 +49,17 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 
 	connectedCallback(): void {
 		super.connectedCallback()
-		if (this.minWidth) this.drawerMinWidth.sheet = this.minWidth
-		else this.minWidth = this.drawerMinWidth.sheet
+		if (this.minWidth) {
+			this.drawerMinWidth.sheet = this.minWidth
+		} else {
+			this.minWidth = this.drawerMinWidth.sheet
+		}
 	}
 
 	updated(changedProperties: Map<string, any>) {
 		super.updated(changedProperties)
 		if (changedProperties.has('minWidth') && this.minWidth) {
+			// If the 'minWidth' property changed
 			this.drawerMinWidth.sheet = this.minWidth
 			this.dispatchEvent(new CustomEvent(SchmancyEvents.ContentDrawerResize, { bubbles: true, composed: true }))
 		} else if (changedProperties.has('state') || changedProperties.has('mode')) {
@@ -60,47 +67,87 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 				if (this.state === 'close') {
 					this.closeAll()
 				} else if (this.state === 'open') {
+					// Overlay open logic if needed
 					// this.open()
 				}
 			} else if (this.mode === 'push') {
 				sheet.dismiss(this.schmancyContentDrawerID)
-				if (this.state === 'close') this.closeAll()
-				else if (this.state === 'open') this.open()
+				if (this.state === 'close') {
+					this.closeAll()
+				} else if (this.state === 'open') {
+					this.open()
+				}
 			}
 		}
 	}
 
+	/**
+	 * Open the sheet by sliding it into view.
+	 */
 	open() {
-		animate(this.sheet, {
-			opacity: 1,
-			duration: 500,
-			translateX: ['100%', '0%'],
-			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-			onBegin: () => {
-				if (this.mode === 'overlay') this.sheet.style.position = 'fixed'
-				else this.sheet.style.position = 'relative'
-				this.sheet.style.display = 'block'
+		// "onBegin" logic from the old `animate(...)`
+		if (this.mode === 'overlay') {
+			this.sheet.style.position = 'fixed'
+		} else {
+			this.sheet.style.position = 'relative'
+		}
+		this.sheet.style.display = 'block'
+
+		// --- 2) Use native Web Animations API ---
+		this.sheet.animate(
+			[
+				{ opacity: '0', transform: 'translateX(100%)' },
+				{ opacity: '1', transform: 'translateX(0%)' },
+			],
+			{
+				duration: 500,
+				easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
 			},
-		})
+		)
+		// No return is needed if you don't rely on the result
 	}
 
+	/**
+	 * Close everything (modal sheet + the sheet itself).
+	 */
 	closeAll() {
+		// Merge them into a single subscription,
+		// so that everything closes in parallel.
 		merge(from(this.closeModalSheet()), from(this.closeSheet())).pipe(takeUntil(this.disconnecting)).subscribe()
 	}
 
+	/**
+	 * Dismiss the "modal sheet."
+	 * This just returns an Observable that completes immediately.
+	 */
 	closeModalSheet() {
 		return of(true).pipe(tap(() => sheet.dismiss(this.schmancyContentDrawerID)))
 	}
 
+	/**
+	 * Slide the sheet out of view + hide it.
+	 * Return an Observable so we can merge it with other close operations.
+	 */
 	closeSheet() {
-		return animate(this.sheet, {
-			opacity: 1,
-			duration: 500,
-			translateX: ['0%', '100%'],
-			ease: 'cubicBezier(0.5, 0.01, 0.25, 1)',
-			onComplete: () => {
+		// --- 2) Use native Web Animations API and wrap in an Observable ---
+		return new Observable<void>(observer => {
+			const animation = this.sheet.animate(
+				[
+					{ opacity: '1', transform: 'translateX(0%)' },
+					{ opacity: '1', transform: 'translateX(100%)' },
+				],
+				{
+					duration: 500,
+					easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
+				},
+			)
+
+			animation.onfinish = () => {
+				// "onComplete" logic
 				this.sheet.style.display = 'none'
-			},
+				observer.next()
+				observer.complete()
+			}
 		})
 	}
 
@@ -115,6 +162,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 			minWidth: `${this.minWidth}px`,
 			maxHeight: this.maxHeight,
 		}
+
 		return html`
 			<section id="sheet" class="${this.classMap(sheetClasses)}" style=${this.styleMap(styles)}>
 				<schmancy-area name="${this.schmancyContentDrawerID}">

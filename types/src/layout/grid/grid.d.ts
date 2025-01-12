@@ -17,7 +17,6 @@ export declare class SchmancyGrid extends Layout {
         xl?: string | number;
         '2xl'?: string | number;
     };
-    anime: {};
     wrap: boolean;
     assignedElements: HTMLElement[];
     firstUpdated(): void;

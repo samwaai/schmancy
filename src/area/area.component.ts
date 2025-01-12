@@ -1,4 +1,3 @@
-import { animate } from '@packages/anime-beta-master'
 import { $LitElement } from '@mixins/index'
 import { TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -27,6 +26,7 @@ type TRouteArea = {
 	component: string
 	state: object | undefined
 }
+
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
 	:host {
@@ -54,9 +54,9 @@ export class SchmancyArea extends $LitElement(css`
 	 */
 	getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY) {
 		return of(pathname).pipe(
-			map(pathname => pathname.split('/').pop() ?? ''),
-			map(pathname => decodeURIComponent(pathname)),
-			map(pathname => JSON.parse(pathname)),
+			map(path => path.split('/').pop() ?? ''),
+			map(path => decodeURIComponent(path)),
+			map(path => JSON.parse(path)),
 			map(routes => routes[this.name] as TRouteArea),
 			map(component =>
 				!component && this.default
@@ -94,12 +94,15 @@ export class SchmancyArea extends $LitElement(css`
 
 		// active outlet changes
 		merge(
+			// 1) initial load from location.pathname
 			of(location.pathname).pipe(
 				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
 				map(route => route as RouteAction),
 				take(1),
 			),
+			// 2) requests to change the route for this area
 			area.request.pipe(filter(({ area }) => area === this.name)),
+			// 3) popstate events (back, forward)
 			fromEvent<PopStateEvent>(window, 'popstate').pipe(
 				map(e => (e.target as Window).location.pathname),
 				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
@@ -111,12 +114,12 @@ export class SchmancyArea extends $LitElement(css`
 				takeUntil(this.disconnecting),
 				distinctUntilChanged((a, b) => {
 					let aComponent, bComponent
-					if (typeof a.component === 'function')
-						return false // TODO: maybe check if the function is a custom element constructor
+					if (typeof a.component === 'function') return false
 					else if (typeof a.component === 'string') aComponent = a.component
-					if (typeof b.component === 'function')
-						return false // TODO: maybe check if the function is a custom element constructor
+
+					if (typeof b.component === 'function') return false
 					else if (typeof b.component === 'string') bComponent = b.component
+
 					return bComponent?.replaceAll('-', '').toLowerCase() === aComponent?.replaceAll('-', '').toLowerCase()
 				}),
 			)
@@ -124,17 +127,22 @@ export class SchmancyArea extends $LitElement(css`
 				switchMap(route => {
 					const c = route.component
 					if (c instanceof Promise) {
+						// Dynamic import module
 						return from(c).pipe(map(x => ({ component: x.exports.default as CustomElementConstructor, route })))
 					} else {
+						// Already a string, function, or element
 						return of({ component: c, route })
 					}
 				}),
 				map(({ component, route }) => {
 					if (typeof component === 'string') {
+						// Tag name
 						return { component: document.createElement(component), route }
 					} else if (component instanceof HTMLElement) {
+						// Already an element instance
 						return { component, route }
 					} else if (typeof component === 'function') {
+						// Custom element constructor
 						return { component: new component(), route }
 					}
 				}),
@@ -143,36 +151,34 @@ export class SchmancyArea extends $LitElement(css`
 				map(({ component, route }) => {
 					const oldView = this.shadowRoot?.children[0]
 					const oldViewExists = !!oldView
-					const newView = component
-					newView.classList.add('opacity-0')
+
+					// Remove the old view (if any)
 					oldView?.remove()
-					// newView.classList.add('absolute', 'inset-0', 'z-20')
-					// oldView?.classList.add('absolute', 'inset-0')
+
+					// Insert the new view
 					this.shadowRoot?.append(component)
-					animate(component, {
-						opacity: [0, 1],
+
+					// Native Web Animations API - fade in
+					// "ease: cubic-bezier(0.25, 0.8, 0.25, 1)" was used in the old code
+					component.animate([{ opacity: '0' }, { opacity: '1' }], {
 						duration: oldViewExists ? 250 : 150,
-						ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-						// onBegin: () => {
-						// 	if (oldView)
-						// 		animate(oldView, {
-						// 			opacity: [1, 1],
-						// 			duration: 100,
-						// 			ease: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-						// 			onComplete: () => {
-						// 				oldView?.remove()
-						// 			},
-						// 		})
-						// },
+						easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
 					})
+
 					return { component, route }
 				}),
 				tap(({ component, route }) => {
-					if (typeof route.historyStrategy === 'undefined' || route.historyStrategy === 'push')
+					// Handle history updates
+					if (typeof route.historyStrategy === 'undefined' || route.historyStrategy === 'push') {
 						history.pushState(route.state, '', this.newPath(component.tagName, route))
-					else if (route.historyStrategy && ['replace', 'pop'].includes(route.historyStrategy))
+					} else if (route.historyStrategy && ['replace', 'pop'].includes(route.historyStrategy)) {
 						history.replaceState(route.state, '', this.newPath(component.tagName, route))
-					area.current.set(this.name, { component: component.tagName, state: route.state, area: this.name })
+					}
+					area.current.set(this.name, {
+						component: component.tagName,
+						state: route.state,
+						area: this.name,
+					})
 
 					area.$current.next(area.current)
 				}),
@@ -193,7 +199,10 @@ export class SchmancyArea extends $LitElement(css`
 		const queryParams = route.clearQueryParams ? this.queryParamClear(route.clearQueryParams) : document.location.search
 
 		return encodeURIComponent(
-			JSON.stringify({ ...oldAreaState, [this.name]: { component: tag.toLowerCase(), state: route.state } }),
+			JSON.stringify({
+				...oldAreaState,
+				[this.name]: { component: tag.toLowerCase(), state: route.state },
+			}),
 		).concat(`${queryParams}`)
 	}
 
