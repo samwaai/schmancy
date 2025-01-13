@@ -144,16 +144,12 @@ export class SchmancySlider extends $LitElement(css`
 					: null}
 
 				<!-- Dots / indicators -->
-				<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+				<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex  space-x-2">
 					${slides.map((_, index) => {
 						const isSelected = index === this.selectedIndex
-						const dotColor = isSelected
-							? SchmancyTheme.sys.color.primary.default
-							: SchmancyTheme.sys.color.surface.default
 						return html`
-							<schmancy-icon-button class="w-3 h-3 rounded-full" style="background: ${dotColor}">
-								circle
-							</schmancy-icon-button>
+							<schmancy-button .variant=${isSelected ? 'filled tonal' : 'outlined'} class="rounded-full ">
+							</schmancy-button>
 						`
 					})}
 				</div>

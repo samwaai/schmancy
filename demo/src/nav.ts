@@ -19,8 +19,8 @@ import { DemoSheet } from './features/sheet'
 import { DemoSurface } from './features/surface'
 import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
+import { SchmancyTypewriterDemo } from './features/typewriter'
 import DemoTypography from './features/typography'
-import { DemoSlider } from './features/slider'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -35,9 +35,13 @@ export class DemoNav extends $LitElement(css`
 		component: CustomElementConstructor
 	}> = [
 		{
-			name: 'Sliders',
-			component: DemoSlider,
+			name: 'Typewriter',
+			component: SchmancyTypewriterDemo,
 		},
+		// {
+		// 	name: 'Sliders',
+		// 	component: DemoSlider,
+		// },
 		{
 			name: 'Icons',
 			component: DemoIcons,
@@ -112,7 +116,7 @@ export class DemoNav extends $LitElement(css`
 		return html`
 			<schmancy-grid ${fullHeight()} gap="md" justify="center">
 				<schmancy-typography type="headline" token="lg">
-					<schmancy-animated-text> Schmancy </schmancy-animated-text>
+					<schmancy-typewriter .actions=${['Schmancy']}> </schmancy-typewriter>
 				</schmancy-typography>
 
 				<schmancy-list>
