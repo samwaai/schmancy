@@ -33,6 +33,7 @@ export declare class TypewriterElement extends TypewriterElement_base {
      * Reference to the typewriter container.
      */
     private typewriterContainer;
+    private _getSlottedNodes;
     /**
      * Lifecycle method called when the component is disconnected from the DOM.
      * Ensures that TypeIt instances are properly cleaned up.
@@ -46,10 +47,6 @@ export declare class TypewriterElement extends TypewriterElement_base {
      * Destroys the current TypeIt instance if it exists.
      */
     private _destroyTypeIt;
-    /**
-     * Gets the assigned slotted nodes and removes them from rendering.
-     */
-    private _getSlottedNodes;
     /**
      * Processes a custom element for its typing behavior.
      */

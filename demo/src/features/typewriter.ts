@@ -10,8 +10,13 @@ export class SchmancyTypewriterDemo extends $LitElement() {
 				Hello, world!
 				<span action="pause" value="1000"></span>
 				Welcome to <strong>Schmancy</strong>.
-				<span action="delete" value="9"></span>
+				<span action="delete" value="2"></span>
 				Lit Components!
+			</schmancy-typewriter>
+			<schmancy-typewriter .speed=${30} cursorChar="|">
+				We empower organizations to operate
+				<p>Efficiently, Seamlessly, and Affordably</p>
+				<p>Through digital transformation.</p>
 			</schmancy-typewriter>
 		`
 	}

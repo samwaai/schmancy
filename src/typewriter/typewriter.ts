@@ -1,6 +1,6 @@
 import { $LitElement } from '@mixins/index'
 import { css, html, TemplateResult } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property, query, queryAssignedNodes } from 'lit/decorators.js'
 import TypeIt, { Options as TypeItOptions } from 'typeit'
 
 @customElement('schmancy-typewriter')
@@ -65,6 +65,10 @@ export class TypewriterElement extends $LitElement(css`
 	@query('#typewriter')
 	private typewriterContainer!: HTMLElement
 
+	@queryAssignedNodes({
+		flatten: true,
+	})
+	private _getSlottedNodes!: Node[]
 	/**
 	 * Lifecycle method called when the component is disconnected from the DOM.
 	 * Ensures that TypeIt instances are properly cleaned up.
@@ -106,7 +110,7 @@ export class TypewriterElement extends $LitElement(css`
 		this.typeItInstance = new TypeIt(this.typewriterContainer, typeItOptions)
 
 		// Process slotted content as actions
-		const slottedNodes = this._getSlottedNodes()
+		const slottedNodes = this._getSlottedNodes
 		slottedNodes.forEach(node => {
 			if (node.nodeType === Node.TEXT_NODE) {
 				// Handle plain text
@@ -138,23 +142,6 @@ export class TypewriterElement extends $LitElement(css`
 	}
 
 	/**
-	 * Gets the assigned slotted nodes and removes them from rendering.
-	 */
-	private _getSlottedNodes(): Node[] {
-		const slot = this.shadowRoot?.querySelector('slot')
-		const nodes = slot ? slot.assignedNodes({ flatten: true }) : []
-
-		// Remove all nodes from rendering
-		nodes.forEach(node => {
-			if (node instanceof HTMLElement || node.nodeType === Node.TEXT_NODE) {
-				// node.remove()
-			}
-		})
-
-		return nodes
-	}
-
-	/**
 	 * Processes a custom element for its typing behavior.
 	 */
 	private _processCustomElement(element: HTMLElement) {
@@ -168,6 +155,9 @@ export class TypewriterElement extends $LitElement(css`
 				this.typeItInstance?.delete(parseInt(value || '0', 10))
 				break
 			default:
+				if (element.tagName === 'P') {
+					this.typeItInstance.break()
+				}
 				// Treat as text if no action is defined
 				this.typeItInstance?.type(element.textContent || '')
 				break
