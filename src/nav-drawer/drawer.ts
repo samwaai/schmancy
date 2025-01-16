@@ -96,8 +96,8 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 		return html`
 			<schmancy-grid
 				cols=${this.fullscreen ? '1fr' : 'auto 1fr'}
-				rows="auto 1fr"
-				flow="row"
+				rows="1fr"
+				flow="col"
 				justify="stretch"
 				align="stretch"
 				${fullHeight()}
