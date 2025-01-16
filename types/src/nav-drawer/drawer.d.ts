@@ -10,11 +10,11 @@ export declare class SchmancyNavigationDrawer extends SchmancyNavigationDrawer_b
     fullscreen: boolean;
     /**
      * The minimum width of the sidebar
-     * @attr	min-width
+     * @attr	breakpoint
      * @type {number}
      * @memberof SchmancyNavigationDrawer
      */
-    minWidth: number;
+    breakpoint: number;
     /**
      * The mode of the sidebar
      * @type {TSchmancyDrawerNavbarMode}

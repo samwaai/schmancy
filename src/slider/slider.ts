@@ -1,5 +1,4 @@
 import { $LitElement } from '@mixins/index'
-import { SchmancyTheme } from '@schmancy/theme'
 import { css, html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { fromEvent } from 'rxjs'

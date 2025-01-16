@@ -96,8 +96,8 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 		// --- 2) Use native Web Animations API ---
 		this.sheet.animate(
 			[
-				{ opacity: '0', transform: 'translateX(100%)' },
-				{ opacity: '1', transform: 'translateX(0%)' },
+				{ opacity: 0, transform: 'translateX(100%)' },
+				{ opacity: 1, transform: 'translateX(0%)' },
 			],
 			{
 				duration: 500,
@@ -133,8 +133,8 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 		return new Observable<void>(observer => {
 			const animation = this.sheet.animate(
 				[
-					{ opacity: '1', transform: 'translateX(0%)' },
-					{ opacity: '1', transform: 'translateX(100%)' },
+					{ opacity: 1, transform: 'translateX(0%)' },
+					{ opacity: 1, transform: 'translateX(100%)' },
 				],
 				{
 					duration: 500,

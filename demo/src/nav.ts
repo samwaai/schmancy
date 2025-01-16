@@ -116,7 +116,7 @@ export class DemoNav extends $LitElement(css`
 		return html`
 			<schmancy-grid ${fullHeight()} gap="md" justify="center">
 				<schmancy-typography type="headline" token="lg">
-					<schmancy-typewriter .actions=${['Schmancy']}> </schmancy-typewriter>
+					<schmancy-typewriter> Schmancy </schmancy-typewriter>
 				</schmancy-typography>
 
 				<schmancy-list>

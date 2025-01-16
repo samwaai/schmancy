@@ -31,12 +31,12 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 
 	/**
 	 * The minimum width of the sidebar
-	 * @attr	min-width
+	 * @attr	breakpoint
 	 * @type {number}
 	 * @memberof SchmancyNavigationDrawer
 	 */
-	@property({ type: Number })
-	minWidth: number = 1240
+	@property({ type: Number, attribute: 'breakpoint' })
+	breakpoint: number = 768
 
 	/**
 	 * The mode of the sidebar
@@ -59,7 +59,7 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 				map(event => event.target as Window),
 				startWith(window),
 				map(window => window.innerWidth),
-				map(width => width >= this.minWidth),
+				map(width => width >= this.breakpoint),
 				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
 				debounceTime(100),
@@ -96,8 +96,8 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 		return html`
 			<schmancy-grid
 				cols=${this.fullscreen ? '1fr' : 'auto 1fr'}
-				rows="1fr"
-				flow="col"
+				rows="auto 1fr"
+				flow="row"
 				justify="stretch"
 				align="stretch"
 				${fullHeight()}

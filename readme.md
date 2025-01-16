@@ -62,6 +62,7 @@ Below is a table linking to each component’s documentation on the GitHub Wiki:
 | Component                 | Description                     | Documentation                                                                                     |
 | ------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `schmancy-area`           | Area component                  | [Wiki - schmancy-area](https://github.com/mhmo91/schmancy/wiki/schmancy-area)                     |
+| `schmancy-typewriter`     | Typewriter component            | [Wiki - schmancy-area](https://github.com/mhmo91/schmancy/wiki/schmancy-typewriter)               |
 | `schmancy-autocomplete`   | Autocomplete field              | [Wiki - schmancy-autocomplete](https://github.com/mhmo91/schmancy/wiki/schmancy-autocomplete)     |
 | `schmancy-busy`           | Loading/busy indicator          | [Wiki - schmancy-busy](https://github.com/mhmo91/schmancy/wiki/schmancy-busy)                     |
 | `schmancy-button`         | Customizable button             | [Wiki - schmancy-button](https://github.com/mhmo91/schmancy/wiki/schmancy-button)                 |

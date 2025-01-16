@@ -160,7 +160,7 @@ export class SchmancyArea extends $LitElement(css`
 
 					// Native Web Animations API - fade in
 					// "ease: cubic-bezier(0.25, 0.8, 0.25, 1)" was used in the old code
-					component.animate([{ opacity: '0' }, { opacity: '1' }], {
+					component.animate([{ opacity: 0 }, { opacity: 1 }], {
 						duration: oldViewExists ? 250 : 150,
 						easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
 					})

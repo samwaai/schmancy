@@ -50,8 +50,8 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 		this.overlay.style.display = 'block'
 
 		// Animate opacity from 0 to 0.4
-		this.overlay.animate([{ opacity: '0' }, { opacity: '0.4' }], {
-			duration: 300,
+		this.overlay.animate([{ opacity: 0 }, { opacity: 0.4 }], {
+			duration: 200,
 			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
 			fill: 'forwards', // <-- This keeps the final keyframe (0.4) after finishing
 		})
@@ -61,8 +61,8 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 
 	closeOverlay() {
 		// Animate opacity from 0.4 to 0
-		const animation = this.overlay.animate([{ opacity: '0.4' }, { opacity: '0' }], {
-			duration: 250,
+		const animation = this.overlay.animate([{ opacity: 0.4 }, { opacity: 0 }], {
+			duration: 150,
 			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
 		})
 
@@ -74,7 +74,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 
 	protected render() {
 		const animate = {
-			'transition-all transform-gpu duration-[300ms] ease-[cubicBezier(0.5, 0.01, 0.25, 1)]': true,
+			'transition-all transform-gpu duration-[200ms] ease-[cubicBezier(0.5, 0.01, 0.25, 1)]': true,
 		}
 
 		const sidebarClasses = {

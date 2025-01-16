@@ -74,24 +74,15 @@ export class SchmancyTree extends TailwindElement(css`
 						// We are about to open, so remove `hidden` to measure scrollHeight
 						this.defaultSlot.hidden = false
 					}
-					const slotHeight = this.defaultSlot.scrollHeight
-					const fromHeight = this.open ? `${slotHeight}px` : '0px'
-					const toHeight = this.open ? '0px' : `${slotHeight}px`
 
 					const fromOpacity = this.open ? 1 : 0
 					const toOpacity = this.open ? 0 : 1
 
-					const slotAnimation = this.defaultSlot.animate(
-						[
-							{ height: fromHeight, opacity: fromOpacity },
-							{ height: toHeight, opacity: toOpacity },
-						],
-						{
-							duration: 200,
-							easing: 'ease-out',
-							fill: 'forwards',
-						},
-					)
+					const slotAnimation = this.defaultSlot.animate([{ opacity: fromOpacity }, { opacity: toOpacity }], {
+						duration: 150,
+						easing: 'ease-out',
+						fill: 'forwards',
+					})
 
 					// Hide the slot if we just closed it
 					slotAnimation.onfinish = () => {

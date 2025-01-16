@@ -6,24 +6,13 @@ import { customElement } from 'lit/decorators.js'
 export class SchmancyTypewriterDemo extends $LitElement() {
 	render() {
 		return html`
-			<schmancy-typography type="display">
-				<schmancy-typewriter
-					.actions=${[
-						'Event-driven Typewriter.',
-						{
-							action: 'pause',
-							value: 1000,
-						},
-						{ action: 'delete', value: 1 },
-
-						{
-							action: 'pause',
-							value: 1000,
-						},
-						' Listening to Events!',
-					]}
-				></schmancy-typewriter>
-			</schmancy-typography>
+			<schmancy-typewriter .speed=${10} .cursor=${true} .cursorChar=${'|'} .autoStart=${true}>
+				Hello, world!
+				<span action="pause" value="1000"></span>
+				Welcome to <strong>Schmancy</strong>.
+				<span action="delete" value="9"></span>
+				Lit Components!
+			</schmancy-typewriter>
 		`
 	}
 }
