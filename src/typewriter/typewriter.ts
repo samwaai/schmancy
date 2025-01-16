@@ -10,7 +10,6 @@ export class TypewriterElement extends $LitElement(css`
 	}
 
 	#typewriter {
-		white-space: nowrap;
 		--ti-cursor-display: initial;
 	}
 
