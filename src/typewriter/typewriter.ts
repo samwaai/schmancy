@@ -1,6 +1,10 @@
+import { consume } from '@lit/context'
 import { $LitElement } from '@mixins/index'
+import { delayContext } from '@schmancy/delay'
+import hashContent from '@schmancy/utils/hashContent'
+import { intersection$ } from '@schmancy/utils/intersection'
 import { css, html, TemplateResult } from 'lit'
-import { customElement, property, query, queryAssignedNodes } from 'lit/decorators.js'
+import { customElement, property, query, queryAssignedElements, queryAssignedNodes } from 'lit/decorators.js'
 import TypeIt, { Options as TypeItOptions } from 'typeit'
 
 @customElement('schmancy-typewriter')
@@ -21,25 +25,20 @@ export class TypewriterElement extends $LitElement(css`
 	 * Typing speed in milliseconds per character.
 	 */
 	@property({ type: Number })
-	speed: number = 60
+	speed: number = 50
 
 	/**
 	 * Delay before typing starts (ms).
 	 */
+	@consume({ context: delayContext, subscribe: true })
 	@property({ type: Number })
-	startDelay: number = 0
+	delay: number = 0
 
 	/**
 	 * Automatically start typing on initialization.
 	 */
 	@property({ type: Boolean })
 	autoStart: boolean = true
-
-	/**
-	 * Whether to show the cursor.
-	 */
-	@property({ type: Boolean })
-	cursor: boolean = true
 
 	/**
 	 * The cursor character.
@@ -51,8 +50,9 @@ export class TypewriterElement extends $LitElement(css`
 	 * Typing speed for deletions (ms per character).
 	 */
 	@property({ type: Number })
-	deleteSpeed: number = 30
+	deleteSpeed: number = 25
 
+	@property({ type: Boolean }) once = true
 	/**
 	 * TypeIt instance.
 	 */
@@ -68,10 +68,17 @@ export class TypewriterElement extends $LitElement(css`
 		flatten: true,
 	})
 	private _getSlottedNodes!: Node[]
+
+	@queryAssignedElements({
+		flatten: true,
+	})
+	private _getSlottedElements!: HTMLElement[]
 	/**
 	 * Lifecycle method called when the component is disconnected from the DOM.
 	 * Ensures that TypeIt instances are properly cleaned up.
 	 */
+
+	private sessionKey = ''
 	disconnectedCallback() {
 		super.disconnectedCallback()
 		this._destroyTypeIt()
@@ -84,6 +91,14 @@ export class TypewriterElement extends $LitElement(css`
 		// Destroy any existing TypeIt instance
 		this._destroyTypeIt()
 
+		this.sessionKey = this.generateSessionKey()
+
+		if (this.once && sessionStorage.getItem(this.sessionKey) === 'true') {
+			// Skip delay and render immediately if once is set and already rendered
+			this.shadowRoot?.querySelector('slot')?.removeAttribute('hidden')
+			return
+		}
+
 		if (!this.typewriterContainer) {
 			console.warn('Typewriter container not found.')
 			return
@@ -92,11 +107,18 @@ export class TypewriterElement extends $LitElement(css`
 		// Configure TypeIt options
 		const typeItOptions: TypeItOptions = {
 			speed: this.speed,
-			startDelay: this.startDelay,
-			cursor: this.cursor,
+			startDelay: this.delay,
+			cursor: !!this.cursorChar,
 			cursorChar: this.cursorChar,
 			deleteSpeed: this.deleteSpeed,
 			afterComplete: () => {
+				if (this.once) {
+					try {
+						sessionStorage.setItem(this.sessionKey, 'true')
+					} catch (error) {
+						console.error('Error saving to session storage:', error)
+					}
+				}
 				// Dispatch the custom event
 				this.dispatchEvent(new CustomEvent('typeit-complete', { bubbles: true, composed: true }))
 
@@ -121,11 +143,18 @@ export class TypewriterElement extends $LitElement(css`
 		})
 
 		// Start the typing animation if autoStart is enabled
-		if (this.autoStart) {
+		// use rxjs to detect once we are in the view port
+		intersection$(this.shadowRoot?.host as Element).subscribe(() => {
+			// alert('in view')
 			this.typeItInstance?.go()
-		}
+		})
+		// Start the typing animation if autoStart is enabled
 	}
 
+	private generateSessionKey(): string {
+		const slotContent = this._getSlottedElements.map(el => el.outerHTML).join('')
+		return this.once ? hashContent(slotContent) : ''
+	}
 	/**
 	 * Destroys the current TypeIt instance if it exists.
 	 */
@@ -169,12 +198,14 @@ export class TypewriterElement extends $LitElement(css`
 	render(): TemplateResult {
 		return html`<div id="typewriter" aria-live="polite"></div>
 
-			<slot
-				hidden
-				@slotchange=${() => {
-					this._startTyping()
-				}}
-			></slot> `
+			<div class="typewriter">
+				<slot
+					hidden
+					@slotchange=${() => {
+						this._startTyping()
+					}}
+				></slot>
+			</div> `
 	}
 }
 

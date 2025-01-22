@@ -10,6 +10,7 @@ export * from './components';
 export * from './content-drawer';
 export * from './data';
 export * from './date-range';
+export * from './delay';
 export * from './directives';
 export * from './divider';
 export * from './form';
