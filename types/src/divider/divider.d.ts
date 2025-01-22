@@ -2,7 +2,8 @@ declare const SchmancyDivider_base: CustomElementConstructor & import("@mixins/i
 export default class SchmancyDivider extends SchmancyDivider_base {
     outline: 'default' | 'variant';
     orientation: 'horizontal' | 'vertical';
-    protected render(): unknown;
+    grow: 'start' | 'end' | 'both';
+    protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {
