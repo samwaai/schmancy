@@ -121,6 +121,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 
 	protected render(): unknown {
 		const tabs = {
+			'bg-surface-default color-surface-on': true,
 			'flex z-50': true,
 			'sticky top-0 shadow-md': this.mode === 'scroll',
 			'rounded-full': this.rounded,
@@ -138,15 +139,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 		}
 
 		return html`
-			<section
-				id="tabsNavigation"
-				${color({
-					bgColor: SchmancyTheme.sys.color.surface.default,
-					color: SchmancyTheme.sys.color.surface.on,
-				})}
-				class="${this.classMap(tabs)}"
-				aria-label="Tabs"
-			>
+			<section id="tabsNavigation" class="${this.classMap(tabs)}" aria-label="Tabs">
 				${repeat(
 					this.tabs,
 					tab => tab.value,
