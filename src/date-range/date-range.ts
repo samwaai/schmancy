@@ -66,6 +66,21 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 				},
 				step: 'day',
 			},
+			// tomorrow
+			{
+				label: 'Tomorrow',
+				range: {
+					dateFrom: moment()
+						.add(1, 'days')
+						.startOf('day')
+						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
+					dateTo: moment()
+						.add(1, 'days')
+						.endOf('day')
+						.format(this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'),
+				},
+				step: 'day',
+			},
 			{
 				label: 'This Week',
 				range: {
