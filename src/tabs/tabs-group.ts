@@ -1,7 +1,5 @@
 import { provide } from '@lit/context'
-import { color } from '@schmancy/directives'
 import { TailwindElement } from '@mixins/index'
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
@@ -164,7 +162,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 								</schmancy-typography>
 								<div
 									.hidden=${this.activeTab !== tab.value}
-									class="border-primary-default absolute bottom-0 inset-x-6  border-2 rounded-t-full"
+									class="border-primary-default absolute bottom-0 inset-x-6  border-solid border-2 rounded-t-full"
 								></div>
 							</div>
 						</schmancy-button>
