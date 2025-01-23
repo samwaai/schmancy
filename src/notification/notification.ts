@@ -10,7 +10,7 @@ export class SchmancyNotification extends TailwindElement() {
 		return html`
 			<div
 				aria-live="assertive"
-				class="pointer-events-none z-[100] fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
+				class="pointer-events-none z-100 fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
 			>
 				<div class="flex w-full flex-col items-center space-y-4 sm:items-end">
 					<div
@@ -18,7 +18,7 @@ export class SchmancyNotification extends TailwindElement() {
 					>
 						<div class="p-2">
 							<div class="flex items-center">
-								<div class="flex-shrink-0">
+								<div class="shrink-0">
 									${this.type === 'success'
 										? html` <svg
 												class="h-6 w-6 text-green-400"
@@ -54,10 +54,10 @@ export class SchmancyNotification extends TailwindElement() {
 										<slot></slot>
 									</p>
 								</div>
-								<div class="ml-4 flex flex-shrink-0">
+								<div class="ml-4 flex shrink-0">
 									<button
 										type="button"
-										class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-900 hover:bg-gray-100 hover:rounded-full p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+										class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-900 hover:bg-gray-100 hover:rounded-full p-2 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 										@click=${() => {
 											this.dispatchEvent(new CustomEvent('close'))
 										}}

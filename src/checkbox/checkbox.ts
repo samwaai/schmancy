@@ -77,7 +77,7 @@ export class SchmancyCheckbox extends TailwindElement() {
 						aria-describedby="comments-description"
 						name=${this.name}
 						type="checkbox"
-						class="rounded border-gray-300 text-secondary-key focus:text-secondary-key ${classMap(inputClasses)}"
+						class="rounded-sm border-gray-300 text-secondary-key focus:text-secondary-key ${classMap(inputClasses)}"
 						value=${this.value}
 						.checked=${this.value}
 					/>

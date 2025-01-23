@@ -17,7 +17,7 @@ export default class SchmancyCard extends TailwindElement() {
 			'hover:shadow-1': ['outlined', 'filled'].includes(this.type),
 			'bg-surface-low shadow-1 hover:shadow-2': this.type === 'elevated',
 			'bg-surface-highest': this.type === 'filled',
-			'bg-surface-default border-1 border-outlinetype ': this.type === 'outlined',
+			'bg-surface-default border-1 border-outlineVariant': this.type === 'outlined',
 		}
 		return html`<div class="${this.classMap(classes)}">
 			<slot> </slot>

@@ -35,11 +35,11 @@ export default class SchmancyDivider extends $LitElement(css`
 	/* Outline Variants */
 	.border-outlineVariant {
 		/* Utilize existing outline variant styles */
-		border-color: var(--outline-variant-color, #555);
+		border-color: var(--schmancy-sys-color-outlineVariant, #555);
 	}
 	.border-outline {
 		/* Utilize existing default outline styles */
-		border-color: var(--outline-color, #000);
+		border-color: var(--schmancy-sys-color-outline, #000);
 	}
 	/* RTL Support for Horizontal Dividers */
 	:host([dir='rtl']) .horizontal.grow-start {

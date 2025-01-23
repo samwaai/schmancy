@@ -304,7 +304,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
 			'ring-primary-default ring-outline focus:ring-primary-default': !this.error,
 			'ring-error-default focus:ring-error-default': this.error,
-			'caret-transparent focus:outline-none cursor-pointer text-select-none': this.readonly,
+			'caret-transparent focus:outline-hidden cursor-pointer text-select-none': this.readonly,
 			'cursor-pointer': this.clickable,
 			'text-center': this.align === 'center',
 			'text-right': this.align === 'right',

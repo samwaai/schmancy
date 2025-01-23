@@ -11,11 +11,6 @@ const tailwindTheme: Config = {
 			fontFamily: {
 				sans: ['inherit'], // Or a different fallback like 'Arial'
 			},
-
-			boxShadow: {
-				...SchmancyTheme.sys.elevation,
-			},
-			colors: { ...SchmancyTheme.sys.color },
 			borderWidth: { ...SchmancyTheme.sys.outline },
 		},
 	},

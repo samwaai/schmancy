@@ -1,3 +1,46 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme inline {
+	--spacing: 4px;
+	/* --divider-color: var(--schmancy-sys-divider-color); */
+	--color-scrim: var(--schmancy-sys-color-scrim);
+	--color-outline: var(--schmancy-sys-color-outline);
+	--color-outlineVariant: var(--schmancy-sys-color-outlineVariant);
+	--color-surface-default: var(--schmancy-sys-color-surface-default);
+	--color-surface-dim: var(--schmancy-sys-color-surface-dim);
+	--color-surface-bright: var(--schmancy-sys-color-surface-bright);
+	--color-surface-container: var(--schmancy-sys-color-surface-container);
+	--color-surface-low: var(--schmancy-sys-color-surface-low);
+	--color-surface-high: var(--schmancy-sys-color-surface-high);
+	--color-surface-highest: var(--schmancy-sys-color-surface-highest);
+	--color-surface-lowest: var(--schmancy-sys-color-surface-lowest);
+	--color-surface-on: var(--schmancy-sys-color-surface-on);
+	--color-surface-onVariant: var(--schmancy-sys-color-surface-onVariant);
+	--color-primary-default: var(--schmancy-sys-color-primary-default);
+	--color-primary-on: var(--schmancy-sys-color-primary-on);
+	--color-primary-container: var(--schmancy-sys-color-primary-container);
+	--color-primary-onContainer: var(--schmancy-sys-color-primary-onContainer);
+	--color-secondary-default: var(--schmancy-sys-color-secondary-default);
+	--color-secondary-on: var(--schmancy-sys-color-secondary-on);
+	--color-secondary-container: var(--schmancy-sys-color-secondary-container);
+	--color-secondary-onContainer: var(--schmancy-sys-color-secondary-onContainer);
+	--color-tertiary-default: var(--schmancy-sys-color-tertiary-default);
+	--color-tertiary-on: var(--schmancy-sys-color-tertiary-on);
+	--color-tertiary-container: var(--schmancy-sys-color-tertiary-container);
+	--color-tertiary-onContainer: var(--schmancy-sys-color-tertiary-onContainer);
+	--color-error-default: var(--schmancy-sys-color-error-default);
+	--color-error-on: var(--schmancy-sys-color-error-on);
+	--color-error-container: var(--schmancy-sys-color-error-container);
+	--color-error-onContainer: var(--schmancy-sys-color-error-onContainer);
+	--color-success-default: var(--schmancy-sys-color-success-default);
+	--color-success-on: var(--schmancy-sys-color-success-on);
+	--color-success-container: var(--schmancy-sys-color-success-container);
+	--color-success-onContainer: var(--schmancy-sys-color-success-onContainer);
+	--shadow-0: var(--schmancy-sys-elevation-0);
+	--shadow-1: var(--schmancy-sys-elevation-1);
+	--shadow-2: var(--schmancy-sys-elevation-2);
+	--shadow-3: var(--schmancy-sys-elevation-3);
+	--shadow-4: var(--schmancy-sys-elevation-4);
+	--shadow-5: var(--schmancy-sys-elevation-5);
+	--outline-1: var(--schmancy-sys-outline-1);
+}

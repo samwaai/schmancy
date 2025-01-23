@@ -154,7 +154,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 	protected render() {
 		const sheetClasses = {
 			block: this.mode === 'push',
-			'absolute z-[50]': this.mode === 'overlay',
+			'absolute z-50': this.mode === 'overlay',
 			'opacity-1': this.mode === 'overlay' && this.state === 'open',
 		}
 

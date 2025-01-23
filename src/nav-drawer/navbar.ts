@@ -85,7 +85,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 			'translate-x-[-100%]': this.mode === 'overlay' && this.state === 'close',
 		}
 		const overlayClass = {
-			'fixed inset-0 z-[49] hidden': true,
+			'fixed inset-0 z-49 hidden': true,
 		}
 
 		const styleMap = {

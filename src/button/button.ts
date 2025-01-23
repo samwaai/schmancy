@@ -21,7 +21,6 @@ export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' 
 export class SchmnacyButton extends $LitElement(css`
 	:host {
 		display: block;
-		height: 40px;
 	}
 `) {
 	protected static shadowRootOptions = {
@@ -133,8 +132,9 @@ export class SchmnacyButton extends $LitElement(css`
 
 	render() {
 		const classes = {
-			'h-full z-10 px-[24px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] focus:outline-none':
+			'z-10 py-[8px] px-[16px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] focus:outline-hidden':
 				true,
+			'cursor-pointer': !this.disabled,
 			'opacity-[0.38]': this.disabled,
 			'hover:shadow-1':
 				!this.disabled &&
@@ -152,23 +152,22 @@ export class SchmnacyButton extends $LitElement(css`
 		}
 
 		const stateLayerClasses = {
-			'hover:opacity-[0.08] z-0 rounded-full': true,
+			'absolute inset-0 hover:opacity-[0.08] z-0 rounded-full': true,
 			'hover:bg-primary-on': this.variant == 'filled',
 			'hover:bg-primary-default': this.variant == 'outlined' || this.variant == 'elevated' || this.variant == 'text',
 			'hover:bg-secondary-container': this.variant == 'filled tonal',
 		}
 		return html`
 			<button
-				part="base"
 				aria-label=${ifDefined(this.ariaLabel)}
 				?disabled=${this.disabled}
 				class="${this.classMap(classes)}"
 				type=${ifDefined(this.type)}
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
-				${when(!this.disabled, () => html` <div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div> `)}
+				${when(!this.disabled, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}
 				<slot name="prefix"></slot>
-				<slot> placeholder </slot>
+				<slot> </slot>
 				<slot name="suffix"></slot>
 			</button>
 		`

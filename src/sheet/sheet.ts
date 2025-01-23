@@ -150,7 +150,7 @@ export default class SchmancySheet extends $LitElement(style) {
 	render() {
 		const classes = {
 			'inset-0 fixed min-w-[100vw] max-w-[100vw] md:min-w-[360px]': true,
-			'transition-all duration-[600]': true,
+			'transition-all duration-600': true,
 			'bottom-0 items-center justify-end': this.position === SchmancySheetPosition.Bottom,
 			'top-0 right-0 bottom-0 mx-auto items-end justify-start h-full w-full':
 				this.position === SchmancySheetPosition.Side,
@@ -161,7 +161,7 @@ export default class SchmancySheet extends $LitElement(style) {
 			'bg-surface-low text-surface-onVariant border-outline shadow-1': true,
 		}
 		const overlayClasses = {
-			'bg-scrim transition-all duration-[600] opacity-[0.4] absolute inset-0': true,
+			'bg-scrim transition-all duration-600 opacity-[0.4] absolute inset-0': true,
 		}
 		console.log('rendering sheet', this.header)
 		return html`

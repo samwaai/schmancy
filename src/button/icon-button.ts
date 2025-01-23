@@ -105,9 +105,10 @@ export class SchmnacyIconButton extends $LitElement(css`
 
 	render() {
 		const classes = {
-			'h-full z-10 transition-all duration-200 relative rounded-full inline-flex justify-center items-center focus:outline-none':
+			'h-full z-10 transition-all duration-200 relative rounded-full inline-flex justify-center items-center focus:outline-hidden':
 				true,
 			'opacity-[0.38]': this.disabled,
+			'cursor-pointer': !this.disabled,
 			'hover:shadow-1':
 				!this.disabled &&
 				(this.variant == 'outlined' ||

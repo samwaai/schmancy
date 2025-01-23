@@ -5,6 +5,7 @@ import { resolve } from 'path'
 import copy from 'rollup-plugin-copy'
 import { defineConfig } from 'vite'
 import webfontDownload from 'vite-plugin-webfont-dl'
+import tailwindcss from '@tailwindcss/vite'
 
 const getDirectories = async source =>
 	(await readdir(source, { withFileTypes: true })).filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
@@ -20,6 +21,7 @@ export default defineConfig({
 			'@mixins': resolve(__dirname, '/mixins'),
 		},
 	},
+	plugins: [webfontDownload(['https://ticket.funkhaus-berlin.net/assets/GT-Eesti-Pro-Display-Regular-Czpp09nv.woff'])],
 	build: {
 		lib: {
 			entry: components.reduce(
@@ -80,13 +82,4 @@ export default defineConfig({
 			],
 		},
 	},
-	plugins: [
-		webfontDownload(['https://ticket.funkhaus-berlin.net/assets/GT-Eesti-Pro-Display-Regular-Czpp09nv.woff']),
-		// Uncomment if you want to use the sitemap plugin
-		// Sitemap({
-		//   generateRobotsTxt: true,
-		//   outDir: resolve(__dirname, './public'),
-		//   // hostname: 'https://lit-kit.web.app/',
-		// }),
-	],
 })

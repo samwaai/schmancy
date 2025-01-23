@@ -153,17 +153,18 @@ export class SchmancyArea extends $LitElement(css`
 					const oldViewExists = !!oldView
 
 					// Remove the old view (if any)
-					oldView?.remove()
-
-					// Insert the new view
-					this.shadowRoot?.append(component)
-
+					oldView.remove()
 					// Native Web Animations API - fade in
 					// "ease: cubic-bezier(0.25, 0.8, 0.25, 1)" was used in the old code
+					component.classList.add('opacity-0')
+					this.shadowRoot?.append(component)
 					component.animate([{ opacity: 0 }, { opacity: 1 }], {
-						duration: oldViewExists ? 250 : 150,
+						duration: oldViewExists ? 150 : 100,
 						easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+						fill: 'forwards',
 					})
+
+					// Insert the new view
 
 					return { component, route }
 				}),
