@@ -1,3 +1,4 @@
+:host,
 :root {
 	--md-ref-typeface-brand: 'Josefin Sans', sans-serif;
 	--md-ref-typeface-plain: 'Josefin Sans', sans-serif;
@@ -446,8 +447,8 @@
 	--md-sys-color-surface-highest: var(--schmancy-sys-color-surface-highest);
 	--md-sys-color-surface-lowest: var(--schmancy-sys-color-surface-lowest);
 	--md-sys-color-surface-on: var(--schmancy-sys-color-surface-on);
-	--md-sys-color-surface-onVariant: var(--schmancy-sys-color-surface-onVariant);
-
+	--md-sys-color-on-surface-variant: var(--schmancy-sys-color-surface-onVariant);
+	--md-sys-color-on-secondary-container: var(--schmancy-sys-color-secondary-onContainer);
 	/* Primary Colors */
 	--md-sys-color-primary-default: var(--schmancy-sys-color-primary-default);
 	--md-sys-color-primary-on: var(--schmancy-sys-color-primary-on);

@@ -1,31 +1,5 @@
-:root {
-	font-family: 'GT-Eesti-Display-Regular';
-	--md-ref-typeface-brand: 'GT-Eesti-Display-Regular';
-	--md-ref-typeface-plain: 'GT-Eesti-Display-Regular';
-	--md-sys-color-primary: var(--schmancy-sys-color-primary-default);
-	--md-sys-color-secondary: var(--schmancy-sys-color-secondary-default);
-
-	font-weight: 400;
-
-	color-scheme: light dark;
-	color: #213547;
-	background-color: #fff;
-
-	font-synthesis: none;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
 html,
 body {
 	margin: 0;
 	padding: 0;
-	--schmancy-font-family: 'GT-Eesti-Display-Regular';
-}
-
-@media (prefers-color-scheme: light) {
-	:root {
-		color: #213547;
-	}
 }

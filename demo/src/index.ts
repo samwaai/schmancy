@@ -26,7 +26,7 @@ export default class SchmancyDemo extends $LitElement() {
 								<schmancy-typography>Title</schmancy-typography>
 							</schmancy-nav-drawer-appbar>
 							<schmancy-surface type="surface" rounded="left">
-								<schmancy-area class="p-4" name="main" .default=${DemoInput}></schmancy-area>
+								<schmancy-area name="main" .default=${DemoInput}></schmancy-area>
 							</schmancy-surface>
 						</schmancy-nav-drawer-content>
 					</schmancy-nav-drawer>

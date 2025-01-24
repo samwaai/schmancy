@@ -2,7 +2,7 @@ import { argbFromHex, themeFromSourceColor } from '@material/material-color-util
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Observable, startWith } from 'rxjs'
+import { Observable, of, switchMap } from 'rxjs'
 import { formateTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
 import style from './theme.style.css?inline'
@@ -27,16 +27,23 @@ const $colorScheme = new Observable<string>(subscriber => {
 @customElement('schmancy-theme')
 export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 	@property({ type: String }) color: string = this.generateRandomColor()
-	@property({ type: String }) scheme: 'dark' | 'light' = 'light'
+	@property({ type: String }) scheme: 'dark' | 'light' | 'auto' = 'light'
 
 	connectedCallback(): void {
 		super.connectedCallback()
 		// Trigger any other effects you have
 
-		$colorScheme.pipe(startWith(this.scheme)).subscribe(scheme => {
-			this.scheme = scheme as 'dark' | 'light'
-			this.registerTheme()
-		})
+		of(this.scheme)
+			.pipe(
+				switchMap(scheme => {
+					if (scheme === 'auto') return $colorScheme
+					return of(scheme)
+				}),
+			)
+			.subscribe(scheme => {
+				this.scheme = scheme as 'dark' | 'light'
+				this.registerTheme()
+			})
 	}
 	registerTheme() {
 		let theme = formateTheme(themeFromSourceColor(argbFromHex(this.color)), this.scheme === 'dark' ? true : false)

@@ -2,11 +2,11 @@ import '@material/web/chips/chip-set.js'
 import '@material/web/chips/filter-chip.js'
 import { ChipSet } from '@material/web/chips/internal/chip-set'
 import { $LitElement } from '@mixins/index'
-import { html, PropertyValues } from 'lit'
+import { css, html, PropertyValues } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import SchmancyChip, { SchmancyChipChangeEvent } from './chip'
 @customElement('schmancy-chips')
-export default class SchmancyChips extends $LitElement() {
+export default class SchmancyChips extends $LitElement(css``) {
 	@query('md-chip-set') chipSet!: ChipSet
 
 	@property({
