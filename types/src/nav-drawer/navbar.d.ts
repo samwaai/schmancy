@@ -4,11 +4,13 @@ export declare class SchmancyNavigationDrawerSidebar extends SchmancyNavigationD
     mode: TSchmancyDrawerNavbarMode;
     private state;
     overlay: HTMLElement;
+    nav: HTMLElement;
     width: string;
-    connectedCallback(): void;
     updated(changedProperties: Map<string, any>): void;
     openOverlay(): void;
     closeOverlay(): void;
+    showNavDrawer(): void;
+    hideNavDrawer(): void;
     protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

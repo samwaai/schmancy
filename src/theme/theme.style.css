@@ -1,12 +1,9 @@
-@import 'tailwindcss';
-
-@theme inline {
+:root {
 	--md-ref-typeface-brand: 'Josefin Sans', sans-serif;
 	--md-ref-typeface-plain: 'Josefin Sans', sans-serif;
 	--md-sys-color-primary: var(--schmancy-sys-color-primary-default);
 	--md-sys-color-secondary: var(--schmancy-sys-color-secondary-default);
 
-	--*: initial;
 	--border-style: solid;
 	--spacing: 4px;
 	--color-scrim: var(--schmancy-sys-color-scrim);
@@ -434,4 +431,61 @@
 			animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
 		}
 	}
+	/* Color System */
+	--md-sys-color-scrim: var(--schmancy-sys-color-scrim);
+	--md-sys-color-outline: var(--schmancy-sys-color-outline);
+	--md-sys-color-outlineVariant: var(--schmancy-sys-color-outlineVariant);
+
+	/* Surface Colors */
+	--md-sys-color-surface-default: var(--schmancy-sys-color-surface-default);
+	--md-sys-color-surface-dim: var(--schmancy-sys-color-surface-dim);
+	--md-sys-color-surface-bright: var(--schmancy-sys-color-surface-bright);
+	--md-sys-color-surface-container: var(--schmancy-sys-color-surface-container);
+	--md-sys-color-surface-low: var(--schmancy-sys-color-surface-low);
+	--md-sys-color-surface-high: var(--schmancy-sys-color-surface-high);
+	--md-sys-color-surface-highest: var(--schmancy-sys-color-surface-highest);
+	--md-sys-color-surface-lowest: var(--schmancy-sys-color-surface-lowest);
+	--md-sys-color-surface-on: var(--schmancy-sys-color-surface-on);
+	--md-sys-color-surface-onVariant: var(--schmancy-sys-color-surface-onVariant);
+
+	/* Primary Colors */
+	--md-sys-color-primary-default: var(--schmancy-sys-color-primary-default);
+	--md-sys-color-primary-on: var(--schmancy-sys-color-primary-on);
+	--md-sys-color-primary-container: var(--schmancy-sys-color-primary-container);
+	--md-sys-color-primary-onContainer: var(--schmancy-sys-color-primary-onContainer);
+
+	/* Secondary Colors */
+	--md-sys-color-secondary-default: var(--schmancy-sys-color-secondary-default);
+	--md-sys-color-secondary-on: var(--schmancy-sys-color-secondary-on);
+	--md-sys-color-secondary-container: var(--schmancy-sys-color-secondary-container);
+	--md-sys-color-secondary-onContainer: var(--schmancy-sys-color-secondary-onContainer);
+
+	/* Tertiary Colors */
+	--md-sys-color-tertiary-default: var(--schmancy-sys-color-tertiary-default);
+	--md-sys-color-tertiary-on: var(--schmancy-sys-color-tertiary-on);
+	--md-sys-color-tertiary-container: var(--schmancy-sys-color-tertiary-container);
+	--md-sys-color-tertiary-onContainer: var(--schmancy-sys-color-tertiary-onContainer);
+
+	/* Error Colors */
+	--md-sys-color-error-default: var(--schmancy-sys-color-error-default);
+	--md-sys-color-error-on: var(--schmancy-sys-color-error-on);
+	--md-sys-color-error-container: var(--schmancy-sys-color-error-container);
+	--md-sys-color-error-onContainer: var(--schmancy-sys-color-error-onContainer);
+
+	/* Success Colors */
+	--md-sys-color-success-default: var(--schmancy-sys-color-success-default);
+	--md-sys-color-success-on: var(--schmancy-sys-color-success-on);
+	--md-sys-color-success-container: var(--schmancy-sys-color-success-container);
+	--md-sys-color-success-onContainer: var(--schmancy-sys-color-success-onContainer);
+
+	/* Elevation Levels */
+	--md-sys-elevation-0: var(--schmancy-sys-elevation-0);
+	--md-sys-elevation-1: var(--schmancy-sys-elevation-1);
+	--md-sys-elevation-2: var(--schmancy-sys-elevation-2);
+	--md-sys-elevation-3: var(--schmancy-sys-elevation-3);
+	--md-sys-elevation-4: var(--schmancy-sys-elevation-4);
+	--md-sys-elevation-5: var(--schmancy-sys-elevation-5);
+
+	/* Outline */
+	--md-sys-outline-1: var(--schmancy-sys-outline-1);
 }

@@ -12,8 +12,6 @@ import {
 
 @customElement('schmancy-nav-drawer-navbar')
 export class SchmancyNavigationDrawerSidebar extends $LitElement() {
-	// Removed: import { animate } from '@packages/src'
-
 	@consume({ context: SchmancyDrawerNavbarMode, subscribe: true })
 	@state()
 	mode: TSchmancyDrawerNavbarMode
@@ -23,23 +21,23 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 	private state: TSchmancyDrawerNavbarState
 
 	@query('#overlay') overlay!: HTMLElement
+	@query('nav') nav!: HTMLElement
 
 	@property({ type: String }) width = '320px'
 
-	connectedCallback(): void {
-		super.connectedCallback()
-		// Your touch event logic can stay here if needed
-	}
-
 	updated(changedProperties: Map<string, any>) {
 		if (changedProperties.has('state')) {
+			console.log('state changed', this.state, this.mode)
 			if (this.mode === 'overlay') {
 				if (this.state === 'close') {
+					this.hideNavDrawer()
 					this.closeOverlay()
 				} else if (this.state === 'open') {
 					this.openOverlay()
+					this.showNavDrawer()
 				}
 			} else if (this.mode === 'push') {
+				this.showNavDrawer()
 				this.closeOverlay()
 			}
 		}
@@ -64,25 +62,48 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 		const animation = this.overlay.animate([{ opacity: 0.4 }, { opacity: 0 }], {
 			duration: 150,
 			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
+			fill: 'forwards',
 		})
-
+		// translateX(-100%) when the animation is finished
 		// Equivalent to onComplete
 		animation.onfinish = () => {
 			this.overlay.style.display = 'none'
 		}
 	}
 
-	protected render() {
-		const animate = {
-			'transition-all transform-gpu duration-[200ms] ease-[cubicBezier(0.5, 0.01, 0.25, 1)]': true,
+	// show nav drawer
+	showNavDrawer() {
+		//  check the transform, skip if already open
+		if (this.nav.style.transform === 'translateX(0)') return
+		const animation = this.nav.animate([{ transform: 'translateX(-100%)' }, { transform: 'translateX(0)' }], {
+			duration: 200,
+			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
+			fill: 'forwards',
+		})
+		animation.onfinish = () => {
+			this.state = 'open'
 		}
+	}
 
+	// hide nav drawer
+	hideNavDrawer() {
+		// skip if already closed
+		if (this.nav.style.transform === 'translateX(-100%)') return
+		const animation = this.nav.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-100%)' }], {
+			duration: 200,
+			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
+			fill: 'forwards',
+		})
+		animation.onfinish = () => {
+			this.state = 'close'
+		}
+	}
+
+	protected render() {
 		const sidebarClasses = {
 			'p-[16px] max-w-[360px] w-fit h-full overflow-auto': true,
 			block: this.mode === 'push',
-			'fixed inset-0 translate-x-[-100%] z-50': this.mode === 'overlay',
-			'translate-x-0': this.mode === 'overlay' && this.state === 'open',
-			'translate-x-[-100%]': this.mode === 'overlay' && this.state === 'close',
+			'fixed inset-0 z-50': this.mode === 'overlay',
 		}
 		const overlayClass = {
 			'fixed inset-0 z-49 hidden': true,
@@ -95,7 +116,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 		return html`
 			<nav
 				style=${this.styleMap(styleMap)}
-				class="${this.classMap({ ...sidebarClasses, ...animate })}"
+				class="${this.classMap({ ...sidebarClasses })}"
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.container,
 				})}

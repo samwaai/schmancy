@@ -85,8 +85,11 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 				map(event => event.detail.state),
 				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
+				debounceTime(100),
 			)
 			.subscribe(state => {
+				// if the mode is push, we don't need to close the overlay when the state is close
+				if (this.mode === 'push' && state === 'close') return
 				this.open = state
 			})
 	}

@@ -1,7 +1,6 @@
 import { TailwindElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
-import { $newSchmancyTheme } from '..'
 
 @customElement('schmancy-theme-button')
 export default class SchmancyThemeButton extends TailwindElement() {
@@ -12,7 +11,7 @@ export default class SchmancyThemeButton extends TailwindElement() {
 			<schmancy-button
 				@click=${() => {
 					// Trigger any other effects you have
-					$newSchmancyTheme.next(undefined)
+					// $newSchmancyTheme.next(undefined)
 
 					// Native Web Animations API usage:
 					this.color.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], {

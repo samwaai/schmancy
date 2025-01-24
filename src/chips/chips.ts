@@ -5,7 +5,6 @@ import { $LitElement } from '@mixins/index'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import SchmancyChip, { SchmancyChipChangeEvent } from './chip'
-
 @customElement('schmancy-chips')
 export default class SchmancyChips extends $LitElement() {
 	@query('md-chip-set') chipSet!: ChipSet
