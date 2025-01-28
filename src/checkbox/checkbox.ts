@@ -1,7 +1,7 @@
+import '@material/web/checkbox/checkbox.js'
 import { TailwindElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 
 export type schmancyCheckBoxChangeEvent = CustomEvent<{
 	value: boolean
@@ -18,7 +18,7 @@ export class SchmancyCheckbox extends TailwindElement() {
 	/**
 	 * @attr {boolean} value - The value of the checkbox.
 	 */
-	@property({ type: Boolean })
+	@property({ type: Boolean, reflect: true })
 	value = false
 
 	/**
@@ -52,42 +52,26 @@ export class SchmancyCheckbox extends TailwindElement() {
 	size: 'sm' | 'md' | 'lg' = 'md'
 
 	render() {
-		const inputClasses = {
-			'text-sm': this.size === 'sm',
-			'text-base': this.size === 'md',
-			'text-lg': this.size === 'lg',
-			'h-4 w-4': this.size === 'sm',
-			'h-6 w-6': this.size === 'md',
-			'h-8 w-8': this.size === 'lg',
-		}
 		return html`
-			<div class="relative flex items-start">
-				<div class="flex  items-center">
-					<input
-						@change=${(e: any) => {
-							this.dispatchEvent(
-								new CustomEvent('change', {
-									detail: {
-										value: e.target.checked,
-									},
-								}),
-							)
-						}}
-						id=${this.id}
-						aria-describedby="comments-description"
-						name=${this.name}
-						type="checkbox"
-						class="rounded-sm border-gray-300 text-secondary-key focus:text-secondary-key ${classMap(inputClasses)}"
-						value=${this.value}
-						.checked=${this.value}
-					/>
-				</div>
-				<div class="ml-3 text-sm">
-					<label for=${this.id} class="font-medium text-gray-700">
-						<slot></slot>
-					</label>
-				</div>
-			</div>
+			<label class="flex items-center space-x-2">
+				<md-checkbox
+					.required=${this.required}
+					.disabled=${this.disabled}
+					?checked=${this.value === true}
+					@change=${(e: Event) => {
+						this.value = (e.target as HTMLInputElement).checked
+						this.dispatchEvent(
+							new CustomEvent('change', {
+								detail: {
+									value: this.value,
+								},
+							}),
+						)
+					}}
+				>
+				</md-checkbox>
+				<slot></slot>
+			</label>
 		`
 	}
 }

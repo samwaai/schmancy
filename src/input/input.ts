@@ -101,7 +101,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	 * @default 'none'
 	 * @public
 	 */
-	@property() public inputmode!: 'none' | 'txt' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url'
+	@property() public inputmode!: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url'
 	/**
 	 * The minlength attribute of the control.
 	 * @attr
