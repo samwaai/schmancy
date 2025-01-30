@@ -1,56 +1,69 @@
 :host {
 	--overlay-color: rgba(0, 0, 0, 0.7);
-	--transition-duration: 0.6s;
-	--sheet-position: fixed;
+	--transition-duration: 0.3s;
 	--sheet-radius: 0;
 	--max-height: 100vh;
 }
 
 .sheet {
-	z-index: 100;
-	display: flex;
-	flex-direction: column;
-	// position: var(--sheet-position);
+	position: fixed;
 	inset: 0;
+	z-index: 1000;
+	display: flex;
 	visibility: visible;
-	transition: visibility var(--transition-duration);
-	border-radius: var(--sheet-radius);
+	transition: visibility var(--transition-duration) ease-in-out;
 
-	.content {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		flex-direction: column;
-		overflow-y: auto;
-		--default-transitions: transform var(--transition-duration), border-radius var(--transition-duration);
-		transition: var(--default-transitions);
-		transform: translateY(0);
-		transition-timing-function: cubic-bezier(0.5, 0.01, 0.25, 1);
-		max-height: var(--max-height);
-		box-sizing: border-box;
-	}
-	.close-sheet {
-		border: none;
-		padding: 11.2px;
+	&[aria-hidden='true'] {
+		visibility: hidden;
+		pointer-events: none;
+
+		.content {
+			transform: translateY(100%);
+
+			&[data-position='side'] {
+				transform: translateX(100%);
+			}
+		}
+
+		.overlay {
+			opacity: 0;
+		}
 	}
 }
 
-.sheet[aria-hidden='true'] {
-	visibility: hidden;
-	pointer-events: none;
-	.content {
-		&[data-position='side'] {
-			transform: translateX(100%);
-		}
-		&[data-position='bottom'],
-		&[data-position='bottom'],
-		&[data-position='bottom'] {
-			transform: translateY(100%);
-		}
-		transition-duration: calc(var(--transition-duration) * 0.5);
+.overlay {
+	position: absolute;
+	inset: 0;
+	background: var(--overlay-color);
+	opacity: 0.4;
+	transition: opacity var(--transition-duration) ease-in-out;
+}
+
+.content {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	background: white;
+	transition: transform var(--transition-duration) ease-in-out;
+
+	&[data-position='side'] {
+		height: 100%;
+		margin-left: auto;
+		min-width: 320px;
+		max-width: 90vw;
 	}
-	.overlay {
-		opacity: 0;
-		transition-duration: calc(var(--transition-duration) * 0.25);
+
+	&[data-position='bottom'] {
+		width: 100%;
+		margin-top: auto;
+		border-radius: 16px 16px 0 0;
+		max-height: 90vh;
 	}
+}
+
+.content-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: 1rem;
 }

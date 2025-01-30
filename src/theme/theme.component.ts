@@ -28,7 +28,7 @@ const $colorScheme = new Observable<string>(subscriber => {
 export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 	@property({ type: String }) color: string = this.generateRandomColor()
 	@property({ type: String }) scheme: 'dark' | 'light' | 'auto' = 'light'
-
+	@property({ type: Boolean }) root = false
 	connectedCallback(): void {
 		super.connectedCallback()
 		// Trigger any other effects you have
@@ -67,7 +67,10 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 				})
 				.join('\n')
 		} else {
-			;(this.shadowRoot.host as HTMLElement).style.setProperty(`--${prefix}-${path}`, value)
+			;(this.root ? document.body : (this.shadowRoot.host as HTMLElement)).style.setProperty(
+				`--${prefix}-${path}`,
+				value,
+			)
 
 			return
 		}

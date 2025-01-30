@@ -1,6 +1,6 @@
 import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
-import { customElement, property, query, queryAssignedElements, queryAsync } from 'lit/decorators.js'
+import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'
 import { hook } from './hook'
 import style from './sheet.scss?inline'
@@ -19,97 +19,33 @@ export default class SchmancySheet extends $LitElement(style) {
 	@property({ type: String, reflect: true }) header: 'hidden' | 'visible' = 'visible'
 	@property({ type: String, reflect: true }) position: SchmancySheetPosition = SchmancySheetPosition.Side
 	@property({ type: Boolean, reflect: true }) persist = false
-	@property({ type: Boolean, reflect: true }) allowOverlyDismiss = true
+	@property({ type: Boolean, reflect: true }) allowOverlayDismiss = true
 	@property({ type: String, reflect: true }) title = ''
 
-	@query('.sheet') sheet!: HTMLElement | undefined
-	@queryAsync('.sheet') sheetAsync!: Promise<HTMLElement> | undefined
-	@query('.contents') sheetContents: HTMLElement | undefined
-	@queryAssignedElements({ flatten: true }) assignedElements!: HTMLElement[]
+	@query('.sheet') private sheet!: HTMLElement
+	@queryAssignedElements({ flatten: true }) private assignedElements!: HTMLElement[]
 
 	@property() focusAttribute = 'autofocus'
-
-	sheetHeight = 0
-	sheetWidth = 0
-	dragPosition: number | undefined
+	private lastFocusedElement: HTMLElement | null = null
 
 	@hook('open')
-	onOpenChange(_old_value: boolean, new_value: boolean) {
-		if (new_value) {
-			this.setIsSheetShown(true)
+	onOpenChange(_oldValue: boolean, newValue: boolean) {
+		this.setIsSheetShown(newValue)
+
+		if (newValue) {
+			this.lastFocusedElement = document.activeElement as HTMLElement
+			this.addFocusTrap()
+			this.focus()
 		} else {
-			this.setIsSheetShown(false)
+			this.removeFocusTrap()
+			this.lastFocusedElement?.focus()
+			this.lastFocusedElement = null
 		}
 	}
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback()
-		this.focus()
-		merge(
-			fromEvent<PopStateEvent>(window, 'popstate').pipe(
-				tap(e => {
-					e.stopPropagation()
-					e.preventDefault()
-					this.closeSheet()
-				}),
-			),
-			fromEvent<KeyboardEvent>(window, 'keyup').pipe(
-				// ESC key to close bottom sheet
-				tap(event => {
-					// only close the currently open sheet
-					const isSheetElementFocused =
-						this.sheet?.contains(event.target as Node) && document.activeElement === event.target
-					if (event.key === 'Escape' && !isSheetElementFocused) {
-						sheet.dismiss(this.uid)
-					}
-				}),
-			),
-		)
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe()
-
-		// Handshaking communication between Ricky and Morty
-		fromEvent<SheetWhereAreYouRickyEvent>(window, SheetWhereAreYouRicky)
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe(e => {
-				if (e.detail.uid === this.uid) {
-					this.dispatchEvent(
-						new CustomEvent(SheetHereMorty, {
-							detail: {
-								sheet: this,
-							},
-							bubbles: true,
-							composed: true,
-						}),
-					)
-				}
-			})
-
-		fromEvent(this, 'sheetDismiss')
-			.pipe(
-				tap(e => e.stopPropagation()),
-				takeUntil(this.disconnecting),
-			)
-			.subscribe(e => {
-				e.preventDefault()
-				e.stopPropagation()
-				this.closeSheet()
-			})
-	}
-
-	pxToVw(pxValue: number) {
-		const vwValue = (pxValue / document.documentElement.clientWidth) * 100
-		return vwValue
-	}
-
-	pxToVh(pxValue: number) {
-		const vhValue = (pxValue / document.documentElement.clientHeight) * 100
-		return vhValue
-	}
-
-	async firstUpdated() {
-		const sheet = await this.sheetAsync
-		if (!sheet) return
+		this.setupEventListeners()
 	}
 
 	disconnectedCallback() {
@@ -117,64 +53,94 @@ export default class SchmancySheet extends $LitElement(style) {
 		this.disconnecting.next(true)
 	}
 
+	private setupEventListeners() {
+		// Handle browser back button
+		const popState$ = fromEvent<PopStateEvent>(window, 'popstate').pipe(
+			tap(e => {
+				e.preventDefault()
+				this.closeSheet()
+			}),
+		)
+
+		// Handle ESC key
+		const keyUp$ = fromEvent<KeyboardEvent>(window, 'keyup').pipe(
+			tap(event => {
+				if (event.key === 'Escape' && !this.sheetContainsFocus()) {
+					sheet.dismiss(this.uid)
+				}
+			}),
+		)
+
+		// Handle inter-component communication
+		const rickyComm$ = fromEvent<SheetWhereAreYouRickyEvent>(window, SheetWhereAreYouRicky).pipe(
+			tap(e => {
+				if (e.detail.uid === this.uid) this.announcePresence()
+			}),
+		)
+
+		merge(popState$, keyUp$, rickyComm$).pipe(takeUntil(this.disconnecting)).subscribe()
+	}
+
+	private sheetContainsFocus(): boolean {
+		return this.sheet?.contains(document.activeElement) ?? false
+	}
+
+	private announcePresence() {
+		this.dispatchEvent(
+			new CustomEvent(SheetHereMorty, {
+				detail: { sheet: this },
+				bubbles: true,
+				composed: true,
+			}),
+		)
+	}
+
+	private addFocusTrap() {
+		document.addEventListener('focusin', this.handleFocusIn)
+	}
+
+	private removeFocusTrap() {
+		document.removeEventListener('focusin', this.handleFocusIn)
+	}
+
+	private handleFocusIn = (e: Event) => {
+		if (!this.sheet?.contains(e.target as Node)) {
+			this.focus()
+		}
+	}
+
 	setIsSheetShown(isShown: boolean) {
 		this.sheet?.setAttribute('aria-hidden', String(!isShown))
+		this.sheet?.setAttribute('aria-modal', String(isShown))
 	}
 
 	closeSheet() {
 		this.open = false
-		this.setIsSheetShown(false)
 		this.dispatchEvent(new CustomEvent('close'))
 	}
 
 	private getFocusElement(): HTMLElement | null {
 		const selector = `[${this.focusAttribute}]`
-		const slotted = this.assignedElements
-		for (const el of slotted) {
-			const focusEl = el?.matches(selector) ? el : el?.querySelector(selector)
-			if (focusEl) {
-				return focusEl as HTMLElement
-			}
-		}
-		return null
+		return (this.assignedElements.find(el => el.matches(selector) || el.querySelector(selector)) as HTMLElement) ?? null
 	}
 
 	override focus() {
 		this.getFocusElement()?.focus()
 	}
 
-	override blur() {
-		this.getFocusElement()?.blur()
-	}
-
 	render() {
-		const classes = {
-			'inset-0 fixed min-w-[100vw] max-w-[100vw] md:min-w-[360px]': true,
-			'transition-all duration-600': true,
-			'bottom-0 items-center justify-end': this.position === SchmancySheetPosition.Bottom,
-			'top-0 right-0 bottom-0 mx-auto items-end justify-start h-full w-full':
-				this.position === SchmancySheetPosition.Side,
-		}
-		const contentClasses = {
-			'h-full rounded-l-[16px]': this.position === SchmancySheetPosition.Side,
-			'rounded-t-[16px]': this.position === SchmancySheetPosition.Bottom,
-			'bg-surface-low text-surface-onVariant border-outline shadow-1': true,
-		}
-		const overlayClasses = {
-			'bg-scrim transition-all duration-600 opacity-[0.4] absolute inset-0': true,
-		}
-		console.log('rendering sheet', this.header)
 		return html`
-			<div class="sheet ${this.classMap(classes)}" role="dialog" aria-hidden="true">
-				<div
-					class="overlay ${this.classMap(overlayClasses)}"
-					@click=${() => {
-						if (this.allowOverlyDismiss) sheet.dismiss(this.uid)
-					}}
-				></div>
-				<schmancy-sheet-content class="content ${this.classMap(contentClasses)}" data-position=${this.position}>
-					<schmancy-sheet-header .hidden=${this.header === 'hidden'} title="${this.title}"> </schmancy-sheet-header>
-					<section class="flex flex-1">
+			<div class="sheet" role="dialog" aria-labelledby="sheet-title" aria-hidden="true" aria-modal="false">
+				<div class="overlay" @click=${() => this.allowOverlayDismiss && sheet.dismiss(this.uid)}></div>
+
+				<schmancy-sheet-content class="content" data-position=${this.position}>
+					<schmancy-sheet-header
+						id="sheet-title"
+						.hidden=${this.header === 'hidden'}
+						title=${this.title}
+					></schmancy-sheet-header>
+
+					<section class="content-body">
 						<slot></slot>
 					</section>
 				</schmancy-sheet-content>

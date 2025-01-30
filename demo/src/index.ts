@@ -15,7 +15,7 @@ export default class SchmancyDemo extends $LitElement() {
 
 	render() {
 		return html`
-			<schmancy-theme color="#fcc603">
+			<schmancy-theme root color="#fcc603">
 				<schmancy-surface ${fullHeight()} type="container">
 					<schmancy-nav-drawer>
 						<schmancy-nav-drawer-navbar width="220px">
