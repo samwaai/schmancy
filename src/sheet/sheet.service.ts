@@ -86,7 +86,7 @@ class BottomSheetService {
 						document.body.appendChild(sheet)
 					}
 					sheet.setAttribute('uid', target.uid ?? target.component.tagName)
-					sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Side)
+					sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Bottom)
 					sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
 					target.title && sheet.setAttribute('title', target.title)
 					target.persist && sheet.setAttribute('persist', target.persist ?? false)
