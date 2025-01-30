@@ -4,6 +4,7 @@ declare const SchmancyThemeComponent_base: import("../../mixins").Constructor<Cu
 export declare class SchmancyThemeComponent extends SchmancyThemeComponent_base {
     color: string;
     scheme: 'dark' | 'light' | 'auto';
+    root: boolean;
     connectedCallback(): void;
     registerTheme(): void;
     registerThemeValues(prefix: string, path: string, value: Partial<TSchmancyTheme>): string | undefined;

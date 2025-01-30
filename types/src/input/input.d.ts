@@ -1,15 +1,6 @@
 import { LitElement } from 'lit';
 declare const SchmancyInput_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyInput extends SchmancyInput_base {
-    protected static shadowRootOptions: {
-        delegatesFocus: boolean;
-        mode: ShadowRootMode;
-        serializable?: boolean;
-        slotAssignment?: SlotAssignmentMode;
-    };
-    static formAssociated: boolean;
-    internals: ElementInternals | undefined;
-    inputRef: import("lit-html/directives/ref").Ref<HTMLInputElement>;
     /**
      * The label of the control.
      * @attr
@@ -71,7 +62,7 @@ export default class SchmancyInput extends SchmancyInput_base {
      * @default 'none'
      * @public
      */
-    inputmode: 'none' | 'txt' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+    inputmode: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
     /**
      * The minlength attribute of the control.
      * @attr
@@ -115,7 +106,15 @@ export default class SchmancyInput extends SchmancyInput_base {
     hint: string | undefined;
     error: boolean;
     constructor();
-    firstUpdated(): void;
+    protected static shadowRootOptions: {
+        delegatesFocus: boolean;
+        mode: ShadowRootMode;
+        serializable?: boolean;
+        slotAssignment?: SlotAssignmentMode;
+    };
+    static formAssociated: boolean;
+    internals: ElementInternals | undefined;
+    inputRef: import("lit-html/directives/ref").Ref<HTMLInputElement>;
     get form(): HTMLFormElement;
     /** Checks for validity of the control and shows the browser message if it's invalid. */
     reportValidity(): boolean;
@@ -123,6 +122,7 @@ export default class SchmancyInput extends SchmancyInput_base {
     checkValidity(): boolean;
     /** Sets a custom validity message. */
     setCustomValidity(message: string): void;
+    firstUpdated(): void;
     /** Selects all text within the input. */
     select(): void;
     validity(): ValidityState | undefined;
