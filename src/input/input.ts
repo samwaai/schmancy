@@ -10,15 +10,6 @@ import { distinctUntilChanged, filter, fromEvent, map } from 'rxjs'
 import style from './input.scss?inline'
 @customElement('schmancy-input')
 export default class SchmancyInput extends TailwindElement(style) {
-	protected static shadowRootOptions = {
-		...LitElement.shadowRootOptions,
-		delegatesFocus: true,
-	}
-	static formAssociated = true
-	// private internals
-	internals: ElementInternals | undefined
-	inputRef = createRef<HTMLInputElement>()
-
 	/**
 	 * The label of the control.
 	 * @attr
@@ -173,6 +164,32 @@ export default class SchmancyInput extends TailwindElement(style) {
 			this.internals = undefined
 		}
 	}
+	protected static shadowRootOptions = {
+		...LitElement.shadowRootOptions,
+		delegatesFocus: true,
+	}
+	static formAssociated = true
+	// private internals
+	internals: ElementInternals | undefined
+	inputRef = createRef<HTMLInputElement>()
+	get form() {
+		return this.internals?.form
+	}
+
+	/** Checks for validity of the control and shows the browser message if it's invalid. */
+	public reportValidity() {
+		return this.inputRef.value?.reportValidity()
+	}
+
+	/** Checks for validity of the control and emits the invalid event if it invalid. */
+	public checkValidity() {
+		return this.inputRef.value?.checkValidity()
+	}
+
+	/** Sets a custom validity message. */
+	public setCustomValidity(message: string) {
+		return this.inputRef.value?.setCustomValidity(message)
+	}
 
 	firstUpdated() {
 		if (this.autofocus) {
@@ -247,25 +264,6 @@ export default class SchmancyInput extends TailwindElement(style) {
 					}),
 				)
 			})
-	}
-
-	get form() {
-		return this.internals?.form
-	}
-
-	/** Checks for validity of the control and shows the browser message if it's invalid. */
-	public reportValidity() {
-		return this.inputRef.value?.reportValidity()
-	}
-
-	/** Checks for validity of the control and emits the invalid event if it invalid. */
-	public checkValidity() {
-		return this.inputRef.value?.checkValidity()
-	}
-
-	/** Sets a custom validity message. */
-	public setCustomValidity(message: string) {
-		return this.inputRef.value?.setCustomValidity(message)
 	}
 
 	/** Selects all text within the input. */

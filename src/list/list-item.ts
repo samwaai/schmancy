@@ -56,7 +56,7 @@ export class SchmancyListItem extends TailwindElement() {
 		const classes = {
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
-			'w-full min-h-[56px] relative flex items-center gap-[16px] py-[8px] px-[16px] duration-500 transition-colors':
+			'w-full min-h-[56px] relative flex items-center gap-[16px] py-[8px] px-[16px] duration-500 transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:z-1 outline-secondary-default outline-hidden':
 				true,
 			'bg-secondary-container text-secondery-onContainer': this.selected,
 		}
@@ -65,9 +65,9 @@ export class SchmancyListItem extends TailwindElement() {
 			'z-0 duration-500 transition-opacity': true,
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
-			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0': !this.readonly,
+			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0 ': !this.readonly,
 		}
-		return html`<li class=${this.classMap(classes)}>
+		return html`<li .tabIndex=${this.readonly ? -1 : 0} class=${this.classMap(classes)}>
 			${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}
 			<slot name="leading"> </slot>
 			<schmancy-flex flow="row">

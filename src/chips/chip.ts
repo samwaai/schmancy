@@ -2,7 +2,7 @@ import '@material/web/chips/chip-set.js'
 import '@material/web/chips/filter-chip.js'
 import { ChipSet } from '@material/web/chips/internal/chip-set'
 import { $LitElement } from '@mixins/index'
-import { html } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 
 @customElement('schmancy-chip')
@@ -32,10 +32,28 @@ export default class SchmancyChip extends $LitElement() {
 	})
 	icon: string = ''
 
+	constructor() {
+		super()
+		try {
+			this.internals = this.attachInternals()
+		} catch {
+			this.internals = undefined
+		}
+	}
+	protected static shadowRootOptions = {
+		...LitElement.shadowRootOptions,
+		delegatesFocus: true,
+	}
+	static formAssociated = true
+	// private internals
+	internals: ElementInternals | undefined
+	get form() {
+		return this.internals?.form
+	}
+
 	protected render(): unknown {
 		return html`
 			<md-filter-chip
-				id="done"
 				label="${this.label}"
 				@click=${() => {
 					this.selected = !this.selected

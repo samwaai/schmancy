@@ -21,6 +21,7 @@ export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' 
 export class SchmnacyButton extends $LitElement(css`
 	:host {
 		display: block;
+		width: fit-content;
 	}
 `) {
 	protected static shadowRootOptions = {
@@ -132,7 +133,7 @@ export class SchmnacyButton extends $LitElement(css`
 
 	render() {
 		const classes = {
-			'z-10 py-[8px] px-[16px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] focus:outline-hidden':
+			'z-10 py-[8px] px-[16px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden':
 				true,
 			'cursor-pointer': !this.disabled,
 			'opacity-[0.38]': this.disabled,
