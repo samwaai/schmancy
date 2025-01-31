@@ -211,54 +211,52 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			maxHeight: this.maxHeight,
 		}
 		return html`
-			<schmancy-surface>
-				<div class="relative">
-					<slot name="trigger">
-						<schmancy-input
-							autocomplete="off"
-							class="w-full"
-							${ref(this.inputRef)}
-							.required=${this.required}
-							id="input"
-							.label=${this.label}
-							@focus=${this.showOptions}
-							clickable
-							type="search"
-							inputmode="text"
-							placeholder=${this.placeholder}
-							@change=${this.handleInputChange}
-						>
-						</schmancy-input>
-					</slot>
-					<ul
-						tabindex="-1"
-						class=${this.classMap(classes)}
-						style=${this.styleMap(styles)}
-						id="options"
-						role="listbox"
-						hidden
-						@click=${(e: SchmancyOptionChangeEvent) => {
-							this.handleOptionClick(e.detail.value)
-						}}
-						@touchstart=${this.preventScroll}
-						@touchmove=${this.preventScroll}
-						${color({
-							bgColor: SchmancyTheme.sys.color.surface.container,
-						})}
+			<div class="relative">
+				<slot name="trigger">
+					<schmancy-input
+						autocomplete="off"
+						class="w-full"
+						${ref(this.inputRef)}
+						.required=${this.required}
+						id="input"
+						.label=${this.label}
+						@focus=${this.showOptions}
+						clickable
+						type="search"
+						inputmode="text"
+						placeholder=${this.placeholder}
+						@change=${this.handleInputChange}
 					>
-						<li id="empty" tabindex="-1">
-							<schmancy-typography type="label">No results found</schmancy-typography>
-						</li>
-						<slot
-							@slotchange=${() => {
-								this.empty.hidden = this.options.some(option => !option.hidden)
-								this.updateInputValue()
-							}}
-							tabindex="0"
-						></slot>
-					</ul>
-				</div>
-			</schmancy-surface>
+					</schmancy-input>
+				</slot>
+				<ul
+					tabindex="-1"
+					class=${this.classMap(classes)}
+					style=${this.styleMap(styles)}
+					id="options"
+					role="listbox"
+					hidden
+					@click=${(e: SchmancyOptionChangeEvent) => {
+						this.handleOptionClick(e.detail.value)
+					}}
+					@touchstart=${this.preventScroll}
+					@touchmove=${this.preventScroll}
+					${color({
+						bgColor: SchmancyTheme.sys.color.surface.container,
+					})}
+				>
+					<li id="empty" tabindex="-1">
+						<schmancy-typography type="label">No results found</schmancy-typography>
+					</li>
+					<slot
+						@slotchange=${() => {
+							this.empty.hidden = this.options.some(option => !option.hidden)
+							this.updateInputValue()
+						}}
+						tabindex="0"
+					></slot>
+				</ul>
+			</div>
 		`
 	}
 
