@@ -26,11 +26,13 @@ const $colorScheme = new Observable<string>(subscriber => {
 
 @customElement('schmancy-theme')
 export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
-	@property({ type: String }) color: string = this.generateRandomColor()
+	@property({ type: String, reflect: true }) color: string
 	@property({ type: String }) scheme: 'dark' | 'light' | 'auto' = 'light'
 	@property({ type: Boolean }) root = false
+	@property({ type: Object }) theme: Partial<TSchmancyTheme> = {}
 	connectedCallback(): void {
 		super.connectedCallback()
+		if (!this.color) this.color = this.generateRandomColor()
 		// Trigger any other effects you have
 
 		of(this.scheme)
@@ -47,6 +49,7 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 	}
 	registerTheme() {
 		let theme = formateTheme(themeFromSourceColor(argbFromHex(this.color)), this.scheme === 'dark' ? true : false)
+		theme = { ...theme, ...this.theme }
 
 		this.registerThemeValues('schmancy', '', theme)
 	}

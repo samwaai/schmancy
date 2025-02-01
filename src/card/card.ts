@@ -9,13 +9,13 @@ export default class SchmancyCard extends TailwindElement() {
 	protected render(): unknown {
 		const classes = {
 			'rounded-md': true,
-			'shadow-1': this.elevation === 1,
-			'shadow-2': this.elevation === 2,
-			'shadow-3': this.elevation === 3,
-			'shadow-4': this.elevation === 4,
+			'shadow-xs': this.elevation === 1,
+			'shadow-sm': this.elevation === 2,
+			'shadow-md': this.elevation === 3,
+			'shadow-lg': this.elevation === 4,
 			'shadow-5': this.elevation === 5,
-			'hover:shadow-1': ['outlined', 'filled'].includes(this.type),
-			'bg-surface-low shadow-1 hover:shadow-2': this.type === 'elevated',
+			'hover:shadow-xs': ['outlined', 'filled'].includes(this.type),
+			'bg-surface-low shadow-xs hover:shadow-sm': this.type === 'elevated',
 			'bg-surface-highest': this.type === 'filled',
 			'bg-surface-default border border-solid border-1 border-outlineVariant': this.type === 'outlined',
 		}

@@ -44,10 +44,10 @@ export class SchmancySurface extends TailwindElement(css`
 			'rounded-[8px]': this.rounded === 'all',
 
 			'w-full h-full': this.fill,
-			'shadow-1': this.elevation === 1,
-			'shadow-2': this.elevation === 2,
-			'shadow-3': this.elevation === 3,
-			'shadow-4': this.elevation === 4,
+			'shadow-xs': this.elevation === 1,
+			'shadow-sm': this.elevation === 2,
+			'shadow-md': this.elevation === 3,
+			'shadow-lg': this.elevation === 4,
 			'text-surface-on':
 				this.type === 'surface' ||
 				this.type === 'surfaceDim' ||

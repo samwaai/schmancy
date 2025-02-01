@@ -109,15 +109,15 @@ export class SchmnacyIconButton extends $LitElement(css`
 				true,
 			'opacity-[0.38]': this.disabled,
 			'cursor-pointer': !this.disabled,
-			'hover:shadow-1':
+			'hover:shadow-xs':
 				!this.disabled &&
 				(this.variant == 'outlined' ||
 					this.variant == 'text' ||
 					this.variant == 'filled' ||
 					this.variant == 'filled tonal'),
-			'hover:shadow-2': !this.disabled && this.variant == 'elevated',
+			'hover:shadow-sm': !this.disabled && this.variant == 'elevated',
 			'w-full tex-center': this.width == 'full',
-			'bg-surface-low text-primary-default shadow-1': this.variant == 'elevated',
+			'bg-surface-low text-primary-default shadow-xs': this.variant == 'elevated',
 			'bg-transparent text-primary-default border-1 border-outline': this.variant == 'outlined',
 			'bg-primary-default text-primary-on': this.variant == 'filled',
 			'bg-secondary-container text-secondary-onContainer': this.variant == 'filled tonal',

@@ -100,7 +100,7 @@ export default class SchmancySelect extends $LitElement(style) {
 
 	render() {
 		const classes = {
-			'absolute z-30 mt-1 w-full overflow-auto rounded-md shadow-2': true,
+			'absolute z-30 mt-1 w-full overflow-auto rounded-md shadow-sm': true,
 		}
 		return html`
 			<schmancy-surface>

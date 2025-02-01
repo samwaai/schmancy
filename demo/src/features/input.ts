@@ -17,7 +17,7 @@ export class DemoInput extends $LitElement(css`
 	@state() chip = 'chip2'
 	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
 		super.firstUpdated(_changedProperties)
-		this.country = 'US'
+		this.country = 'DE'
 	}
 
 	connectedCallback(): void {
