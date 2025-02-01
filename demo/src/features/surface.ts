@@ -12,7 +12,7 @@ export class DemoSurface extends $LitElement(css`
 		return html`
 			<schmancy-grid gap="md">
 				<schmancy-grid cols="auto auto auto" gap="md">
-					<schmancy-surface rounded="all" elevation="1" type="surface">
+					<schmancy-surface rounded="all" elevation="4" type="surface">
 						<div class="h-[320px] w-[320px] p-4">
 							<schmancy-typography type="title">Surface default</schmancy-typography>
 						</div>

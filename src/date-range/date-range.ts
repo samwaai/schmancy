@@ -8,7 +8,7 @@ import moment from 'moment'
 
 @customElement('schmancy-date-range')
 export default class SwiftHRAdminDateRange extends $LitElement() {
-	@property({ type: String }) type: 'date' | 'datetime' = 'date'
+	@property({ type: String }) type: 'date' | 'datetime-local' = 'date'
 	@property({ type: Object }) dateFrom!: {
 		label: string
 		value: string
@@ -223,8 +223,8 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 							<schmancy-input
 								id="checkin"
 								min=${ifDefined(this.minDate)}
-								type=${this.type}
-								label="${this.dateFrom.label}"
+								.type=${this.type}
+								.label="${this.dateFrom.label}"
 								.value=${this.dateFrom.value}
 								@change=${(event: SchmancyInputChangeEvent) => {
 									event.preventDefault()
@@ -240,7 +240,7 @@ export default class SwiftHRAdminDateRange extends $LitElement() {
 							></schmancy-input>
 							<schmancy-input
 								id="checkout"
-								type=${this.type}
+								.type=${this.type}
 								label="${this.dateTo.label}"
 								.value=${this.dateTo.value}
 								@change=${(event: SchmancyInputChangeEvent) => {

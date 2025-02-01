@@ -70,7 +70,7 @@ export default class SchmancyInput extends TailwindElement() {
 		| 'text'
 		| 'url'
 		| 'date'
-		| 'datetime'
+		| 'datetime-local'
 		| 'time'
 		| 'month'
 		| 'week'

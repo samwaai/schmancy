@@ -5,6 +5,7 @@ export declare class SchmancyThemeComponent extends SchmancyThemeComponent_base 
     color: string;
     scheme: 'dark' | 'light' | 'auto';
     root: boolean;
+    theme: Partial<TSchmancyTheme>;
     connectedCallback(): void;
     registerTheme(): void;
     registerThemeValues(prefix: string, path: string, value: Partial<TSchmancyTheme>): string | undefined;

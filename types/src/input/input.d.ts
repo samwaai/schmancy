@@ -1,55 +1,59 @@
 import { LitElement } from 'lit';
+declare global {
+    interface HTMLElementTagNameMap {
+        'schmancy-input': SchmancyInput;
+    }
+}
+/**
+ * An autocomplete type (expand or customize as needed).
+ */
+type AutoFill = 'off' | 'on' | 'name' | 'username' | 'email' | 'tel' | 'url' | 'new-password' | 'current-password' | 'one-time-code';
+type EventDetails = {
+    value: string;
+};
+export type SchmancyInputChangeEvent = CustomEvent<EventDetails>;
 declare const SchmancyInput_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+/**
+ * `schmancy-input` – A custom input component.
+ */
 export default class SchmancyInput extends SchmancyInput_base {
     /**
      * The label of the control.
      * @attr
-     * @type {string} label
+     * @type {string}
      * @default ''
-     * @public
      */
     label: string;
     /**
      * The type of the control.
      * @attr
-     * @type {'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'date' | 'datetime' | 'time' | 'month' | 'week' | 'color' | 'file'}
      * @default 'text'
-     * @public
-     **/
-    type: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'date' | 'datetime' | 'time' | 'month' | 'week' | 'color' | 'file';
+     */
+    type: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'color' | 'file';
     clickable: boolean;
     /**
      * The name of the control.
-     * @attr name
-     * @type {string} name
+     * @attr
      * @default 'name_' + Date.now()
-     * @public
      */
     name: string;
     /**
      * The placeholder of the control.
-     * @attr placeholder
-     * @type {string}
+     * @attr
      * @default ''
-     * @public
      */
     placeholder: string;
     /**
      * The value of the control.
-     * @attr {string} value - The value of the control.
-     * @type {string}
+     * @attr
      * @default ''
-     * @public
      */
     value: string;
     /**
      * The pattern attribute of the control.
      * @attr
-     * @type {string}
-     * @default undefiend
-     * @public
      */
-    pattern: any;
+    pattern?: string;
     required: boolean;
     disabled: boolean;
     readonly: boolean;
@@ -58,42 +62,38 @@ export default class SchmancyInput extends SchmancyInput_base {
     /**
      * The inputmode attribute of the control.
      * @attr
-     * @type {'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url'}
-     * @default 'none'
-     * @public
+     * @default undefined
      */
-    inputmode: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+    inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
     /**
      * The minlength attribute of the control.
      * @attr
      */
-    minlength: number | undefined;
+    minlength?: number;
     /**
      * The maxlength attribute of the control.
      * @attr
      */
-    maxlength: number;
+    maxlength?: number;
     /**
      * The min attribute of the control.
      * @attr
      */
-    min: string;
+    min?: string;
     /**
      * The max attribute of the control.
      * @attr
      */
-    max: string;
+    max?: string;
     /**
      * The step attribute of the control.
      * @attr
      */
-    step: number;
+    step?: number;
     /**
      * The autofocus attribute of the control.
      * @attr
-     * @type {boolean}
      * @default false
-     * @public
      */
     autofocus: boolean;
     /**
@@ -101,43 +101,54 @@ export default class SchmancyInput extends SchmancyInput_base {
      * @attr
      */
     autocomplete: AutoFill;
+    /**
+     * tabIndex for focusing by tab key.
+     */
     tabIndex: number;
-    inputElement: HTMLInputElement;
-    hint: string | undefined;
+    hint?: string;
     error: boolean;
-    constructor();
+    inputElement: HTMLInputElement;
+    inputRef: import("lit-html/directives/ref").Ref<HTMLInputElement>;
+    /** Form-associated custom elements support. */
+    static formAssociated: boolean;
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
         mode: ShadowRootMode;
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };
-    static formAssociated: boolean;
-    internals: ElementInternals | undefined;
-    inputRef: import("lit-html/directives/ref").Ref<HTMLInputElement>;
+    private internals?;
+    constructor();
     get form(): HTMLFormElement;
+    /**
+     * (Optional) Whenever value changes, sync with form internals for
+     * form submission (if you're using form-associated custom elements).
+     */
+    protected updated(changedProps: Map<string, unknown>): void;
     /** Checks for validity of the control and shows the browser message if it's invalid. */
     reportValidity(): boolean;
-    /** Checks for validity of the control and emits the invalid event if it invalid. */
+    /** Checks for validity of the control and emits the invalid event if it is invalid. */
     checkValidity(): boolean;
     /** Sets a custom validity message. */
     setCustomValidity(message: string): void;
     firstUpdated(): void;
     /** Selects all text within the input. */
     select(): void;
-    validity(): ValidityState | undefined;
+    /** Returns the internal validity state object. */
+    getValidity(): ValidityState | undefined;
+    /**
+     * Override focus so that focusing <schmancy-input> actually focuses
+     * the internal <input>.
+     */
     focus(options?: FocusOptions): void;
+    /**
+     * Same with click; bubble a click out if needed, but delegate to internal input.
+     */
     click(): void;
+    /**
+     * Same with blur; bubble the event.
+     */
     blur(): void;
-    protected render(): unknown;
-}
-type EventDetails = {
-    value: string;
-};
-export type SchmancyInputChangeEvent = CustomEvent<EventDetails>;
-declare global {
-    interface HTMLElementTagNameMap {
-        'schmancy-input': SchmancyInput;
-    }
+    protected render(): import("lit-html").TemplateResult<1>;
 }
 export {};

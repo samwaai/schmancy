@@ -5,6 +5,7 @@
 	--md-sys-color-primary: var(--schmancy-sys-color-primary-default);
 	--md-sys-color-secondary: var(--schmancy-sys-color-secondary-default);
 
+	--default-font-family: var(--schmancy-font-family);
 	--border-style: solid;
 	--spacing: 4px;
 	--color-scrim: var(--schmancy-sys-color-scrim);
@@ -45,7 +46,7 @@
 	--shadow-md: var(--schmancy-sys-elevation-2);
 	--shadow-lg: var(--schmancy-sys-elevation-3);
 	--shadow-xl: var(--schmancy-sys-elevation-4);
-	--shadow-smxl: var(--schmancy-sys-elevation-5);
+	--shadow-2xl: var(--schmancy-sys-elevation-5);
 	--outline-1: var(--schmancy-sys-outline-1);
 	--font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
 		'Noto Color Emoji';
