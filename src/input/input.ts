@@ -21,21 +21,6 @@ declare global {
 	}
 }
 
-/**
- * An autocomplete type (expand or customize as needed).
- */
-type AutoFill =
-	| 'off'
-	| 'on'
-	| 'name'
-	| 'username'
-	| 'email'
-	| 'tel'
-	| 'url'
-	| 'new-password'
-	| 'current-password'
-	| 'one-time-code'
-
 type EventDetails = {
 	value: string
 }
