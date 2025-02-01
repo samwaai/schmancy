@@ -135,6 +135,10 @@ export default class SchmancySheet extends $LitElement(style) {
 
 				<schmancy-sheet-content class="content" data-position=${this.position}>
 					<schmancy-sheet-header
+						@dismiss=${(e: CustomEvent) => {
+							e.stopPropagation()
+							sheet.dismiss(this.uid)
+						}}
 						id="sheet-title"
 						.hidden=${this.header === 'hidden'}
 						title=${this.title}

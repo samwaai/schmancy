@@ -1,6 +1,6 @@
 :host {
-	--overlay-color: rgba(0, 0, 0, 0.7);
-	--transition-duration: 0.3s;
+	--overlay-color: var(--schmancy-sys-color-surface-dim);
+	--transition-duration: 0.2s;
 	--sheet-radius: 0;
 	--max-height: 100vh;
 }

@@ -22,7 +22,7 @@ export default class SchmancySheetHeader extends TailwindElement(css`
 					<schmancy-button
 						@click=${() => {
 							this.dispatchEvent(
-								new CustomEvent('sheetDismiss', {
+								new CustomEvent('dismiss', {
 									bubbles: true,
 									composed: true,
 								}),
@@ -37,7 +37,7 @@ export default class SchmancySheetHeader extends TailwindElement(css`
 					<schmancy-button
 						@click=${() => {
 							this.dispatchEvent(
-								new CustomEvent('sheetDismiss', {
+								new CustomEvent('dismiss', {
 									bubbles: true,
 									composed: true,
 								}),
