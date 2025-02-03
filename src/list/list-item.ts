@@ -58,7 +58,7 @@ export class SchmancyListItem extends TailwindElement(css`
 		const classes = {
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
-			'w-full min-h-[56px] relative flex items-center gap-[16px] py-[8px] px-[16px] duration-500 transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:z-1 outline-secondary-default outline-hidden':
+			'w-full min-h-[56px] py-[8px] px-[16px] duration-500 transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:z-1 outline-secondary-default outline-hidden':
 				true,
 			'bg-secondary-container text-secondery-onContainer': this.selected,
 		}
