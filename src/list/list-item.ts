@@ -2,7 +2,7 @@ import { consume } from '@lit/context'
 import { TailwindElement } from '@mixins/index'
 import { SchmancySurfaceTypeContext } from '@schmancy/surface/context'
 import { TSurfaceColor } from '@schmancy/types/surface'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 
@@ -13,11 +13,7 @@ import { when } from 'lit/directives/when.js'
  * @slot - default content
  */
 @customElement('schmancy-list-item')
-export class SchmancyListItem extends TailwindElement(css`
-	:host {
-		display: block;
-	}
-`) {
+export class SchmancyListItem extends TailwindElement() {
 	@consume({ context: SchmancySurfaceTypeContext, subscribe: true })
 	@property()
 	variant: TSurfaceColor
@@ -58,7 +54,7 @@ export class SchmancyListItem extends TailwindElement(css`
 		const classes = {
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
-			'w-full min-h-[56px] py-[8px] px-[16px] duration-500 transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:z-1 outline-secondary-default outline-hidden':
+			'relative inset-0 w-full flex items-center  min-h-[56px] py-[8px] px-[16px] duration-500 transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:z-1 outline-secondary-default outline-hidden':
 				true,
 			'bg-secondary-container text-secondery-onContainer': this.selected,
 		}
@@ -69,8 +65,8 @@ export class SchmancyListItem extends TailwindElement(css`
 			'rounded-full': this.rounded,
 			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0 ': !this.readonly,
 		}
-		return html`<li .tabIndex=${this.readonly ? -1 : 0} class=${this.classMap(classes)}>
-			${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}
+		return html` <li .tabIndex=${this.readonly ? -1 : 0} class=${this.classMap(classes)}>
+			${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div>`)}
 			<slot></slot>
 		</li>`
 	}
