@@ -27,7 +27,7 @@ const $colorScheme = new Observable<string>(subscriber => {
 @customElement('schmancy-theme')
 export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 	@property({ type: String, reflect: true }) color: string
-	@property({ type: String }) scheme: 'dark' | 'light' | 'auto' = 'light'
+	@property({ type: String }) scheme: 'dark' | 'light' | 'auto' = 'auto'
 	@property({ type: Boolean }) root = false
 	@property({ type: Object }) theme: Partial<TSchmancyTheme> = {}
 	connectedCallback(): void {
