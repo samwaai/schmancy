@@ -10,30 +10,28 @@ export class DemoList extends $LitElement(css`
 `) {
 	render() {
 		return html`
-			<schmancy-grid align="start" justify="start" gap="md">
+			<schmancy-grid gap="md">
 				<schmancy-typography type="title">Standard list items</schmancy-typography>
 				<schmancy-list class="rounded-full">
-					<schmancy-icon slot="leading">book_online</schmancy-icon>
-					Mahatma Gandhi
-					<div slot="support">Be the change that you wish to see in the world.</div>
+					<schmancy-list-item>
+						<schmancy-icon>book_online</schmancy-icon>
 
-					<schmancy-menu>
-						<schmancy-menu-item>Bookings</schmancy-menu-item>
-						<schmancy-menu-item>Rooms</schmancy-menu-item>
-						<schmancy-menu-item>Locks</schmancy-menu-item>
-					</schmancy-menu>
-				</schmancy-list>
+						<div></div>
+						Be the change that you wish to see in the world.
+						<schmancy-menu>
+							<schmancy-menu-item>Bookings</schmancy-menu-item>
+							<schmancy-menu-item>Rooms</schmancy-menu-item>
+							<schmancy-menu-item>Locks</schmancy-menu-item>
+						</schmancy-menu>
+					</schmancy-list-item>
 
-				<schmancy-list-item>
-					<schmancy-icon slot="leading">book_online</schmancy-icon>
-					J.K. Rowling
-					<div slot="support">
+					<schmancy-list-item>
 						“If you want to know what a man's like, <br />take a good look at how he treats his inferiors, not his
 						equals.”
-					</div>
-				</schmancy-list-item>
+					</schmancy-list-item>
+				</schmancy-list>
 
-				<schmancy-divider></schmancy-divider>
+				<schmancy-divider orientation="horizontal"></schmancy-divider>
 
 				<schmancy-typography type="title">Rounded list items</schmancy-typography>
 				<schmancy-list>

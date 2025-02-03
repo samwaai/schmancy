@@ -1,12 +1,10 @@
 import { consume } from '@lit/context'
 import { TailwindElement } from '@mixins/index'
 import { SchmancySurfaceTypeContext } from '@schmancy/surface/context'
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { TSurfaceColor } from '@schmancy/types/surface'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
-import { color } from '..'
 
 /**
  * @element schmancy-list-item
@@ -15,7 +13,11 @@ import { color } from '..'
  * @slot - default content
  */
 @customElement('schmancy-list-item')
-export class SchmancyListItem extends TailwindElement() {
+export class SchmancyListItem extends TailwindElement(css`
+	:host {
+		display: block;
+	}
+`) {
 	@consume({ context: SchmancySurfaceTypeContext, subscribe: true })
 	@property()
 	variant: TSurfaceColor
@@ -69,23 +71,7 @@ export class SchmancyListItem extends TailwindElement() {
 		}
 		return html`<li .tabIndex=${this.readonly ? -1 : 0} class=${this.classMap(classes)}>
 			${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}
-			<slot name="leading"> </slot>
-			<schmancy-flex flow="row">
-				<schmancy-typography type="body" token="lg">
-					<slot></slot>
-				</schmancy-typography>
-				<schmancy-typography
-					${color({
-						color: SchmancyTheme.sys.color.surface.onVariant,
-					})}
-					type="body"
-					token="md"
-				>
-					<slot name="support"></slot>
-				</schmancy-typography>
-			</schmancy-flex>
-			${when(!this.readonly, () => html` <div class="${this.classMap(stateLayerClasses)}"></div> `)}
-			<slot name="trailing"></slot>
+			<slot></slot>
 		</li>`
 	}
 }
