@@ -1,8 +1,10 @@
+import { provide } from '@lit/context'
 import { argbFromHex, themeFromSourceColor } from '@material/material-color-utilities'
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { Observable, of, switchMap } from 'rxjs'
+import { themeContext } from './context'
 import { formateTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
 import style from './theme.style.css?inline'
@@ -26,10 +28,17 @@ const $colorScheme = new Observable<string>(subscriber => {
 
 @customElement('schmancy-theme')
 export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
-	@property({ type: String, reflect: true }) color: string
+	@property({ type: String, reflect: true })
+	color: string
 	@property({ type: String }) scheme: 'dark' | 'light' | 'auto' = 'auto'
 	@property({ type: Boolean }) root = false
-	@property({ type: Object }) theme: Partial<TSchmancyTheme> = {}
+
+	@provide({
+		context: themeContext,
+	})
+	@property({ type: Object })
+	theme: Partial<TSchmancyTheme> = {}
+
 	connectedCallback(): void {
 		super.connectedCallback()
 		if (!this.color) this.color = this.generateRandomColor()
