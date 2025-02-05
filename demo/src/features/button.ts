@@ -33,6 +33,10 @@ export class DemoButton extends $LitElement(css`
 
 				<schmancy-typography type="title">Width variant</schmancy-typography>
 				<schmancy-button variant="filled" width="full">filled</schmancy-button>
+
+				<schmancy-typography type="title">Notification Examples</schmancy-typography>
+				<schmancy-notification type="error"> Operation completed successfully. </schmancy-notification>
+				<schmancy-notification type="success"> Operation completed successfully. </schmancy-notification>
 			</schmancy-grid>
 		`
 	}

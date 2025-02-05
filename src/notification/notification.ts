@@ -14,14 +14,14 @@ export class SchmancyNotification extends TailwindElement() {
 			>
 				<div class="flex w-full flex-col items-center space-y-4 sm:items-end">
 					<div
-						class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+						class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-surface-container shadow-lg ring-1 ring-outlineVariant ring-opacity-5"
 					>
 						<div class="p-2">
 							<div class="flex items-center">
 								<div class="shrink-0">
 									${this.type === 'success'
 										? html` <svg
-												class="h-6 w-6 text-green-400"
+												class="h-6 w-6 text-success-default"
 												fill="none"
 												viewBox="0 0 24 24"
 												stroke-width="1.5"
@@ -35,7 +35,7 @@ export class SchmancyNotification extends TailwindElement() {
 												/>
 											</svg>`
 										: html` <svg
-												class="h-6 w-6 text-red-600"
+												class="h-6 w-6 text-error-default"
 												fill="none"
 												viewBox="0 0 24 24"
 												stroke-width="1.5"
@@ -50,25 +50,20 @@ export class SchmancyNotification extends TailwindElement() {
 											</svg>`}
 								</div>
 								<div class="ml-3 w-0 flex-1 pt-0.5">
-									<p class=" text-sm text-gray-500">
+									<p class=" text-sm ">
 										<slot></slot>
 									</p>
 								</div>
 								<div class="ml-4 flex shrink-0">
-									<button
+									<schmancy-icon-button
 										type="button"
-										class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-900 hover:bg-gray-100 hover:rounded-full p-2 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 										@click=${() => {
 											this.dispatchEvent(new CustomEvent('close'))
 										}}
 									>
 										<span class="sr-only">Close</span>
-										<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-											<path
-												d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-											/>
-										</svg>
-									</button>
+										close
+									</schmancy-icon-button>
 								</div>
 							</div>
 						</div>

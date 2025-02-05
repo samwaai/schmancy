@@ -40,10 +40,7 @@
 }
 
 .content {
-	position: relative;
-	display: grid;
 	z-index: 1;
-	inset: 0;
 	background-color: var(--schmancy-sys-color-surface-container);
 	transition: transform var(--transition-duration) ease-in-out;
 

@@ -2,7 +2,8 @@ import { $LitElement } from '@mixins/index'
 import { SchmancySheetPosition, sheet } from '@schmancy/sheet'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { DemoInput } from './input'
+import { DemoButton } from './button'
+import DemoTypography from './typography'
 
 @customElement('demo-sheet')
 export class DemoSheet extends $LitElement(css`
@@ -17,7 +18,7 @@ export class DemoSheet extends $LitElement(css`
 					variant="elevated"
 					@click=${() => {
 						sheet.open({
-							component: new DemoInput(),
+							component: new DemoButton(),
 							position: SchmancySheetPosition.Bottom,
 							title: 'Bottom Sheet',
 							header: 'visible',
@@ -31,13 +32,37 @@ export class DemoSheet extends $LitElement(css`
 					variant="elevated"
 					@click=${() => {
 						sheet.open({
-							component: new SheetDemoExample(),
+							component: new DemoTypography(),
 							position: SchmancySheetPosition.Side,
 							header: 'hidden',
 						})
 					}}
 				>
 					Side Sheet
+				</schmancy-button>
+				<!-- demo -->
+				<schmancy-button
+					variant="elevated"
+					@click=${() => {
+						sheet.open({
+							component: new SheetDemoExample(),
+							header: 'visible',
+							position: SchmancySheetPosition.Side,
+						})
+					}}
+				>
+					Side Sheet
+				</schmancy-button>
+				<schmancy-button
+					variant="elevated"
+					@click=${() => {
+						sheet.open({
+							component: new SheetDemoExample(),
+							header: 'visible',
+						})
+					}}
+				>
+					Bottom Sheet
 				</schmancy-button>
 			</schmancy-grid>
 		`
@@ -54,16 +79,13 @@ declare global {
 class SheetDemoExample extends $LitElement() {
 	render() {
 		return html`
-			<schmancy-surface type="surface" rounded="all">
-				<schmancy-grid gap="md" flow="col">
-					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
-					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
-					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
-					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
-					<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
-				</schmancy-grid>
-				<demo-list class="p-4"></demo-list>
-			</schmancy-surface>
+			<schmancy-grid gap="md" flow="row">
+				<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+				<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+				<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+				<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+				<schmancy-input id="name" label="Name" .value=${'John Doe'}></schmancy-input>
+			</schmancy-grid>
 		`
 	}
 }
