@@ -14,7 +14,7 @@ export class DemoInput extends $LitElement(css`
 	}
 `) {
 	@state() country?: string
-	@state() chip = 'chip2'
+	@state() chip = ''
 	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
 		super.firstUpdated(_changedProperties)
 		this.country = 'DE'
@@ -22,6 +22,9 @@ export class DemoInput extends $LitElement(css`
 
 	connectedCallback(): void {
 		super.connectedCallback()
+		setTimeout(() => {
+			this.chip = 'chip1'
+		}, 1000)
 	}
 	render() {
 		const options = [
@@ -117,14 +120,16 @@ export class DemoInput extends $LitElement(css`
 						>reset Chips</schmancy-button
 					>
 					<schmancy-chips
-						.value=${this.chip}
+						.value=${this.chip ?? ''}
 						@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
 							console.log('e.detail', e.detail)
 						}}
 					>
-						<schmancy-chip label="Chip 1" value="chip1"></schmancy-chip>
-						<schmancy-chip label="Chip 2" value="chip2"></schmancy-chip>
-						<schmancy-chip label="Chip 3" value="chip3"></schmancy-chip>
+						${repeat(
+							['chip1', 'chip2', 'chip3'],
+							c => c,
+							c => html` <schmancy-chip label=${c} value=${c}> ${c} </schmancy-chip>`,
+						)}
 					</schmancy-chips>
 					<schmancy-textarea label="Textarea" placeholder="placeholder"></schmancy-textarea>
 
