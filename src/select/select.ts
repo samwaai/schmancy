@@ -103,67 +103,65 @@ export default class SchmancySelect extends $LitElement(style) {
 			'absolute z-30 mt-1 w-full overflow-auto rounded-md shadow-sm': true,
 		}
 		return html`
-			<schmancy-surface>
-				<div class="relative">
-					<schmancy-input
-						.label=${this.label}
-						.placeholder=${this.placeholder}
-						@click=${() => this.showOptions()}
-						.value=${this.valueLabel}
-						readonly
-						clickable
-					>
-						${this.valueLabel}
-					</schmancy-input>
+			<div class="relative">
+				<schmancy-input
+					.label=${this.label}
+					.placeholder=${this.placeholder}
+					@click=${() => this.showOptions()}
+					.value=${this.valueLabel}
+					readonly
+					clickable
+				>
+					${this.valueLabel}
+				</schmancy-input>
 
-					<div
-						id="overlay"
-						hidden
-						class="fixed inset-0"
-						@click=${(e: Event) => {
-							e.stopPropagation()
-							e.preventDefault()
-							this.hideOptions()
-						}}
-						tabindex="-1"
-					></div>
-					<ul
-						tabindex="-1"
-						class=${this.classMap(classes)}
-						id="options"
-						role="listbox"
-						hidden
-						@click=${(e: Event) => this.handleOptionClick((e.target as SchmancyOption).value)}
-						${color({ bgColor: SchmancyTheme.sys.color.surface.container })}
-					>
-						<slot @slotchange=${() => this.updateDisplayLabel()} tabindex="0"></slot>
-						${when(
-							this.multi,
-							() => html`
-								<li id="confirm" class="py-2" tabindex="-1">
-									<schmancy-grid justify="center">
-										<schmancy-button
-											@click=${() => {
-												this.hideOptions()
-												this.dispatchEvent(
-													new CustomEvent('change', {
-														detail: { value: this.options.filter(o => o.selected).map(o => o.value) },
-														bubbles: true,
-														composed: true,
-													}),
-												)
-											}}
-											variant="filled"
-										>
-											save
-										</schmancy-button>
-									</schmancy-grid>
-								</li>
-							`,
-						)}
-					</ul>
-				</div>
-			</schmancy-surface>
+				<div
+					id="overlay"
+					hidden
+					class="fixed inset-0"
+					@click=${(e: Event) => {
+						e.stopPropagation()
+						e.preventDefault()
+						this.hideOptions()
+					}}
+					tabindex="-1"
+				></div>
+				<ul
+					tabindex="-1"
+					class=${this.classMap(classes)}
+					id="options"
+					role="listbox"
+					hidden
+					@click=${(e: Event) => this.handleOptionClick((e.target as SchmancyOption).value)}
+					${color({ bgColor: SchmancyTheme.sys.color.surface.container })}
+				>
+					<slot @slotchange=${() => this.updateDisplayLabel()} tabindex="0"></slot>
+					${when(
+						this.multi,
+						() => html`
+							<li id="confirm" class="py-2" tabindex="-1">
+								<schmancy-grid justify="center">
+									<schmancy-button
+										@click=${() => {
+											this.hideOptions()
+											this.dispatchEvent(
+												new CustomEvent('change', {
+													detail: { value: this.options.filter(o => o.selected).map(o => o.value) },
+													bubbles: true,
+													composed: true,
+												}),
+											)
+										}}
+										variant="filled"
+									>
+										save
+									</schmancy-button>
+								</schmancy-grid>
+							</li>
+						`,
+					)}
+				</ul>
+			</div>
 		`
 	}
 }
