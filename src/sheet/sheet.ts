@@ -149,7 +149,7 @@ export default class SchmancySheet extends $LitElement(style) {
 						.hidden=${this.header === 'hidden'}
 						title=${this.title}
 					></schmancy-sheet-header>
-					<schmancy-surface fill type="surface" tabindex="0">
+					<schmancy-surface class="overflow-auto" fill type="surface" tabindex="0">
 						<slot></slot>
 					</schmancy-surface>
 				</section>

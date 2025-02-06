@@ -42,9 +42,12 @@
 .content {
 	z-index: 1;
 	transition: transform var(--transition-duration) ease-in-out;
-	overflow: auto;
+	overflow: hidden;
 
 	&[data-position='side'] {
+		& schmancy-surface {
+			max-height: 100vh;
+		}
 		height: 100%;
 		min-width: 320px;
 		max-width: 90vw;
@@ -53,6 +56,9 @@
 	}
 
 	&[data-position='bottom'] {
+		& schmancy-surface {
+			max-height: 90vh;
+		}
 		width: 100%;
 		margin-top: auto;
 		border-radius: 16px 16px 0 0;
