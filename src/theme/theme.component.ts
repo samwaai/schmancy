@@ -57,7 +57,11 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 			})
 	}
 	registerTheme() {
-		let theme = formateTheme(themeFromSourceColor(argbFromHex(this.color)), this.scheme === 'dark' ? true : false)
+		let theme = formateTheme(
+			themeFromSourceColor(argbFromHex(this.color)),
+			this.scheme === 'dark' ? true : false,
+			argbFromHex('#34B334'),
+		)
 		theme = { ...theme, ...this.theme }
 
 		this.registerThemeValues('schmancy', '', theme)

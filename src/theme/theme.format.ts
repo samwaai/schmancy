@@ -1,4 +1,4 @@
-import { Theme, TonalPalette, Hct } from '@material/material-color-utilities'
+import { Hct, Theme, TonalPalette } from '@material/material-color-utilities'
 import { TSchmancyTheme } from './theme.interface'
 
 /**

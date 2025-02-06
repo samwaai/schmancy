@@ -9,6 +9,7 @@ export declare class SchmancySurface extends SchmancySurface_base {
     type: 'surface' | 'surfaceDim' | 'surfaceBright' | 'containerLowest' | 'containerLow' | 'container' | 'containerHigh' | 'containerHighest';
     elevation: 0 | 1 | 2 | 3 | 4 | 5;
     get classes(): Record<string, boolean>;
+    updated(): void;
     protected render(): unknown;
 }
 declare global {

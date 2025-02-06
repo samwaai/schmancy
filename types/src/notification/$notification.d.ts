@@ -9,4 +9,5 @@ export declare const $notify: {
     error: (message: string, config?: TNotificationConfig) => SchmancyNotification;
     warning: (message: string, config?: TNotificationConfig) => SchmancyNotification;
     info: (message: string, config?: TNotificationConfig) => SchmancyNotification;
+    dismiss: (component: SchmancyNotification) => void;
 };
