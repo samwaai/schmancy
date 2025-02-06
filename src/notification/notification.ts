@@ -1,4 +1,5 @@
 import { TailwindElement } from '@mixins/index'
+import { $notify } from '@schmancy/notification'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 @customElement('schmancy-notification')
@@ -58,6 +59,7 @@ export class SchmancyNotification extends TailwindElement() {
 									<schmancy-icon-button
 										type="button"
 										@click=${() => {
+											$notify.dismiss(this)
 											this.dispatchEvent(new CustomEvent('close'))
 										}}
 									>

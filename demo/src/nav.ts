@@ -14,6 +14,7 @@ import { DemoContentDrawer } from './features/drawer-content'
 import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoList } from './features/list'
+import { DemoNotifications } from './features/notifications'
 import { DemoRouter } from './features/router'
 import { DemoSheet } from './features/sheet'
 import { DemoSurface } from './features/surface'
@@ -35,13 +36,14 @@ export class DemoNav extends $LitElement(css`
 		component: CustomElementConstructor
 	}> = [
 		{
+			name: 'Notifications',
+			component: DemoNotifications,
+		},
+		{
 			name: 'Typewriter',
 			component: SchmancyTypewriterDemo,
 		},
-		// {
-		// 	name: 'Sliders',
-		// 	component: DemoSlider,
-		// },
+
 		{
 			name: 'Icons',
 			component: DemoIcons,
@@ -141,9 +143,6 @@ export class DemoNav extends $LitElement(css`
 							</schmancy-list-item>`,
 					)}
 				</schmancy-list>
-				<div class="sticky bottom-0 ">
-					<schmancy-theme-button></schmancy-theme-button>
-				</div>
 			</schmancy-grid>
 		`
 	}

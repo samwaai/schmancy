@@ -3,6 +3,7 @@ import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { SchmancySurfaceTypeContext } from './context'
+
 /**
  * @element schmancy-surface
  * @slot - default content
@@ -31,11 +32,12 @@ export class SchmancySurface extends TailwindElement(css`
 		| 'container'
 		| 'containerHigh'
 		| 'containerHighest' = 'surface'
+
 	@property({ type: Number }) elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
 
 	get classes(): Record<string, boolean> {
 		return {
-			'relative  inset-0 block sha': true,
+			'relative inset-0 block sha': true,
 			'rounded-none': this.rounded === 'none',
 			'rounded-t-[8px]': this.rounded === 'top',
 			'rounded-l-[8px]': this.rounded === 'left',
@@ -57,12 +59,6 @@ export class SchmancySurface extends TailwindElement(css`
 				this.type === 'container' ||
 				this.type === 'containerHigh' ||
 				this.type === 'containerHighest',
-			// 'text-surface-onVariant':
-			// 	this.type === 'containerLowest' ||
-			// 	this.type === 'containerLow' ||
-			// 	this.type === 'container' ||
-			// 	this.type === 'containerHigh' ||
-			// 	this.type === 'containerHighest',
 			'bg-surface-default': this.type === 'surface',
 			'bg-surface-dim': this.type === 'surfaceDim',
 			'bg-surface-bright': this.type === 'surfaceBright',
@@ -73,14 +69,24 @@ export class SchmancySurface extends TailwindElement(css`
 			'bg-surface-highest': this.type === 'containerHighest',
 		}
 	}
+
+	updated() {
+		// Loop over the computed classes and toggle each class on the host element.
+		Object.entries(this.classes).forEach(([cls, condition]) => {
+			// In case you have multiple classes in one string (like 'relative inset-0 block sha'),
+			// split them and toggle each one.
+			cls.split(' ').forEach(singleClass => {
+				this.classList.toggle(singleClass, condition)
+			})
+		})
+	}
+
 	protected render(): unknown {
-		return html`
-			<div class="${this.classMap(this.classes)}">
-				<slot></slot>
-			</div>
-		`
+		// Now, no extra <div> is needed because classes are on the host element.
+		return html` <slot></slot> `
 	}
 }
+
 declare global {
 	interface HTMLElementTagNameMap {
 		'schmancy-surface': SchmancySurface

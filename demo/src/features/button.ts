@@ -1,6 +1,7 @@
 import { $LitElement } from '@mixins/index'
-import { customElement } from 'lit/decorators.js'
 import { css, html } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import { $notify } from '@schmancy/notification'
 
 @customElement('demo-button')
 export class DemoButton extends $LitElement(css`
@@ -12,7 +13,14 @@ export class DemoButton extends $LitElement(css`
 		return html`
 			<schmancy-grid gap="md">
 				<schmancy-typography type="title">Normal</schmancy-typography>
-				<schmancy-icon-button size="sm" variant="elevated">add</schmancy-icon-button>
+				<schmancy-icon-button
+					@click=${() => {
+						$notify.success('Operation completed successfully.')
+					}}
+					size="sm"
+					variant="elevated"
+					>add</schmancy-icon-button
+				>
 				<schmancy-button variant="elevated">elevated</schmancy-button>
 				<schmancy-button variant="filled">filled</schmancy-button>
 				<schmancy-button variant="filled tonal">filled tonal</schmancy-button>
@@ -35,8 +43,6 @@ export class DemoButton extends $LitElement(css`
 				<schmancy-button variant="filled" width="full">filled</schmancy-button>
 
 				<schmancy-typography type="title">Notification Examples</schmancy-typography>
-				<schmancy-notification type="error"> Operation completed successfully. </schmancy-notification>
-				<schmancy-notification type="success"> Operation completed successfully. </schmancy-notification>
 			</schmancy-grid>
 		`
 	}
