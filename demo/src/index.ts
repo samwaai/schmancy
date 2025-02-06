@@ -3,11 +3,10 @@ import '@schmancy/index'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
+import '@lit-labs/virtualizer'
 import { fullHeight } from '../../src/directives/height'
 import './features/index'
 import { DemoInput } from './features/index'
-import '@lit-labs/virtualizer'
-import theme from './theme'
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
 	connectedCallback(): void {
@@ -16,7 +15,7 @@ export default class SchmancyDemo extends $LitElement() {
 
 	render() {
 		return html`
-			<schmancy-theme .theme=${theme} root>
+			<schmancy-theme root>
 				<schmancy-surface ${fullHeight()} type="container">
 					<schmancy-nav-drawer>
 						<schmancy-nav-drawer-navbar width="220px">

@@ -1,7 +1,17 @@
-import { Theme, TonalPalette } from '@material/material-color-utilities'
+import { Theme, TonalPalette, Hct } from '@material/material-color-utilities'
 import { TSchmancyTheme } from './theme.interface'
 
-export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSchmancyTheme> {
+/**
+ * Updates the theme based on the original scheme.
+ * @param originalScheme The generated scheme from Material Color Utilities.
+ * @param isDark Whether to generate a dark theme.
+ * @param successBaseColor The base color (as ARGB number) to compute the success palette.
+ */
+export function formateTheme(
+	originalScheme: Theme,
+	isDark = false,
+	successBaseColor: number, // Pass your desired base color for "success"
+): Partial<TSchmancyTheme> {
 	function argbToHex(argb: number): string {
 		return '#' + argb.toString(16).padStart(8, '0').slice(2)
 	}
@@ -12,6 +22,7 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 			originalScheme.palettes.neutral.hue,
 			originalScheme.palettes.neutral.chroma,
 		)
+		const successPalette = createDarkSuccessTonalPaletteFromBaseColor(successBaseColor)
 		const newDarkScheme: TSchmancyTheme = {
 			sys: {
 				color: {
@@ -55,10 +66,10 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 						onContainer: argbToHex(darkScheme.onErrorContainer),
 					},
 					success: {
-						default: '#00FF00',
-						on: '#000000',
-						container: '#00FF00',
-						onContainer: '#000000',
+						default: argbToHex(successPalette.default),
+						on: argbToHex(successPalette.on),
+						container: argbToHex(successPalette.container),
+						onContainer: argbToHex(successPalette.onContainer),
 					},
 				},
 				elevation: {
@@ -81,6 +92,7 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 			originalScheme.palettes.neutral.hue,
 			originalScheme.palettes.neutral.chroma,
 		)
+		const successPalette = createLightSuccessTonalPaletteFromBaseColor(successBaseColor)
 		const newLightScheme: TSchmancyTheme = {
 			sys: {
 				color: {
@@ -124,10 +136,10 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 						onContainer: argbToHex(lightScheme.onErrorContainer),
 					},
 					success: {
-						default: '#00FF00',
-						on: '#000000',
-						container: '#00FF00',
-						onContainer: '#000000',
+						default: argbToHex(successPalette.default),
+						on: argbToHex(successPalette.on),
+						container: argbToHex(successPalette.container),
+						onContainer: argbToHex(successPalette.onContainer),
 					},
 				},
 				elevation: {
@@ -147,6 +159,9 @@ export function formateTheme(originalScheme: Theme, isDark = false): Partial<TSc
 	}
 }
 
+/**
+ * Generates a tonal palette for neutral-based surfaces in light mode.
+ */
 function createLightTonalPaletteFromBaseColor(hue: number, chroma: number) {
 	const tonalPalette = TonalPalette.fromHueAndChroma(hue, chroma)
 	return {
@@ -161,6 +176,9 @@ function createLightTonalPaletteFromBaseColor(hue: number, chroma: number) {
 	}
 }
 
+/**
+ * Generates a tonal palette for neutral-based surfaces in dark mode.
+ */
 function createDarkTonalPaletteFromBaseColor(hue: number, chroma: number) {
 	const tonalPalette = TonalPalette.fromHueAndChroma(hue, chroma)
 	return {
@@ -172,5 +190,36 @@ function createDarkTonalPaletteFromBaseColor(hue: number, chroma: number) {
 		sDim: tonalPalette.tone(0), // Pure black
 		s: tonalPalette.tone(6),
 		sBright: tonalPalette.tone(24),
+	}
+}
+
+/**
+ * Creates a light-mode tonal palette for success using a provided base color.
+ * The tone values (40, 100, 90, 10) are chosen based on Material guidelines for error.
+ * Adjust these numbers if you need a different contrast.
+ */
+function createLightSuccessTonalPaletteFromBaseColor(successBaseColor: number) {
+	const hct = Hct.fromInt(successBaseColor)
+	const tonalPalette = TonalPalette.fromHueAndChroma(hct.hue, hct.chroma)
+	return {
+		default: tonalPalette.tone(40),
+		on: tonalPalette.tone(100),
+		container: tonalPalette.tone(90),
+		onContainer: tonalPalette.tone(10),
+	}
+}
+
+/**
+ * Creates a dark-mode tonal palette for success using a provided base color.
+ * The tone values (80, 20, 30, 90) are chosen to provide proper contrast in dark mode.
+ */
+function createDarkSuccessTonalPaletteFromBaseColor(successBaseColor: number) {
+	const hct = Hct.fromInt(successBaseColor)
+	const tonalPalette = TonalPalette.fromHueAndChroma(hct.hue, hct.chroma)
+	return {
+		default: tonalPalette.tone(80),
+		on: tonalPalette.tone(20),
+		container: tonalPalette.tone(30),
+		onContainer: tonalPalette.tone(90),
 	}
 }
