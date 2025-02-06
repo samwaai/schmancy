@@ -2,7 +2,6 @@ import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'
-import { hook } from './hook'
 import style from './sheet.scss?inline'
 import {
 	SchmancySheetPosition,
@@ -11,6 +10,7 @@ import {
 	SheetWhereAreYouRickyEvent,
 	sheet,
 } from './sheet.service'
+import { on } from './hook'
 
 @customElement('schmancy-sheet')
 export default class SchmancySheet extends $LitElement(style) {
@@ -28,7 +28,7 @@ export default class SchmancySheet extends $LitElement(style) {
 	@property() focusAttribute = 'autofocus'
 	private lastFocusedElement: HTMLElement | null = null
 
-	@hook('open')
+	@on('open')
 	onOpenChange(_oldValue: boolean, newValue: boolean) {
 		this.setIsSheetShown(newValue)
 
@@ -138,7 +138,7 @@ export default class SchmancySheet extends $LitElement(style) {
 						if (this.allowOverlayDismiss) sheet.dismiss(this.uid)
 					}}
 				></div>
-				<schmancy-sheet-content class="content" data-position=${this.position}>
+				<section class="content" data-position=${this.position}>
 					<schmancy-sheet-header
 						@dismiss=${(e: CustomEvent) => {
 							e.stopPropagation()
@@ -148,8 +148,10 @@ export default class SchmancySheet extends $LitElement(style) {
 						.hidden=${this.header === 'hidden'}
 						title=${this.title}
 					></schmancy-sheet-header>
-					<slot></slot>
-				</schmancy-sheet-content>
+					<schmancy-surface fill type="surface" tabindex="0">
+						<slot></slot>
+					</schmancy-surface>
+				</section>
 			</div>
 		`
 	}

@@ -2,8 +2,9 @@ import { $LitElement } from '@mixins/index'
 import { SchmancySheetPosition, sheet } from '@schmancy/sheet'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { DemoButton } from './button'
-import DemoTypography from './typography'
+import { DemoButton } from '../button'
+import DemoTypography from '../typography'
+import DemoForm from './form'
 
 @customElement('demo-sheet')
 export class DemoSheet extends $LitElement(css`
@@ -45,7 +46,7 @@ export class DemoSheet extends $LitElement(css`
 					variant="elevated"
 					@click=${() => {
 						sheet.open({
-							component: new SheetDemoExample(),
+							component: new DemoForm(),
 							header: 'visible',
 							position: SchmancySheetPosition.Side,
 						})

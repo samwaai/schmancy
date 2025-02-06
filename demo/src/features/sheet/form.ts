@@ -5,8 +5,8 @@ import { repeat } from 'lit/directives/repeat.js'
 // import 'leaflet/dist/leaflet.css'
 import { $LitElement } from '@mixins/index'
 
-@customElement('warehouse-form')
-export default class WarehouseForm extends $LitElement() {
+@customElement('demo-form')
+export default class DemoForm extends $LitElement() {
 	protected render(): unknown {
 		const emojis = ['🏢', '🏭', '🏬', '🏪']
 		return html`
@@ -77,6 +77,6 @@ export default class WarehouseForm extends $LitElement() {
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'warehouse-form': WarehouseForm
+		'demo-form': DemoForm
 	}
 }

@@ -34,7 +34,8 @@ export default class SchmancySheetHeader extends TailwindElement(css`
 				</slot>
 				<schmancy-typography transform="capitalize" type="headline" token="lg"> ${this.title} </schmancy-typography>
 				<slot name="actions">
-					<schmancy-button
+					<schmancy-icon-button
+						variant="outlined"
 						@click=${() => {
 							this.dispatchEvent(
 								new CustomEvent('dismiss', {
@@ -44,8 +45,8 @@ export default class SchmancySheetHeader extends TailwindElement(css`
 							)
 						}}
 					>
-						<span class="text-[24px]">✕</span>
-					</schmancy-button>
+						close
+					</schmancy-icon-button>
 				</slot>
 			</schmancy-grid>
 		`
