@@ -140,6 +140,7 @@ export default class SchmancySheet extends $LitElement(style) {
 				></div>
 				<section class="content" data-position=${this.position}>
 					<schmancy-sheet-header
+						class="sticky top-0 z-50"
 						@dismiss=${(e: CustomEvent) => {
 							e.stopPropagation()
 							sheet.dismiss(this.uid)
