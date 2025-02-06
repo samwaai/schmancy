@@ -130,29 +130,27 @@ export default class SchmancySheet extends $LitElement(style) {
 
 	render() {
 		return html`
-			<schmancy-theme>
-				<div class="sheet" role="dialog" aria-labelledby="sheet-title" aria-hidden="true" aria-modal="false">
-					<div
-						class="overlay"
-						@click=${(e: Event) => {
+			<div class="sheet" role="dialog" aria-labelledby="sheet-title" aria-hidden="true" aria-modal="false">
+				<div
+					class="overlay"
+					@click=${(e: Event) => {
+						e.stopPropagation()
+						if (this.allowOverlayDismiss) sheet.dismiss(this.uid)
+					}}
+				></div>
+				<schmancy-sheet-content class="content" data-position=${this.position}>
+					<schmancy-sheet-header
+						@dismiss=${(e: CustomEvent) => {
 							e.stopPropagation()
-							if (this.allowOverlayDismiss) sheet.dismiss(this.uid)
+							sheet.dismiss(this.uid)
 						}}
-					></div>
-					<schmancy-sheet-content class="content" data-position=${this.position}>
-						<schmancy-sheet-header
-							@dismiss=${(e: CustomEvent) => {
-								e.stopPropagation()
-								sheet.dismiss(this.uid)
-							}}
-							id="sheet-title"
-							.hidden=${this.header === 'hidden'}
-							title=${this.title}
-						></schmancy-sheet-header>
-						<slot></slot>
-					</schmancy-sheet-content>
-				</div>
-			</schmancy-theme>
+						id="sheet-title"
+						.hidden=${this.header === 'hidden'}
+						title=${this.title}
+					></schmancy-sheet-header>
+					<slot></slot>
+				</schmancy-sheet-content>
+			</div>
 		`
 	}
 }
