@@ -2,7 +2,6 @@ import { provide } from '@lit/context'
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { SchmancySurfaceTypeContext } from './context'
 
 /**
@@ -11,6 +10,9 @@ import { SchmancySurfaceTypeContext } from './context'
  */
 @customElement('schmancy-surface')
 export class SchmancySurface extends TailwindElement(css`
+	:host {
+		display: block;
+	}
 	:host([fill]) {
 		height: -webkit-fill-available;
 		width: -webkit-fill-available;
@@ -35,8 +37,6 @@ export class SchmancySurface extends TailwindElement(css`
 
 	get classes(): Record<string, boolean> {
 		return {
-			relative: true,
-			block: true,
 			// Rounded styles based on the "rounded" property.
 			'rounded-none': this.rounded === 'none',
 			'rounded-t-[8px]': this.rounded === 'top',
@@ -77,7 +77,7 @@ export class SchmancySurface extends TailwindElement(css`
 	protected render(): unknown {
 		return html`
 			<!-- The dynamic classes are applied via classMap on this div -->
-			<div class="${classMap(this.classes)}">
+			<div class="${this.classMap(this.classes)}">
 				<slot></slot>
 			</div>
 		`
