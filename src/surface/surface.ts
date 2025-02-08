@@ -14,6 +14,12 @@ export class SchmancySurface extends TailwindElement(css`
 		height: -webkit-fill-available;
 		width: -webkit-fill-available;
 	}
+	:host([fill-width]) {
+		width: -webkit-fill-available;
+	}
+	:host([fill-height]) {
+		height: -webkit-fill-available;
+	}
 `) {
 	@property({ type: Boolean }) fill = false
 	@property() rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' = 'none'
@@ -34,7 +40,7 @@ export class SchmancySurface extends TailwindElement(css`
 
 	get classes(): Record<string, boolean> {
 		return {
-			'relative block': true,
+			'relative block box-border': true,
 			'rounded-none': this.rounded === 'none',
 			'rounded-t-[8px]': this.rounded === 'top',
 			'rounded-l-[8px]': this.rounded === 'left',
