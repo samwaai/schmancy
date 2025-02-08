@@ -15,7 +15,7 @@ export type SchmancySelectChangeEvent = CustomEvent<{
 @customElement('schmancy-select')
 export default class SchmancySelect extends $LitElement(style) {
 	@property({ type: Boolean }) required = false
-	@property({ type: String }) placeholder = 'Select an option'
+	@property({ type: String }) placeholder = ''
 	@property({ type: String, reflect: true }) value = ''
 	@property({ type: Boolean }) multi = false
 	@property({ type: String }) label = ''
