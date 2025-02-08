@@ -2,6 +2,7 @@ import { provide } from '@lit/context'
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js'
 import { SchmancySurfaceTypeContext } from './context'
 
 /**
@@ -34,19 +35,24 @@ export class SchmancySurface extends TailwindElement(css`
 
 	get classes(): Record<string, boolean> {
 		return {
-			'relative block': true,
+			relative: true,
+			block: true,
+			// Rounded styles based on the "rounded" property.
 			'rounded-none': this.rounded === 'none',
 			'rounded-t-[8px]': this.rounded === 'top',
 			'rounded-l-[8px]': this.rounded === 'left',
 			'rounded-r-[8px]': this.rounded === 'right',
 			'rounded-b-[8px]': this.rounded === 'bottom',
 			'rounded-[8px]': this.rounded === 'all',
-
-			'w-full h-full': this.fill,
+			// If fill is true, apply full width and height.
+			'w-full': this.fill,
+			'h-full': this.fill,
+			// Elevation shadows.
 			'shadow-xs': this.elevation === 1,
 			'shadow-sm': this.elevation === 2,
 			'shadow-md': this.elevation === 3,
 			'shadow-lg': this.elevation === 4,
+			// Surface text color.
 			'text-surface-on':
 				this.type === 'surface' ||
 				this.type === 'surfaceDim' ||
@@ -56,6 +62,7 @@ export class SchmancySurface extends TailwindElement(css`
 				this.type === 'container' ||
 				this.type === 'containerHigh' ||
 				this.type === 'containerHighest',
+			// Background color based on the type.
 			'bg-surface-default': this.type === 'surface',
 			'bg-surface-dim': this.type === 'surfaceDim',
 			'bg-surface-bright': this.type === 'surfaceBright',
@@ -67,20 +74,13 @@ export class SchmancySurface extends TailwindElement(css`
 		}
 	}
 
-	updated() {
-		// Loop over the computed classes and toggle each class on the host element.
-		Object.entries(this.classes).forEach(([cls, condition]) => {
-			// In case you have multiple classes in one string (like 'relative inset-0 block sha'),
-			// split them and toggle each one.
-			cls.split(' ').forEach(singleClass => {
-				this.classList.toggle(singleClass, condition)
-			})
-		})
-	}
-
 	protected render(): unknown {
-		// Now, no extra <div> is needed because classes are on the host element.
-		return html` <slot></slot> `
+		return html`
+			<!-- The dynamic classes are applied via classMap on this div -->
+			<div class="${classMap(this.classes)}">
+				<slot></slot>
+			</div>
+		`
 	}
 }
 
