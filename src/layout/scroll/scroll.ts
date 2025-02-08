@@ -5,10 +5,13 @@ import { customElement, property } from 'lit/decorators.js'
 @customElement('schmancy-scroll')
 export class SchmancyScroll extends TailwindElement(css`
 	:host {
-		display: block;
-		position: relative; /* Ensures absolute children are relative to host */
+		height: 100%;
 		width: 100%;
-		height: 100%; /* Still recommend parent sets height */
+		overflow: hidden;
+		box-sizing: border-box; /* Ensures proper sizing */
+		display: block;
+		position: relative;
+		inset: 0px;
 	}
 	.scrollbar-hide {
 		-ms-overflow-style: none; /* IE and Edge */
@@ -31,15 +34,17 @@ export class SchmancyScroll extends TailwindElement(css`
 	public hide = false
 
 	render() {
+		// The classes are dynamically assigned based on the `hide` property.
 		const classes = {
-			// Add absolute positioning to fill host
-			'absolute inset-0 overflow-x-scroll overflow-y-scroll scroll-smooth overscroll-contain': true,
+			'h-full w-full inset-0 overflow-x-scroll overflow-y-scroll scroll-smooth overscroll-contain': true,
 			'scrollbar-hide': this.hide,
 		}
 
 		return html`
-			<div class=${this.classMap(classes)}>
-				<slot></slot>
+			<div class="relative inset-0 h-full w-full overscroll-none">
+				<div class=${this.classMap(classes)}>
+					<slot></slot>
+				</div>
 			</div>
 		`
 	}
