@@ -10,9 +10,6 @@ import { SchmancySurfaceTypeContext } from './context'
  */
 @customElement('schmancy-surface')
 export class SchmancySurface extends TailwindElement(css`
-	:host {
-		display: block;
-	}
 	:host([fill]) {
 		height: -webkit-fill-available;
 		width: -webkit-fill-available;
@@ -37,22 +34,19 @@ export class SchmancySurface extends TailwindElement(css`
 
 	get classes(): Record<string, boolean> {
 		return {
-			// Rounded styles based on the "rounded" property.
+			'relative block': true,
 			'rounded-none': this.rounded === 'none',
 			'rounded-t-[8px]': this.rounded === 'top',
 			'rounded-l-[8px]': this.rounded === 'left',
 			'rounded-r-[8px]': this.rounded === 'right',
 			'rounded-b-[8px]': this.rounded === 'bottom',
 			'rounded-[8px]': this.rounded === 'all',
-			// If fill is true, apply full width and height.
-			'w-full': this.fill,
-			'h-full': this.fill,
-			// Elevation shadows.
+
+			'w-full h-full': this.fill,
 			'shadow-xs': this.elevation === 1,
 			'shadow-sm': this.elevation === 2,
 			'shadow-md': this.elevation === 3,
 			'shadow-lg': this.elevation === 4,
-			// Surface text color.
 			'text-surface-on':
 				this.type === 'surface' ||
 				this.type === 'surfaceDim' ||
@@ -62,7 +56,6 @@ export class SchmancySurface extends TailwindElement(css`
 				this.type === 'container' ||
 				this.type === 'containerHigh' ||
 				this.type === 'containerHighest',
-			// Background color based on the type.
 			'bg-surface-default': this.type === 'surface',
 			'bg-surface-dim': this.type === 'surfaceDim',
 			'bg-surface-bright': this.type === 'surfaceBright',
@@ -74,13 +67,17 @@ export class SchmancySurface extends TailwindElement(css`
 		}
 	}
 
+	updated() {
+		// Loop over the computed classes and toggle each class on the host element.
+		Object.entries(this.classes).forEach(([cls, condition]) => {
+			cls.split(' ').forEach(singleClass => {
+				this.classList.toggle(singleClass, condition)
+			})
+		})
+	}
+
 	protected render(): unknown {
-		return html`
-			<!-- The dynamic classes are applied via classMap on this div -->
-			<div class="${this.classMap(this.classes)}">
-				<slot></slot>
-			</div>
-		`
+		return html`<slot class=${this.classMap(this.classes)}></slot> `
 	}
 }
 
