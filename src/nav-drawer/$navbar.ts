@@ -47,3 +47,6 @@ class Drawer {
 }
 
 export const schmancyNavDrawer = new Drawer()
+const $drawer = schmancyNavDrawer
+
+export { $drawer }
