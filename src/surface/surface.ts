@@ -10,9 +10,6 @@ import { SchmancySurfaceTypeContext } from './context'
  */
 @customElement('schmancy-surface')
 export class SchmancySurface extends TailwindElement(css`
-	:host {
-		display: block;
-	}
 	:host([fill]) {
 		height: -webkit-fill-available;
 		width: -webkit-fill-available;
@@ -37,7 +34,7 @@ export class SchmancySurface extends TailwindElement(css`
 
 	get classes(): Record<string, boolean> {
 		return {
-			'relative inset-0 block sha': true,
+			'relative block': true,
 			'rounded-none': this.rounded === 'none',
 			'rounded-t-[8px]': this.rounded === 'top',
 			'rounded-l-[8px]': this.rounded === 'left',
