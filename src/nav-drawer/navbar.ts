@@ -10,93 +10,146 @@ import {
 	TSchmancyDrawerNavbarState,
 } from './context'
 
+// Animation configuration constants.
+const ANIMATION_EASING = 'cubic-bezier(0.5, 0.01, 0.25, 1)'
+const OVERLAY_ANIM_DURATION_OPEN = 200
+const OVERLAY_ANIM_DURATION_CLOSE = 150
+const NAV_ANIM_DURATION = 200
+
 @customElement('schmancy-nav-drawer-navbar')
 export class SchmancyNavigationDrawerSidebar extends $LitElement() {
+	// Consume context values. Renamed from "state" to "drawerState" to avoid confusion.
 	@consume({ context: SchmancyDrawerNavbarMode, subscribe: true })
 	@state()
-	mode: TSchmancyDrawerNavbarMode
+	mode!: TSchmancyDrawerNavbarMode
 
 	@consume({ context: SchmancyDrawerNavbarState, subscribe: true })
 	@state()
-	private state: TSchmancyDrawerNavbarState
+	drawerState!: TSchmancyDrawerNavbarState
 
 	@query('#overlay') overlay!: HTMLElement
 	@query('nav') nav!: HTMLElement
 
 	@property({ type: String }) width = '320px'
+	@state() private _initialized = false
 
+	/**
+	 * firstUpdated()
+	 * Set initial styles based on the current mode and consumed state.
+	 */
+	firstUpdated() {
+		if (this.mode === 'overlay') {
+			if (this.drawerState === 'close') {
+				this.nav.style.transform = 'translateX(-100%)'
+				this.overlay.style.display = 'none'
+			} else if (this.drawerState === 'open') {
+				this.nav.style.transform = 'translateX(0)'
+				this.overlay.style.display = 'block'
+				this.overlay.style.opacity = '0.4'
+			}
+		} else if (this.mode === 'push') {
+			// In push mode, the nav is always visible and the overlay hidden.
+			this.nav.style.transform = 'translateX(0)'
+			this.overlay.style.display = 'none'
+		}
+		this._initialized = true
+	}
+
+	/**
+	 * updated()
+	 * Trigger animations when either the consumed mode or state changes.
+	 */
 	updated(changedProperties: Map<string, any>) {
-		if (changedProperties.has('state')) {
-			console.log('state changed', this.state, this.mode)
+		console.log(this._initialized, changedProperties)
+		if (!this._initialized) return
+
+		if (changedProperties.has('drawerState') || changedProperties.has('mode')) {
+			console.log('State updated:', this.drawerState, this.mode)
 			if (this.mode === 'overlay') {
-				if (this.state === 'close') {
-					this.hideNavDrawer()
-					this.closeOverlay()
-				} else if (this.state === 'open') {
-					this.openOverlay()
-					this.showNavDrawer()
+				if (this.drawerState === 'open') {
+					// Animate only if the nav isn’t already open.
+					if (this.nav.style.transform !== 'translateX(0)') {
+						this.openOverlay()
+						this.showNavDrawer()
+					}
+				} else if (this.drawerState === 'close') {
+					console.log(this.nav.style.transform)
+					if (this.nav.style.transform !== 'translateX(-100%)') {
+						this.hideNavDrawer()
+						this.closeOverlay()
+					}
 				}
 			} else if (this.mode === 'push') {
-				this.showNavDrawer()
-				this.closeOverlay()
+				if (this.nav.style.transform !== 'translateX(0)') {
+					this.showNavDrawer()
+				}
+				if (this.overlay.style.display !== 'none') {
+					this.closeOverlay()
+				}
 			}
 		}
 	}
 
+	/**
+	 * Animate the overlay to fade in.
+	 */
 	openOverlay() {
-		// Equivalent to onBegin
 		this.overlay.style.display = 'block'
-
-		// Animate opacity from 0 to 0.4
 		this.overlay.animate([{ opacity: 0 }, { opacity: 0.4 }], {
-			duration: 200,
-			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
-			fill: 'forwards', // <-- This keeps the final keyframe (0.4) after finishing
-		})
-		// If you want an onfinish here, you can add it:
-		// .onfinish = () => console.log('overlay opened!')
-	}
-
-	closeOverlay() {
-		// Animate opacity from 0.4 to 0
-		const animation = this.overlay.animate([{ opacity: 0.4 }, { opacity: 0 }], {
-			duration: 150,
-			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
+			duration: OVERLAY_ANIM_DURATION_OPEN,
+			easing: ANIMATION_EASING,
 			fill: 'forwards',
 		})
-		// translateX(-100%) when the animation is finished
-		// Equivalent to onComplete
+	}
+
+	/**
+	 * Animate the overlay to fade out, then hide it.
+	 */
+	closeOverlay() {
+		const animation = this.overlay.animate([{ opacity: 0.4 }, { opacity: 0 }], {
+			duration: OVERLAY_ANIM_DURATION_CLOSE,
+			easing: ANIMATION_EASING,
+			fill: 'forwards',
+		})
 		animation.onfinish = () => {
 			this.overlay.style.display = 'none'
 		}
 	}
-
-	// show nav drawer
 	showNavDrawer() {
-		//  check the transform, skip if already open
-		if (this.nav.style.transform === 'translateX(0)') return
+		// Use computed style if needed, but here we directly update inline style after animation.
 		const animation = this.nav.animate([{ transform: 'translateX(-100%)' }, { transform: 'translateX(0)' }], {
-			duration: 200,
-			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
+			duration: NAV_ANIM_DURATION,
+			easing: ANIMATION_EASING,
 			fill: 'forwards',
 		})
 		animation.onfinish = () => {
-			this.state = 'open'
+			this.nav.style.transform = 'translateX(0)'
 		}
 	}
 
-	// hide nav drawer
 	hideNavDrawer() {
-		// skip if already closed
-		if (this.nav.style.transform === 'translateX(-100%)') return
 		const animation = this.nav.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-100%)' }], {
-			duration: 200,
-			easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
+			duration: NAV_ANIM_DURATION,
+			easing: ANIMATION_EASING,
 			fill: 'forwards',
 		})
 		animation.onfinish = () => {
-			this.state = 'close'
+			this.nav.style.transform = 'translateX(-100%)'
 		}
+	}
+
+	/**
+	 * Handle overlay click events by dispatching a custom event
+	 * to close the navigation drawer.
+	 */
+	private handleOverlayClick() {
+		window.dispatchEvent(
+			new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
+				detail: { state: 'close' },
+				bubbles: true,
+				composed: true,
+			}),
+		)
 	}
 
 	protected render() {
@@ -108,7 +161,6 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 		const overlayClass = {
 			'fixed inset-0 z-49 hidden': true,
 		}
-
 		const styleMap = {
 			width: this.width,
 		}
@@ -128,15 +180,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 				${color({
 					bgColor: SchmancyTheme.sys.color.scrim,
 				})}
-				@click=${() => {
-					window.dispatchEvent(
-						new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
-							detail: { state: 'close' },
-							bubbles: true,
-							composed: true,
-						}),
-					)
-				}}
+				@click=${this.handleOverlayClick}
 				class="${this.classMap({ ...overlayClass })}"
 			></div>
 		`
