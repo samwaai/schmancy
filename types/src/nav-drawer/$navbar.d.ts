@@ -5,4 +5,5 @@ declare class Drawer {
     close(self?: HTMLElement): void;
 }
 export declare const schmancyNavDrawer: Drawer;
-export {};
+declare const $drawer: Drawer;
+export { $drawer };

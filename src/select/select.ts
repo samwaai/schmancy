@@ -1,173 +1,293 @@
-import { computePosition, flip, offset, shift } from '@floating-ui/dom'
+import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import SchmancyOption from '@schmancy/option/option'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
-import { html } from 'lit'
-import { customElement, eventOptions, property, query, queryAssignedElements, state } from 'lit/decorators.js'
-import { when } from 'lit/directives/when.js'
-import style from './select.scss?inline'
+import { css, html } from 'lit'
+import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js'
 
 export type SchmancySelectChangeEvent = CustomEvent<{
 	value: string | string[]
 }>
 
 @customElement('schmancy-select')
-export default class SchmancySelect extends $LitElement(style) {
+export class SchmancySelect extends $LitElement(css`
+	:host {
+		display: block;
+		position: relative;
+	}
+
+	[role='listbox'] {
+		max-height: 25vh;
+		overflow-y: auto;
+		outline: none;
+	}
+`) {
+	// API
 	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = ''
-	@property({ type: String, reflect: true }) value = ''
+	@property({ type: String }) value = '' // for single-select
+	@property({ type: Array }) selectedValues: string[] = [] // for multi-select
 	@property({ type: Boolean }) multi = false
 	@property({ type: String }) label = ''
-	@state() valueLabel = ''
-	@query('ul') ul!: HTMLUListElement
-	@query('#overlay') overlay!: HTMLElement
-	@queryAssignedElements({ flatten: true }) options!: SchmancyOption[]
+
+	// Internal states
+	@state() private isOpen = false
+	@state() private valueLabel = ''
+
+	@query('ul') private ul!: HTMLUListElement
+	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
+	private cleanupPositioner?: () => void
+
+	connectedCallback() {
+		super.connectedCallback()
+		this.addEventListener('keydown', this.handleKeyDown)
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback()
+		this.removeEventListener('keydown', this.handleKeyDown)
+		this.cleanupPositioner?.()
+	}
 
 	firstUpdated() {
-		this.updateDisplayLabel()
+		// Initial sync
+		this.syncSelection()
+		this.setupOptionsAccessibility()
 	}
 
-	updateDisplayLabel() {
+	/**
+	 * Whenever new <schmancy-option> children get slotted in,
+	 * or whenever properties change, ensure the correct .selected states
+	 * and display text are applied.
+	 */
+	private syncSelection() {
 		if (this.multi) {
-			const selectedOptions = this.options.filter(o => o.selected).map(o => o.label)
-			this.valueLabel = selectedOptions.length > 0 ? selectedOptions.join(', ') : this.placeholder
+			// For multi-select, figure out what's already marked selected in the DOM
+			this.selectedValues = this.options.filter(o => o.selected).map(o => o.value)
+			this.valueLabel =
+				this.selectedValues.length > 0
+					? this.options
+							.filter(o => this.selectedValues.includes(o.value))
+							.map(o => o.label)
+							.join(', ')
+					: this.placeholder
 		} else {
+			// Single
 			const selectedOption = this.options.find(o => o.value === this.value)
-			this.valueLabel = selectedOption ? selectedOption.label : this.placeholder
+			this.valueLabel = selectedOption?.label || this.placeholder
 		}
 	}
 
-	@eventOptions({ passive: true })
-	handleOptionClick(value: string) {
-		if (this.multi) {
-			const option = this.options.find(o => o.value === value)
-			if (option) {
-				option.selected = !option.selected
+	/**
+	 * We can also set up any ARIA attributes here.
+	 * Note that we’re toggling `aria-selected` for screen readers,
+	 * but the highlight in CSS is triggered by the option’s `selected` property.
+	 */
+	private setupOptionsAccessibility() {
+		this.options.forEach(option => {
+			option.setAttribute('role', 'option')
+			option.tabIndex = -1
+			option.setAttribute(
+				'aria-selected',
+				String(this.multi ? this.selectedValues.includes(option.value) : option.value === this.value),
+			)
+		})
+	}
+
+	/**
+	 * Use @floating-ui/dom to position the <ul> under the "trigger" input.
+	 */
+	private async positionDropdown() {
+		const reference = this.renderRoot.querySelector('.trigger') as HTMLElement
+		if (!reference || !this.ul) return
+
+		this.cleanupPositioner = autoUpdate(reference, this.ul, async () => {
+			const { x, y } = await computePosition(reference, this.ul, {
+				placement: 'bottom-start',
+				middleware: [offset(5), flip(), shift({ padding: 5 })],
+			})
+
+			Object.assign(this.ul.style, {
+				left: `${x}px`,
+				top: `${y}px`,
+				position: 'absolute',
+			})
+		})
+	}
+
+	/**
+	 * Keydown logic for opening/closing the dropdown and navigating options.
+	 */
+	private handleKeyDown(e: KeyboardEvent) {
+		// If dropdown is closed, certain keys will open it:
+		if (!this.isOpen) {
+			if (['Enter', ' ', 'ArrowDown'].includes(e.key)) {
+				e.preventDefault()
+				this.openDropdown()
 			}
-			this.updateDisplayLabel()
-			this.dispatchEvent(
-				new CustomEvent('change', {
-					detail: { value: this.options.filter(o => o.selected).map(o => o.value) },
-					bubbles: true,
-					composed: true,
-				}),
-			)
-		} else {
-			this.value = value
-			this.updateDisplayLabel()
-			this.hideOptions()
-			this.dispatchEvent(
-				new CustomEvent('change', {
-					detail: { value },
-					bubbles: true,
-					composed: true,
-				}),
-			)
+			return
+		}
+
+		// If open, handle arrow up/down, enter, escape, etc.
+		const options = Array.from(this.ul.querySelectorAll<SchmancyOption>('[role="option"]'))
+		const current = options.findIndex(o => o.matches(':focus'))
+
+		switch (e.key) {
+			case 'Escape':
+				this.closeDropdown()
+				break
+			case 'ArrowDown':
+				e.preventDefault()
+				this.focusOption(options, Math.min(current + 1, options.length - 1))
+				break
+			case 'ArrowUp':
+				e.preventDefault()
+				this.focusOption(options, Math.max(current - 1, 0))
+				break
+			case 'Enter':
+			case ' ':
+				e.preventDefault()
+				if (current >= 0) this.handleOptionSelect(options[current].value)
+				break
+			case 'Tab':
+				this.closeDropdown()
+				break
 		}
 	}
 
-	async showOptions() {
-		this.ul.removeAttribute('hidden')
-		this.overlay.removeAttribute('hidden')
-		this.overlay.style.display = 'block'
-
-		// Position the dropdown using Floating UI
-		const { x, y } = await computePosition(this.renderRoot.querySelector('div') as HTMLElement, this.ul, {
-			placement: 'bottom-start',
-			middleware: [
-				offset(5), // Adds a small gap between the input and the dropdown
-				flip(), // Automatically flips the dropdown if there's not enough space
-				shift({ padding: 5 }), // Adjusts the dropdown to stay within the viewport
-			],
-		})
-
-		Object.assign(this.ul.style, {
-			left: `${x}px`,
-			top: `${y}px`,
-			position: 'absolute',
-			zIndex: '9999', // Ensure it's on top of other elements
-			maxHeight: '25vh', // Limit the height of the dropdown
-			overflowY: 'auto', // Enable scrolling if the content is too tall
-		})
+	private focusOption(options: HTMLElement[], index: number) {
+		options[index]?.focus()
 	}
 
-	hideOptions() {
-		this.ul.setAttribute('hidden', 'true')
-		this.overlay.setAttribute('hidden', 'true')
-		this.overlay.style.display = 'none'
+	private async openDropdown() {
+		this.isOpen = true
+		await this.updateComplete // Wait for lit to render
+
+		this.positionDropdown()
+		this.setupOptionsAccessibility()
+
+		// Optionally focus the currently selected item:
+		const options = Array.from(this.ul.querySelectorAll('[role="option"]')) as HTMLElement[]
+		const selectedIndex = this.multi ? 0 : options.findIndex(o => o.getAttribute('value') === this.value)
+		this.focusOption(options, Math.max(selectedIndex, 0))
+	}
+
+	private closeDropdown() {
+		this.isOpen = false
+		this.cleanupPositioner?.()
+		this.cleanupPositioner = undefined
+		// Return focus to the trigger (optional):
+		this.renderRoot.querySelector<HTMLButtonElement>('.trigger')?.focus()
+	}
+
+	/**
+	 * Main method for toggling or setting selected items.
+	 */
+	private handleOptionSelect(value: string) {
+		if (this.multi) {
+			// Multi-select: Toggle the .selected property on the clicked option
+			const option = this.options.find(o => o.value === value)
+			if (!option) return
+
+			option.selected = !option.selected
+			// Rebuild selectedValues
+			if (option.selected) {
+				this.selectedValues = [...this.selectedValues, value]
+			} else {
+				this.selectedValues = this.selectedValues.filter(v => v !== value)
+			}
+
+			// Update the visible label
+			this.valueLabel =
+				this.selectedValues.length > 0
+					? this.options
+							.filter(o => this.selectedValues.includes(o.value))
+							.map(o => o.label)
+							.join(', ')
+					: this.placeholder
+
+			// Dispatch "change" event
+			this.dispatchChange(this.selectedValues)
+		} else {
+			// Single select: unselect all, select the clicked one
+			this.options.forEach(o => (o.selected = o.value === value))
+			this.value = value
+			this.valueLabel = this.options.find(o => o.value === value)?.label || this.placeholder
+			this.dispatchChange(value)
+			// Close after selecting
+			this.closeDropdown()
+		}
+
+		// Also update aria-selected for accessibility
+		this.setupOptionsAccessibility()
+	}
+
+	private dispatchChange(value: string | string[]) {
+		this.dispatchEvent(
+			new CustomEvent<SchmancySelectChangeEvent['detail']>('change', {
+				detail: { value },
+				bubbles: true,
+				composed: true,
+			}),
+		)
 	}
 
 	render() {
-		const classes = {
-			'absolute z-30 mt-1 w-full overflow-auto rounded-md shadow-sm': true,
-		}
 		return html`
 			<div class="relative">
+				<!-- Some trigger (schmancy-input) -->
 				<schmancy-input
+					class="trigger"
+					role="combobox"
+					aria-haspopup="listbox"
+					aria-expanded=${this.isOpen}
+					aria-controls="options"
 					.label=${this.label}
 					.placeholder=${this.placeholder}
-					@click=${() => this.showOptions()}
 					.value=${this.valueLabel}
 					readonly
-					clickable
-				>
-					${this.valueLabel}
-				</schmancy-input>
+					@click=${() => (this.isOpen ? this.closeDropdown() : this.openDropdown())}
+				></schmancy-input>
 
+				<!-- Transparent overlay to close dropdown by clicking outside -->
 				<div
 					id="overlay"
-					hidden
 					class="fixed inset-0"
-					@click=${(e: Event) => {
-						e.stopPropagation()
-						e.preventDefault()
-						this.hideOptions()
-					}}
+					?hidden=${!this.isOpen}
+					@click=${this.closeDropdown}
 					tabindex="-1"
 				></div>
+
+				<!-- The dropdown options container -->
 				<ul
-					tabindex="-1"
-					class=${this.classMap(classes)}
 					id="options"
 					role="listbox"
-					hidden
-					@click=${(e: Event) => this.handleOptionClick((e.target as SchmancyOption).value)}
+					class=${classMap({
+						'absolute z-30 mt-1 w-full rounded-md shadow-sm': true,
+						hidden: !this.isOpen,
+					})}
 					${color({ bgColor: SchmancyTheme.sys.color.surface.container })}
+					@click=${(e: Event) => {
+						// If a <schmancy-option> inside was clicked, it dispatches a 'click' event
+						// with detail.value. We can read that here:
+						const customEvt = e as CustomEvent
+						const detailVal = customEvt.detail?.value
+						if (detailVal) {
+							this.handleOptionSelect(detailVal)
+						}
+					}}
 				>
-					<slot @slotchange=${() => this.updateDisplayLabel()} tabindex="0"></slot>
-					${when(
-						this.multi,
-						() => html`
-							<li id="confirm" class="py-2" tabindex="-1">
-								<schmancy-grid justify="center">
-									<schmancy-button
-										@click=${() => {
-											this.hideOptions()
-											this.dispatchEvent(
-												new CustomEvent('change', {
-													detail: { value: this.options.filter(o => o.selected).map(o => o.value) },
-													bubbles: true,
-													composed: true,
-												}),
-											)
-										}}
-										variant="filled"
-									>
-										save
-									</schmancy-button>
-								</schmancy-grid>
-							</li>
-						`,
-					)}
+					<!-- The <schmancy-option> elements get slotted in here -->
+					<slot
+						@slotchange=${() => {
+							this.syncSelection()
+							this.setupOptionsAccessibility()
+						}}
+					></slot>
 				</ul>
 			</div>
 		`
-	}
-}
-
-declare global {
-	interface HTMLElementTagNameMap {
-		'schmancy-select': SchmancySelect
 	}
 }

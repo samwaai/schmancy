@@ -115,12 +115,12 @@ export class DemoInput extends $LitElement(css`
 					<!-- single -->
 					<schmancy-button
 						@click=${() => {
-							this.chip = undefined
+							this.chip = ''
 						}}
 						>reset Chips</schmancy-button
 					>
 					<schmancy-chips
-						.value=${this.chip ?? ''}
+						.value=${this.chip}
 						@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
 							console.log('e.detail', e.detail)
 						}}

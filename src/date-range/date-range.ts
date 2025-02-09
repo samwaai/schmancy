@@ -11,31 +11,30 @@ import moment from 'moment'
  */
 @customElement('schmancy-date-range')
 export default class SchmancyDateRange extends $LitElement() {
-	// The input type – either "date" or "datetime-local".
+	// Either "date" or "datetime-local"
 	@property({ type: String }) type: 'date' | 'datetime-local' = 'date'
 
-	// The date range properties.
 	@property({ type: Object }) dateFrom!: { label: string; value: string }
 	@property({ type: Object }) dateTo!: { label: string; value: string }
 
-	// Optional minimum and maximum dates.
+	// Optional min/max constraints
 	@property({ type: String }) minDate?: string
 	@property({ type: String }) maxDate?: string
 
-	// Query elements from the rendered template.
 	@query('#checkin') checkInInput!: HTMLInputElement
 	@query('#checkout') checkOutInput!: HTMLInputElement
+
+	// The <schmancy-menu> that displays presets + manual date inputs
 	@query('schmancy-menu') schmancyMenu!: SchmancyMenu
 
-	// The currently selected preset or custom date range display text.
+	// Display text in the trigger button
 	@state() selectedDateRange: string = 'Today'
 
-	// Array of preset date ranges.
+	// Preset date range definitions
 	presetRanges!: Array<{
 		label: string
 		range: { dateFrom: string; dateTo: string }
 		step: moment.unitOfTime.DurationConstructor
-		selected?: boolean
 	}>
 
 	connectedCallback(): void {
@@ -46,28 +45,24 @@ export default class SchmancyDateRange extends $LitElement() {
 
 	updated(changedProps: Map<string, unknown>) {
 		if (changedProps.has('type')) {
-			// Reinitialize presets if the date input type changes.
+			// Re-init presets if "type" changes from date -> datetime
 			this.initPresetRanges()
 			this.updateSelectedDateRange()
 		}
 	}
 
 	/**
-	 * Returns the date format string based on the current type.
+	 * Format strings for the internal <input> and for display text.
 	 */
 	private getDateFormat(): string {
 		return this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'
 	}
-
-	/**
-	 * Returns the display format for showing dates.
-	 */
 	private getDisplayFormat(): string {
 		return this.type === 'date' ? 'MMM DD, YYYY' : 'MMM DD, YYYY hh:mm A'
 	}
 
 	/**
-	 * Initializes the preset date ranges.
+	 * Build up a list of preset ranges (yesterday, today, etc.).
 	 */
 	private initPresetRanges() {
 		const format = this.getDateFormat()
@@ -98,7 +93,6 @@ export default class SchmancyDateRange extends $LitElement() {
 			},
 			{
 				label: 'This Week',
-				// Use ISO week boundaries for consistency.
 				range: {
 					dateFrom: moment().startOf('isoWeek').format(format),
 					dateTo: moment().endOf('isoWeek').format(format),
@@ -121,67 +115,71 @@ export default class SchmancyDateRange extends $LitElement() {
 				},
 				step: 'month',
 			},
-			// You can add a "Custom" option here if needed.
+			// Add more if desired (e.g. "Last Month," "Custom," etc.)
 		]
 	}
 
 	/**
-	 * Updates the selectedDateRange state based on the current dateFrom and dateTo values.
+	 * Based on the current dateFrom/dateTo, see if it matches a preset.
+	 * Otherwise display a "Custom" range: "Jan 01, 2023 - Jan 07, 2023".
 	 */
 	private updateSelectedDateRange() {
 		const preset = this.presetRanges.find(
-			range => range.range.dateFrom === this.dateFrom.value && range.range.dateTo === this.dateTo.value,
+			p => p.range.dateFrom === this.dateFrom.value && p.range.dateTo === this.dateTo.value,
 		)
 		if (preset) {
 			this.selectedDateRange = preset.label
 		} else {
-			this.selectedDateRange = `${moment(this.dateFrom.value).format(
-				this.getDisplayFormat(),
-			)} - ${moment(this.dateTo.value).format(this.getDisplayFormat())}`
+			// Construct a custom label
+			const fromStr = moment(this.dateFrom.value).format(this.getDisplayFormat())
+			const toStr = moment(this.dateTo.value).format(this.getDisplayFormat())
+			this.selectedDateRange = `${fromStr} - ${toStr}`
 		}
 	}
 
 	/**
-	 * Updates the internal date range state and dispatches a change event.
+	 * Update the internal date range and fire a 'change' event to notify external code.
 	 */
-	setDateRange(fromDate: string, toDate: string) {
+	private setDateRange(fromDate: string, toDate: string) {
 		this.dateFrom.value = fromDate
 		this.dateTo.value = toDate
+
 		this.dispatchEvent(
 			new CustomEvent<TSchmancDateRangePayload>('change', {
 				detail: { dateFrom: fromDate, dateTo: toDate },
+				bubbles: true,
+				composed: true, // If you want it to pass shadow boundaries
 			}),
 		)
 		this.requestUpdate()
 	}
 
 	/**
-	 * Called when a preset is selected. Updates the date range and closes the menu.
+	 * Called when user selects a preset from the list.
+	 * Updates date range and closes the menu.
 	 */
-	handlePresetChange(presetLabel: string) {
-		const preset = this.presetRanges.find(range => range.label === presetLabel)
-		if (preset) {
-			const { dateFrom, dateTo } = preset.range
-			this.setDateRange(dateFrom, dateTo)
-			this.selectedDateRange = presetLabel
-			// Close the menu after a preset selection.
-			this.schmancyMenu.open = false
-		}
-	}
-
-	/**
-	 * Called when the user applies a manual date change.
-	 */
-	handleDateRangeChange() {
-		this.setDateRange(this.dateFrom.value, this.dateTo.value)
-		this.updateSelectedDateRange()
-		// Close the menu after applying manual changes.
+	private handlePresetChange(label: string) {
+		const preset = this.presetRanges.find(range => range.label === label)
+		if (!preset) return
+		const { dateFrom, dateTo } = preset.range
+		this.setDateRange(dateFrom, dateTo)
+		this.selectedDateRange = label
 		this.schmancyMenu.open = false
 	}
 
 	/**
-	 * Shifts the current date range by multiplying the range length with the given factor.
-	 * Use a negative factor to shift backward.
+	 * Applies the date range from the inputs.
+	 * Closes the menu when done.
+	 */
+	private handleDateRangeChange() {
+		this.setDateRange(this.dateFrom.value, this.dateTo.value)
+		this.updateSelectedDateRange()
+		this.schmancyMenu.open = false
+	}
+
+	/**
+	 * Shift the current date range forward or backward by the same number of days.
+	 * If the range is 7 days wide, shift 7 days, etc.
 	 */
 	private shiftDateRange(factor: number) {
 		const format = this.getDateFormat()
@@ -192,95 +190,108 @@ export default class SchmancyDateRange extends $LitElement() {
 		const newDateTo = moment(this.dateTo.value)
 			.add(factor * currentDiff, 'days')
 			.format(format)
+
 		this.setDateRange(newDateFrom, newDateTo)
 		this.updateSelectedDateRange()
 	}
 
 	render() {
 		return html`
-			<div class="date-range-selector relative">
-				<schmancy-menu class="z-100 w-max">
-					<!-- The button slot: left/right arrows and the display text -->
-					<schmancy-grid slot="button" align="center" cols="auto 1fr auto">
-						<schmancy-icon-button
-							@click=${(e: Event) => {
-								e.preventDefault()
-								e.stopPropagation()
-								this.shiftDateRange(-1)
-							}}
-						>
-							arrow_left
-						</schmancy-icon-button>
-						<schmancy-button class="w-max" variant="outlined" type="button">
-							${this.selectedDateRange || 'Date range'}
-						</schmancy-button>
-						<schmancy-icon-button
-							@click=${(e: Event) => {
-								e.preventDefault()
-								e.stopPropagation()
-								this.shiftDateRange(1)
-							}}
-						>
-							arrow_right
-						</schmancy-icon-button>
-					</schmancy-grid>
+			<!-- schmancy-menu typically provides a slot="button" for the trigger, 
+             and then projects the menu items inside. -->
+			<schmancy-menu class="z-100 w-max" role="menu" aria-label="Date range presets and custom input">
+				<!-- The toggle/trigger slot -->
+				<schmancy-grid slot="button" align="center" cols="auto 1fr auto">
+					<schmancy-icon-button
+						type="button"
+						aria-label="Shift date range backward"
+						@click=${(e: Event) => {
+							e.preventDefault()
+							this.shiftDateRange(-1)
+						}}
+					>
+						arrow_left
+					</schmancy-icon-button>
 
-					<!-- The menu surface -->
-					<schmancy-surface elevation="2">
-						${this.presetRanges.map(
-							preset => html`
-								<schmancy-menu-item class="w-full" @click=${() => this.handlePresetChange(preset.label)}>
-									<schmancy-grid class="w-full" align="center" cols="auto 1fr auto"> ${preset.label} </schmancy-grid>
-								</schmancy-menu-item>
-							`,
-						)}
-						<schmancy-grid gap="sm" flow="row" class="p-4">
-							<schmancy-input
-								id="checkin"
-								min=${ifDefined(this.minDate)}
-								.type=${this.type}
-								label="${this.dateFrom.label}"
-								.value=${this.dateFrom.value}
-								@change=${(event: SchmancyInputChangeEvent) => {
-									event.preventDefault()
-									event.stopPropagation()
-									const format = this.getDateFormat()
-									const selectedDate = moment(event.detail.value, format).format(format)
-									this.dateFrom.value = selectedDate
-									// Update the checkout input's minimum date.
-									this.checkOutInput.setAttribute('min', selectedDate)
-								}}
-							></schmancy-input>
-							<schmancy-input
-								id="checkout"
-								min=${ifDefined(this.dateFrom.value)}
-								max=${ifDefined(this.maxDate)}
-								.type=${this.type}
-								label="${this.dateTo.label}"
-								.value=${this.dateTo.value}
-								@change=${(event: SchmancyInputChangeEvent) => {
-									event.preventDefault()
-									event.stopPropagation()
-									const format = this.getDateFormat()
-									const selectedDate = moment(event.detail.value, format).format(format)
-									this.dateTo.value = selectedDate
-								}}
-							></schmancy-input>
+					<schmancy-button
+						class="w-max"
+						variant="outlined"
+						type="button"
+						aria-haspopup="menu"
+						.ariaExpanded=${String(this.schmancyMenu?.open || false)}
+					>
+						${this.selectedDateRange || 'Date range'}
+					</schmancy-button>
 
-							<schmancy-button
-								variant="outlined"
-								@click=${(e: Event) => {
-									e.preventDefault()
-									e.stopPropagation()
-									this.handleDateRangeChange()
-								}}
-							>
-								Apply
-							</schmancy-button>
-						</schmancy-grid>
-					</schmancy-surface>
-				</schmancy-menu>
-			</div>
+					<schmancy-icon-button
+						type="button"
+						aria-label="Shift date range forward"
+						@click=${(e: Event) => {
+							e.preventDefault()
+							this.shiftDateRange(1)
+						}}
+					>
+						arrow_right
+					</schmancy-icon-button>
+				</schmancy-grid>
+
+				<!-- The menu surface: presets + manual date selection -->
+				${this.presetRanges.map(
+					preset => html`
+						<schmancy-menu-item role="menuitem" class="w-full" @click=${() => this.handlePresetChange(preset.label)}>
+							<schmancy-grid class="w-full" align="center" cols="auto 1fr auto"> ${preset.label} </schmancy-grid>
+						</schmancy-menu-item>
+					`,
+				)}
+
+				<!-- Manual date range inputs + "Apply" button -->
+				<schmancy-grid gap="sm" flow="row" class="p-4">
+					<schmancy-input
+						id="checkin"
+						.type=${this.type}
+						.label=${this.dateFrom.label}
+						.value=${this.dateFrom.value}
+						min=${ifDefined(this.minDate)}
+						@change=${(event: SchmancyInputChangeEvent) => {
+							event.preventDefault()
+							event.stopPropagation()
+							const fmt = this.getDateFormat()
+							const selectedDate = moment(event.detail.value, fmt).format(fmt)
+							this.dateFrom.value = selectedDate
+							// Update the checkout input's min attribute:
+							this.checkOutInput.setAttribute('min', selectedDate)
+						}}
+					></schmancy-input>
+
+					<schmancy-input
+						id="checkout"
+						.type=${this.type}
+						.label=${this.dateTo.label}
+						.value=${this.dateTo.value}
+						min=${ifDefined(this.dateFrom.value)}
+						max=${ifDefined(this.maxDate)}
+						@change=${(event: SchmancyInputChangeEvent) => {
+							event.preventDefault()
+							event.stopPropagation()
+							const fmt = this.getDateFormat()
+							const selectedDate = moment(event.detail.value, fmt).format(fmt)
+							this.dateTo.value = selectedDate
+						}}
+					></schmancy-input>
+
+					<schmancy-button
+						type="button"
+						variant="outlined"
+						@click=${(e: Event) => {
+							e.preventDefault()
+							e.stopPropagation()
+							this.handleDateRangeChange()
+						}}
+					>
+						Apply
+					</schmancy-button>
+				</schmancy-grid>
+			</schmancy-menu>
 		`
 	}
 }

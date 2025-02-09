@@ -1,4 +1,10 @@
-import { computePosition, flip, offset, shift } from '@floating-ui/dom'
+import {
+	computePosition,
+	flip,
+	offset,
+	shift,
+	size, // <-- NEW
+} from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import SchmancyInput from '@schmancy/input/input'
@@ -6,12 +12,13 @@ import SchmancyOption from '@schmancy/option/option'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { distance } from 'fastest-levenshtein'
 import { html } from 'lit'
-import { customElement, eventOptions, property, query, queryAssignedElements, state } from 'lit/decorators.js'
+import { customElement, eventOptions, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { from, fromEvent, Subject } from 'rxjs'
 import { distinctUntilChanged, filter, switchMap, takeUntil, tap } from 'rxjs/operators'
-import type { SchmancyInputChangeEvent } from '..'
 import style from './autocomplete.scss?inline'
+
+import type { SchmancyInputInputEvent } from '@schmancy/input/input'
 
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 	value: string | string[]
@@ -19,77 +26,37 @@ export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 
 @customElement('schmancy-autocomplete')
 export default class SchmancyAutocomplete extends $LitElement(style) {
-	/**
-	 * Whether input is required for form validity.
-	 */
 	@property({ type: Boolean }) required = false
-
-	/**
-	 * Placeholder text for the input.
-	 */
 	@property({ type: String }) placeholder = ''
-
-	/**
-	 * Programmatic value of the autocomplete. Setting this
-	 * after the element is rendered will now update the display.
-	 */
 	@property({ type: String, reflect: true }) value = ''
-
-	/**
-	 * Label for the input (floating label or similar).
-	 */
 	@property({ type: String, reflect: true }) label = ''
 
 	/**
-	 * Max height of the dropdown options container.
+	 * ⚠️ If you still want an explicit fallback for maximum dropdown height,
+	 * you can keep this, but the `size()` middleware will already set a
+	 * dynamic max-height based on viewport space.
 	 */
 	@property({ type: String }) maxHeight = '25vh'
 
-	/**
-	 * Whether multiple selections are allowed.
-	 */
 	@property({ type: Boolean }) multi = false
 
-	/**
-	 * A local property to store the *display* value (label text).
-	 * This is separate from the raw `value`.
-	 */
-	@state() valueLabel = ''
-
-	// Refs and queries
+	/** Direct reference to the <input> inside <schmancy-input>. */
 	inputRef = createRef<HTMLInputElement>()
 
-	/**
-	 * The main <ul> with id="options".
-	 */
-	@query('#options') optionsContainer!: HTMLUListElement
+	@query('#options') private optionsContainer!: HTMLUListElement
+	@query('#empty') private empty!: HTMLLIElement
+	@query('schmancy-input') private input!: SchmancyInput
+	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
 
-	/**
-	 * The "no results found" <li> element.
-	 */
-	@query('#empty') empty!: HTMLLIElement
-
-	/**
-	 * The SchmancyInput element (your visible text input).
-	 */
-	@query('schmancy-input') input!: SchmancyInput
-
-	/**
-	 * All the <schmancy-option> children assigned via the default slot.
-	 */
-	@queryAssignedElements({ flatten: true })
-	options!: SchmancyOption[]
-
-	// Reactive search term stream
 	private readonly searchTerm$ = new Subject<string>()
+
+	// iOS scroll-blocking logic
+	private startY = 0
 
 	connectedCallback() {
 		super.connectedCallback()
 
-		/**
-		 * Whenever user types in the schmancy-input, we do
-		 * fuzzy or distance-based filtering of the child <schmancy-option> elements.
-		 */
+		// 1) Search filtering
 		this.searchTerm$
 			.pipe(
 				takeUntil(this.disconnecting),
@@ -97,140 +64,98 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 				tap(term => {
 					const searchTerm = term.trim().toLowerCase()
 
-					// The "levenshtein-ish" filtering
+					// Filter options using Levenshtein distance
 					const matches = this.options
 						.map(option => {
 							const optionText = option.label.toLowerCase()
 							const levDistance = distance(searchTerm, optionText)
 							return { option, levDistance }
 						})
-						.filter(
-							({ option, levDistance }) =>
-								// if short searchTerm, be lenient
-								searchTerm.length < 3 ||
-								// otherwise, filter by distance
-								levDistance <= option.label.toLowerCase().length - searchTerm.length,
-						)
-						// sort by ascending distance
+						.filter(({ option, levDistance }) => {
+							// If very short searchTerm, be lenient
+							if (searchTerm.length < 3) return true
+							// Otherwise, filter by distance
+							return levDistance <= option.label.toLowerCase().length - searchTerm.length
+						})
 						.sort((a, b) => a.levDistance - b.levDistance)
 
-					// Show/hide appropriate options
+					// Show/hide
 					this.options.forEach(o => (o.hidden = true))
 					for (const { option } of matches) {
 						option.hidden = false
 					}
 
-					// Show/hide the "no results found" <li>
+					// "No results found"
 					this.empty.hidden = matches.length > 0
 
 					this.requestUpdate()
 				}),
 			)
 			.subscribe(() => {
+				// Show dropdown on each new term
 				this.showOptions()
 			})
 
-		/**
-		 * If the user focuses out of the entire component (and
-		 * not just stepping from one <schmancy-option> to another),
-		 * animate out the dropdown, then hide it.
-		 */
+		// 2) Focus out animation
 		fromEvent<FocusEvent>(this, 'focusout')
 			.pipe(
 				takeUntil(this.disconnecting),
-				// Make sure the newly focused element is *not* one of our <schmancy-option>s
 				filter(e => (e.relatedTarget as SchmancyOption)?.tagName !== 'SCHMANCY-OPTION'),
 				switchMap(() => {
-					// Animate the <ul> out
-					const animation = this.optionsContainer.animate(
-						[
-							{ opacity: 1 }, // from
-							{ opacity: 0 }, // to
-						],
-						{
-							duration: 250,
-							easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
-						},
-					)
-
-					// Convert onfinish to a Promise
-					const animationPromise = new Promise<void>(resolve => {
-						animation.onfinish = () => {
-							this.optionsContainer.style.setProperty('display', 'none')
-							this.optionsContainer.style.setProperty('opacity', '1')
-							resolve()
-						}
+					const animation = this.optionsContainer.animate([{ opacity: 1 }, { opacity: 0 }], {
+						duration: 250,
+						easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
 					})
 
-					return from(animationPromise)
+					return from(
+						new Promise<void>(resolve => {
+							animation.onfinish = () => {
+								this.optionsContainer.style.display = 'none'
+								this.optionsContainer.style.opacity = '1'
+								resolve()
+							}
+						}),
+					)
 				}),
 			)
 			.subscribe({
 				next: () => {
-					// Once animation completes
+					// Resync the input after closing
 					if (this.multi) {
-						// Make sure the input displays the selected labels
-						this.input.value = this.options
-							.filter(o => o.selected)
-							.map(o => o.label)
-							.join(', ')
+						const selected = this.options.filter(o => o.selected).map(o => o.label)
+						this.input.value = selected.join(', ')
 					} else {
-						// Single
 						this.input.value = this.options.find(o => o.value === this.value)?.label ?? ''
 					}
 				},
 			})
 	}
 
-	/**
-	 * firstUpdated (similar to componentDidMount in React).
-	 * We can do an initial sync of the input's display text
-	 * if a `value` was pre-set.
-	 */
 	firstUpdated() {
 		this.updateInputValue()
 	}
 
-	/**
-	 * This will be invoked *any time* a reactive property changes
-	 * after the first render. We specifically check if `value` changed,
-	 * so we can update the display text (and selected states) if needed.
-	 */
 	protected updated(changedProps: Map<string | number | symbol, unknown>) {
 		super.updated(changedProps)
-
 		if (changedProps.has('value')) {
-			// If value changed, update the input display text + selected states
 			this.syncSelectionFromValue()
 			this.updateInputValue()
 		}
 	}
 
-	/**
-	 * If user assigned new <schmancy-option> children, or changed them,
-	 * we also want to ensure the "no results" is correct and that
-	 * our input text is still in sync.
-	 */
 	private handleSlotChange() {
-		// Hide 'empty' if at least one option is visible
+		// If no visible options, show "empty"
 		this.empty.hidden = this.options.some(option => !option.hidden)
-		// Also do a fresh fill of the input
 		this.syncSelectionFromValue()
 		this.updateInputValue()
 	}
 
-	/**
-	 * For multi-select, ensure that any `value` strings
-	 * are reflected in the child <schmancy-option>'s `selected` property.
-	 * For single select, do similarly for the one matching option.
-	 */
 	private syncSelectionFromValue() {
 		if (this.multi) {
 			const values = this.value
 				.split(',')
 				.map(v => v.trim())
 				.filter(Boolean)
-
 			this.options.forEach(o => {
 				o.selected = values.includes(o.value)
 			})
@@ -241,17 +166,11 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		}
 	}
 
-	/**
-	 * Takes the current `value` (and child <schmancy-option>s) and updates
-	 * the displayed text in the schmancy-input. Called whenever we need
-	 * to re-sync the visible input text to the actual data.
-	 */
-	updateInputValue() {
-		// We do this in a rAF to avoid any weird timing issues
+	private updateInputValue() {
 		requestAnimationFrame(() => {
 			if (this.multi) {
-				const selectedOptions = this.options.filter(o => o.selected).map(o => o.label)
-				this.input.value = selectedOptions.join(', ')
+				const selected = this.options.filter(o => o.selected).map(o => o.label)
+				this.input.value = selected.join(', ')
 			} else {
 				const found = this.options.find(o => o.value === this.value)?.label
 				this.input.value = found ?? ''
@@ -260,15 +179,33 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	}
 
 	/**
-	 * Show the dropdown list, using Floating UI for positioning.
+	 * MAIN: Show the dropdown, using Floating UI to size it
+	 * to the available space, and at least as wide as the input.
 	 */
-	async showOptions() {
+	private async showOptions() {
 		this.optionsContainer.removeAttribute('hidden')
-		this.optionsContainer.style.setProperty('display', 'block')
+		this.optionsContainer.style.display = 'block'
 
 		const { x, y } = await computePosition(this.input, this.optionsContainer, {
 			placement: 'bottom-start',
-			middleware: [offset(5), flip(), shift({ padding: 5 })],
+			middleware: [
+				offset(5),
+				flip(),
+				shift({ padding: 5 }),
+				// NEW: Let the floating element fill available space,
+				// but be at least as wide as the input.
+				size({
+					apply({ availableWidth, availableHeight, elements, rects }) {
+						// At least match input width
+						const referenceWidth = rects.reference.width
+						elements.floating.style.minWidth = `${referenceWidth}px`
+
+						// Cap to available viewport space
+						elements.floating.style.maxWidth = `${availableWidth}px`
+						elements.floating.style.maxHeight = `${availableHeight}px`
+					},
+				}),
+			],
 		})
 
 		Object.assign(this.optionsContainer.style, {
@@ -276,43 +213,34 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			top: `${y}px`,
 			position: 'absolute',
 			zIndex: '9999',
-			maxHeight: this.maxHeight,
 			overflowY: 'auto',
+			// The middleware is setting max-height, but if you want
+			// a fallback you can still do:
+			// maxHeight: this.maxHeight,
 		})
 	}
 
-	/**
-	 * Hide the dropdown immediately (no animation).
-	 */
-	hideOptions() {
+	private hideOptions() {
 		this.optionsContainer?.setAttribute('hidden', 'true')
-		this.optionsContainer?.style.setProperty('display', 'none')
+		if (this.optionsContainer) {
+			this.optionsContainer.style.display = 'none'
+		}
 	}
 
-	/**
-	 * Called whenever the user types in the schmancy-input.
-	 */
-	handleInputChange(event: SchmancyInputChangeEvent) {
+	private handleInputChange(event: SchmancyInputInputEvent) {
 		event.preventDefault()
 		event.stopPropagation()
 		const term = event.detail.value
 		this.searchTerm$.next(term)
 	}
 
-	/**
-	 * Called whenever user clicks or taps an <schmancy-option>.
-	 */
 	@eventOptions({ passive: true })
-	handleOptionClick(value: string) {
+	private handleOptionClick(value: string) {
 		if (this.multi) {
 			const option = this.options.find(o => o.value === value)
-			if (option) {
-				option.selected = !option.selected
-			}
-			// Rebuild the .value from the selected items
+			if (option) option.selected = !option.selected
 			const selectedValues = this.options.filter(o => o.selected).map(o => o.value)
 			this.value = selectedValues.join(',')
-			// Update display text, dispatch "change"
 			this.updateInputValue()
 			this.dispatchEvent(
 				new CustomEvent<SchmancyAutocompleteChangeEvent['detail']>('change', {
@@ -335,26 +263,13 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		}
 	}
 
-	/**
-	 * Check validity of the selected value(s) to satisfy forms.
-	 */
 	public checkValidity() {
-		return this.multi ? this.options.some(o => o.selected) : !!this.value
+		return this.multi ? this.options.some(o => o.selected) : Boolean(this.value)
 	}
 
-	/**
-	 * Actually cause form validation checks if needed.
-	 */
 	public reportValidity() {
 		return this.inputRef.value?.reportValidity()
 	}
-
-	/**
-	 * Attempt to prevent iOS scrolling the background page
-	 * while swiping within the options list.  (NB: This logic
-	 * currently needs a bit more nuance to be robust.)
-	 */
-	private startY = 0
 
 	private handleTouchStart(event: TouchEvent) {
 		this.startY = event.touches?.[0]?.clientY ?? 0
@@ -369,64 +284,63 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		const offsetHeight = this.optionsContainer.offsetHeight
 		const contentHeight = scrollHeight - offsetHeight
 
-		// Current touch Y
 		const currentY = event.touches?.[0]?.clientY ?? 0
-
-		// If user is at top and swiping down, or at bottom and swiping up, block
 		if ((scrollTop <= 0 && currentY > this.startY) || (scrollTop >= contentHeight && currentY < this.startY)) {
 			event.preventDefault()
 		}
 	}
 
 	render() {
+		const isOpen = !this.optionsContainer?.hasAttribute('hidden')
+
 		return html`
 			<div class="relative">
-				<!-- If there's no external trigger slot, fall back to a schmancy-input -->
+				<!-- The trigger slot (if any) overrides the default SchmancyInput -->
 				<slot name="trigger">
 					<schmancy-input
-						autocomplete="off"
-						class="w-full"
 						${ref(this.inputRef)}
-						.required=${this.required}
 						id="input"
+						class="w-full"
 						.label=${this.label}
-						@focus=${this.showOptions}
-						clickable
+						.placeholder=${this.placeholder}
+						.required=${this.required}
 						type="search"
 						inputmode="text"
-						placeholder=${this.placeholder}
-						@change=${this.handleInputChange}
+						autocomplete="off"
+						clickable
+						role="combobox"
+						aria-autocomplete="list"
+						aria-haspopup="listbox"
+						aria-controls="options"
+						aria-expanded=${isOpen}
+						@focus=${() => this.showOptions()}
+						@input=${this.handleInputChange}
 					>
 					</schmancy-input>
 				</slot>
 
 				<ul
-					tabindex="-1"
 					id="options"
+					tabindex="-1"
 					class="absolute z-30 mt-1 w-full overflow-auto rounded-md shadow-sm"
-					style="max-height: ${this.maxHeight}"
 					role="listbox"
 					hidden
 					@click=${(e: Event) => {
-						// We rely on each <schmancy-option> dispatching a CustomEvent with detail.value
-						// Or you can re-check e.target as <schmancy-option> and retrieve its value
+						// Each <schmancy-option> dispatches CustomEvent('click', { detail: { value } })
 						const detailVal = (e as CustomEvent).detail?.value
-						if (detailVal) {
-							this.handleOptionClick(detailVal)
-						}
+						if (detailVal) this.handleOptionClick(detailVal)
 					}}
 					@touchstart=${this.handleTouchStart}
 					@touchmove=${this.preventScroll}
-					${color({
-						bgColor: SchmancyTheme.sys.color.surface.container,
-					})}
+					${color({ bgColor: SchmancyTheme.sys.color.surface.container })}
 				>
+					<!-- "No results" option -->
 					<li id="empty" tabindex="-1">
 						<schmancy-typography type="label">No results found</schmancy-typography>
 					</li>
 
-					<!-- Default slot with the <schmancy-option> elements -->
-					<slot @slotchange=${this.handleSlotChange}></slot>
+					<!-- Slot for the <schmancy-option> elements -->
+					<slot @slotchange=${this.handleSlotChange}> </slot>
 				</ul>
 			</div>
 		`

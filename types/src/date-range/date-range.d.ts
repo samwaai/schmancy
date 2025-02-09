@@ -27,41 +27,40 @@ export default class SchmancyDateRange extends SchmancyDateRange_base {
             dateTo: string;
         };
         step: moment.unitOfTime.DurationConstructor;
-        selected?: boolean;
     }>;
     connectedCallback(): void;
     updated(changedProps: Map<string, unknown>): void;
     /**
-     * Returns the date format string based on the current type.
+     * Format strings for the internal <input> and for display text.
      */
     private getDateFormat;
-    /**
-     * Returns the display format for showing dates.
-     */
     private getDisplayFormat;
     /**
-     * Initializes the preset date ranges.
+     * Build up a list of preset ranges (yesterday, today, etc.).
      */
     private initPresetRanges;
     /**
-     * Updates the selectedDateRange state based on the current dateFrom and dateTo values.
+     * Based on the current dateFrom/dateTo, see if it matches a preset.
+     * Otherwise display a "Custom" range: "Jan 01, 2023 - Jan 07, 2023".
      */
     private updateSelectedDateRange;
     /**
-     * Updates the internal date range state and dispatches a change event.
+     * Update the internal date range and fire a 'change' event to notify external code.
      */
-    setDateRange(fromDate: string, toDate: string): void;
+    private setDateRange;
     /**
-     * Called when a preset is selected. Updates the date range and closes the menu.
+     * Called when user selects a preset from the list.
+     * Updates date range and closes the menu.
      */
-    handlePresetChange(presetLabel: string): void;
+    private handlePresetChange;
     /**
-     * Called when the user applies a manual date change.
+     * Applies the date range from the inputs.
+     * Closes the menu when done.
      */
-    handleDateRangeChange(): void;
+    private handleDateRangeChange;
     /**
-     * Shifts the current date range by multiplying the range length with the given factor.
-     * Use a negative factor to shift backward.
+     * Shift the current date range forward or backward by the same number of days.
+     * If the range is 7 days wide, shift 7 days, etc.
      */
     private shiftDateRange;
     render(): import("lit-html").TemplateResult<1>;

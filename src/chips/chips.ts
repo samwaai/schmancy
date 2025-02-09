@@ -78,18 +78,6 @@ export default class SchmancyChips extends $LitElement(css``) {
 		this.hydrateTabs()
 	}
 
-	// when value changes, update the selected chip
-	// protected updated(_changedProperties: PropertyValues): void {
-	// 	super.updated(_changedProperties)
-	// 	if (_changedProperties.has('value')) {
-	// 		this.chips.forEach(chip => {
-	// 			chip.selected = chip.value === this.value
-	// 			if (chip.selected) chip.setAttribute('selected', '')
-	// 			else chip.removeAttribute('selected')
-	// 		})
-	// 	}
-	// }
-
 	// attribute changes
 	// when values change, update the selected chips
 	attributeChangedCallback(name: string, old: string, value: string): void {

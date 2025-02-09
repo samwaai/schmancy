@@ -1,35 +1,23 @@
 import '@material/web/chips/chip-set.js'
 import '@material/web/chips/filter-chip.js'
-import { ChipSet } from '@material/web/chips/internal/chip-set'
 import { $LitElement } from '@mixins/index'
 import { html, LitElement } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 @customElement('schmancy-chip')
 export default class SchmancyChip extends $LitElement() {
-	@query('md-chip-set') chipSet!: ChipSet
-	@property({
-		type: String,
-		reflect: true,
-	})
+	// Removed unused query for md-chip-set
+
+	@property({ type: String, reflect: true })
 	label: string = ''
 
-	@property({
-		type: String,
-		reflect: true,
-	})
+	@property({ type: String, reflect: true })
 	value: string = ''
 
-	@property({
-		type: Boolean,
-		reflect: true,
-	})
+	@property({ type: Boolean, reflect: true })
 	selected: boolean = false
 
-	@property({
-		type: String,
-		reflect: true,
-	})
+	@property({ type: String, reflect: true })
 	icon: string = ''
 
 	constructor() {
@@ -40,12 +28,13 @@ export default class SchmancyChip extends $LitElement() {
 			this.internals = undefined
 		}
 	}
+
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		delegatesFocus: true,
 	}
+
 	static formAssociated = true
-	// private internals
 	internals: ElementInternals | undefined
 	get form() {
 		return this.internals?.form
@@ -56,13 +45,11 @@ export default class SchmancyChip extends $LitElement() {
 			<md-filter-chip
 				label="${this.label}"
 				@click=${() => {
+					// Toggle selection and dispatch a change event
 					this.selected = !this.selected
 					this.dispatchEvent(
 						new CustomEvent<SchmancyChipChangeEvent>('change', {
-							detail: {
-								value: this.value,
-								selected: this.selected,
-							},
+							detail: { value: this.value, selected: this.selected },
 							bubbles: true,
 						}),
 					)
@@ -80,4 +67,5 @@ declare global {
 		'schmancy-chip': SchmancyChip
 	}
 }
+
 export type SchmancyChipChangeEvent = { value: string; selected: boolean }
