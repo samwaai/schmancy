@@ -1,10 +1,8 @@
 import '@material/web/chips/chip-set.js';
 import '@material/web/chips/filter-chip.js';
-import { ChipSet } from '@material/web/chips/internal/chip-set';
 import { LitElement } from 'lit';
 declare const SchmancyChip_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyChip extends SchmancyChip_base {
-    chipSet: ChipSet;
     label: string;
     value: string;
     selected: boolean;
