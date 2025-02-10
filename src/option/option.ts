@@ -63,12 +63,12 @@ export default class SchmancyOption extends TailwindElement() {
 				}}
 			>
 				<div class="${this.classMap(stateLayerClasses)}"></div>
-				<schmancy-flex class="text-start" align="center" justify="between" flow="row">
+				<sch-flex class="text-start" align="center" justify="between" flow="row">
 					<slot class="self-start"></slot>
 					<slot name="support">
 						<span></span>
 					</slot>
-				</schmancy-flex>
+				</sch-flex>
 			</li>
 		`
 	}
