@@ -75,7 +75,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		// 1) Search filtering logic
 		this.searchTerm$
 			.pipe(
-				takeUntil(this.disconnecting),
 				distinctUntilChanged(),
 				tap(term => {
 					const searchTerm = term.trim().toLowerCase()
@@ -108,6 +107,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
 					this.requestUpdate()
 				}),
+				takeUntil(this.disconnecting),
 			)
 			.subscribe(() => {
 				// Show dropdown on each new search term
@@ -120,8 +120,10 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 				takeUntil(this.disconnecting),
 				filter(e => (e.relatedTarget as Element)?.tagName !== 'SCHMANCY-OPTION'),
 				switchMap(() => {
+					// reset options to show all
+					this.options.forEach(o => (o.hidden = false))
 					const animation = this.optionsContainer.animate([{ opacity: 1 }, { opacity: 0 }], {
-						duration: 250,
+						duration: 150,
 						easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
 					})
 					return from(
@@ -146,10 +148,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 					}
 				},
 			})
-	}
-
-	disconnectedCallback() {
-		super.disconnectedCallback()
 	}
 
 	firstUpdated() {
@@ -431,7 +429,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 						aria-controls="options"
 						aria-expanded=${isOpen}
 						@focus=${() => this.showOptions()}
-						@input=${this.handleInputChange}
+						@change=${this.handleInputChange}
 					>
 					</schmancy-input>
 				</slot>

@@ -33,18 +33,6 @@ export type SchmancyInputInputEvent = CustomEvent<EventDetails>
 export type SchmancyInputChangeEvent = CustomEvent<EventDetails>
 export type SchmancyInputEnterEvent = CustomEvent<EventDetails>
 
-/** Common autocomplete/autofill hints. Extend as needed. */
-type AutoFill =
-	| 'on'
-	| 'off'
-	| 'name'
-	| 'username'
-	| 'email'
-	| 'new-password'
-	| 'current-password'
-	| 'organization-title'
-	| 'none'
-
 @customElement('schmancy-input')
 export default class SchmancyInput extends TailwindElement() {
 	// ----------------------------
@@ -67,21 +55,7 @@ export default class SchmancyInput extends TailwindElement() {
 	 * The type of input. (e.g. 'text', 'password', 'email', etc.)
 	 */
 	@property({ reflect: true })
-	public type:
-		| 'email'
-		| 'number'
-		| 'password'
-		| 'search'
-		| 'tel'
-		| 'text'
-		| 'url'
-		| 'date'
-		| 'datetime-local'
-		| 'time'
-		| 'month'
-		| 'week'
-		| 'color'
-		| 'file' = 'text'
+	public type: HTMLInputElement['type'] = 'text'
 
 	/**
 	 * Name attribute (for form submissions). By default, a unique fallback.
