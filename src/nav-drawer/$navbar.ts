@@ -1,5 +1,5 @@
 import { SchmancyEvents } from '@schmancy/types/events'
-import { debounceTime, distinctUntilKeyChanged, Subject } from 'rxjs'
+import { Subject } from 'rxjs'
 
 class Drawer {
 	private $drawer = new Subject<{
@@ -7,8 +7,7 @@ class Drawer {
 		state: boolean
 	}>()
 	constructor() {
-		this.$drawer.pipe(distinctUntilKeyChanged('state'), debounceTime(100)).subscribe(data => {
-			console.log('drawer', data)
+		this.$drawer.pipe().subscribe(data => {
 			if (data.state) {
 				window.dispatchEvent(
 					new CustomEvent(SchmancyEvents.NavDrawer_toggle, {

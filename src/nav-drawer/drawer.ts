@@ -121,10 +121,10 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 				}),
 				map((event: CustomEvent) => event.detail.state),
 				distinctUntilChanged(),
-				debounceTime(100),
 				takeUntil(this.disconnecting),
 			)
 			.subscribe(state => {
+				console.log('Received toggle event:', state)
 				// When in push mode, ignore a request to close the sidebar.
 				if (this.mode === 'push' && state === 'close') return
 				this.open = state

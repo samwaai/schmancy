@@ -28,4 +28,9 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private dispatchChange;
     render(): import("lit-html").TemplateResult<1>;
 }
+declare global {
+    interface HTMLElementTagNameMap {
+        'schmancy-select': SchmancySelect;
+    }
+}
 export {};

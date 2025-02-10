@@ -269,3 +269,9 @@ export class SchmancySelect extends $LitElement(css`
 		`
 	}
 }
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'schmancy-select': SchmancySelect
+	}
+}
