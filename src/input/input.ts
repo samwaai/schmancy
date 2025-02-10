@@ -376,11 +376,12 @@ export default class SchmancyInput extends TailwindElement() {
 	protected override render() {
 		const inputClasses = {
 			'w-full flex-1 h-[50px] rounded-[8px] border-0 px-[8px] sm:px-[12px] md:px-[16px]': true,
+			'outline-secondary-default focus:outline-1 ': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
 			// If not in error state, use standard ring color:
-			'ring-primary-default ring-outline focus:ring-primary-default': !this.error,
+			'ring-secondary-default ring-outline focus:ring-secondary-default': !this.error,
 			// Error ring override:
 			'ring-error-default focus:ring-error-default': this.error,
 			// If read-only but "clickable" is true, show pointer. Otherwise normal text cursor.

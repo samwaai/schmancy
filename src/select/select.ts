@@ -238,6 +238,7 @@ export class SchmancySelect extends $LitElement(css`
 			<div class="relative">
 				<!-- Some trigger (schmancy-input) -->
 				<schmancy-input
+					tabIndex="0"
 					class="trigger"
 					role="combobox"
 					aria-haspopup="listbox"

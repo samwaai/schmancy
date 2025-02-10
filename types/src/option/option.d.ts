@@ -8,6 +8,7 @@ export default class SchmancyOption extends SchmancyOption_base {
     label: string | undefined;
     selected: boolean;
     private handleOptionClick;
+    focus(): void;
     protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

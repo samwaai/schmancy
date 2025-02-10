@@ -139,17 +139,7 @@ export default class SchmancySheet extends $LitElement(style) {
 					}}
 				></div>
 				<section class="content" data-position=${this.position}>
-					<schmancy-sheet-header
-						class="sticky top-0 z-50"
-						@dismiss=${(e: CustomEvent) => {
-							e.stopPropagation()
-							sheet.dismiss(this.uid)
-						}}
-						id="sheet-title"
-						.hidden=${this.header === 'hidden'}
-						title=${this.title}
-					></schmancy-sheet-header>
-					<schmancy-surface class="overflow-auto" fill type="surface" tabindex="0">
+					<schmancy-surface class="overflow-auto" fill type="surface">
 						<slot></slot>
 					</schmancy-surface>
 				</section>
