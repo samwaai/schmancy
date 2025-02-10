@@ -122,6 +122,7 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 				map((event: CustomEvent) => event.detail.state),
 				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
+				debounceTime(10),
 			)
 			.subscribe(state => {
 				console.log('Received toggle event:', state)
