@@ -26,9 +26,16 @@ export default class SchmancyOption extends TailwindElement() {
 		)
 	}
 
+	// override focus method to focus the native element
+	focus() {
+		this.shadowRoot?.querySelector('li')?.focus()
+	}
+
 	protected render() {
 		// Apply highlight styles if `this.selected` is true
 		const classes = {
+			'outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:-outline-offset-2':
+				true,
 			'font-semibold relative cursor-pointer py-2 px-3': true,
 			'bg-secondary-container text-secondery-onContainer': this.selected,
 		}

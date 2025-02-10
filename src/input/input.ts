@@ -1,4 +1,4 @@
-import { html, LitElement, PropertyValueMap, nothing } from 'lit'
+import { html, LitElement, nothing, PropertyValueMap } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
@@ -419,7 +419,7 @@ export default class SchmancyInput extends TailwindElement() {
 				`,
 			)}
 
-			<form .autocomplete=${this.autocomplete === 'off' ? 'off' : 'on'}>
+			<form @submit=${(e: Event) => e.preventDefault()} .autocomplete=${this.autocomplete === 'off' ? 'off' : 'on'}>
 				<input
 					${color({
 						bgColor: SchmancyTheme.sys.color.surface.highest,

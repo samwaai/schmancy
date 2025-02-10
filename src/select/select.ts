@@ -131,8 +131,7 @@ export class SchmancySelect extends $LitElement(css`
 		}
 
 		// If open, handle arrow up/down, enter, escape, etc.
-		const options = Array.from(this.ul.querySelectorAll<SchmancyOption>('[role="option"]'))
-		const current = options.findIndex(o => o.matches(':focus'))
+		const current = this.options.findIndex(o => o.matches(':focus')) ?? -1
 
 		switch (e.key) {
 			case 'Escape':
@@ -140,16 +139,16 @@ export class SchmancySelect extends $LitElement(css`
 				break
 			case 'ArrowDown':
 				e.preventDefault()
-				this.focusOption(options, Math.min(current + 1, options.length - 1))
+				this.focusOption(this.options, Math.min(current + 1, this.options.length - 1))
 				break
 			case 'ArrowUp':
 				e.preventDefault()
-				this.focusOption(options, Math.max(current - 1, 0))
+				this.focusOption(this.options, Math.max(current - 1, 0))
 				break
 			case 'Enter':
 			case ' ':
 				e.preventDefault()
-				if (current >= 0) this.handleOptionSelect(options[current].value)
+				if (current >= 0) this.handleOptionSelect(this.options[current].value)
 				break
 			case 'Tab':
 				this.closeDropdown()
