@@ -276,6 +276,14 @@ export default class SchmancyInput extends TailwindElement() {
 						composed: true,
 					}),
 				)
+				// dispatch change event
+				this.dispatchEvent(
+					new CustomEvent<EventDetails>('change', {
+						detail: { value },
+						bubbles: true,
+						composed: true,
+					}),
+				)
 			})
 
 		// 2) Subscribe to 'change' events (native behavior, usually on blur)
