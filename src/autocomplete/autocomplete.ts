@@ -26,28 +26,29 @@ export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 
 @customElement('schmancy-autocomplete')
 export default class SchmancyAutocomplete extends $LitElement(style) {
+	// Public API properties
 	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = ''
 	@property({ type: String, reflect: true }) value = ''
 	@property({ type: String, reflect: true }) label = ''
-
 	/**
 	 * ⚠️ If you still want an explicit fallback for maximum dropdown height,
 	 * you can keep this, but the `size()` middleware will already set a
 	 * dynamic max-height based on viewport space.
 	 */
 	@property({ type: String }) maxHeight = '25vh'
-
 	@property({ type: Boolean }) multi = false
 
-	/** Direct reference to the <input> inside <schmancy-input>. */
+	/** Direct reference to the <input> inside <schmancy-input> */
 	inputRef = createRef<HTMLInputElement>()
 
+	// Query selectors for elements in the shadow DOM
 	@query('#options') private optionsContainer!: HTMLUListElement
 	@query('#empty') private empty!: HTMLLIElement
 	@query('schmancy-input') private input!: SchmancyInput
 	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
 
+	// Subject for search term changes
 	private readonly searchTerm$ = new Subject<string>()
 
 	// iOS scroll-blocking logic
@@ -56,7 +57,22 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	connectedCallback() {
 		super.connectedCallback()
 
-		// 1) Search filtering
+		// Ensure the component has an ID (used for generating option IDs)
+		if (!this.id) {
+			this.id = `schmancy-autocomplete-${Math.random().toString(36).substr(2, 9)}`
+		}
+
+		// Listen for keydown events on the input to enable keyboard navigation.
+		// (If your <schmancy-input> is a custom element, ensure it re–forwards keyboard events
+		// from its internal <input> or use a @keydown listener on it in the template.)
+		fromEvent(this, 'keydown')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe({
+				next: (e: KeyboardEvent) => {
+					this.handleKeyDown(e)
+				},
+			})
+		// 1) Search filtering logic
 		this.searchTerm$
 			.pipe(
 				takeUntil(this.disconnecting),
@@ -72,14 +88,13 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 							return { option, levDistance }
 						})
 						.filter(({ option, levDistance }) => {
-							// If very short searchTerm, be lenient
+							// For short search terms, be lenient
 							if (searchTerm.length < 3) return true
-							// Otherwise, filter by distance
 							return levDistance <= option.label.toLowerCase().length - searchTerm.length
 						})
 						.sort((a, b) => a.levDistance - b.levDistance)
 
-					// Show/hide
+					// Show/hide options based on filtering
 					this.options.forEach(o => (o.hidden = true))
 					for (const { option } of matches) {
 						option.hidden = false
@@ -88,25 +103,27 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 					// "No results found"
 					this.empty.hidden = matches.length > 0
 
+					// Update accessibility attributes on options
+					this.setupOptionsAccessibility()
+
 					this.requestUpdate()
 				}),
 			)
 			.subscribe(() => {
-				// Show dropdown on each new term
+				// Show dropdown on each new search term
 				this.showOptions()
 			})
 
-		// 2) Focus out animation
+		// 2) Focus-out animation (fade out)
 		fromEvent<FocusEvent>(this, 'focusout')
 			.pipe(
 				takeUntil(this.disconnecting),
-				filter(e => (e.relatedTarget as SchmancyOption)?.tagName !== 'SCHMANCY-OPTION'),
+				filter(e => (e.relatedTarget as Element)?.tagName !== 'SCHMANCY-OPTION'),
 				switchMap(() => {
 					const animation = this.optionsContainer.animate([{ opacity: 1 }, { opacity: 0 }], {
 						duration: 250,
 						easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
 					})
-
 					return from(
 						new Promise<void>(resolve => {
 							animation.onfinish = () => {
@@ -120,7 +137,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			)
 			.subscribe({
 				next: () => {
-					// Resync the input after closing
+					// After closing, resync the input’s value
 					if (this.multi) {
 						const selected = this.options.filter(o => o.selected).map(o => o.label)
 						this.input.value = selected.join(', ')
@@ -129,6 +146,10 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 					}
 				},
 			})
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback()
 	}
 
 	firstUpdated() {
@@ -143,11 +164,35 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		}
 	}
 
+	/**
+	 * When the <slot> changes (i.e. options are added/removed), update the following:
+	 * 1. Show or hide the “No results found” option.
+	 * 2. Sync the selection state.
+	 * 3. Setup accessibility attributes on the options.
+	 */
 	private handleSlotChange() {
-		// If no visible options, show "empty"
 		this.empty.hidden = this.options.some(option => !option.hidden)
 		this.syncSelectionFromValue()
 		this.updateInputValue()
+		this.setupOptionsAccessibility()
+	}
+
+	/**
+	 * Loops through assigned options and sets accessibility attributes:
+	 * - role="option"
+	 * - A unique ID (if not already set)
+	 * - tabindex="-1"
+	 * - aria-selected (based on whether the option is selected)
+	 */
+	private setupOptionsAccessibility() {
+		this.options.forEach((option, index) => {
+			option.setAttribute('role', 'option')
+			if (!option.id) {
+				option.id = `${this.id}-option-${index}`
+			}
+			option.tabIndex = -1
+			option.setAttribute('aria-selected', String(this.multi ? option.selected : option.value === this.value))
+		})
 	}
 
 	private syncSelectionFromValue() {
@@ -179,8 +224,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	}
 
 	/**
-	 * MAIN: Show the dropdown, using Floating UI to size it
-	 * to the available space, and at least as wide as the input.
+	 * MAIN: Show the dropdown. Uses Floating UI to position and size the options container.
 	 */
 	private async showOptions() {
 		this.optionsContainer.removeAttribute('hidden')
@@ -192,14 +236,12 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 				offset(5),
 				flip(),
 				shift({ padding: 5 }),
-				// NEW: Let the floating element fill available space,
-				// but be at least as wide as the input.
+				// Let the floating element fill available space, but be at least as wide as the input.
 				size({
 					apply({ availableWidth, availableHeight, elements, rects }) {
 						// At least match input width
 						const referenceWidth = rects.reference.width
 						elements.floating.style.minWidth = `${referenceWidth}px`
-
 						// Cap to available viewport space
 						elements.floating.style.maxWidth = `${availableWidth}px`
 						elements.floating.style.maxHeight = `${availableHeight}px`
@@ -214,8 +256,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			position: 'absolute',
 			zIndex: '9999',
 			overflowY: 'auto',
-			// The middleware is setting max-height, but if you want
-			// a fallback you can still do:
+			// You can still use maxHeight as a fallback if desired:
 			// maxHeight: this.maxHeight,
 		})
 	}
@@ -290,9 +331,85 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		}
 	}
 
-	render() {
-		const isOpen = !this.optionsContainer?.hasAttribute('hidden')
+	/**
+	 * Keyboard navigation for the autocomplete.
+	 * – When the dropdown is closed, ArrowDown (or Enter/Space) opens it.
+	 * – When open, ArrowDown/ArrowUp move focus between options (which must have role="option").
+	 * – Enter or Space selects the active option.
+	 * – Escape (or Tab) hides the dropdown.
+	 */
+	private handleKeyDown = (e: KeyboardEvent) => {
+		// Get the visible options (i.e. those not hidden)
+		const options = this.options.filter(o => !o.hidden)
 
+		// If the dropdown is closed, open it on Enter, Space, or ArrowDown
+		if (this.optionsContainer.hasAttribute('hidden')) {
+			if (['Enter', ' ', 'ArrowDown'].includes(e.key)) {
+				e.preventDefault()
+				this.showOptions().then(() => {
+					if (options.length > 0) {
+						this.focusOption(options, 0)
+					}
+				})
+			}
+			return
+		}
+
+		// Dropdown is open; determine the currently focused option
+		let currentIndex = options.findIndex(o => o.matches(':focus'))
+		if (currentIndex === -1) {
+			// If no option is focused, default to the first
+			currentIndex = 0
+		}
+
+		switch (e.key) {
+			case 'Escape':
+				e.preventDefault()
+				this.hideOptions()
+				this.input.focus()
+				break
+			case 'ArrowDown':
+				e.preventDefault()
+				this.focusOption(options, Math.min(currentIndex + 1, options.length - 1))
+				break
+			case 'ArrowUp':
+				e.preventDefault()
+				this.focusOption(options, Math.max(currentIndex - 1, 0))
+				break
+			case 'Enter':
+			case ' ':
+				e.preventDefault()
+				if (options[currentIndex]) {
+					// Assume the option's value is stored in either "data-value" or "value" attribute.
+					const value = options[currentIndex].getAttribute('data-value') || options[currentIndex].getAttribute('value')
+					if (value) {
+						this.handleOptionClick(value)
+					}
+				}
+				break
+			case 'Tab':
+				// Close the dropdown on Tab (as done in the select component)
+				this.hideOptions()
+				break
+			default:
+				break
+		}
+	}
+
+	/**
+	 * Helper to focus an option by index and update the combobox’s aria-activedescendant.
+	 */
+	private focusOption(options: HTMLElement[], index: number) {
+		const option = options[index]
+		if (option) {
+			option.focus()
+			// Update the input's aria-activedescendant to match the newly focused option.
+			this.input.setAttribute('aria-activedescendant', option.id)
+		}
+	}
+	render() {
+		// Determine whether the dropdown is open based on the hidden attribute.
+		const isOpen = !this.optionsContainer?.hasAttribute('hidden')
 		return html`
 			<div class="relative">
 				<!-- The trigger slot (if any) overrides the default SchmancyInput -->
@@ -324,23 +441,24 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 					tabindex="-1"
 					class="absolute z-30 mt-1 w-full overflow-auto rounded-md shadow-sm"
 					role="listbox"
+					aria-multiselectable=${this.multi ? 'true' : 'false'}
 					hidden
 					@click=${(e: Event) => {
-						// Each <schmancy-option> dispatches CustomEvent('click', { detail: { value } })
+						// Each <schmancy-option> should dispatch a CustomEvent('click', { detail: { value } })
 						const detailVal = (e as CustomEvent).detail?.value
 						if (detailVal) this.handleOptionClick(detailVal)
 					}}
 					@touchstart=${this.handleTouchStart}
 					@touchmove=${this.preventScroll}
 					${color({ bgColor: SchmancyTheme.sys.color.surface.container })}
+					@slotchange=${this.handleSlotChange}
 				>
 					<!-- "No results" option -->
 					<li id="empty" tabindex="-1">
 						<schmancy-typography type="label">No results found</schmancy-typography>
 					</li>
-
 					<!-- Slot for the <schmancy-option> elements -->
-					<slot @slotchange=${this.handleSlotChange}> </slot>
+					<slot></slot>
 				</ul>
 			</div>
 		`

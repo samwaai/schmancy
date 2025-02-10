@@ -18,7 +18,6 @@ declare const SchmancyForm_base: import("@mixins/index").Constructor<CustomEleme
 export default class SchmancyForm extends SchmancyForm_base {
     private $disconnecting;
     static readonly tagName = "schmancy-form";
-    tabIndex: number;
     protected static shadowRootOptions: {
         mode: string;
         delegatesFocus: boolean;

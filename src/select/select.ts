@@ -42,6 +42,9 @@ export class SchmancySelect extends $LitElement(css`
 
 	connectedCallback() {
 		super.connectedCallback()
+		if (!this.id) {
+			this.id = `schmancy-select-${Math.random().toString(36).substr(2, 9)}`
+		}
 		this.addEventListener('keydown', this.handleKeyDown)
 	}
 
@@ -52,19 +55,12 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	firstUpdated() {
-		// Initial sync
 		this.syncSelection()
 		this.setupOptionsAccessibility()
 	}
 
-	/**
-	 * Whenever new <schmancy-option> children get slotted in,
-	 * or whenever properties change, ensure the correct .selected states
-	 * and display text are applied.
-	 */
 	private syncSelection() {
 		if (this.multi) {
-			// For multi-select, figure out what's already marked selected in the DOM
 			this.selectedValues = this.options.filter(o => o.selected).map(o => o.value)
 			this.valueLabel =
 				this.selectedValues.length > 0
@@ -74,20 +70,17 @@ export class SchmancySelect extends $LitElement(css`
 							.join(', ')
 					: this.placeholder
 		} else {
-			// Single
 			const selectedOption = this.options.find(o => o.value === this.value)
 			this.valueLabel = selectedOption?.label || this.placeholder
 		}
 	}
 
-	/**
-	 * We can also set up any ARIA attributes here.
-	 * Note that we’re toggling `aria-selected` for screen readers,
-	 * but the highlight in CSS is triggered by the option’s `selected` property.
-	 */
 	private setupOptionsAccessibility() {
-		this.options.forEach(option => {
+		this.options.forEach((option, index) => {
 			option.setAttribute('role', 'option')
+			if (!option.id) {
+				option.id = `${this.id}-option-${index}`
+			}
 			option.tabIndex = -1
 			option.setAttribute(
 				'aria-selected',
@@ -96,9 +89,6 @@ export class SchmancySelect extends $LitElement(css`
 		})
 	}
 
-	/**
-	 * Use @floating-ui/dom to position the <ul> under the "trigger" input.
-	 */
 	private async positionDropdown() {
 		const reference = this.renderRoot.querySelector('.trigger') as HTMLElement
 		if (!reference || !this.ul) return
@@ -117,11 +107,7 @@ export class SchmancySelect extends $LitElement(css`
 		})
 	}
 
-	/**
-	 * Keydown logic for opening/closing the dropdown and navigating options.
-	 */
 	private handleKeyDown(e: KeyboardEvent) {
-		// If dropdown is closed, certain keys will open it:
 		if (!this.isOpen) {
 			if (['Enter', ' ', 'ArrowDown'].includes(e.key)) {
 				e.preventDefault()
@@ -130,7 +116,6 @@ export class SchmancySelect extends $LitElement(css`
 			return
 		}
 
-		// If open, handle arrow up/down, enter, escape, etc.
 		const current = this.options.findIndex(o => o.matches(':focus')) ?? -1
 
 		switch (e.key) {
@@ -157,17 +142,21 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	private focusOption(options: HTMLElement[], index: number) {
-		options[index]?.focus()
+		const option = options[index]
+		if (option) {
+			option.focus()
+			const combobox = this.renderRoot.querySelector('.trigger')
+			combobox?.setAttribute('aria-activedescendant', option.id)
+		}
 	}
 
 	private async openDropdown() {
 		this.isOpen = true
-		await this.updateComplete // Wait for lit to render
+		await this.updateComplete
 
 		this.positionDropdown()
 		this.setupOptionsAccessibility()
 
-		// Optionally focus the currently selected item:
 		const options = Array.from(this.ul.querySelectorAll('[role="option"]')) as HTMLElement[]
 		const selectedIndex = this.multi ? 0 : options.findIndex(o => o.getAttribute('value') === this.value)
 		this.focusOption(options, Math.max(selectedIndex, 0))
@@ -176,29 +165,23 @@ export class SchmancySelect extends $LitElement(css`
 	private closeDropdown() {
 		this.isOpen = false
 		this.cleanupPositioner?.()
-		this.cleanupPositioner = undefined
-		// Return focus to the trigger (optional):
-		this.renderRoot.querySelector<HTMLButtonElement>('.trigger')?.focus()
+		const combobox = this.renderRoot.querySelector<HTMLElement>('.trigger')
+		combobox?.removeAttribute('aria-activedescendant')
+		combobox?.focus()
 	}
 
-	/**
-	 * Main method for toggling or setting selected items.
-	 */
 	private handleOptionSelect(value: string) {
 		if (this.multi) {
-			// Multi-select: Toggle the .selected property on the clicked option
 			const option = this.options.find(o => o.value === value)
 			if (!option) return
 
 			option.selected = !option.selected
-			// Rebuild selectedValues
 			if (option.selected) {
 				this.selectedValues = [...this.selectedValues, value]
 			} else {
 				this.selectedValues = this.selectedValues.filter(v => v !== value)
 			}
 
-			// Update the visible label
 			this.valueLabel =
 				this.selectedValues.length > 0
 					? this.options
@@ -207,19 +190,15 @@ export class SchmancySelect extends $LitElement(css`
 							.join(', ')
 					: this.placeholder
 
-			// Dispatch "change" event
 			this.dispatchChange(this.selectedValues)
 		} else {
-			// Single select: unselect all, select the clicked one
 			this.options.forEach(o => (o.selected = o.value === value))
 			this.value = value
 			this.valueLabel = this.options.find(o => o.value === value)?.label || this.placeholder
 			this.dispatchChange(value)
-			// Close after selecting
 			this.closeDropdown()
 		}
 
-		// Also update aria-selected for accessibility
 		this.setupOptionsAccessibility()
 	}
 
@@ -236,7 +215,6 @@ export class SchmancySelect extends $LitElement(css`
 	render() {
 		return html`
 			<div class="relative">
-				<!-- Some trigger (schmancy-input) -->
 				<schmancy-input
 					tabIndex="0"
 					class="trigger"
@@ -244,34 +222,35 @@ export class SchmancySelect extends $LitElement(css`
 					aria-haspopup="listbox"
 					aria-expanded=${this.isOpen}
 					aria-controls="options"
+					aria-autocomplete="none"
+					aria-required=${this.required}
 					.label=${this.label}
 					.placeholder=${this.placeholder}
 					.value=${this.valueLabel}
+					.required=${this.required}
 					readonly
 					@click=${() => (this.isOpen ? this.closeDropdown() : this.openDropdown())}
 				></schmancy-input>
 
-				<!-- Transparent overlay to close dropdown by clicking outside -->
 				<div
 					id="overlay"
 					class="fixed inset-0"
 					?hidden=${!this.isOpen}
 					@click=${this.closeDropdown}
 					tabindex="-1"
+					aria-hidden="true"
 				></div>
 
-				<!-- The dropdown options container -->
 				<ul
 					id="options"
 					role="listbox"
+					aria-multiselectable=${this.multi}
 					class=${classMap({
 						'absolute z-30 mt-1 w-full rounded-md shadow-sm': true,
 						hidden: !this.isOpen,
 					})}
 					${color({ bgColor: SchmancyTheme.sys.color.surface.container })}
 					@click=${(e: Event) => {
-						// If a <schmancy-option> inside was clicked, it dispatches a 'click' event
-						// with detail.value. We can read that here:
 						const customEvt = e as CustomEvent
 						const detailVal = customEvt.detail?.value
 						if (detailVal) {
@@ -279,7 +258,6 @@ export class SchmancySelect extends $LitElement(css`
 						}
 					}}
 				>
-					<!-- The <schmancy-option> elements get slotted in here -->
 					<slot
 						@slotchange=${() => {
 							this.syncSelection()

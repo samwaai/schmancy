@@ -30,7 +30,6 @@ export default class SchmancySheetHeader extends TailwindElement() {
 					<schmancy-typography transform="capitalize" type="headline" token="lg"> ${this.title} </schmancy-typography>
 					<slot name="actions">
 						<schmancy-icon-button
-							variant="outlined"
 							@click=${() => {
 								this.dispatchEvent(
 									new CustomEvent('dismiss', {

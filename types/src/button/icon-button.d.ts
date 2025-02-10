@@ -2,11 +2,9 @@ import { LitElement, PropertyValueMap } from 'lit';
 import { ButtonVariant } from './button';
 declare const SchmnacyIconButton_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * A button component.
+ * An icon button component.
  * @element schmancy-icon-button
  * @slot - The default slot.
- * @slot prefix - The prefix slot.
- * @slot suffix - The suffix slot.
  */
 export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
     protected static shadowRootOptions: {
@@ -17,32 +15,37 @@ export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
     };
     private nativeElement;
     private _ariaLabel;
+    /**
+     * The size of the icon.
+     * @attr
+     * @default 'md'
+     */
     size: 'sm' | 'md' | 'lg';
     /**
-     * The variant of the button. Defaults to undefined.
+     * The variant of the button.
      * @attr
-     * @default 'filled'
-     * @public
+     * @default 'text'
      */
     variant: ButtonVariant;
     /**
-     *  The width of the button. Defaults to 'auto'.
-     *  @attr
+     * The width of the button.
+     * @attr
      * @type {'full' | 'auto'}
      * @default 'auto'
-     * @public
      */
     width: 'full' | 'auto';
     /**
-     * The type of the button. Defaults to undefined.
+     * The type of the button.
+     * Defaults to 'button' (preventing accidental form submissions).
      * @attr
      */
     type: 'button' | 'reset' | 'submit';
     /**
      * The URL the button points to.
+     * If provided, the component will render as an anchor element.
      * @attr
      */
-    href: string;
+    href?: string;
     /**
      * Determines whether the button is disabled.
      * @attr
@@ -55,6 +58,7 @@ export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
     /** Removes focus from the button. */
     blur(): void;
     click(): void;
+    private _preventDefault;
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void;
     render(): import("lit-html").TemplateResult<1>;
 }

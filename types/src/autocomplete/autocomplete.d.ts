@@ -14,7 +14,7 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
      */
     maxHeight: string;
     multi: boolean;
-    /** Direct reference to the <input> inside <schmancy-input>. */
+    /** Direct reference to the <input> inside <schmancy-input> */
     inputRef: import("lit-html/directives/ref").Ref<HTMLInputElement>;
     private optionsContainer;
     private empty;
@@ -23,14 +23,28 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     private readonly searchTerm$;
     private startY;
     connectedCallback(): void;
+    disconnectedCallback(): void;
     firstUpdated(): void;
     protected updated(changedProps: Map<string | number | symbol, unknown>): void;
+    /**
+     * When the <slot> changes (i.e. options are added/removed), update the following:
+     * 1. Show or hide the “No results found” option.
+     * 2. Sync the selection state.
+     * 3. Setup accessibility attributes on the options.
+     */
     private handleSlotChange;
+    /**
+     * Loops through assigned options and sets accessibility attributes:
+     * - role="option"
+     * - A unique ID (if not already set)
+     * - tabindex="-1"
+     * - aria-selected (based on whether the option is selected)
+     */
+    private setupOptionsAccessibility;
     private syncSelectionFromValue;
     private updateInputValue;
     /**
-     * MAIN: Show the dropdown, using Floating UI to size it
-     * to the available space, and at least as wide as the input.
+     * MAIN: Show the dropdown. Uses Floating UI to position and size the options container.
      */
     private showOptions;
     private hideOptions;
@@ -40,6 +54,18 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     reportValidity(): boolean;
     private handleTouchStart;
     private preventScroll;
+    /**
+     * Keyboard navigation for the autocomplete.
+     * – When the dropdown is closed, ArrowDown (or Enter/Space) opens it.
+     * – When open, ArrowDown/ArrowUp move focus between options (which must have role="option").
+     * – Enter or Space selects the active option.
+     * – Escape (or Tab) hides the dropdown.
+     */
+    private handleKeyDown;
+    /**
+     * Helper to focus an option by index and update the combobox’s aria-activedescendant.
+     */
+    private focusOption;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

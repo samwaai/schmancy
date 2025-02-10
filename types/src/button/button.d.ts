@@ -4,7 +4,7 @@ export interface SchmancyButtonEventMap {
     SchmancyBlur: CustomEvent<void>;
 }
 export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text';
-declare const SchmnacyButton_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyButton_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A button component.
  * @element schmancy-button
@@ -12,7 +12,7 @@ declare const SchmnacyButton_base: CustomElementConstructor & import("@mixins/in
  * @slot prefix - The prefix slot.
  * @slot suffix - The suffix slot.
  */
-export declare class SchmnacyButton extends SchmnacyButton_base {
+export declare class SchmancyButton extends SchmancyButton_base {
     protected static shadowRootOptions: {
         mode: string;
         delegatesFocus: boolean;
@@ -22,30 +22,32 @@ export declare class SchmnacyButton extends SchmnacyButton_base {
     private nativeElement;
     private _ariaLabel;
     /**
-     * The variant of the button. Defaults to undefined.
+     * The variant of the button.
      * @attr
-     * @default 'filled'
+     * @default 'text'
      * @public
      */
     variant: ButtonVariant;
     /**
-     *  The width of the button. Defaults to 'auto'.
-     *  @attr
+     * The width of the button.
+     * @attr
      * @type {'full' | 'auto'}
      * @default 'auto'
      * @public
      */
     width: 'full' | 'auto';
     /**
-     * The type of the button. Defaults to undefined.
+     * The type of the button.
+     * Defaults to 'button' (preventing accidental form submissions).
      * @attr
      */
     type: 'button' | 'reset' | 'submit';
     /**
      * The URL the button points to.
+     * If provided, the component will render as an anchor element.
      * @attr
      */
-    href: string;
+    href?: string;
     /**
      * Determines whether the button is disabled.
      * @attr
@@ -62,11 +64,12 @@ export declare class SchmnacyButton extends SchmnacyButton_base {
     protected get imgClasses(): string[];
     firstUpdated(): void;
     click(): void;
+    private _preventDefault;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {
-        'schmancy-button': SchmnacyButton;
+        'schmancy-button': SchmancyButton;
     }
 }
 export {};
