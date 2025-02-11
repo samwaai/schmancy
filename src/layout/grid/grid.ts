@@ -1,7 +1,7 @@
 import { html, unsafeCSS } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUntil } from 'rxjs'
-import Layout from '../layout/layout'
+import Layout from '../layout'
 import style from './grid.scss?inline'
 
 @customElement('schmancy-grid')

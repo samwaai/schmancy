@@ -23,7 +23,6 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     private readonly searchTerm$;
     private startY;
     connectedCallback(): void;
-    disconnectedCallback(): void;
     firstUpdated(): void;
     protected updated(changedProps: Map<string | number | symbol, unknown>): void;
     /**

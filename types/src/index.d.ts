@@ -38,3 +38,4 @@ export * from './tree';
 export * from './types';
 export * from './typewriter';
 export * from './typography';
+export * from './utils';

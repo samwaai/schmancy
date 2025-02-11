@@ -1,6 +1,6 @@
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import Layout from '../layout/layout'
+import Layout from '../layout'
 
 @customElement('sch-grid')
 export class SchmancyGridV2 extends Layout {

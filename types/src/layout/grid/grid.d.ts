@@ -1,4 +1,4 @@
-import Layout from '../layout/layout';
+import Layout from '../layout';
 export declare class SchmancyGrid extends Layout {
     static styles: any[];
     layout: boolean;

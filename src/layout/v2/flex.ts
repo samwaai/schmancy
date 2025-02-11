@@ -1,6 +1,6 @@
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import Layout from '../layout/layout'
+import Layout from '../layout'
 
 /**
  * SchmancyFlex exposes a flex container with all the Tailwind CSS 4 options:

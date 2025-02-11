@@ -2,7 +2,7 @@ import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
-import Layout from '../layout/layout'
+import Layout from '../layout'
 import style from './flex.scss?inline'
 @customElement('schmancy-flex')
 export class SchmancyFlex extends Layout {

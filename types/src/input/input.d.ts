@@ -16,8 +16,6 @@ type EventDetails = {
 export type SchmancyInputInputEvent = CustomEvent<EventDetails>;
 export type SchmancyInputChangeEvent = CustomEvent<EventDetails>;
 export type SchmancyInputEnterEvent = CustomEvent<EventDetails>;
-/** Common autocomplete/autofill hints. Extend as needed. */
-type AutoFill = 'on' | 'off' | 'name' | 'username' | 'email' | 'new-password' | 'current-password' | 'organization-title' | 'none';
 declare const SchmancyInput_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyInput extends SchmancyInput_base {
     /** If user does NOT set `id`, we'll autogenerate one. */
@@ -31,7 +29,7 @@ export default class SchmancyInput extends SchmancyInput_base {
     /**
      * The type of input. (e.g. 'text', 'password', 'email', etc.)
      */
-    type: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | 'date' | 'datetime-local' | 'time' | 'month' | 'week' | 'color' | 'file';
+    type: HTMLInputElement['type'];
     /**
      * Name attribute (for form submissions). By default, a unique fallback.
      */
