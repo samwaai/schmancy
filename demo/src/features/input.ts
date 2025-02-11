@@ -43,7 +43,7 @@ export class DemoInput extends $LitElement(css`
 		]
 		const v = undefined
 		return html`
-			<schmancy-surface type="surface" rounded="left">
+			<schmancy-surface fill="all" type="surface" rounded="left">
 				<schmancy-grid class="p-4" flow="row" justify="start" gap="md">
 					<schmancy-checkbox> checkbox </schmancy-checkbox>
 					<!-- Single-select example -->
