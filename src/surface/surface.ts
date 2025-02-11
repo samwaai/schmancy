@@ -20,6 +20,9 @@ export class SchmancySurface extends TailwindElement(css`
 	:host([fill='height']) {
 		height: -webkit-fill-available;
 	}
+	:host {
+		display: block;
+	}
 `) {
 	/**
 	 * Fill the width and/or height of the parent container.
@@ -47,7 +50,7 @@ export class SchmancySurface extends TailwindElement(css`
 
 	get classes(): Record<string, boolean> {
 		return {
-			'relative block box-border': true,
+			'relative inset-0 block box-border': true,
 			'rounded-none': this.rounded === 'none',
 			'rounded-t-[8px]': this.rounded === 'top',
 			'rounded-l-[8px]': this.rounded === 'left',
@@ -92,8 +95,11 @@ export class SchmancySurface extends TailwindElement(css`
 	}
 
 	protected render(): unknown {
-		return html`<slot></slot>
-			<div hidden aria-hidden="true" class="${this.classMap(this.classes)}"></div> `
+		return html`
+			<section class="${this.classMap(this.classes)}">
+				<slot></slot>
+			</section>
+		`
 	}
 }
 
