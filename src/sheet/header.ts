@@ -11,7 +11,7 @@ export default class SchmancySheetHeader extends TailwindElement() {
 			relative: this.title.length > 0,
 		}
 		return html`
-			<schmancy-surface elevation="1">
+			<schmancy-surface fill="width" elevation="1">
 				<schmancy-grid class="${this.classMap(classes)}" align="center" justify="stretch" cols="auto 1fr auto">
 					<slot name="back">
 						<schmancy-button

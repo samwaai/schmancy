@@ -30,8 +30,6 @@ export default class SchmancySheet extends $LitElement(style) {
 
 	@on('open')
 	onOpenChange(_oldValue: boolean, newValue: boolean) {
-		this.setIsSheetShown(newValue)
-
 		if (newValue) {
 			this.lastFocusedElement = document.activeElement as HTMLElement
 			this.addFocusTrap()
@@ -130,7 +128,7 @@ export default class SchmancySheet extends $LitElement(style) {
 
 	render() {
 		return html`
-			<div class="sheet" role="dialog" aria-labelledby="sheet-title" aria-hidden="true" aria-modal="false">
+			<div class="sheet" role="dialog" aria-labelledby="sheet-title" aria-hidden=${!this.open} aria-modal=${this.open}>
 				<div
 					class="overlay"
 					@click=${(e: Event) => {
@@ -138,9 +136,9 @@ export default class SchmancySheet extends $LitElement(style) {
 						if (this.allowOverlayDismiss) sheet.dismiss(this.uid)
 					}}
 				></div>
-				<section class="content" data-position=${this.position}>
+				<section class="content w-full" data-position=${this.position}>
 					<schmancy-sheet-header
-						class="sticky top-0 z-50"
+						class="sticky top-0 z-50 w-full"
 						@dismiss=${(e: CustomEvent) => {
 							e.stopPropagation()
 							sheet.dismiss(this.uid)

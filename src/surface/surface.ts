@@ -10,18 +10,25 @@ import { SchmancySurfaceTypeContext } from './context'
  */
 @customElement('schmancy-surface')
 export class SchmancySurface extends TailwindElement(css`
-	:host([fill]) {
+	:host([fill='all']) {
 		height: -webkit-fill-available;
 		width: -webkit-fill-available;
 	}
-	:host([fill-width]) {
+	:host([fill='width']) {
 		width: -webkit-fill-available;
 	}
-	:host([fill-height]) {
+	:host([fill='height']) {
 		height: -webkit-fill-available;
 	}
 `) {
-	@property({ type: Boolean }) fill = false
+	/**
+	 * Fill the width and/or height of the parent container.
+	 * @default 'all'
+	 * @cssprop --fill
+	 * @cssprop --fill-width
+	 * @cssprop --fill-height
+	 */
+	@property({ type: String, reflect: true }) fill: 'all' | 'width' | 'height' = 'all'
 	@property() rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' = 'none'
 
 	@provide({ context: SchmancySurfaceTypeContext })
@@ -48,7 +55,9 @@ export class SchmancySurface extends TailwindElement(css`
 			'rounded-b-[8px]': this.rounded === 'bottom',
 			'rounded-[8px]': this.rounded === 'all',
 
-			'w-full h-full': this.fill,
+			'w-full h-full': this.fill === 'all',
+			'w-full': this.fill === 'width',
+			'h-full': this.fill === 'height',
 			'shadow-xs': this.elevation === 1,
 			'shadow-sm': this.elevation === 2,
 			'shadow-md': this.elevation === 3,
