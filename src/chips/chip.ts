@@ -20,6 +20,11 @@ export default class SchmancyChip extends $LitElement() {
 	@property({ type: String, reflect: true })
 	icon: string = ''
 
+	@property({ type: Boolean, reflect: true })
+	readOnly: boolean = false
+
+	@property({ type: Boolean, reflect: true })
+	disabled: boolean = false
 	constructor() {
 		super()
 		try {
@@ -43,8 +48,14 @@ export default class SchmancyChip extends $LitElement() {
 	protected render(): unknown {
 		return html`
 			<md-filter-chip
+				.disabled=${this.disabled}
 				label="${this.label}"
-				@click=${() => {
+				@click=${(e: Event) => {
+					if (this.readOnly) {
+						e.preventDefault()
+						e.stopPropagation()
+						return
+					}
 					// Toggle selection and dispatch a change event
 					this.selected = !this.selected
 					this.dispatchEvent(

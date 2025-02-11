@@ -100,17 +100,17 @@ export class DemoInput extends $LitElement(css`
 						)}
 					</schmancy-autocomplete>
 
-					<!-- <schmancy-chips
-					.values=${['chip1']}
-					multi
-					@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
-						console.log('e.detail', e.detail)
-					}}
-				>
-					<schmancy-chip label="Chip 1" value="chip1"></schmancy-chip>
-					<schmancy-chip label="Chip 2" value="chip2"></schmancy-chip>
-					<schmancy-chip label="Chip 3" value="chip3"></schmancy-chip>
-				</schmancy-chips> -->
+					<schmancy-chips
+						.values=${['chip1']}
+						multi
+						@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
+							console.log('e.detail', e.detail)
+						}}
+					>
+						<schmancy-chip readOnly selected label="Chip 1" value="chip1"></schmancy-chip>
+						<schmancy-chip label="Chip 2" value="chip2"></schmancy-chip>
+						<schmancy-chip label="Chip 3" value="chip3"></schmancy-chip>
+					</schmancy-chips>
 
 					<!-- single -->
 					<schmancy-button
