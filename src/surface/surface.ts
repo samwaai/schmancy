@@ -28,7 +28,7 @@ export class SchmancySurface extends TailwindElement(css`
 	 * @cssprop --fill-width
 	 * @cssprop --fill-height
 	 */
-	@property({ type: String, reflect: true }) fill: 'all' | 'width' | 'height' = 'all'
+	@property({ type: String, reflect: true }) fill: 'all' | 'width' | 'height' | 'auto' = 'auto'
 	@property() rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' = 'none'
 
 	@provide({ context: SchmancySurfaceTypeContext })
