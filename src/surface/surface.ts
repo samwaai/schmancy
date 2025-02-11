@@ -92,7 +92,8 @@ export class SchmancySurface extends TailwindElement(css`
 	}
 
 	protected render(): unknown {
-		return html`<slot class=${this.classMap(this.classes)}></slot> `
+		return html`<slot></slot>
+			<div hidden aria-hidden="true" class="${this.classMap(this.classes)}"></div> `
 	}
 }
 
