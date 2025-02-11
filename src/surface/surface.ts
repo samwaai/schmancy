@@ -48,8 +48,8 @@ export class SchmancySurface extends TailwindElement(css`
 
 	@property({ type: Number }) elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
 
-	get classes(): Record<string, boolean> {
-		return {
+	protected render(): unknown {
+		const classes = {
 			'relative inset-0 block box-border': true,
 			'rounded-none': this.rounded === 'none',
 			'rounded-t-[8px]': this.rounded === 'top',
@@ -83,20 +83,8 @@ export class SchmancySurface extends TailwindElement(css`
 			'bg-surface-high': this.type === 'containerHigh',
 			'bg-surface-highest': this.type === 'containerHighest',
 		}
-	}
-
-	updated() {
-		// Loop over the computed classes and toggle each class on the host element.
-		Object.entries(this.classes).forEach(([cls, condition]) => {
-			cls.split(' ').forEach(singleClass => {
-				this.classList.toggle(singleClass, condition)
-			})
-		})
-	}
-
-	protected render(): unknown {
 		return html`
-			<section class="${this.classMap(this.classes)}">
+			<section class="${this.classMap(classes)}">
 				<slot></slot>
 			</section>
 		`
