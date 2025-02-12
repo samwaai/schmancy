@@ -25,6 +25,7 @@ export class SchmancySelect extends $LitElement(css`
 	}
 `) {
 	// API
+	@property({ type: String }) name: string | undefined
 	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = ''
 	@property({ type: String }) value = '' // for single-select
@@ -216,6 +217,7 @@ export class SchmancySelect extends $LitElement(css`
 		return html`
 			<div class="relative">
 				<schmancy-input
+					.name=${this.name}
 					tabIndex="0"
 					class="trigger"
 					role="combobox"
