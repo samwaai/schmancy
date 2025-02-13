@@ -125,7 +125,7 @@ export default class SchmancyInput extends TailwindElement() {
 
 	/** Autocomplete/autofill hints. */
 	@property({ type: String })
-	public autocomplete: AutoFill = 'off'
+	public autocomplete: AutoFill = 'on'
 
 	/**
 	 * tabIndex for focusing by tab key. Typically 0 or -1.
