@@ -5,6 +5,9 @@ import { html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import moment from 'moment'
+import { validateInitialDateRange } from './date-utils' // Import the utility
+
+type DateFormat = 'YYYY-MM-DD' | 'YYYY-MM-DDTHH:mm'
 
 /**
  * A date range selector that supports presets and manual date input.
@@ -40,9 +43,39 @@ export default class SchmancyDateRange extends $LitElement() {
 	connectedCallback(): void {
 		super.connectedCallback()
 		this.initPresetRanges()
-		this.updateSelectedDateRange()
-	}
 
+		// Validate and format initial date range
+		const dateFormat = this.getDateFormat() as DateFormat
+		const validatedRange = validateInitialDateRange(this.dateFrom.value, this.dateTo.value, dateFormat)
+
+		if (validatedRange.isValid) {
+			this.dateFrom.value = validatedRange.dateFrom!
+			this.dateTo.value = validatedRange.dateTo!
+			this.updateSelectedDateRange()
+		} else {
+			console.error('Invalid initial date range.  Falling back to default.')
+			// Handle invalid initial dates (e.g., set to default values, display an error)
+			const now = moment().format(dateFormat)
+			this.dateFrom.value = now
+			this.dateTo.value = now
+		}
+	}
+	/**
+	 * Update the internal date range and fire a 'change' event to notify external code.
+	 */
+	private setDateRange(fromDate: string, toDate: string) {
+		this.dateFrom.value = fromDate
+		this.dateTo.value = toDate
+
+		this.dispatchEvent(
+			new CustomEvent<TSchmancDateRangePayload>('change', {
+				detail: { dateFrom: fromDate, dateTo: toDate },
+				bubbles: true,
+				composed: true, // If you want it to pass shadow boundaries
+			}),
+		)
+		this.requestUpdate()
+	}
 	updated(changedProps: Map<string, unknown>) {
 		if (changedProps.has('type')) {
 			// Re-init presets if "type" changes from date -> datetime
@@ -138,23 +171,6 @@ export default class SchmancyDateRange extends $LitElement() {
 	}
 
 	/**
-	 * Update the internal date range and fire a 'change' event to notify external code.
-	 */
-	private setDateRange(fromDate: string, toDate: string) {
-		this.dateFrom.value = fromDate
-		this.dateTo.value = toDate
-
-		this.dispatchEvent(
-			new CustomEvent<TSchmancDateRangePayload>('change', {
-				detail: { dateFrom: fromDate, dateTo: toDate },
-				bubbles: true,
-				composed: true, // If you want it to pass shadow boundaries
-			}),
-		)
-		this.requestUpdate()
-	}
-
-	/**
 	 * Called when user selects a preset from the list.
 	 * Updates date range and closes the menu.
 	 */
@@ -197,7 +213,7 @@ export default class SchmancyDateRange extends $LitElement() {
 
 	render() {
 		return html`
-			<!-- schmancy-menu typically provides a slot="button" for the trigger, 
+			<!-- schmancy-menu typically provides a slot="button" for the trigger,
              and then projects the menu items inside. -->
 			<schmancy-menu class="z-100 w-max" role="menu" aria-label="Date range presets and custom input">
 				<!-- The toggle/trigger slot -->
