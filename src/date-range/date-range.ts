@@ -164,9 +164,20 @@ export default class SchmancyDateRange extends $LitElement() {
 			this.selectedDateRange = preset.label
 		} else {
 			// Construct a custom label
-			const fromStr = moment(this.dateFrom.value).format(this.getDisplayFormat())
-			const toStr = moment(this.dateTo.value).format(this.getDisplayFormat())
-			this.selectedDateRange = `${fromStr} - ${toStr}`
+			const fromMoment = moment(this.dateFrom.value)
+			const toMoment = moment(this.dateTo.value)
+			console.log(fromMoment.format('HH:mm'), toMoment.format('HH:mm'), fromMoment.format('HH:mm'))
+			if (fromMoment.isSame(toMoment, 'day')) {
+				this.selectedDateRange = fromMoment.format('MMM DD, YYYY')
+				// append the time if fromMoment is not the start of the day and  toMoment is not the end of the day
+				if (fromMoment.format('HH:mm') !== '00:00' || toMoment.format('HH:mm') !== '23:59') {
+					this.selectedDateRange += ` ${fromMoment.format('HH:mm')}:${toMoment.format('HH:mm')}`
+				}
+			} else {
+				const fromStr = fromMoment.format(this.getDisplayFormat())
+				const toStr = toMoment.format(this.getDisplayFormat())
+				this.selectedDateRange = `${fromStr} - ${toStr}`
+			}
 		}
 	}
 
