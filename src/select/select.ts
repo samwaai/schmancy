@@ -19,7 +19,7 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	[role='listbox'] {
-		max-height: 25vh;
+		/*  max-height: 25vh; */ /* Remove the fixed max-height */
 		overflow-y: auto;
 		outline: none;
 	}
@@ -93,6 +93,10 @@ export class SchmancySelect extends $LitElement(css`
 	private async positionDropdown() {
 		const reference = this.renderRoot.querySelector('.trigger') as HTMLElement
 		if (!reference || !this.ul) return
+
+		// Get the available height
+		const availableHeight = window.innerHeight - reference.getBoundingClientRect().bottom - 10 // 10px buffer
+		this.ul.style.maxHeight = `${availableHeight}px` // Set max height
 
 		this.cleanupPositioner = autoUpdate(reference, this.ul, async () => {
 			const { x, y } = await computePosition(reference, this.ul, {
@@ -248,7 +252,7 @@ export class SchmancySelect extends $LitElement(css`
 					role="listbox"
 					aria-multiselectable=${this.multi}
 					class=${classMap({
-						'absolute z-30 mt-1 w-full rounded-md shadow-sm': true,
+						'absolute z-[1000] mt-1 w-full rounded-md shadow-sm': true,
 						hidden: !this.isOpen,
 					})}
 					${color({ bgColor: SchmancyTheme.sys.color.surface.container })}

@@ -138,7 +138,6 @@ export class DemoInput extends $LitElement(css`
 						placeholder="Search for options"
 						label="Select options"
 						value="option1,option2"
-						multi
 						@change="${e => console.log('Selected values:', e.detail.value)}"
 					>
 						<schmancy-option value="option1" label="Option 1">
