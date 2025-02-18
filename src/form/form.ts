@@ -44,6 +44,7 @@ export default class SchmancyForm extends TailwindElement() {
 		'schmancy-checkbox',
 		'schmancy-radio-group',
 		'schmancy-autocomplete',
+		'schmancy-select',
 	]
 	private _controlsWithValue = [
 		'input',
@@ -55,6 +56,8 @@ export default class SchmancyForm extends TailwindElement() {
 		'schmancy-combo',
 		'schmancy-date-time-input',
 		'schmancy-autocomplete',
+		'schmancy-checkbox',
+		'schmancy-select',
 	]
 	private _controlsThatSubmit = ['button', 'schmancy-input', 'schmancy-button', 'schmancy-icon-button']
 

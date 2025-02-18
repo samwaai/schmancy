@@ -1,9 +1,10 @@
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
+import SchmancyInput from '@schmancy/input/input'
 import SchmancyOption from '@schmancy/option/option'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
-import { css, html } from 'lit'
+import { css, html, TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 
@@ -36,8 +37,12 @@ export class SchmancySelect extends $LitElement(css`
 	// Internal states
 	@state() private isOpen = false
 	@state() private valueLabel = ''
+	@state() private isValid = true
+	@state() private validationMessage = ''
 
 	@query('ul') private ul!: HTMLUListElement
+
+	@query('schmancy-input') private inputRef!: SchmancyInput
 	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
 	private cleanupPositioner?: () => void
 
@@ -116,7 +121,7 @@ export class SchmancySelect extends $LitElement(css`
 		if (!this.isOpen) {
 			if (['Enter', ' ', 'ArrowDown'].includes(e.key)) {
 				e.preventDefault()
-				this.openDropdown()
+				this.openDropdown(false) // Modified: Call openDropdown directly
 			}
 			return
 		}
@@ -155,7 +160,8 @@ export class SchmancySelect extends $LitElement(css`
 		}
 	}
 
-	private async openDropdown() {
+	private async openDropdown(report = false) {
+		// Add a report flag
 		this.isOpen = true
 		await this.updateComplete
 
@@ -165,6 +171,8 @@ export class SchmancySelect extends $LitElement(css`
 		const options = Array.from(this.ul.querySelectorAll('[role="option"]')) as HTMLElement[]
 		const selectedIndex = this.multi ? 0 : options.findIndex(o => o.getAttribute('value') === this.value)
 		this.focusOption(options, Math.max(selectedIndex, 0))
+		//Check if this needs to be reported
+		if (report) this.reportValidity()
 	}
 
 	private closeDropdown() {
@@ -208,6 +216,8 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	private dispatchChange(value: string | string[]) {
+		this.isValid = true // Reset validation on change
+		this.validationMessage = ''
 		this.dispatchEvent(
 			new CustomEvent<SchmancySelectChangeEvent['detail']>('change', {
 				detail: { value },
@@ -217,7 +227,40 @@ export class SchmancySelect extends $LitElement(css`
 		)
 	}
 
-	render() {
+	/**
+	 * Native form methods:
+	 * - checkValidity()
+	 * - reportValidity()
+	 * - setCustomValidity()
+	 */
+	public checkValidity(): boolean {
+		//Check if there is a value
+		this.isValid = this.multi ? this.options.some(o => o.selected) : Boolean(this.value)
+		this.validationMessage = this.isValid ? '' : 'Please select an option.'
+		return this.isValid
+	}
+
+	public reportValidity(): boolean {
+		if (this.required) {
+			this.checkValidity()
+			this.inputRef.required = true // Ensure the inner input knows it's required.
+			if (!this.isValid) {
+				this.openDropdown()
+				this.inputRef.reportValidity()
+				return false
+			} else {
+				this.inputRef.reportValidity()
+				return true
+			}
+		}
+		return true // Always return true if not required
+	}
+
+	public setCustomValidity(message: string) {
+		this.validationMessage = message
+	}
+
+	render(): TemplateResult {
 		return html`
 			<div class="relative">
 				<schmancy-input
@@ -235,7 +278,7 @@ export class SchmancySelect extends $LitElement(css`
 					.value=${this.valueLabel}
 					.required=${this.required}
 					readonly
-					@click=${() => (this.isOpen ? this.closeDropdown() : this.openDropdown())}
+					@click=${() => (this.isOpen ? this.closeDropdown() : this.openDropdown(true))}
 				></schmancy-input>
 
 				<div

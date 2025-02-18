@@ -14,29 +14,22 @@ export default class DemoForm extends $LitElement() {
 				class="mx-auto max-w-sm"
 				@submit=${(e: Event) => {
 					e.preventDefault()
+					alert('Form Submitted')
 				}}
 			>
 				<schmancy-grid class="min-h-[50vh] px-6 py-12" gap="md">
 					<schmancy-grid cols="1fr 0.5fr" gap="md">
 						<!-- Warehouse Name -->
-						<schmancy-input
-							label="Name"
-							required
-							type="text"
-							placeholder="Warehouse Location"
-						
-						></schmancy-input>
+						<schmancy-input label="Name" required type="text" placeholder="Warehouse Location"></schmancy-input>
 
 						<!-- Emoji Select -->
-						<schmancy-select label="Emoji">
-                                
-                    ${repeat(
-											emojis,
-											emoji => emoji,
-											emoji => html`<schmancy-option .label=${emoji} .value=${emoji}>${emoji}</schmancy-option>`,
-										)}
-                            </schmancy-select>
-                    </schmancy-select>
+						<schmancy-select id="daf" name="emoji" required label="Emoji">
+							${repeat(
+								emojis,
+								emoji => emoji,
+								emoji => html`<schmancy-option .label=${emoji} .value=${emoji}>${emoji}</schmancy-option>`,
+							)}
+						</schmancy-select>
 					</schmancy-grid>
 
 					<!-- Delivery Address -->
