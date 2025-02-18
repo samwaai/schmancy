@@ -7,6 +7,8 @@ export default class SchmancyChip extends SchmancyChip_base {
     value: string;
     selected: boolean;
     icon: string;
+    readOnly: boolean;
+    disabled: boolean;
     constructor();
     protected static shadowRootOptions: {
         delegatesFocus: boolean;

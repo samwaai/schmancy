@@ -4,12 +4,15 @@ declare const SchmancySurface_base: import("@mixins/index").Constructor<CustomEl
  * @slot - default content
  */
 export declare class SchmancySurface extends SchmancySurface_base {
-    fill: boolean;
+    /**
+     * Fill the width and/or height of the parent container.
+     * @default 'auto'
+     *
+     */
+    fill: 'all' | 'width' | 'height' | 'auto';
     rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all';
     type: 'surface' | 'surfaceDim' | 'surfaceBright' | 'containerLowest' | 'containerLow' | 'container' | 'containerHigh' | 'containerHighest';
     elevation: 0 | 1 | 2 | 3 | 4 | 5;
-    get classes(): Record<string, boolean>;
-    updated(): void;
     protected render(): unknown;
 }
 declare global {

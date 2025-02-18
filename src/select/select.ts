@@ -38,7 +38,7 @@ export class SchmancySelect extends $LitElement(css`
 	@state() private isOpen = false
 	@state() private valueLabel = ''
 	@state() private isValid = true
-	@state() private validationMessage = ''
+	@property({ type: String }) validationMessage = ''
 
 	@query('ul') private ul!: HTMLUListElement
 

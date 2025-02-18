@@ -29,6 +29,10 @@ export default class SchmancyDateRange extends SchmancyDateRange_base {
         step: moment.unitOfTime.DurationConstructor;
     }>;
     connectedCallback(): void;
+    /**
+     * Update the internal date range and fire a 'change' event to notify external code.
+     */
+    private setDateRange;
     updated(changedProps: Map<string, unknown>): void;
     /**
      * Format strings for the internal <input> and for display text.
@@ -44,10 +48,6 @@ export default class SchmancyDateRange extends SchmancyDateRange_base {
      * Otherwise display a "Custom" range: "Jan 01, 2023 - Jan 07, 2023".
      */
     private updateSelectedDateRange;
-    /**
-     * Update the internal date range and fire a 'change' event to notify external code.
-     */
-    private setDateRange;
     /**
      * Called when user selects a preset from the list.
      * Updates date range and closes the menu.
