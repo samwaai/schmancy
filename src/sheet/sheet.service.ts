@@ -54,6 +54,12 @@ export type SheetHereMortyEvent = CustomEvent<{
 	sheet: SchmancySheet
 }>
 export const SheetHereMorty = 'yes-here'
+
+// Function to determine the position based on screen size
+const getPosition = (): SchmancySheetPosition => {
+	return window.innerWidth >= 768 ? SchmancySheetPosition.Side : SchmancySheetPosition.Bottom // Adjust 768 as needed for your breakpoint
+}
+
 class BottomSheetService {
 	bottomSheet = new Subject<BottomSheeetTarget>()
 	$dismiss = new Subject<string>()
@@ -86,7 +92,11 @@ class BottomSheetService {
 						document.body.appendChild(sheet)
 					}
 					sheet.setAttribute('uid', target.uid ?? target.component.tagName)
-					sheet.setAttribute('position', target.position ?? SchmancySheetPosition.Bottom)
+
+					// **Use the dynamic position function here**
+					const position = target.position || getPosition() // Use target.position if it's set, otherwise determine based on screen size
+					sheet.setAttribute('position', position)
+
 					sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
 					target.title && sheet.setAttribute('title', target.title)
 					target.persist && sheet.setAttribute('persist', target.persist ?? false)

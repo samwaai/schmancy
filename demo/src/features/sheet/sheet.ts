@@ -20,7 +20,6 @@ export class DemoSheet extends $LitElement(css`
 					@click=${() => {
 						sheet.open({
 							component: new DemoButton(),
-							position: SchmancySheetPosition.Bottom,
 							title: 'Bottom Sheet',
 							header: 'visible',
 						})
@@ -34,7 +33,6 @@ export class DemoSheet extends $LitElement(css`
 					@click=${() => {
 						sheet.open({
 							component: new DemoTypography(),
-							position: SchmancySheetPosition.Side,
 							header: 'hidden',
 						})
 					}}
