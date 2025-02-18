@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"outDir": "dist",
 		"target": "ES2021",
 		"experimentalDecorators": true,
 		"useDefineForClassFields": false,
@@ -11,7 +12,6 @@
 		"isolatedModules": true,
 		"noEmit": false,
 		"declaration": true,
-		"emitDeclarationOnly": true,
 		"declarationDir": "types",
 		"allowSyntheticDefaultImports": true,
 		"resolveJsonModule": true,
