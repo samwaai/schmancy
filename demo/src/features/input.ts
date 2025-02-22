@@ -174,7 +174,7 @@ export class DemoInput extends $LitElement(css`
 					<br />
 
 					<!-- Multi-select example -->
-					<schmancy-select label="Choose multiple options" placeholder="Select options" multi>
+					<schmancy-select .value=${['option2']} label="Choose multiple options" placeholder="Select options" multi>
 						<schmancy-option value="option1" label="Option 1"> Option 1</schmancy-option>
 						<schmancy-option value="option2" label="Option 2"> Option 2</schmancy-option>
 						<schmancy-option value="option3" label="Option 3">Option 3</schmancy-option>

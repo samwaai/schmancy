@@ -20,7 +20,6 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	[role='listbox'] {
-		/*  max-height: 25vh; */ /* Remove the fixed max-height */
 		overflow-y: auto;
 		outline: none;
 	}
@@ -29,8 +28,7 @@ export class SchmancySelect extends $LitElement(css`
 	@property({ type: String }) name: string | undefined
 	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = ''
-	@property({ type: String }) value = '' // for single-select
-	@property({ type: Array }) selectedValues: string[] = [] // for multi-select
+	@property({ type: String }) value: string | string[] = '' // for single-select or multi-select
 	@property({ type: Boolean }) multi = false
 	@property({ type: String }) label = ''
 
@@ -67,11 +65,12 @@ export class SchmancySelect extends $LitElement(css`
 
 	private syncSelection() {
 		if (this.multi) {
-			this.selectedValues = this.options.filter(o => o.selected).map(o => o.value)
+			const selectedValues = Array.isArray(this.value) ? this.value : []
+			this.options.forEach(o => (o.selected = selectedValues.includes(o.value))) // Update option selected state
 			this.valueLabel =
-				this.selectedValues.length > 0
+				selectedValues.length > 0
 					? this.options
-							.filter(o => this.selectedValues.includes(o.value))
+							.filter(o => selectedValues.includes(o.value))
 							.map(o => o.label)
 							.join(', ')
 					: this.placeholder
@@ -88,9 +87,11 @@ export class SchmancySelect extends $LitElement(css`
 				option.id = `${this.id}-option-${index}`
 			}
 			option.tabIndex = -1
+			const selectedValues = Array.isArray(this.value) ? this.value : []
+
 			option.setAttribute(
 				'aria-selected',
-				String(this.multi ? this.selectedValues.includes(option.value) : option.value === this.value),
+				String(this.multi ? selectedValues.includes(option.value) : option.value === this.value),
 			)
 		})
 	}
@@ -121,7 +122,7 @@ export class SchmancySelect extends $LitElement(css`
 		if (!this.isOpen) {
 			if (['Enter', ' ', 'ArrowDown'].includes(e.key)) {
 				e.preventDefault()
-				this.openDropdown(false) // Modified: Call openDropdown directly
+				this.openDropdown(false)
 			}
 			return
 		}
@@ -161,7 +162,6 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	private async openDropdown(report = false) {
-		// Add a report flag
 		this.isOpen = true
 		await this.updateComplete
 
@@ -171,7 +171,6 @@ export class SchmancySelect extends $LitElement(css`
 		const options = Array.from(this.ul.querySelectorAll('[role="option"]')) as HTMLElement[]
 		const selectedIndex = this.multi ? 0 : options.findIndex(o => o.getAttribute('value') === this.value)
 		this.focusOption(options, Math.max(selectedIndex, 0))
-		//Check if this needs to be reported
 		if (report) this.reportValidity()
 	}
 
@@ -189,21 +188,25 @@ export class SchmancySelect extends $LitElement(css`
 			if (!option) return
 
 			option.selected = !option.selected
+			let selectedValues = Array.isArray(this.value) ? [...this.value] : []
+
 			if (option.selected) {
-				this.selectedValues = [...this.selectedValues, value]
+				selectedValues = [...selectedValues, value]
 			} else {
-				this.selectedValues = this.selectedValues.filter(v => v !== value)
+				selectedValues = selectedValues.filter(v => v !== value)
 			}
 
+			this.value = selectedValues
+
 			this.valueLabel =
-				this.selectedValues.length > 0
+				selectedValues.length > 0
 					? this.options
-							.filter(o => this.selectedValues.includes(o.value))
+							.filter(o => selectedValues.includes(o.value))
 							.map(o => o.label)
 							.join(', ')
 					: this.placeholder
 
-			this.dispatchChange(this.selectedValues)
+			this.dispatchChange(selectedValues)
 		} else {
 			this.options.forEach(o => (o.selected = o.value === value))
 			this.value = value
@@ -227,15 +230,8 @@ export class SchmancySelect extends $LitElement(css`
 		)
 	}
 
-	/**
-	 * Native form methods:
-	 * - checkValidity()
-	 * - reportValidity()
-	 * - setCustomValidity()
-	 */
 	public checkValidity(): boolean {
-		//Check if there is a value
-		this.isValid = this.multi ? this.options.some(o => o.selected) : Boolean(this.value)
+		this.isValid = this.multi ? Array.isArray(this.value) && this.value.length > 0 : Boolean(this.value)
 		this.validationMessage = this.isValid ? '' : 'Please select an option.'
 		return this.isValid
 	}
@@ -243,7 +239,7 @@ export class SchmancySelect extends $LitElement(css`
 	public reportValidity(): boolean {
 		if (this.required) {
 			this.checkValidity()
-			this.inputRef.required = true // Ensure the inner input knows it's required.
+			this.inputRef.required = true
 			if (!this.isValid) {
 				this.openDropdown()
 				this.inputRef.reportValidity()
@@ -253,7 +249,7 @@ export class SchmancySelect extends $LitElement(css`
 				return true
 			}
 		}
-		return true // Always return true if not required
+		return true
 	}
 
 	public setCustomValidity(message: string) {
