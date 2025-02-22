@@ -124,7 +124,7 @@ export default class SchmancyInput extends TailwindElement() {
 	public autofocus = false
 
 	/** Autocomplete/autofill hints. */
-	@property({ type: String })
+	@property({ type: String, reflect: true })
 	public autocomplete: AutoFill = 'on'
 
 	/**
