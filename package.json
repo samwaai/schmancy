@@ -1,6 +1,6 @@
 {
 	"name": "@mhmo91/schmancy",
-	"version": "0.2.73",
+	"version": "0.2.71",
 	"description": "UI library build with web components",
 	"main": "./dist/index.js",
 	"packageManager": "yarn@4.6.0",
@@ -36,8 +36,7 @@
 		"preview": "vite preview",
 		"batch": "npm version patch",
 		"watch": "npm-watch build:components",
-		"ncu": "ncu -u && npm i",
-		"publish": "npm publish --access public"
+		"ncu": "ncu -u && npm i"
 	},
 	"author": "@mhmo91",
 	"license": "Apache-2.0",
