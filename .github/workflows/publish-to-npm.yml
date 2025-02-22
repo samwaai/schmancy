@@ -21,6 +21,11 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
+      - name: Enable Corepack and prepare Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@4.6.0 --activate
+
       - name: Bump package version
         run: yarn version --patch --no-git-tag-version
 
