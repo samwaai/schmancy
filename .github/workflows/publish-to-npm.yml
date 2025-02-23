@@ -33,6 +33,12 @@ jobs:
       - name: Bump package version
         run: yarn version patch # Or use semantic-release!
 
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build project
+        run: yarn build
+
       - name: Commit bumped version and Tag
         run: |
           git config user.name "github-actions"
@@ -44,12 +50,6 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push origin --tags
           git push
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build project
-        run: yarn build
 
       - name: Authenticate with npm
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc

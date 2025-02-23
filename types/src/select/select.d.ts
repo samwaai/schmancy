@@ -7,8 +7,7 @@ export declare class SchmancySelect extends SchmancySelect_base {
     name: string | undefined;
     required: boolean;
     placeholder: string;
-    value: string;
-    selectedValues: string[];
+    value: string | string[];
     multi: boolean;
     label: string;
     private isOpen;
@@ -31,12 +30,6 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private closeDropdown;
     private handleOptionSelect;
     private dispatchChange;
-    /**
-     * Native form methods:
-     * - checkValidity()
-     * - reportValidity()
-     * - setCustomValidity()
-     */
     checkValidity(): boolean;
     reportValidity(): boolean;
     setCustomValidity(message: string): void;
