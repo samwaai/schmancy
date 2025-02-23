@@ -17,9 +17,8 @@ import { SchmancyListTypeContext } from './context'
  * @slot - The default slot for list items.
  *
  * @example
- * <schmancy-list surface="primary" fill="solid" scroller>
- *   <li>List Item 1</li>
- *   <li>List Item 2</li>
+ * <schmancy-list surface="container" scroller>
+ *   <schmancy-list-item>List Item 1</schmancy-list-item>
  * </schmancy-list>
  */
 @customElement('schmancy-list')
@@ -77,7 +76,7 @@ export class List extends TailwindElement(css`
 	 * @type {number}
 	 * @default 0
 	 */
-	@property({ type: Number, reflect: true })
+	@property({ type: Number })
 	elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
 	/**
 	 * Lifecycle method called when component properties are updated.
