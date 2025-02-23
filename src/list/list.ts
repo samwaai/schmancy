@@ -5,7 +5,6 @@ import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { SchmancyListTypeContext } from './context'
-import { classMap } from 'lit/directives/class-map.js' // Import classMap
 
 /**
  * @slot - The default slot.
@@ -16,6 +15,14 @@ export class List extends TailwindElement(css`
 		display: block;
 		padding-top: 8px;
 		padding-bottom: 8px;
+	}
+
+	:host(.scroller) {
+		/*  The host scroller class */
+		position: relative;
+		contain: size layout;
+		overflow: auto;
+		scroll-smooth: auto; /*Add other scroll styles here*/
 	}
 `) {
 	/**
@@ -34,18 +41,20 @@ export class List extends TailwindElement(css`
 	@property({ type: Boolean, reflect: true })
 	scroller: boolean = false // New property: 'scroller'
 
-	render() {
-		const ulClasses = {
-			'overflow-auto': this.scroller,
-			relative: this.scroller,
-			'contain-[size_layout]': this.scroller,
-			//Add any classes, when the scroll is active, you can style this as a scroll
-			'scroll-smooth': this.scroller,
+	updated(changedProperties: Map<string | number | symbol, unknown>) {
+		if (changedProperties.has('scroller')) {
+			if (this.scroller) {
+				this.classList.add('scroller') // Add the 'scroller' class
+			} else {
+				this.classList.remove('scroller') // Remove the 'scroller' class
+			}
 		}
+	}
 
+	render() {
 		return html`
 			<schmancy-surface .fill=${this.fill} type=${this.surface}>
-				<ul class="${classMap(ulClasses)}">
+				<ul>
 					<slot></slot>
 				</ul>
 			</schmancy-surface>
