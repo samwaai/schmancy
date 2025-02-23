@@ -30,8 +30,8 @@ export class List extends TailwindElement(css`
 		padding-bottom: 8px;
 	}
 
-	/* Apply scrolling behavior to the surface element when it has the "scroller" class */
-	:host schmancy-surface.scroller {
+	/* When the ul element has the "scroller" class, apply scrolling behavior */
+	ul.scroller {
 		position: relative;
 		contain: size layout;
 		overflow: auto;
@@ -61,9 +61,8 @@ export class List extends TailwindElement(css`
 	fill: SchmancySurfaceFill = 'auto'
 
 	/**
-	 * When set to true, the component renders its surface with scrollable behavior.
-	 * This is achieved by conditionally applying the 'scroller' CSS class to the
-	 * `<schmancy-surface>` element.
+	 * When set to true, the component renders its list content with scrollable behavior.
+	 * This is achieved by conditionally adding the 'scroller' CSS class to the <ul> element.
 	 *
 	 * @attr scroller
 	 * @type {boolean}
@@ -84,23 +83,15 @@ export class List extends TailwindElement(css`
 
 	/**
 	 * Renders the component's template.
-	 * The list content is wrapped inside a `<schmancy-surface>` element to apply consistent styling.
+	 * The list content is wrapped inside a `<schmancy-surface>` element for consistent styling.
+	 * The <ul> element conditionally receives the "scroller" class based on the `scroller` property.
 	 *
 	 * @returns The HTML template for the component.
 	 */
 	render() {
-		const surfaceClasses = {
-			scroller: this.scroller,
-		}
-
 		return html`
-			<schmancy-surface
-				class=${classMap(surfaceClasses)}
-				.elevation=${this.elevation}
-				.fill=${this.fill}
-				type=${this.surface}
-			>
-				<ul>
+			<schmancy-surface .elevation=${this.elevation} .fill=${this.fill} type=${this.surface}>
+				<ul class=${classMap({ scroller: this.scroller })}>
 					<slot></slot>
 				</ul>
 			</schmancy-surface>
