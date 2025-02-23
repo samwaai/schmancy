@@ -31,7 +31,7 @@ jobs:
           corepack prepare yarn@4.6.0 --activate
 
       - name: Bump package version
-        run: yarn version --no-git-tag-version patch
+        run: yarn version patch # Or use semantic-release!
 
       - name: Install dependencies
         run: yarn install
@@ -43,7 +43,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add package.json
+          git add .
           git commit -m "ci: bump package version [skip ci]"
           VERSION=$(node -p "require('./package.json').version")
           git tag -a "v$VERSION" -m "Release v$VERSION"
