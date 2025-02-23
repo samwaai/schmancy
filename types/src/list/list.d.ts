@@ -6,7 +6,7 @@ declare const List_base: import("@mixins/index").Constructor<CustomElementConstr
  *
  * A list component that wraps its content within a customizable surface.
  * It allows you to set the surface type and fill style, and can optionally
- * enable scrolling behavior using the `scroller` property.
+ * enable scrolling behavior by delegating the scroller attribute to the surface.
  *
  * @element schmancy-list
  * @slot - The default slot for list items.
@@ -35,8 +35,8 @@ export declare class List extends List_base {
      */
     fill: SchmancySurfaceFill;
     /**
-     * When set to true, the component renders its list content with scrollable behavior.
-     * This is achieved by conditionally adding the 'scroller' CSS class to the <ul> element.
+     * When set to true, the surface component will handle scrolling behavior.
+     * This is achieved by passing the boolean attribute to <schmancy-surface>.
      *
      * @attr scroller
      * @type {boolean}
@@ -53,8 +53,9 @@ export declare class List extends List_base {
     elevation: 0 | 1 | 2 | 3 | 4 | 5;
     /**
      * Renders the component's template.
-     * The list content is wrapped inside a `<schmancy-surface>` element for consistent styling.
-     * The <ul> element conditionally receives the "scroller" class based on the `scroller` property.
+     * The list content is wrapped inside a `<schmancy-surface>` element.
+     * The scroller property is delegated to the surface so that it controls
+     * the scrollable behavior.
      *
      * @returns The HTML template for the component.
      */

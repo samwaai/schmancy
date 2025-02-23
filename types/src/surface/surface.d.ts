@@ -18,7 +18,7 @@ declare const SchmancySurface_base: import("../../mixins").Constructor<CustomEle
  * @slot - Default slot for projecting child elements.
  *
  * @example
- * <schmancy-surface fill="all" rounded="all" elevation="3" surface="surfaceBright">
+ * <schmancy-surface fill="all" rounded="all" elevation="3" surface="surfaceBright" scroller>
  *   <p>Your content here</p>
  * </schmancy-surface>
  */
@@ -66,6 +66,14 @@ export declare class SchmancySurface extends SchmancySurface_base {
      * @default 0
      */
     elevation: 0 | 1 | 2 | 3 | 4 | 5;
+    /**
+     * When set to true, the surface becomes scrollable.
+     *
+     * @attr scroller
+     * @type {boolean}
+     * @default false
+     */
+    scroller: boolean;
     /**
      * Renders the component's template.
      *
