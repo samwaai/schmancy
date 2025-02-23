@@ -4,6 +4,7 @@ import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { SchmancyListTypeContext } from './context'
+import { SchmancySurfaceFill } from '@schmancy/surface'
 
 /**
  * @slot - The default slot.
@@ -26,9 +27,12 @@ export class List extends TailwindElement(css`
 	@property()
 	surface: TSurfaceColor
 
+	@property({ type: String, reflect: true })
+	fill: SchmancySurfaceFill = 'auto'
+
 	render() {
 		return html`
-			<schmancy-surface type=${this.surface}>
+			<schmancy-surface .fill=${this.fill} type=${this.surface}>
 				<ul>
 					<slot></slot>
 				</ul>
