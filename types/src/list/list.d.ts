@@ -12,9 +12,8 @@ declare const List_base: import("@mixins/index").Constructor<CustomElementConstr
  * @slot - The default slot for list items.
  *
  * @example
- * <schmancy-list surface="primary" fill="solid" scroller>
- *   <li>List Item 1</li>
- *   <li>List Item 2</li>
+ * <schmancy-list surface="container" scroller>
+ *   <schmancy-list-item>List Item 1</schmancy-list-item>
  * </schmancy-list>
  */
 export declare class List extends List_base {
