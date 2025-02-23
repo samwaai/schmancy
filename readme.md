@@ -11,11 +11,16 @@ Schmancy is a UI library built as web components, designed to provide a collecti
 
 ## Installation
 
-To install Schmancy, use npm:
-
+To install Schmancy
+use yarn:
+```bash
+yarn add @mhmo91/schmancy
+```
+use npm:
 ```bash
 npm install @mhmo91/schmancy
 ```
+
 
 Alternatively, if you're using Yarn:
 
