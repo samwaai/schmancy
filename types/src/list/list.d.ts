@@ -35,8 +35,9 @@ export declare class List extends List_base {
      */
     fill: SchmancySurfaceFill;
     /**
-     * When set to true, the component is rendered with scrollable behavior.
-     * This is achieved by toggling the 'scroller' CSS class.
+     * When set to true, the component renders its surface with scrollable behavior.
+     * This is achieved by conditionally applying the 'scroller' CSS class to the
+     * `<schmancy-surface>` element.
      *
      * @attr scroller
      * @type {boolean}
@@ -51,13 +52,6 @@ export declare class List extends List_base {
      * @default 0
      */
     elevation: 0 | 1 | 2 | 3 | 4 | 5;
-    /**
-     * Lifecycle method called when component properties are updated.
-     * Monitors changes to the `scroller` property and toggles the corresponding CSS class.
-     *
-     * @param changedProperties A map of the properties that have changed.
-     */
-    updated(changedProperties: Map<string | number | symbol, unknown>): void;
     /**
      * Renders the component's template.
      * The list content is wrapped inside a `<schmancy-surface>` element to apply consistent styling.
