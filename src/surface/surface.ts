@@ -92,7 +92,7 @@ export class SchmancySurface extends TailwindElement(css`
 	 * @attr elevation
 	 * @default 0
 	 */
-	@property({ type: Number }) elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
+	@property({ type: Number, reflect: true }) elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
 
 	/**
 	 * Renders the component's template.
