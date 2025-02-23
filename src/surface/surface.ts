@@ -25,7 +25,7 @@ export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto'
  * @slot - Default slot for projecting child elements.
  *
  * @example
- * <schmancy-surface fill="all" rounded="all" elevation="3" surface="surfaceBright">
+ * <schmancy-surface fill="all" rounded="all" elevation="3" surface="surfaceBright" scroller>
  *   <p>Your content here</p>
  * </schmancy-surface>
  */
@@ -43,6 +43,12 @@ export class SchmancySurface extends TailwindElement(css`
 	}
 	:host {
 		display: block;
+	}
+	/* When the scroller attribute is present, enable scrolling behavior */
+	:host([scroller]) {
+		overflow: auto;
+		scroll-behavior: smooth;
+		position: relative;
 	}
 `) {
 	/**
@@ -93,6 +99,15 @@ export class SchmancySurface extends TailwindElement(css`
 	 * @default 0
 	 */
 	@property({ type: Number, reflect: true }) elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
+
+	/**
+	 * When set to true, the surface becomes scrollable.
+	 *
+	 * @attr scroller
+	 * @type {boolean}
+	 * @default false
+	 */
+	@property({ type: Boolean, reflect: true }) scroller: boolean = false
 
 	/**
 	 * Renders the component's template.

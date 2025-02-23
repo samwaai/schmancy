@@ -4,7 +4,6 @@ import { SchmancySurfaceFill } from '@schmancy/surface'
 import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { SchmancyListTypeContext } from './context'
 
 /**
@@ -12,7 +11,7 @@ import { SchmancyListTypeContext } from './context'
  *
  * A list component that wraps its content within a customizable surface.
  * It allows you to set the surface type and fill style, and can optionally
- * enable scrolling behavior using the `scroller` property.
+ * enable scrolling behavior by delegating the scroller attribute to the surface.
  *
  * @element schmancy-list
  * @slot - The default slot for list items.
@@ -28,14 +27,6 @@ export class List extends TailwindElement(css`
 		display: block;
 		padding-top: 8px;
 		padding-bottom: 8px;
-	}
-
-	/* When the ul element has the "scroller" class, apply scrolling behavior */
-	ul.scroller {
-		position: relative;
-		contain: size layout;
-		overflow: auto;
-		scroll-behavior: smooth;
 	}
 `) {
 	/**
@@ -61,8 +52,8 @@ export class List extends TailwindElement(css`
 	fill: SchmancySurfaceFill = 'auto'
 
 	/**
-	 * When set to true, the component renders its list content with scrollable behavior.
-	 * This is achieved by conditionally adding the 'scroller' CSS class to the <ul> element.
+	 * When set to true, the surface component will handle scrolling behavior.
+	 * This is achieved by passing the boolean attribute to <schmancy-surface>.
 	 *
 	 * @attr scroller
 	 * @type {boolean}
@@ -83,15 +74,16 @@ export class List extends TailwindElement(css`
 
 	/**
 	 * Renders the component's template.
-	 * The list content is wrapped inside a `<schmancy-surface>` element for consistent styling.
-	 * The <ul> element conditionally receives the "scroller" class based on the `scroller` property.
+	 * The list content is wrapped inside a `<schmancy-surface>` element.
+	 * The scroller property is delegated to the surface so that it controls
+	 * the scrollable behavior.
 	 *
 	 * @returns The HTML template for the component.
 	 */
 	render() {
 		return html`
-			<schmancy-surface .elevation=${this.elevation} .fill=${this.fill} type=${this.surface}>
-				<ul class=${classMap({ scroller: this.scroller })}>
+			<schmancy-surface .elevation=${this.elevation} .fill=${this.fill} type=${this.surface} ?scroller=${this.scroller}>
+				<ul>
 					<slot></slot>
 				</ul>
 			</schmancy-surface>
