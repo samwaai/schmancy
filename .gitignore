@@ -40,5 +40,8 @@ Thumbs.db
 *.sln
 *.sw?
 
-# Local deployment folders (e.g., Netlify)
-.netlify/
+
+.pnp.*
+.yarn/cache
+node_modules/  # In the root .gitignore
+functions/node_modules/ # This is also important.

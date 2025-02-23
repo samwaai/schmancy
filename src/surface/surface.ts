@@ -123,7 +123,7 @@ export class SchmancySurface extends TailwindElement(css`
 			'shadow-sm': this.elevation === 2,
 			'shadow-md': this.elevation === 3,
 			'shadow-lg': this.elevation === 4,
-			'shadow-xl': this.elevation === 5, // Added for elevation level 5
+			'shadow-xl': this.elevation === 5,
 			// Text color based on the surface variant for optimal readability
 			'text-surface-on':
 				this.type === 'surface' ||

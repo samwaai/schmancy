@@ -414,7 +414,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lit-labs/motion@npm:^1.0.7":
+"@lit-labs/motion@npm:^1.0.8":
   version: 1.0.8
   resolution: "@lit-labs/motion@npm:1.0.8"
   dependencies:
@@ -430,7 +430,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lit-labs/virtualizer@npm:^2.0.15":
+"@lit-labs/virtualizer@npm:^2.1.0":
   version: 2.1.0
   resolution: "@lit-labs/virtualizer@npm:2.1.0"
   dependencies:
@@ -440,7 +440,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lit/context@npm:^1.1.3":
+"@lit/context@npm:^1.1.4":
   version: 1.1.4
   resolution: "@lit/context@npm:1.1.4"
   dependencies:
@@ -981,9 +981,9 @@ __metadata:
   resolution: "@mhmo91/schmancy@workspace:."
   dependencies:
     "@floating-ui/dom": "npm:^1.6.13"
-    "@lit-labs/motion": "npm:^1.0.7"
-    "@lit-labs/virtualizer": "npm:^2.0.15"
-    "@lit/context": "npm:^1.1.3"
+    "@lit-labs/motion": "npm:^1.0.8"
+    "@lit-labs/virtualizer": "npm:^2.1.0"
+    "@lit/context": "npm:^1.1.4"
     "@material/material-color-utilities": "npm:^0.3.0"
     "@material/web": "npm:^2.2.0"
     "@rollup/plugin-strip": "npm:^3.0.4"
@@ -991,33 +991,33 @@ __metadata:
     "@tailwindcss/container-queries": "npm:^0.1.1"
     "@tailwindcss/forms": "npm:^0.5.10"
     "@tailwindcss/nesting": "npm:^0.0.0-insiders.565cd3e"
-    "@tailwindcss/postcss": "npm:^4.0.5"
-    "@tailwindcss/vite": "npm:^4.0.5"
+    "@tailwindcss/postcss": "npm:^4.0.8"
+    "@tailwindcss/vite": "npm:^4.0.8"
     "@types/cleave.js": "npm:^1.4.12"
-    "@types/node": "npm:^22.13.1"
+    "@types/node": "npm:^22.13.5"
     "@types/uuid": "npm:^10.0.0"
-    "@typescript-eslint/parser": "npm:^8.23.0"
+    "@typescript-eslint/parser": "npm:^8.24.1"
     autoprefixer: "npm:^10.4.20"
     cleave.js: "npm:^1.6.0"
     deepmerge: "npm:^4.3.1"
-    eslint: "npm:^9.20.0"
+    eslint: "npm:^9.21.0"
     fastest-levenshtein: "npm:^1.0.16"
     lit: "npm:^3.2.1"
     moment: "npm:^2.30.1"
     npm-check-updates: "npm:^17.1.14"
     playground-elements: "npm:^0.19.1"
-    postcss: "npm:^8.5.1"
-    prettier: "npm:^3.5.0"
+    postcss: "npm:^8.5.3"
+    prettier: "npm:^3.5.2"
     rollup-plugin-copy: "npm:^3.5.0"
     rxjs: "npm:latest"
-    sass: "npm:^1.84.0"
-    tailwindcss: "npm:^4.0.5"
+    sass: "npm:^1.85.0"
+    tailwindcss: "npm:^4.0.8"
     tippy.js: "npm:^6.3.7"
     ts-is-present: "npm:^1.2.2"
     typeit: "npm:^8.8.7"
     typescript: "npm:^5.7.3"
-    uuid: "npm:^11.0.5"
-    vite: "npm:^6.1.0"
+    uuid: "npm:^11.1.0"
+    vite: "npm:^6.1.1"
     vite-plugin-sitemap: "npm:^0.7.1"
     vite-plugin-webfont-dl: "npm:^3.10.4"
     web-component-analyzer: "npm:^2.0.0"
@@ -1576,7 +1576,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/postcss@npm:^4.0.5":
+"@tailwindcss/postcss@npm:^4.0.8":
   version: 4.0.8
   resolution: "@tailwindcss/postcss@npm:4.0.8"
   dependencies:
@@ -1590,7 +1590,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tailwindcss/vite@npm:^4.0.5":
+"@tailwindcss/vite@npm:^4.0.8":
   version: 4.0.8
   resolution: "@tailwindcss/vite@npm:4.0.8"
   dependencies:
@@ -1662,7 +1662,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.13.1":
+"@types/node@npm:*, @types/node@npm:^22.13.5":
   version: 22.13.5
   resolution: "@types/node@npm:22.13.5"
   dependencies:
@@ -1710,7 +1710,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^8.23.0":
+"@typescript-eslint/parser@npm:^8.24.1":
   version: 8.24.1
   resolution: "@typescript-eslint/parser@npm:8.24.1"
   dependencies:
@@ -2437,7 +2437,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^9.20.0":
+"eslint@npm:^9.21.0":
   version: 9.21.0
   resolution: "eslint@npm:9.21.0"
   dependencies:
@@ -3808,7 +3808,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.41, postcss@npm:^8.5.1, postcss@npm:^8.5.2":
+"postcss@npm:^8.4.41, postcss@npm:^8.5.2, postcss@npm:^8.5.3":
   version: 8.5.3
   resolution: "postcss@npm:8.5.3"
   dependencies:
@@ -3826,7 +3826,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.5.0":
+"prettier@npm:^3.5.2":
   version: 3.5.2
   resolution: "prettier@npm:3.5.2"
   bin:
@@ -4045,7 +4045,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.84.0":
+"sass@npm:^1.85.0":
   version: 1.85.0
   resolution: "sass@npm:1.85.0"
   dependencies:
@@ -4241,7 +4241,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:4.0.8, tailwindcss@npm:^4.0.5":
+"tailwindcss@npm:4.0.8, tailwindcss@npm:^4.0.8":
   version: 4.0.8
   resolution: "tailwindcss@npm:4.0.8"
   checksum: 10c0/4e7656792405fe085f788510139e37a4cd2d904c620ad90222f541f3227a64885e3423413f4748870d3480253b0f50c3ddafd70bc3acd9ec33f494c12e6278aa
@@ -4451,7 +4451,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^11.0.5":
+"uuid@npm:^11.1.0":
   version: 11.1.0
   resolution: "uuid@npm:11.1.0"
   bin:
@@ -4481,7 +4481,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.1.0":
+"vite@npm:^6.1.1":
   version: 6.1.1
   resolution: "vite@npm:6.1.1"
   dependencies:

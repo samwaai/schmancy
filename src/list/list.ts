@@ -4,6 +4,7 @@ import { SchmancySurfaceFill } from '@schmancy/surface'
 import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js'
 import { SchmancyListTypeContext } from './context'
 
 /**
@@ -29,11 +30,12 @@ export class List extends TailwindElement(css`
 		padding-bottom: 8px;
 	}
 
-	:host(.scroller) {
+	/* Apply scrolling behavior to the surface element when it has the "scroller" class */
+	:host schmancy-surface.scroller {
 		position: relative;
 		contain: size layout;
 		overflow: auto;
-		scroll-behavior: smooth; /* Additional scroll-related styles can be added here */
+		scroll-behavior: smooth;
 	}
 `) {
 	/**
@@ -59,15 +61,16 @@ export class List extends TailwindElement(css`
 	fill: SchmancySurfaceFill = 'auto'
 
 	/**
-	 * When set to true, the component is rendered with scrollable behavior.
-	 * This is achieved by toggling the 'scroller' CSS class.
+	 * When set to true, the component renders its surface with scrollable behavior.
+	 * This is achieved by conditionally applying the 'scroller' CSS class to the
+	 * `<schmancy-surface>` element.
 	 *
 	 * @attr scroller
 	 * @type {boolean}
 	 * @default false
 	 */
 	@property({ type: Boolean, reflect: true })
-	scroller: boolean = false // New property: 'scroller'
+	scroller: boolean = false
 
 	/**
 	 * Defines the elevation level of the surface.
@@ -78,21 +81,6 @@ export class List extends TailwindElement(css`
 	 */
 	@property({ type: Number })
 	elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
-	/**
-	 * Lifecycle method called when component properties are updated.
-	 * Monitors changes to the `scroller` property and toggles the corresponding CSS class.
-	 *
-	 * @param changedProperties A map of the properties that have changed.
-	 */
-	updated(changedProperties: Map<string | number | symbol, unknown>): void {
-		if (changedProperties.has('scroller')) {
-			if (this.scroller) {
-				this.classList.add('scroller') // Add the 'scroller' class for scrollable behavior.
-			} else {
-				this.classList.remove('scroller') // Remove the 'scroller' class.
-			}
-		}
-	}
 
 	/**
 	 * Renders the component's template.
@@ -101,8 +89,17 @@ export class List extends TailwindElement(css`
 	 * @returns The HTML template for the component.
 	 */
 	render() {
+		const surfaceClasses = {
+			scroller: this.scroller,
+		}
+
 		return html`
-			<schmancy-surface .elevation=${this.elevation} .fill=${this.fill} type=${this.surface}>
+			<schmancy-surface
+				class=${classMap(surfaceClasses)}
+				.elevation=${this.elevation}
+				.fill=${this.fill}
+				type=${this.surface}
+			>
 				<ul>
 					<slot></slot>
 				</ul>
