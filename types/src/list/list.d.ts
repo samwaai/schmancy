@@ -35,9 +35,8 @@ export declare class List extends List_base {
      */
     fill: SchmancySurfaceFill;
     /**
-     * When set to true, the component renders its surface with scrollable behavior.
-     * This is achieved by conditionally applying the 'scroller' CSS class to the
-     * `<schmancy-surface>` element.
+     * When set to true, the component renders its list content with scrollable behavior.
+     * This is achieved by conditionally adding the 'scroller' CSS class to the <ul> element.
      *
      * @attr scroller
      * @type {boolean}
@@ -54,7 +53,8 @@ export declare class List extends List_base {
     elevation: 0 | 1 | 2 | 3 | 4 | 5;
     /**
      * Renders the component's template.
-     * The list content is wrapped inside a `<schmancy-surface>` element to apply consistent styling.
+     * The list content is wrapped inside a `<schmancy-surface>` element for consistent styling.
+     * The <ul> element conditionally receives the "scroller" class based on the `scroller` property.
      *
      * @returns The HTML template for the component.
      */
