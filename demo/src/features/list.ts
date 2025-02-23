@@ -12,7 +12,7 @@ export class DemoList extends $LitElement(css`
 		return html`
 			<schmancy-grid gap="md">
 				<schmancy-typography type="title">Standard list items</schmancy-typography>
-				<schmancy-list class="rounded-full">
+				<schmancy-list surface="surfaceDim" class="rounded-full">
 					<schmancy-list-item>
 						<schmancy-icon>book_online</schmancy-icon>
 
