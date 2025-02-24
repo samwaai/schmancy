@@ -1,12 +1,13 @@
 import { createContext, provide } from '@lit/context'
-import { TSurfaceColor } from '@mhmo91/schmancy'
 import { TailwindElement } from '@mhmo91/schmancy/dist/mixins'
+import { TSurfaceColor } from '@schmancy/types'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js' // Import classMap
 
 export const SchmancySurfaceTypeContext = createContext<TSurfaceColor>('surface')
 
+export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto'
 /**
  * `<schmancy-surface>` component
  *
@@ -64,15 +65,7 @@ export class SchmancySurface extends TailwindElement(css`
 	 */
 	@provide({ context: SchmancySurfaceTypeContext })
 	@property()
-	type:
-		| 'surface'
-		| 'surfaceDim'
-		| 'surfaceBright'
-		| 'containerLowest'
-		| 'containerLow'
-		| 'container'
-		| 'containerHigh'
-		| 'containerHighest' = 'surface'
+	type: TSurfaceColor = 'surface'
 
 	/**
 	 * Defines the elevation level (shadow depth) of the surface.
