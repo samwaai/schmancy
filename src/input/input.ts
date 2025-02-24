@@ -402,7 +402,7 @@ export default class SchmancyInput extends TailwindElement() {
 				`,
 			)}
 
-			<form @submit=${(e: Event) => e.preventDefault()} .autocomplete=${this.autocomplete === 'off' ? 'off' : 'on'}>
+			<form .autocomplete=${this.autocomplete === 'off' ? 'off' : 'on'}>
 				<input
 					${color({
 						bgColor: SchmancyTheme.sys.color.surface.highest,
