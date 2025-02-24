@@ -30,14 +30,24 @@ jobs:
           corepack enable
           corepack prepare yarn@4.6.0 --activate
 
-      - name: Bump package version
-        run: yarn version patch # Or use semantic-release!
-
       - name: Install dependencies
         run: yarn install
 
       - name: Build project
         run: yarn build
+
+      - name: Authenticate with npm
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to npm
+        run: npm publish --access public # Ensure --access public is present
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Bump package version
+        run: yarn version patch # Or use semantic-release!
 
       - name: Commit bumped version and Tag
         run: |
@@ -50,13 +60,3 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push origin --tags
           git push
-
-      - name: Authenticate with npm
-        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish to npm
-        run: npm publish --access public # Ensure --access public is present
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
