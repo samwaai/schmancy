@@ -35,15 +35,6 @@ export declare class List extends List_base {
      */
     fill: SchmancySurfaceFill;
     /**
-     * When set to true, the surface component will handle scrolling behavior.
-     * This is achieved by passing the boolean attribute to <schmancy-surface>.
-     *
-     * @attr scroller
-     * @type {boolean}
-     * @default false
-     */
-    scroller: boolean;
-    /**
      * Defines the elevation level of the surface.
      *
      * @attr elevation

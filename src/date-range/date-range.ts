@@ -186,7 +186,6 @@ export default class SchmancyDateRange extends $LitElement() {
 		const { dateFrom, dateTo } = preset.range
 		this.setDateRange(dateFrom, dateTo)
 		this.selectedDateRange = label
-		this.schmancyMenu.open = false
 	}
 
 	/**
@@ -217,7 +216,6 @@ export default class SchmancyDateRange extends $LitElement() {
 		event.stopPropagation() // Prevent click from bubbling to the schmancy-button
 		this.setDateRange(this.dateFrom.value, this.dateTo.value)
 		this.updateSelectedDateRange()
-		this.schmancyMenu.open = false
 	}
 
 	render() {
@@ -242,7 +240,7 @@ export default class SchmancyDateRange extends $LitElement() {
 						variant="outlined"
 						type="button"
 						aria-haspopup="menu"
-						.ariaExpanded=${String(this.schmancyMenu?.open || false)}
+						.ariaExpanded=${String(false)}
 					>
 						${this.selectedDateRange || 'Date range'}
 					</schmancy-button>
