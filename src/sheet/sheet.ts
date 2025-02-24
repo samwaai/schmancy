@@ -1,7 +1,7 @@
 import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
-import { when } from 'lit/directives/when'
+import { when } from 'lit/directives/when.js'
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'
 import { on } from './hook'
 import style from './sheet.scss?inline'

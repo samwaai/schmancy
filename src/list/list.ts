@@ -52,17 +52,6 @@ export class List extends TailwindElement(css`
 	fill: SchmancySurfaceFill = 'auto'
 
 	/**
-	 * When set to true, the surface component will handle scrolling behavior.
-	 * This is achieved by passing the boolean attribute to <schmancy-surface>.
-	 *
-	 * @attr scroller
-	 * @type {boolean}
-	 * @default false
-	 */
-	@property({ type: Boolean, reflect: true })
-	scroller: boolean = false
-
-	/**
 	 * Defines the elevation level of the surface.
 	 *
 	 * @attr elevation
@@ -82,7 +71,7 @@ export class List extends TailwindElement(css`
 	 */
 	render() {
 		return html`
-			<schmancy-surface .elevation=${this.elevation} .fill=${this.fill} type=${this.surface} ?scroller=${this.scroller}>
+			<schmancy-surface .elevation=${this.elevation} .fill=${this.fill} type=${this.surface}>
 				<ul>
 					<slot></slot>
 				</ul>

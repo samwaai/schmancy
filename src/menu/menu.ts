@@ -1,8 +1,8 @@
-import { computePosition, flip, offset, shift, size } from '@floating-ui/dom'
+import { autoUpdate, computePosition, flip, offset, shift, size } from '@floating-ui/dom'
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
-import { customElement, query, queryAssignedElements, state } from 'lit/decorators.js'
-import { filter, from, fromEvent, switchMap, takeUntil, tap } from 'rxjs'
+import { customElement, query, queryAssignedElements } from 'lit/decorators.js'
+import { filter, fromEvent, takeUntil, tap } from 'rxjs'
 
 @customElement('schmancy-menu')
 export default class SchmancyMenu extends TailwindElement(css`
@@ -10,20 +10,69 @@ export default class SchmancyMenu extends TailwindElement(css`
 		position: relative;
 		display: inline-block;
 	}
-`) {
-	@state() open = false
 
+	#menu {
+		display: none;
+	}
+
+	#menu[data-show='true'] {
+		display: block;
+	}
+`) {
 	@queryAssignedElements({ flatten: true, slot: 'button' })
 	buttonElement!: Array<HTMLElement>
 
-	// The element to be positioned by Floating UI remains identified by the id "menu"
 	@query('#menu') menuElement!: HTMLElement
 
-	openMenu() {
-		this.open = true
-		this.positionMenu()
+	private cleanup?: any
 
-		// Approx. "easeInQuad" with a cubic-bezier:
+	private getMiddleware() {
+		return [
+			offset(5),
+			flip(),
+			shift({ padding: 5 }),
+			size({
+				apply({ availableHeight, elements }) {
+					elements.floating.style.maxHeight = `${availableHeight}px`
+				},
+			}),
+		]
+	}
+
+	async updatePosition() {
+		if (!this.buttonElement[0] || !this.menuElement) {
+			return
+		}
+
+		await computePosition(this.buttonElement[0], this.menuElement, {
+			placement: 'bottom-start',
+			middleware: this.getMiddleware(),
+		}).then(({ x, y }) => {
+			Object.assign(this.menuElement.style, {
+				left: `${x}px`,
+				top: `${y}px`,
+			})
+		})
+	}
+
+	private showMenu() {
+		if (!this.buttonElement[0] || !this.menuElement) return
+
+		this.menuElement.dataset.show = 'true'
+
+		this.cleanup = autoUpdate(this.buttonElement[0], this.menuElement, () => {
+			computePosition(this.buttonElement[0], this.menuElement, {
+				placement: 'bottom-start',
+				middleware: this.getMiddleware(),
+			}).then(({ x, y, strategy }) => {
+				Object.assign(this.menuElement.style, {
+					left: `${x}px`,
+					top: `${y}px`,
+					position: strategy,
+				})
+			})
+		})
+
 		const animation = this.menuElement.animate(
 			[
 				{ opacity: 0, transform: 'scale(0.95)' },
@@ -35,16 +84,16 @@ export default class SchmancyMenu extends TailwindElement(css`
 			},
 		)
 
-		return new Promise<void>(resolve => {
-			animation.onfinish = () => resolve()
-		})
+		animation.onfinish = () => {}
 	}
 
-	closeMenu(e?: Event) {
-		if (e && e instanceof Event) {
-			e.preventDefault()
-			e.stopPropagation()
+	private async hideMenu() {
+		// Make hideMenu async
+		if (this.cleanup) {
+			await this.cleanup() // Await the cleanup!
+			this.cleanup = undefined
 		}
+		this.menuElement.dataset.show = 'false'
 
 		const animation = this.menuElement.animate(
 			[
@@ -56,72 +105,35 @@ export default class SchmancyMenu extends TailwindElement(css`
 				easing: 'cubic-bezier(0.55, 0.085, 0.68, 0.53)',
 			},
 		)
-
-		return new Promise<void>(resolve => {
-			animation.onfinish = () => {
-				this.open = false
-				resolve()
-			}
-		})
+		animation.onfinish = () => {} // No need for a promise now
 	}
 
-	async positionMenu() {
-		if (this.buttonElement.length && this.menuElement) {
-			const { x, y } = await computePosition(this.buttonElement[0], this.menuElement, {
-				placement: 'bottom-start',
-				middleware: [
-					offset(5),
-					flip(),
-					shift({ padding: 5 }),
-					// Use size() to set the maxHeight based on available viewport space
-					size({
-						apply({ availableHeight, elements }) {
-							// Limit the menu’s maximum height to the available height on the viewport
-							elements.floating.style.maxHeight = `${availableHeight}px`
-						},
-					}),
-				],
-			})
-
-			Object.assign(this.menuElement.style, {
-				left: `${x}px`,
-				top: `${y}px`,
-				position: 'absolute',
-			})
-		}
-	}
-
-	protected firstUpdated(): void {
-		// When the button is clicked, open the menu
+	firstUpdated(): void {
 		fromEvent(this.buttonElement, 'click')
 			.pipe(
 				tap(e => e.stopPropagation()),
 				takeUntil(this.disconnecting),
-				switchMap(() => from(this.openMenu())),
 			)
-			.subscribe()
+			.subscribe(() => {
+				this.showMenu()
+			})
 
-		// When an item inside the menu is clicked, close the menu
 		fromEvent(this, 'schmancy-menu-item-click')
 			.pipe(
 				tap(e => e.stopPropagation()),
 				takeUntil(this.disconnecting),
-				switchMap(() => from(this.closeMenu())),
 			)
-			.subscribe()
+			.subscribe(() => {
+				this.hideMenu()
+			})
 
-		// When clicking anywhere outside of this component, close the menu
 		fromEvent(document, 'click')
 			.pipe(
-				// Only proceed if the click target is not inside this component
-				filter((e: Event) => {
-					const path = e.composedPath()
-					return !path.includes(this)
-				}),
+				filter((e: Event) => !this.contains(e.target as Node)),
 				takeUntil(this.disconnecting),
 				tap(() => {
-					if (this.open) {
-						this.closeMenu()
+					if (this.menuElement.dataset.show === 'true') {
+						this.hideMenu()
 					}
 				}),
 			)
@@ -131,11 +143,10 @@ export default class SchmancyMenu extends TailwindElement(css`
 	render() {
 		return html`
 			<slot name="button">
-				<schmancy-icon-button> more_vert</schmancy-icon-button>
+				<schmancy-icon-button> more_vert </schmancy-icon-button>
 			</slot>
 			<ul
 				id="menu"
-				.hidden=${!this.open}
 				class="absolute z-50 border-outlineVariant rounded-md min-w-[160px] max-w-[320px] w-max bg-surface-default max-h-[90vh] shadow-1 overflow-y-auto"
 				role="menu"
 				aria-orientation="vertical"
