@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'src/**' # Trigger only on changes in this directory
+      - 'mixins/**' # Trigger only on changes in this directory
 
 permissions:
   contents: write
@@ -41,13 +44,13 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Bump package version
+        run: yarn version patch # Or use semantic-release!
+
       - name: Publish to npm
         run: npm publish --access public # Ensure --access public is present
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Bump package version
-        run: yarn version patch # Or use semantic-release!
 
       - name: Commit bumped version and Tag
         run: |
