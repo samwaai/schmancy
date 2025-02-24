@@ -180,11 +180,6 @@ export default class SchmancyDateRange extends $LitElement() {
 			}
 		}
 	}
-
-	/**
-	 * Called when user selects a preset from the list.
-	 * Updates date range and closes the menu.
-	 */
 	private handlePresetChange(label: string) {
 		const preset = this.presetRanges.find(range => range.label === label)
 		if (!preset) return
@@ -195,20 +190,12 @@ export default class SchmancyDateRange extends $LitElement() {
 	}
 
 	/**
-	 * Applies the date range from the inputs.
-	 * Closes the menu when done.
-	 */
-	private handleDateRangeChange() {
-		this.setDateRange(this.dateFrom.value, this.dateTo.value)
-		this.updateSelectedDateRange()
-		this.schmancyMenu.open = false
-	}
-
-	/**
 	 * Shift the current date range forward or backward by the same number of days.
 	 * If the range is 7 days wide, shift 7 days, etc.
 	 */
-	private shiftDateRange(factor: number) {
+	private shiftDateRange(factor: number, event: Event) {
+		event.stopPropagation() // Prevent click from bubbling to the schmancy-button
+
 		const format = this.getDateFormat()
 		const currentDiff = moment(this.dateTo.value).diff(moment(this.dateFrom.value), 'days') || 1
 		const newDateFrom = moment(this.dateFrom.value)
@@ -222,6 +209,17 @@ export default class SchmancyDateRange extends $LitElement() {
 		this.updateSelectedDateRange()
 	}
 
+	/**
+	 * Applies the date range from the inputs.
+	 * Closes the menu when done.
+	 */
+	private handleDateRangeChange(event: Event) {
+		event.stopPropagation() // Prevent click from bubbling to the schmancy-button
+		this.setDateRange(this.dateFrom.value, this.dateTo.value)
+		this.updateSelectedDateRange()
+		this.schmancyMenu.open = false
+	}
+
 	render() {
 		return html`
 			<!-- schmancy-menu typically provides a slot="button" for the trigger,
@@ -233,8 +231,7 @@ export default class SchmancyDateRange extends $LitElement() {
 						type="button"
 						aria-label="Shift date range backward"
 						@click=${(e: Event) => {
-							e.preventDefault()
-							this.shiftDateRange(-1)
+							this.shiftDateRange(-1, e) // Pass the event
 						}}
 					>
 						arrow_left
@@ -254,8 +251,7 @@ export default class SchmancyDateRange extends $LitElement() {
 						type="button"
 						aria-label="Shift date range forward"
 						@click=${(e: Event) => {
-							e.preventDefault()
-							this.shiftDateRange(1)
+							this.shiftDateRange(1, e) // Pass the event
 						}}
 					>
 						arrow_right
@@ -310,9 +306,7 @@ export default class SchmancyDateRange extends $LitElement() {
 						type="button"
 						variant="outlined"
 						@click=${(e: Event) => {
-							e.preventDefault()
-							e.stopPropagation()
-							this.handleDateRangeChange()
+							this.handleDateRangeChange(e)
 						}}
 					>
 						Apply
