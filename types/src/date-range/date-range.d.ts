@@ -48,21 +48,17 @@ export default class SchmancyDateRange extends SchmancyDateRange_base {
      * Otherwise display a "Custom" range: "Jan 01, 2023 - Jan 07, 2023".
      */
     private updateSelectedDateRange;
-    /**
-     * Called when user selects a preset from the list.
-     * Updates date range and closes the menu.
-     */
     private handlePresetChange;
-    /**
-     * Applies the date range from the inputs.
-     * Closes the menu when done.
-     */
-    private handleDateRangeChange;
     /**
      * Shift the current date range forward or backward by the same number of days.
      * If the range is 7 days wide, shift 7 days, etc.
      */
     private shiftDateRange;
+    /**
+     * Applies the date range from the inputs.
+     * Closes the menu when done.
+     */
+    private handleDateRangeChange;
     render(): import("lit-html").TemplateResult<1>;
 }
 /**
