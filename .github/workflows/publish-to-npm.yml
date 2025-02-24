@@ -46,7 +46,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Bump package version
-        run: yarn version --no-git-tag-version patch
+        run: yarn version --deferred patch
       - name: Publish to npm
         run: npm publish --access public # Ensure --access public is present
         env:
