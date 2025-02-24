@@ -11,39 +11,37 @@ export default class SchmancySheetHeader extends TailwindElement() {
 			relative: this.title.length > 0,
 		}
 		return html`
-			<schmancy-surface fill="width" elevation="1">
-				<schmancy-grid class="${this.classMap(classes)}" align="center" justify="stretch" cols="auto 1fr auto">
-					<slot name="back">
-						<schmancy-button
-							@click=${() => {
-								this.dispatchEvent(
-									new CustomEvent('dismiss', {
-										bubbles: true,
-										composed: true,
-									}),
-								)
-							}}
-						>
-							<span class="text-[24px]">&#8592; </span>
-						</schmancy-button>
-					</slot>
-					<schmancy-typography transform="capitalize" type="headline" token="lg"> ${this.title} </schmancy-typography>
-					<slot name="actions">
-						<schmancy-icon-button
-							@click=${() => {
-								this.dispatchEvent(
-									new CustomEvent('dismiss', {
-										bubbles: true,
-										composed: true,
-									}),
-								)
-							}}
-						>
-							close
-						</schmancy-icon-button>
-					</slot>
-				</schmancy-grid>
-			</schmancy-surface>
+			<schmancy-grid class="${this.classMap(classes)}" align="center" justify="stretch" cols="auto 1fr auto">
+				<slot name="back">
+					<schmancy-button
+						@click=${() => {
+							this.dispatchEvent(
+								new CustomEvent('dismiss', {
+									bubbles: true,
+									composed: true,
+								}),
+							)
+						}}
+					>
+						<span class="text-[24px]">&#8592; </span>
+					</schmancy-button>
+				</slot>
+				<schmancy-typography transform="capitalize" type="headline" token="lg"> ${this.title} </schmancy-typography>
+				<slot name="actions">
+					<schmancy-icon-button
+						@click=${() => {
+							this.dispatchEvent(
+								new CustomEvent('dismiss', {
+									bubbles: true,
+									composed: true,
+								}),
+							)
+						}}
+					>
+						close
+					</schmancy-icon-button>
+				</slot>
+			</schmancy-grid>
 		`
 	}
 }
