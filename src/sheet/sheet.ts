@@ -2,6 +2,7 @@ import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'
+import { on } from './hook'
 import style from './sheet.scss?inline'
 import {
 	SchmancySheetPosition,
@@ -10,7 +11,6 @@ import {
 	SheetWhereAreYouRickyEvent,
 	sheet,
 } from './sheet.service'
-import { on } from './hook'
 
 @customElement('schmancy-sheet')
 export default class SchmancySheet extends $LitElement(style) {
@@ -136,7 +136,7 @@ export default class SchmancySheet extends $LitElement(style) {
 						if (this.allowOverlayDismiss) sheet.dismiss(this.uid)
 					}}
 				></div>
-				<section class="content w-full" data-position=${this.position}>
+				<schmancy-grid rows="auto 1fr" class="content w-full" data-position=${this.position}>
 					<schmancy-sheet-header
 						class="sticky top-0 z-50 w-full"
 						@dismiss=${(e: CustomEvent) => {
@@ -147,10 +147,10 @@ export default class SchmancySheet extends $LitElement(style) {
 						.hidden=${this.header === 'hidden'}
 						title=${this.title}
 					></schmancy-sheet-header>
-					<schmancy-surface class="overflow-auto" fill="all" type="surface">
+					<schmancy-surface rounded="left" scroller id="body" class="overflow-auto" type="surface">
 						<slot></slot>
 					</schmancy-surface>
-				</section>
+				</schmancy-grid>
 			</div>
 		`
 	}
