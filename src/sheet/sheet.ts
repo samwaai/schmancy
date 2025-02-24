@@ -148,7 +148,7 @@ export default class SchmancySheet extends $LitElement(style) {
 						title=${this.title}
 					></schmancy-sheet-header>
 					<schmancy-surface rounded="left" scroller id="body" class="overflow-auto" type="surface">
-						<slot></slot>
+						<schmancy-scroll> <slot></slot></schmancy-scroll>
 					</schmancy-surface>
 				</schmancy-grid>
 			</div>
