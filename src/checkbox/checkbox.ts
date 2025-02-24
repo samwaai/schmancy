@@ -64,7 +64,7 @@ export class SchmancyCheckbox extends TailwindElement() {
 
 	render() {
 		return html`
-			<label class="grid grid-flow-col items-center space-x-2">
+			<label class="grid grid-flow-col items-center space-x-2 w-fit">
 				<md-checkbox
 					.required=${this.required}
 					.disabled=${this.disabled}
