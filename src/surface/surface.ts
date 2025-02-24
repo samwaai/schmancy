@@ -1,5 +1,5 @@
 import { createContext, provide } from '@lit/context'
-import { TailwindElement } from '@mhmo91/schmancy/dist/mixins'
+import { TailwindElement } from '@mixins/tailwind.mixin'
 import { TSurfaceColor } from '@schmancy/types'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
