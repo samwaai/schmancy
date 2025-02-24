@@ -46,8 +46,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Bump package version
-        run: yarn version patch # Or use semantic-release!
-
+        run: yarn version --no-git-tag-version patch
       - name: Publish to npm
         run: npm publish --access public # Ensure --access public is present
         env:
