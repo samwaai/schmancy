@@ -1,32 +1,26 @@
-import { provide } from '@lit/context'
-import { TailwindElement } from '@mixins/tailwind.mixin'
-import { TSurfaceColor } from '@schmancy/types'
+import { createContext, provide } from '@lit/context'
+import { TSurfaceColor } from '@mhmo91/schmancy'
+import { TailwindElement } from '@mhmo91/schmancy/dist/mixins'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js' // Utility for conditionally applying CSS classes
-import { SchmancySurfaceTypeContext } from './context'
+import { classMap } from 'lit/directives/class-map.js' // Import classMap
+
+export const SchmancySurfaceTypeContext = createContext<TSurfaceColor>('surface')
 
 /**
- * Defines the fill options for the surface component.
- */
-export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto'
-
-/**
- * `<schmancy-surface>` component.
+ * `<schmancy-surface>` component
  *
- * This component renders a styled surface element that adapts its dimensions based on the
- * provided fill mode. It supports various rounding options, elevation levels, and applies
- * background and text color classes based on the specified surface variant.
- *
- * **Note:** The property for defining the surface variant is named `surface` and is not
- * changed to `type` to maintain API consistency.
+ * This component renders a styled container that adapts its dimensions based on the `fill` property.
+ * It supports various rounding options, elevation levels, and applies background and text color classes
+ * based on the specified surface variant. Additionally, when the `scroller` property is true, the component
+ * enables internal scrolling by applying overflow and scroll-behavior styles.
  *
  * @element schmancy-surface
- * @slot - Default slot for projecting child elements.
+ * @slot - Default slot for projecting child content.
  *
  * @example
- * <schmancy-surface fill="all" rounded="all" elevation="3" surface="surfaceBright" scroller>
- *   <p>Your content here</p>
+ * <schmancy-surface fill="all" rounded="all" elevation="3" type="surfaceBright" scroller>
+ *   <p>Your scrollable content here</p>
  * </schmancy-surface>
  */
 @customElement('schmancy-surface')
@@ -44,79 +38,50 @@ export class SchmancySurface extends TailwindElement(css`
 	:host {
 		display: block;
 	}
-	/* When the scroller attribute is present, enable scrolling behavior */
-	:host([scroller]) {
-		overflow: auto;
-		scroll-behavior: smooth;
-		position: relative;
-	}
 `) {
 	/**
-	 * Determines how the component should fill the available space.
-	 *
-	 * - `all`: Fills both width and height.
-	 * - `width`: Fills only the width.
-	 * - `height`: Fills only the height.
-	 * - `auto`: No automatic filling.
-	 *
-	 * @attr fill
+	 * Fill the width and/or height of the parent container.
+	 * Options: 'all', 'width', 'height', 'auto'.
 	 * @default 'auto'
 	 */
-	@property({ type: String, reflect: true }) fill: SchmancySurfaceFill = 'auto'
+	@property({ type: String, reflect: true })
+	fill: 'all' | 'width' | 'height' | 'auto' = 'auto'
 
 	/**
 	 * Specifies the rounding style of the component's corners.
-	 *
-	 * Options:
-	 * - `none`: No rounding.
-	 * - `top`, `left`, `right`, `bottom`: Rounds only one edge.
-	 * - `all`: Rounds all corners.
-	 *
-	 * @attr rounded
+	 * Options: 'none', 'top', 'left', 'right', 'bottom', 'all'.
 	 * @default 'none'
 	 */
-	@property() rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' = 'none'
+	@property()
+	rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' = 'none'
 
 	/**
-	 * Specifies the type variant.
-	 *
-	 * **Note:** The property name is `type` and is kept as-is to maintain API consistency.
-	 * This value is also provided via context to descendant components.
-	 *
-	 * @attr type
-	 * @default 'type'
+	 * Specifies the surface type for styling.
+	 * Provided to descendant components via context.
+	 * Options: 'surface', 'surfaceDim', 'surfaceBright', 'containerLowest',
+	 * 'containerLow', 'container', 'containerHigh', 'containerHighest'.
+	 * @default 'surface'
 	 */
 	@provide({ context: SchmancySurfaceTypeContext })
 	@property()
-	type: TSurfaceColor = 'surface'
+	type:
+		| 'surface'
+		| 'surfaceDim'
+		| 'surfaceBright'
+		| 'containerLowest'
+		| 'containerLow'
+		| 'container'
+		| 'containerHigh'
+		| 'containerHighest' = 'surface'
 
 	/**
 	 * Defines the elevation level (shadow depth) of the surface.
-	 *
 	 * Valid values: 0, 1, 2, 3, 4, 5.
-	 *
-	 * @attr elevation
 	 * @default 0
 	 */
-	@property({ type: Number, reflect: true }) elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
+	@property({ type: Number, reflect: true })
+	elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
 
-	/**
-	 * When set to true, the surface becomes scrollable.
-	 *
-	 * @attr scroller
-	 * @type {boolean}
-	 * @default false
-	 */
-	@property({ type: Boolean, reflect: true }) scroller: boolean = false
-
-	/**
-	 * Renders the component's template.
-	 *
-	 * CSS classes are conditionally applied using the `classMap` directive based on the
-	 * current property values.
-	 *
-	 * @returns The template for the component.
-	 */
 	protected render(): unknown {
 		const classes = {
 			relative: true,
@@ -162,7 +127,9 @@ export class SchmancySurface extends TailwindElement(css`
 
 		return html`
 			<section class=${classMap(classes)}>
-				<slot></slot>
+				<schmancy-scroll>
+					<slot></slot>
+				</schmancy-scroll>
 			</section>
 		`
 	}
