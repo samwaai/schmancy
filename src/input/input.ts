@@ -402,36 +402,38 @@ export default class SchmancyInput extends TailwindElement() {
 				`,
 			)}
 
-			<input
-				${color({
-					bgColor: SchmancyTheme.sys.color.surface.highest,
-					color: SchmancyTheme.sys.color.surface.on,
-				})}
-				${ref(this.inputRef)}
-				id=${this.id}
-				name=${this.name}
-				class=${classMap(inputClasses)}
-				.value=${this.value}
-				.type=${this.type}
-				.autocomplete=${this.autocomplete}
-				.spellcheck=${this.spellcheck}
-				placeholder=${this.placeholder}
-				inputmode=${ifDefined(this.inputmode)}
-				pattern=${ifDefined(this.pattern)}
-				step=${ifDefined(this.step)}
-				minlength=${ifDefined(this.minlength)}
-				maxlength=${ifDefined(this.maxlength)}
-				min=${ifDefined(this.min)}
-				max=${ifDefined(this.max)}
-				?required=${this.required}
-				?disabled=${this.disabled}
-				?readonly=${this.readonly}
-				aria-invalid=${this.error ? 'true' : 'false'}
-				aria-required=${this.required ? 'true' : 'false'}
-				aria-labelledby=${this.label ? `label-${this.id}` : nothing}
-				aria-describedby=${this.hint ? `hint-${this.id}` : nothing}
-				aria-label=${ifDefined(!this.label ? this.placeholder || 'Input' : undefined)}
-			/>
+			<form .autocomplete=${this.autocomplete === 'off' ? 'off' : 'on'}>
+				<input
+					${color({
+						bgColor: SchmancyTheme.sys.color.surface.highest,
+						color: SchmancyTheme.sys.color.surface.on,
+					})}
+					${ref(this.inputRef)}
+					id=${this.id}
+					name=${this.name}
+					class=${classMap(inputClasses)}
+					.value=${this.value}
+					.type=${this.type}
+					.autocomplete=${this.autocomplete}
+					.spellcheck=${this.spellcheck}
+					placeholder=${this.placeholder}
+					inputmode=${ifDefined(this.inputmode)}
+					pattern=${ifDefined(this.pattern)}
+					step=${ifDefined(this.step)}
+					minlength=${ifDefined(this.minlength)}
+					maxlength=${ifDefined(this.maxlength)}
+					min=${ifDefined(this.min)}
+					max=${ifDefined(this.max)}
+					?required=${this.required}
+					?disabled=${this.disabled}
+					?readonly=${this.readonly}
+					aria-invalid=${this.error ? 'true' : 'false'}
+					aria-required=${this.required ? 'true' : 'false'}
+					aria-labelledby=${this.label ? `label-${this.id}` : nothing}
+					aria-describedby=${this.hint ? `hint-${this.id}` : nothing}
+					aria-label=${ifDefined(!this.label ? this.placeholder || 'Input' : undefined)}
+				/>
+			</form>
 
 			${when(
 				this.hint,
