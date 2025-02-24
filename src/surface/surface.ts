@@ -120,7 +120,7 @@ export class SchmancySurface extends TailwindElement(css`
 
 		return html`
 			<section class=${classMap(classes)}>
-				<schmancy-scroll>
+				<schmancy-scroll class="h-full w-full">
 					<slot></slot>
 				</schmancy-scroll>
 			</section>
