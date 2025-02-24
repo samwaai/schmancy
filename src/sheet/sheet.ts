@@ -1,6 +1,7 @@
 import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
+import { when } from 'lit/directives/when'
 import { fromEvent, merge, takeUntil, tap } from 'rxjs'
 import { on } from './hook'
 import style from './sheet.scss?inline'
@@ -136,17 +137,25 @@ export default class SchmancySheet extends $LitElement(style) {
 						if (this.allowOverlayDismiss) sheet.dismiss(this.uid)
 					}}
 				></div>
-				<schmancy-grid rows="auto 1fr" class="content w-full" data-position=${this.position}>
-					<schmancy-sheet-header
-						class="sticky top-0 z-50 w-full"
-						@dismiss=${(e: CustomEvent) => {
-							e.stopPropagation()
-							sheet.dismiss(this.uid)
-						}}
-						id="sheet-title"
-						.hidden=${this.header === 'hidden'}
-						title=${this.title}
-					></schmancy-sheet-header>
+				<schmancy-grid
+					rows=${this.header === 'hidden' ? '1fr' : 'auto 1fr'}
+					class="content w-full"
+					data-position=${this.position}
+				>
+					${when(
+						this.header !== 'hidden',
+						() =>
+							html`<schmancy-sheet-header
+								class="sticky top-0 z-50 w-full"
+								@dismiss=${(e: CustomEvent) => {
+									e.stopPropagation()
+									sheet.dismiss(this.uid)
+								}}
+								id="sheet-title"
+								title=${this.title}
+							></schmancy-sheet-header>`,
+					)}
+
 					<schmancy-surface rounded="left" fill="all" id="body" class="overflow-auto" type="surface">
 						<schmancy-scroll> <slot></slot></schmancy-scroll>
 					</schmancy-surface>
