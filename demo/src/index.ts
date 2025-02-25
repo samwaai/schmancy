@@ -4,10 +4,10 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import '@lit-labs/virtualizer'
-import { AreaPathnames } from '@schmancy/index'
 import { fullHeight } from '../../src/directives/height'
 import './features/index'
 import { DemoCard, DemoInput } from './features/index'
+import { AreaPathnames } from '@schmancy/index'
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
 	connectedCallback(): void {
@@ -34,7 +34,7 @@ export default class SchmancyDemo extends $LitElement() {
 								<schmancy-typography>Title</schmancy-typography>
 							</schmancy-nav-drawer-appbar>
 							<schmancy-surface class="px-4 py-6 mb-12" type="surface" rounded="left">
-								<schmancy-area name="main" .default=${DemoInput}></schmancy-area>
+								<schmancy-area .mappings=${routes} name="main" .default=${DemoInput}></schmancy-area>
 							</schmancy-surface>
 						</schmancy-nav-drawer-content>
 					</schmancy-nav-drawer>

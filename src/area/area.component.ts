@@ -3,7 +3,6 @@ import { TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import {
 	EMPTY,
-	bufferTime,
 	catchError,
 	distinctUntilChanged,
 	filter,
@@ -67,8 +66,9 @@ export class SchmancyArea extends $LitElement(css`
 	@property() default!: string | Promise<NodeModule> | CustomElementConstructor | TemplateResult<1>
 
 	/**
-	 * An optional array of route mappings that can be passed into the component.
-	 * Each mapping specifies a pathname and an array of routes mapping area names to components.
+	 * (Optional) A mappings property that can be set on the element.
+	 * This property is only available for external use and does not alter
+	 * the component's built-in routing behavior.
 	 *
 	 * Example:
 	 * [
@@ -88,14 +88,14 @@ export class SchmancyArea extends $LitElement(css`
 	 *   }
 	 * ]
 	 */
-	@property({ type: Array })
-	mappings: AreaPathnames[] = []
+	@property({ type: Array }) mappings: AreaPathnames[] = []
 
 	/**
-	 * New API: Returns an observable emitting a RouteAction based on the passed mappings.
+	 * NEW PUBLIC API:
+	 * Accepts an array of route mappings and returns an observable emitting
+	 * the RouteAction for this area (if found) based on the current location's pathname.
 	 *
-	 * It looks for a mapping that matches the current location’s pathname, then selects
-	 * the route whose area matches this component’s name.
+	 * Note: This method does not affect the component's built-in logic.
 	 *
 	 * @param mappings - Array of route mapping objects.
 	 * @param historyStrategy - The history strategy to use (e.g. PUSH, REPLACE, SILENT).
@@ -136,7 +136,10 @@ export class SchmancyArea extends $LitElement(css`
 	}
 
 	/**
-	 * Existing API: Returns an observable that emits a RouteAction based on the provided pathname.
+	 * ORIGINAL API:
+	 * Returns an observable that emits a RouteAction based on the provided pathname.
+	 *
+	 * This method retains the original logic that parses the URL.
 	 *
 	 * @param pathname - Pathname from the browser location API.
 	 * @param historyStrategy - The history strategy to use for the route (PUSH, REPLACE, SILENT).
@@ -176,23 +179,20 @@ export class SchmancyArea extends $LitElement(css`
 		)
 	}
 
+	/**
+	 * The original routing pipeline remains intact.
+	 * It uses getComponentFromPathname to resolve the route based on the URL.
+	 */
 	protected firstUpdated(): void {
 		if (!this.name) {
 			// TODO: maybe enforce this to be unique
 			throw new Error('Area name or default component not set')
 		}
 
-		// The route resolution now checks for a non-empty mappings property.
-		// If mappings are provided, they override the normal parsing logic for the current URL.
 		merge(
 			// 1) Initial load from location.pathname.
 			of(location.pathname).pipe(
-				switchMap(pathname => {
-					if (this.mappings && this.mappings.length) {
-						return this.getComponentFromMappings(this.mappings, HISTORY_STRATEGY.silent)
-					}
-					return this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)
-				}),
+				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
 				take(1),
 			),
 			// 2) Requests to change the route for this area.
@@ -200,12 +200,7 @@ export class SchmancyArea extends $LitElement(css`
 			// 3) Popstate events (back, forward).
 			fromEvent<PopStateEvent>(window, 'popstate').pipe(
 				map(e => (e.target as Window).location.pathname),
-				switchMap(pathname => {
-					if (this.mappings && this.mappings.length) {
-						return this.getComponentFromMappings(this.mappings, HISTORY_STRATEGY.silent)
-					}
-					return this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)
-				}),
+				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
 			),
 		)
 			.pipe(
@@ -290,7 +285,7 @@ export class SchmancyArea extends $LitElement(css`
 	}
 
 	/**
-	 * Computes a new URL path for the given component and route.
+	 * Computes the new URL path for the given component and route.
 	 */
 	newPath(tag: string, route: RouteAction) {
 		const oldPathname = location.pathname.split('/').pop()
@@ -332,13 +327,12 @@ export class SchmancyArea extends $LitElement(css`
 	checkForTeleportationRequests() {
 		return fromEvent<CustomEvent>(window, 'FLIP_REQUEST').pipe(
 			map(e => e.detail),
-			bufferTime(0),
 			tap(() => {
 				this.dispatchEvent(new CustomEvent('FLIP_STARTED'))
 			}),
-			takeUntil(this.disconnecting),
 			timeout(0),
 			catchError(() => of(null)),
+			takeUntil(this.disconnecting),
 		)
 	}
 
