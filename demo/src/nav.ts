@@ -21,7 +21,7 @@ import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import { SchmancyTypewriterDemo } from './features/typewriter'
 import DemoTypography from './features/typography'
-import NotificationDemo from './features/notifications'
+import { DemoNotifications } from './features/notifications'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -37,7 +37,7 @@ export class DemoNav extends $LitElement(css`
 	}> = [
 		{
 			name: 'Notifications',
-			component: NotificationDemo,
+			component: DemoNotifications,
 		},
 		{
 			name: 'Typewriter',
