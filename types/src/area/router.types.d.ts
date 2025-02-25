@@ -1,5 +1,5 @@
 export type RouteAction = {
-    component: CustomElementConstructor | string | Promise<NodeModule> | HTMLElement | Promise<NodeModule>;
+    component: CustomElementConstructor | string | HTMLElement;
     area: string;
     state?: object;
     historyStrategy?: THistoryStrategy;

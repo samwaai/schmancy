@@ -4,9 +4,10 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import '@lit-labs/virtualizer'
+import { AreaPathnames } from '@schmancy/index'
 import { fullHeight } from '../../src/directives/height'
 import './features/index'
-import { DemoInput } from './features/index'
+import { DemoCard, DemoInput } from './features/index'
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
 	connectedCallback(): void {
@@ -14,6 +15,13 @@ export default class SchmancyDemo extends $LitElement() {
 	}
 
 	render() {
+		const routes: AreaPathnames[] = [
+			{
+				pathname: '/card',
+				routes: [{ area: 'main', component: DemoCard }],
+			},
+		]
+
 		return html`
 			<schmancy-theme root>
 				<schmancy-surface ${fullHeight()} type="container">
