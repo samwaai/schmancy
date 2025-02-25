@@ -31,7 +31,11 @@ async function createNotification(
 	notification.type = type
 	notification.innerHTML = message
 
-	// Determine reference element
+	// Temporarily hide the notification and add to DOM to calculate dimensions
+	notification.style.visibility = 'hidden'
+	document.body.appendChild(notification)
+
+	// Determine reference element (same as before)
 	const referenceElement = config?.referenceElement || {
 		getBoundingClientRect: () => ({
 			width: 0,
@@ -42,28 +46,24 @@ async function createNotification(
 			right: lastMouseX,
 			bottom: lastMouseY,
 			left: lastMouseX,
-			toJSON: () => ({}), // Required for some Floating UI implementations
+			toJSON: () => ({}),
 		}),
 	}
 
-	// Compute position using Floating UI
+	// Compute position with accurate dimensions
 	const { x, y } = await computePosition(referenceElement, notification, {
 		strategy: 'fixed',
 		placement: config?.referenceElement ? 'top' : 'right-start',
-		middleware: [
-			offset(8), // 8px gap from reference
-			flip(), // Auto-flip directions if needed
-			shift({ padding: 5 }), // Prevent screen edges overflow
-		],
+		middleware: [offset(8), flip(), shift({ padding: 5 })],
 	})
 
-	// Apply positioning
+	// Apply positioning and make visible
 	notification.style.position = 'fixed'
 	notification.style.left = `${x}px`
 	notification.style.top = `${y}px`
+	notification.style.visibility = 'visible' // Make visible after positioning
 	notification.style.zIndex = '9999'
 
-	document.body.appendChild(notification)
 	return notification
 }
 
