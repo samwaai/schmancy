@@ -2,58 +2,35 @@ import { $LitElement } from '@mixins/index'
 import { $notify } from '@schmancy/notification'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
+import { createRef, ref } from 'lit/directives/ref.js'
 
 @customElement('demo-notifications')
 export class DemoNotifications extends $LitElement() {
+	private successBtnRef = createRef<HTMLButtonElement>()
+
 	render() {
 		return html`
 			<schmancy-grid gap="md">
 				<schmancy-button
+					${ref(this.successBtnRef)}
 					@click=${() => {
-						$notify.success('Operation completed successfully.')
+						if (this.successBtnRef.value) {
+							$notify.success('Operation successful!', {
+								referenceElement: this.successBtnRef.value,
+								duration: 5000, // e.g. 5s
+							})
+						} else {
+							// fallback without reference
+							$notify.success('Operation successful!')
+						}
 					}}
 					variant="filled"
 					width="full"
 				>
-					Success Notification
+					Success
 				</schmancy-button>
-
-				<schmancy-button
-					@click=${() => {
-						$notify.error('Operation failed.')
-					}}
-					variant="filled"
-					width="full"
-				>
-					Error Notification
-				</schmancy-button>
-
-				<schmancy-button
-					@click=${() => {
-						$notify.warning('Operation may fail.')
-					}}
-					variant="filled"
-					width="full"
-				>
-					Warning Notification
-				</schmancy-button>
-
-				<schmancy-button
-					@click=${() => {
-						$notify.info('Operation may fail.')
-					}}
-					variant="filled"
-					width="full"
-				>
-					Info Notification
-				</schmancy-button>
+				<!-- Other buttons as needed -->
 			</schmancy-grid>
 		`
-	}
-}
-
-declare global {
-	interface HTMLElementTagNameMap {
-		'demo-notifications': DemoNotifications
 	}
 }
