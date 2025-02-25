@@ -438,12 +438,12 @@ export default class SchmancyInput extends TailwindElement() {
 				() => html`
 					<div
 						id="hint-${this.id}"
-						class="pt-[4px]"
+						class="pt-[2px]"
 						${color({
 							color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
 						})}
 					>
-						<schmancy-typography align="left" type="body" token="sm"> ${this.hint} </schmancy-typography>
+						<schmancy-typography align="left" type="label"> ${this.hint} </schmancy-typography>
 					</div>
 				`,
 			)}
