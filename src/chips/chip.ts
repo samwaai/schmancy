@@ -50,10 +50,8 @@ export default class SchmancyChip extends $LitElement() {
 			<md-filter-chip
 				.disabled=${this.disabled}
 				label="${this.label}"
-				@click=${(e: Event) => {
+				@click=${(_e: Event) => {
 					if (this.readOnly) {
-						e.preventDefault()
-						e.stopPropagation()
 						return
 					}
 					// Toggle selection and dispatch a change event
