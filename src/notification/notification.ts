@@ -2,24 +2,23 @@ import { TailwindElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
+export type NotificationType = 'success' | 'error' | 'warning' | 'info'
+
 @customElement('schmancy-notification')
 export class SchmancyNotification extends TailwindElement() {
 	@property({ type: String })
-	type: 'success' | 'error' | 'warning' | 'info' = 'success'
+	public type: NotificationType = 'success'
 
 	render() {
 		return html`
 			<div
-				class="pointer-events-auto w-full max-w-sm
-               rounded-lg bg-surface-container shadow-lg
-               ring-1 ring-outlineVariant ring-opacity-5 p-3"
+				class="pointer-events-auto w-full max-w-sm rounded-lg bg-surface-container shadow-lg ring-1 ring-outlineVariant ring-opacity-5 p-3"
 			>
 				<!-- Icon + Text + Close Button, etc. -->
 				<div class="flex items-center">
 					<!-- Icon -->
 					<div class="shrink-0 mr-2">
 						<!-- Show different icons depending on this.type -->
-						<!-- e.g., success, error, etc. -->
 					</div>
 
 					<!-- Text slot -->
@@ -28,15 +27,21 @@ export class SchmancyNotification extends TailwindElement() {
 					</div>
 
 					<!-- Close -->
-					<schmancy-icon-button
-						@click=${() => this.dispatchEvent(new CustomEvent('close'))}
-						variant="outlined"
-						class="ml-2 text-sm"
-						>Close</schmancy-icon-button
-					>
+					<schmancy-icon-button @click=${this.handleClose} variant="outlined" class="ml-2 text-sm">
+						Close
+					</schmancy-icon-button>
 				</div>
 			</div>
 		`
+	}
+
+	private handleClose(): void {
+		this.dispatchEvent(
+			new CustomEvent<void>('close', {
+				bubbles: true,
+				composed: true,
+			}),
+		)
 	}
 }
 
