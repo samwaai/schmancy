@@ -28,8 +28,9 @@ export declare class SchmancyArea extends SchmancyArea_base {
      */
     default: string | Promise<NodeModule> | CustomElementConstructor | TemplateResult<1>;
     /**
-     * An optional array of route mappings that can be passed into the component.
-     * Each mapping specifies a pathname and an array of routes mapping area names to components.
+     * (Optional) A mappings property that can be set on the element.
+     * This property is only available for external use and does not alter
+     * the component's built-in routing behavior.
      *
      * Example:
      * [
@@ -51,10 +52,11 @@ export declare class SchmancyArea extends SchmancyArea_base {
      */
     mappings: AreaPathnames[];
     /**
-     * New API: Returns an observable emitting a RouteAction based on the passed mappings.
+     * NEW PUBLIC API:
+     * Accepts an array of route mappings and returns an observable emitting
+     * the RouteAction for this area (if found) based on the current location's pathname.
      *
-     * It looks for a mapping that matches the current location’s pathname, then selects
-     * the route whose area matches this component’s name.
+     * Note: This method does not affect the component's built-in logic.
      *
      * @param mappings - Array of route mapping objects.
      * @param historyStrategy - The history strategy to use (e.g. PUSH, REPLACE, SILENT).
@@ -62,16 +64,23 @@ export declare class SchmancyArea extends SchmancyArea_base {
      */
     getComponentFromMappings(mappings: AreaPathnames[], historyStrategy: HISTORY_STRATEGY): import("rxjs").Observable<RouteAction>;
     /**
-     * Existing API: Returns an observable that emits a RouteAction based on the provided pathname.
+     * ORIGINAL API:
+     * Returns an observable that emits a RouteAction based on the provided pathname.
+     *
+     * This method retains the original logic that parses the URL.
      *
      * @param pathname - Pathname from the browser location API.
      * @param historyStrategy - The history strategy to use for the route (PUSH, REPLACE, SILENT).
      * @returns An observable emitting the RouteAction.
      */
     getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY): import("rxjs").Observable<RouteAction>;
+    /**
+     * The original routing pipeline remains intact.
+     * It uses getComponentFromPathname to resolve the route based on the URL.
+     */
     protected firstUpdated(): void;
     /**
-     * Computes a new URL path for the given component and route.
+     * Computes the new URL path for the given component and route.
      */
     newPath(tag: string, route: RouteAction): string;
     /**
@@ -81,7 +90,7 @@ export declare class SchmancyArea extends SchmancyArea_base {
     /**
      * Checks for teleportation requests (FLIP_REQUEST events) and dispatches a FLIP_STARTED event.
      */
-    checkForTeleportationRequests(): import("rxjs").Observable<any[]>;
+    checkForTeleportationRequests(): import("rxjs").Observable<any>;
     disconnectedCallback(): void;
     render(): TemplateResult<1>;
 }
