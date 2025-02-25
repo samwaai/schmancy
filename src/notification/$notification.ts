@@ -1,5 +1,5 @@
 import { computePosition, flip, offset, shift } from '@floating-ui/dom'
-import { fromEvent, race, timer } from 'rxjs'
+import { debounceTime, fromEvent, race, timer } from 'rxjs'
 import { SchmancyNotification } from './notification'
 
 export type TNotification = 'success' | 'error' | 'warning' | 'info'
@@ -8,13 +8,20 @@ export type TNotificationConfig = {
 	referenceElement?: HTMLElement
 }
 
-// Example: play a sound for success
-// function playSuccessSound() {
-// 	// const audio = new Audio('/path/to/success-sound.mp3')
-// 	audio.play()
-// }
+// Track cursor position globally
+let lastMouseX = window.innerWidth / 2
+let lastMouseY = window.innerHeight / 2
 
-// Create & position the notification
+fromEvent(document, 'mousemove')
+	.pipe(
+		debounceTime(100), // Throttle to 10fps
+	)
+	.subscribe((e: MouseEvent) => {
+		console.count()
+		lastMouseX = e.clientX
+		lastMouseY = e.clientY
+	})
+
 async function createNotification(
 	message: string,
 	type: TNotification,
@@ -24,39 +31,45 @@ async function createNotification(
 	notification.type = type
 	notification.innerHTML = message
 
-	// If we have a reference element, use floating-ui with 'fixed' strategy
-	if (config?.referenceElement) {
-		const { x, y } = await computePosition(config.referenceElement, notification, {
-			strategy: 'fixed', // IMPORTANT: positions relative to the viewport
-			placement: 'top',
-			middleware: [offset(8), flip(), shift()],
-		})
-		// Use fixed positioning so it ignores the parent's bounds/overflow
-		notification.style.position = 'fixed'
-		notification.style.left = `${x}px`
-		notification.style.top = `${y}px`
-	} else {
-		// If no referenceElement, just pop up at a corner (or wherever you like)
-		notification.style.position = 'fixed'
-		notification.style.bottom = '1rem'
-		notification.style.right = '1rem'
+	// Determine reference element
+	const referenceElement = config?.referenceElement || {
+		getBoundingClientRect: () => ({
+			width: 0,
+			height: 0,
+			x: lastMouseX,
+			y: lastMouseY,
+			top: lastMouseY,
+			right: lastMouseX,
+			bottom: lastMouseY,
+			left: lastMouseX,
+			toJSON: () => ({}), // Required for some Floating UI implementations
+		}),
 	}
 
-	// Raise z-index so it sits above any content
+	// Compute position using Floating UI
+	const { x, y } = await computePosition(referenceElement, notification, {
+		strategy: 'fixed',
+		placement: config?.referenceElement ? 'top' : 'right-start',
+		middleware: [
+			offset(8), // 8px gap from reference
+			flip(), // Auto-flip directions if needed
+			shift({ padding: 5 }), // Prevent screen edges overflow
+		],
+	})
+
+	// Apply positioning
+	notification.style.position = 'fixed'
+	notification.style.left = `${x}px`
+	notification.style.top = `${y}px`
 	notification.style.zIndex = '9999'
 
-	// Append directly to body
 	document.body.appendChild(notification)
 	return notification
 }
 
+// Rest of your existing code remains the same...
 export async function notify(type: TNotification, message: string, config?: TNotificationConfig) {
 	const notification = await createNotification(message, type, config)
-
-	// Play sound if needed
-	if (type === 'success') {
-		// playSuccessSound()
-	}
 
 	// Remove after duration or close event
 	race(fromEvent(notification, 'close'), timer(config?.duration ?? 1000)).subscribe(() => {
