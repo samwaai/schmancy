@@ -14,7 +14,7 @@ export default class SchmancyBusy extends TailwindElement(css`
 `) {
 	protected render(): unknown {
 		return html`
-			<div class="absolute inset-0 flex justify-center items-center animate-pulse">
+			<div class="absolute inset-0 flex justify-center items-center animate-pulse z-[9999999]">
 				<!-- glass window -->
 				<div
 					${color({

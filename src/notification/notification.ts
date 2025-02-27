@@ -11,7 +11,7 @@ export class SchmancyNotification extends TailwindElement() {
 		return html`
 			<div
 				aria-live="assertive"
-				class="pointer-events-none z-100 fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
+				class="pointer-events-none z-[999999] fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
 			>
 				<div class="flex w-full flex-col items-center space-y-4 sm:items-end">
 					<div

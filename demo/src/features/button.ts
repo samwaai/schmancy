@@ -1,7 +1,7 @@
 import { $LitElement } from '@mixins/index'
+import { $notify } from '@schmancy/notification'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { $notify } from '@schmancy/notification'
 
 @customElement('demo-button')
 export class DemoButton extends $LitElement(css`
