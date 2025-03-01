@@ -4,8 +4,8 @@ import { SchmancyChipsChangeEvent } from '@schmancy/chips'
 import { PropertyValueMap, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import moment from 'moment'
 import countries from './data/countries'
+import dayjs from 'dayjs'
 
 @customElement('demo-input')
 export class DemoInput extends $LitElement(css`
@@ -63,11 +63,11 @@ export class DemoInput extends $LitElement(css`
 						type="datetime-local"
 						.dateFrom=${{
 							label: 'Check-in',
-							value: moment().startOf('day').format('YYYY-MM-DDTHH:mm'),
+							value: dayjs().startOf('day').format('YYYY-MM-DDTHH:mm'),
 						}}
 						.dateTo=${{
 							label: 'Check-out',
-							value: moment().endOf('D').format('YYYY-MM-DDTHH:mm'),
+							value: dayjs().endOf('D').format('YYYY-MM-DDTHH:mm'),
 						}}
 						@change=${(e: CustomEvent) => {
 							console.log('e.detail', e.detail)

@@ -4,7 +4,7 @@ import SchmancyMenu from '@schmancy/menu/menu'
 import { html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { validateInitialDateRange } from './date-utils' // Import the utility
 
 type DateFormat = 'YYYY-MM-DD' | 'YYYY-MM-DDTHH:mm'
@@ -55,7 +55,7 @@ export default class SchmancyDateRange extends $LitElement() {
 		} else {
 			console.error('Invalid initial date range.  Falling back to default.')
 			// Handle invalid initial dates (e.g., set to default values, display an error)
-			const now = moment().format(dateFormat)
+			const now = dayjs().format(dateFormat)
 			this.dateFrom.value = now
 			this.dateTo.value = now
 		}
@@ -103,48 +103,48 @@ export default class SchmancyDateRange extends $LitElement() {
 			{
 				label: 'Yesterday',
 				range: {
-					dateFrom: moment().subtract(1, 'days').startOf('day').format(format),
-					dateTo: moment().subtract(1, 'days').endOf('day').format(format),
+					dateFrom: dayjs().subtract(1, 'days').startOf('day').format(format),
+					dateTo: dayjs().subtract(1, 'days').endOf('day').format(format),
 				},
 				step: 'day',
 			},
 			{
 				label: 'Today',
 				range: {
-					dateFrom: moment().startOf('day').format(format),
-					dateTo: moment().endOf('day').format(format),
+					dateFrom: dayjs().startOf('day').format(format),
+					dateTo: dayjs().endOf('day').format(format),
 				},
 				step: 'day',
 			},
 			{
 				label: 'Tomorrow',
 				range: {
-					dateFrom: moment().add(1, 'days').startOf('day').format(format),
-					dateTo: moment().add(1, 'days').endOf('day').format(format),
+					dateFrom: dayjs().add(1, 'days').startOf('day').format(format),
+					dateTo: dayjs().add(1, 'days').endOf('day').format(format),
 				},
 				step: 'day',
 			},
 			{
 				label: 'This Week',
 				range: {
-					dateFrom: moment().startOf('isoWeek').format(format),
-					dateTo: moment().endOf('isoWeek').format(format),
+					dateFrom: dayjs().startOf('isoWeek').format(format),
+					dateTo: dayjs().endOf('isoWeek').format(format),
 				},
 				step: 'week',
 			},
 			{
 				label: 'Last Week',
 				range: {
-					dateFrom: moment().subtract(1, 'weeks').startOf('isoWeek').format(format),
-					dateTo: moment().subtract(1, 'weeks').endOf('isoWeek').format(format),
+					dateFrom: dayjs().subtract(1, 'weeks').startOf('isoWeek').format(format),
+					dateTo: dayjs().subtract(1, 'weeks').endOf('isoWeek').format(format),
 				},
 				step: 'week',
 			},
 			{
 				label: 'This Month',
 				range: {
-					dateFrom: moment().startOf('month').format(format),
-					dateTo: moment().endOf('month').format(format),
+					dateFrom: dayjs().startOf('month').format(format),
+					dateTo: dayjs().endOf('month').format(format),
 				},
 				step: 'month',
 			},
@@ -164,8 +164,8 @@ export default class SchmancyDateRange extends $LitElement() {
 			this.selectedDateRange = preset.label
 		} else {
 			// Construct a custom label
-			const fromMoment = moment(this.dateFrom.value)
-			const toMoment = moment(this.dateTo.value)
+			const fromMoment = dayjs(this.dateFrom.value)
+			const toMoment = dayjs(this.dateTo.value)
 			console.log(fromMoment.format('HH:mm'), toMoment.format('HH:mm'), fromMoment.format('HH:mm'))
 			if (fromMoment.isSame(toMoment, 'day')) {
 				this.selectedDateRange = fromMoment.format('MMM DD, YYYY')
@@ -196,11 +196,11 @@ export default class SchmancyDateRange extends $LitElement() {
 		event.stopPropagation() // Prevent click from bubbling to the schmancy-button
 
 		const format = this.getDateFormat()
-		const currentDiff = moment(this.dateTo.value).diff(moment(this.dateFrom.value), 'days') || 1
-		const newDateFrom = moment(this.dateFrom.value)
+		const currentDiff = dayjs(this.dateTo.value).diff(dayjs(this.dateFrom.value), 'days') || 1
+		const newDateFrom = dayjs(this.dateFrom.value)
 			.add(factor * currentDiff, 'days')
 			.format(format)
-		const newDateTo = moment(this.dateTo.value)
+		const newDateTo = dayjs(this.dateTo.value)
 			.add(factor * currentDiff, 'days')
 			.format(format)
 
@@ -277,7 +277,7 @@ export default class SchmancyDateRange extends $LitElement() {
 							event.preventDefault()
 							event.stopPropagation()
 							const fmt = this.getDateFormat()
-							const selectedDate = moment(event.detail.value, fmt).format(fmt)
+							const selectedDate = dayjs(event.detail.value, fmt).format(fmt)
 							this.dateFrom.value = selectedDate
 							// Update the checkout input's min attribute:
 							this.checkOutInput.setAttribute('min', selectedDate)
@@ -295,7 +295,7 @@ export default class SchmancyDateRange extends $LitElement() {
 							event.preventDefault()
 							event.stopPropagation()
 							const fmt = this.getDateFormat()
-							const selectedDate = moment(event.detail.value, fmt).format(fmt)
+							const selectedDate = dayjs(event.detail.value, fmt).format(fmt)
 							this.dateTo.value = selectedDate
 						}}
 					></schmancy-input>

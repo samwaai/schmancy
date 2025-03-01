@@ -1,4 +1,4 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 type DateFormat = 'YYYY-MM-DD' | 'YYYY-MM-DDTHH:mm'
 
@@ -17,7 +17,7 @@ function enforceDateFormat(dateString: string | undefined, expectedFormat: DateF
 		return null // Or handle the undefined case differently if needed
 	}
 
-	const parsedDate = moment(dateString)
+	const parsedDate = dayjs(dateString)
 
 	if (!parsedDate.isValid()) {
 		return null // Date is invalid

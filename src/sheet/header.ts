@@ -12,7 +12,7 @@ export default class SchmancySheetHeader extends TailwindElement() {
 		}
 		return html`
 			<schmancy-grid class="${this.classMap(classes)}" align="center" justify="stretch" cols="auto 1fr auto">
-				<slot name="back">
+				<slot name="back" class="block md:hidden">
 					<schmancy-button
 						@click=${() => {
 							this.dispatchEvent(
@@ -27,7 +27,7 @@ export default class SchmancySheetHeader extends TailwindElement() {
 					</schmancy-button>
 				</slot>
 				<schmancy-typography transform="capitalize" type="headline" token="lg"> ${this.title} </schmancy-typography>
-				<slot name="actions">
+				<slot name="actions" class="hidden md:block">
 					<schmancy-icon-button
 						@click=${() => {
 							this.dispatchEvent(
