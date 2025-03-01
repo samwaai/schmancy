@@ -232,7 +232,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			placement: 'bottom-start',
 			middleware: [
 				offset(5),
-				flip(),
+				// flip(),
 				shift({ padding: 5 }),
 				// Let the floating element fill available space, but be at least as wide as the input.
 				size({

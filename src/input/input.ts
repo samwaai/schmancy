@@ -11,7 +11,7 @@ import { TailwindElement } from '@mixins/index'
 // color directive + theme interface
 import { color } from '@schmancy/directives'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
-
+import style from './input.scss?inline'
 // If you want to be form-associated, define the type on `ElementInternals`.
 declare global {
 	interface HTMLElementTagNameMap {
@@ -34,7 +34,7 @@ export type SchmancyInputChangeEvent = CustomEvent<EventDetails>
 export type SchmancyInputEnterEvent = CustomEvent<EventDetails>
 
 @customElement('schmancy-input')
-export default class SchmancyInput extends TailwindElement() {
+export default class SchmancyInput extends TailwindElement(style) {
 	// ----------------------------
 	//  A) Public properties
 	// ----------------------------

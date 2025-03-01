@@ -1,11 +1,11 @@
 import { $LitElement } from '@mixins/index'
 import { SchmancyAutocompleteChangeEvent } from '@schmancy/autocomplete'
 import { SchmancyChipsChangeEvent } from '@schmancy/chips'
+import dayjs from 'dayjs'
 import { PropertyValueMap, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import countries from './data/countries'
-import dayjs from 'dayjs'
 
 @customElement('demo-input')
 export class DemoInput extends $LitElement(css`
@@ -44,7 +44,7 @@ export class DemoInput extends $LitElement(css`
 		const v = undefined
 		return html`
 			<schmancy-surface fill="all" type="surface" rounded="left">
-				<schmancy-grid class="p-4" flow="row" justify="start" gap="md">
+				<schmancy-grid class="p-4 w-full" flow="row" justify="start" gap="md">
 					<schmancy-checkbox> checkbox </schmancy-checkbox>
 					<!-- Single-select example -->
 					<schmancy-select .value=${v ?? ''} label="Choose an option">
@@ -157,6 +157,7 @@ export class DemoInput extends $LitElement(css`
 						<schmancy-option value="option4" label="Option 4">Option 4</schmancy-option>
 					</schmancy-autocomplete>
 					<schmancy-input
+						class="w-full"
 						type="date"
 						label="Input"
 						placeholder="placeholder"
