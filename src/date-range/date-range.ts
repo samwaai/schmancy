@@ -1,10 +1,10 @@
 import { $LitElement } from '@mixins/index'
 import { SchmancyInputChangeEvent } from '@schmancy/input'
 import SchmancyMenu from '@schmancy/menu/menu'
+import dayjs from 'dayjs'
 import { html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
-import dayjs from 'dayjs'
 import { validateInitialDateRange } from './date-utils' // Import the utility
 
 type DateFormat = 'YYYY-MM-DD' | 'YYYY-MM-DDTHH:mm'
@@ -37,7 +37,7 @@ export default class SchmancyDateRange extends $LitElement() {
 	presetRanges!: Array<{
 		label: string
 		range: { dateFrom: string; dateTo: string }
-		step: moment.unitOfTime.DurationConstructor
+		step: dayjs.OpUnitType
 	}>
 
 	connectedCallback(): void {
@@ -127,16 +127,16 @@ export default class SchmancyDateRange extends $LitElement() {
 			{
 				label: 'This Week',
 				range: {
-					dateFrom: dayjs().startOf('isoWeek').format(format),
-					dateTo: dayjs().endOf('isoWeek').format(format),
+					dateFrom: dayjs().startOf('week').format(format),
+					dateTo: dayjs().endOf('week').format(format),
 				},
 				step: 'week',
 			},
 			{
 				label: 'Last Week',
 				range: {
-					dateFrom: dayjs().subtract(1, 'weeks').startOf('isoWeek').format(format),
-					dateTo: dayjs().subtract(1, 'weeks').endOf('isoWeek').format(format),
+					dateFrom: dayjs().subtract(1, 'weeks').startOf('week').format(format),
+					dateTo: dayjs().subtract(1, 'weeks').endOf('week').format(format),
 				},
 				step: 'week',
 			},
@@ -224,7 +224,12 @@ export default class SchmancyDateRange extends $LitElement() {
              and then projects the menu items inside. -->
 			<schmancy-menu class="z-100 w-max" role="menu" aria-label="Date range presets and custom input">
 				<!-- The toggle/trigger slot -->
-				<schmancy-grid slot="button" align="center" cols="auto 1fr auto">
+				<schmancy-grid
+					@click=${(event: Event) => event.stopPropagation()}
+					slot="button"
+					align="center"
+					cols="auto 1fr auto"
+				>
 					<schmancy-icon-button
 						type="button"
 						aria-label="Shift date range backward"
@@ -273,6 +278,7 @@ export default class SchmancyDateRange extends $LitElement() {
 						.label=${this.dateFrom.label}
 						.value=${this.dateFrom.value}
 						min=${ifDefined(this.minDate)}
+						@click=${(event: Event) => event.stopPropagation()}
 						@change=${(event: SchmancyInputChangeEvent) => {
 							event.preventDefault()
 							event.stopPropagation()
@@ -291,6 +297,7 @@ export default class SchmancyDateRange extends $LitElement() {
 						.value=${this.dateTo.value}
 						min=${ifDefined(this.dateFrom.value)}
 						max=${ifDefined(this.maxDate)}
+						@click=${(event: Event) => event.stopPropagation()}
 						@change=${(event: SchmancyInputChangeEvent) => {
 							event.preventDefault()
 							event.stopPropagation()

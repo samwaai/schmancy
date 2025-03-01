@@ -1,5 +1,5 @@
 import SchmancyMenu from '@schmancy/menu/menu';
-import moment from 'moment';
+import dayjs from 'dayjs';
 declare const SchmancyDateRange_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A date range selector that supports presets and manual date input.
@@ -26,7 +26,7 @@ export default class SchmancyDateRange extends SchmancyDateRange_base {
             dateFrom: string;
             dateTo: string;
         };
-        step: moment.unitOfTime.DurationConstructor;
+        step: dayjs.OpUnitType;
     }>;
     connectedCallback(): void;
     /**
