@@ -7,6 +7,9 @@ export default class SchmancyOption extends SchmancyOption_base {
     value: string;
     label: string | undefined;
     selected: boolean;
+    private updateLabelFromSlot;
+    connectedCallback(): void;
+    firstUpdated(): void;
     private handleOptionClick;
     private getSlotContent;
     focus(): void;
