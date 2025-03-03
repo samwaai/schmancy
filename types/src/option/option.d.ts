@@ -8,6 +8,7 @@ export default class SchmancyOption extends SchmancyOption_base {
     label: string | undefined;
     selected: boolean;
     private handleOptionClick;
+    private getSlotContent;
     focus(): void;
     protected render(): import("lit-html").TemplateResult<1>;
 }
