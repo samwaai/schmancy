@@ -10,8 +10,8 @@ export default defineConfig({
 	publicDir: resolve(__dirname, 'public'),
 	resolve: {
 		alias: {
-			'@schmancy': resolve(__dirname, '../src'),
-			'@mixins': resolve(__dirname, '../mixins'),
+			'@schmancy': resolve(__dirname, './src'),
+			'@mixins': resolve(__dirname, './mixins'),
 		},
 	},
 	server: {
@@ -23,22 +23,24 @@ export default defineConfig({
 		sourcemap: false,
 		outDir: resolve(__dirname, './dist'),
 		rollupOptions: {
-			manualChunks: {
-				rxjs: ['rxjs', 'rxjs/ajax'],
-				lit: [
-					'lit',
-					'lit/decorators.js',
-					'lit/directives/class-map.js',
-					'lit/directives/style-map.js',
-					'lit/directives/repeat.js',
-					'lit/directives/when.js',
-					'lit/directives/live.js',
-					'lit/directives/if-defined.js',
-					'lit/directives/guard.js',
-					'lit/directives/unsafe-html.js',
-					'lit/directives/unsafe-svg.js',
-					'lit/directives/cache.js',
-				],
+			output: {
+				manualChunks: {
+					rxjs: ['rxjs', 'rxjs/ajax'],
+					lit: [
+						'lit',
+						'lit/decorators.js',
+						'lit/directives/class-map.js',
+						'lit/directives/style-map.js',
+						'lit/directives/repeat.js',
+						'lit/directives/when.js',
+						'lit/directives/live.js',
+						'lit/directives/if-defined.js',
+						'lit/directives/guard.js',
+						'lit/directives/unsafe-html.js',
+						'lit/directives/unsafe-svg.js',
+						'lit/directives/cache.js',
+					],
+				},
 			},
 		},
 	},

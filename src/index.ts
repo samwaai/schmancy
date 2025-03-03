@@ -39,3 +39,4 @@ export * from './types';
 export * from './typewriter';
 export * from './typography';
 export * from './utils';
+export * from './v2';

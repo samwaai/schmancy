@@ -4,7 +4,7 @@ import { color } from '@schmancy/directives'
 import SchmancyInput from '@schmancy/input/input'
 import SchmancyOption from '@schmancy/option/option'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
-import { css, html, TemplateResult } from 'lit'
+import { css, html, PropertyValues, TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 
@@ -24,13 +24,18 @@ export class SchmancySelect extends $LitElement(css`
 		outline: none;
 	}
 `) {
+	// Form association setup
+	static formAssociated = true
+	private internals?: ElementInternals
+
 	// API
 	@property({ type: String }) name: string | undefined
-	@property({ type: Boolean }) required = false
+	@property({ type: Boolean, reflect: true }) required = false
 	@property({ type: String }) placeholder = ''
-	@property({ type: String }) value: string | string[] = '' // for single-select or multi-select
+	@property({ type: String, reflect: true }) value: string | string[] = '' // for single-select or multi-select
 	@property({ type: Boolean }) multi = false
 	@property({ type: String }) label = ''
+	@property({ type: String }) hint = ''
 
 	// Internal states
 	@state() private isOpen = false
@@ -39,10 +44,23 @@ export class SchmancySelect extends $LitElement(css`
 	@property({ type: String }) validationMessage = ''
 
 	@query('ul') private ul!: HTMLUListElement
-
 	@query('schmancy-input') private inputRef!: SchmancyInput
 	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
 	private cleanupPositioner?: () => void
+
+	constructor() {
+		super()
+		// Initialize ElementInternals for form association
+		try {
+			this.internals = this.attachInternals()
+		} catch (e) {
+			console.warn('FormAssociated elements not supported in this browser', e)
+		}
+	}
+
+	get form() {
+		return this.internals?.form
+	}
 
 	connectedCallback() {
 		super.connectedCallback()
@@ -61,6 +79,21 @@ export class SchmancySelect extends $LitElement(css`
 	firstUpdated() {
 		this.syncSelection()
 		this.setupOptionsAccessibility()
+	}
+
+	updated(changedProps: PropertyValues) {
+		super.updated(changedProps)
+
+		if (changedProps.has('value')) {
+			// Update form value when component value changes
+			const formValue = Array.isArray(this.value) ? this.value.join(',') : this.value
+			this.internals?.setFormValue(formValue)
+
+			// Check validity after value changes
+			if (this.required) {
+				this.checkValidity()
+			}
+		}
 	}
 
 	private syncSelection() {
@@ -118,7 +151,7 @@ export class SchmancySelect extends $LitElement(css`
 		})
 	}
 
-	private handleKeyDown(e: KeyboardEvent) {
+	private handleKeyDown = (e: KeyboardEvent) => {
 		if (!this.isOpen) {
 			if (['Enter', ' ', 'ArrowDown'].includes(e.key)) {
 				e.preventDefault()
@@ -216,11 +249,13 @@ export class SchmancySelect extends $LitElement(css`
 		}
 
 		this.setupOptionsAccessibility()
+		this.checkValidity()
 	}
 
 	private dispatchChange(value: string | string[]) {
 		this.isValid = true // Reset validation on change
 		this.validationMessage = ''
+
 		this.dispatchEvent(
 			new CustomEvent<SchmancySelectChangeEvent['detail']>('change', {
 				detail: { value },
@@ -228,32 +263,56 @@ export class SchmancySelect extends $LitElement(css`
 				composed: true,
 			}),
 		)
+
+		// Also dispatch a standard change event for better form compatibility
+		this.dispatchEvent(new Event('change', { bubbles: true }))
 	}
 
 	public checkValidity(): boolean {
-		this.isValid = this.multi ? Array.isArray(this.value) && this.value.length > 0 : Boolean(this.value)
-		this.validationMessage = this.isValid ? '' : 'Please select an option.'
+		const isEmpty = this.multi ? !Array.isArray(this.value) || this.value.length === 0 : !this.value
+
+		this.isValid = !(this.required && isEmpty)
+
+		if (!this.isValid) {
+			this.validationMessage = 'Please select an option.'
+			this.internals?.setValidity({ valueMissing: true }, 'Please select an option.', this.inputRef)
+		} else {
+			this.validationMessage = ''
+			this.internals?.setValidity({})
+		}
+
 		return this.isValid
 	}
 
 	public reportValidity(): boolean {
-		if (this.required) {
-			this.checkValidity()
+		const valid = this.checkValidity()
+
+		if (!valid && this.required) {
+			// If invalid, make sure the input shows it
 			this.inputRef.required = true
-			if (!this.isValid) {
-				this.openDropdown()
-				this.inputRef.reportValidity()
-				return false
-			} else {
-				this.inputRef.reportValidity()
-				return true
+			this.inputRef.reportValidity()
+
+			// Optionally open the dropdown to show options
+			if (!this.isOpen) {
+				this.openDropdown(false)
 			}
 		}
-		return true
+
+		return valid
 	}
 
 	public setCustomValidity(message: string) {
 		this.validationMessage = message
+		this.internals?.setValidity(message ? { customError: true } : {}, message, this.inputRef)
+	}
+
+	public reset() {
+		this.value = ''
+		this.valueLabel = this.placeholder
+		this.isValid = true
+		this.validationMessage = ''
+		this.internals?.setValidity({})
+		this.options.forEach(o => (o.selected = false))
 	}
 
 	render(): TemplateResult {
@@ -273,6 +332,8 @@ export class SchmancySelect extends $LitElement(css`
 					.placeholder=${this.placeholder}
 					.value=${this.valueLabel}
 					.required=${this.required}
+					.hint=${this.hint || this.validationMessage}
+					.error=${!this.isValid}
 					readonly
 					@click=${() => (this.isOpen ? this.closeDropdown() : this.openDropdown(true))}
 				></schmancy-input>

@@ -42,7 +42,39 @@ export class DemoInput extends $LitElement(css`
 		]
 		const v = undefined
 		return html`
-			<schmancy-surface fill="all" type="surface" rounded="left">
+			<schmancy-surface type="container" fill="all" rounded="left">
+				<schmancy-surface type="surface" rounded="left">
+					<schmancy-form
+						@submit=${(e: CustomEvent) => {
+							console.log('Form submitted:', e.detail.data)
+							alert('Form submitted successfully! Check console for details.')
+						}}
+						class="p-2 flex flex-col gap-2"
+					>
+						<schmancy-typography type="headline">Form Example with Validation </schmancy-typography>
+						<schmancy-input
+							label="Full Name"
+							name="name"
+							placeholder="Enter your full name"
+							required
+							hint="Please provide your full legal name"
+						></schmancy-input>
+
+						<schmancy-select-timezones required></schmancy-select-timezones>
+
+						<schmancy-button variant="filled" type="submit">Submit</schmancy-button>
+					</schmancy-form>
+
+					<form>
+						<schmancy-select-countries
+							.value=${this.country}
+							@change=${(e: CustomEvent<SchmancyAutocompleteChangeEvent>) => {
+								console.log('e.detail', e.detail)
+							}}
+						></schmancy-select-countries>
+					</form>
+				</schmancy-surface>
+
 				<schmancy-grid class="p-4 w-full" flow="row" justify="start" gap="md">
 					<schmancy-checkbox> checkbox </schmancy-checkbox>
 					<!-- Single-select example -->
@@ -81,12 +113,6 @@ export class DemoInput extends $LitElement(css`
 						</schmancy-menu>
 					</schmancy-grid>
 
-					<schmancy-select-countries
-						.value=${this.country}
-						@change=${(e: CustomEvent<SchmancyAutocompleteChangeEvent>) => {
-							console.log('e.detail', e.detail)
-						}}
-					></schmancy-select-countries>
 					<schmancy-chips
 						.values=${['chip1']}
 						multi

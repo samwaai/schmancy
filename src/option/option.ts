@@ -10,18 +10,44 @@ export type SchmancyOptionChangeEvent = CustomEvent<{
 @customElement('schmancy-option')
 export default class SchmancyOption extends TailwindElement() {
 	@property({ type: String, reflect: true }) value: string = ''
-	@property({ type: String, reflect: true }) label: string | undefined
+	@property({ type: String, reflect: true, attribute: 'label' }) label: string | undefined
 	@property({ type: Boolean }) selected: boolean = false
 
+	// Add a method to update the label with slot content
+	private updateLabelFromSlot() {
+		if (!this.label) {
+			const slotContent = this.getSlotContent()
+			if (slotContent) {
+				this.label = slotContent
+			}
+		}
+	}
+
+	// Connect to lifecycle to update label when element is connected
+	connectedCallback() {
+		super.connectedCallback?.()
+		this.updateLabelFromSlot()
+	}
+
+	// Listen for slot changes to update label
+	firstUpdated() {
+		const slot = this.shadowRoot?.querySelector('slot:not([name])') as HTMLSlotElement
+		if (slot) {
+			slot.addEventListener('slotchange', () => {
+				this.updateLabelFromSlot()
+			})
+		}
+	}
+
 	private handleOptionClick() {
-		// Get the text content from the slot
-		const slotContent = this.getSlotContent()
+		// Update label from slot if not set
+		this.updateLabelFromSlot()
 
 		this.dispatchEvent(
 			new CustomEvent<SchmancyOptionChangeEvent['detail']>('click', {
 				detail: {
 					value: this.value,
-					label: this.label ?? slotContent ?? '',
+					label: this.label ?? '',
 				},
 				bubbles: true,
 				composed: true,
@@ -81,7 +107,7 @@ export default class SchmancyOption extends TailwindElement() {
 			>
 				<div class="${this.classMap(stateLayerClasses)}"></div>
 				<sch-flex class="text-start" align="center" justify="between" flow="row">
-					<slot class="self-start"></slot>
+					<slot class="self-start" @slotchange=${() => this.updateLabelFromSlot()}></slot>
 					<slot name="support">
 						<span></span>
 					</slot>

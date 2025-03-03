@@ -29,9 +29,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"dev": "vite --config demo/vite.config.ts --host",
-		"dev2": "vite --config demo2/vite.config.ts --host",
-		"build:demo": "vite build --config demo/vite.config.ts",
+		"dev": "vite --config vite.demo.config.ts --host",
+		"build:demo": "vite build --config vite.demo.config.ts",
 		"build": "tsc && vite build --config vite.config.ts",
 		"preview": "vite preview",
 		"watch": "npm-watch build:components",
