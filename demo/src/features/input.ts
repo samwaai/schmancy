@@ -5,7 +5,6 @@ import dayjs from 'dayjs'
 import { PropertyValueMap, css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import countries from './data/countries'
 
 @customElement('demo-input')
 export class DemoInput extends $LitElement(css`
@@ -82,24 +81,12 @@ export class DemoInput extends $LitElement(css`
 						</schmancy-menu>
 					</schmancy-grid>
 
-					<schmancy-autocomplete
-						@change=${(e: SchmancyAutocompleteChangeEvent) => {
-							this.country = e.detail.value as string
-							console.log('this.country', this.country)
+					<schmancy-select-countries
+						.value=${this.country}
+						@change=${(e: CustomEvent<SchmancyAutocompleteChangeEvent>) => {
+							console.log('e.detail', e.detail)
 						}}
-						label="Country"
-						.value=${this.country ?? ''}
-					>
-						${repeat(
-							countries ?? [],
-							c => c.code,
-							category =>
-								html` <schmancy-option label=${category.name ?? ''} value=${category.code ?? 0}>
-									${category.name}
-								</schmancy-option>`,
-						)}
-					</schmancy-autocomplete>
-
+					></schmancy-select-countries>
 					<schmancy-chips
 						.values=${['chip1']}
 						multi

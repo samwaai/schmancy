@@ -14,16 +14,34 @@ export default class SchmancyOption extends TailwindElement() {
 	@property({ type: Boolean }) selected: boolean = false
 
 	private handleOptionClick() {
+		// Get the text content from the slot
+		const slotContent = this.getSlotContent()
+
 		this.dispatchEvent(
 			new CustomEvent<SchmancyOptionChangeEvent['detail']>('click', {
 				detail: {
 					value: this.value,
-					label: this.label ?? this.textContent?.trim() ?? '',
+					label: this.label ?? slotContent ?? '',
 				},
 				bubbles: true,
 				composed: true,
 			}),
 		)
+	}
+
+	// Get content from the default slot
+	private getSlotContent(): string {
+		const slot = this.shadowRoot?.querySelector('slot:not([name])') as HTMLSlotElement
+		if (!slot) return ''
+
+		const assignedNodes = slot.assignedNodes()
+		if (assignedNodes.length === 0) return ''
+
+		// Combine the text content of all assigned nodes
+		return assignedNodes
+			.map(node => node.textContent?.trim() || '')
+			.join(' ')
+			.trim()
 	}
 
 	// override focus method to focus the native element
@@ -43,7 +61,6 @@ export default class SchmancyOption extends TailwindElement() {
 			'duration-500 transition-opacity': true,
 			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0': true,
 		}
-
 		return html`
 			<li
 				tabindex="0"

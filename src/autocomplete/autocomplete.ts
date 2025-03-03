@@ -1,10 +1,4 @@
-import {
-	computePosition,
-	flip,
-	offset,
-	shift,
-	size, // <-- NEW
-} from '@floating-ui/dom'
+import { computePosition, offset, shift, size } from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import SchmancyInput from '@schmancy/input/input'
