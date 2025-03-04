@@ -21,6 +21,7 @@ export class DemoSheet extends $LitElement(css`
 						sheet.open({
 							component: new DemoButton(),
 							header: 'visible',
+							lock: true,
 						})
 					}}
 				>

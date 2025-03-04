@@ -2,7 +2,7 @@ import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
-import { fromEvent, merge, takeUntil, tap } from 'rxjs'
+import { fromEvent, merge, of, take, takeUntil, tap } from 'rxjs'
 import { on } from './hook'
 import style from './sheet.scss?inline'
 import {
@@ -20,7 +20,8 @@ export default class SchmancySheet extends $LitElement(style) {
 	@property({ type: String, reflect: true }) header: 'hidden' | 'visible' = 'visible'
 	@property({ type: String, reflect: true }) position: SchmancySheetPosition = SchmancySheetPosition.Side
 	@property({ type: Boolean, reflect: true }) persist = false
-	@property({ type: Boolean, reflect: true }) allowOverlayDismiss = true
+	@property({ type: Boolean, reflect: true }) lock = false
+	@property({ type: Boolean, reflect: true }) handleHistory = true
 	@property({ type: String, reflect: true }) title = ''
 
 	@query('.sheet') private sheet!: HTMLElement
@@ -53,13 +54,22 @@ export default class SchmancySheet extends $LitElement(style) {
 	}
 
 	private setupEventListeners() {
-		// Handle ESC key
+		// Handle browser back button - only if handleHistory is true
+		const popState$ = this.handleHistory
+			? fromEvent<PopStateEvent>(window, 'popstate').pipe(
+					tap(e => {
+						e.preventDefault()
+						this.closeSheet()
+					}),
+				)
+			: of(null).pipe(take(0)) // Empty observable if handleHistory is false
+
+		// Handle ESC key - respect allowOverlayDismiss
 		const keyUp$ = fromEvent<KeyboardEvent>(window, 'keyup').pipe(
 			tap(event => {
-				if (event.key === 'Escape' && !this.sheetContainsFocus()) {
-					if (this.uid) {
-						sheet.dismiss(this.uid)
-					}
+				// Only handle ESC key dismissal if allowOverlayDismiss is true
+				if (event.key === 'Escape' && !this.sheetContainsFocus() && !this.lock) {
+					sheet.dismiss(this.uid)
 				}
 			}),
 		)
@@ -71,7 +81,7 @@ export default class SchmancySheet extends $LitElement(style) {
 			}),
 		)
 
-		merge(keyUp$, rickyComm$).pipe(takeUntil(this.disconnecting)).subscribe()
+		merge(popState$, keyUp$, rickyComm$).pipe(takeUntil(this.disconnecting)).subscribe()
 	}
 
 	private sheetContainsFocus(): boolean {
@@ -128,7 +138,7 @@ export default class SchmancySheet extends $LitElement(style) {
 					class="overlay"
 					@click=${(e: Event) => {
 						e.stopPropagation()
-						if (this.allowOverlayDismiss) sheet.dismiss(this.uid)
+						if (!this.lock) sheet.dismiss(this.uid)
 					}}
 				></div>
 				<schmancy-grid

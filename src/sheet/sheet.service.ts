@@ -39,15 +39,10 @@ type BottomSheeetTarget = {
 	position?: SchmancySheetPosition
 	persist?: boolean
 	close?: () => void
-	allowOverlyDismiss?: boolean
+	lock?: boolean // Controls both ESC and overlay click dismissal
+	handleHistory?: boolean // Controls browser back button behavior
 	title?: string
 	header?: 'hidden' | 'visible'
-	/**
-	 * If true, add a history entry when opening the sheet
-	 * so back button will close the sheet
-	 * @default true
-	 */
-	handleHistory?: boolean
 }
 
 // Events for communication between bottom-sheet component and bottom-sheet.service
@@ -104,6 +99,7 @@ class BottomSheetService {
 						),
 					]),
 				),
+
 				map(([sheet, target]) => {
 					console.log(sheet, target)
 					if (!sheet) {
@@ -113,16 +109,22 @@ class BottomSheetService {
 					}
 					sheet.setAttribute('uid', target.uid ?? target.component.tagName)
 
+					target.lock && sheet.setAttribute('lock', 'true')
+
 					// Use the dynamic position function here
-					const position = target.position || getPosition() // Use target.position if it's set, otherwise determine based on screen size
+					const position = target.position || getPosition()
 					sheet.setAttribute('position', position)
 
-					sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
 					target.title && sheet.setAttribute('title', target.title)
-					target.persist && sheet.setAttribute('persist', target.persist.toString())
+					target.persist && sheet.setAttribute('persist', target.persist ?? false)
 					target.header && sheet.setAttribute('header', target.header)
-					document.body.style.overflow = 'hidden' // lock the scroll of the host
 
+					// Handle history logic if the property exists
+					if (target.handleHistory !== undefined) {
+						sheet.setAttribute('handleHistory', String(target.handleHistory))
+					}
+
+					document.body.style.overflow = 'hidden' // lock the scroll of the host
 					return { target, sheet }
 				}),
 				delay(20),
