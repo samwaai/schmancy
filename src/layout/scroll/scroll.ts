@@ -36,7 +36,7 @@ export class SchmancyScroll extends TailwindElement(css`
 	render() {
 		// The classes are dynamically assigned based on the `hide` property.
 		const classes = {
-			'h-full w-full inset-0 overflow-x-scroll overflow-y-scroll scroll-smooth overscroll-contain': true,
+			'h-full w-full inset-0 overflow-x-auto overflow-y-auto scroll-smooth overscroll-contain': true,
 			'scrollbar-hide': this.hide,
 		}
 
