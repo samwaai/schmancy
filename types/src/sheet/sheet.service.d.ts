@@ -25,6 +25,12 @@ type BottomSheeetTarget = {
     allowOverlyDismiss?: boolean;
     title?: string;
     header?: 'hidden' | 'visible';
+    /**
+     * If true, add a history entry when opening the sheet
+     * so back button will close the sheet
+     * @default true
+     */
+    handleHistory?: boolean;
 };
 export type SheetWhereAreYouRickyEvent = CustomEvent<{
     uid: string;
@@ -37,9 +43,37 @@ export declare const SheetHereMorty = "yes-here";
 declare class BottomSheetService {
     bottomSheet: Subject<BottomSheeetTarget>;
     $dismiss: Subject<string>;
+    private activeSheets;
+    private popStateListenerActive;
     constructor();
+    /**
+     * Sets up the main sheet opening logic
+     */
+    private setupSheetOpeningLogic;
+    /**
+     * Sets up the sheet closing/dismissal logic
+     */
+    private setupSheetDismissLogic;
+    /**
+     * Sets up the popstate listener to handle browser back button
+     */
+    private setupPopStateListener;
+    /**
+     * Dismiss a sheet by uid
+     */
     dismiss(uid: string): void;
+    /**
+     * Open a sheet with the given target configuration
+     */
     open(target: BottomSheeetTarget): void;
+    /**
+     * Check if a sheet is currently open by uid
+     */
+    isOpen(uid: string): boolean;
+    /**
+     * Close all open sheets
+     */
+    closeAll(): void;
 }
 export declare const sheet: BottomSheetService;
 export {};

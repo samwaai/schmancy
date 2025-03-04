@@ -167,7 +167,7 @@ class BottomSheetService {
 						history.pushState(historyState, '', window.location.href)
 					}
 				}),
-				tap(({ sheet, target }) => {
+				tap(({ sheet }) => {
 					fromEvent<CustomEvent>(sheet, 'close')
 						.pipe(take(1))
 						.pipe(delay(300))
