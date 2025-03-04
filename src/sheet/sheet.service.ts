@@ -42,6 +42,12 @@ type BottomSheeetTarget = {
 	allowOverlyDismiss?: boolean
 	title?: string
 	header?: 'hidden' | 'visible'
+	/**
+	 * If true, add a history entry when opening the sheet
+	 * so back button will close the sheet
+	 * @default true
+	 */
+	handleHistory?: boolean
 }
 
 // Events for communication between bottom-sheet component and bottom-sheet.service
@@ -63,13 +69,27 @@ const getPosition = (): SchmancySheetPosition => {
 class BottomSheetService {
 	bottomSheet = new Subject<BottomSheeetTarget>()
 	$dismiss = new Subject<string>()
+	// Track currently open sheets by uid
+	private activeSheets = new Set<string>()
+	// To track if we've set up the popstate listener
+	private popStateListenerActive = false
+
 	constructor() {
+		this.setupSheetOpeningLogic()
+		this.setupSheetDismissLogic()
+		this.setupPopStateListener()
+	}
+
+	/**
+	 * Sets up the main sheet opening logic
+	 */
+	private setupSheetOpeningLogic() {
 		this.bottomSheet
 			.pipe(
 				switchMap(target =>
 					forkJoin([
 						fromEvent<SheetHereMortyEvent>(window, SheetHereMorty).pipe(
-							takeUntil(timer(0)),
+							takeUntil(timer(100)),
 							map(e => e.detail.sheet),
 							defaultIfEmpty(undefined),
 						),
@@ -93,15 +113,16 @@ class BottomSheetService {
 					}
 					sheet.setAttribute('uid', target.uid ?? target.component.tagName)
 
-					// **Use the dynamic position function here**
+					// Use the dynamic position function here
 					const position = target.position || getPosition() // Use target.position if it's set, otherwise determine based on screen size
 					sheet.setAttribute('position', position)
 
 					sheet.setAttribute('allowOverlyDismiss', target.allowOverlyDismiss === false ? 'false' : 'true')
 					target.title && sheet.setAttribute('title', target.title)
-					target.persist && sheet.setAttribute('persist', target.persist ?? false)
+					target.persist && sheet.setAttribute('persist', target.persist.toString())
 					target.header && sheet.setAttribute('header', target.header)
 					document.body.style.overflow = 'hidden' // lock the scroll of the host
+
 					return { target, sheet }
 				}),
 				delay(20),
@@ -124,10 +145,29 @@ class BottomSheetService {
 					sheet?.appendChild(target.component)
 				}),
 				delay(1),
-				tap(({ sheet }) => {
+				tap(({ target, sheet }) => {
 					sheet?.setAttribute('open', 'true')
+
+					// Add to active sheets tracking
+					const uid = target.uid ?? target.component.tagName
+					this.activeSheets.add(uid)
+
+					// Handle history integration - default to true if not specified
+					const shouldHandleHistory = target.handleHistory !== false
+
+					if (shouldHandleHistory) {
+						// Use history state to track this specific sheet
+						const historyState = {
+							schmancySheet: true,
+							uid: uid,
+							timestamp: Date.now(),
+						}
+
+						// Push a new history state
+						history.pushState(historyState, '', window.location.href)
+					}
 				}),
-				tap(({ sheet }) => {
+				tap(({ sheet, target }) => {
 					fromEvent<CustomEvent>(sheet, 'close')
 						.pipe(take(1))
 						.pipe(delay(300))
@@ -135,19 +175,30 @@ class BottomSheetService {
 							const target = e.target as SchmancySheet
 							console.log(target)
 
+							// Remove from active sheets tracking
+							const uid = target.getAttribute('uid')
+							if (uid) {
+								this.activeSheets.delete(uid)
+							}
+
 							if (!target?.persist) target?.remove()
 							document.body.style.overflow = 'auto' // unlock the scroll of the host
 						})
 				}),
 			)
 			.subscribe()
+	}
 
+	/**
+	 * Sets up the sheet closing/dismissal logic
+	 */
+	private setupSheetDismissLogic() {
 		this.$dismiss
 			.pipe(
 				mergeMap(uid =>
 					forkJoin([
 						fromEvent<SheetHereMortyEvent>(window, SheetHereMorty).pipe(
-							takeUntil(timer(100)), // Some people say why 10? I say why not?
+							takeUntil(timer(100)),
 							map(e => e.detail.sheet),
 							defaultIfEmpty(undefined),
 						),
@@ -158,19 +209,69 @@ class BottomSheetService {
 						),
 					]),
 				),
-				tap(([sheet]) => {
-					sheet?.closeSheet()
+				tap(([sheet, uid]) => {
+					if (sheet) {
+						sheet.closeSheet()
+						this.activeSheets.delete(uid)
+					}
 				}),
 			)
 			.subscribe()
 	}
 
+	/**
+	 * Sets up the popstate listener to handle browser back button
+	 */
+	private setupPopStateListener() {
+		if (this.popStateListenerActive) return
+
+		fromEvent<PopStateEvent>(window, 'popstate').subscribe(event => {
+			// If we have active sheets, close the most recently opened one
+			if (this.activeSheets.size > 0) {
+				const lastSheet = Array.from(this.activeSheets).pop()
+				if (lastSheet) {
+					this.dismiss(lastSheet)
+
+					// Prevent default navigation behavior by pushing a new state
+					// This effectively cancels out the back navigation
+					if (event.state && event.state.schmancySheet) {
+						history.pushState({}, '', window.location.href)
+					}
+				}
+			}
+		})
+
+		this.popStateListenerActive = true
+	}
+
+	/**
+	 * Dismiss a sheet by uid
+	 */
 	dismiss(uid: string) {
 		this.$dismiss.next(uid)
 	}
 
+	/**
+	 * Open a sheet with the given target configuration
+	 */
 	open(target: BottomSheeetTarget) {
 		this.bottomSheet.next(target)
+	}
+
+	/**
+	 * Check if a sheet is currently open by uid
+	 */
+	isOpen(uid: string): boolean {
+		return this.activeSheets.has(uid)
+	}
+
+	/**
+	 * Close all open sheets
+	 */
+	closeAll() {
+		Array.from(this.activeSheets).forEach(uid => {
+			this.dismiss(uid)
+		})
 	}
 }
 export const sheet = new BottomSheetService()
