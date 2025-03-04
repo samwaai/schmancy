@@ -22,15 +22,10 @@ type BottomSheeetTarget = {
     position?: SchmancySheetPosition;
     persist?: boolean;
     close?: () => void;
-    allowOverlyDismiss?: boolean;
+    lock?: boolean;
+    handleHistory?: boolean;
     title?: string;
     header?: 'hidden' | 'visible';
-    /**
-     * If true, add a history entry when opening the sheet
-     * so back button will close the sheet
-     * @default true
-     */
-    handleHistory?: boolean;
 };
 export type SheetWhereAreYouRickyEvent = CustomEvent<{
     uid: string;

@@ -6,7 +6,8 @@ export default class SchmancySheet extends SchmancySheet_base {
     header: 'hidden' | 'visible';
     position: SchmancySheetPosition;
     persist: boolean;
-    allowOverlayDismiss: boolean;
+    lock: boolean;
+    handleHistory: boolean;
     title: string;
     private sheet;
     private assignedElements;
