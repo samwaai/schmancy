@@ -1,6 +1,5 @@
 import { html, LitElement, nothing, PropertyValueMap } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
@@ -392,7 +391,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 					<label
 						for=${this.id}
 						id="label-${this.id}"
-						class=${classMap(labelClasses)}
+						class=${this.classMap(labelClasses)}
 						${color({
 							color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
 						})}
@@ -410,7 +409,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 				${ref(this.inputRef)}
 				id=${this.id}
 				name=${this.name}
-				class=${classMap(inputClasses)}
+				class=${this.classMap(inputClasses)}
 				.value=${this.value}
 				.type=${this.type}
 				.autocomplete=${this.autocomplete}

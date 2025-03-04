@@ -21,6 +21,7 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private inputRef;
     private options;
     private cleanupPositioner?;
+    private _userInteracted;
     constructor();
     get form(): HTMLFormElement;
     connectedCallback(): void;

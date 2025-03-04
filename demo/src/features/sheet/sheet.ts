@@ -20,7 +20,6 @@ export class DemoSheet extends $LitElement(css`
 					@click=${() => {
 						sheet.open({
 							component: new DemoButton(),
-							title: 'Bottom Sheet',
 							header: 'visible',
 						})
 					}}

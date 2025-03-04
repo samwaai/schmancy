@@ -1,6 +1,7 @@
 :host {
 	--overlay-color: var(--schmancy-sys-color-surface-dim);
-	--transition-duration: 0.2s;
+	--transition-duration: 200ms;
+	--transition-timing: ease-in-out;
 	--sheet-radius: 0;
 	--max-height: 100vh;
 }
@@ -11,7 +12,7 @@
 	z-index: 1000;
 	display: flex;
 	visibility: visible;
-	transition: visibility var(--transition-duration) ease-in-out;
+	transition: visibility var(--transition-duration) var(--transition-timing);
 
 	&[aria-hidden='true'] {
 		visibility: hidden;
@@ -36,12 +37,12 @@
 	inset: 0;
 	background: var(--overlay-color);
 	opacity: 0.8;
-	transition: opacity var(--transition-duration) ease-in-out;
+	transition: opacity var(--transition-duration) var(--transition-timing);
 }
 
 .content {
 	z-index: 1;
-	transition: transform var(--transition-duration) ease-in-out;
+	transition: transform var(--transition-duration) var(--transition-timing);
 	overflow: hidden;
 
 	&[data-position='side'] {
@@ -65,4 +66,32 @@
 		border-radius: 16px 16px 0 0;
 		max-height: 90vh;
 	}
+}
+
+/* Screen reader only class */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+/* Improved touch area for bottom sheet handle */
+[data-position='bottom']::before {
+	content: '';
+	position: absolute;
+	top: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 36px;
+	height: 4px;
+	background-color: var(--schmancy-sys-color-surface-onVariant);
+	opacity: 0.3;
+	border-radius: 2px;
+	z-index: 10;
 }

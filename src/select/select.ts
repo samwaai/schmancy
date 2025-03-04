@@ -47,6 +47,7 @@ export class SchmancySelect extends $LitElement(css`
 	@query('schmancy-input') private inputRef!: SchmancyInput
 	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
 	private cleanupPositioner?: () => void
+	@state() private _userInteracted = false
 
 	constructor() {
 		super()
@@ -89,8 +90,9 @@ export class SchmancySelect extends $LitElement(css`
 			const formValue = Array.isArray(this.value) ? this.value.join(',') : this.value
 			this.internals?.setFormValue(formValue)
 
-			// Check validity after value changes
-			if (this.required) {
+			// Only check validity if this isn't the first render
+			// and the component has been interacted with
+			if (this.required && this.hasUpdated && this._userInteracted) {
 				this.checkValidity()
 			}
 		}
@@ -216,6 +218,7 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	private handleOptionSelect(value: string) {
+		this._userInteracted = true
 		if (this.multi) {
 			const option = this.options.find(o => o.value === value)
 			if (!option) return
