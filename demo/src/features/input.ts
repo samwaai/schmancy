@@ -43,6 +43,56 @@ export class DemoInput extends $LitElement(css`
 		const v = undefined
 		return html`
 			<schmancy-surface type="container" fill="all" rounded="left">
+				<schmancy-surface type="container" class="p-2 mb-4">
+					<schmancy-typography type="headline">V2 Input Form</schmancy-typography>
+					<sch-form
+						@submit=${(e: CustomEvent) => {
+							console.log('V2 Form data:', e.detail.data)
+							alert('V2 Form submitted! Check console for details.')
+						}}
+						class="flex flex-col gap-2"
+					>
+						<sch-input
+							label="Email Address"
+							name="email"
+							type="email"
+							placeholder="example@domain.com"
+							required
+							hint="We'll never share your email"
+						></sch-input>
+
+						<sch-input
+							label="Password"
+							name="password"
+							type="password"
+							placeholder="Enter password"
+							required
+							hint="At least 8 characters"
+							minlength="8"
+						></sch-input>
+
+						<sch-input label="Birth Date" name="birthdate" type="date" required></sch-input>
+
+						<schmancy-select required label="Preferred Contact Method" name="contactMethod">
+							<schmancy-option value="email" label="Email">Email</schmancy-option>
+							<schmancy-option value="phone" label="Phone">Phone</schmancy-option>
+							<schmancy-option value="mail" label="Mail">Mail</schmancy-option>
+						</schmancy-select>
+
+						<schmancy-textarea
+							label="Additional Comments"
+							name="comments"
+							placeholder="Share your thoughts..."
+							rows="3"
+						></schmancy-textarea>
+
+						<div class="flex items-center mb-2">
+							<schmancy-checkbox name="subscribe">Subscribe to newsletter</schmancy-checkbox>
+						</div>
+
+						<schmancy-button variant="filled" type="submit">Submit V2 Form</schmancy-button>
+					</sch-form>
+				</schmancy-surface>
 				<schmancy-surface type="surface" rounded="left">
 					<schmancy-form
 						@submit=${(e: CustomEvent) => {

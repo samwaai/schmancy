@@ -36,6 +36,7 @@ export class SchmancySelect extends $LitElement(css`
 	@property({ type: Boolean }) multi = false
 	@property({ type: String }) label = ''
 	@property({ type: String }) hint = ''
+	@property({ type: String }) validateOn: 'always' | 'touched' | 'dirty' | 'submitted' = 'touched'
 
 	// Internal states
 	@state() private isOpen = false
@@ -44,10 +45,13 @@ export class SchmancySelect extends $LitElement(css`
 	@property({ type: String }) validationMessage = ''
 
 	@query('ul') private ul!: HTMLUListElement
-	@query('schmancy-input') private inputRef!: SchmancyInput
+	@query('sch-input') private inputRef!: SchmancyInput
 	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
 	private cleanupPositioner?: () => void
 	@state() private _userInteracted = false
+	@state() private _touched = false
+	@state() private _dirty = false
+	@state() private _submitted = false
 
 	constructor() {
 		super()
@@ -69,12 +73,36 @@ export class SchmancySelect extends $LitElement(css`
 			this.id = `schmancy-select-${Math.random().toString(36).substr(2, 9)}`
 		}
 		this.addEventListener('keydown', this.handleKeyDown)
+
+		// Listen for form submission events to mark field as submitted
+		if (this.internals?.form) {
+			this.internals.form.addEventListener('submit', () => {
+				this._submitted = true
+				this.checkValidity()
+			})
+
+			// Listen for form reset
+			this.internals.form.addEventListener('reset', () => {
+				this.reset()
+			})
+		}
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback()
 		this.removeEventListener('keydown', this.handleKeyDown)
 		this.cleanupPositioner?.()
+
+		// Remove form event listeners
+		if (this.internals?.form) {
+			this.internals.form.removeEventListener('submit', () => {
+				this._submitted = true
+			})
+
+			this.internals.form.removeEventListener('reset', () => {
+				this.reset()
+			})
+		}
 	}
 
 	firstUpdated() {
@@ -90,11 +118,36 @@ export class SchmancySelect extends $LitElement(css`
 			const formValue = Array.isArray(this.value) ? this.value.join(',') : this.value
 			this.internals?.setFormValue(formValue)
 
-			// Only check validity if this isn't the first render
-			// and the component has been interacted with
-			if (this.required && this.hasUpdated && this._userInteracted) {
+			// Mark as dirty if value changes from initial value
+			if (this.hasUpdated) {
+				this._dirty = true
+			}
+
+			// Check validity based on validation strategy
+			if (this.hasUpdated) {
 				this.checkValidity()
 			}
+		}
+	}
+
+	/**
+	 * Determines if validation errors should be shown based on current state
+	 * and validation strategy
+	 */
+	private shouldShowValidation(forceValidation = false): boolean {
+		if (forceValidation) return true
+
+		switch (this.validateOn) {
+			case 'always':
+				return true
+			case 'touched':
+				return this._touched
+			case 'dirty':
+				return this._dirty
+			case 'submitted':
+				return this._submitted
+			default:
+				return this._touched
 		}
 	}
 
@@ -197,6 +250,7 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	private async openDropdown(report = false) {
+		this._touched = true // Mark as touched when dropdown is opened
 		this.isOpen = true
 		await this.updateComplete
 
@@ -206,19 +260,29 @@ export class SchmancySelect extends $LitElement(css`
 		const options = Array.from(this.ul.querySelectorAll('[role="option"]')) as HTMLElement[]
 		const selectedIndex = this.multi ? 0 : options.findIndex(o => o.getAttribute('value') === this.value)
 		this.focusOption(options, Math.max(selectedIndex, 0))
+
 		if (report) this.reportValidity()
 	}
 
 	private closeDropdown() {
+		this._touched = true // Mark as touched when dropdown is closed
 		this.isOpen = false
 		this.cleanupPositioner?.()
 		const combobox = this.renderRoot.querySelector<HTMLElement>('.trigger')
 		combobox?.removeAttribute('aria-activedescendant')
 		combobox?.focus()
+
+		// Check validity when closing, respecting validation strategy
+		if (this.shouldShowValidation()) {
+			this.checkValidity()
+		}
 	}
 
 	private handleOptionSelect(value: string) {
 		this._userInteracted = true
+		this._touched = true
+		this._dirty = true
+
 		if (this.multi) {
 			const option = this.options.find(o => o.value === value)
 			if (!option) return
@@ -252,13 +316,13 @@ export class SchmancySelect extends $LitElement(css`
 		}
 
 		this.setupOptionsAccessibility()
+
+		// Check validity respecting validation strategy
 		this.checkValidity()
 	}
 
 	private dispatchChange(value: string | string[]) {
-		this.isValid = true // Reset validation on change
-		this.validationMessage = ''
-
+		// Dispatch events first
 		this.dispatchEvent(
 			new CustomEvent<SchmancySelectChangeEvent['detail']>('change', {
 				detail: { value },
@@ -266,38 +330,53 @@ export class SchmancySelect extends $LitElement(css`
 				composed: true,
 			}),
 		)
-
-		// Also dispatch a standard change event for better form compatibility
 		this.dispatchEvent(new Event('change', { bubbles: true }))
+
+		// Then check validity (only show error if validation should be shown)
+		this.checkValidity()
 	}
 
 	public checkValidity(): boolean {
+		// Determine if the select is empty based on whether it's multi-select or single-select
 		const isEmpty = this.multi ? !Array.isArray(this.value) || this.value.length === 0 : !this.value
 
-		this.isValid = !(this.required && isEmpty)
+		// Check if the value is valid (not empty when required)
+		const isValid = !(this.required && isEmpty)
+
+		// Set the validity state
+		this.isValid = isValid
 
 		if (!this.isValid) {
 			this.validationMessage = 'Please select an option.'
 			this.internals?.setValidity({ valueMissing: true }, 'Please select an option.', this.inputRef)
 		} else {
+			// Clear validation message
 			this.validationMessage = ''
 			this.internals?.setValidity({})
+		}
+
+		// Update the input component to reflect our validation state
+		if (this.inputRef && this.hasUpdated) {
+			const showError = !this.isValid && this.shouldShowValidation()
+			this.inputRef.error = showError
 		}
 
 		return this.isValid
 	}
 
 	public reportValidity(): boolean {
+		// Force validation display regardless of validation strategy
 		const valid = this.checkValidity()
 
-		if (!valid && this.required) {
-			// If invalid, make sure the input shows it
-			this.inputRef.required = true
-			this.inputRef.reportValidity()
+		// Force the input to show validation errors
+		if (this.inputRef) {
+			// Set the input's error state
+			this.inputRef.error = !valid
+			this.inputRef.hint = !valid ? this.validationMessage : this.hint
 
-			// Optionally open the dropdown to show options
-			if (!this.isOpen) {
-				this.openDropdown(false)
+			// Only call reportValidity on the input if invalid to show the native popup
+			if (!valid) {
+				this.inputRef.reportValidity()
 			}
 		}
 
@@ -306,7 +385,19 @@ export class SchmancySelect extends $LitElement(css`
 
 	public setCustomValidity(message: string) {
 		this.validationMessage = message
-		this.internals?.setValidity(message ? { customError: true } : {}, message, this.inputRef)
+		if (message) {
+			this.isValid = false
+			this.internals?.setValidity({ customError: true }, message, this.inputRef)
+		} else {
+			this.isValid = true
+			this.internals?.setValidity({})
+		}
+
+		// Update input if needed
+		if (this.inputRef && this.shouldShowValidation()) {
+			this.inputRef.error = !this.isValid
+			this.inputRef.hint = !this.isValid ? this.validationMessage : this.hint
+		}
 	}
 
 	public reset() {
@@ -314,14 +405,26 @@ export class SchmancySelect extends $LitElement(css`
 		this.valueLabel = this.placeholder
 		this.isValid = true
 		this.validationMessage = ''
+		this._touched = false
+		this._dirty = false
+		this._submitted = false
+		this._userInteracted = false
 		this.internals?.setValidity({})
 		this.options.forEach(o => (o.selected = false))
+
+		if (this.inputRef) {
+			this.inputRef.error = false
+			this.inputRef.hint = this.hint
+		}
 	}
 
 	render(): TemplateResult {
+		// Determine if we should show errors based on the validation strategy
+		const showErrors = !this.isValid && this.shouldShowValidation()
+
 		return html`
 			<div class="relative">
-				<schmancy-input
+				<sch-input
 					.name=${this.name}
 					tabIndex="0"
 					class="trigger"
@@ -335,11 +438,12 @@ export class SchmancySelect extends $LitElement(css`
 					.placeholder=${this.placeholder}
 					.value=${this.valueLabel}
 					.required=${this.required}
-					.hint=${this.hint || this.validationMessage}
-					.error=${!this.isValid}
+					.hint=${showErrors ? this.validationMessage : this.hint}
+					.error=${showErrors}
+					.validateOn=${this.validateOn}
 					readonly
 					@click=${() => (this.isOpen ? this.closeDropdown() : this.openDropdown(true))}
-				></schmancy-input>
+				></sch-input>
 
 				<div
 					id="overlay"
