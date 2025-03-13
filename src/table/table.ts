@@ -1,3 +1,4 @@
+import '@lit-labs/virtualizer'
 import { $LitElement } from '@mixins/litElement.mixin'
 import { html, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -49,9 +50,9 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 
 	render(): TemplateResult {
 		return html`
-			<schmancy-surface-v2 fill="all" type="container" rounded="all" elevation="2">
+			<schmancy-surface fill="all" type="container" rounded="all" elevation="2">
 				<schmancy-grid class="h-full w-full" cols="1fr" rows="auto 1fr">
-					<schmancy-surface-v2 rounded="top" elevation="1" type="containerHighest" class="sticky top-0 z-10">
+					<schmancy-surface rounded="top" elevation="1" type="containerHighest" class="sticky top-0 z-10">
 						<schmancy-grid align="center" class="px-4 py-3" .cols=${this.cols} gap="md" rows="1fr">
 							${this.columns.map(
 								column => html`
@@ -61,7 +62,7 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 								`,
 							)}
 						</schmancy-grid>
-					</schmancy-surface-v2>
+					</schmancy-surface>
 
 					<lit-virtualizer
 						scroller
@@ -89,7 +90,7 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 							` as TemplateResult}
 					></lit-virtualizer>
 				</schmancy-grid>
-			</schmancy-surface-v2>
+			</schmancy-surface>
 		`
 	}
 }
