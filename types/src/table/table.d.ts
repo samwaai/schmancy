@@ -11,7 +11,7 @@ export interface RowEventDetail<T> {
     item: T;
     index: number;
 }
-declare const SchmancyDataTable_base: CustomElementConstructor & import("@mhmo91/schmancy/dist/mixins").Constructor<import("lit").LitElement> & import("@mhmo91/schmancy/dist/mixins").Constructor<import("@mhmo91/schmancy/dist/mixins").IBaseMixin>;
+declare const SchmancyDataTable_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyDataTable<T extends Record<string, any> = any> extends SchmancyDataTable_base {
     columns: TableColumn<T>[];
     data: T[];

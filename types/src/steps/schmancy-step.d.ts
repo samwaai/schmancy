@@ -1,4 +1,4 @@
-declare const SchmancyStep_base: CustomElementConstructor & import("@mhmo91/schmancy/dist/mixins").Constructor<import("lit").LitElement> & import("@mhmo91/schmancy/dist/mixins").Constructor<import("@mhmo91/schmancy/dist/mixins").IBaseMixin>;
+declare const SchmancyStep_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyStep extends SchmancyStep_base {
     /**
      * The step's position (1-based). This is used to compare against

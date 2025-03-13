@@ -1,4 +1,4 @@
-import { $LitElement } from '@mhmo91/schmancy/dist/mixins'
+import { $LitElement } from '@mixins/litElement.mixin'
 import { css, html, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'

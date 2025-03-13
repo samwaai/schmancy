@@ -1,5 +1,5 @@
 import { StepsController } from './steps.context';
-declare const SchmancyStepsContainer_base: CustomElementConstructor & import("@mhmo91/schmancy/dist/mixins").Constructor<import("lit").LitElement> & import("@mhmo91/schmancy/dist/mixins").Constructor<import("@mhmo91/schmancy/dist/mixins").IBaseMixin>;
+declare const SchmancyStepsContainer_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyStepsContainer extends SchmancyStepsContainer_base {
     private controller;
     stepsController: StepsController;

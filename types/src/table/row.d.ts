@@ -1,6 +1,6 @@
 import { TemplateResult } from 'lit';
 import { TableColumn } from './table';
-declare const SchmancyTableRow_base: CustomElementConstructor & import("@mhmo91/schmancy/dist/mixins").Constructor<import("lit").LitElement> & import("@mhmo91/schmancy/dist/mixins").Constructor<import("@mhmo91/schmancy/dist/mixins").IBaseMixin>;
+declare const SchmancyTableRow_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyTableRow extends SchmancyTableRow_base {
     columns: TableColumn[];
     item: any;

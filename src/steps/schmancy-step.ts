@@ -1,10 +1,10 @@
 import { consume } from '@lit/context'
-import { $LitElement } from '@mhmo91/schmancy/dist/mixins'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { Subscription } from 'rxjs'
 import { stepsContext, StepsController } from './steps.context'
+import { $LitElement } from '@mixins/litElement.mixin'
 
 @customElement('schmancy-step')
 export class SchmancyStep extends $LitElement(css`
@@ -155,14 +155,14 @@ export class SchmancyStep extends $LitElement(css`
 												clip-rule="evenodd"
 											/>
 										</svg>
-								  `
+									`
 								: html`
 										<span
 											class="size-2.5 rounded-full ${isActive
 												? 'bg-tertiary-default'
 												: 'bg-transparent group-hover:bg-gray-300'}"
 										></span>
-								  `}
+									`}
 						</span>
 					</span>
 

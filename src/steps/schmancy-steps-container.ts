@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { $LitElement } from '@mhmo91/schmancy/dist/mixins'
+import { $LitElement } from '@mixins/litElement.mixin'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { StepsController, stepsContext } from './steps.context'
