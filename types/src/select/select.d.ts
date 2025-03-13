@@ -13,6 +13,7 @@ export declare class SchmancySelect extends SchmancySelect_base {
     multi: boolean;
     label: string;
     hint: string;
+    validateOn: 'always' | 'touched' | 'dirty' | 'submitted';
     private isOpen;
     private valueLabel;
     private isValid;
@@ -21,13 +22,21 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private inputRef;
     private options;
     private cleanupPositioner?;
-    private _userInteracted;
+    _userInteracted: boolean;
+    private _touched;
+    private _dirty;
+    private _submitted;
     constructor();
     get form(): HTMLFormElement;
     connectedCallback(): void;
     disconnectedCallback(): void;
     firstUpdated(): void;
     updated(changedProps: PropertyValues): void;
+    /**
+     * Determines if validation errors should be shown based on current state
+     * and validation strategy
+     */
+    private shouldShowValidation;
     private syncSelection;
     private setupOptionsAccessibility;
     private positionDropdown;

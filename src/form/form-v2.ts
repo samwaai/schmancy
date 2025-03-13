@@ -28,11 +28,6 @@ export interface FormControlConfig {
 	canSubmit?: boolean
 }
 
-export interface FormEventMap {
-	submit: CustomEvent<FormData>
-	reset: CustomEvent
-}
-
 /**
  * The form is a component used to collect user input from
  * interactive controls.

@@ -15,7 +15,7 @@ import style from './input.scss?inline'
 // If you want to be form-associated, define the type on `ElementInternals`.
 declare global {
 	interface HTMLElementTagNameMap {
-		'sch-input': SchmancyInput
+		'sch-input': SchmancyInputV2
 	}
 }
 
@@ -29,9 +29,9 @@ type EventDetails = {
  * - 'change': on native blur/change
  * - 'enter': specifically when user presses Enter
  */
-export type SchmancyInputInputEvent = CustomEvent<EventDetails>
-export type SchmancyInputChangeEvent = CustomEvent<EventDetails>
-export type SchmancyInputEnterEvent = CustomEvent<EventDetails>
+export type SchmancyInputInputEventV2 = CustomEvent<EventDetails>
+export type SchmancyInputChangeEventV2 = CustomEvent<EventDetails>
+export type SchmancyInputEnterEventV2 = CustomEvent<EventDetails>
 
 /**
  * Size variants for the input.
@@ -41,13 +41,20 @@ export type SchmancyInputEnterEvent = CustomEvent<EventDetails>
  */
 export type InputSize = 'sm' | 'md' | 'lg'
 
+/**
+ * Enhanced version of the SchmancyInput component with improved form integration
+ * and compatibility with legacy API.
+ *
+ * This component uses the native form association API and maintains parity with
+ * native input behaviors while providing a stylish, accessible interface.
+ */
 @customElement('sch-input')
-export default class SchmancyInput extends TailwindElement(style) {
+export default class SchmancyInputV2 extends TailwindElement(style) {
 	// ----------------------------
 	//  A) Public properties
 	// ----------------------------
 
-	/** If user does NOT set `id`, we'll autogenerate one. */
+	/** Auto-incrementing counter for generating unique IDs */
 	static _idCounter = 0
 
 	@property({ reflect: true })
@@ -112,7 +119,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	@property()
 	public inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url'
 
-	@property({ type: Number })
+	@property({ type: Number, reflect: true })
 	public minlength?: number
 
 	@property({ type: Number })
@@ -139,7 +146,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	 * tabIndex for focusing by tab key. Typically 0 or -1.
 	 */
 	@property({ type: Number, reflect: true })
-	public tabIndex = 0
+	public override tabIndex = 0
 
 	/**
 	 * A small hint text or error message to display under the input.
@@ -173,17 +180,27 @@ export default class SchmancyInput extends TailwindElement(style) {
 	@property({ type: String })
 	public validateOn: 'always' | 'touched' | 'dirty' | 'submitted' = 'touched'
 
+	/**
+	 * For datalist support
+	 */
+	@property({ type: String })
+	public list?: string
+
+	/**
+	 * The validation message to display (mimics native input.validationMessage)
+	 */
+	@property({ type: String })
+	public validationMessage = ''
+
 	// ----------------------------
 	//  B) Queries & Refs
 	// ----------------------------
 	@query('input') private inputElement!: HTMLInputElement
 	private inputRef = createRef<HTMLInputElement>()
 
-	/**
-	 * For datalist support
-	 */
-	@property({ type: String })
-	public list?: string
+	// ----------------------------
+	//  C) Internal States
+	// ----------------------------
 
 	/**
 	 * For integration with browser's autofill support
@@ -203,8 +220,14 @@ export default class SchmancyInput extends TailwindElement(style) {
 	@state()
 	private submitted = false
 
+	/**
+	 * Store the default value for reset behavior
+	 */
+	@state()
+	private defaultValue = ''
+
 	// ----------------------------
-	//  C) Form-associated logic
+	//  D) Form-associated logic
 	// ----------------------------
 	static formAssociated = true
 	protected static shadowRootOptions = {
@@ -228,18 +251,12 @@ export default class SchmancyInput extends TailwindElement(style) {
 	}
 
 	/**
-	 * Store the default value for reset behavior
-	 */
-	@state()
-	private defaultValue = ''
-
-	/**
 	 * If user did not provide an ID, auto-generate one so <label for="...">
 	 * and various aria-* attributes can reference it.
 	 */
 	protected override willUpdate(changedProps: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
 		if (!this.id) {
-			this.id = `sch-input-${SchmancyInput._idCounter++}`
+			this.id = `sch-input-${SchmancyInputV2._idCounter++}`
 		}
 		super.willUpdate(changedProps)
 	}
@@ -247,94 +264,6 @@ export default class SchmancyInput extends TailwindElement(style) {
 	/** The form this element is associated with, if any. */
 	get form() {
 		return this.internals?.form ?? null
-	}
-
-	/**
-	 * Connect to the closest form element
-	 */
-	connectedCallback() {
-		super.connectedCallback()
-
-		// Store initial default value for form reset
-		this.defaultValue = this.value
-
-		// Listen for form reset events
-		if (this.internals?.form) {
-			this.formResetObserver = new MutationObserver(mutations => {
-				for (const mutation of mutations) {
-					if (mutation.type === 'attributes' && mutation.attributeName === 'reset') {
-						// Reset value to default when form is reset
-						this.value = this.defaultValue
-						this.touched = false
-						this.dirty = false
-						this.submitted = false
-						this.dispatchEvent(new CustomEvent('reset', { bubbles: true }))
-					}
-				}
-			})
-
-			// Observe the form for reset events
-			this.formResetObserver.observe(this.internals.form, {
-				attributes: true,
-				childList: false,
-				subtree: false,
-			})
-
-			// Also directly listen for the reset event
-			this.internals.form.addEventListener('reset', () => {
-				this.value = this.defaultValue
-				this.touched = false
-				this.dirty = false
-				this.submitted = false
-				this.dispatchEvent(new CustomEvent('reset', { bubbles: true }))
-			})
-
-			// Listen for form submit events to mark field as submitted
-			this.internals.form.addEventListener('submit', () => {
-				this.submitted = true
-				// Validate on form submission
-				this.validateInput(true)
-			})
-		}
-
-		// Setup for external label association
-		// This allows using a standard <label for="input-id"> to focus this input
-		if (this.id) {
-			const labelClickListener = (e: Event) => {
-				const labels = document.querySelectorAll(`label[for="${this.id}"]`)
-				labels.forEach(label => {
-					label.addEventListener('click', () => {
-						this.focus()
-					})
-				})
-			}
-
-			// Initialize after DOM is ready
-			if (document.readyState === 'complete') {
-				labelClickListener(new Event('DOMContentLoaded'))
-			} else {
-				document.addEventListener('DOMContentLoaded', labelClickListener)
-			}
-		}
-	}
-
-	disconnectedCallback() {
-		super.disconnectedCallback()
-
-		// Clean up the observer
-		if (this.formResetObserver) {
-			this.formResetObserver.disconnect()
-		}
-
-		// Remove any external label click listeners
-		if (this.id) {
-			const labels = document.querySelectorAll(`label[for="${this.id}"]`)
-			labels.forEach(label => {
-				label.removeEventListener('click', () => {
-					this.focus()
-				})
-			})
-		}
 	}
 
 	protected override updated(changedProps: Map<string, unknown>) {
@@ -366,6 +295,112 @@ export default class SchmancyInput extends TailwindElement(style) {
 	}
 
 	/**
+	 * Connect to the closest form element and set up form integration
+	 */
+	connectedCallback() {
+		super.connectedCallback()
+
+		// Store initial default value for form reset
+		this.defaultValue = this.value
+
+		// Set up form integration
+		this.setupFormIntegration()
+
+		// Setup for external label association
+		this.setupExternalLabelAssociation()
+	}
+
+	/**
+	 * Set up form integration with ElementInternals
+	 */
+	private setupFormIntegration() {
+		if (this.internals?.form) {
+			// Listen for form reset events
+			this.formResetObserver = new MutationObserver(mutations => {
+				for (const mutation of mutations) {
+					if (mutation.type === 'attributes' && mutation.attributeName === 'reset') {
+						this.resetToDefault()
+					}
+				}
+			})
+
+			// Observe the form for reset events
+			this.formResetObserver.observe(this.internals.form, {
+				attributes: true,
+				childList: false,
+				subtree: false,
+			})
+
+			// Also directly listen for the reset event
+			this.internals.form.addEventListener('reset', () => {
+				this.resetToDefault()
+			})
+
+			// Listen for form submit events to mark field as submitted
+			this.internals.form.addEventListener('submit', () => {
+				this.submitted = true
+				// Validate on form submission
+				this.validateInput(true)
+			})
+		}
+	}
+
+	/**
+	 * Set up external label association for native HTML label support
+	 */
+	private setupExternalLabelAssociation() {
+		if (this.id) {
+			const setupLabelClickListener = () => {
+				const labels = document.querySelectorAll(`label[for="${this.id}"]`)
+				labels.forEach(label => {
+					label.addEventListener('click', () => {
+						this.focus()
+					})
+				})
+			}
+
+			// Initialize after DOM is ready
+			if (document.readyState === 'complete') {
+				setupLabelClickListener()
+			} else {
+				document.addEventListener('DOMContentLoaded', setupLabelClickListener)
+			}
+		}
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback()
+
+		// Clean up the form observer
+		if (this.formResetObserver) {
+			this.formResetObserver.disconnect()
+		}
+
+		// Clean up external label click listeners
+		if (this.id) {
+			const labels = document.querySelectorAll(`label[for="${this.id}"]`)
+			labels.forEach(label => {
+				label.removeEventListener('click', () => {
+					this.focus()
+				})
+			})
+		}
+	}
+
+	/**
+	 * Reset the input to its default state
+	 */
+	private resetToDefault() {
+		this.value = this.defaultValue
+		this.touched = false
+		this.dirty = false
+		this.submitted = false
+		this.error = false
+		this.validationMessage = ''
+		this.dispatchEvent(new CustomEvent('reset', { bubbles: true }))
+	}
+
+	/**
 	 * Determines if validation errors should be shown based on current state
 	 * and validation strategy
 	 */
@@ -391,7 +426,12 @@ export default class SchmancyInput extends TailwindElement(style) {
 	 */
 	private updateValidityState() {
 		if (this.error) {
-			this.internals?.setValidity({ customError: true }, this.validationMessage || 'Invalid input', this.inputElement)
+			// Only set custom validity if validationMessage is provided
+			if (this.validationMessage) {
+				this.internals?.setValidity({ customError: true }, this.validationMessage, this.inputElement)
+			} else {
+				this.internals?.setValidity({ customError: true }, 'Invalid input', this.inputElement)
+			}
 		} else {
 			this.internals?.setValidity({})
 		}
@@ -400,9 +440,6 @@ export default class SchmancyInput extends TailwindElement(style) {
 	/**
 	 * Validate input based on required, pattern, etc.
 	 * This mimics native validation behavior
-	 *
-	 * ISSUE: Even with valid input, error state remains true
-	 * FIX: The problem is in the conditional logic that clears the error state
 	 */
 	private validateInput(forceValidation = false) {
 		// Skip validation for disabled inputs
@@ -451,16 +488,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	}
 
 	/**
-	 * The validation message to display (mimics native input.validationMessage)
-	 */
-	@property({ type: String })
-	public validationMessage = ''
-
-	/**
-	 * Native form methods:
-	 * - checkValidity()
-	 * - reportValidity()
-	 * - setCustomValidity()
+	 * Check validity without showing validation UI
 	 */
 	public checkValidity() {
 		// Check internal input first
@@ -475,6 +503,9 @@ export default class SchmancyInput extends TailwindElement(style) {
 		return inputValid
 	}
 
+	/**
+	 * Show validation UI and check validity
+	 */
 	public reportValidity() {
 		// Mark as touched and submitted to show validation
 		this.touched = true
@@ -495,6 +526,9 @@ export default class SchmancyInput extends TailwindElement(style) {
 		return inputValid
 	}
 
+	/**
+	 * Set a custom validation error message
+	 */
 	public setCustomValidity(message: string) {
 		// Set on the native input
 		if (this.inputRef.value) {
@@ -516,7 +550,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	}
 
 	// ----------------------------
-	//  D) Lifecycle Hooks
+	//  E) Lifecycle Hooks & Event Handlers
 	// ----------------------------
 	firstUpdated() {
 		// Autofocus if desired
@@ -527,7 +561,17 @@ export default class SchmancyInput extends TailwindElement(style) {
 			}, 0)
 		}
 
-		// 1) Subscribe to 'input' events (every keystroke)
+		// Subscribe to input events
+		this.setupInputEvents()
+		this.setupFocusBlurEvents()
+		this.setupAutofillDetection()
+		this.setupEnterKeyEvents()
+	}
+
+	/**
+	 * Set up input event handling for value changes
+	 */
+	private setupInputEvents() {
 		fromEvent<InputEvent>(this.inputElement, 'input')
 			.pipe(
 				map(ev => {
@@ -567,11 +611,20 @@ export default class SchmancyInput extends TailwindElement(style) {
 
 				this.dispatchEvent(customEvent)
 
+				// Also fire change event like original input component
+				this.dispatchEvent(
+					new CustomEvent<EventDetails>('change', {
+						detail: { value: eventData.value },
+						bubbles: true,
+						composed: true,
+					}),
+				)
+
 				// Run validation like native inputs do on input, but respect the validation strategy
 				this.validateInput()
 			})
 
-		// 2) Subscribe to 'change' events (native behavior, usually on blur)
+		// Subscribe to native change events (usually on blur)
 		fromEvent<Event>(this.inputElement, 'change')
 			.pipe(
 				map(ev => (ev.target as HTMLInputElement).value),
@@ -594,78 +647,12 @@ export default class SchmancyInput extends TailwindElement(style) {
 				// Run validation on change like native inputs
 				this.validateInput()
 			})
+	}
 
-		// 3) Emit a custom 'enter' event when user presses Enter
-		fromEvent<KeyboardEvent>(this.inputElement, 'keyup')
-			.pipe(
-				filter(ev => ev.key === 'Enter'),
-				takeUntil(this.disconnecting),
-			)
-			.subscribe(ev => {
-				const { value } = ev.target as HTMLInputElement
-				this.value = value
-				this.dirty = this.value !== this.defaultValue
-
-				// Dispatch enhanced enter event
-				const enterEvent = new CustomEvent<EventDetails>('enter', {
-					detail: { value },
-					bubbles: true,
-					composed: true,
-				})
-
-				// Add extra keyboard event props
-				Object.defineProperties(enterEvent, {
-					key: { value: 'Enter' },
-					code: { value: 'Enter' },
-					keyCode: { value: 13 },
-					which: { value: 13 },
-				})
-
-				this.dispatchEvent(enterEvent)
-			})
-
-		// 4) Detect autofill animation (Chrome, etc.)
-		fromEvent<AnimationEvent>(this.inputElement, 'animationstart')
-			.pipe(
-				filter(ev => ev.animationName === 'onAutoFillStart'),
-				takeUntil(this.disconnecting),
-			)
-			.subscribe(ev => {
-				const { value } = ev.target as HTMLInputElement
-				this.value = value
-				this.isAutofilled = true
-				this.dirty = this.value !== this.defaultValue
-
-				// Dispatch autofill event for integration with autofill systems
-				this.dispatchEvent(
-					new CustomEvent('autofill', {
-						detail: { value },
-						bubbles: true,
-						composed: true,
-					}),
-				)
-
-				// Also propagate as a change event like browsers do
-				this.dispatchEvent(
-					new CustomEvent<EventDetails>('change', {
-						detail: { value },
-						bubbles: true,
-						composed: true,
-					}),
-				)
-			})
-
-		// 5) Detect end of autofill (Chrome)
-		fromEvent<AnimationEvent>(this.inputElement, 'animationstart')
-			.pipe(
-				filter(ev => ev.animationName === 'onAutoFillCancel'),
-				takeUntil(this.disconnecting),
-			)
-			.subscribe(() => {
-				this.isAutofilled = false
-			})
-
-		// 6) Forward blur and focus events with proper event properties
+	/**
+	 * Set up focus/blur event handling
+	 */
+	private setupFocusBlurEvents() {
 		fromEvent<FocusEvent>(this.inputElement, 'focus')
 			.pipe(takeUntil(this.disconnecting))
 			.subscribe(ev => {
@@ -711,8 +698,88 @@ export default class SchmancyInput extends TailwindElement(style) {
 			})
 	}
 
+	/**
+	 * Set up autofill detection
+	 */
+	private setupAutofillDetection() {
+		// Detect autofill animation (Chrome, etc.)
+		fromEvent<AnimationEvent>(this.inputElement, 'animationstart')
+			.pipe(
+				filter(ev => ev.animationName === 'onAutoFillStart'),
+				takeUntil(this.disconnecting),
+			)
+			.subscribe(ev => {
+				const { value } = ev.target as HTMLInputElement
+				this.value = value
+				this.isAutofilled = true
+				this.dirty = this.value !== this.defaultValue
+
+				// Dispatch autofill event for integration with autofill systems
+				this.dispatchEvent(
+					new CustomEvent('autofill', {
+						detail: { value },
+						bubbles: true,
+						composed: true,
+					}),
+				)
+
+				// Also propagate as a change event like browsers do
+				this.dispatchEvent(
+					new CustomEvent<EventDetails>('change', {
+						detail: { value },
+						bubbles: true,
+						composed: true,
+					}),
+				)
+			})
+
+		// Detect end of autofill (Chrome)
+		fromEvent<AnimationEvent>(this.inputElement, 'animationstart')
+			.pipe(
+				filter(ev => ev.animationName === 'onAutoFillCancel'),
+				takeUntil(this.disconnecting),
+			)
+			.subscribe(() => {
+				this.isAutofilled = false
+			})
+	}
+
+	/**
+	 * Set up enter key event handling
+	 */
+	private setupEnterKeyEvents() {
+		// Emit a custom 'enter' event when user presses Enter
+		fromEvent<KeyboardEvent>(this.inputElement, 'keyup')
+			.pipe(
+				filter(ev => ev.key === 'Enter'),
+				takeUntil(this.disconnecting),
+			)
+			.subscribe(ev => {
+				const { value } = ev.target as HTMLInputElement
+				this.value = value
+				this.dirty = this.value !== this.defaultValue
+
+				// Dispatch enhanced enter event
+				const enterEvent = new CustomEvent<EventDetails>('enter', {
+					detail: { value },
+					bubbles: true,
+					composed: true,
+				})
+
+				// Add extra keyboard event props
+				Object.defineProperties(enterEvent, {
+					key: { value: 'Enter' },
+					code: { value: 'Enter' },
+					keyCode: { value: 13 },
+					which: { value: 13 },
+				})
+
+				this.dispatchEvent(enterEvent)
+			})
+	}
+
 	// ----------------------------
-	//  E) Utility Methods
+	//  F) Utility Methods
 	// ----------------------------
 	/** Selects all text within the input. */
 	public select() {
@@ -722,6 +789,50 @@ export default class SchmancyInput extends TailwindElement(style) {
 	/** Returns the native validity state of the inner <input>. */
 	public getValidity(): ValidityState | undefined {
 		return this.inputRef.value?.validity
+	}
+
+	/**
+	 * Sets the selection range. Mirrors native input.setSelectionRange
+	 */
+	public setSelectionRange(start: number, end: number, direction?: 'forward' | 'backward' | 'none') {
+		this.inputRef.value?.setSelectionRange(start, end, direction)
+	}
+
+	/**
+	 * Returns the selected text within the input (start position)
+	 */
+	public get selectionStart(): number | null {
+		return this.inputRef.value?.selectionStart ?? null
+	}
+
+	/**
+	 * Returns the selected text within the input (end position)
+	 */
+	public get selectionEnd(): number | null {
+		return this.inputRef.value?.selectionEnd ?? null
+	}
+
+	/**
+	 * Returns the direction of selection
+	 */
+	public get selectionDirection(): 'forward' | 'backward' | 'none' | null {
+		return this.inputRef.value?.selectionDirection ?? null
+	}
+
+	/**
+	 * Sets the range of text to be selected.
+	 */
+	public setRangeText(
+		replacement: string,
+		start?: number,
+		end?: number,
+		selectMode?: 'select' | 'start' | 'end' | 'preserve',
+	) {
+		if (start !== undefined && end !== undefined) {
+			this.inputRef.value?.setRangeText(replacement, start, end, selectMode)
+		} else {
+			this.inputRef.value?.setRangeText(replacement)
+		}
 	}
 
 	/**
@@ -749,7 +860,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	}
 
 	// ----------------------------
-	//  F) Rendering
+	//  G) Rendering
 	// ----------------------------
 	protected override render() {
 		// Determine height and padding based on size
@@ -782,6 +893,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 		const inputClasses = {
 			'w-full flex-1 rounded-[8px] border-0 bg-surface-highest text-surface-on': true,
 			'outline-secondary-default focus:outline-1 ': true,
+			'outline-secondary-default focus:outline-1': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
@@ -795,6 +907,8 @@ export default class SchmancyInput extends TailwindElement(style) {
 			// Alignment classes:
 			'text-center': this.align === 'center',
 			'text-right': this.align === 'right',
+			// Autofill class
+			autofilled: this.isAutofilled,
 		}
 
 		const labelClasses = {
@@ -837,6 +951,10 @@ export default class SchmancyInput extends TailwindElement(style) {
 			)}
 
 			<input
+				${color({
+					bgColor: SchmancyTheme.sys.color.surface.highest,
+					color: SchmancyTheme.sys.color.surface.on,
+				})}
 				${ref(this.inputRef)}
 				id=${this.id}
 				name=${this.name}

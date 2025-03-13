@@ -48,7 +48,7 @@ export class SchmancySelect extends $LitElement(css`
 	@query('sch-input') private inputRef!: SchmancyInput
 	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
 	private cleanupPositioner?: () => void
-	@state() private _userInteracted = false
+	@state() _userInteracted = false
 	@state() private _touched = false
 	@state() private _dirty = false
 	@state() private _submitted = false

@@ -64,7 +64,7 @@ export class DemoInput extends $LitElement(css`
 						<sch-input
 							label="Password"
 							name="password"
-							type="password"
+							type="text"
 							placeholder="Enter password"
 							required
 							hint="At least 8 characters"

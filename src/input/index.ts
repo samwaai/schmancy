@@ -1,2 +1,2 @@
-export * from './input-v2';
-export * from './input';
+export * from './input-v2'
+export * from './input'
