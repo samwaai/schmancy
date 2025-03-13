@@ -1,3 +1,4 @@
+import '@lit-labs/virtualizer';
 import { TemplateResult } from 'lit';
 import './row';
 export interface TableColumn<T extends Record<string, any> = any> {
