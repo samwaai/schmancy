@@ -43,6 +43,31 @@ export class DemoInput extends $LitElement(css`
 		const v = undefined
 		return html`
 			<schmancy-surface type="container" fill="all" rounded="left">
+				<schmancy-scroll hide>
+					<schmancy-chips wrap="nowrap">
+						${repeat(
+							Array.from({ length: 14 }, (_, i) => {
+								const date = dayjs().add(i, 'days')
+								const day = date.format('ddd DD MMM')
+								return day
+							}),
+							a => a,
+							(a, i) => html`
+								<schmancy-chip
+									.value=${a}
+									.selected=${i === 0}
+									label=${a}
+									@click=${() => {
+										// Update selected date
+										const date = dayjs().add(i, 'days')
+									}}
+								>
+									${a}
+								</schmancy-chip>
+							`,
+						)}
+					</schmancy-chips>
+				</schmancy-scroll>
 				<schmancy-surface type="container" class="p-2 mb-4">
 					<schmancy-typography type="headline">V2 Input Form</schmancy-typography>
 					<sch-form

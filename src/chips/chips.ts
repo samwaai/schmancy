@@ -33,6 +33,11 @@ export default class SchmancyChips extends $LitElement(css``) {
 	})
 	chips!: SchmancyChip[]
 
+	@property({
+		type: String,
+		reflect: true,
+	})
+	wrap: 'wrap' | 'nowrap' = 'wrap'
 	async change(e: CustomEvent<SchmancyChipChangeEvent>) {
 		e.preventDefault()
 		e.stopPropagation()
@@ -102,7 +107,10 @@ export default class SchmancyChips extends $LitElement(css``) {
 	}
 
 	protected render(): unknown {
-		return html` <md-chip-set @change=${this.change}>
+		const styles = {
+			'flex-wrap': this.wrap,
+		}
+		return html` <md-chip-set style=${this.styleMap(styles)} @change=${this.change}>
 			<slot @slotchange=${() => this.hydrateTabs()}></slot>
 		</md-chip-set>`
 	}
