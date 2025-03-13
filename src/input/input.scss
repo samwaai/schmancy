@@ -53,3 +53,36 @@ input[type='number'] {
 input:-webkit-autofill {
 	animation-name: onAutoFillStart;
 }
+
+/* Target WebKit browsers (Chrome, Safari, newer versions of Opera) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+	/* Override the background color */
+	-webkit-box-shadow: 0 0 0 30px var(--schmancy-sys-color-surface-highest) inset !important;
+
+	/* Override text color */
+	-webkit-text-fill-color: var(--schmancy-sys-color-surface-on) !important;
+
+	/* Maintain your transition effects, if any */
+	transition: background-color 5000s ease-in-out 0s;
+}
+
+/* For Mozilla Firefox */
+@-moz-document url-prefix() {
+	input:-moz-autofill,
+	input:-moz-autofill:focus {
+		background-color: var(--schmancy-sys-color-surface-highest) !important;
+		color: var(--schmancy-sys-color-surface-on) !important;
+	}
+}
+
+/* For non-WebKit browsers that support :autofill */
+input:autofill,
+input:autofill:hover,
+input:autofill:focus,
+input:autofill:active {
+	background-color: var(--schmancy-sys-color-surface-highest) !important;
+	color: var(--schmancy-sys-color-surface-on) !important;
+}
