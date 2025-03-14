@@ -12,7 +12,7 @@ export declare class IBaseMixin {
 
 export const BaseElement = <T extends Constructor<LitElement>>(superClass: T) => {
 	class BaseElement extends superClass {
-		disconnecting = new Subject()
+		disconnecting = new Subject<boolean>()
 		classMap(classes: Record<string, boolean>) {
 			const newClasses: Record<string, boolean> = {}
 			Object.keys(classes).forEach(key => {
