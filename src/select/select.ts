@@ -322,7 +322,7 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	private dispatchChange(value: string | string[]) {
-		// Dispatch events first
+		// Dispatch only one change event with the value in detail
 		this.dispatchEvent(
 			new CustomEvent<SchmancySelectChangeEvent['detail']>('change', {
 				detail: { value },
@@ -330,7 +330,6 @@ export class SchmancySelect extends $LitElement(css`
 				composed: true,
 			}),
 		)
-		this.dispatchEvent(new Event('change', { bubbles: true }))
 
 		// Then check validity (only show error if validation should be shown)
 		this.checkValidity()
