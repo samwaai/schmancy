@@ -22,12 +22,7 @@ export default class SchmancyDemo extends $LitElement() {
 							<demo-nav> </demo-nav>
 						</schmancy-nav-drawer-navbar>
 						<schmancy-nav-drawer-content class="pl-2">
-							<schmancy-nav-drawer-appbar .toggler=${true} class="py-2">
-								<schmancy-typography>Title</schmancy-typography>
-							</schmancy-nav-drawer-appbar>
-							<schmancy-surface class="px-4 py-6 mb-12" type="surface" rounded="left">
-								<schmancy-area name="main" .default=${DemoInput}></schmancy-area>
-							</schmancy-surface>
+							<schmancy-area name="main" .default=${DemoInput}></schmancy-area>
 						</schmancy-nav-drawer-content>
 					</schmancy-nav-drawer>
 				</schmancy-surface>

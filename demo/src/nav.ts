@@ -14,14 +14,15 @@ import { DemoContentDrawer } from './features/drawer-content'
 import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoList } from './features/list'
+import { DemoNotifications } from './features/notifications'
 import { DemoRouter } from './features/router'
 import { DemoSheet } from './features/sheet/sheet'
 import { DemoSurface } from './features/surface'
+import { TableDemo } from './features/table'
 import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import { SchmancyTypewriterDemo } from './features/typewriter'
 import DemoTypography from './features/typography'
-import { DemoNotifications } from './features/notifications'
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -35,6 +36,10 @@ export class DemoNav extends $LitElement(css`
 		name: string
 		component: CustomElementConstructor
 	}> = [
+		{
+			name: 'Table',
+			component: TableDemo,
+		},
 		{
 			name: 'Notifications',
 			component: DemoNotifications,
