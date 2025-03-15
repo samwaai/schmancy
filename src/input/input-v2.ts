@@ -611,15 +611,7 @@ export default class SchmancyInputV2 extends TailwindElement(style) {
 
 				this.dispatchEvent(customEvent)
 
-				// Also fire change event like original input component
-				this.dispatchEvent(
-					new CustomEvent<EventDetails>('change', {
-						detail: { value: eventData.value },
-						bubbles: true,
-						composed: true,
-					}),
-				)
-
+				// REMOVED: Duplicate change event dispatch that was here
 				// Run validation like native inputs do on input, but respect the validation strategy
 				this.validateInput()
 			})
