@@ -7,22 +7,28 @@ export interface TableColumn<T extends Record<string, any> = any> {
     align?: 'left' | 'right' | 'center';
     weight?: 'normal' | 'bold';
     render?: (item: T) => TemplateResult | string | number;
+    sortable?: boolean;
 }
 export interface RowEventDetail<T> {
     item: T;
     index: number;
 }
+export type SortDirection = 'asc' | 'desc' | null;
 declare const SchmancyDataTable_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyDataTable<T extends Record<string, any> = any> extends SchmancyDataTable_base {
     columns: TableColumn<T>[];
     data: T[];
     keyField: keyof T;
     cols: string;
-    actions: Array<{
-        name: string;
-        action: (item: T) => void;
-    }>;
-    private handleRowEvent;
+    sortable: boolean;
+    private sortColumn;
+    private sortDirection;
+    private filteredData;
+    constructor();
+    protected willUpdate(changedProperties: Map<PropertyKey, unknown>): void;
+    private processData;
+    private toggleSort;
+    private renderSortIndicator;
     render(): TemplateResult;
 }
 declare global {
