@@ -1,6 +1,6 @@
 import { BehaviorSubject, Subject, throttleTime } from 'rxjs'
-import { ICollectionStore, StorageType, StoreError } from './types'
-import { createStorageManager, StorageManager } from './storage-manager'
+import { createStorageManager } from './storage-manager'
+import { ICollectionStore, IStorageManager, StorageType, StoreError } from './types'
 
 /**
  * Enhanced collection store with better TypeScript support
@@ -23,7 +23,7 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 	public readonly defaultValue: Map<string, V>
 
 	// Storage manager
-	private storage: StorageManager<Map<string, V>>
+	private storage: IStorageManager<Map<string, V>>
 
 	/**
 	 * Get ready state
@@ -43,7 +43,11 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 	/**
 	 * Private constructor to enforce singleton pattern
 	 */
-	private constructor(private storageType: StorageType, private key: string, defaultValue: Map<string, V>) {
+	private constructor(
+		private storageType: StorageType,
+		private key: string,
+		defaultValue: Map<string, V>,
+	) {
 		this.defaultValue = defaultValue
 		this.$ = new BehaviorSubject<Map<string, V>>(new Map<string, V>())
 		this.storage = createStorageManager<Map<string, V>>(storageType, key)

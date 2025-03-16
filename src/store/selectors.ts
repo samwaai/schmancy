@@ -1,7 +1,46 @@
 // src/store/selectors.ts
-import { Observable, combineLatest } from 'rxjs'
-import { map, distinctUntilChanged, shareReplay } from 'rxjs/operators'
+import { Observable, combineLatest, distinctUntilChanged, map, shareReplay } from 'rxjs'
 import { IStore, ICollectionStore } from './types'
+
+/**
+ * Deep equality comparison for maps and complex objects
+ * More efficient than JSON.stringify for large objects
+ */
+function deepEqual(a: unknown, b: unknown): boolean {
+	if (a === b) return true
+
+	if (a instanceof Map && b instanceof Map) {
+		if (a.size !== b.size) return false
+		for (const [key, value] of a) {
+			if (!b.has(key) || !deepEqual(value, b.get(key))) return false
+		}
+		return true
+	}
+
+	if (a instanceof Set && b instanceof Set) {
+		if (a.size !== b.size) return false
+		for (const item of a) {
+			if (!b.has(item)) return false
+		}
+		return true
+	}
+
+	if (typeof a === 'object' && a !== null && typeof b === 'object' && b !== null) {
+		const keysA = Object.keys(a)
+		const keysB = Object.keys(b)
+
+		if (keysA.length !== keysB.length) return false
+
+		for (const key of keysA) {
+			// @ts-ignore: Index signature
+			if (!deepEqual(a[key], b[key])) return false
+		}
+
+		return true
+	}
+
+	return false
+}
 
 /**
  * Creates a selector that derives a value from store state
@@ -11,15 +50,7 @@ import { IStore, ICollectionStore } from './types'
  * @returns An observable of the selected state that only emits when the derived value changes
  */
 export function createSelector<T, R>(store: IStore<T>, selectorFn: (state: T) => R): Observable<R> {
-	return store.$.pipe(
-		map(selectorFn),
-		distinctUntilChanged(
-			(a, b) =>
-				// Compare the two objects deep to see if they are equal
-				JSON.stringify(a) === JSON.stringify(b),
-		),
-		shareReplay(1),
-	)
+	return store.$.pipe(map(selectorFn), distinctUntilChanged<R>(deepEqual), shareReplay(1))
 }
 
 /**
@@ -33,16 +64,17 @@ export function createCollectionSelector<T, R>(
 	store: ICollectionStore<T>,
 	selectorFn: (state: Map<string, T>) => R,
 ): Observable<R> {
-	return store.$.pipe(
-		map(selectorFn),
-		distinctUntilChanged((a, b) => {
-			if (a instanceof Map && b instanceof Map) {
-				return JSON.stringify(Array.from(a.entries())) === JSON.stringify(Array.from(b.entries()))
-			}
-			return JSON.stringify(a) === JSON.stringify(b)
-		}),
-		shareReplay(1),
-	)
+	return store.$.pipe(map(selectorFn), distinctUntilChanged<R>(deepEqual), shareReplay(1))
+}
+
+/**
+ * Creates a selector that returns all items from a collection as an array
+ *
+ * @param store The collection store
+ * @returns An observable of all items as an array
+ */
+export function createItemsSelector<T>(store: ICollectionStore<T>): Observable<T[]> {
+	return createCollectionSelector(store, collection => Array.from(collection.values()))
 }
 
 /**
@@ -107,13 +139,69 @@ export function createCountSelector<T>(
  * @param combinerFn Function that combines all selector results
  * @returns An observable of the combined result
  */
-export function createCompoundSelector<R, T extends any[]>(
-	selectors: Observable<any>[],
+export function createCompoundSelector<T extends unknown[], R>(
+	selectors: { [K in keyof T]: Observable<T[K]> },
 	combinerFn: (...values: T) => R,
 ): Observable<R> {
 	return combineLatest(selectors).pipe(
 		map(values => combinerFn(...(values as T))),
-		distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+		distinctUntilChanged<R>(deepEqual),
 		shareReplay(1),
 	)
+}
+
+/**
+ * Creates a selector that returns all keys from a collection
+ */
+export function createKeysSelector<T>(store: ICollectionStore<T>): Observable<string[]> {
+	return createCollectionSelector(store, collection => Array.from(collection.keys()))
+}
+
+/**
+ * Creates a selector that returns entries (key-value pairs) from a collection
+ */
+export function createEntriesSelector<T>(store: ICollectionStore<T>): Observable<[string, T][]> {
+	return createCollectionSelector(store, collection => Array.from(collection.entries()))
+}
+
+/**
+ * Creates a selector that maps collection values through a transform function
+ */
+export function createMapSelector<T, R>(
+	store: ICollectionStore<T>,
+	mapFn: (item: T, key: string) => R,
+): Observable<R[]> {
+	return createCollectionSelector(store, collection => {
+		const result: R[] = []
+		collection.forEach((item, key) => {
+			result.push(mapFn(item, key))
+		})
+		return result
+	})
+}
+
+/**
+ * Creates a selector that sorts collection items
+ */
+export function createSortSelector<T>(store: ICollectionStore<T>, compareFn: (a: T, b: T) => number): Observable<T[]> {
+	return createCollectionSelector(store, collection => {
+		return Array.from(collection.values()).sort(compareFn)
+	})
+}
+
+/**
+ * Creates a selector that finds the first item matching a predicate
+ */
+export function createFindSelector<T>(
+	store: ICollectionStore<T>,
+	predicate: (item: T, key: string) => boolean,
+): Observable<T | undefined> {
+	return createCollectionSelector(store, collection => {
+		for (const [key, item] of collection.entries()) {
+			if (predicate(item, key)) {
+				return item
+			}
+		}
+		return undefined
+	})
 }

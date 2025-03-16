@@ -12,97 +12,192 @@ export type StorageType = 'memory' | 'local' | 'session' | 'indexeddb'
 export interface StoreOptions<T> {
 	/** Key used for persistent storage */
 	key: string
+
 	/** Storage type */
 	storage: StorageType
+
 	/** Initial state */
 	initialState: T
+
 	/** Enable dev tools */
 	devTools?: boolean
 }
 
 /**
- * Action interface for all store actions
- */
-export interface Action<T = any> {
-	type: string
-	payload?: T
-}
-
-/**
- * Type-safe action creator
- */
-export type ActionCreator<P = void, R = void> = P extends void ? () => R : (payload: P) => R
-
-/**
- * Map of action creators with preserved function signatures
- */
-export type ActionCreatorMap<T> = {
-	[K in keyof T]: T[K] extends (...args: infer A) => infer R ? (...args: A) => R : never
-}
-
-/**
- * Reducer function type
- */
-export type Reducer<T> = (state: T, action: Action) => T
-
-/**
- * Middleware function type
- */
-export type Middleware<T> = (prevState: T, nextState: T, context: { type: string; payload?: any }) => void
-
-/**
- * Selector function type
- */
-export type Selector<S, R> = (state: S) => R
-
-/**
- * Enhanced store error with type information
+ * Enhanced store error with type information and better context handling
  */
 export class StoreError<T = unknown> extends Error {
-	constructor(message: string, public readonly cause?: T, public readonly context?: Record<string, unknown>) {
+	/** Original error that caused this store error */
+	public readonly cause?: T
+
+	/** Additional contextual information */
+	public readonly context?: Record<string, unknown>
+
+	/** Timestamp when the error occurred */
+	public readonly timestamp: Date
+
+	constructor(message: string, cause?: T, context?: Record<string, unknown>) {
 		super(message)
 		this.name = 'StoreError'
+		this.cause = cause
+		this.context = context
+		this.timestamp = new Date()
+
+		// Capture stack trace if available
+		if (Error.captureStackTrace) {
+			Error.captureStackTrace(this, StoreError)
+		}
+	}
+
+	/**
+	 * Returns a JSON-serializable representation of the error
+	 */
+	toJSON(): Record<string, unknown> {
+		return {
+			name: this.name,
+			message: this.message,
+			cause: this.cause,
+			context: this.context,
+			timestamp: this.timestamp.toISOString(),
+			stack: this.stack,
+		}
 	}
 }
 
 /**
- * Core store interface
+ * Core store interface with improved type definitions
  */
-export interface IStore<T> {
-	// Value getters with strong return types
-	value: T
-	$: BehaviorSubject<T>
+export interface IStore<T extends Record<string, any>> {
+	/** Get the current store value */
+	readonly value: T
 
-	// Methods with improved parameter and return types
-	set(value: Partial<T>, merge?: boolean): void
-	clear(): void
-	replace(newValue: T): void
+	/** Observable stream of store values */
+	readonly $: BehaviorSubject<T>
 
-	// Ready state with correct type
+	/** The default/initial value of the store */
+	readonly defaultValue: T
+
+	/** Whether the store is ready (loaded from storage) */
 	ready: boolean
 
-	// Error handling
-	error$: Observable<StoreError | null>
+	/** Observable stream of store errors */
+	readonly error$: Observable<StoreError | null>
+
+	/**
+	 * Update store value with partial data
+	 * @param value Partial data to update
+	 * @param merge Whether to merge with existing data (default: true)
+	 */
+	set(value: Partial<T>, merge?: boolean): void
+
+	/**
+	 * Reset store to default value
+	 */
+	clear(): void
+
+	/**
+	 * Replace entire store value
+	 * @param newValue New value to set
+	 */
+	replace(newValue: T): void
+
+	/**
+	 * Delete a specific key from the store
+	 * @param key Key to delete
+	 */
+	delete<K extends keyof T>(key: K): void
+
+	/**
+	 * Clean up resources
+	 */
+	destroy(): void
 }
 
 /**
- * Interface for collection stores
- * No longer extends IStore to avoid method signature conflicts
+ * Interface for collection stores with improved typing
  */
 export interface ICollectionStore<T> {
-	// Value getters with strong return types
-	value: Map<string, T>
-	$: BehaviorSubject<Map<string, T>>
+	/** Get the current collection value */
+	readonly value: Map<string, T>
 
-	// Methods specific to collections
-	set<V = T>(key: string, value: V): void
-	delete(key: string): void
-	clear(): void
-	replace(newValue: Map<string, T>): void
+	/** Observable stream of collection values */
+	readonly $: BehaviorSubject<Map<string, T>>
 
-	// Ready state with correct type
+	/** The default/initial value of the collection */
+	readonly defaultValue: Map<string, T>
+
+	/** Whether the store is ready (loaded from storage) */
 	ready: boolean
 
-	// Error handling
-	error$: Observable<StoreError | null>
+	/** Observable stream of store errors */
+	readonly error$: Observable<StoreError | null>
+
+	/**
+	 * Set a value in the collection
+	 * @param key Item key
+	 * @param value Item value
+	 */
+	set<V = T>(key: string, value: V): void
+
+	/**
+	 * Delete an item from the collection
+	 * @param key Item key to delete
+	 */
+	delete(key: string): void
+
+	/**
+	 * Clear all items from the collection
+	 */
+	clear(): void
+
+	/**
+	 * Replace the entire collection
+	 * @param newValue New collection value
+	 */
+	replace(newValue: Map<string, T>): void
+
+	/**
+	 * Clean up resources
+	 */
+	destroy(): void
 }
+
+/**
+ * Interface for a storage manager
+ */
+export interface IStorageManager<T> {
+	/**
+	 * Load data from storage
+	 * @returns Promise resolving to stored data or null
+	 */
+	load(): Promise<T | null>
+
+	/**
+	 * Save data to storage
+	 * @param state Data to save
+	 */
+	save(state: T): Promise<void>
+
+	/**
+	 * Clear data from storage
+	 */
+	clear(): Promise<void>
+}
+
+/**
+ * Factory function type for creating stores
+ */
+export type StoreFactory = <T extends Record<string, any>>(
+	initialData: T,
+	storage: StorageType,
+	key: string,
+) => IStore<T>
+
+/**
+ * Factory function type for creating collection stores
+ */
+export type CollectionStoreFactory = <T>(
+	initialData: Map<string, T>,
+	storage: StorageType,
+	key: string,
+) => ICollectionStore<T>

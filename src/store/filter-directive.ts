@@ -1,5 +1,7 @@
-/** Supported comparison operators. */
-type ComparisonOperator =
+// src/store/filter-directive.ts
+
+/** Supported comparison operators with TypeScript literal types */
+export type ComparisonOperator =
 	| '=='
 	| '!='
 	| '>'
@@ -15,32 +17,61 @@ type ComparisonOperator =
 	| 'any' // fuzzy search operator
 
 /**
- * Query condition which can be either a tuple:
- * [field, operator, expected]
- * or an object:
- * { key, operator, value }
+ * Type-safe condition tuple
  */
-export type QueryCondition =
-	| [field: string, op: ComparisonOperator, expected: unknown, strict?: boolean]
-	| { key: string; operator: ComparisonOperator; value: unknown; strict?: boolean }
+export type ConditionTuple = [field: string, op: ComparisonOperator, expected: unknown, strict?: boolean]
+
+/**
+ * Type-safe condition object
+ */
+export interface ConditionObject {
+	key: string
+	operator: ComparisonOperator
+	value: unknown
+	strict?: boolean
+}
+
+/**
+ * Unified query condition type
+ */
+export type QueryCondition = ConditionTuple | ConditionObject
+
+/**
+ * Filter result with item and score
+ */
+export interface ScoredItem<T> {
+	item: T
+	score: number
+}
 
 /**
  * Get a nested value from an object using a dot-separated path.
  * Checks explicitly for null/undefined so falsy values like 0 or false are preserved.
  */
-const getFieldValue = (item: Record<string, any>, path: string): any =>
-	path.split('.').reduce((obj, key) => (obj == null ? undefined : obj[key]), item)
+export const getFieldValue = <T = any>(item: Record<string, any>, path: string): T => {
+	if (!path) return item as unknown as T
+
+	const parts = path.split('.')
+	let value: any = item
+
+	for (const part of parts) {
+		if (value == null) return undefined as unknown as T
+		value = value[part]
+	}
+
+	return value as T
+}
 
 /**
  * Compute the Levenshtein distance between two strings.
  */
 const levenshtein = (a: string, b: string): number => {
-	const matrix: number[][] = []
+	if (a === b) return 0
 
-	// initialize the first column
-	for (let i = 0; i <= b.length; i++) {
-		matrix[i] = [i]
-	}
+	const matrix: number[][] = Array(b.length + 1)
+		.fill(null)
+		.map((_, i) => [i])
+
 	// initialize the first row
 	for (let j = 0; j <= a.length; j++) {
 		matrix[0][j] = j
@@ -67,10 +98,13 @@ const levenshtein = (a: string, b: string): number => {
  * All characters in `sub` must appear in order in `str` (they need not be contiguous).
  */
 const isSubsequence = (sub: string, str: string): boolean => {
+	if (!sub) return true
+	if (!str) return false
+
 	let i = 0,
 		j = 0
 	while (i < sub.length && j < str.length) {
-		if (sub[i] === str[j]) i++
+		if (sub[i].toLowerCase() === str[j].toLowerCase()) i++
 		j++
 	}
 	return i === sub.length
@@ -81,11 +115,20 @@ const isSubsequence = (sub: string, str: string): boolean => {
  * For example, "aovc" matches "avocados".
  */
 const anagramMatch = (query: string, target: string): boolean => {
+	if (!query) return true
+	if (!target) return false
+
 	const countChars = (s: string): Record<string, number> =>
-		s.split('').reduce((acc, char) => {
-			acc[char] = (acc[char] || 0) + 1
-			return acc
-		}, {} as Record<string, number>)
+		s
+			.toLowerCase()
+			.split('')
+			.reduce(
+				(acc, char) => {
+					acc[char] = (acc[char] || 0) + 1
+					return acc
+				},
+				{} as Record<string, number>,
+			)
 
 	const queryCount = countChars(query)
 	const targetCount = countChars(target)
@@ -96,9 +139,11 @@ const anagramMatch = (query: string, target: string): boolean => {
  * Generate bigrams for a string.
  */
 const getBigrams = (s: string): string[] => {
-	const bigrams = []
+	if (!s || s.length < 2) return []
+
+	const bigrams: string[] = []
 	for (let i = 0; i < s.length - 1; i++) {
-		bigrams.push(s.substring(i, i + 2))
+		bigrams.push(s.substring(i, i + 2).toLowerCase())
 	}
 	return bigrams
 }
@@ -108,11 +153,16 @@ const getBigrams = (s: string): string[] => {
  * Returns a value between 0 (no similarity) and 1 (perfect match).
  */
 const diceCoefficient = (s1: string, s2: string): number => {
-	if (s1.length < 2 || s2.length < 2) return 0
+	if (!s1 || !s2 || s1.length < 2 || s2.length < 2) return 0
+
 	const bigrams1 = getBigrams(s1)
 	const bigrams2 = getBigrams(s2)
+
+	if (bigrams1.length === 0 || bigrams2.length === 0) return 0
+
 	let intersection = 0
 	const used = new Array(bigrams2.length).fill(false)
+
 	for (const bigram of bigrams1) {
 		for (let i = 0; i < bigrams2.length; i++) {
 			if (!used[i] && bigrams2[i] === bigram) {
@@ -122,6 +172,7 @@ const diceCoefficient = (s1: string, s2: string): number => {
 			}
 		}
 	}
+
 	return (2 * intersection) / (bigrams1.length + bigrams2.length)
 }
 
@@ -135,66 +186,169 @@ const diceCoefficient = (s1: string, s2: string): number => {
  * - Normalized Levenshtein similarity
  */
 const computeFuzzyScore = (actual: string, expected: string): number => {
+	if (!actual || !expected) return 0
+
 	const a = actual.toLowerCase().trim()
 	const b = expected.toLowerCase().trim()
+
+	if (a === b) return 1
 
 	const substringScore = a.includes(b) ? 1 : 0
 	const subsequenceScore = isSubsequence(b, a) ? 0.8 : 0
 	const anagramScore = anagramMatch(b, a) ? 0.7 : 0
 	const diceScore = diceCoefficient(a, b)
+
 	const maxLen = Math.max(a.length, b.length)
-	const levenshteinScore = maxLen ? 1 - levenshtein(a, b) / maxLen : 1
+	const levenshteinScore = maxLen ? 1 - levenshtein(a, b) / maxLen : 0
 
 	return Math.max(substringScore, subsequenceScore, anagramScore, diceScore, levenshteinScore)
 }
 
 /**
- * Compare two values based on a simple operator.
+ * Safely coerce value to string if possible, or return empty string
+ */
+const safeString = (value: unknown): string => {
+	if (value == null) return ''
+	return String(value)
+}
+
+/**
+ * Type guard for arrays
+ */
+const isArray = (value: unknown): value is Array<unknown> => {
+	return Array.isArray(value)
+}
+
+/**
+ * Compare two values based on a comparison operator.
  * For non-fuzzy operators, this returns a boolean.
  */
-const compareValues = (op: ComparisonOperator, actual: any, expected: any): boolean => {
+export function compareValues(op: ComparisonOperator, actual: unknown, expected: unknown): boolean {
+	// Handle null/undefined cases
+	if (actual == null && expected == null) return true
+	if (actual == null || expected == null) {
+		// For equality operators, null == null but null != non-null
+		if (op === '==') return actual === expected
+		if (op === '!=') return actual !== expected
+		// Other operators should return false for null/undefined values
+		return false
+	}
+
 	switch (op) {
 		case '==':
 			return actual === expected
 		case '!=':
 			return actual !== expected
 		case '>':
-			return actual > expected
+			return (actual as number) > (expected as number)
 		case '<':
-			return actual < expected
+			return (actual as number) < (expected as number)
 		case '>=':
-			return actual >= expected
+			return (actual as number) >= (expected as number)
 		case '<=':
-			return actual <= expected
+			return (actual as number) <= (expected as number)
 		case 'includes': {
-			if (typeof actual === 'string') return actual.toLowerCase().includes(String(expected).toLowerCase())
-			else if (Array.isArray(actual)) return actual.includes(expected)
+			if (typeof actual === 'string') {
+				return safeString(actual).toLowerCase().includes(safeString(expected).toLowerCase())
+			} else if (isArray(actual)) {
+				return actual.includes(expected)
+			}
 			return false
 		}
 		case 'notIncludes': {
-			if (typeof actual === 'string') return !actual.toLowerCase().includes(String(expected).toLowerCase())
-			else if (Array.isArray(actual)) return !actual.includes(expected)
-			return false
+			if (typeof actual === 'string') {
+				return !safeString(actual).toLowerCase().includes(safeString(expected).toLowerCase())
+			} else if (isArray(actual)) {
+				return !actual.includes(expected)
+			}
+			return true
 		}
 		case 'startsWith': {
-			if (typeof actual === 'string') return actual.startsWith(String(expected))
+			if (typeof actual === 'string' && typeof expected === 'string') {
+				return actual.toLowerCase().startsWith(expected.toLowerCase())
+			}
 			return false
 		}
 		case 'endsWith': {
-			if (typeof actual === 'string') return actual.endsWith(String(expected))
+			if (typeof actual === 'string' && typeof expected === 'string') {
+				return actual.toLowerCase().endsWith(expected.toLowerCase())
+			}
 			return false
 		}
 		case 'in': {
-			if (Array.isArray(expected)) return expected.includes(actual)
+			if (isArray(expected)) {
+				return expected.includes(actual)
+			}
 			return false
 		}
 		case 'notIn': {
-			if (Array.isArray(expected)) return !expected.includes(actual)
-			return false
+			if (isArray(expected)) {
+				return !expected.includes(actual)
+			}
+			return true
 		}
 		default: {
 			console.warn(`Operator "${op}" is not supported in strict comparison.`)
 			return false
+		}
+	}
+}
+
+/**
+ * Apply a query condition to an item and return score
+ */
+function applyQueryCondition<T extends Record<string, any>>(
+	item: T,
+	query: QueryCondition,
+	fuzzyThreshold: number = 0.3,
+): { valid: boolean; score: number } {
+	let field: string,
+		op: ComparisonOperator,
+		expected: unknown,
+		strict = false
+
+	if (Array.isArray(query)) {
+		;[field, op, expected, strict = false] = query
+	} else {
+		field = query.key
+		op = query.operator
+		expected = query.value
+		strict = query.strict || false
+	}
+
+	// Skip empty filters for non-strict queries
+	if (!strict && (expected === '' || expected == null || (isArray(expected) && expected.length === 0))) {
+		return { valid: true, score: 1 }
+	}
+
+	const actual = getFieldValue(item, field)
+
+	// If strict mode is enabled, enforce exact equality
+	if (strict) {
+		if (actual !== expected) {
+			return { valid: false, score: 0 }
+		}
+		return { valid: true, score: 1 }
+	}
+
+	if (op === 'any') {
+		// Fuzzy search requires both values to be strings
+		if (typeof actual !== 'string' || typeof expected !== 'string') {
+			return { valid: false, score: 0 }
+		}
+
+		const score = computeFuzzyScore(actual, expected)
+		if (score < fuzzyThreshold) {
+			return { valid: false, score: 0 }
+		}
+
+		return { valid: true, score }
+	} else {
+		// For non-fuzzy operators, check condition
+		const matches = compareValues(op, actual, expected)
+		return {
+			valid: matches,
+			score: matches ? 1 : 0,
 		}
 	}
 }
@@ -212,127 +366,70 @@ const compareValues = (op: ComparisonOperator, actual: any, expected: any): bool
  *
  * @param items - A Map containing items to filter.
  * @param queries - An array of query conditions to apply.
+ * @param fuzzyThreshold - Minimum score required for fuzzy matches (default: 0.3)
  * @returns An array of items that match all query conditions, sorted by relevance.
  */
-export const filterMapItems = <T extends Record<string, any>>(
+export function filterMapItems<T extends Record<string, any>>(
 	items: Map<string, T>,
 	queries: QueryCondition[] = [],
-): T[] => {
-	// Fuzzy threshold (adjust as needed)
-	const fuzzyThreshold = 0.3
+	fuzzyThreshold: number = 0.3,
+): T[] {
+	// If no queries, return all items unsorted
+	if (!queries.length) {
+		return Array.from(items.values())
+	}
 
-	// Score and filter each item.
-	const scoredItems = Array.from(items.values())
-		.map(item => {
-			let totalScore = 0
-			let count = 0
-			// If any query fails, mark the item as invalid.
-			let valid = true
+	// Score and filter each item
+	const scoredItems: ScoredItem<T>[] = []
 
-			for (const query of queries) {
-				let field: string,
-					op: ComparisonOperator,
-					expected: unknown,
-					strict = false
-				if (Array.isArray(query)) {
-					// Extract optional strict flag from tuple if provided.
-					;[field, op, expected, strict = false] = query
-					strict = !!strict // default to false if undefined
-				} else {
-					field = query.key
-					op = query.operator
-					expected = query.value
-					strict = query.strict || false
-				}
+	for (const [_, item] of items.entries()) {
+		let totalScore = 0
+		let matchCount = 0
+		let valid = true
 
-				// If the expected value is empty/null/undefined, or an empty array, skip filtering.
-				// If the expected value is empty/null/undefined, or an empty array, and strict is false, skip filtering
-				if (!strict && (expected === '' || expected == null || (Array.isArray(expected) && expected.length === 0))) {
-					continue
-				}
+		for (const query of queries) {
+			const result = applyQueryCondition(item, query, fuzzyThreshold)
 
-				const actual = getFieldValue(item, field)
-
-				// If strict mode is enabled, enforce exact equality.
-				if (strict) {
-					if (actual !== expected) {
-						valid = false
-						break
-					}
-					totalScore += 1 // exact match yields a perfect score
-					count++
-					continue
-				}
-
-				if (op === 'any') {
-					// Fuzzy search requires both values to be strings.
-					if (typeof actual !== 'string' || typeof expected !== 'string') {
-						valid = false
-						break
-					}
-					const score = computeFuzzyScore(actual, expected)
-					if (score < fuzzyThreshold) {
-						valid = false
-						break
-					}
-					totalScore += score
-					count++
-				} else {
-					// For non-fuzzy operators, if the condition fails, exclude the item.
-					if (!compareValues(op, actual, expected)) {
-						valid = false
-						break
-					}
-					totalScore += 1 // strict match yields a perfect score.
-					count++
-				}
+			if (!result.valid) {
+				valid = false
+				break
 			}
 
-			if (!valid) return null
+			totalScore += result.score
+			matchCount++
+		}
 
-			// Use the average score if at least one condition contributed.
-			const overallScore = count > 0 ? totalScore / count : 1
-			return { item, score: overallScore }
-		})
-		.filter(x => x !== null) as { item: T; score: number }[]
+		if (valid) {
+			scoredItems.push({
+				item,
+				score: matchCount > 0 ? totalScore / matchCount : 1,
+			})
+		}
+	}
 
-	// Sort by descending overall score.
+	// Sort by descending score
 	scoredItems.sort((a, b) => b.score - a.score)
+
 	return scoredItems.map(x => x.item)
 }
 
-// /**
-//  * A typed directive function interface.
-//  * Ensures that using the directive returns a filtered (and ranked) array of items.
-//  */
-// export type FilterMapDirectiveFn = <T extends Record<string, any>>(
-// 	items: Map<string, T>,
-// 	queries?: QueryCondition[],
-// ) => T[]
+/**
+ * Filter an array of items using query conditions
+ */
+export function filterArrayItems<T extends Record<string, any>>(
+	items: T[],
+	queries: QueryCondition[] = [],
+	fuzzyThreshold: number = 0.3,
+): T[] {
+	// Create temporary map with numeric indices as keys
+	const map = new Map<string, T>()
+	items.forEach((item, index) => map.set(String(index), item))
 
-// /**
-//  * Lit directive to filter a Map based on an array of query conditions.
-//  *
-//  * Usage in your Lit template:
-//  *
-//  * ```ts
-//  * html`
-//  *   <div .items=${filterMap(this.items, [
-//  *     { key: 'category', operator: '==', value: itemsFilterContext.value.category },
-//  *     ['name', 'any', 'avo'], // will match "avocados" even if typed as "avo" or "aovc"
-//  *   ])}></div>
-//  * `
-//  * ```
-//  */
-// class FilterMapDirective extends Directive {
-// 	constructor(partInfo: PartInfo) {
-// 		super(partInfo)
-// 	}
+	return filterMapItems(map, queries, fuzzyThreshold)
+}
 
-// 	render<T extends Record<string, any>>(items: Map<string, T>, queries: QueryCondition[] = []): T[] {
-// 		return filterMapItems(items, queries) as T[]
-// 	}
-// }
-
-// Cast the directive to our typed directive function interface.
+// Export a simpler alias for filterMapItems
 export const filterMap = filterMapItems
+
+// Export an alias for filterArrayItems
+export const filterArray = filterArrayItems

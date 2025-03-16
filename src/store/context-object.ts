@@ -1,6 +1,6 @@
 import { BehaviorSubject, Subject } from 'rxjs'
-import { createStorageManager, StorageManager } from './storage-manager'
-import { IStore, StorageType, StoreError } from './types'
+import { createStorageManager } from './storage-manager'
+import { IStorageManager, IStore, StorageType, StoreError } from './types'
 
 /**
  * Enhanced store object with better TypeScript support
@@ -23,7 +23,7 @@ export class SchmancyStoreObject<T extends Record<string, any>> implements IStor
 	public readonly defaultValue: T
 
 	// Storage manager
-	private storage: StorageManager<T>
+	private storage: IStorageManager<T>
 
 	/**
 	 * Get store ready state
@@ -43,7 +43,11 @@ export class SchmancyStoreObject<T extends Record<string, any>> implements IStor
 	/**
 	 * Private constructor to enforce singleton pattern
 	 */
-	private constructor(private storageType: StorageType, private key: string, defaultValue: T) {
+	private constructor(
+		private storageType: StorageType,
+		private key: string,
+		defaultValue: T,
+	) {
 		this.defaultValue = defaultValue
 		this.$ = new BehaviorSubject<T>(defaultValue)
 		this.storage = createStorageManager<T>(storageType, key)

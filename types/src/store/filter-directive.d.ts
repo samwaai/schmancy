@@ -1,17 +1,39 @@
-/** Supported comparison operators. */
-type ComparisonOperator = '==' | '!=' | '>' | '<' | '>=' | '<=' | 'includes' | 'notIncludes' | 'startsWith' | 'endsWith' | 'in' | 'notIn' | 'any';
+/** Supported comparison operators with TypeScript literal types */
+export type ComparisonOperator = '==' | '!=' | '>' | '<' | '>=' | '<=' | 'includes' | 'notIncludes' | 'startsWith' | 'endsWith' | 'in' | 'notIn' | 'any';
 /**
- * Query condition which can be either a tuple:
- * [field, operator, expected]
- * or an object:
- * { key, operator, value }
+ * Type-safe condition tuple
  */
-export type QueryCondition = [field: string, op: ComparisonOperator, expected: unknown, strict?: boolean] | {
+export type ConditionTuple = [field: string, op: ComparisonOperator, expected: unknown, strict?: boolean];
+/**
+ * Type-safe condition object
+ */
+export interface ConditionObject {
     key: string;
     operator: ComparisonOperator;
     value: unknown;
     strict?: boolean;
-};
+}
+/**
+ * Unified query condition type
+ */
+export type QueryCondition = ConditionTuple | ConditionObject;
+/**
+ * Filter result with item and score
+ */
+export interface ScoredItem<T> {
+    item: T;
+    score: number;
+}
+/**
+ * Get a nested value from an object using a dot-separated path.
+ * Checks explicitly for null/undefined so falsy values like 0 or false are preserved.
+ */
+export declare const getFieldValue: <T = any>(item: Record<string, any>, path: string) => T;
+/**
+ * Compare two values based on a comparison operator.
+ * For non-fuzzy operators, this returns a boolean.
+ */
+export declare function compareValues(op: ComparisonOperator, actual: unknown, expected: unknown): boolean;
 /**
  * Filter a Map of items given an array of query conditions.
  * For each query condition:
@@ -25,8 +47,13 @@ export type QueryCondition = [field: string, op: ComparisonOperator, expected: u
  *
  * @param items - A Map containing items to filter.
  * @param queries - An array of query conditions to apply.
+ * @param fuzzyThreshold - Minimum score required for fuzzy matches (default: 0.3)
  * @returns An array of items that match all query conditions, sorted by relevance.
  */
-export declare const filterMapItems: <T extends Record<string, any>>(items: Map<string, T>, queries?: QueryCondition[]) => T[];
-export declare const filterMap: <T extends Record<string, any>>(items: Map<string, T>, queries?: QueryCondition[]) => T[];
-export {};
+export declare function filterMapItems<T extends Record<string, any>>(items: Map<string, T>, queries?: QueryCondition[], fuzzyThreshold?: number): T[];
+/**
+ * Filter an array of items using query conditions
+ */
+export declare function filterArrayItems<T extends Record<string, any>>(items: T[], queries?: QueryCondition[], fuzzyThreshold?: number): T[];
+export declare const filterMap: typeof filterMapItems;
+export declare const filterArray: typeof filterArrayItems;

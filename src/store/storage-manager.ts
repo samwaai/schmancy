@@ -1,18 +1,9 @@
-import { StorageType, StoreError } from './types'
-
-/**
- * Storage manager interface with generic typing
- */
-export interface StorageManager<T> {
-	load(): Promise<T | null>
-	save(state: T): Promise<void>
-	clear(): Promise<void>
-}
+import { IStorageManager, StorageType, StoreError } from './types'
 
 /**
  * Memory storage manager implementation
  */
-export class MemoryStorageManager<T> implements StorageManager<T> {
+export class MemoryStorageManager<T> implements IStorageManager<T> {
 	private data: T | null = null
 
 	async load(): Promise<T | null> {
@@ -31,7 +22,7 @@ export class MemoryStorageManager<T> implements StorageManager<T> {
 /**
  * Local storage manager implementation
  */
-export class LocalStorageManager<T> implements StorageManager<T> {
+export class LocalStorageManager<T> implements IStorageManager<T> {
 	constructor(private key: string) {}
 
 	async load(): Promise<T | null> {
@@ -61,7 +52,7 @@ export class LocalStorageManager<T> implements StorageManager<T> {
 /**
  * Session storage manager implementation
  */
-export class SessionStorageManager<T> implements StorageManager<T> {
+export class SessionStorageManager<T> implements IStorageManager<T> {
 	constructor(private key: string) {}
 
 	async load(): Promise<T | null> {
@@ -91,7 +82,7 @@ export class SessionStorageManager<T> implements StorageManager<T> {
 /**
  * IndexedDB storage manager implementation with better error typing
  */
-export class IndexedDBStorageManager<T> implements StorageManager<T> {
+export class IndexedDBStorageManager<T> implements IStorageManager<T> {
 	private static DB_NAME = 'StoreDB'
 	private static STORE_NAME = 'states'
 	private static DB_VERSION = 1
@@ -190,7 +181,7 @@ export class IndexedDBStorageManager<T> implements StorageManager<T> {
 /**
  * Factory function to create the appropriate storage manager
  */
-export function createStorageManager<T>(type: StorageType, key: string): StorageManager<T> {
+export function createStorageManager<T>(type: StorageType, key: string): IStorageManager<T> {
 	switch (type) {
 		case 'local':
 			return new LocalStorageManager<T>(key)

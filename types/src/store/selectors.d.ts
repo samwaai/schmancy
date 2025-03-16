@@ -17,6 +17,13 @@ export declare function createSelector<T, R>(store: IStore<T>, selectorFn: (stat
  */
 export declare function createCollectionSelector<T, R>(store: ICollectionStore<T>, selectorFn: (state: Map<string, T>) => R): Observable<R>;
 /**
+ * Creates a selector that returns all items from a collection as an array
+ *
+ * @param store The collection store
+ * @returns An observable of all items as an array
+ */
+export declare function createItemsSelector<T>(store: ICollectionStore<T>): Observable<T[]>;
+/**
  * Creates a selector that filters items from a collection
  *
  * @param store The collection store
@@ -47,4 +54,26 @@ export declare function createCountSelector<T>(store: ICollectionStore<T>, filte
  * @param combinerFn Function that combines all selector results
  * @returns An observable of the combined result
  */
-export declare function createCompoundSelector<R, T extends any[]>(selectors: Observable<any>[], combinerFn: (...values: T) => R): Observable<R>;
+export declare function createCompoundSelector<T extends unknown[], R>(selectors: {
+    [K in keyof T]: Observable<T[K]>;
+}, combinerFn: (...values: T) => R): Observable<R>;
+/**
+ * Creates a selector that returns all keys from a collection
+ */
+export declare function createKeysSelector<T>(store: ICollectionStore<T>): Observable<string[]>;
+/**
+ * Creates a selector that returns entries (key-value pairs) from a collection
+ */
+export declare function createEntriesSelector<T>(store: ICollectionStore<T>): Observable<[string, T][]>;
+/**
+ * Creates a selector that maps collection values through a transform function
+ */
+export declare function createMapSelector<T, R>(store: ICollectionStore<T>, mapFn: (item: T, key: string) => R): Observable<R[]>;
+/**
+ * Creates a selector that sorts collection items
+ */
+export declare function createSortSelector<T>(store: ICollectionStore<T>, compareFn: (a: T, b: T) => number): Observable<T[]>;
+/**
+ * Creates a selector that finds the first item matching a predicate
+ */
+export declare function createFindSelector<T>(store: ICollectionStore<T>, predicate: (item: T, key: string) => boolean): Observable<T | undefined>;
