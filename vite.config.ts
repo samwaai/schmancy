@@ -21,6 +21,17 @@ export default defineConfig({
 			'@mixins': resolve(__dirname, '/mixins'),
 		},
 	},
+	// @ts-ignore
+	test: {
+		// Vitest configuration options
+		globals: true,
+		environment: 'happy-dom',
+		coverage: {
+			provider: 'c8',
+			reporter: ['text', 'json', 'html'],
+		},
+		exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**'],
+	},
 	plugins: [webfontDownload(['https://ticket.funkhaus-berlin.net/assets/GT-Eesti-Pro-Display-Regular-Czpp09nv.woff'])],
 	build: {
 		lib: {

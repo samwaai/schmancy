@@ -52,15 +52,19 @@ export class SchmancyStoreObject<T extends Record<string, any>> implements IStor
 		this.$ = new BehaviorSubject<T>(defaultValue)
 		this.storage = createStorageManager<T>(storageType, key)
 
-		// Initialize from storage
-		this.initializeFromStorage()
+		// Set ready immediately for memory storage
+		if (storageType === 'memory') {
+			this._ready = true
+		} else {
+			// Initialize from storage for persistent stores
+			this.initializeFromStorage()
+		}
 
 		// Setup dev tools in development
 		if (import.meta.env.MODE === 'development') {
 			this.setupDevTools()
 		}
 	}
-
 	/**
 	 * Static method to get or create an instance with strong typing
 	 */

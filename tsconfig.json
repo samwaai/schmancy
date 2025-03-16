@@ -42,5 +42,6 @@
 			}
 		]
 	},
+	"types": ["vitest/globals"],
 	"include": ["src/**/*.ts", "typings/**/*.d.ts", "mixins/**/*.ts"]
 }

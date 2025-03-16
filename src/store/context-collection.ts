@@ -40,9 +40,6 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 		this.updateState(this.$.value)
 	}
 
-	/**
-	 * Private constructor to enforce singleton pattern
-	 */
 	private constructor(
 		private storageType: StorageType,
 		private key: string,
@@ -52,8 +49,14 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 		this.$ = new BehaviorSubject<Map<string, V>>(new Map<string, V>())
 		this.storage = createStorageManager<Map<string, V>>(storageType, key)
 
-		// Initialize from storage
-		this.initializeFromStorage()
+		// Set ready immediately for memory storage
+		if (storageType === 'memory') {
+			this._ready = true
+			this.updateState(new Map(defaultValue)) // Initialize with default value
+		} else {
+			// Initialize from storage
+			this.initializeFromStorage()
+		}
 
 		// Set up persistence
 		this.setupPersistence()
@@ -63,7 +66,6 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 			this.setupDevTools()
 		}
 	}
-
 	/**
 	 * Static method to get or create an instance with proper typing
 	 */
@@ -91,8 +93,11 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 	 */
 	public set<T = V>(key: string, value: T): void {
 		try {
+			// Create a new Map to avoid mutating the current value
 			const currentValue = new Map(this.value)
+			// Set the new value for the key
 			currentValue.set(key, value as unknown as V)
+			// Update the state with the new Map
 			this.updateState(currentValue)
 			this.error$.next(null) // Clear any previous errors
 		} catch (err) {

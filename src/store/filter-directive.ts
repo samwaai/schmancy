@@ -323,13 +323,14 @@ function applyQueryCondition<T extends Record<string, any>>(
 
 	const actual = getFieldValue(item, field)
 
+	// REMOVE THIS BLOCK - This is the problematic code
 	// If strict mode is enabled, enforce exact equality
-	if (strict) {
-		if (actual !== expected) {
-			return { valid: false, score: 0 }
-		}
-		return { valid: true, score: 1 }
-	}
+	// if (strict) {
+	// 	if (actual !== expected) {
+	// 		return { valid: false, score: 0 }
+	// 	}
+	// 	return { valid: true, score: 1 }
+	// }
 
 	if (op === 'any') {
 		// Fuzzy search requires both values to be strings
