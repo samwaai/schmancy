@@ -22,9 +22,6 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
      * Set ready state
      */
     set ready(value: boolean);
-    /**
-     * Private constructor to enforce singleton pattern
-     */
     private constructor();
     /**
      * Static method to get or create an instance with proper typing
