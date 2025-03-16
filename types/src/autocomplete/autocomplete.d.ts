@@ -21,14 +21,16 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
      * Will be associated with the input via aria-describedby.
      */
     description: string;
-    /** Direct reference to the <input> inside <schmancy-input> */
+    /** Direct reference to the <input> inside <sch-input> */
     inputRef: import("lit-html/directives/ref").Ref<HTMLInputElement>;
     private optionsContainer;
     private empty;
     private input;
     private options;
     private readonly searchTerm$;
-    private isOpen;
+    isOpen: boolean;
+    /** Autocomplete/autofill hints. */
+    autocomplete: AutoFill;
     private startY;
     private statusMessage;
     connectedCallback(): void;
