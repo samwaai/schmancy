@@ -41,20 +41,24 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	 */
 	@property({ type: String }) description = ''
 
-	/** Direct reference to the <input> inside <schmancy-input> */
+	/** Direct reference to the <input> inside <sch-input> */
 	inputRef = createRef<HTMLInputElement>()
 
 	// Query selectors for elements in the shadow DOM
 	@query('#options') private optionsContainer!: HTMLUListElement
 	@query('#empty') private empty!: HTMLLIElement
-	@query('schmancy-input') private input!: SchmancyInput
+	@query('sch-input') private input!: SchmancyInput
 	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
 
 	// Subject for search term changes
 	private readonly searchTerm$ = new Subject<string>()
 
 	// Flag to track dropdown state
-	@property({ type: Boolean, reflect: true }) private isOpen = false
+	@property({ type: Boolean, reflect: true }) isOpen = false
+
+	/** Autocomplete/autofill hints. */
+	@property({ type: String, reflect: true })
+	public autocomplete: AutoFill = 'on'
 
 	// iOS scroll-blocking logic
 	private startY = 0
@@ -496,7 +500,8 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
 				<!-- The trigger slot (if any) overrides the default SchmancyInput -->
 				<slot name="trigger">
-					<schmancy-input
+					<sch-input
+						.autocomplete=${this.autocomplete}
 						${ref(this.inputRef)}
 						id="input"
 						class="w-full"
@@ -516,7 +521,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 						@focus=${() => this.showOptions()}
 						@change=${this.handleInputChange}
 					>
-					</schmancy-input>
+					</sch-input>
 				</slot>
 
 				<ul
