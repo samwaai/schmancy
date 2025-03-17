@@ -1,3 +1,4 @@
+import { InputSize } from '@schmancy/input';
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string | string[];
 }>;
@@ -27,6 +28,13 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     private empty;
     private input;
     private options;
+    /**
+     * The size of the input.
+     * - 'sm': Small, compact size
+     * - 'md': Medium size (default)
+     * - 'lg': Large size
+     */
+    size: InputSize;
     private readonly searchTerm$;
     isOpen: boolean;
     /** Autocomplete/autofill hints. */

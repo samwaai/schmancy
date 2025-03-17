@@ -11,6 +11,7 @@ import { from, fromEvent, Subject } from 'rxjs'
 import { distinctUntilChanged, filter, switchMap, takeUntil, tap } from 'rxjs/operators'
 import style from './autocomplete.scss?inline'
 
+import { InputSize } from '@schmancy/input'
 import type { SchmancyInputInputEvent } from '@schmancy/input/input'
 import { similarity } from '@schmancy/utils/search'
 
@@ -49,6 +50,15 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	@query('#empty') private empty!: HTMLLIElement
 	@query('sch-input') private input!: SchmancyInput
 	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
+
+	/**
+	 * The size of the input.
+	 * - 'sm': Small, compact size
+	 * - 'md': Medium size (default)
+	 * - 'lg': Large size
+	 */
+	@property({ type: String, reflect: true })
+	public size: InputSize = 'md'
 
 	// Subject for search term changes
 	private readonly searchTerm$ = new Subject<string>()
@@ -501,6 +511,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 				<!-- The trigger slot (if any) overrides the default SchmancyInput -->
 				<slot name="trigger">
 					<sch-input
+						.size=${this.size}
 						.autocomplete=${this.autocomplete}
 						${ref(this.inputRef)}
 						id="input"
