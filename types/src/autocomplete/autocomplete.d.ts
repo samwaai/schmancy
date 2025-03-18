@@ -1,90 +1,133 @@
 import { InputSize } from '@schmancy/input';
+import SchmancyInput from '@schmancy/input/input';
+/**
+ * @fires change - When selection changes
+ */
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string | string[];
 }>;
 declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * The SchmancyAutocomplete component provides an accessible autocomplete field with keyboard navigation.
+ * SchmancyAutocomplete provides an accessible autocomplete/combobox component
+ * with keyboard navigation and single or multi-select capabilities.
+ *
  * @element schmancy-autocomplete
- * @fires change - Emitted when a selection is made
- * @slot - Default slot for schmancy-option elements
- * @slot trigger - Optional slot to override the default input
+ * @slot - Default slot for option elements
+ * @slot trigger - Optional slot to override the default input element
  */
 export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     required: boolean;
     placeholder: string;
-    value: string;
     label: string;
     maxHeight: string;
     multi: boolean;
-    /**
-     * Optional description for the autocomplete to improve accessibility.
-     * Will be associated with the input via aria-describedby.
-     */
     description: string;
-    /** Direct reference to the <input> inside <sch-input> */
-    inputRef: import("lit-html/directives/ref").Ref<HTMLInputElement>;
-    private optionsContainer;
-    private empty;
-    private input;
-    private options;
-    /**
-     * The size of the input.
-     * - 'sm': Small, compact size
-     * - 'md': Medium size (default)
-     * - 'lg': Large size
-     */
     size: InputSize;
-    private readonly searchTerm$;
-    isOpen: boolean;
-    /** Autocomplete/autofill hints. */
-    autocomplete: AutoFill;
-    private startY;
-    private statusMessage;
+    autocomplete: string;
+    debounceMs: number;
+    get value(): string;
+    set value(val: string);
+    private _open;
+    private _inputValue;
+    private _selectedValue;
+    private _selectedValues;
+    private _suppressFocusOpen;
+    private _debounceTimer;
+    _listbox: HTMLUListElement;
+    _input: SchmancyInput;
+    private _options;
+    private _inputElementRef;
+    private _documentClickHandler;
     connectedCallback(): void;
+    disconnectedCallback(): void;
     firstUpdated(): void;
-    protected updated(changedProps: Map<string | number | symbol, unknown>): void;
+    updated(changedProps: Map<string, unknown>): void;
     /**
-     * When the <slot> changes (i.e. options are added/removed), update the following:
-     * 1. Show or hide the "No results found" option.
-     * 2. Sync the selection state.
-     * 3. Setup accessibility attributes on the options.
+     * Handle document clicks to close dropdown when clicking outside
      */
-    private handleSlotChange;
+    private _onDocumentClick;
     /**
-     * Loops through assigned options and sets accessibility attributes:
-     * - role="option"
-     * - A unique ID (if not already set)
-     * - tabindex="-1"
-     * - aria-selected (based on whether the option is selected)
+     * Set up initial option accessibility attributes
      */
-    private setupOptionsAccessibility;
-    private syncSelectionFromValue;
-    private updateInputValue;
+    private _setupOptionsAccessibility;
     /**
-     * MAIN: Show the dropdown. Uses Floating UI to position and size the options container.
+     * Update options' selection state based on component value
      */
-    private showOptions;
-    private hideOptions;
-    private handleInputChange;
-    private handleOptionClick;
+    private _syncOptionsSelection;
+    /**
+     * Filter options based on input text - this operation can be expensive
+     * with many options or complex filtering logic
+     */
+    private _filterOptions;
+    /**
+     * Get all currently visible options
+     */
+    private _getVisibleOptions;
+    /**
+     * Get labels of selected options
+     */
+    private _getSelectedLabels;
+    /**
+     * Update the input display based on selection state
+     */
+    private _updateInputDisplay;
+    /**
+     * Handle input focus
+     */
+    private _onInputFocus;
+    /**
+     * Debounce a function call
+     * @param fn Function to debounce
+     */
+    private _debounce;
+    /**
+     * Handle input text changes with debouncing
+     */
+    private _onInputChange;
+    /**
+     * Show the dropdown with filtered options
+     */
+    private _showDropdown;
+    /**
+     * Announce message to screen readers
+     */
+    private _announceToScreenReader;
+    /**
+     * Select an option (either via click or keyboard)
+     */
+    private _selectOption;
+    /**
+     * Handle keyboard navigation
+     */
+    private _onKeyDown;
+    /**
+     * Get the currently focused option
+     */
+    private _getFocusedOption;
+    /**
+     * Move focus to next/previous option
+     */
+    private _moveFocus;
+    /**
+     * Focus the first visible option
+     */
+    private _focusFirstOption;
+    /**
+     * Focus the last visible option
+     */
+    private _focusLastOption;
+    /**
+     * Fire change event
+     */
+    private _fireChangeEvent;
+    /**
+     * Check validity for form integration
+     */
     checkValidity(): boolean;
+    /**
+     * Report validity for form integration
+     */
     reportValidity(): boolean;
-    private handleTouchStart;
-    private preventScroll;
-    /**
-     * Keyboard navigation for the autocomplete.
-     * – When the dropdown is closed, ArrowDown (or Enter/Space) opens it.
-     * – When open, ArrowDown/ArrowUp move focus between options (which must have role="option").
-     * – Enter or Space selects the active option.
-     * – Escape (or Tab) hides the dropdown.
-     * - Home/End to navigate to first/last option
-     */
-    private handleKeyDown;
-    /**
-     * Helper to focus an option by index and update the combobox's aria-activedescendant.
-     */
-    private focusOption;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

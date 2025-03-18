@@ -78,7 +78,7 @@ export default class SchmancyOption extends TailwindElement() {
 	protected render() {
 		// Apply highlight styles if `this.selected` is true
 		const classes = {
-			'outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:-outline-offset-2 rounded-md focus-visible:outline-secondary-default':
+			'bg-surface-container outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:-outline-offset-2 rounded-md focus-visible:outline-secondary-default':
 				true,
 			'font-semibold relative cursor-pointer py-2 px-3': true,
 			'bg-secondary-container text-secondery-onContainer': this.selected,

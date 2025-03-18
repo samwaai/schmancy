@@ -6,11 +6,6 @@ import { customElement, property } from 'lit/decorators.js'
 
 @customElement('schmancy-chip')
 export default class SchmancyChip extends $LitElement() {
-	// Removed unused query for md-chip-set
-
-	@property({ type: String, reflect: true })
-	label: string = ''
-
 	@property({ type: String, reflect: true })
 	value: string = ''
 
@@ -25,6 +20,7 @@ export default class SchmancyChip extends $LitElement() {
 
 	@property({ type: Boolean, reflect: true })
 	disabled: boolean = false
+
 	constructor() {
 		super()
 		try {
@@ -48,24 +44,24 @@ export default class SchmancyChip extends $LitElement() {
 	protected render(): unknown {
 		return html`
 			<md-filter-chip
-				.disabled=${this.disabled}
-				label="${this.label}"
-				@click=${(_e: Event) => {
+				@click=${() => {
 					if (this.readOnly) {
 						return
 					}
 					// Toggle selection and dispatch a change event
 					this.selected = !this.selected
 					this.dispatchEvent(
-						new CustomEvent<SchmancyChipChangeEvent>('change', {
+						new CustomEvent('change', {
 							detail: { value: this.value, selected: this.selected },
 							bubbles: true,
 						}),
 					)
 				}}
 				?selected=${this.selected}
+				?disabled=${this.disabled}
 			>
-				${this.icon}
+				${this.icon ? html`<span>${this.icon}</span>` : ''}
+				<slot></slot>
 			</md-filter-chip>
 		`
 	}

@@ -222,7 +222,7 @@ export default class SchmancyDateRange extends $LitElement() {
 		return html`
 			<!-- schmancy-menu typically provides a slot="button" for the trigger,
              and then projects the menu items inside. -->
-			<schmancy-menu class="z-100 w-max" role="menu" aria-label="Date range presets and custom input">
+			<schmancy-menu class="w-max" role="menu" aria-label="Date range presets and custom input">
 				<!-- The toggle/trigger slot -->
 				<schmancy-grid
 					@click=${(event: Event) => event.stopPropagation()}

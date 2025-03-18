@@ -150,7 +150,7 @@ export class SchmancyButton extends $LitElement(css`
 	render() {
 		// Compute classes for the interactive element.
 		const classes = {
-			'z-10 py-[8px] px-[16px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden':
+			'z-0 py-[8px] px-[16px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden':
 				true,
 			'cursor-pointer': !this.disabled,
 			'opacity-[0.38]': this.disabled,

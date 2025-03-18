@@ -1,563 +1,659 @@
-import { computePosition, offset, shift, size } from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
-import { color } from '@schmancy/directives'
+import { InputSize } from '@schmancy/input'
 import SchmancyInput from '@schmancy/input/input'
 import SchmancyOption from '@schmancy/option/option'
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { html } from 'lit'
-import { customElement, eventOptions, property, query, queryAssignedElements } from 'lit/decorators.js'
+import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
-import { from, fromEvent, Subject } from 'rxjs'
-import { distinctUntilChanged, filter, switchMap, takeUntil, tap } from 'rxjs/operators'
+import { classMap } from 'lit/directives/class-map.js'
 import style from './autocomplete.scss?inline'
 
-import { InputSize } from '@schmancy/input'
-import type { SchmancyInputInputEvent } from '@schmancy/input/input'
-import { similarity } from '@schmancy/utils/search'
-
+/**
+ * @fires change - When selection changes
+ */
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 	value: string | string[]
 }>
 
 /**
- * The SchmancyAutocomplete component provides an accessible autocomplete field with keyboard navigation.
+ * SchmancyAutocomplete provides an accessible autocomplete/combobox component
+ * with keyboard navigation and single or multi-select capabilities.
+ *
  * @element schmancy-autocomplete
- * @fires change - Emitted when a selection is made
- * @slot - Default slot for schmancy-option elements
- * @slot trigger - Optional slot to override the default input
+ * @slot - Default slot for option elements
+ * @slot trigger - Optional slot to override the default input element
  */
 @customElement('schmancy-autocomplete')
 export default class SchmancyAutocomplete extends $LitElement(style) {
 	// Public API properties
 	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = ''
-	@property({ type: String, reflect: true }) value = ''
 	@property({ type: String, reflect: true }) label = ''
-	@property({ type: String }) maxHeight = '25vh'
+	@property({ type: String }) maxHeight = '300px'
 	@property({ type: Boolean }) multi = false
-
-	/**
-	 * Optional description for the autocomplete to improve accessibility.
-	 * Will be associated with the input via aria-describedby.
-	 */
 	@property({ type: String }) description = ''
+	@property({ type: String, reflect: true }) size: InputSize = 'md'
+	@property({ type: String }) autocomplete = 'off'
+	@property({ type: Number }) debounceMs = 200 // Debounce delay in milliseconds
 
-	/** Direct reference to the <input> inside <sch-input> */
-	inputRef = createRef<HTMLInputElement>()
-
-	// Query selectors for elements in the shadow DOM
-	@query('#options') private optionsContainer!: HTMLUListElement
-	@query('#empty') private empty!: HTMLLIElement
-	@query('sch-input') private input!: SchmancyInput
-	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
-
-	/**
-	 * The size of the input.
-	 * - 'sm': Small, compact size
-	 * - 'md': Medium size (default)
-	 * - 'lg': Large size
-	 */
+	// Value property with getter/setter
 	@property({ type: String, reflect: true })
-	public size: InputSize = 'md'
+	get value() {
+		if (this.multi) {
+			return this._selectedValues.join(',')
+		}
+		return this._selectedValue
+	}
+	set value(val: string) {
+		if (this.multi) {
+			this._selectedValues = val
+				? val
+						.split(',')
+						.map(v => v.trim())
+						.filter(Boolean)
+				: []
+		} else {
+			this._selectedValue = val
+		}
+		this._syncOptionsSelection()
+		this._updateInputDisplay()
 
-	// Subject for search term changes
-	private readonly searchTerm$ = new Subject<string>()
+		// Dispatch change event when value is set programmatically
+		if (this.isConnected) {
+			this._fireChangeEvent()
+		}
+	}
 
-	// Flag to track dropdown state
-	@property({ type: Boolean, reflect: true }) isOpen = false
+	// Internal state
+	@state() private _open = false
+	@state() private _inputValue = ''
+	@state() private _selectedValue = ''
+	@state() private _selectedValues: string[] = []
+	@state() private _suppressFocusOpen = false // Flag to prevent dropdown from opening on focus after selection
 
-	/** Autocomplete/autofill hints. */
-	@property({ type: String, reflect: true })
-	public autocomplete: AutoFill = 'on'
+	// Debounce timer reference
+	private _debounceTimer: number | null = null
 
-	// iOS scroll-blocking logic
-	private startY = 0
+	// DOM references
+	@query('#options') _listbox!: HTMLUListElement
+	@query('sch-input') _input!: SchmancyInput
+	@queryAssignedElements({ flatten: true }) private _options!: SchmancyOption[]
+	private _inputElementRef = createRef<HTMLInputElement>()
 
-	// Store status message for screen readers
-	private statusMessage = ''
+	// Click outside handler reference for cleanup
+	private _documentClickHandler = this._onDocumentClick.bind(this)
 
+	// Lifecycle methods
 	connectedCallback() {
 		super.connectedCallback()
-
-		// Ensure the component has an ID (used for generating option IDs)
+		// Ensure component has ID for ARIA relationships
 		if (!this.id) {
-			this.id = `schmancy-autocomplete-${Math.random().toString(36).substr(2, 9)}`
+			this.id = `sch-autocomplete-${Math.random().toString(36).slice(2, 9)}`
+		}
+	}
+
+	disconnectedCallback() {
+		// Clean up global event listeners
+		document.removeEventListener('click', this._documentClickHandler)
+
+		// Clear any pending debounce timer
+		if (this._debounceTimer !== null) {
+			window.clearTimeout(this._debounceTimer)
 		}
 
-		// Listen for keydown events on the input to enable keyboard navigation
-		fromEvent(this, 'keydown')
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe({
-				next: (e: KeyboardEvent) => {
-					this.handleKeyDown(e)
-				},
-			})
-
-		// Search filtering logic
-		this.searchTerm$
-			.pipe(
-				distinctUntilChanged(),
-				tap(term => {
-					const searchTerm = term.trim().toLowerCase()
-
-					// Filter options using Levenshtein distance
-					const matches = this.options
-						.map(option => {
-							const optionText = (option.label || option.textContent || '').toLowerCase()
-							const score = similarity(searchTerm, optionText)
-							return { option, score }
-						})
-						.filter(({ score }) => {
-							// For short search terms, be lenient
-							return score > 0.8
-						})
-						.sort((a, b) => a.score - b.score)
-
-					// Show/hide options based on filtering
-					this.options.forEach(o => (o.hidden = true))
-					for (const { option } of matches) {
-						option.hidden = false
-					}
-
-					// "No results found"
-					this.empty.hidden = matches.length > 0
-
-					// Update status message for screen readers
-					this.statusMessage =
-						matches.length > 0
-							? `${matches.length} option${matches.length === 1 ? '' : 's'} available.`
-							: 'No results found.'
-
-					// Update the live region to announce the results
-					const liveRegion = this.shadowRoot?.querySelector('#live-status')
-					if (liveRegion) {
-						liveRegion.textContent = this.statusMessage
-					}
-
-					// Update accessibility attributes on options
-					this.setupOptionsAccessibility()
-
-					this.requestUpdate()
-				}),
-				takeUntil(this.disconnecting),
-			)
-			.subscribe(() => {
-				// Show dropdown on each new search term
-				this.showOptions()
-			})
-
-		// Focus-out animation (fade out)
-		fromEvent<FocusEvent>(this, 'focusout')
-			.pipe(
-				takeUntil(this.disconnecting),
-				filter(e => {
-					// Don't close if focus moved to an option
-					const relatedTarget = e.relatedTarget as Element
-					return !this.contains(relatedTarget) && relatedTarget?.tagName !== 'SCHMANCY-OPTION'
-				}),
-				switchMap(() => {
-					// reset options to show all
-					this.options.forEach(o => (o.hidden = false))
-					const animation = this.optionsContainer.animate([{ opacity: 1 }, { opacity: 0 }], {
-						duration: 150,
-						easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
-					})
-					return from(
-						new Promise<void>(resolve => {
-							animation.onfinish = () => {
-								this.optionsContainer.style.display = 'none'
-								this.optionsContainer.style.opacity = '1'
-								this.isOpen = false
-								resolve()
-							}
-						}),
-					)
-				}),
-			)
-			.subscribe({
-				next: () => {
-					// After closing, resync the input's value
-					if (this.multi) {
-						const selected = this.options.filter(o => o.selected).map(o => o.label)
-						this.input.value = selected.join(', ')
-					} else {
-						this.input.value = this.options.find(o => o.value === this.value)?.label ?? ''
-					}
-				},
-			})
+		super.disconnectedCallback()
 	}
 
 	firstUpdated() {
-		this.updateInputValue()
+		// Set up initial state and accessibility
+		this._syncOptionsSelection()
+		this._setupOptionsAccessibility()
+		this._updateInputDisplay()
 	}
 
-	protected updated(changedProps: Map<string | number | symbol, unknown>) {
+	updated(changedProps: Map<string, unknown>) {
 		super.updated(changedProps)
-		if (changedProps.has('value')) {
-			this.syncSelectionFromValue()
-			this.updateInputValue()
+
+		// Update document click handler when dropdown state changes
+		if (changedProps.has('_open')) {
+			if (!this._open) {
+				document.removeEventListener('click', this._documentClickHandler)
+			}
 		}
 	}
 
 	/**
-	 * When the <slot> changes (i.e. options are added/removed), update the following:
-	 * 1. Show or hide the "No results found" option.
-	 * 2. Sync the selection state.
-	 * 3. Setup accessibility attributes on the options.
+	 * Handle document clicks to close dropdown when clicking outside
 	 */
-	private handleSlotChange() {
-		this.empty.hidden = this.options.some(option => !option.hidden)
-		this.syncSelectionFromValue()
-		this.updateInputValue()
-		this.setupOptionsAccessibility()
-	}
-
-	/**
-	 * Loops through assigned options and sets accessibility attributes:
-	 * - role="option"
-	 * - A unique ID (if not already set)
-	 * - tabindex="-1"
-	 * - aria-selected (based on whether the option is selected)
-	 */
-	private setupOptionsAccessibility() {
-		this.options.forEach((option, index) => {
-			option.setAttribute('role', 'option')
-			if (!option.id) {
-				option.id = `${this.id}-option-${index}`
-			}
-			option.tabIndex = -1
-			option.setAttribute('aria-selected', String(this.multi ? option.selected : option.value === this.value))
-		})
-	}
-
-	private syncSelectionFromValue() {
-		if (this.multi) {
-			const values = this.value
-				.split(',')
-				.map(v => v.trim())
-				.filter(Boolean)
-			this.options.forEach(o => {
-				o.selected = values.includes(o.value)
-			})
-		} else {
-			this.options.forEach(o => {
-				o.selected = o.value === this.value
-			})
-		}
-	}
-
-	private updateInputValue() {
-		requestAnimationFrame(() => {
-			if (this.multi) {
-				const selected = this.options.filter(o => o.selected).map(o => o.label)
-				this.input.value = selected.join(', ')
-			} else {
-				const found = this.options.find(o => o.value === this.value)?.label
-				this.input.value = found ?? ''
-			}
-		})
-	}
-
-	/**
-	 * MAIN: Show the dropdown. Uses Floating UI to position and size the options container.
-	 */
-	private async showOptions() {
-		if (!this.optionsContainer) return
-
-		this.optionsContainer.removeAttribute('hidden')
-		this.optionsContainer.style.display = 'block'
-		this.isOpen = true
-
-		const { x, y } = await computePosition(this.input, this.optionsContainer, {
-			placement: 'bottom-start',
-			middleware: [
-				offset(5),
-				shift({ padding: 5 }),
-				size({
-					apply({ availableWidth, availableHeight, elements, rects }) {
-						// At least match input width
-						const referenceWidth = rects.reference.width
-						elements.floating.style.minWidth = `${referenceWidth}px`
-						// Cap to available viewport space
-						elements.floating.style.maxWidth = `${availableWidth}px`
-						elements.floating.style.maxHeight = `${availableHeight}px`
-					},
-				}),
-			],
-		})
-
-		Object.assign(this.optionsContainer.style, {
-			left: `${x}px`,
-			top: `${y}px`,
-			position: 'absolute',
-			zIndex: '9999',
-			overflowY: 'auto',
-		})
-	}
-
-	private hideOptions() {
-		this.optionsContainer?.setAttribute('hidden', 'true')
-		if (this.optionsContainer) {
-			this.optionsContainer.style.display = 'none'
-		}
-		this.isOpen = false
-
-		// Announce that the dropdown is closed to screen readers
-		const liveRegion = this.shadowRoot?.querySelector('#live-status')
-		if (liveRegion) {
-			liveRegion.textContent = 'Dropdown closed.'
-		}
-	}
-
-	private handleInputChange(event: SchmancyInputInputEvent) {
-		event.preventDefault()
-		event.stopPropagation()
-		const term = event.detail.value
-		this.searchTerm$.next(term)
-	}
-
-	@eventOptions({ passive: true })
-	private handleOptionClick(value: string) {
-		if (this.multi) {
-			const option = this.options.find(o => o.value === value)
-			if (option) option.selected = !option.selected
-			const selectedValues = this.options.filter(o => o.selected).map(o => o.value)
-			this.value = selectedValues.join(',')
-			this.updateInputValue()
-
-			// Announce selection to screen readers
-			const selectedLabels = this.options.filter(o => o.selected).map(o => o.label)
-			const announcement = selectedLabels.length > 0 ? `Selected: ${selectedLabels.join(', ')}` : 'No options selected'
-
-			const liveRegion = this.shadowRoot?.querySelector('#live-status')
-			if (liveRegion) {
-				liveRegion.textContent = announcement
-			}
-
-			this.dispatchEvent(
-				new CustomEvent<SchmancyAutocompleteChangeEvent['detail']>('change', {
-					detail: { value: selectedValues },
-					bubbles: true,
-					composed: true,
-				}),
-			)
-		} else {
-			const selectedOption = this.options.find(o => o.value === value)
-			const selectedLabel = selectedOption?.label || ''
-
-			this.hideOptions()
-			this.value = value
-			this.updateInputValue()
-
-			// Announce selection to screen readers
-			const liveRegion = this.shadowRoot?.querySelector('#live-status')
-			if (liveRegion) {
-				liveRegion.textContent = `Selected: ${selectedLabel}`
-			}
-
-			this.dispatchEvent(
-				new CustomEvent<SchmancyAutocompleteChangeEvent['detail']>('change', {
-					detail: { value },
-					bubbles: true,
-					composed: true,
-				}),
-			)
-		}
-	}
-
-	public checkValidity() {
-		return this.multi ? this.options.some(o => o.selected) : Boolean(this.value)
-	}
-
-	public reportValidity() {
-		return this.inputRef.value?.reportValidity()
-	}
-
-	private handleTouchStart(event: TouchEvent) {
-		this.startY = event.touches?.[0]?.clientY ?? 0
-	}
-
-	private preventScroll(event: TouchEvent) {
-		const target = event.target as HTMLElement
-		if (!this.optionsContainer.contains(target)) return
-
-		const scrollTop = this.optionsContainer.scrollTop
-		const scrollHeight = this.optionsContainer.scrollHeight
-		const offsetHeight = this.optionsContainer.offsetHeight
-		const contentHeight = scrollHeight - offsetHeight
-
-		const currentY = event.touches?.[0]?.clientY ?? 0
-		if ((scrollTop <= 0 && currentY > this.startY) || (scrollTop >= contentHeight && currentY < this.startY)) {
-			event.preventDefault()
-		}
-	}
-
-	/**
-	 * Keyboard navigation for the autocomplete.
-	 * – When the dropdown is closed, ArrowDown (or Enter/Space) opens it.
-	 * – When open, ArrowDown/ArrowUp move focus between options (which must have role="option").
-	 * – Enter or Space selects the active option.
-	 * – Escape (or Tab) hides the dropdown.
-	 * - Home/End to navigate to first/last option
-	 */
-	private handleKeyDown = (e: KeyboardEvent) => {
-		// Get the visible options (i.e. those not hidden)
-		const options = this.options.filter(o => !o.hidden)
-
-		// If the dropdown is closed, open it on Enter, Space, or ArrowDown
-		if (!this.isOpen) {
-			if (['Enter', 'ArrowDown'].includes(e.key)) {
-				// Removed ' ' (space) here
-				e.preventDefault()
-				this.showOptions().then(() => {
-					if (options.length > 0) {
-						this.focusOption(options, 0)
-					}
-				})
-			}
+	private _onDocumentClick(e: MouseEvent) {
+		// Don't close if clicking on component or its children
+		if (e.composedPath().includes(this)) {
 			return
 		}
 
-		// Dropdown is open; determine the currently focused option
-		let currentIndex = options.findIndex(o => o.matches(':focus'))
-		if (currentIndex === -1) {
-			// If no option is focused, default to the first
-			currentIndex = 0
+		// Don't close if clicking on one of the options (which may be in light DOM)
+		for (const option of this._options) {
+			if (e.composedPath().includes(option)) {
+				return
+			}
 		}
 
+		// Otherwise close the dropdown
+		if (this._open) {
+			this._open = false
+			this._updateInputDisplay()
+		}
+	}
+
+	/**
+	 * Set up initial option accessibility attributes
+	 */
+	private _setupOptionsAccessibility() {
+		this._options.forEach((option, index) => {
+			// Set common attributes for all options
+			option.setAttribute('role', 'option')
+			option.tabIndex = -1
+
+			// Ensure each option has an ID
+			if (!option.id) {
+				option.id = `${this.id}-option-${index}`
+			}
+
+			// Add click handler to options
+			if (!option.hasAttribute('data-event-bound')) {
+				option.addEventListener('click', e => {
+					e.stopPropagation()
+					this._selectOption(option)
+				})
+				option.setAttribute('data-event-bound', 'true')
+			}
+		})
+	}
+
+	/**
+	 * Update options' selection state based on component value
+	 */
+	private _syncOptionsSelection() {
+		if (!this._options?.length) return
+
+		this._options.forEach(option => {
+			if (this.multi) {
+				option.selected = this._selectedValues.includes(option.value)
+			} else {
+				option.selected = option.value === this._selectedValue
+			}
+
+			// Update aria-selected attribute
+			option.setAttribute('aria-selected', String(option.selected))
+		})
+	}
+
+	/**
+	 * Filter options based on input text - this operation can be expensive
+	 * with many options or complex filtering logic
+	 */
+	private _filterOptions() {
+		console.time('filter-options')
+		const searchTerm = this._inputValue.toLowerCase().trim()
+
+		// Track if we have any matches
+		let hasMatches = false
+
+		this._options.forEach(option => {
+			// Always show all options if search is empty
+			if (!searchTerm) {
+				option.hidden = false
+				hasMatches = true
+				return
+			}
+
+			// Simple substring matching
+			const text = (option.label || option.textContent || '').toLowerCase()
+			const isMatch = text.includes(searchTerm)
+			option.hidden = !isMatch
+
+			if (isMatch) {
+				hasMatches = true
+			}
+		})
+
+		// Update "No results" visibility
+		const emptyMessage = this.shadowRoot?.querySelector('#empty')
+		if (emptyMessage) {
+			emptyMessage.toggleAttribute('hidden', hasMatches)
+		}
+
+		// Announce results to screen readers
+		const visibleCount = this._getVisibleOptions().length
+		this._announceToScreenReader(
+			visibleCount > 0 ? `${visibleCount} option${visibleCount === 1 ? '' : 's'} available.` : 'No results found.',
+		)
+		console.timeEnd('filter-options')
+	}
+
+	/**
+	 * Get all currently visible options
+	 */
+	private _getVisibleOptions(): SchmancyOption[] {
+		return Array.from(this._options || []).filter(option => !option.hidden)
+	}
+
+	/**
+	 * Get labels of selected options
+	 */
+	private _getSelectedLabels(): string[] {
+		return Array.from(this._options || [])
+			.filter(option =>
+				this.multi ? this._selectedValues.includes(option.value) : option.value === this._selectedValue,
+			)
+			.map(option => option.label || option.textContent || '')
+	}
+
+	/**
+	 * Update the input display based on selection state
+	 */
+	private _updateInputDisplay() {
+		if (!this._inputElementRef.value) return
+
+		// When dropdown is closed or in single select mode, show the selection
+		if (!this._open || !this.multi) {
+			if (this.multi) {
+				// Show comma-separated labels for multi-select
+				this._inputValue = this._getSelectedLabels().join(', ')
+			} else {
+				// Show selected option label for single-select
+				const selectedOption = this._options?.find(o => o.value === this._selectedValue)
+				this._inputValue = selectedOption ? selectedOption.label || selectedOption.textContent || '' : ''
+			}
+		}
+
+		// Update the input value
+		this._inputElementRef.value.value = this._inputValue
+	}
+
+	/**
+	 * Handle input focus
+	 */
+	private _onInputFocus(e: FocusEvent) {
+		e.stopPropagation()
+
+		// If suppress flag is active, don't open dropdown
+		if (this._suppressFocusOpen) {
+			return
+		}
+
+		// If multi-select mode and input is focused, clear it for new input
+		if (this.multi) {
+			this._inputValue = ''
+			if (this._inputElementRef.value) {
+				this._inputElementRef.value.value = ''
+			}
+		}
+
+		this._showDropdown()
+	}
+
+	/**
+	 * Debounce a function call
+	 * @param fn Function to debounce
+	 */
+	private _debounce(fn: () => void): void {
+		// Clear any existing timer
+		if (this._debounceTimer !== null) {
+			window.clearTimeout(this._debounceTimer)
+		}
+
+		// Set new timer
+		this._debounceTimer = window.setTimeout(() => {
+			fn()
+			this._debounceTimer = null
+		}, this.debounceMs)
+	}
+
+	/**
+	 * Handle input text changes with debouncing
+	 */
+	private _onInputChange(e: Event) {
+		const target = e.target as HTMLInputElement
+		this._inputValue = target.value
+
+		// Immediate feedback - show dropdown
+		if (!this._open) {
+			this._showDropdown()
+		}
+
+		// Debounce the expensive filtering operation
+		this._debounce(() => {
+			this._filterOptions()
+		})
+	}
+
+	/**
+	 * Show the dropdown with filtered options
+	 */
+	private _showDropdown() {
+		if (this._open) return
+
+		this._open = true
+		this._filterOptions()
+
+		// Add document click handler after a brief delay
+		// to avoid immediate closing on the same click event
+		setTimeout(() => {
+			document.addEventListener('click', this._documentClickHandler)
+		}, 10)
+	}
+
+	/**
+	 * Announce message to screen readers
+	 */
+	private _announceToScreenReader(message: string) {
+		const liveRegion = this.shadowRoot?.querySelector('#live-status')
+		if (liveRegion) {
+			liveRegion.textContent = message
+		}
+	}
+
+	/**
+	 * Select an option (either via click or keyboard)
+	 */
+	private _selectOption(option: SchmancyOption) {
+		if (this.multi) {
+			// Toggle selection in multi-select mode
+			const value = option.value
+			const index = this._selectedValues.indexOf(value)
+
+			if (index > -1) {
+				// Remove if already selected
+				this._selectedValues = [...this._selectedValues.slice(0, index), ...this._selectedValues.slice(index + 1)]
+			} else {
+				// Add if not selected
+				this._selectedValues = [...this._selectedValues, value]
+			}
+
+			// Clear input for more typing in multi-select mode
+			this._inputValue = ''
+			if (this._inputElementRef.value) {
+				this._inputElementRef.value.value = ''
+			}
+
+			// Update option selection state
+			option.selected = !option.selected
+			option.setAttribute('aria-selected', String(option.selected))
+
+			// Keep dropdown open in multi-select
+			this._filterOptions()
+
+			// Announce selection to screen readers
+			const selectedLabels = this._getSelectedLabels()
+			this._announceToScreenReader(
+				selectedLabels.length > 0 ? `Selected: ${selectedLabels.join(', ')}` : 'No options selected',
+			)
+		} else {
+			// Single-select mode - select and close
+			this._selectedValue = option.value
+
+			// Update selected state
+			this._syncOptionsSelection()
+
+			// Close dropdown
+			this._open = false
+
+			// Set flag to prevent reopening on focus
+			this._suppressFocusOpen = true
+
+			// Update input with selected label
+			this._updateInputDisplay()
+
+			// For mobile: blur input to dismiss keyboard
+			if (this._inputElementRef.value) {
+				this._inputElementRef.value.blur()
+			}
+
+			// Reset suppress flag after a delay
+			setTimeout(() => {
+				this._suppressFocusOpen = false
+			}, 300)
+
+			// Announce selection to screen readers
+			this._announceToScreenReader(`Selected: ${option.label || option.textContent}`)
+		}
+
+		// Fire change event
+		this._fireChangeEvent()
+	}
+
+	/**
+	 * Handle keyboard navigation
+	 */
+	private _onKeyDown(e: KeyboardEvent) {
+		// If dropdown is closed, open on arrow down or enter
+		if (!this._open && (e.key === 'ArrowDown' || e.key === 'Enter')) {
+			e.preventDefault()
+			this._showDropdown()
+
+			// Focus first visible option
+			setTimeout(() => {
+				const visibleOptions = this._getVisibleOptions()
+				if (visibleOptions.length > 0) {
+					visibleOptions[0].focus()
+				}
+			}, 10)
+
+			return
+		}
+
+		// Early return if dropdown is closed
+		if (!this._open) return
+
+		// Handle keyboard navigation
 		switch (e.key) {
 			case 'Escape':
 				e.preventDefault()
-				this.hideOptions()
-				this.input.focus()
+				this._open = false
+				this._updateInputDisplay()
+				this._inputElementRef.value?.focus()
 				break
+
+			case 'Tab':
+				// Natural tab behavior will move focus; just close dropdown
+				this._open = false
+				this._updateInputDisplay()
+				break
+
 			case 'ArrowDown':
 				e.preventDefault()
-				this.focusOption(options, Math.min(currentIndex + 1, options.length - 1))
+				this._moveFocus(1)
 				break
+
 			case 'ArrowUp':
 				e.preventDefault()
-				this.focusOption(options, Math.max(currentIndex - 1, 0))
+				this._moveFocus(-1)
 				break
+
 			case 'Home':
 				e.preventDefault()
-				this.focusOption(options, 0)
+				this._focusFirstOption()
 				break
+
 			case 'End':
 				e.preventDefault()
-				this.focusOption(options, options.length - 1)
+				this._focusLastOption()
 				break
-			case 'Enter': // Removed ' ' (space) case here
-				e.preventDefault()
-				if (options[currentIndex]) {
-					const value = options[currentIndex].getAttribute('data-value') || options[currentIndex].getAttribute('value')
-					if (value) {
-						this.handleOptionClick(value)
-					}
-				}
-				break
-			case 'Tab':
-				// Close the dropdown on Tab
-				this.hideOptions()
-				break
-			default:
-				// For letter key presses, find and focus the first option that starts with that letter
-				if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
-					const searchKey = e.key.toLowerCase()
-					const matchIndex = options.findIndex(option =>
-						(option.label || option.textContent || '').toLowerCase().startsWith(searchKey),
-					)
 
-					if (matchIndex !== -1) {
-						e.preventDefault()
-						this.focusOption(options, matchIndex)
-					}
+			case 'Enter':
+			case ' ': // Space key
+				// Select currently focused option
+				const focusedOption = this._getFocusedOption()
+				if (focusedOption) {
+					e.preventDefault()
+					this._selectOption(focusedOption)
 				}
 				break
 		}
 	}
 
 	/**
-	 * Helper to focus an option by index and update the combobox's aria-activedescendant.
+	 * Get the currently focused option
 	 */
-	private focusOption(options: HTMLElement[], index: number) {
-		if (!options.length) return
+	private _getFocusedOption(): SchmancyOption | null {
+		const visibleOptions = this._getVisibleOptions()
+		return visibleOptions.find(opt => opt === document.activeElement) || null
+	}
 
-		const option = options[index]
-		if (option) {
-			option.focus()
-			// Update the input's aria-activedescendant to match the newly focused option
-			this.input.setAttribute('aria-activedescendant', option.id)
+	/**
+	 * Move focus to next/previous option
+	 */
+	private _moveFocus(direction: number) {
+		const visibleOptions = this._getVisibleOptions()
+		if (!visibleOptions.length) return
 
-			// Ensure the focused option is visible in the dropdown (scroll if needed)
-			if (option.scrollIntoView) {
-				option.scrollIntoView({ block: 'nearest' })
-			}
+		const currentOption = this._getFocusedOption()
+		let index = currentOption ? visibleOptions.indexOf(currentOption) : -1
+
+		// Calculate new index
+		if (direction > 0) {
+			// Move forward, wrap to start
+			index = index < visibleOptions.length - 1 ? index + 1 : 0
+		} else {
+			// Move backward, wrap to end
+			index = index > 0 ? index - 1 : visibleOptions.length - 1
+		}
+
+		// Focus the option
+		visibleOptions[index].focus()
+	}
+
+	/**
+	 * Focus the first visible option
+	 */
+	private _focusFirstOption() {
+		const visibleOptions = this._getVisibleOptions()
+		if (visibleOptions.length > 0) {
+			visibleOptions[0].focus()
 		}
 	}
 
+	/**
+	 * Focus the last visible option
+	 */
+	private _focusLastOption() {
+		const visibleOptions = this._getVisibleOptions()
+		if (visibleOptions.length > 0) {
+			visibleOptions[visibleOptions.length - 1].focus()
+		}
+	}
+
+	/**
+	 * Fire change event
+	 */
+	private _fireChangeEvent() {
+		const detail = {
+			value: this.multi ? this._selectedValues : this._selectedValue,
+		}
+
+		this.dispatchEvent(
+			new CustomEvent<SchmancyAutocompleteChangeEvent['detail']>('change', {
+				detail,
+				bubbles: true,
+				composed: true,
+			}),
+		)
+	}
+
+	/**
+	 * Check validity for form integration
+	 */
+	public checkValidity(): boolean {
+		if (!this.required) return true
+		return this.multi ? this._selectedValues.length > 0 : Boolean(this._selectedValue)
+	}
+
+	/**
+	 * Report validity for form integration
+	 */
+	public reportValidity(): boolean {
+		if (this._inputElementRef.value) {
+			return this._inputElementRef.value.reportValidity()
+		}
+		return this.checkValidity()
+	}
+
 	render() {
-		// Create a unique ID for the description
 		const descriptionId = `${this.id}-desc`
 
 		return html`
-			<div class="relative">
-				<!-- Live region for screen reader announcements -->
+			<div class="schmancy-autocomplete relative z-10">
+				<!-- Screen reader live region -->
 				<div id="live-status" role="status" aria-live="polite" class="sr-only"></div>
 
-				<!-- Optional description for the autocomplete -->
+				<!-- Description (for screen readers) -->
 				${this.description ? html`<div id="${descriptionId}" class="sr-only">${this.description}</div>` : ''}
 
-				<!-- The trigger slot (if any) overrides the default SchmancyInput -->
+				<!-- Input / trigger slot -->
 				<slot name="trigger">
 					<sch-input
 						.size=${this.size}
-						.autocomplete=${this.autocomplete}
-						${ref(this.inputRef)}
-						id="input"
+						${ref(this._inputElementRef)}
+						id="autocomplete-input"
 						class="w-full"
 						.label=${this.label}
 						.placeholder=${this.placeholder}
 						.required=${this.required}
-						type="search"
-						inputmode="text"
-						autocomplete="off"
+						.value=${this._inputValue}
+						type="text"
+						autocomplete=${this.autocomplete}
 						clickable
 						role="combobox"
 						aria-autocomplete="list"
 						aria-haspopup="listbox"
 						aria-controls="options"
-						aria-expanded=${this.isOpen}
+						aria-expanded=${this._open}
 						aria-describedby=${this.description ? descriptionId : undefined}
-						@focus=${() => this.showOptions()}
-						@change=${this.handleInputChange}
+						@input=${this._onInputChange}
+						@focus=${this._onInputFocus}
+						@click=${(e: MouseEvent) => {
+							e.stopPropagation()
+							this._onInputFocus(new FocusEvent('focus'))
+						}}
+						@keydown=${this._onKeyDown}
 					>
 					</sch-input>
 				</slot>
 
+				<!-- Options dropdown -->
 				<ul
 					id="options"
-					tabindex="-1"
-					class="absolute z-30 mt-1 w-full overflow-auto rounded-md shadow-sm"
+					class=${classMap({
+						absolute: true,
+						'z-30': true,
+						'mt-1': true,
+						'w-full': true,
+						'rounded-md': true,
+						'shadow-sm': true,
+						'overflow-auto': true,
+					})}
 					role="listbox"
 					aria-multiselectable=${this.multi ? 'true' : 'false'}
 					aria-label=${`${this.label || 'Options'} dropdown`}
-					hidden
-					@click=${(e: Event) => {
-						// Each <schmancy-option> should dispatch a CustomEvent('click', { detail: { value } })
-						const detailVal = (e as CustomEvent).detail?.value
-						if (detailVal) this.handleOptionClick(detailVal)
+					?hidden=${!this._open}
+					style="
+            max-height: ${this.maxHeight}; 
+            display: ${this._open ? 'block' : 'none'};
+            background-color: transparent;
+          "
+					@slotchange=${() => {
+						this._setupOptionsAccessibility()
+						this._syncOptionsSelection()
+						this._filterOptions()
 					}}
-					@touchstart=${this.handleTouchStart}
-					@touchmove=${this.preventScroll}
-					${color({ bgColor: SchmancyTheme.sys.color.surface.container })}
-					@slotchange=${this.handleSlotChange}
 				>
-					<!-- "No results" option -->
-					<li id="empty" tabindex="-1" role="option" aria-disabled="true" class="p-2 text-center">
+					<!-- "No results" message -->
+					<li id="empty" tabindex="-1" role="option" aria-disabled="true" class="p-2 text-center" hidden>
 						<schmancy-typography type="label">No results found</schmancy-typography>
 					</li>
-					<!-- Slot for the <schmancy-option> elements -->
+
+					<!-- Options slot -->
 					<slot></slot>
 				</ul>
 			</div>

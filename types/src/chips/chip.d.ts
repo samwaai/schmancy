@@ -3,7 +3,6 @@ import '@material/web/chips/filter-chip.js';
 import { LitElement } from 'lit';
 declare const SchmancyChip_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyChip extends SchmancyChip_base {
-    label: string;
     value: string;
     selected: boolean;
     icon: string;
