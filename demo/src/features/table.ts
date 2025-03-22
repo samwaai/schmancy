@@ -88,8 +88,8 @@ export class TableDemo extends $LitElement() {
 			align: 'center',
 			sortable: true,
 			render: user => {
-				const statusClass = user.status === 'active' ? 'text-success-default' : 'text-error-default'
-				return html`<span class="${statusClass}">${user.status}</span>`
+				const statusClass = user.status === 'active' ? 'text-success-default text-white' : 'text-error-default'
+				return html`<schmancy-typography class="${statusClass}">${user.status}</schmancy-typography>`
 			},
 		},
 		{
@@ -125,17 +125,17 @@ export class TableDemo extends $LitElement() {
 						<schmancy-typography type="headline">Table Demo</schmancy-typography>
 					</sch-flex>
 				</schmancy-nav-drawer-appbar>
-				<schmancy-table-v2
+				<schmancy-table
 					class="h-full flex-1"
 					.data=${this.users}
 					.columns=${this.columns}
 					sortable
 					searchPlaceholder="Search users..."
 					cols="0.5fr 1fr 1.5fr 1fr 1fr 1.5fr 0.5fr"
-					@row-click=${this.handleRowClick}
+					@click=${this.handleRowClick}
 					@sort-change=${this.handleSortChange}
 					@search-change=${this.handleSearchChange}
-				></schmancy-table-v2
+				></schmancy-table
 			></schmancy-grid>
 		`
 	}

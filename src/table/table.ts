@@ -24,7 +24,12 @@ export interface RowEventDetail<T> {
 // Define sort direction type
 export type SortDirection = 'asc' | 'desc' | null
 
-@customElement('schmancy-table-v2')
+/**
+ * SchmancyDataTable is a generic data table component.
+ * It supports sorting, filtering, and custom rendering of rows.
+ *
+ */
+@customElement('schmancy-table')
 export class SchmancyDataTable<T extends Record<string, any> = any> extends $LitElement() {
 	@property({ type: Array, attribute: false })
 	columns: TableColumn<T>[] = []
@@ -212,6 +217,6 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-table-v2': SchmancyDataTable
+		'schmancy-table': SchmancyDataTable
 	}
 }
