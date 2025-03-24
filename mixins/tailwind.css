@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 
 @theme inline {
-	--md-ref-typeface-brand: 'Josefin Sans', sans-serif;
-	--md-ref-typeface-plain: 'Josefin Sans', sans-serif;
+	--md-ref-typeface-brand: var(--schmancy-font-family);
+	--md-ref-typeface-plain: var(--schmancy-font-family);
 	--md-sys-color-primary: var(--schmancy-sys-color-primary-default);
 	--md-sys-color-secondary: var(--schmancy-sys-color-secondary-default);
 
@@ -50,9 +50,12 @@
 	--shadow-5: var(--schmancy-sys-elevation-5);
 	--outline-1: var(--schmancy-sys-outline-1);
 	--font-sans:
-		ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-	--font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+		var(--schmancy-font-family), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+		'Segoe UI Symbol', 'Noto Color Emoji';
+	--font-serif: var(--schmancy-font-family), ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+	--font-mono:
+		var(--schmancy-font-family), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+		'Courier New', monospace;
 	--color-red-50: oklch(0.971 0.013 17.38);
 	--color-red-100: oklch(0.936 0.032 17.717);
 	--color-red-200: oklch(0.885 0.062 18.334);
