@@ -13,9 +13,22 @@ export interface SchmancyScrollEvent extends CustomEvent<{
     e: Event;
 }> {
 }
+/**
+ * Command event interface for controlling SchmancyScroll components
+ */
+export interface SchmancyScrollCommandEvent extends CustomEvent<{
+    /** Target component name */
+    name: string;
+    /** Command action to perform */
+    action: 'scrollTo';
+    /** Scroll position for scrollTo action */
+    top: number;
+}> {
+}
 declare global {
     interface HTMLElementEventMap {
         scroll: SchmancyScrollEvent;
+        'schmancy-scroll-command': SchmancyScrollCommandEvent;
     }
 }
 declare const SchmancyScroll_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
@@ -28,7 +41,7 @@ declare const SchmancyScroll_base: import("@mixins/index").Constructor<CustomEle
  *
  * @example
  * ```html
- * <schmancy-scroll hide>
+ * <schmancy-scroll hide name="main-content">
  *   <div>Scrollable content goes here</div>
  * </schmancy-scroll>
  * ```
@@ -45,10 +58,18 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
      */
     hide: boolean;
     /**
-     * Reference to the inner scrollable div element
-     * @private
+     * Optional name identifier for the component.
+     * Used for targeting this specific component with global events.
+     *
+     * @attr name
+     * @example <schmancy-scroll name="main-content"></schmancy-scroll>
      */
-    private scroller;
+    name?: string;
+    /**
+     * Reference to the inner scrollable div element
+     * @public
+     */
+    scroller: HTMLElement;
     /**
      * Debounce time in milliseconds for the scroll event.
      * Higher values reduce the frequency of scroll events being dispatched.
@@ -57,6 +78,11 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
      * @example <schmancy-scroll debounce="50"></schmancy-scroll>
      */
     debounce: number;
+    /**
+     * Scrolls the container to the specified position
+     * @param top - The vertical position to scroll to (in pixels)
+     */
+    scrollTo(options?: ScrollToOptions | number, top?: number): void;
     /**
      * Called after the component's first update
      * Sets up the scroll event listener with debouncing
