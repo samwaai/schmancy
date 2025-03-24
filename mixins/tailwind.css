@@ -1,5 +1,8 @@
 @import 'tailwindcss';
-
+:host,
+:root {
+	font-family: var(--schmancy-font-family);
+}
 @theme inline {
 	--md-ref-typeface-brand: var(--schmancy-font-family);
 	--md-ref-typeface-plain: var(--schmancy-font-family);

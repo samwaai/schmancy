@@ -1,6 +1,6 @@
 import { $LitElement } from '@mixins/index'
 import '@schmancy/index'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import '@lit-labs/virtualizer'
@@ -8,7 +8,11 @@ import { fullHeight } from '../../src/directives/height'
 import './features/index'
 import { DemoInput } from './features/index'
 @customElement('schmancy-demo')
-export default class SchmancyDemo extends $LitElement() {
+export default class SchmancyDemo extends $LitElement(css`
+	:root {
+		font-family: var(--schmancy-font-family);
+	}
+`) {
 	connectedCallback(): void {
 		super.connectedCallback()
 	}
