@@ -22,7 +22,13 @@ export default class SchmancyDemo extends $LitElement() {
 							<demo-nav> </demo-nav>
 						</schmancy-nav-drawer-navbar>
 						<schmancy-nav-drawer-content class="pl-2">
-							<schmancy-area name="main" .default=${DemoInput}></schmancy-area>
+							<schmancy-scroll
+								@scroll=${(e: CustomEvent<any>) => {
+									console.log('scroll', e)
+								}}
+							>
+								<schmancy-area name="main" .default=${DemoInput}></schmancy-area>
+							</schmancy-scroll>
 						</schmancy-nav-drawer-content>
 					</schmancy-nav-drawer>
 				</schmancy-surface>
