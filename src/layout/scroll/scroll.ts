@@ -1,7 +1,7 @@
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import { debounceTime, fromEvent, takeUntil } from 'rxjs'
+import { debounceTime, filter, fromEvent, takeUntil } from 'rxjs'
 
 /**
  * Custom scroll event interface for the SchmancyScroll component.
@@ -19,10 +19,24 @@ export interface SchmancyScrollEvent
 		e: Event
 	}> {}
 
-// Augment the HTMLElementEventMap to include our custom event
+/**
+ * Command event interface for controlling SchmancyScroll components
+ */
+export interface SchmancyScrollCommandEvent
+	extends CustomEvent<{
+		/** Target component name */
+		name: string
+		/** Command action to perform */
+		action: 'scrollTo'
+		/** Scroll position for scrollTo action */
+		top: number
+	}> {}
+
+// Augment the HTMLElementEventMap to include our custom events
 declare global {
 	interface HTMLElementEventMap {
 		scroll: SchmancyScrollEvent
+		'schmancy-scroll-command': SchmancyScrollCommandEvent
 	}
 }
 
@@ -35,7 +49,7 @@ declare global {
  *
  * @example
  * ```html
- * <schmancy-scroll hide>
+ * <schmancy-scroll hide name="main-content">
  *   <div>Scrollable content goes here</div>
  * </schmancy-scroll>
  * ```
@@ -72,11 +86,21 @@ export class SchmancyScroll extends TailwindElement(css`
 	public hide = false
 
 	/**
+	 * Optional name identifier for the component.
+	 * Used for targeting this specific component with global events.
+	 *
+	 * @attr name
+	 * @example <schmancy-scroll name="main-content"></schmancy-scroll>
+	 */
+	@property({ type: String, reflect: true })
+	public name?: string
+
+	/**
 	 * Reference to the inner scrollable div element
-	 * @private
+	 * @public
 	 */
 	@query('#scroller')
-	private scroller!: HTMLElement
+	scroller!: HTMLElement
 
 	/**
 	 * Debounce time in milliseconds for the scroll event.
@@ -87,6 +111,22 @@ export class SchmancyScroll extends TailwindElement(css`
 	 */
 	@property({ type: Number })
 	public debounce = 10
+
+	/**
+	 * Scrolls the container to the specified position
+	 * @param top - The vertical position to scroll to (in pixels)
+	 */
+	public override scrollTo(options?: ScrollToOptions | number, top?: number): void {
+		if (this.scroller) {
+			if (typeof options === 'number') {
+				this.scroller.scrollTo({ top: options, behavior: top ? 'smooth' : 'auto' })
+			} else if (options) {
+				this.scroller.scrollTo(options)
+			} else {
+				this.scroller.scrollTo({ top: 0, behavior: 'auto' })
+			}
+		}
+	}
 
 	/**
 	 * Called after the component's first update
@@ -113,6 +153,22 @@ export class SchmancyScroll extends TailwindElement(css`
 						composed: true,
 					}) as SchmancyScrollEvent,
 				)
+			})
+
+		// Set up global command event listener
+		fromEvent<SchmancyScrollCommandEvent>(window, '@schmancy:scrollTo')
+			.pipe(
+				// Only process events targeting this component by name
+				filter(e => this.name !== undefined && e.detail.name === this.name),
+				takeUntil(this.disconnecting),
+			)
+			.subscribe(e => {
+				if (e.detail.action === 'scrollTo' && typeof e.detail.top === 'number') {
+					this.scrollTo({
+						top: e.detail.top,
+						behavior: 'smooth',
+					})
+				}
 			})
 	}
 
