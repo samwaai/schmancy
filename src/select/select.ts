@@ -32,6 +32,7 @@ export class SchmancySelect extends $LitElement(css`
 	// API
 	@property({ type: String }) name: string | undefined
 	@property({ type: Boolean, reflect: true }) required = false
+	@property({ type: Boolean, reflect: true }) disabled = false
 	@property({ type: String }) placeholder = ''
 	@property({ type: String, reflect: true }) value: string | string[] = '' // for single-select or multi-select
 	@property({ type: Boolean }) multi = false
@@ -264,6 +265,11 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	private handleKeyDown = (e: KeyboardEvent) => {
+		// Don't handle keyboard events when disabled
+		if (this.disabled) {
+			return
+		}
+
 		if (!this.isOpen) {
 			if (['Enter', ' ', 'ArrowDown'].includes(e.key)) {
 				e.preventDefault()
@@ -344,6 +350,11 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	private async openDropdown(report = false) {
+		// Don't open if disabled
+		if (this.disabled) {
+			return
+		}
+
 		// Don't mark as touched on opening - we'll do that on closing
 		// so errors only show after interaction is complete
 
@@ -458,6 +469,11 @@ export class SchmancySelect extends $LitElement(css`
 	}
 
 	public checkValidity(): boolean {
+		// Disabled fields are always valid
+		if (this.disabled) {
+			return true
+		}
+
 		// Determine if the select is empty based on whether it's multi-select or single-select
 		const isEmpty = this.multi ? (Array.isArray(this.value) ? this.value.length === 0 : !this.value) : !this.value
 
@@ -559,10 +575,10 @@ export class SchmancySelect extends $LitElement(css`
 			: html`<span class="absolute right-3 top-1/2 transform -translate-y-1/2">▼</span>`
 
 		return html`
-			<div class="relative">
+			<div class="relative ${this.disabled ? 'opacity-60 cursor-not-allowed' : ''}">
 				<sch-input
 					.name=${this.name}
-					tabIndex="0"
+					tabIndex=${this.disabled ? '-1' : '0'}
 					class="trigger"
 					role="combobox"
 					aria-haspopup="listbox"
@@ -571,16 +587,25 @@ export class SchmancySelect extends $LitElement(css`
 					aria-autocomplete="none"
 					aria-required=${this.required}
 					aria-activedescendant=${this._focusedOptionId || undefined}
+					aria-disabled=${this.disabled}
 					.label=${this.label}
 					.placeholder=${this.placeholder}
 					.value=${this.valueLabel}
 					.required=${this.required}
+					.disabled=${this.disabled}
 					.hint=${showErrors ? this.validationMessage : this.hint}
 					.error=${showErrors}
 					.validateOn=${this.validateOn}
 					readonly
 					clickable
-					@click=${() => {
+					@click=${(e: MouseEvent) => {
+						// Don't process clicks if disabled
+						if (this.disabled) {
+							e.preventDefault()
+							e.stopPropagation()
+							return
+						}
+
 						// On first click, don't count this as user interaction yet
 						if (!this.isOpen) {
 							// Open without triggering validation - we'll validate when they close
