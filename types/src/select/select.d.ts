@@ -8,6 +8,7 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private internals?;
     name: string | undefined;
     required: boolean;
+    disabled: boolean;
     placeholder: string;
     value: string | string[];
     multi: boolean;
