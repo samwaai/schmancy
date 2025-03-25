@@ -18,6 +18,7 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private valueLabel;
     private isValid;
     validationMessage: string;
+    private defaultValue;
     private ul;
     private inputRef;
     private options;
@@ -26,6 +27,9 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private _touched;
     private _dirty;
     private _submitted;
+    private _focusedOptionId;
+    private formSubmitHandler;
+    private formResetHandler;
     constructor();
     get form(): HTMLFormElement;
     connectedCallback(): void;
