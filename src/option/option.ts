@@ -1,118 +1,165 @@
 import { TailwindElement } from '@mixins/index'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-export type SchmancyOptionChangeEvent = CustomEvent<{
-	value: string
-	label: string
-}>
-
+/**
+ * `schmancy-option` is an option element for schmancy-select and schmancy-autocomplete components.
+ *
+ * @fires click - When the option is clicked
+ */
 @customElement('schmancy-option')
-export default class SchmancyOption extends TailwindElement() {
-	@property({ type: String, reflect: true }) value: string = ''
-	@property({ type: String, reflect: true, attribute: 'label' }) label: string | undefined
-	@property({ type: Boolean }) selected: boolean = false
-
-	// Add a method to update the label with slot content
-	private updateLabelFromSlot() {
-		if (!this.label) {
-			const slotContent = this.getSlotContent()
-			if (slotContent) {
-				this.label = slotContent
-			}
-		}
+export default class SchmancyOption extends TailwindElement(css`
+	:host {
+		display: block;
+		cursor: pointer;
+		user-select: none;
+		outline: none;
 	}
 
-	// Connect to lifecycle to update label when element is connected
+	:host(:focus-visible) {
+		outline: 2px solid var(--schmancy-sys-color-primary-default);
+		outline-offset: -2px;
+	}
+
+	:host([hidden]) {
+		display: none;
+	}
+
+	:host([disabled]) {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+`) {
+	/**
+	 * The value of the option, will be used when selected.
+	 */
+	@property({ type: String })
+	value: string = ''
+
+	/**
+	 * The human-readable label for the option.
+	 */
+	@property({ type: String })
+	label: string = ''
+
+	/**
+	 * Whether the option is currently selected.
+	 */
+	@property({ type: Boolean, reflect: true })
+	selected: boolean = false
+
+	/**
+	 * Whether the option is disabled.
+	 */
+	@property({ type: Boolean, reflect: true })
+	disabled: boolean = false
+
+	/**
+	 * Optional group this option belongs to (for option grouping).
+	 */
+	@property({ type: String })
+	group: string = ''
+
+	/**
+	 * Optional icon or image to display before the label.
+	 */
+	@property({ type: String })
+	icon: string = ''
+
 	connectedCallback() {
-		super.connectedCallback?.()
-		this.updateLabelFromSlot()
-	}
+		super.connectedCallback()
 
-	// Listen for slot changes to update label
-	firstUpdated() {
-		const slot = this.shadowRoot?.querySelector('slot:not([name])') as HTMLSlotElement
-		if (slot) {
-			slot.addEventListener('slotchange', () => {
-				this.updateLabelFromSlot()
-			})
+		// Ensure the option has an ID for accessibility
+		if (!this.id) {
+			this.id = `schmancy-option-${Math.random().toString(36).substring(2, 9)}`
 		}
+
+		// If no label was provided, use the text content or value
+		if (!this.label) {
+			this.label = this.textContent?.trim() || this.value
+		}
+
+		// If value wasn't set but there's text content, use that as the value
+		if (!this.value && this.textContent) {
+			this.value = this.textContent.trim()
+		}
+
+		// Make the option clickable
+		this.addEventListener('click', this.handleClick)
+		this.addEventListener('keydown', this.handleKeyDown)
 	}
 
-	private handleOptionClick() {
-		// Update label from slot if not set
-		this.updateLabelFromSlot()
+	disconnectedCallback() {
+		// Clean up event listeners
+		this.removeEventListener('click', this.handleClick)
+		this.removeEventListener('keydown', this.handleKeyDown)
+		super.disconnectedCallback()
+	}
 
+	private handleClick(e: Event) {
+		e.stopPropagation()
+		if (this.disabled) return
+
+		// Dispatch a custom event with this option's value
 		this.dispatchEvent(
-			new CustomEvent<SchmancyOptionChangeEvent['detail']>('click', {
-				detail: {
-					value: this.value,
-					label: this.label ?? '',
-				},
+			new CustomEvent('option-select', {
 				bubbles: true,
 				composed: true,
+				detail: { value: this.value },
 			}),
 		)
 	}
 
-	// Get content from the default slot
-	private getSlotContent(): string {
-		const slot = this.shadowRoot?.querySelector('slot:not([name])') as HTMLSlotElement
-		if (!slot) return ''
-
-		const assignedNodes = slot.assignedNodes()
-		if (assignedNodes.length === 0) return ''
-
-		// Combine the text content of all assigned nodes
-		return assignedNodes
-			.map(node => node.textContent?.trim() || '')
-			.join(' ')
-			.trim()
+	private handleKeyDown(e: KeyboardEvent) {
+		// Handle space and enter as clicks
+		if (e.key === ' ' || e.key === 'Enter') {
+			e.preventDefault()
+			this.handleClick(e)
+		}
 	}
 
-	// override focus method to focus the native element
-	focus() {
-		this.shadowRoot?.querySelector('li')?.focus()
-	}
-
-	protected render() {
-		// Apply highlight styles if `this.selected` is true
+	render() {
 		const classes = {
-			'bg-surface-container outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:-outline-offset-2 rounded-md focus-visible:outline-secondary-default':
-				true,
-			'font-semibold relative cursor-pointer py-2 px-3': true,
-			'bg-secondary-container text-secondery-onContainer': this.selected,
+			'py-2': true,
+			'px-3': true,
+			rounded: true,
+			'text-sm': true,
+			'w-full': true,
+			flex: true,
+			'items-center': true,
+			'gap-2': true,
+			// Selected state
+			'bg-primary-container': this.selected,
+			'text-primary-onContainer': this.selected,
+			// Hover state (when not selected)
+			'hover:bg-surface-high': !this.selected,
+			// Focus state
+			'focus:outline-none': true,
 		}
-		const stateLayerClasses = {
-			'duration-500 transition-opacity': true,
-			'hover:bg-surface-on opacity-[0.08] cursor-pointer absolute inset-0': true,
-		}
+
 		return html`
-			<li
-				tabindex="0"
-				class="${this.classMap(classes)}"
-				role="option"
-				@click=${(e: MouseEvent) => {
-					e.stopPropagation()
-					e.preventDefault()
-					this.handleOptionClick()
-				}}
-				@keydown=${(e: KeyboardEvent) => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						e.stopPropagation()
-						e.preventDefault()
-						this.handleOptionClick()
-					}
-				}}
-			>
-				<div class="${this.classMap(stateLayerClasses)}"></div>
-				<sch-flex class="text-start" align="center" justify="between" flow="row">
-					<slot class="self-start" @slotchange=${() => this.updateLabelFromSlot()}></slot>
-					<slot name="support">
-						<span></span>
-					</slot>
-				</sch-flex>
-			</li>
+			<div class=${this.classMap(classes)} role="option" aria-selected=${this.selected} aria-disabled=${this.disabled}>
+				${this.icon ? html`<span class="icon">${this.icon}</span>` : ''}
+				<span class="flex-1">${this.label || this.value}</span>
+				${this.selected
+					? html`
+							<span class="check">
+								<svg
+									width="16"
+									height="16"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<polyline points="20 6 9 17 4 12"></polyline>
+								</svg>
+							</span>
+						`
+					: ''}
+			</div>
 		`
 	}
 }

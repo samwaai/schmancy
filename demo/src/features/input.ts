@@ -14,6 +14,8 @@ export class DemoInput extends $LitElement(css`
 `) {
 	@state() country?: string
 	@state() chip = ''
+
+	@state() value = 'email'
 	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
 		super.firstUpdated(_changedProperties)
 		this.country = 'DE'
@@ -23,6 +25,7 @@ export class DemoInput extends $LitElement(css`
 		super.connectedCallback()
 		setTimeout(() => {
 			this.chip = 'chip1'
+			this.value = 'phone'
 		}, 1000)
 	}
 	render() {
@@ -99,9 +102,11 @@ export class DemoInput extends $LitElement(css`
 						<sch-input label="Birth Date" name="birthdate" type="date" required></sch-input>
 
 						<schmancy-select required label="Preferred Contact Method" name="contactMethod">
-							<schmancy-option value="email" label="Email">Email</schmancy-option>
-							<schmancy-option value="phone" label="Phone">Phone</schmancy-option>
-							<schmancy-option value="mail" label="Mail">Mail</schmancy-option>
+							${repeat(
+								['email', 'phone', 'mail'],
+								option => option,
+								option => html`<schmancy-option value="${option}">${option}</schmancy-option>`,
+							)}
 						</schmancy-select>
 
 						<schmancy-textarea
