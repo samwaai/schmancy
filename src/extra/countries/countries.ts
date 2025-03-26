@@ -85,11 +85,9 @@ export class SchmancyCountriesSelect extends $LitElement(css`
 		return html`
 			<schmancy-autocomplete
 				.placeholder=${this.placeholder}
-				.hint=${this.hint}
 				.required=${this.required}
 				.label=${this.label}
 				.value=${this.value ?? ''}
-				.name=${this.name}
 				@change=${this.handleChange}
 			>
 				${repeat(
