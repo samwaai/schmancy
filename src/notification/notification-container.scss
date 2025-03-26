@@ -1,0 +1,60 @@
+:host {
+	display: block;
+}
+
+.notification-container {
+	position: fixed;
+	z-index: 9999;
+	padding: 12px;
+	pointer-events: none;
+	width: 100%;
+	max-width: 424px; /* 400px max notification width + 24px padding */
+
+	sch-notification {
+		pointer-events: auto;
+	}
+
+	&.top-right {
+		top: 0;
+		right: 0;
+		display: flex;
+		flex-direction: column-reverse;
+	}
+
+	&.top-left {
+		top: 0;
+		left: 0;
+		display: flex;
+		flex-direction: column-reverse;
+	}
+
+	&.bottom-right {
+		bottom: 0;
+		right: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	&.bottom-left {
+		bottom: 0;
+		left: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	&.top-center {
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		flex-direction: column-reverse;
+	}
+
+	&.bottom-center {
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		flex-direction: column;
+	}
+}

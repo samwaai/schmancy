@@ -14,7 +14,7 @@ import { DemoContentDrawer } from './features/drawer-content'
 import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoList } from './features/list'
-import { DemoNotifications } from './features/notifications'
+import NotificationDemo from './features/notifications'
 import { DemoRouter } from './features/router'
 import { DemoSheet } from './features/sheet/sheet'
 import { DemoSurface } from './features/surface'
@@ -42,7 +42,7 @@ export class DemoNav extends $LitElement(css`
 		},
 		{
 			name: 'Notifications',
-			component: DemoNotifications,
+			component: NotificationDemo,
 		},
 		{
 			name: 'Typewriter',

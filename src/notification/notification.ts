@@ -1,83 +1,328 @@
-import { TailwindElement } from '@mixins/index'
-import { $notify } from '@schmancy/notification'
-import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
-@customElement('schmancy-notification')
-export class SchmancyNotification extends TailwindElement() {
-	@property({ type: String })
-	type: 'success' | 'error' | 'warning' | 'info' = 'success'
+import { $LitElement } from '@mixins/index'
+import { color } from '@schmancy/directives'
+import { SchmancyTheme } from '@schmancy/theme/theme.interface'
+import { html, PropertyValues } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js'
+import { styleMap } from 'lit/directives/style-map.js'
+import style from './notification.scss?inline'
+
+export type NotificationType = 'info' | 'success' | 'warning' | 'error'
+
+/**
+ * @fires close - When notification is closed
+ */
+@customElement('sch-notification')
+export default class SchmancyNotification extends $LitElement(style) {
+	@property({ type: String }) title = ''
+	@property({ type: String }) message = ''
+	@property({ type: String }) type: NotificationType = 'info'
+	@property({ type: Boolean }) closable = true
+	@property({ type: Number }) duration = 5000 // 0 means no auto-close
+	@property({ type: String }) id = `notification-${Date.now()}-${Math.floor(Math.random() * 10000)}`
+	@property({ type: Boolean }) playSound = true
+
+	@state() private _visible = true
+	@state() private _progress = 100
+	@state() private _hovered = false
+	@state() private _closing = false
+	@state() private _autoCloseTimer?: number
+	@state() private _progressTimer?: number
+
+	connectedCallback() {
+		super.connectedCallback()
+
+		if (this.duration > 0) {
+			this._startAutoCloseTimer()
+		}
+
+		if (this.playSound) {
+			this._playSound()
+		}
+	}
+
+	disconnectedCallback() {
+		this._clearTimers()
+		super.disconnectedCallback()
+	}
+
+	updated(changedProps: PropertyValues) {
+		super.updated(changedProps)
+
+		if (changedProps.has('duration') && this.duration > 0) {
+			this._clearTimers()
+			this._startAutoCloseTimer()
+		}
+	}
+
+	private _startAutoCloseTimer() {
+		if (this.duration <= 0) return
+
+		const startTime = Date.now()
+		const endTime = startTime + this.duration
+
+		// Setup the auto-close timer
+		this._autoCloseTimer = window.setTimeout(() => {
+			this.close()
+		}, this.duration)
+
+		// Setup the progress timer to update every 16ms (60fps)
+		this._progressTimer = window.setInterval(() => {
+			if (this._hovered) return
+
+			const now = Date.now()
+			const remaining = Math.max(0, endTime - now)
+			this._progress = (remaining / this.duration) * 100
+
+			if (remaining <= 0) {
+				this._clearTimers()
+			}
+		}, 16)
+	}
+
+	private _clearTimers() {
+		if (this._autoCloseTimer) {
+			clearTimeout(this._autoCloseTimer)
+			this._autoCloseTimer = undefined
+		}
+
+		if (this._progressTimer) {
+			clearInterval(this._progressTimer)
+			this._progressTimer = undefined
+		}
+	}
+
+	private _pauseTimers() {
+		this._clearTimers()
+	}
+
+	private _resumeTimers() {
+		if (this.duration > 0) {
+			// Calculate remaining time based on progress
+			const remainingTime = (this._progress / 100) * this.duration
+
+			if (remainingTime > 0) {
+				this._autoCloseTimer = window.setTimeout(() => {
+					this.close()
+				}, remainingTime)
+
+				const startTime = Date.now()
+				const endTime = startTime + remainingTime
+
+				this._progressTimer = window.setInterval(() => {
+					if (this._hovered) return
+
+					const now = Date.now()
+					const remaining = Math.max(0, endTime - now)
+					this._progress = (remaining / remainingTime) * 100
+
+					if (remaining <= 0) {
+						this._clearTimers()
+					}
+				}, 16)
+			}
+		}
+	}
+
+	private _playSound() {
+		// Dispatch event to play sound through audio service
+		this.dispatchEvent(
+			new CustomEvent('playsound', {
+				detail: { type: this.type },
+				bubbles: true,
+				composed: true,
+			}),
+		)
+	}
+
+	private _handleMouseEnter() {
+		this._hovered = true
+		this._pauseTimers()
+	}
+
+	private _handleMouseLeave() {
+		this._hovered = false
+		this._resumeTimers()
+	}
+
+	public close() {
+		if (this._closing) return
+
+		this._closing = true
+		this._clearTimers()
+
+		// Add closing animation
+		this._visible = false
+
+		// Dispatch close event
+		setTimeout(() => {
+			this.dispatchEvent(
+				new CustomEvent('close', {
+					detail: { id: this.id },
+					bubbles: true,
+					composed: true,
+				}),
+			)
+		}, 300) // Match animation duration
+	}
 
 	render() {
+		if (!this._visible && this._closing) return html``
+
+		const typeStyles = this._getTypeStyles()
+
 		return html`
 			<div
-				aria-live="assertive"
-				class="pointer-events-none z-[999999] fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
+				class=${classMap({
+					notification: true,
+					closing: this._closing,
+					[this.type]: true,
+				})}
+				role="alert"
+				style=${styleMap({
+					transform: this._closing ? 'translateX(120%)' : 'translateX(0)',
+					opacity: this._closing ? '0' : '1',
+				})}
+				@mouseenter=${this._handleMouseEnter}
+				@mouseleave=${this._handleMouseLeave}
 			>
-				<div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-					<div
-						class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-surface-container shadow-lg ring-1 ring-outlineVariant ring-opacity-5"
-					>
-						<div class="p-2">
-							<div class="flex items-center">
-								<div class="shrink-0">
-									${this.type === 'success'
-										? html` <svg
-												class="h-6 w-6 text-success-default"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke-width="1.5"
-												stroke="currentColor"
-												aria-hidden="true"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-												/>
-											</svg>`
-										: html` <svg
-												class="h-6 w-6 text-error-default"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke-width="1.5"
-												stroke="currentColor"
-												aria-hidden="true"
-											>
-												<path
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-												/>
-											</svg>`}
-								</div>
-								<div class="ml-3 w-0 flex-1 pt-0.5">
-									<p class=" text-sm ">
-										<slot></slot>
-									</p>
-								</div>
-								<div class="ml-4 flex shrink-0">
-									<schmancy-icon-button
-										type="button"
-										@click=${() => {
-											$notify.dismiss(this)
-											this.dispatchEvent(new CustomEvent('close'))
-										}}
-									>
-										<span class="sr-only">Close</span>
-										close
-									</schmancy-icon-button>
-								</div>
-							</div>
-						</div>
+				<div class="notification-content">
+					<div class="icon-container" ${color({ color: typeStyles.iconColor })}>${typeStyles.icon}</div>
+
+					<div class="content">
+						${this.title ? html` <div class="title">${this.title}</div> ` : ''}
+
+						<div class="message">${this.message}</div>
 					</div>
+
+					${this.closable
+						? html`
+								<button class="close-button" aria-label="Close notification" @click=${this.close}>
+									<svg
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<line x1="18" y1="6" x2="6" y2="18"></line>
+										<line x1="6" y1="6" x2="18" y2="18"></line>
+									</svg>
+								</button>
+							`
+						: ''}
 				</div>
+
+				${this.duration > 0
+					? html`
+							<div class="progress-bar-container">
+								<div
+									class="progress-bar"
+									style="width: ${this._progress}%"
+									${color({ bgColor: typeStyles.progressColor })}
+								></div>
+							</div>
+						`
+					: ''}
 			</div>
 		`
+	}
+
+	private _getTypeStyles() {
+		switch (this.type) {
+			case 'success':
+				return {
+					icon: html`
+						<svg
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+							<polyline points="22 4 12 14.01 9 11.01"></polyline>
+						</svg>
+					`,
+					iconColor: SchmancyTheme.sys.color.success.default,
+					progressColor: SchmancyTheme.sys.color.success.default,
+				}
+			case 'warning':
+				return {
+					icon: html`
+						<svg
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+							<line x1="12" y1="9" x2="12" y2="13"></line>
+							<line x1="12" y1="17" x2="12.01" y2="17"></line>
+						</svg>
+					`,
+					iconColor: SchmancyTheme.sys.color.tertiary.default,
+					progressColor: SchmancyTheme.sys.color.tertiary.default,
+				}
+			case 'error':
+				return {
+					icon: html`
+						<svg
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="12" cy="12" r="10"></circle>
+							<line x1="15" y1="9" x2="9" y2="15"></line>
+							<line x1="9" y1="9" x2="15" y2="15"></line>
+						</svg>
+					`,
+					iconColor: SchmancyTheme.sys.color.error.default,
+					progressColor: SchmancyTheme.sys.color.error.default,
+				}
+			case 'info':
+			default:
+				return {
+					icon: html`
+						<svg
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="12" cy="12" r="10"></circle>
+							<line x1="12" y1="16" x2="12" y2="12"></line>
+							<line x1="12" y1="8" x2="12.01" y2="8"></line>
+						</svg>
+					`,
+					iconColor: SchmancyTheme.sys.color.primary.default,
+					progressColor: SchmancyTheme.sys.color.primary.default,
+				}
+		}
 	}
 }
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-notification': SchmancyNotification
+		'sch-notification': SchmancyNotification
 	}
 }

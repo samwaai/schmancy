@@ -1,9 +1,9 @@
 import { $LitElement } from '@mixins/index'
-import { customElement } from 'lit/decorators.js'
-import { css, html } from 'lit'
 import { area } from '@schmancy/area'
-import { DemoIcons } from './icons'
+import { css, html } from 'lit'
+import { customElement } from 'lit/decorators.js'
 import { DemoCard } from './card'
+import { DemoIcons } from './icons'
 
 @customElement('demo-router')
 export class DemoRouter extends $LitElement(css`
