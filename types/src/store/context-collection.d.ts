@@ -1,71 +1,50 @@
-import { BehaviorSubject } from 'rxjs';
-import { ICollectionStore, StorageType, StoreError } from './types';
+import { BaseStore } from './store.class';
+import { ICollectionStore, StorageType } from './types';
+import { Draft } from 'immer';
 /**
- * Enhanced collection store with better TypeScript support
+ * Enhanced collection store with better TypeScript support and immutability
+ * Now extends BaseStore for common functionality
  */
-export default class SchmancyCollectionStore<V = any> implements ICollectionStore<V> {
-    private storageType;
-    private key;
+export default class SchmancyCollectionStore<V = any> extends BaseStore<Map<string, V>> implements ICollectionStore<V> {
     static type: string;
     private static instances;
-    private _ready;
-    private _destroy$;
-    $: BehaviorSubject<Map<string, V>>;
-    error$: BehaviorSubject<StoreError<unknown>>;
-    readonly defaultValue: Map<string, V>;
-    private storage;
-    /**
-     * Get ready state
-     */
-    get ready(): boolean;
-    /**
-     * Set ready state
-     */
-    set ready(value: boolean);
-    private constructor();
     /**
      * Static method to get or create an instance with proper typing
      */
     static getInstance<V = any>(storage: StorageType, key: string, defaultValue: Map<string, V>): SchmancyCollectionStore<V>;
     /**
-     * Get the current value
-     */
-    get value(): Map<string, V>;
-    /**
-     * Set a value in the collection with proper typing
+     * Set a value in the collection with proper typing and immutability
      */
     set<T = V>(key: string, value: T): void;
     /**
-     * Delete a value from the collection
+     * Delete a value from the collection immutably
      */
     delete(key: string): void;
     /**
-     * Clear the collection
+     * Clear the collection immutably
      */
     clear(): void;
-    replace(newValue: Map<string, V>): void;
     /**
-     * Update the state with error handling
+     * Batch update multiple items in the collection
+     * @param updates Object with keys and values to update
      */
-    private updateState;
+    batchUpdate(updates: Record<string, V>): void;
     /**
-     * Initialize from persistent storage
+     * Update an existing item in the collection using an updater function
+     * @param key Key of the item to update
+     * @param updater Function that receives the current value and returns the new value
      */
-    private initializeFromStorage;
+    update(key: string, updater: (currentValue: Draft<V>) => void): void;
     /**
-     * Load data from IndexedDB with better typing
+     * Constructor extension to set up persistence
      */
-    private loadFromIndexedDB;
+    constructor(storageType: StorageType, key: string, defaultValue: Map<string, V>);
     /**
-     * Set up persistence to storage
+     * Set up persistence to storage with throttling
      */
     private setupPersistence;
     /**
      * Setup development tools for debugging
      */
-    private setupDevTools;
-    /**
-     * Clean up resources
-     */
-    destroy(): void;
+    protected setupDevTools(): void;
 }

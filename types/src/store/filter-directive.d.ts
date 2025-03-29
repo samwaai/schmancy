@@ -30,11 +30,6 @@ export interface ScoredItem<T> {
  */
 export declare const getFieldValue: <T = any>(item: Record<string, any>, path: string) => T;
 /**
- * Compare two values based on a comparison operator.
- * For non-fuzzy operators, this returns a boolean.
- */
-export declare function compareValues(op: ComparisonOperator, actual: unknown, expected: unknown): boolean;
-/**
  * Filter a Map of items given an array of query conditions.
  * For each query condition:
  * - If the expected value is empty/null/undefined, it is treated as a match.
@@ -55,5 +50,67 @@ export declare function filterMapItems<T extends Record<string, any>>(items: Map
  * Filter an array of items using query conditions
  */
 export declare function filterArrayItems<T extends Record<string, any>>(items: T[], queries?: QueryCondition[], fuzzyThreshold?: number): T[];
+/**
+ * Type guard for checking if a value is an array with better type inference
+ * @param value Value to check
+ * @returns True if the value is an array
+ */
+export declare function isArray<T = unknown>(value: unknown): value is Array<T>;
+/**
+ * Type guard for checking if a value is a string
+ * @param value Value to check
+ * @returns True if the value is a string
+ */
+export declare function isString(value: unknown): value is string;
+/**
+ * Type guard for checking if a value is a number
+ * @param value Value to check
+ * @returns True if the value is a number and not NaN
+ */
+export declare function isNumber(value: unknown): value is number;
+/**
+ * Type guard for checking if a value is a date
+ * @param value Value to check
+ * @returns True if the value is a valid Date object
+ */
+export declare function isDate(value: unknown): value is Date;
+/**
+ * Type guard for checking if a value is an iterable collection
+ * @param value Value to check
+ * @returns True if the value implements the iterable protocol
+ */
+export declare function isIterable<T = unknown>(value: unknown): value is Iterable<T>;
+/**
+ * Type guard for checking if a value is a Map
+ * @param value Value to check
+ * @returns True if the value is a Map
+ */
+export declare function isMap<K = unknown, V = unknown>(value: unknown): value is Map<K, V>;
+/**
+ * Type guard for checking if a value is a Set
+ * @param value Value to check
+ * @returns True if the value is a Set
+ */
+export declare function isSet<T = unknown>(value: unknown): value is Set<T>;
+/**
+ * Type guard for checking if a value is a plain object (not an array, Map, etc.)
+ * @param value Value to check
+ * @returns True if the value is a plain object
+ */
+export declare function isPlainObject(value: unknown): value is Record<string, unknown>;
+/**
+ * Type guard for checking if a value is undefined or null
+ * @param value Value to check
+ * @returns True if the value is undefined or null
+ */
+export declare function isNil(value: unknown): value is undefined | null;
+/**
+ * Improved type-safe comparison function that uses appropriate type guards
+ * @param op Comparison operator
+ * @param actual Actual value
+ * @param expected Expected value
+ * @returns Result of the comparison
+ */
+export declare function compareValues(op: ComparisonOperator, actual: unknown, expected: unknown): boolean;
 export declare const filterMap: typeof filterMapItems;
 export declare const filterArray: typeof filterArrayItems;

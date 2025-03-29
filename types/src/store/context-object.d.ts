@@ -1,41 +1,18 @@
-import { BehaviorSubject } from 'rxjs';
-import { IStore, StorageType, StoreError } from './types';
+import { BaseStore } from './store.class';
+import { IStore, StorageType } from './types';
 /**
- * Enhanced store object with better TypeScript support
+ * Enhanced store object with better TypeScript support and immutability
+ * Now extends BaseStore for common functionality and uses Immer
  */
-export declare class SchmancyStoreObject<T extends Record<string, any>> implements IStore<T> {
-    private storageType;
-    private key;
+export declare class SchmancyStoreObject<T extends Record<string, any>> extends BaseStore<T> implements IStore<T> {
     static type: string;
     private static instances;
-    private _ready;
-    private _destroy$;
-    $: BehaviorSubject<T>;
-    error$: BehaviorSubject<StoreError<unknown>>;
-    readonly defaultValue: T;
-    private storage;
-    /**
-     * Get store ready state
-     */
-    get ready(): boolean;
-    /**
-     * Set store ready state
-     */
-    set ready(value: boolean);
-    /**
-     * Private constructor to enforce singleton pattern
-     */
-    private constructor();
     /**
      * Static method to get or create an instance with strong typing
      */
     static getInstance<T extends Record<string, any>>(storage: StorageType, key: string, defaultValue: T): SchmancyStoreObject<T>;
     /**
-     * Get the current value from the store
-     */
-    get value(): T;
-    /**
-     * Set state with proper typing
+     * Set state with proper typing and immutability using Immer
      */
     set(value: Partial<T>, merge?: boolean): void;
     /**
@@ -43,27 +20,21 @@ export declare class SchmancyStoreObject<T extends Record<string, any>> implemen
      */
     clear(): void;
     /**
-     * Replace the store with a new value
-     */
-    replace(newValue: T): void;
-    /**
-     * Delete a specific key from the store with type checking
+     * Delete a specific key from the store with type checking and immutability
      */
     delete<K extends keyof T>(key: K): void;
     /**
-     * Update the state with proper error handling
+     * Update a nested property at a specific path
+     * @param path Dot-separated path to the property (e.g., 'user.profile.name')
+     * @param value New value to set
      */
-    private updateState;
+    setPath(path: string, value: any): void;
     /**
-     * Initialize the store from persistent storage
+     * Process stored value by merging with default value
      */
-    private initializeFromStorage;
+    protected processStoredValue(storedValue: T): T;
     /**
      * Setup development tools for debugging
      */
-    private setupDevTools;
-    /**
-     * Clean up resources
-     */
-    destroy(): void;
+    protected setupDevTools(): void;
 }
