@@ -1,10 +1,12 @@
 import { BaseStore } from './store.class';
 import { IStore, StorageType } from './types';
+import { immerable } from 'immer';
 /**
  * Enhanced store object with better TypeScript support and immutability
  * Now extends BaseStore for common functionality and uses Immer
  */
 export declare class SchmancyStoreObject<T extends Record<string, any>> extends BaseStore<T> implements IStore<T> {
+    [immerable]: boolean;
     static type: string;
     private static instances;
     /**
@@ -37,4 +39,8 @@ export declare class SchmancyStoreObject<T extends Record<string, any>> extends 
      * Setup development tools for debugging
      */
     protected setupDevTools(): void;
+    /**
+     * Inherit isImmerDraftable from BaseStore, but also check for [immerable]
+     */
+    protected isImmerDraftable(value: any): boolean;
 }

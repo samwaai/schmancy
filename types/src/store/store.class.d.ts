@@ -1,3 +1,4 @@
+import { immerable } from 'immer';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { IStorageManager, StorageType, StoreError } from './types';
 /**
@@ -7,6 +8,7 @@ import { IStorageManager, StorageType, StoreError } from './types';
 export declare abstract class BaseStore<T> {
     protected storageType: StorageType;
     protected key: string;
+    [immerable]: boolean;
     protected _ready: boolean;
     protected _destroy$: Subject<void>;
     $: BehaviorSubject<T>;
@@ -32,6 +34,10 @@ export declare abstract class BaseStore<T> {
      * @param defaultValue Default/initial value
      */
     constructor(storageType: StorageType, key: string, defaultValue: T);
+    /**
+     * Check if a value can be safely used with Immer's produce
+     */
+    protected isImmerDraftable(value: any): boolean;
     /**
      * Cleanup method for all store types
      */
