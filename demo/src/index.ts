@@ -7,12 +7,29 @@ import '@lit-labs/virtualizer'
 import { fullHeight } from '../../src/directives/height'
 import './features/index'
 import { DemoInput } from './features/index'
+import { createContext, select } from '@schmancy/index'
+
+type Theme = {
+	color: string
+	scheme: 'dark' | 'light' | 'auto'
+}
+const ThemeContext = createContext<Theme>(
+	{
+		color: '#4479e1',
+		scheme: 'dark',
+	},
+	'memory',
+	'theme',
+)
+
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement(css`
 	:root {
 		font-family: var(--schmancy-font-family);
 	}
 `) {
+	@select(ThemeContext)
+	theme!: Theme
 	connectedCallback(): void {
 		super.connectedCallback()
 	}
