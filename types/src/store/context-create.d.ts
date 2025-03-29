@@ -1,7 +1,7 @@
+import { SchmancyArrayStore } from './context-array';
 import SchmancyCollectionStore from './context-collection';
 import { SchmancyStoreObject } from './context-object';
-import { SchmancyArrayStore } from './context-array';
-import { ICollectionStore, IStore, IArrayStore, StorageType } from './types';
+import { IArrayStore, ICollectionStore, IStore, StorageType } from './types';
 /**
  * Creates a context for managing object state
  * @param initialData The initial object data
