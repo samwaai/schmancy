@@ -1,8 +1,9 @@
 // src/store/__tests__/store.test.ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createCollectionContext, createObjectContext } from '../src/store/context-create'
+import { createContext } from '../src/store/context-create'
 import { filterArray, filterMap } from '../src/store/filter-directive'
 import { createCompoundSelector, createFilterSelector, createItemSelector } from '../src/store/selectors'
+import { IArrayStore } from '../src/store/types'
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -50,20 +51,22 @@ describe('Object Store', () => {
 			notifications: false,
 		}
 
-		const store = createObjectContext<TestSettings>(defaultSettings, 'settings')
+		const store = createContext<TestSettings>(defaultSettings, 'local', 'settings')
 
 		expect(store.value).toEqual(defaultSettings)
 		expect(store.defaultValue).toEqual(defaultSettings)
+		// For non-memory storage like 'local', ready is initially false until loaded
 		expect(store.ready).toBe(false)
 	})
 
 	it('should update store values', () => {
-		const store = createObjectContext<TestSettings>(
+		const store = createContext<TestSettings>(
 			{
 				theme: 'light',
 				fontSize: 20,
 				notifications: false,
 			},
+			'local',
 			'settings',
 		)
 
@@ -100,7 +103,7 @@ describe('Object Store', () => {
 			}
 		}
 
-		const store = createObjectContext<TestObject>(
+		const store = createContext<TestObject>(
 			{
 				name: 'Test',
 				age: 30,
@@ -109,6 +112,7 @@ describe('Object Store', () => {
 					zip: '12345',
 				},
 			},
+			'memory',
 			'test-object',
 		)
 
@@ -138,7 +142,7 @@ describe('Object Store', () => {
 			notifications: false,
 		}
 
-		const store = createObjectContext<TestSettings>(initialSettings, 'settings', 'local')
+		const store = createContext<TestSettings>(initialSettings, 'local', 'settings')
 
 		// Update just the theme
 		store.set({ theme: 'dark' })
@@ -167,10 +171,11 @@ describe('Collection Store', () => {
 	}
 
 	it('should create empty collection store', () => {
-		const store = createCollectionContext<TodoItem>(new Map(), 'todos')
+		const store = createContext<TodoItem>(new Map(), 'memory', 'todos')
 
 		expect(store.value.size).toBe(0)
-		expect(store.ready).toBe(false)
+		// With memory storage, ready is immediately set to true
+		expect(store.ready).toBe(true)
 	})
 
 	it('should create collection store from array', () => {
@@ -179,7 +184,11 @@ describe('Collection Store', () => {
 			{ id: 'task2', title: 'Task 2', completed: true, priority: 'low' },
 		]
 
-		const store = createCollectionContext<TodoItem>(items, 'todos')
+		// Convert items to Map for collection store
+		const itemsMap = new Map<string, TodoItem>()
+		items.forEach((item, index) => itemsMap.set(index.toString(), item))
+
+		const store = createContext<TodoItem>(itemsMap, 'memory', 'todos')
 
 		expect(store.value.size).toBe(2)
 		expect(store.value.get('0')).toEqual(items[0])
@@ -187,7 +196,7 @@ describe('Collection Store', () => {
 	})
 
 	it('should add, update and delete items', () => {
-		const store = createCollectionContext<TodoItem>(new Map(), 'todos')
+		const store = createContext<TodoItem>(new Map(), 'memory', 'todos')
 		store.clear()
 		// Add items
 		store.set('task1', {
@@ -234,6 +243,63 @@ describe('Collection Store', () => {
 	})
 })
 
+describe('Array Store', () => {
+	interface TodoItem {
+		id: string
+		title: string
+		completed: boolean
+		priority: 'low' | 'medium' | 'high'
+	}
+
+	it('should create empty array store', () => {
+		// Cast to IArrayStore to get access to array-specific methods
+		const store = createContext<TodoItem[]>([], 'memory', 'todos-array') as unknown as IArrayStore<TodoItem>
+
+		expect(store.value.length).toBe(0)
+		// With memory storage, ready is immediately set to true
+		expect(store.ready).toBe(true)
+	})
+
+	it('should add, update and remove items from array', () => {
+		// Cast to IArrayStore to get access to array-specific methods
+		const store = createContext<TodoItem[]>([], 'memory', 'todos-array') as unknown as IArrayStore<TodoItem>
+
+		// Push items to array
+		store.push(
+			{ id: 'task1', title: 'Task 1', completed: false, priority: 'medium' },
+			{ id: 'task2', title: 'Task 2', completed: true, priority: 'low' },
+		)
+
+		expect(store.value.length).toBe(2)
+
+		// Update an item
+		store.set(0, {
+			id: 'task1',
+			title: 'Updated Task 1',
+			completed: true,
+			priority: 'high',
+		})
+
+		expect(store.value[0]).toEqual({
+			id: 'task1',
+			title: 'Updated Task 1',
+			completed: true,
+			priority: 'high',
+		})
+
+		// Remove an item
+		store.splice(1, 1)
+
+		expect(store.value.length).toBe(1)
+		expect(store.value[0].id).toBe('task1')
+
+		// Clear all items
+		store.clear()
+
+		expect(store.value.length).toBe(0)
+	})
+})
+
 describe('Selectors', () => {
 	interface TodoItem {
 		id: string
@@ -243,7 +309,7 @@ describe('Selectors', () => {
 	}
 
 	it('should create item selector', async () => {
-		const store = createCollectionContext<TodoItem>(new Map(), 'todos')
+		const store = createContext<TodoItem>(new Map(), 'memory', 'todos')
 
 		// Add items
 		store.set('task1', {
@@ -270,7 +336,7 @@ describe('Selectors', () => {
 
 	it('should create filter selector', () => {
 		return new Promise<void>(resolve => {
-			const store = createCollectionContext<TodoItem>(new Map(), 'todos')
+			const store = createContext<TodoItem>(new Map(), 'memory', 'todos')
 
 			// Add items
 			store.set('task1', {
@@ -308,7 +374,7 @@ describe('Selectors', () => {
 
 	it('should create compound selector', () => {
 		return new Promise<void>(resolve => {
-			const store = createCollectionContext<TodoItem>(new Map(), 'todos')
+			const store = createContext<TodoItem>(new Map(), 'memory', 'todos')
 
 			// Add items
 			store.set('task1', { id: 'task1', title: 'Task 1', completed: false, priority: 'high' })
