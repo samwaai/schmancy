@@ -1,5 +1,5 @@
 // src/store/selectors.ts
-import { Observable, combineLatest, distinctUntilChanged, map, shareReplay } from 'rxjs'
+import { Observable, combineLatest, distinctUntilChanged, map, share, shareReplay } from 'rxjs'
 import { IStore, ICollectionStore } from './types'
 
 /**
@@ -78,28 +78,6 @@ export function createItemsSelector<T>(store: ICollectionStore<T>): Observable<T
 }
 
 /**
- * Creates a selector that filters items from a collection
- *
- * @param store The collection store
- * @param filterFn Function that returns true for items to include
- * @returns An observable of filtered items as an array
- */
-export function createFilterSelector<T>(
-	store: ICollectionStore<T>,
-	filterFn: (item: T, key: string) => boolean,
-): Observable<T[]> {
-	return createCollectionSelector(store, collection => {
-		const result: T[] = []
-		collection.forEach((item, key) => {
-			if (filterFn(item, key)) {
-				result.push(item)
-			}
-		})
-		return result
-	})
-}
-
-/**
  * Creates a selector that retrieves a single item from a collection
  *
  * @param store The collection store
@@ -108,28 +86,6 @@ export function createFilterSelector<T>(
  */
 export function createItemSelector<T>(store: ICollectionStore<T>, itemKey: string): Observable<T | undefined> {
 	return createCollectionSelector(store, collection => collection.get(itemKey))
-}
-
-/**
- * Creates a selector that counts items in a collection, optionally filtered
- *
- * @param store The collection store
- * @param filterFn Optional function to filter which items to count
- * @returns An observable of the count
- */
-export function createCountSelector<T>(
-	store: ICollectionStore<T>,
-	filterFn?: (item: T, key: string) => boolean,
-): Observable<number> {
-	return createCollectionSelector(store, collection => {
-		if (!filterFn) return collection.size
-
-		let count = 0
-		collection.forEach((item, key) => {
-			if (filterFn(item, key)) count++
-		})
-		return count
-	})
 }
 
 /**
@@ -165,22 +121,6 @@ export function createEntriesSelector<T>(store: ICollectionStore<T>): Observable
 }
 
 /**
- * Creates a selector that maps collection values through a transform function
- */
-export function createMapSelector<T, R>(
-	store: ICollectionStore<T>,
-	mapFn: (item: T, key: string) => R,
-): Observable<R[]> {
-	return createCollectionSelector(store, collection => {
-		const result: R[] = []
-		collection.forEach((item, key) => {
-			result.push(mapFn(item, key))
-		})
-		return result
-	})
-}
-
-/**
  * Creates a selector that sorts collection items
  */
 export function createSortSelector<T>(store: ICollectionStore<T>, compareFn: (a: T, b: T) => number): Observable<T[]> {
@@ -204,4 +144,72 @@ export function createFindSelector<T>(
 		}
 		return undefined
 	})
+}
+
+/**
+ * Creates a selector that filters items from a collection - OPTIMIZED
+ *
+ * @param store The collection store
+ * @param filterFn Function that returns true for items to include
+ * @returns An observable of filtered items as an array
+ */
+export function createFilterSelector<T>(
+	store: ICollectionStore<T>,
+	filterFn: (item: T, key: string) => boolean,
+): Observable<T[]> {
+	return createCollectionSelector(store, collection =>
+		Array.from(collection.entries())
+			.filter(([key, item]) => filterFn(item, key))
+			.map(([_, item]) => item),
+	)
+}
+
+/**
+ * Creates a selector that maps collection values through a transform function - OPTIMIZED
+ */
+export function createMapSelector<T, R>(
+	store: ICollectionStore<T>,
+	mapFn: (item: T, key: string) => R,
+): Observable<R[]> {
+	return createCollectionSelector(store, collection =>
+		Array.from(collection.entries()).map(([key, item]) => mapFn(item, key)),
+	)
+}
+
+/**
+ * Creates a selector that counts items in a collection, optionally filtered - OPTIMIZED
+ *
+ * @param store The collection store
+ * @param filterFn Optional function to filter which items to count
+ * @returns An observable of the count
+ */
+export function createCountSelector<T>(
+	store: ICollectionStore<T>,
+	filterFn?: (item: T, key: string) => boolean,
+): Observable<number> {
+	return createCollectionSelector(store, collection => {
+		if (!filterFn) return collection.size
+
+		return Array.from(collection.entries()).filter(([key, item]) => filterFn(item, key)).length
+	})
+}
+
+/**
+ * Optimized RxJS Pipeline - use share with reset on refCount zero for better memory management
+ * in scenarios where selector subscriptions come and go
+ *
+ * @param store The store to observe
+ * @param selectorFn Function that transforms the state
+ * @returns An observable of the selected state with improved memory management
+ */
+export function createOptimizedSelector<T, R>(store: IStore<T>, selectorFn: (state: T) => R): Observable<R> {
+	return store.$.pipe(
+		map(selectorFn),
+		distinctUntilChanged<R>(deepEqual),
+		share({
+			resetOnRefCountZero: true,
+			resetOnError: false,
+			resetOnComplete: false,
+		}),
+	)
 }

@@ -1,71 +1,19 @@
-import { BehaviorSubject, Subject, throttleTime } from 'rxjs'
-import { createStorageManager } from './storage-manager'
-import { ICollectionStore, IStorageManager, StorageType, StoreError } from './types'
+// src/store/context-collection.ts - Updated with Immer for immutability
+import { throttleTime } from 'rxjs'
+import { BaseStore } from './store.class'
+import { ICollectionStore, StorageType, StoreError } from './types'
+import { produce, Draft, castDraft } from 'immer'
 
 /**
- * Enhanced collection store with better TypeScript support
+ * Enhanced collection store with better TypeScript support and immutability
+ * Now extends BaseStore for common functionality
  */
-export default class SchmancyCollectionStore<V = any> implements ICollectionStore<V> {
+export default class SchmancyCollectionStore<V = any> extends BaseStore<Map<string, V>> implements ICollectionStore<V> {
 	public static type = 'collection'
 
 	// Static map to hold instances
 	private static instances: Map<string, SchmancyCollectionStore<any>> = new Map()
 
-	// State management
-	private _ready: boolean = false
-	private _destroy$ = new Subject<void>()
-
-	// Observable streams - modified to match interface requirements
-	public $: BehaviorSubject<Map<string, V>>
-	public error$ = new BehaviorSubject<StoreError | null>(null)
-
-	// Default value for the store
-	public readonly defaultValue: Map<string, V>
-
-	// Storage manager
-	private storage: IStorageManager<Map<string, V>>
-
-	/**
-	 * Get ready state
-	 */
-	public get ready(): boolean {
-		return this._ready
-	}
-
-	/**
-	 * Set ready state
-	 */
-	public set ready(value: boolean) {
-		this._ready = value
-		this.updateState(this.$.value)
-	}
-
-	private constructor(
-		private storageType: StorageType,
-		private key: string,
-		defaultValue: Map<string, V>,
-	) {
-		this.defaultValue = defaultValue
-		this.$ = new BehaviorSubject<Map<string, V>>(new Map<string, V>())
-		this.storage = createStorageManager<Map<string, V>>(storageType, key)
-
-		// Set ready immediately for memory storage
-		if (storageType === 'memory') {
-			this._ready = true
-			this.updateState(new Map(defaultValue)) // Initialize with default value
-		} else {
-			// Initialize from storage
-			this.initializeFromStorage()
-		}
-
-		// Set up persistence
-		this.setupPersistence()
-
-		// Setup dev tools in development
-		if (import.meta.env.MODE === 'development') {
-			this.setupDevTools()
-		}
-	}
 	/**
 	 * Static method to get or create an instance with proper typing
 	 */
@@ -82,23 +30,18 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 	}
 
 	/**
-	 * Get the current value
-	 */
-	public get value(): Map<string, V> {
-		return this.$.getValue()
-	}
-
-	/**
-	 * Set a value in the collection with proper typing
+	 * Set a value in the collection with proper typing and immutability
 	 */
 	public set<T = V>(key: string, value: T): void {
 		try {
-			// Create a new Map to avoid mutating the current value
-			const currentValue = new Map(this.value)
-			// Set the new value for the key
-			currentValue.set(key, value as unknown as V)
-			// Update the state with the new Map
-			this.updateState(currentValue)
+			// Use Immer to create a new immutable Map
+			const nextState = produce(this.value, draft => {
+				// Use castDraft to properly type the value for the draft context
+				draft.set(key, castDraft(value) as unknown as Draft<V>)
+			})
+
+			// Update the state with the new immutable Map
+			this.updateState(nextState)
 			this.error$.next(null) // Clear any previous errors
 		} catch (err) {
 			const error = new StoreError<unknown>(`Error setting value for key ${key} in ${this.key}`, err)
@@ -108,13 +51,16 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 	}
 
 	/**
-	 * Delete a value from the collection
+	 * Delete a value from the collection immutably
 	 */
 	public delete(key: string): void {
 		try {
-			const currentValue = new Map(this.value)
-			currentValue.delete(key)
-			this.updateState(currentValue)
+			// Use Immer to create a new immutable Map with the key deleted
+			const nextState = produce(this.value, draft => {
+				draft.delete(key)
+			})
+
+			this.updateState(nextState)
 			this.error$.next(null) // Clear any previous errors
 		} catch (err) {
 			const error = new StoreError<unknown>(`Error deleting key ${key} from ${this.key}`, err)
@@ -124,76 +70,76 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 	}
 
 	/**
-	 * Clear the collection
+	 * Clear the collection immutably
 	 */
 	public clear(): void {
+		// Create a fresh empty Map
 		this.updateState(new Map<string, V>())
 	}
 
-	public replace(newValue: Map<string, V>): void {
-		this.updateState(newValue)
-	}
-
 	/**
-	 * Update the state with error handling
+	 * Batch update multiple items in the collection
+	 * @param updates Object with keys and values to update
 	 */
-	private updateState(newValue: Map<string, V>): void {
+	public batchUpdate(updates: Record<string, V>): void {
 		try {
-			this.$.next(newValue)
+			// Use Immer to apply all updates in a single immutable operation
+			const nextState = produce(this.value, draft => {
+				Object.entries(updates).forEach(([key, value]) => {
+					draft.set(key, castDraft(value) as unknown as Draft<V>)
+				})
+			})
+
+			this.updateState(nextState)
+			this.error$.next(null)
 		} catch (err) {
-			const error = new StoreError<unknown>(`Error updating state in ${this.key}`, err)
+			const error = new StoreError<unknown>(`Error batch updating in ${this.key}`, err)
 			this.error$.next(error)
 			console.error(error)
 		}
 	}
 
 	/**
-	 * Initialize from persistent storage
+	 * Update an existing item in the collection using an updater function
+	 * @param key Key of the item to update
+	 * @param updater Function that receives the current value and returns the new value
 	 */
-	private async initializeFromStorage(): Promise<void> {
-		if (this.storageType === 'local' || this.storageType === 'session') {
-			try {
-				const storedValue = await this.storage.load()
-				if (storedValue) {
-					this.updateState(storedValue)
+	public update(key: string, updater: (currentValue: Draft<V>) => void): void {
+		try {
+			// Use Immer to update the specific item
+			const nextState = produce(this.value, draft => {
+				const currentValue = draft.get(key)
+				if (currentValue !== undefined) {
+					updater(currentValue)
+					// No need to set the value back since it's updated in place
 				}
-				this._ready = true
-			} catch (err) {
-				const error = new StoreError<unknown>(`Error loading from ${this.storageType} storage for ${this.key}`, err)
-				this.error$.next(error)
-				console.error(error)
-				this._ready = true // Mark as ready even if loading fails
-			}
-		} else if (this.storageType === 'indexeddb') {
-			this.loadFromIndexedDB()
-		} else {
-			// Memory storage doesn't need loading
-			this._ready = true
-		}
-	}
+			})
 
-	/**
-	 * Load data from IndexedDB with better typing
-	 */
-	private async loadFromIndexedDB(): Promise<void> {
-		try {
-			const result = await this.storage.load()
-			this.updateState(result || new Map<string, V>())
-			this._ready = true
+			this.updateState(nextState)
+			this.error$.next(null)
 		} catch (err) {
-			const error = new StoreError<unknown>(`Error loading from IndexedDB for ${this.key}`, err)
+			const error = new StoreError<unknown>(`Error updating item ${key} in ${this.key}`, err)
 			this.error$.next(error)
 			console.error(error)
-			this._ready = true // Mark as ready even if loading fails
 		}
 	}
 
 	/**
-	 * Set up persistence to storage
+	 * Constructor extension to set up persistence
+	 */
+	constructor(storageType: StorageType, key: string, defaultValue: Map<string, V>) {
+		super(storageType, key, defaultValue)
+
+		// Set up persistence throttling for better performance
+		if (storageType !== 'memory') {
+			this.setupPersistence()
+		}
+	}
+
+	/**
+	 * Set up persistence to storage with throttling
 	 */
 	private setupPersistence(): void {
-		if (this.storageType === 'memory') return
-
 		this.$.pipe(throttleTime(100, undefined, { leading: true, trailing: true })).subscribe(currentValue => {
 			this.storage.save(currentValue).catch(err => {
 				const error = new StoreError<unknown>(`Error saving to ${this.storageType} storage for ${this.key}`, err)
@@ -206,7 +152,7 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 	/**
 	 * Setup development tools for debugging
 	 */
-	private setupDevTools(): void {
+	protected setupDevTools(): void {
 		if (typeof window !== 'undefined') {
 			// Add to global store registry
 			;(window as any).__STORES__ = (window as any).__STORES__ || {}
@@ -215,21 +161,13 @@ export default class SchmancyCollectionStore<V = any> implements ICollectionStor
 				set: this.set.bind(this),
 				delete: this.delete.bind(this),
 				clear: this.clear.bind(this),
+				batchUpdate: this.batchUpdate.bind(this),
+				update: this.update.bind(this),
 				subscribe: (callback: (state: Map<string, V>) => void) => {
 					const subscription = this.$.subscribe(callback)
 					return () => subscription.unsubscribe()
 				},
 			}
 		}
-	}
-
-	/**
-	 * Clean up resources
-	 */
-	public destroy(): void {
-		this._destroy$.next()
-		this._destroy$.complete()
-		this.$.complete()
-		this.error$.complete()
 	}
 }

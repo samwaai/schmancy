@@ -213,88 +213,6 @@ const safeString = (value: unknown): string => {
 }
 
 /**
- * Type guard for arrays
- */
-const isArray = (value: unknown): value is Array<unknown> => {
-	return Array.isArray(value)
-}
-
-/**
- * Compare two values based on a comparison operator.
- * For non-fuzzy operators, this returns a boolean.
- */
-export function compareValues(op: ComparisonOperator, actual: unknown, expected: unknown): boolean {
-	// Handle null/undefined cases
-	if (actual == null && expected == null) return true
-	if (actual == null || expected == null) {
-		// For equality operators, null == null but null != non-null
-		if (op === '==') return actual === expected
-		if (op === '!=') return actual !== expected
-		// Other operators should return false for null/undefined values
-		return false
-	}
-
-	switch (op) {
-		case '==':
-			return actual === expected
-		case '!=':
-			return actual !== expected
-		case '>':
-			return (actual as number) > (expected as number)
-		case '<':
-			return (actual as number) < (expected as number)
-		case '>=':
-			return (actual as number) >= (expected as number)
-		case '<=':
-			return (actual as number) <= (expected as number)
-		case 'includes': {
-			if (typeof actual === 'string') {
-				return safeString(actual).toLowerCase().includes(safeString(expected).toLowerCase())
-			} else if (isArray(actual)) {
-				return actual.includes(expected)
-			}
-			return false
-		}
-		case 'notIncludes': {
-			if (typeof actual === 'string') {
-				return !safeString(actual).toLowerCase().includes(safeString(expected).toLowerCase())
-			} else if (isArray(actual)) {
-				return !actual.includes(expected)
-			}
-			return true
-		}
-		case 'startsWith': {
-			if (typeof actual === 'string' && typeof expected === 'string') {
-				return actual.toLowerCase().startsWith(expected.toLowerCase())
-			}
-			return false
-		}
-		case 'endsWith': {
-			if (typeof actual === 'string' && typeof expected === 'string') {
-				return actual.toLowerCase().endsWith(expected.toLowerCase())
-			}
-			return false
-		}
-		case 'in': {
-			if (isArray(expected)) {
-				return expected.includes(actual)
-			}
-			return false
-		}
-		case 'notIn': {
-			if (isArray(expected)) {
-				return !expected.includes(actual)
-			}
-			return true
-		}
-		default: {
-			console.warn(`Operator "${op}" is not supported in strict comparison.`)
-			return false
-		}
-	}
-}
-
-/**
  * Apply a query condition to an item and return score
  */
 function applyQueryCondition<T extends Record<string, any>>(
@@ -323,16 +241,30 @@ function applyQueryCondition<T extends Record<string, any>>(
 
 	const actual = getFieldValue(item, field)
 
-	// REMOVE THIS BLOCK - This is the problematic code
-	// If strict mode is enabled, enforce exact equality
-	// if (strict) {
-	// 	if (actual !== expected) {
-	// 		return { valid: false, score: 0 }
-	// 	}
-	// 	return { valid: true, score: 1 }
-	// }
+	// FIXED: Properly handle strict mode
+	if (strict) {
+		// For strict mode, use exact equality comparison for all operators except 'any'
+		if (op === 'any') {
+			// Fuzzy search still applies with strict mode
+			if (typeof actual !== 'string' || typeof expected !== 'string') {
+				return { valid: false, score: 0 }
+			}
 
-	if (op === 'any') {
+			const score = computeFuzzyScore(actual, expected)
+			return {
+				valid: score >= fuzzyThreshold,
+				score: score >= fuzzyThreshold ? score : 0,
+			}
+		} else {
+			// For all other operators in strict mode,
+			// delegate to compareValues function but return precise scores
+			const matches = compareValues(op, actual, expected)
+			return {
+				valid: matches,
+				score: matches ? 1 : 0,
+			}
+		}
+	} else if (op === 'any') {
 		// Fuzzy search requires both values to be strings
 		if (typeof actual !== 'string' || typeof expected !== 'string') {
 			return { valid: false, score: 0 }
@@ -427,6 +359,240 @@ export function filterArrayItems<T extends Record<string, any>>(
 	items.forEach((item, index) => map.set(String(index), item))
 
 	return filterMapItems(map, queries, fuzzyThreshold)
+}
+
+// Improved type guards for filter-directive.ts
+
+/**
+ * Type guard for checking if a value is an array with better type inference
+ * @param value Value to check
+ * @returns True if the value is an array
+ */
+export function isArray<T = unknown>(value: unknown): value is Array<T> {
+	return Array.isArray(value)
+}
+
+/**
+ * Type guard for checking if a value is a string
+ * @param value Value to check
+ * @returns True if the value is a string
+ */
+export function isString(value: unknown): value is string {
+	return typeof value === 'string'
+}
+
+/**
+ * Type guard for checking if a value is a number
+ * @param value Value to check
+ * @returns True if the value is a number and not NaN
+ */
+export function isNumber(value: unknown): value is number {
+	return typeof value === 'number' && !isNaN(value)
+}
+
+/**
+ * Type guard for checking if a value is a date
+ * @param value Value to check
+ * @returns True if the value is a valid Date object
+ */
+export function isDate(value: unknown): value is Date {
+	return value instanceof Date && !isNaN(value.getTime())
+}
+
+/**
+ * Type guard for checking if a value is an iterable collection
+ * @param value Value to check
+ * @returns True if the value implements the iterable protocol
+ */
+export function isIterable<T = unknown>(value: unknown): value is Iterable<T> {
+	// Must be non-null and of type 'object'
+	if (value == null || typeof value !== 'object') {
+		return false
+	}
+
+	// Check for Symbol.iterator method
+	return Symbol.iterator in Object(value) && typeof (value as any)[Symbol.iterator] === 'function'
+}
+
+/**
+ * Type guard for checking if a value is a Map
+ * @param value Value to check
+ * @returns True if the value is a Map
+ */
+export function isMap<K = unknown, V = unknown>(value: unknown): value is Map<K, V> {
+	return value instanceof Map
+}
+
+/**
+ * Type guard for checking if a value is a Set
+ * @param value Value to check
+ * @returns True if the value is a Set
+ */
+export function isSet<T = unknown>(value: unknown): value is Set<T> {
+	return value instanceof Set
+}
+
+/**
+ * Type guard for checking if a value is a plain object (not an array, Map, etc.)
+ * @param value Value to check
+ * @returns True if the value is a plain object
+ */
+export function isPlainObject(value: unknown): value is Record<string, unknown> {
+	if (value === null || typeof value !== 'object') {
+		return false
+	}
+
+	const proto = Object.getPrototypeOf(value)
+	return proto === Object.prototype || proto === null
+}
+
+/**
+ * Type guard for checking if a value is undefined or null
+ * @param value Value to check
+ * @returns True if the value is undefined or null
+ */
+export function isNil(value: unknown): value is undefined | null {
+	return value === undefined || value === null
+}
+
+/**
+ * Improved type-safe comparison function that uses appropriate type guards
+ * @param op Comparison operator
+ * @param actual Actual value
+ * @param expected Expected value
+ * @returns Result of the comparison
+ */
+export function compareValues(op: ComparisonOperator, actual: unknown, expected: unknown): boolean {
+	// Handle null/undefined cases
+	if (isNil(actual) && isNil(expected)) return true
+	if (isNil(actual) || isNil(expected)) {
+		// For equality operators, null == null but null != non-null
+		if (op === '==') return actual === expected
+		if (op === '!=') return actual !== expected
+		// Other operators should return false for null/undefined values
+		return false
+	}
+
+	switch (op) {
+		case '==':
+			return actual === expected
+		case '!=':
+			return actual !== expected
+		case '>':
+			if (isNumber(actual) && isNumber(expected)) {
+				return actual > expected
+			}
+			if (isDate(actual) && isDate(expected)) {
+				return actual.getTime() > expected.getTime()
+			}
+			if (isString(actual) && isString(expected)) {
+				return actual.localeCompare(expected) > 0
+			}
+			return false
+		case '<':
+			if (isNumber(actual) && isNumber(expected)) {
+				return actual < expected
+			}
+			if (isDate(actual) && isDate(expected)) {
+				return actual.getTime() < expected.getTime()
+			}
+			if (isString(actual) && isString(expected)) {
+				return actual.localeCompare(expected) < 0
+			}
+			return false
+		case '>=':
+			if (isNumber(actual) && isNumber(expected)) {
+				return actual >= expected
+			}
+			if (isDate(actual) && isDate(expected)) {
+				return actual.getTime() >= expected.getTime()
+			}
+			if (isString(actual) && isString(expected)) {
+				return actual.localeCompare(expected) >= 0
+			}
+			return false
+		case '<=':
+			if (isNumber(actual) && isNumber(expected)) {
+				return actual <= expected
+			}
+			if (isDate(actual) && isDate(expected)) {
+				return actual.getTime() <= expected.getTime()
+			}
+			if (isString(actual) && isString(expected)) {
+				return actual.localeCompare(expected) <= 0
+			}
+			return false
+		case 'includes': {
+			if (isString(actual)) {
+				return actual.toLowerCase().includes(safeString(expected).toLowerCase())
+			}
+			if (isArray(actual)) {
+				return actual.includes(expected as any)
+			}
+			if (isSet(actual)) {
+				return actual.has(expected as any)
+			}
+			if (isMap(actual)) {
+				return Array.from(actual.values()).includes(expected as any)
+			}
+			return false
+		}
+		case 'notIncludes': {
+			if (isString(actual)) {
+				return !actual.toLowerCase().includes(safeString(expected).toLowerCase())
+			}
+			if (isArray(actual)) {
+				return !actual.includes(expected as any)
+			}
+			if (isSet(actual)) {
+				return !actual.has(expected as any)
+			}
+			if (isMap(actual)) {
+				return !Array.from(actual.values()).includes(expected as any)
+			}
+			return true
+		}
+		case 'startsWith': {
+			if (isString(actual) && isString(expected)) {
+				return actual.toLowerCase().startsWith(expected.toLowerCase())
+			}
+			return false
+		}
+		case 'endsWith': {
+			if (isString(actual) && isString(expected)) {
+				return actual.toLowerCase().endsWith(expected.toLowerCase())
+			}
+			return false
+		}
+		case 'in': {
+			if (isArray(expected)) {
+				return expected.includes(actual as any)
+			}
+			if (isSet(expected)) {
+				return expected.has(actual as any)
+			}
+			if (isMap(expected)) {
+				return expected.has(actual as any) || Array.from(expected.values()).includes(actual as any)
+			}
+			return false
+		}
+		case 'notIn': {
+			if (isArray(expected)) {
+				return !expected.includes(actual as any)
+			}
+			if (isSet(expected)) {
+				return !expected.has(actual as any)
+			}
+			if (isMap(expected)) {
+				return !expected.has(actual as any) && !Array.from(expected.values()).includes(actual as any)
+			}
+			return true
+		}
+		default: {
+			console.warn(`Operator "${op}" is not supported in comparison.`)
+			return false
+		}
+	}
 }
 
 // Export a simpler alias for filterMapItems

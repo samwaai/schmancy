@@ -15,6 +15,7 @@
 	--color-scrim: var(--schmancy-sys-color-scrim);
 	--color-outline: var(--schmancy-sys-color-outline);
 	--color-outlineVariant: var(--schmancy-sys-color-outlineVariant);
+	--color-outline-variant: var(--schmancy-sys-color-outlineVariant);
 	--color-surface-default: var(--schmancy-sys-color-surface-default);
 	--color-surface-dim: var(--schmancy-sys-color-surface-dim);
 	--color-surface-bright: var(--schmancy-sys-color-surface-bright);
@@ -25,10 +26,12 @@
 	--color-surface-lowest: var(--schmancy-sys-color-surface-lowest);
 	--color-surface-on: var(--schmancy-sys-color-surface-on);
 	--color-surface-onVariant: var(--schmancy-sys-color-surface-onVariant);
+	--color-surface-on-variant: var(--schmancy-sys-color-surface-onVariant);
 	--color-primary-default: var(--schmancy-sys-color-primary-default);
 	--color-primary-on: var(--schmancy-sys-color-primary-on);
 	--color-primary-container: var(--schmancy-sys-color-primary-container);
 	--color-primary-onContainer: var(--schmancy-sys-color-primary-onContainer);
+	--color-primary-on-container: var(--schmancy-sys-color-primary-onContainer);
 	--color-secondary-default: var(--schmancy-sys-color-secondary-default);
 	--color-secondary-on: var(--schmancy-sys-color-secondary-on);
 	--color-secondary-container: var(--schmancy-sys-color-secondary-container);
@@ -41,10 +44,12 @@
 	--color-error-on: var(--schmancy-sys-color-error-on);
 	--color-error-container: var(--schmancy-sys-color-error-container);
 	--color-error-onContainer: var(--schmancy-sys-color-error-onContainer);
+	--color-error-on-container: var(--schmancy-sys-color-error-onContainer);
 	--color-success-default: var(--schmancy-sys-color-success-default);
 	--color-success-on: var(--schmancy-sys-color-success-on);
 	--color-success-container: var(--schmancy-sys-color-success-container);
 	--color-success-onContainer: var(--schmancy-sys-color-success-onContainer);
+	--color-success-on-container: var(--schmancy-sys-color-success-onContainer);
 	--shadow-0: var(--schmancy-sys-elevation-0);
 	--shadow-1: var(--schmancy-sys-elevation-1);
 	--shadow-2: var(--schmancy-sys-elevation-2);
