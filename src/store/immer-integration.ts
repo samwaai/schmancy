@@ -3,13 +3,6 @@ import { produce, Draft, castDraft, castImmutable, Immutable, enableMapSet } fro
 enableMapSet()
 
 /**
- * Type-safe wrapper functions for immutable operations with Immer
- *
- * Re-export useful Immer types and utilities
- */
-export { Draft, castDraft, castImmutable, Immutable }
-
-/**
  * Create an immutable update for Maps
  * @param map Original Map to update
  * @param updater Function that can make "mutable" changes to the draft

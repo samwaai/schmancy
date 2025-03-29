@@ -1,6 +1,7 @@
 import { $LitElement } from '@mixins/index'
 import { area } from '@schmancy/area'
 import { schmancyNavDrawer } from '@schmancy/nav-drawer'
+import { createContext, select } from '@schmancy/store'
 import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
@@ -23,6 +24,12 @@ import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import { SchmancyTypewriterDemo } from './features/typewriter'
 import DemoTypography from './features/typography'
+const NavContext = createContext<
+	Array<{
+		name: string
+		component: any
+	}>
+>([], 'session', 'nav')
 
 @customElement('demo-nav')
 export class DemoNav extends $LitElement(css`
@@ -32,81 +39,11 @@ export class DemoNav extends $LitElement(css`
 `) {
 	@state() activeTab: string
 
-	Demos: Array<{
+	@select(NavContext, undefined)
+	Demos!: Array<{
 		name: string
 		component: CustomElementConstructor
-	}> = [
-		{
-			name: 'Table',
-			component: TableDemo,
-		},
-		{
-			name: 'Notifications',
-			component: NotificationDemo,
-		},
-		{
-			name: 'Typewriter',
-			component: SchmancyTypewriterDemo,
-		},
-
-		{
-			name: 'Icons',
-			component: DemoIcons,
-		},
-		{
-			name: 'Typography',
-			component: DemoTypography,
-		},
-		{
-			name: 'Button',
-			component: DemoButton,
-		},
-		{
-			name: 'Card',
-			component: DemoCard,
-		},
-		{
-			name: 'Input',
-			component: DemoInput,
-		},
-		{
-			name: 'List',
-			component: DemoList,
-		},
-
-		{
-			name: 'Sheet',
-			component: DemoSheet,
-		},
-		{
-			name: 'Tree',
-			component: DemoTree,
-		},
-		{
-			name: 'Content Drawer',
-			component: DemoContentDrawer,
-		},
-		{
-			name: 'Tabs',
-			component: DemoTabs,
-		},
-		{
-			name: 'Surface',
-			component: DemoSurface,
-		},
-		{
-			name: 'Animated text',
-			component: DemoAnimatedText,
-		},
-		{
-			name: 'Router',
-			component: DemoRouter,
-		},
-		{
-			name: 'Busy',
-			component: DemoBusy,
-		},
-	]
+	}>
 
 	connectedCallback(): void {
 		super.connectedCallback()
@@ -118,8 +55,81 @@ export class DemoNav extends $LitElement(css`
 			.subscribe(r => {
 				this.activeTab = r.component?.toLowerCase().replaceAll('-', '')
 			})
+		NavContext.replace([
+			{
+				name: 'Table',
+				component: TableDemo,
+			},
+			{
+				name: 'Notifications',
+				component: NotificationDemo,
+			},
+			{
+				name: 'Typewriter',
+				component: SchmancyTypewriterDemo,
+			},
+
+			{
+				name: 'Icons',
+				component: DemoIcons,
+			},
+			{
+				name: 'Typography',
+				component: DemoTypography,
+			},
+			{
+				name: 'Button',
+				component: DemoButton,
+			},
+			{
+				name: 'Card',
+				component: DemoCard,
+			},
+			{
+				name: 'Input',
+				component: DemoInput,
+			},
+			{
+				name: 'List',
+				component: DemoList,
+			},
+
+			{
+				name: 'Sheet',
+				component: DemoSheet,
+			},
+			{
+				name: 'Tree',
+				component: DemoTree,
+			},
+			{
+				name: 'Content Drawer',
+				component: DemoContentDrawer,
+			},
+			{
+				name: 'Tabs',
+				component: DemoTabs,
+			},
+			{
+				name: 'Surface',
+				component: DemoSurface,
+			},
+			{
+				name: 'Animated text',
+				component: DemoAnimatedText,
+			},
+			{
+				name: 'Router',
+				component: DemoRouter,
+			},
+			{
+				name: 'Busy',
+				component: DemoBusy,
+			},
+		])
 	}
 	render() {
+		console.log(this.Demos)
 		return html`
 			<schmancy-grid ${fullHeight()} gap="md" justify="center">
 				<schmancy-typography type="headline" token="lg">

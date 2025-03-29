@@ -1,8 +1,9 @@
-// src/store/context-create.ts - Modified to support arrays
+// src/store/context-create.ts - Fixed version
+
+import { SchmancyArrayStore } from './context-array'
 import SchmancyCollectionStore from './context-collection'
 import { SchmancyStoreObject } from './context-object'
-import { SchmancyArrayStore } from './context-array'
-import { ICollectionStore, IStore, IArrayStore, StorageType, StoreError } from './types'
+import { IArrayStore, ICollectionStore, IStore, StorageType } from './types'
 
 /**
  * Type guard to check if an object is empty
@@ -29,67 +30,126 @@ function isArray<T>(value: unknown): value is Array<T> {
 }
 
 /**
- * Creates a regular object store with better typing
+ * Type guard for plain objects (not arrays, maps, null, etc.)
+ */
+function isPlainObject(value: unknown): boolean {
+	return (
+		value !== null &&
+		typeof value === 'object' &&
+		!Array.isArray(value) &&
+		!(value instanceof Map) &&
+		!(value instanceof Set) &&
+		!(value instanceof Date) &&
+		!(value instanceof RegExp) &&
+		Object.getPrototypeOf(value) === Object.prototype
+	)
+}
+
+/**
+ * Creates a regular object store with better typing and error handling
  */
 function createObjectStore<T extends Record<string, any>>(
 	initialData: T,
 	storage: StorageType,
 	key: string,
 ): IStore<T> & SchmancyStoreObject<T> {
-	// Validate storage type
-	if (storage === 'indexeddb') {
-		throw new StoreError('IndexedDB storage is not supported for plain objects', null, { storage, key })
+	try {
+		// Validate storage type
+		if (storage === 'indexeddb') {
+			console.warn(`IndexedDB storage is not optimal for plain objects. Using 'local' instead for key: ${key}`)
+			storage = 'local'
+		}
+
+		// Ensure initialData is a plain object
+		if (!isPlainObject(initialData)) {
+			console.warn(`Initial data is not a plain object. Converting to object for key: ${key}`)
+			initialData = { ...initialData } as T
+		}
+
+		// Create the store instance
+		const store = SchmancyStoreObject.getInstance<T>(storage, key, initialData)
+
+		// Initialize with provided data if store is empty
+		if (isEmptyObject(store.value)) {
+			store.set({ ...initialData }) // Use spread to create a copy
+		}
+
+		return store
+	} catch (err) {
+		console.error(`Failed to create object store for key: ${key}`, err)
+		// Fall back to a basic implementation that won't throw
+		const fallbackStore = SchmancyStoreObject.getInstance<T>(
+			'memory', // Fallback to memory storage
+			`${key}-fallback`,
+			initialData,
+		)
+		console.warn(`Using fallback memory store for key: ${key}`)
+		return fallbackStore
 	}
-
-	// Create the store instance
-	const store = SchmancyStoreObject.getInstance<T>(storage, key, initialData)
-
-	// Initialize with provided data if store is empty
-	if (isEmptyObject(store.value)) {
-		store.$.next({ ...initialData }) // Use spread to create a copy
-	}
-
-	return store
 }
 
 /**
- * Creates a collection store with better typing
+ * Creates a collection store with better typing and error handling
  */
 function createCollectionStore<V>(
 	initialData: Map<string, V>,
 	storage: StorageType,
 	key: string,
 ): ICollectionStore<V> & SchmancyCollectionStore<V> {
-	// Create the store instance
-	const store = SchmancyCollectionStore.getInstance(storage, key, initialData)
+	try {
+		// Create the store instance
+		const store = SchmancyCollectionStore.getInstance(storage, key, initialData)
 
-	// Initialize with provided data if store is empty
-	if (!store.value.size) {
-		// Create a new Map instance to avoid modifying the input
-		store.$.next(new Map(initialData))
+		// Initialize with provided data if store is empty
+		if (!store.value.size) {
+			// Create a new Map instance to avoid modifying the input
+			store.replace(new Map(initialData))
+		}
+
+		return store
+	} catch (err) {
+		console.error(`Failed to create collection store for key: ${key}`, err)
+		// Fall back to a basic implementation that won't throw
+		const fallbackStore = SchmancyCollectionStore.getInstance<V>(
+			'memory', // Fallback to memory storage
+			`${key}-fallback`,
+			new Map(initialData),
+		)
+		console.warn(`Using fallback memory store for key: ${key}`)
+		return fallbackStore
 	}
-
-	return store
 }
 
 /**
- * Creates an array store with better typing
+ * Creates an array store with better typing and error handling
  */
 function createArrayStore<T>(
 	initialData: T[],
 	storage: StorageType,
 	key: string,
 ): IArrayStore<T> & SchmancyArrayStore<T> {
-	// Create the store instance
-	const store = SchmancyArrayStore.getInstance(storage, key, initialData)
+	try {
+		// Create the store instance
+		const store = SchmancyArrayStore.getInstance(storage, key, initialData)
 
-	// Initialize with provided data if store is empty
-	if (!store.value.length) {
-		// Create a new array instance to avoid modifying the input
-		store.$.next([...initialData])
+		// Initialize with provided data if store is empty
+		if (!store.value.length) {
+			// Create a new array instance to avoid modifying the input
+			store.replace([...initialData])
+		}
+
+		return store
+	} catch (err) {
+		console.error(`Failed to create array store for key: ${key}`, err)
+		// Fall back to a basic implementation that won't throw
+		const fallbackStore = SchmancyArrayStore.getInstance<T>(
+			'memory', // Fallback to memory storage
+			`${key}-fallback`,
+			[...initialData],
+		)
+		console.warn(`Using fallback memory store for key: ${key}`)
+		return fallbackStore
 	}
-
-	return store
 }
 
 // Function overloads for better type inference
@@ -134,6 +194,7 @@ export function createContext<T>(
 
 /**
  * Implementation of the createContext function with complete type checking
+ * and robust error handling
  */
 export function createContext<T extends Record<string, any> | Map<string, any> | any[]>(
 	initialData: T,
@@ -143,24 +204,42 @@ export function createContext<T extends Record<string, any> | Map<string, any> |
 	| (IStore<T> & SchmancyStoreObject<T>)
 	| (ICollectionStore<any> & SchmancyCollectionStore<any>)
 	| (IArrayStore<any> & SchmancyArrayStore<any>) {
-	// Validate input
-	if (initialData === null || initialData === undefined) {
-		throw new StoreError('Initial data cannot be null or undefined', null, { storage, key })
-	}
+	try {
+		// Validate input
+		if (initialData === null || initialData === undefined) {
+			console.error('Initial data cannot be null or undefined')
+			// Provide a sensible default based on type expected
+			if (key.includes('collection') || key.includes('map')) {
+				initialData = new Map() as unknown as T
+			} else if (key.includes('array') || key.includes('list')) {
+				initialData = [] as unknown as T
+			} else {
+				initialData = {} as T
+			}
+		}
 
-	// Determine store type based on input data with improved type checking
-	if (isMap<string, any>(initialData)) {
-		return createCollectionStore<any>(initialData, storage, key)
-	} else if (isArray<any>(initialData)) {
-		return createArrayStore<any>(initialData, storage, key)
-	} else if (typeof initialData === 'object') {
-		return createObjectStore<any>(initialData as Record<string, any>, storage, key)
-	} else {
-		throw new StoreError('Initial data must be an object, an array, or a Map', null, {
-			storage,
-			key,
-			dataType: typeof initialData,
-		})
+		// Determine store type based on input data with improved type checking
+		if (isMap<string, any>(initialData)) {
+			return createCollectionStore<any>(initialData, storage, key)
+		} else if (isArray<any>(initialData)) {
+			return createArrayStore<any>(initialData, storage, key)
+		} else if (typeof initialData === 'object') {
+			return createObjectStore<any>(initialData as Record<string, any>, storage, key)
+		} else {
+			// Handle non-object data by wrapping it
+			console.warn(`Initial data must be an object, array, or Map. Got ${typeof initialData}. Creating object wrapper.`)
+			return createObjectStore<any>({ value: initialData } as Record<string, any>, storage, key)
+		}
+	} catch (error) {
+		// Last-resort error handling
+		console.error(`Fatal error creating context for ${key}:`, error)
+
+		// Create an emergency fallback store that won't throw
+		return createObjectStore<any>(
+			typeof initialData === 'object' && initialData !== null ? { ...initialData } : { value: initialData },
+			'memory',
+			`emergency-fallback-${key}`,
+		)
 	}
 }
 
@@ -176,7 +255,13 @@ export function createArrayContext<T>(
 	key: string,
 	storage: StorageType = 'local',
 ): IArrayStore<T> & SchmancyArrayStore<T> {
-	return createContext<T>(initialData, storage, key)
+	try {
+		return createContext<T>(initialData, storage, key)
+	} catch (err) {
+		console.error(`Failed to create array context for key: ${key}`, err)
+		// Return a fallback store
+		return createArrayStore<T>(initialData, 'memory', `${key}-fallback`)
+	}
 }
 
 /**
@@ -189,5 +274,11 @@ export function createTestArrayContext<T>(
 	initialData: T[] = [],
 	key: string = 'test-array',
 ): IArrayStore<T> & SchmancyArrayStore<T> {
-	return createContext<T>(initialData, 'memory', key)
+	try {
+		return createContext<T>(initialData, 'memory', key)
+	} catch (err) {
+		console.error(`Failed to create test array context for key: ${key}`, err)
+		// Return a fallback store with a different key
+		return createArrayStore<T>(initialData, 'memory', `${key}-emergency-fallback`)
+	}
 }

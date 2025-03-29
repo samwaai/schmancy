@@ -32,11 +32,24 @@ export default class SchmancyDemo extends $LitElement(css`
 	theme!: Theme
 	connectedCallback(): void {
 		super.connectedCallback()
+		setTimeout(() => {
+			ThemeContext.set({
+				color: '#228B22',
+				scheme: 'light',
+			})
+		}, 2000)
+
+		ThemeContext.$.subscribe({
+			next: () => {
+				this.requestUpdate()
+			},
+		})
 	}
 
 	render() {
+		console.log(this.theme)
 		return html`
-			<schmancy-theme root>
+			<schmancy-theme root .color=${this.theme.color} .scheme=${this.theme.scheme}>
 				<schmancy-surface ${fullHeight()} type="container">
 					<schmancy-nav-drawer>
 						<schmancy-nav-drawer-navbar width="220px">
