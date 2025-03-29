@@ -1,3 +1,4 @@
+import { Draft } from 'immer';
 import { BehaviorSubject, Observable } from 'rxjs';
 /**
  * Storage types supported by the store
@@ -137,3 +138,104 @@ export type StoreFactory = <T extends Record<string, any>>(initialData: T, stora
  * Factory function type for creating collection stores
  */
 export type CollectionStoreFactory = <T>(initialData: Map<string, T>, storage: StorageType, key: string) => ICollectionStore<T>;
+/**
+ * Interface for array stores with improved typing
+ */
+export interface IArrayStore<T> {
+    /** Get the current array value */
+    readonly value: T[];
+    /** Observable stream of array values */
+    readonly $: BehaviorSubject<T[]>;
+    /** The default/initial value of the array */
+    readonly defaultValue: T[];
+    /** Whether the store is ready (loaded from storage) */
+    ready: boolean;
+    /** Observable stream of store errors */
+    readonly error$: Observable<StoreError | null>;
+    /**
+     * Add item(s) to the end of the array
+     * @param items Items to add
+     */
+    push(...items: T[]): void;
+    /**
+     * Remove and return the last item from the array
+     * @returns The removed item or undefined if the array was empty
+     */
+    pop(): T | undefined;
+    /**
+     * Add item(s) to the beginning of the array
+     * @param items Items to add
+     */
+    unshift(...items: T[]): void;
+    /**
+     * Remove and return the first item from the array
+     * @returns The removed item or undefined if the array was empty
+     */
+    shift(): T | undefined;
+    /**
+     * Update an item at a specific index
+     * @param index The index to update
+     * @param value The new value
+     */
+    set(index: number, value: T): void;
+    /**
+     * Get the item at a specific index
+     * @param index The index to get
+     * @returns The item or undefined if index is out of bounds
+     */
+    get(index: number): T | undefined;
+    /**
+     * Remove items from the array and optionally insert new ones
+     * @param start The start index
+     * @param deleteCount The number of items to delete
+     * @param items Items to insert
+     * @returns The removed items
+     */
+    splice(start: number, deleteCount?: number, ...items: T[]): T[];
+    /**
+     * Remove an item by value (first occurrence)
+     * @param item The item to remove
+     * @param compareFn Optional function to compare items
+     * @returns True if the item was found and removed
+     */
+    remove(item: T, compareFn?: (a: T, b: T) => boolean): boolean;
+    /**
+     * Replace the entire array
+     * @param newArray The new array
+     */
+    replace(newArray: T[]): void;
+    /**
+     * Filter items in the array
+     * @param predicate Function to test each item
+     */
+    filter(predicate: (value: T, index: number, array: T[]) => boolean): void;
+    /**
+     * Map over the array and transform items
+     * @param mapper Function to transform each item
+     * @returns Array of transformed items
+     */
+    map<U>(mapper: (value: T, index: number, array: T[]) => U): U[];
+    /**
+     * Sort the array in place
+     * @param compareFn Optional function to determine sort order
+     */
+    sort(compareFn?: (a: T, b: T) => number): void;
+    /**
+     * Update a specific item using a callback function
+     * @param index The index to update
+     * @param updater Function that can modify the item
+     */
+    update(index: number, updater: (item: Draft<T>) => void): void;
+    /**
+     * Clear all items from the array
+     */
+    clear(): void;
+    /**
+     * Clean up resources
+     */
+    destroy(): void;
+}
+/**
+ * Factory function type for creating array stores
+ */
+export type ArrayStoreFactory = <T>(initialData: T[], storage: StorageType, key: string) => IArrayStore<T>;

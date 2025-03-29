@@ -1,6 +1,7 @@
 import SchmancyCollectionStore from './context-collection';
 import { SchmancyStoreObject } from './context-object';
-import { ICollectionStore, IStore, StorageType } from './types';
+import { SchmancyArrayStore } from './context-array';
+import { ICollectionStore, IStore, IArrayStore, StorageType } from './types';
 /**
  * Creates a context for managing object state
  * @param initialData The initial object data
@@ -18,32 +19,25 @@ export declare function createContext<T extends Record<string, any>>(initialData
  */
 export declare function createContext<V>(initialData: Map<string, V>, storage: StorageType, key: string): ICollectionStore<V> & SchmancyCollectionStore<V>;
 /**
- * Creates an object context with simplified API and type inference
- * @param initialData The initial object data
+ * Creates a context for managing array state
+ * @param initialData The initial array
+ * @param storage Storage type to use
+ * @param key Unique key for the store
+ * @returns An array store instance
+ */
+export declare function createContext<T>(initialData: T[], storage: StorageType, key: string): IArrayStore<T> & SchmancyArrayStore<T>;
+/**
+ * Creates an array context with simplified API and type inference
+ * @param initialData The initial array data
  * @param key Unique key for the store
  * @param storage Storage type to use (defaults to 'local')
- * @returns A store instance
+ * @returns An array store instance
  */
-export declare function createObjectContext<T extends Record<string, any>>(initialData: T, key: string, storage?: StorageType): IStore<T> & SchmancyStoreObject<T>;
+export declare function createArrayContext<T>(initialData: T[], key: string, storage?: StorageType): IArrayStore<T> & SchmancyArrayStore<T>;
 /**
- * Creates a collection context with simplified API and type inference
- * @param initialData The initial collection (Map or array)
+ * Creates a testable array context
+ * @param initialData The initial array data
  * @param key Unique key for the store
- * @param storage Storage type to use (defaults to 'local')
- * @returns A collection store instance
+ * @returns An array store that uses memory storage
  */
-export declare function createCollectionContext<V>(initialData: Map<string, V> | V[], key: string, storage?: StorageType): ICollectionStore<V> & SchmancyCollectionStore<V>;
-/**
- * Creates a testable context that can be easily reset between tests
- * @param initialData The initial data
- * @param key Unique key for the store
- * @returns A store instance that uses memory storage (does not persist)
- */
-export declare function createTestContext<T extends Record<string, any>>(initialData: T, key?: string): IStore<T> & SchmancyStoreObject<T>;
-/**
- * Creates a testable collection context
- * @param initialData The initial collection
- * @param key Unique key for the store
- * @returns A collection store that uses memory storage
- */
-export declare function createTestCollectionContext<V>(initialData: Map<string, V> | V[], key?: string): ICollectionStore<V> & SchmancyCollectionStore<V>;
+export declare function createTestArrayContext<T>(initialData?: T[], key?: string): IArrayStore<T> & SchmancyArrayStore<T>;
