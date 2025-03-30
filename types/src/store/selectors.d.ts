@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { IStore, ICollectionStore } from './types';
+import { ICollectionStore, IStore } from './types';
 /**
  * Creates a selector that derives a value from store state
  *
@@ -31,16 +31,7 @@ export declare function createItemsSelector<T>(store: ICollectionStore<T>): Obse
  * @returns An observable of the selected item that emits when the item changes
  */
 export declare function createItemSelector<T>(store: ICollectionStore<T>, itemKey: string): Observable<T | undefined>;
-/**
- * Creates a compound selector that depends on multiple other selectors
- *
- * @param selectors Array of source selectors
- * @param combinerFn Function that combines all selector results
- * @returns An observable of the combined result
- */
-export declare function createCompoundSelector<T extends unknown[], R>(selectors: {
-    [K in keyof T]: Observable<T[K]>;
-}, combinerFn: (...values: T) => R): Observable<R>;
+export declare function createCompoundSelector<R>(stores: Array<IStore<any> | ICollectionStore<any>>, selectorFns: Array<(state: any) => any>, combinerFn: (...values: any[]) => R): Partial<IStore<R>>;
 /**
  * Creates a selector that returns all keys from a collection
  */
