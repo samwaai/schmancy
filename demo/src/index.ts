@@ -16,7 +16,7 @@ type Theme = {
 const ThemeContext = createContext<Theme>(
 	{
 		color: '#4479e1',
-		scheme: 'dark',
+		scheme: 'auto',
 	},
 	'memory',
 	'theme',
@@ -45,24 +45,12 @@ export default class SchmancyDemo extends $LitElement(css`
 	}
 	connectedCallback(): void {
 		super.connectedCallback()
-		setTimeout(() => {
-			ThemeContext.set({
-				color: '#228B22',
-				scheme: 'light',
-			})
-		}, 2000)
 
 		setTimeout(() => {
 			UserContext.$.next({
 				name: 'Momomoooo',
 			})
 		}, 5000)
-
-		ThemeContext.$.subscribe({
-			next: () => {
-				this.requestUpdate()
-			},
-		})
 	}
 
 	render() {

@@ -8,6 +8,7 @@ import { repeat } from 'lit/directives/repeat.js'
 import { filter, map } from 'rxjs'
 import { fullHeight } from '../../src/directives/height'
 import { DemoAnimatedText } from './features/animated-text'
+import DemoBadges from './features/badges'
 import { DemoBusy } from './features/busy'
 import { DemoButton } from './features/button'
 import { DemoCard } from './features/card'
@@ -56,6 +57,10 @@ export class DemoNav extends $LitElement(css`
 				this.activeTab = r.component?.toLowerCase().replaceAll('-', '')
 			})
 		NavContext.replace([
+			{
+				name: 'Badges',
+				component: DemoBadges,
+			},
 			{
 				name: 'Table',
 				component: TableDemo,

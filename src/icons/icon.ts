@@ -4,7 +4,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 
 /**
  * @element schmancy-icon
-
+ * Material Symbols icon component with configurable size
  */
 @customElement('schmancy-icon')
 export default class SchmancyIcon extends $LitElement(css`
@@ -28,12 +28,19 @@ export default class SchmancyIcon extends $LitElement(css`
 	}
 	:host {
 		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 `) {
+	/**
+	 * Icon size - can be specified in any CSS unit (px, rem, em, etc.)
+	 * Default is 24px
+	 */
 	@property({ type: String, reflect: true })
 	size: string = '24px'
 
 	@state() busy = false
+
 	connectedCallback(): void {
 		super.connectedCallback()
 		if (!document.head.querySelector('#material-icons')) {
@@ -48,14 +55,23 @@ export default class SchmancyIcon extends $LitElement(css`
 			this.busy = false
 		}
 	}
+
 	protected render(): unknown {
+		// Ensure size is respected and properly applied
 		const style = {
 			fontSize: this.size,
-			maxWidth: this.size,
-			overflow: 'hidden',
+			width: this.size,
+			height: this.size,
+			lineHeight: '1',
+			display: 'flex',
+			alignItems: 'center',
+			justifyContent: 'center',
 		}
+
 		return html`
-			<span class="material-symbols-outlined" style=${this.styleMap(style)}> <slot .hidden=${this.busy}></slot> </span>
+			<span class="material-symbols-outlined" style=${this.styleMap(style)}>
+				<slot .hidden=${this.busy}></slot>
+			</span>
 		`
 	}
 }
