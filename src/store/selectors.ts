@@ -1,6 +1,6 @@
 // src/store/selectors.ts
 import { BehaviorSubject, Observable, combineLatest, distinctUntilChanged, map, share, shareReplay } from 'rxjs'
-import { ICollectionStore, IStore } from './types'
+import { ICollectionStore, IStore, StoreError } from './types'
 
 /**
  * Deep equality comparison for maps and complex objects
@@ -88,50 +88,6 @@ export function createItemSelector<T>(store: ICollectionStore<T>, itemKey: strin
 	return createCollectionSelector(store, collection => collection.get(itemKey))
 }
 
-export function createCompoundSelector<R>(
-	stores: Array<IStore<any> | ICollectionStore<any>>,
-	selectorFns: Array<(state: any) => any>,
-	combinerFn: (...values: any[]) => R,
-): Partial<IStore<R>> {
-	// Create observables for each store
-	const observables = stores.map((store, index) => {
-		const selectorFn = selectorFns[index]
-
-		// Check if it's a collection store
-		if ('set' in store && typeof store.set === 'function' && store.value instanceof Map) {
-			return createCollectionSelector(store as ICollectionStore<any>, selectorFn)
-		} else {
-			return createSelector(store as IStore<any>, selectorFn)
-		}
-	})
-
-	// Combine the observables
-	const observable = combineLatest(observables).pipe(
-		map(values => combinerFn(...values)),
-		distinctUntilChanged(deepEqual),
-		shareReplay(1),
-	)
-
-	// Compute initial value from source stores
-	const initialValues = stores.map((store, index) => selectorFns[index](store.value))
-
-	const initialValue = combinerFn(...initialValues)
-
-	// Create BehaviorSubject with initial value
-	const behaviorSubject = new BehaviorSubject<R>(initialValue)
-
-	// Subscribe to updates
-	observable.subscribe(value => behaviorSubject.next(value as R))
-
-	// Return minimal store-compatible object
-	return {
-		$: behaviorSubject,
-		get value() {
-			return behaviorSubject.getValue()
-		},
-		ready: true,
-	}
-}
 /**
  * Creates a selector that returns all keys from a collection
  */
@@ -238,4 +194,96 @@ export function createOptimizedSelector<T, R>(store: IStore<T>, selectorFn: (sta
 			resetOnComplete: false,
 		}),
 	)
+}
+
+/**
+ * Creates a compound selector from multiple stores
+ *
+ * This function combines data from multiple stores to create a derived
+ * state that's compatible with the @select decorator.
+ *
+ * @param stores Array of stores to derive state from
+ * @param selectorFns Selector functions for each store
+ * @param combinerFn Function that combines the selected values
+ * @returns A store-compatible object to use with @select
+ */
+export function createCompoundSelector<R>(
+	stores: Array<IStore<any> | ICollectionStore<any>>,
+	selectorFns: Array<(state: any) => any>,
+	combinerFn: (...values: any[]) => R,
+): IStore<R> {
+	// Calculate initial value
+	const initialValues = stores.map((store, index) => selectorFns[index](store.value))
+	const initialValue = combinerFn(...initialValues)
+
+	// Create a store with the initial value
+	const result: IStore<R> = {
+		$: new BehaviorSubject<R>(initialValue),
+		error$: new BehaviorSubject<StoreError | null>(null),
+		ready: true,
+		defaultValue: initialValue,
+
+		get value(): R {
+			return this.$.getValue()
+		},
+
+		// These methods are no-ops for read-only stores
+		set(_value: Partial<R>, _merge?: boolean): void {
+			console.warn('Compound selector store is read-only')
+		},
+
+		clear(): void {
+			this.$.next(this.defaultValue)
+		},
+
+		replace(_newValue: R): void {
+			console.warn('Compound selector store is read-only')
+		},
+
+		delete<K extends keyof R>(_key: K): void {
+			console.warn('Compound selector store is read-only')
+		},
+
+		destroy(): void {
+			this.$.complete()
+			this.error$.complete()
+		},
+	}
+
+	// Set up the reactivity by subscribing to all source stores
+	const observables = stores.map((store, _) => store.$)
+
+	// Create a subscription that updates the result whenever any source changes
+	const subscription = combineLatest(observables).subscribe({
+		next: storeValues => {
+			try {
+				// Apply selectors to each store value
+				const selectedValues = storeValues.map((value, index) => selectorFns[index](value))
+
+				// Apply combiner function
+				const newValue = combinerFn(...selectedValues)
+
+				// Update the BehaviorSubject
+				result.$.next(newValue)
+			} catch (err) {
+				const error = new StoreError('Error in compound selector', err)
+				result.error$.next(error)
+				console.error(error)
+			}
+		},
+		error: err => {
+			const error = new StoreError('Error in store subscription', err)
+			result.error$.next(error)
+			console.error(error)
+		},
+	})
+
+	// Ensure the subscription is cleaned up when the store is destroyed
+	const originalDestroy = result.destroy
+	result.destroy = function () {
+		subscription.unsubscribe()
+		originalDestroy.call(this)
+	}
+
+	return result
 }
