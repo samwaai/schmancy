@@ -1,6 +1,6 @@
 // src/store/selectors.ts
-import { Observable, combineLatest, distinctUntilChanged, map, share, shareReplay } from 'rxjs'
-import { IStore, ICollectionStore } from './types'
+import { BehaviorSubject, Observable, combineLatest, distinctUntilChanged, map, share, shareReplay } from 'rxjs'
+import { ICollectionStore, IStore } from './types'
 
 /**
  * Deep equality comparison for maps and complex objects
@@ -88,24 +88,50 @@ export function createItemSelector<T>(store: ICollectionStore<T>, itemKey: strin
 	return createCollectionSelector(store, collection => collection.get(itemKey))
 }
 
-/**
- * Creates a compound selector that depends on multiple other selectors
- *
- * @param selectors Array of source selectors
- * @param combinerFn Function that combines all selector results
- * @returns An observable of the combined result
- */
-export function createCompoundSelector<T extends unknown[], R>(
-	selectors: { [K in keyof T]: Observable<T[K]> },
-	combinerFn: (...values: T) => R,
-): Observable<R> {
-	return combineLatest(selectors).pipe(
-		map(values => combinerFn(...(values as T))),
-		distinctUntilChanged<R>(deepEqual),
+export function createCompoundSelector<R>(
+	stores: Array<IStore<any> | ICollectionStore<any>>,
+	selectorFns: Array<(state: any) => any>,
+	combinerFn: (...values: any[]) => R,
+): Partial<IStore<R>> {
+	// Create observables for each store
+	const observables = stores.map((store, index) => {
+		const selectorFn = selectorFns[index]
+
+		// Check if it's a collection store
+		if ('set' in store && typeof store.set === 'function' && store.value instanceof Map) {
+			return createCollectionSelector(store as ICollectionStore<any>, selectorFn)
+		} else {
+			return createSelector(store as IStore<any>, selectorFn)
+		}
+	})
+
+	// Combine the observables
+	const observable = combineLatest(observables).pipe(
+		map(values => combinerFn(...values)),
+		distinctUntilChanged(deepEqual),
 		shareReplay(1),
 	)
-}
 
+	// Compute initial value from source stores
+	const initialValues = stores.map((store, index) => selectorFns[index](store.value))
+
+	const initialValue = combinerFn(...initialValues)
+
+	// Create BehaviorSubject with initial value
+	const behaviorSubject = new BehaviorSubject<R>(initialValue)
+
+	// Subscribe to updates
+	observable.subscribe(value => behaviorSubject.next(value as R))
+
+	// Return minimal store-compatible object
+	return {
+		$: behaviorSubject,
+		get value() {
+			return behaviorSubject.getValue()
+		},
+		ready: true,
+	}
+}
 /**
  * Creates a selector that returns all keys from a collection
  */
