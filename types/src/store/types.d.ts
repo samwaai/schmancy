@@ -1,5 +1,5 @@
 import { Draft } from 'immer';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 /**
  * Storage types supported by the store
  */
@@ -46,7 +46,7 @@ export interface IStore<T extends Record<string, any>> {
     /** Whether the store is ready (loaded from storage) */
     ready: boolean;
     /** Observable stream of store errors */
-    readonly error$: Observable<StoreError | null>;
+    readonly error$: Subject<StoreError | null>;
     /**
      * Update store value with partial data
      * @param value Partial data to update

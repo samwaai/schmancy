@@ -31,7 +31,6 @@ export declare function createItemsSelector<T>(store: ICollectionStore<T>): Obse
  * @returns An observable of the selected item that emits when the item changes
  */
 export declare function createItemSelector<T>(store: ICollectionStore<T>, itemKey: string): Observable<T | undefined>;
-export declare function createCompoundSelector<R>(stores: Array<IStore<any> | ICollectionStore<any>>, selectorFns: Array<(state: any) => any>, combinerFn: (...values: any[]) => R): Partial<IStore<R>>;
 /**
  * Creates a selector that returns all keys from a collection
  */
@@ -77,3 +76,15 @@ export declare function createCountSelector<T>(store: ICollectionStore<T>, filte
  * @returns An observable of the selected state with improved memory management
  */
 export declare function createOptimizedSelector<T, R>(store: IStore<T>, selectorFn: (state: T) => R): Observable<R>;
+/**
+ * Creates a compound selector from multiple stores
+ *
+ * This function combines data from multiple stores to create a derived
+ * state that's compatible with the @select decorator.
+ *
+ * @param stores Array of stores to derive state from
+ * @param selectorFns Selector functions for each store
+ * @param combinerFn Function that combines the selected values
+ * @returns A store-compatible object to use with @select
+ */
+export declare function createCompoundSelector<R>(stores: Array<IStore<any> | ICollectionStore<any>>, selectorFns: Array<(state: any) => any>, combinerFn: (...values: any[]) => R): IStore<R>;
