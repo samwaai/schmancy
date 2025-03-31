@@ -1,5 +1,5 @@
 import { InputSize } from '@schmancy/input';
-import SchmancyInput from '@schmancy/input/input';
+import SchmancyInputV2 from '@schmancy/input/input-v2';
 /**
  * @fires change - When selection changes
  */
@@ -34,7 +34,7 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     private _suppressFocusOpen;
     private _debounceTimer;
     _listbox: HTMLUListElement;
-    _input: SchmancyInput;
+    _input: SchmancyInputV2;
     private _options;
     private _inputElementRef;
     private _documentClickHandler;
@@ -54,6 +54,10 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
      * Update options' selection state based on component value
      */
     private _syncOptionsSelection;
+    /**
+     * Show all options without filtering
+     */
+    private _showAllOptions;
     /**
      * Filter options based on input text - this operation can be expensive
      * with many options or complex filtering logic
@@ -85,7 +89,7 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
      */
     private _onInputChange;
     /**
-     * Show the dropdown with filtered options
+     * Show the dropdown with all options visible initially
      */
     private _showDropdown;
     /**
