@@ -630,7 +630,7 @@ export class SchmancySelect extends $LitElement(css`
 					role="listbox"
 					aria-multiselectable=${this.multi}
 					class=${classMap({
-						'absolute z-20 mt-1 rounded-md shadow-lg': true,
+						'absolute min-w-full w-full z-20 mt-1 rounded-md shadow-lg': true,
 						hidden: !this.isOpen,
 					})}
 					${color({

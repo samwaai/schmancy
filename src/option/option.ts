@@ -99,7 +99,6 @@ export default class SchmancyOption extends TailwindElement(css`
 	private handleClick(e: Event) {
 		e.stopPropagation()
 		if (this.disabled) return
-
 		// Dispatch a custom event with this option's value
 		this.dispatchEvent(
 			new CustomEvent('option-select', {
