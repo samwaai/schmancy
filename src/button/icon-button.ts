@@ -1,10 +1,10 @@
 import { $LitElement } from '@mixins/index'
 import { css, html, LitElement, PropertyValueMap } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
 import { ButtonVariant } from './button'
-import { classMap } from 'lit/directives/class-map.js'
 
 /**
  * An icon button component.
@@ -119,7 +119,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 	render() {
 		// Compute classes for the interactive element.
 		const classes = {
-			'z-10 h-full transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden':
+			'z-0 h-full transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden':
 				true,
 			'opacity-[0.38]': this.disabled,
 			'cursor-pointer': !this.disabled,

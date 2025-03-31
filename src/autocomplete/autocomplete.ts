@@ -1,11 +1,11 @@
 import { $LitElement } from '@mixins/index'
 import { InputSize } from '@schmancy/input'
-import SchmancyInput from '@schmancy/input/input'
+import SchmancyInputV2 from '@schmancy/input/input-v2'
 import SchmancyOption from '@schmancy/option/option'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
-import { createRef, ref } from 'lit/directives/ref.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { createRef, ref } from 'lit/directives/ref.js'
 import style from './autocomplete.scss?inline'
 
 /**
@@ -76,7 +76,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
 	// DOM references
 	@query('#options') _listbox!: HTMLUListElement
-	@query('sch-input') _input!: SchmancyInput
+	@query('sch-input') _input!: SchmancyInputV2
 	@queryAssignedElements({ flatten: true }) private _options!: SchmancyOption[]
 	private _inputElementRef = createRef<HTMLInputElement>()
 
@@ -189,6 +189,25 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	}
 
 	/**
+	 * Show all options without filtering
+	 */
+	private _showAllOptions() {
+		this._options.forEach(option => {
+			option.hidden = false
+		})
+
+		// Update "No results" visibility - always hidden when showing all
+		const emptyMessage = this.shadowRoot?.querySelector('#empty')
+		if (emptyMessage) {
+			emptyMessage.toggleAttribute('hidden', true)
+		}
+
+		// Announce to screen readers
+		const totalCount = this._options.length
+		this._announceToScreenReader(`${totalCount} option${totalCount === 1 ? '' : 's'} available.`)
+	}
+
+	/**
 	 * Filter options based on input text - this operation can be expensive
 	 * with many options or complex filtering logic
 	 */
@@ -196,17 +215,17 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		console.time('filter-options')
 		const searchTerm = this._inputValue.toLowerCase().trim()
 
+		// If no search term, show all options instead of filtering
+		if (!searchTerm) {
+			this._showAllOptions()
+			console.timeEnd('filter-options')
+			return
+		}
+
 		// Track if we have any matches
 		let hasMatches = false
 
 		this._options.forEach(option => {
-			// Always show all options if search is empty
-			if (!searchTerm) {
-				option.hidden = false
-				hasMatches = true
-				return
-			}
-
 			// Simple substring matching
 			const text = (option.label || option.textContent || '').toLowerCase()
 			const isMatch = text.includes(searchTerm)
@@ -329,13 +348,15 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	}
 
 	/**
-	 * Show the dropdown with filtered options
+	 * Show the dropdown with all options visible initially
 	 */
 	private _showDropdown() {
 		if (this._open) return
 
 		this._open = true
-		this._filterOptions()
+
+		// Initially show all options instead of filtering
+		this._showAllOptions()
 
 		// Add document click handler after a brief delay
 		// to avoid immediate closing on the same click event
@@ -382,7 +403,12 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 			option.setAttribute('aria-selected', String(option.selected))
 
 			// Keep dropdown open in multi-select
-			this._filterOptions()
+			// Show all options if input is empty
+			if (this._inputValue.trim() === '') {
+				this._showAllOptions()
+			} else {
+				this._filterOptions()
+			}
 
 			// Announce selection to screen readers
 			const selectedLabels = this._getSelectedLabels()
@@ -626,12 +652,14 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 					id="options"
 					class=${classMap({
 						absolute: true,
-						'z-30': true,
+						'z-[1000]': true,
 						'mt-1': true,
 						'w-full': true,
 						'rounded-md': true,
 						'shadow-sm': true,
 						'overflow-auto': true,
+						'min-w-full': true,
+						'bg-surface-container': true,
 					})}
 					role="listbox"
 					aria-multiselectable=${this.multi ? 'true' : 'false'}
@@ -640,19 +668,14 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 					style="
             max-height: ${this.maxHeight}; 
             display: ${this._open ? 'block' : 'none'};
-            background-color: transparent;
           "
 					@slotchange=${() => {
 						this._setupOptionsAccessibility()
 						this._syncOptionsSelection()
-						this._filterOptions()
+						// Show all options when slot content changes, don't filter yet
+						this._showAllOptions()
 					}}
 				>
-					<!-- "No results" message -->
-					<li id="empty" tabindex="-1" role="option" aria-disabled="true" class="p-2 text-center" hidden>
-						<schmancy-typography type="label">No results found</schmancy-typography>
-					</li>
-
 					<!-- Options slot -->
 					<slot></slot>
 				</ul>
