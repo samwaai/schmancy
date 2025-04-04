@@ -609,7 +609,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 		const descriptionId = `${this.id}-desc`
 
 		return html`
-			<div class="schmancy-autocomplete relative z-10">
+			<div class="schmancy-autocomplete relative">
 				<!-- Screen reader live region -->
 				<div id="live-status" role="status" aria-live="polite" class="sr-only"></div>
 
@@ -656,10 +656,10 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 						'mt-1': true,
 						'w-full': true,
 						'rounded-md': true,
-						'shadow-sm': true,
+						'shadow-md': true,
 						'overflow-auto': true,
 						'min-w-full': true,
-						'bg-surface-container': true,
+						'bg-surface-low': true,
 					})}
 					role="listbox"
 					aria-multiselectable=${this.multi ? 'true' : 'false'}

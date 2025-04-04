@@ -634,7 +634,7 @@ export class SchmancySelect extends $LitElement(css`
 						hidden: !this.isOpen,
 					})}
 					${color({
-						bgColor: SchmancyTheme.sys.color.surface.container,
+						bgColor: SchmancyTheme.sys.color.surface.low,
 						color: SchmancyTheme.sys.color.surface.on,
 					})}
 				>
