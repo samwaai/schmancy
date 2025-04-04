@@ -48,8 +48,8 @@
 	--shadow-xl: var(--schmancy-sys-elevation-4);
 	--shadow-2xl: var(--schmancy-sys-elevation-5);
 	--outline-1: var(--schmancy-sys-outline-1);
-	--font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-		'Noto Color Emoji';
+	--font-sans:
+		ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 	--font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 	--color-red-50: oklch(0.971 0.013 17.38);
@@ -437,7 +437,6 @@
 	--md-sys-color-scrim: var(--schmancy-sys-color-scrim);
 	--md-sys-color-outline: var(--schmancy-sys-color-outline);
 	--md-sys-color-outlineVariant: var(--schmancy-sys-color-outlineVariant);
-
 	/* Surface Colors */
 	--md-sys-color-surface-default: var(--schmancy-sys-color-surface-default);
 	--md-sys-color-surface-dim: var(--schmancy-sys-color-surface-dim);
@@ -490,4 +489,7 @@
 
 	/* Outline */
 	--md-sys-outline-1: var(--schmancy-sys-outline-1);
+
+	/* Chips */
+	--md-filter-chip-label-text-color: var(--schmancy-sys-color-surface-on);
 }
