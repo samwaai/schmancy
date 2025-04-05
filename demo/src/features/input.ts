@@ -46,6 +46,12 @@ export class DemoInput extends $LitElement(css`
 		const v = undefined
 		return html`
 			<schmancy-surface type="container" fill="all" rounded="left">
+				<schmancy-tooltip>
+					<div slot="content" class="p-2 max-w-xs">
+						<p>Verification requires all items to match exactly and the invoice total to equal the order total.</p>
+					</div>
+					<schmancy-icon-button><schmancy-icon>help_outline</schmancy-icon></schmancy-icon-button>
+				</schmancy-tooltip>
 				<schmancy-scroll hide>
 					<schmancy-chips wrap="nowrap">
 						${repeat(
@@ -56,17 +62,7 @@ export class DemoInput extends $LitElement(css`
 							}),
 							a => a,
 							(a, i) => html`
-								<schmancy-chip
-									.value=${a}
-									.selected=${i === 0}
-									label=${a}
-									@click=${() => {
-										// Update selected date
-										const date = dayjs().add(i, 'days')
-									}}
-								>
-									${a}
-								</schmancy-chip>
+								<schmancy-chip .value=${a} .selected=${i === 0} label=${a} @click=${() => {}}> ${a} </schmancy-chip>
 							`,
 						)}
 					</schmancy-chips>
