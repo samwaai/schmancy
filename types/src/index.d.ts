@@ -37,6 +37,7 @@ export * from './teleport';
 export * from './textarea';
 export * from './theme';
 export * from './theme-button';
+export * from './tooltip';
 export * from './tree';
 export * from './types';
 export * from './typewriter';
