@@ -5,10 +5,16 @@
 export interface SchmancyScrollEvent extends CustomEvent<{
     /** Current scroll position from the top */
     scrollTop: number;
+    /** Current scroll position from the left */
+    scrollLeft: number;
     /** Total scrollable height of the content */
     scrollHeight: number;
+    /** Total scrollable width of the content */
+    scrollWidth: number;
     /** Visible height of the container */
     clientHeight: number;
+    /** Visible width of the container */
+    clientWidth: number;
     /** Original scroll event */
     e: Event;
 }> {
@@ -21,8 +27,10 @@ export interface SchmancyScrollCommandEvent extends CustomEvent<{
     name: string;
     /** Command action to perform */
     action: 'scrollTo';
-    /** Scroll position for scrollTo action */
-    top: number;
+    /** Vertical scroll position for scrollTo action (optional) */
+    top?: number;
+    /** Horizontal scroll position for scrollTo action (optional) */
+    left?: number;
 }> {
 }
 declare global {
@@ -38,11 +46,13 @@ declare const SchmancyScroll_base: import("@mixins/index").Constructor<CustomEle
  * @fires {SchmancyScrollEvent} scroll - Fired when scrolling occurs (with a configurable debounce)
  * @slot - Default slot for content to be scrolled
  * @csspart scroller - The inner scrollable div element
+ * @csspart content - The content wrapper with padding
  *
  * @example
  * ```html
- * <schmancy-scroll hide name="main-content">
- *   <div>Scrollable content goes here</div>
+ * <!-- For horizontal scrolling with padding -->
+ * <schmancy-scroll hide name="main-content" scroll-padding-start="24" scroll-padding-end="24">
+ *   <div style="width: 1200px">Horizontally scrollable content goes here</div>
  * </schmancy-scroll>
  * ```
  */
@@ -66,10 +76,31 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
      */
     name?: string;
     /**
+     * Amount of padding at the start (top) of the scrollable area in pixels.
+     * Creates space between the top of the viewport and the content.
+     *
+     * @attr scroll-padding-start
+     * @example <schmancy-scroll scroll-padding-start="24"></schmancy-scroll>
+     */
+    scrollPaddingStart: number;
+    /**
+     * Amount of padding at the end (bottom) of the scrollable area in pixels.
+     * Creates space between the bottom of the viewport and the content.
+     *
+     * @attr scroll-padding-end
+     * @example <schmancy-scroll scroll-padding-end="24"></schmancy-scroll>
+     */
+    scrollPaddingEnd: number;
+    /**
      * Reference to the inner scrollable div element
      * @public
      */
     scroller: HTMLElement;
+    /**
+     * Reference to the content wrapper div element
+     * @public
+     */
+    contentWrapper: HTMLElement;
     /**
      * Debounce time in milliseconds for the scroll event.
      * Higher values reduce the frequency of scroll events being dispatched.
@@ -79,13 +110,27 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
      */
     debounce: number;
     /**
-     * Scrolls the container to the specified position
-     * @param top - The vertical position to scroll to (in pixels)
+     * Scrolls the container to the specified position, accounting for scroll padding
+     * @param options - ScrollToOptions, a number for the horizontal position (legacy API support),
+     *                  or undefined to scroll to beginning
+     * @param top - Optional top value when first parameter is a number (legacy API support)
      */
     scrollTo(options?: ScrollToOptions | number, top?: number): void;
     /**
+     * Called when component properties change
+     * Updates the padding styles when padding properties change
+     * @protected
+     */
+    protected updated(changedProperties: Map<string, unknown>): void;
+    /**
+     * Updates the content wrapper's padding and applies scroll-padding CSS properties
+     * to the scroller element
+     * @private
+     */
+    private updatePaddingStyles;
+    /**
      * Called after the component's first update
-     * Sets up the scroll event listener with debouncing
+     * Sets up the scroll event listener with debouncing and applies initial styles
      * @protected
      */
     protected firstUpdated(): void;
