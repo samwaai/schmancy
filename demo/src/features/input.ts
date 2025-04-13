@@ -52,7 +52,7 @@ export class DemoInput extends $LitElement(css`
 					</div>
 					<schmancy-icon-button><schmancy-icon>help_outline</schmancy-icon></schmancy-icon-button>
 				</schmancy-tooltip>
-				<schmancy-scroll hide>
+				<schmancy-scroll scroll-padding-end="24" hide>
 					<schmancy-chips wrap="nowrap">
 						${repeat(
 							Array.from({ length: 14 }, (_, i) => {
