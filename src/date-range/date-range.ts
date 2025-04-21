@@ -216,6 +216,13 @@ export default class SchmancyDateRange extends $LitElement() {
 		event.stopPropagation() // Prevent click from bubbling to the schmancy-button
 		this.setDateRange(this.dateFrom.value, this.dateTo.value)
 		this.updateSelectedDateRange()
+		// Close the menu
+		this.schmancyMenu.dispatchEvent(
+			new CustomEvent('schmancy-menu-item-click', {
+				bubbles: true,
+				composed: true,
+			}),
+		)
 	}
 
 	render() {

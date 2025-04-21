@@ -167,7 +167,7 @@ export class DemoInput extends $LitElement(css`
 					<schmancy-input step="0.01" type="number" label="Input number" placeholder="placeholder"></schmancy-input>
 
 					<schmancy-date-range
-						type="datetime-local"
+						type="date"
 						.dateFrom=${{
 							label: 'Check-in',
 							value: dayjs().startOf('day').format('YYYY-MM-DDTHH:mm'),
