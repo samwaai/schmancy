@@ -1,10 +1,16 @@
-import SchmancyMenu from '@schmancy/menu/menu';
-import dayjs from 'dayjs';
+import { PropertyValues } from 'lit';
+export type SchmancyDateRangeChangeEvent = CustomEvent<{
+    dateFrom: string;
+    dateTo: string;
+}>;
 declare const SchmancyDateRange_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A date range selector that supports presets and manual date input.
+ *
+ * @element schmancy-date-range
+ * @fires change - Fired when the date range changes with dateFrom and dateTo values
  */
-export default class SchmancyDateRange extends SchmancyDateRange_base {
+export declare class SchmancyDateRange extends SchmancyDateRange_base {
     type: 'date' | 'datetime-local';
     dateFrom: {
         label: string;
@@ -16,65 +22,52 @@ export default class SchmancyDateRange extends SchmancyDateRange_base {
     };
     minDate?: string;
     maxDate?: string;
-    checkInInput: HTMLInputElement;
-    checkOutInput: HTMLInputElement;
-    schmancyMenu: SchmancyMenu;
-    selectedDateRange: string;
-    presetRanges: Array<{
+    customPresets: Array<{
         label: string;
-        range: {
-            dateFrom: string;
-            dateTo: string;
-        };
-        step: dayjs.OpUnitType;
+        dateFrom: string;
+        dateTo: string;
     }>;
+    format?: string;
+    disabled: boolean;
+    required: boolean;
+    placeholder: string;
+    clearable: boolean;
+    private isOpen;
+    private selectedDateRange;
+    private activePreset;
+    private presetRanges;
+    private triggerRef;
+    private dropdownRef;
+    private cleanupPositioner?;
     connectedCallback(): void;
-    /**
-     * Update the internal date range and fire a 'change' event to notify external code.
-     */
-    private setDateRange;
-    updated(changedProps: Map<string, unknown>): void;
-    /**
-     * Format strings for the internal <input> and for display text.
-     */
-    private getDateFormat;
-    private getDisplayFormat;
-    /**
-     * Build up a list of preset ranges (yesterday, today, etc.).
-     */
+    private setupEventHandlers;
+    disconnectedCallback(): void;
+    updated(changedProps: PropertyValues): void;
+    private setupDropdownPosition;
     private initPresetRanges;
+    private getDateFormat;
     /**
-     * Based on the current dateFrom/dateTo, see if it matches a preset.
-     * Otherwise display a "Custom" range: "Jan 01, 2023 - Jan 07, 2023".
+     * Creates a concise display format for the selected date range
      */
     private updateSelectedDateRange;
-    private handlePresetChange;
+    private setDateRange;
+    private handlePresetSelection;
+    private handleClearSelection;
+    private toggleDropdown;
+    private openDropdown;
+    private closeDropdown;
     /**
-     * Shift the current date range forward or backward by the same number of days.
-     * If the range is 7 days wide, shift 7 days, etc.
+     * Shifts the date range based on its type (preset or custom)
+     * Improved to respect the unit (day, week, month) of presets
+     * For custom ranges, it shifts by the exact range duration
      */
     private shiftDateRange;
     /**
-     * Applies the date range from the inputs.
-     * Closes the menu when done.
+     * Checks if the current date range matches any predefined preset,
+     * and updates the activePreset accordingly
      */
-    private handleDateRangeChange;
+    private checkAndUpdateActivePreset;
+    private applyManualDateSelection;
     render(): import("lit-html").TemplateResult<1>;
-}
-/**
- * The payload for a date range change event.
- */
-export type TSchmancDateRangePayload = {
-    dateFrom?: string;
-    dateTo?: string;
-};
-/**
- * A custom event fired when the date range is updated.
- */
-export type SchmancyDateRangeChangeEvent = CustomEvent<TSchmancDateRangePayload>;
-declare global {
-    interface HTMLElementTagNameMap {
-        'schmancy-date-range': SchmancyDateRange;
-    }
 }
 export {};
