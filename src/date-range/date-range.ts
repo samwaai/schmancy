@@ -1,51 +1,69 @@
+import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
-import { SchmancyInputChangeEvent } from '@schmancy/input'
-import SchmancyMenu from '@schmancy/menu/menu'
 import dayjs from 'dayjs'
-import { html } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
-import { validateInitialDateRange } from './date-utils' // Import the utility
+import { fromEvent, takeUntil } from 'rxjs'
+import { validateInitialDateRange } from './date-utils'
 
-type DateFormat = 'YYYY-MM-DD' | 'YYYY-MM-DDTHH:mm'
+export type SchmancyDateRangeChangeEvent = CustomEvent<{
+	dateFrom: string
+	dateTo: string
+}>
 
 /**
  * A date range selector that supports presets and manual date input.
+ *
+ * @element schmancy-date-range
+ * @fires change - Fired when the date range changes with dateFrom and dateTo values
  */
 @customElement('schmancy-date-range')
-export default class SchmancyDateRange extends $LitElement() {
-	// Either "date" or "datetime-local"
+export class SchmancyDateRange extends $LitElement() {
+	// Core properties
 	@property({ type: String }) type: 'date' | 'datetime-local' = 'date'
-
-	@property({ type: Object }) dateFrom!: { label: string; value: string }
-	@property({ type: Object }) dateTo!: { label: string; value: string }
-
-	// Optional min/max constraints
+	@property({ type: Object }) dateFrom: { label: string; value: string } = { label: 'From', value: '' }
+	@property({ type: Object }) dateTo: { label: string; value: string } = { label: 'To', value: '' }
 	@property({ type: String }) minDate?: string
 	@property({ type: String }) maxDate?: string
 
-	@query('#checkin') checkInInput!: HTMLInputElement
-	@query('#checkout') checkOutInput!: HTMLInputElement
+	// Enhanced functionality
+	@property({ type: Array }) customPresets: Array<{
+		label: string
+		dateFrom: string
+		dateTo: string
+	}> = []
+	@property({ type: String }) format?: string
+	@property({ type: Boolean }) disabled = false
+	@property({ type: Boolean }) required = false
+	@property({ type: String }) placeholder = 'Select date range'
+	@property({ type: Boolean }) clearable = true
 
-	// The <schmancy-menu> that displays presets + manual date inputs
-	@query('schmancy-menu') schmancyMenu!: SchmancyMenu
+	// Internal states
+	@state() private isOpen = false
+	@state() private selectedDateRange: string = ''
+	@state() private activePreset: string | null = null
 
-	// Display text in the trigger button
-	@state() selectedDateRange: string = 'Today'
-
-	// Preset date range definitions
-	presetRanges!: Array<{
+	// Default presets
+	private presetRanges: Array<{
 		label: string
 		range: { dateFrom: string; dateTo: string }
 		step: dayjs.OpUnitType
-	}>
+	}> = []
+
+	// DOM references
+	@query('.trigger-container') private triggerRef!: HTMLElement
+	@query('.dropdown') private dropdownRef!: HTMLElement
+
+	// Positioning cleanup
+	private cleanupPositioner?: () => void
 
 	connectedCallback(): void {
 		super.connectedCallback()
 		this.initPresetRanges()
 
-		// Validate and format initial date range
-		const dateFormat = this.getDateFormat() as DateFormat
+		// Validate initial date range
+		const dateFormat = this.getDateFormat() as 'YYYY-MM-DD' | 'YYYY-MM-DDTHH:mm'
 		const validatedRange = validateInitialDateRange(this.dateFrom.value, this.dateTo.value, dateFormat)
 
 		if (validatedRange.isValid) {
@@ -53,61 +71,89 @@ export default class SchmancyDateRange extends $LitElement() {
 			this.dateTo.value = validatedRange.dateTo!
 			this.updateSelectedDateRange()
 		} else {
-			console.error('Invalid initial date range.  Falling back to default.')
-			// Handle invalid initial dates (e.g., set to default values, display an error)
 			const now = dayjs().format(dateFormat)
 			this.dateFrom.value = now
 			this.dateTo.value = now
-		}
-	}
-	/**
-	 * Update the internal date range and fire a 'change' event to notify external code.
-	 */
-	private setDateRange(fromDate: string, toDate: string) {
-		this.dateFrom.value = fromDate
-		this.dateTo.value = toDate
-
-		this.dispatchEvent(
-			new CustomEvent<TSchmancDateRangePayload>('change', {
-				detail: { dateFrom: fromDate, dateTo: toDate },
-				bubbles: true,
-				composed: true, // If you want it to pass shadow boundaries
-			}),
-		)
-		this.requestUpdate()
-	}
-	updated(changedProps: Map<string, unknown>) {
-		if (changedProps.has('type')) {
-			// Re-init presets if "type" changes from date -> datetime
-			this.initPresetRanges()
 			this.updateSelectedDateRange()
 		}
+
+		// Set up global event handlers using RxJS
+		this.setupEventHandlers()
 	}
 
-	/**
-	 * Format strings for the internal <input> and for display text.
-	 */
-	private getDateFormat(): string {
-		return this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm'
-	}
-	private getDisplayFormat(): string {
-		return this.type === 'date' ? 'MMM DD, YYYY' : 'MMM DD, YYYY hh:mm A'
+	private setupEventHandlers() {
+		// Close dropdown when clicking outside
+		fromEvent<MouseEvent>(document, 'click')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(event => {
+				if (
+					this.isOpen &&
+					event.target instanceof Node &&
+					!this.contains(event.target) &&
+					(!this.dropdownRef || !this.dropdownRef.contains(event.target as Node))
+				) {
+					this.closeDropdown()
+				}
+			})
+
+		// Handle keyboard navigation
+		fromEvent<KeyboardEvent>(document, 'keydown')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(event => {
+				if (!this.isOpen) return
+
+				if (event.key === 'Escape') {
+					this.closeDropdown()
+					event.preventDefault()
+				}
+			})
 	}
 
-	/**
-	 * Build up a list of preset ranges (yesterday, today, etc.).
-	 */
+	disconnectedCallback(): void {
+		super.disconnectedCallback()
+		this.cleanupPositioner?.()
+	}
+
+	updated(changedProps: PropertyValues) {
+		super.updated(changedProps)
+
+		if (
+			(changedProps.has('dateFrom') || changedProps.has('dateTo')) &&
+			(this.dateFrom?.value !== undefined || this.dateTo?.value !== undefined)
+		) {
+			this.updateSelectedDateRange()
+		}
+
+		if (changedProps.has('isOpen')) {
+			if (this.isOpen) {
+				requestAnimationFrame(() => {
+					this.setupDropdownPosition()
+				})
+			} else {
+				this.cleanupPositioner?.()
+			}
+		}
+	}
+
+	private setupDropdownPosition() {
+		if (!this.triggerRef || !this.dropdownRef) return
+
+		this.cleanupPositioner = autoUpdate(this.triggerRef, this.dropdownRef, () => {
+			computePosition(this.triggerRef, this.dropdownRef, {
+				placement: 'bottom-start',
+				middleware: [offset(8), flip(), shift({ padding: 16 })],
+			}).then(({ x, y }) => {
+				Object.assign(this.dropdownRef.style, {
+					left: `${x}px`,
+					top: `${y}px`,
+				})
+			})
+		})
+	}
+
 	private initPresetRanges() {
 		const format = this.getDateFormat()
 		this.presetRanges = [
-			{
-				label: 'Yesterday',
-				range: {
-					dateFrom: dayjs().subtract(1, 'days').startOf('day').format(format),
-					dateTo: dayjs().subtract(1, 'days').endOf('day').format(format),
-				},
-				step: 'day',
-			},
 			{
 				label: 'Today',
 				range: {
@@ -117,10 +163,18 @@ export default class SchmancyDateRange extends $LitElement() {
 				step: 'day',
 			},
 			{
-				label: 'Tomorrow',
+				label: 'Yesterday',
 				range: {
-					dateFrom: dayjs().add(1, 'days').startOf('day').format(format),
-					dateTo: dayjs().add(1, 'days').endOf('day').format(format),
+					dateFrom: dayjs().subtract(1, 'days').startOf('day').format(format),
+					dateTo: dayjs().subtract(1, 'days').endOf('day').format(format),
+				},
+				step: 'day',
+			},
+			{
+				label: 'Last 7 Days',
+				range: {
+					dateFrom: dayjs().subtract(6, 'days').startOf('day').format(format),
+					dateTo: dayjs().endOf('day').format(format),
 				},
 				step: 'day',
 			},
@@ -148,202 +202,408 @@ export default class SchmancyDateRange extends $LitElement() {
 				},
 				step: 'month',
 			},
-			// Add more if desired (e.g. "Last Month," "Custom," etc.)
+			{
+				label: 'Last Month',
+				range: {
+					dateFrom: dayjs().subtract(1, 'month').startOf('month').format(format),
+					dateTo: dayjs().subtract(1, 'month').endOf('month').format(format),
+				},
+				step: 'month',
+			},
 		]
+
+		// Add custom presets if provided
+		if (this.customPresets && this.customPresets.length > 0) {
+			this.presetRanges.push(
+				...this.customPresets.map(preset => ({
+					label: preset.label,
+					range: {
+						dateFrom: preset.dateFrom,
+						dateTo: preset.dateTo,
+					},
+					step: 'day' as dayjs.OpUnitType, // Default step
+				})),
+			)
+		}
+	}
+
+	private getDateFormat(): string {
+		return this.format || (this.type === 'date' ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm')
 	}
 
 	/**
-	 * Based on the current dateFrom/dateTo, see if it matches a preset.
-	 * Otherwise display a "Custom" range: "Jan 01, 2023 - Jan 07, 2023".
+	 * Creates a concise display format for the selected date range
 	 */
 	private updateSelectedDateRange() {
+		// Find matching preset
 		const preset = this.presetRanges.find(
 			p => p.range.dateFrom === this.dateFrom.value && p.range.dateTo === this.dateTo.value,
 		)
+
 		if (preset) {
+			// If matches a preset, just use the preset name
 			this.selectedDateRange = preset.label
-		} else {
-			// Construct a custom label
-			const fromMoment = dayjs(this.dateFrom.value)
-			const toMoment = dayjs(this.dateTo.value)
-			console.log(fromMoment.format('HH:mm'), toMoment.format('HH:mm'), fromMoment.format('HH:mm'))
-			if (fromMoment.isSame(toMoment, 'day')) {
-				this.selectedDateRange = fromMoment.format('MMM DD, YYYY')
-				// append the time if fromMoment is not the start of the day and  toMoment is not the end of the day
-				if (fromMoment.format('HH:mm') !== '00:00' || toMoment.format('HH:mm') !== '23:59') {
-					this.selectedDateRange += ` ${fromMoment.format('HH:mm')}:${toMoment.format('HH:mm')}`
-				}
-			} else {
-				const fromStr = fromMoment.format(this.getDisplayFormat())
-				const toStr = toMoment.format(this.getDisplayFormat())
-				this.selectedDateRange = `${fromStr} - ${toStr}`
-			}
+			this.activePreset = preset.label
+			return
 		}
+
+		// If we didn't find a preset match, check if we should update the active preset
+		this.checkAndUpdateActivePreset(this.dateFrom.value, this.dateTo.value)
+
+		// Custom date range - create concise format
+		this.activePreset = null
+
+		if (!this.dateFrom.value || !this.dateTo.value) {
+			this.selectedDateRange = this.placeholder
+			return
+		}
+
+		const fromDate = dayjs(this.dateFrom.value)
+		const toDate = dayjs(this.dateTo.value)
+
+		if (!fromDate.isValid() || !toDate.isValid()) {
+			this.selectedDateRange = this.placeholder
+			return
+		}
+
+		// Format times if needed (for datetime-local)
+		const fromTime = this.type === 'datetime-local' ? fromDate.format(' h:mm A') : ''
+		const toTime = this.type === 'datetime-local' ? toDate.format(' h:mm A') : ''
+
+		// Check if same day
+		if (fromDate.isSame(toDate, 'day')) {
+			this.selectedDateRange = `${fromDate.format('MMM D, YYYY')}${fromTime}`
+			return
+		}
+
+		// Check if same month and year
+		if (fromDate.isSame(toDate, 'month') && fromDate.isSame(toDate, 'year')) {
+			this.selectedDateRange = `${fromDate.format('MMM D')}-${toDate.format('D, YYYY')}${toTime}`
+			return
+		}
+
+		// Check if same year
+		if (fromDate.isSame(toDate, 'year')) {
+			this.selectedDateRange = `${fromDate.format('MMM D')} - ${toDate.format('MMM D, YYYY')}${toTime}`
+			return
+		}
+
+		// Different years
+		this.selectedDateRange = `${fromDate.format('MMM D, YYYY')}${fromTime} - ${toDate.format('MMM D, YYYY')}${toTime}`
 	}
-	private handlePresetChange(label: string) {
-		const preset = this.presetRanges.find(range => range.label === label)
-		if (!preset) return
-		const { dateFrom, dateTo } = preset.range
-		this.setDateRange(dateFrom, dateTo)
-		this.selectedDateRange = label
-	}
 
-	/**
-	 * Shift the current date range forward or backward by the same number of days.
-	 * If the range is 7 days wide, shift 7 days, etc.
-	 */
-	private shiftDateRange(factor: number, event: Event) {
-		event.stopPropagation() // Prevent click from bubbling to the schmancy-button
-
-		const format = this.getDateFormat()
-		const currentDiff = dayjs(this.dateTo.value).diff(dayjs(this.dateFrom.value), 'days') || 1
-		const newDateFrom = dayjs(this.dateFrom.value)
-			.add(factor * currentDiff, 'days')
-			.format(format)
-		const newDateTo = dayjs(this.dateTo.value)
-			.add(factor * currentDiff, 'days')
-			.format(format)
-
-		this.setDateRange(newDateFrom, newDateTo)
+	private setDateRange(dateFrom: string, dateTo: string) {
+		this.dateFrom.value = dateFrom
+		this.dateTo.value = dateTo
 		this.updateSelectedDateRange()
-	}
 
-	/**
-	 * Applies the date range from the inputs.
-	 * Closes the menu when done.
-	 */
-	private handleDateRangeChange(event: Event) {
-		event.stopPropagation() // Prevent click from bubbling to the schmancy-button
-		this.setDateRange(this.dateFrom.value, this.dateTo.value)
-		this.updateSelectedDateRange()
-		// Close the menu
-		this.schmancyMenu.dispatchEvent(
-			new CustomEvent('schmancy-menu-item-click', {
+		this.dispatchEvent(
+			new CustomEvent<{ dateFrom: string; dateTo: string }>('change', {
+				detail: { dateFrom, dateTo },
 				bubbles: true,
 				composed: true,
 			}),
 		)
+
+		// Debug log to help with development
+		// console.log('Date range set:', {
+		//   dateFrom,
+		//   dateTo,
+		//   preset: this.activePreset,
+		//   display: this.selectedDateRange
+		// })
+	}
+
+	private handlePresetSelection(preset: { label: string; range: { dateFrom: string; dateTo: string } }, e: Event) {
+		e.stopPropagation()
+		this.activePreset = preset.label
+		this.setDateRange(preset.range.dateFrom, preset.range.dateTo)
+		this.closeDropdown()
+	}
+
+	private handleClearSelection(e: Event) {
+		e.stopPropagation()
+		const emptyDate = ''
+		this.setDateRange(emptyDate, emptyDate)
+		this.activePreset = null
+		this.selectedDateRange = this.placeholder
+	}
+
+	private toggleDropdown(e: Event) {
+		e.stopPropagation()
+		if (this.disabled) return
+
+		if (this.isOpen) {
+			this.closeDropdown()
+		} else {
+			this.openDropdown()
+		}
+	}
+
+	private openDropdown() {
+		if (this.disabled) return
+		this.isOpen = true
+	}
+
+	private closeDropdown() {
+		this.isOpen = false
+	}
+
+	/**
+	 * Shifts the date range based on its type (preset or custom)
+	 * Improved to respect the unit (day, week, month) of presets
+	 * For custom ranges, it shifts by the exact range duration
+	 */
+	private shiftDateRange(direction: number, e: Event) {
+		e.stopPropagation()
+
+		if (!this.dateFrom.value || !this.dateTo.value) return
+
+		const fromDate = dayjs(this.dateFrom.value)
+		const toDate = dayjs(this.dateTo.value)
+
+		if (!fromDate.isValid() || !toDate.isValid()) return
+
+		const format = this.getDateFormat()
+		let unit: dayjs.ManipulateType = 'day'
+		let amount = 1
+
+		// For preset ranges, use their specific step unit
+		const activePreset = this.presetRanges.find(p => p.label === this.activePreset)
+
+		// Detect if the date range represents a full month or full week
+		const isFullMonth = fromDate.date() === 1 && toDate.isSame(fromDate.endOf('month'), 'day')
+		const isFullWeek = fromDate.day() === 0 && toDate.day() === 6 && toDate.diff(fromDate, 'days') === 6
+
+		if (activePreset) {
+			// Use the preset's specific unit (day, week, month)
+			unit = activePreset.step as dayjs.ManipulateType
+			amount = 1 // For presets, we shift by one unit (e.g. one month, one week)
+		} else {
+			// For custom ranges, calculate the exact range duration in days
+			const rangeDurationInDays = toDate.diff(fromDate, 'day')
+
+			// For longer ranges (>30 days), use months
+			if (rangeDurationInDays >= 30) {
+				unit = 'month'
+				amount = Math.round(rangeDurationInDays / 30)
+			}
+			// For medium ranges (>7 days), use weeks
+			else if (rangeDurationInDays >= 7) {
+				unit = 'week'
+				amount = Math.round(rangeDurationInDays / 7)
+			}
+			// For shorter ranges, use days
+			else {
+				unit = 'day'
+				amount = rangeDurationInDays + 1 // Include both start and end days
+			}
+		}
+
+		// Calculate new dates based on unit type
+		let newFromDate, newToDate
+
+		if (unit === 'month' || isFullMonth) {
+			// For month-based shifting, always work with full months
+			if (direction > 0) {
+				newFromDate = fromDate.add(amount, 'month').startOf('month')
+				newToDate = newFromDate.endOf('month')
+			} else {
+				newFromDate = fromDate.subtract(amount, 'month').startOf('month')
+				newToDate = newFromDate.endOf('month')
+			}
+		} else if (unit === 'week' || isFullWeek) {
+			// For week-based shifting, always work with full weeks
+			if (direction > 0) {
+				newFromDate = fromDate.add(amount, 'week').startOf('week')
+				newToDate = newFromDate.endOf('week')
+			} else {
+				newFromDate = fromDate.subtract(amount, 'week').startOf('week')
+				newToDate = newFromDate.endOf('week')
+			}
+		} else {
+			// For day-based shifting
+			if (direction > 0) {
+				newFromDate = fromDate.add(amount, 'day')
+				newToDate = toDate.add(amount, 'day')
+			} else {
+				newFromDate = fromDate.subtract(amount, 'day')
+				newToDate = toDate.subtract(amount, 'day')
+			}
+		}
+
+		// Format the new dates and update the range
+		const newFromDateStr = newFromDate.format(format)
+		const newToDateStr = newToDate.format(format)
+
+		// Set new date range
+		this.setDateRange(newFromDateStr, newToDateStr)
+
+		// Check if the new date range matches a preset, and update activePreset if needed
+		this.checkAndUpdateActivePreset(newFromDateStr, newToDateStr)
+	}
+
+	/**
+	 * Checks if the current date range matches any predefined preset,
+	 * and updates the activePreset accordingly
+	 */
+	private checkAndUpdateActivePreset(fromDate: string, toDate: string) {
+		// Find a preset that matches the current date range
+		const matchingPreset = this.presetRanges.find(
+			preset => preset.range.dateFrom === fromDate && preset.range.dateTo === toDate,
+		)
+
+		if (matchingPreset) {
+			this.activePreset = matchingPreset.label
+		} else {
+			this.activePreset = null
+		}
+	}
+
+	private applyManualDateSelection(e: Event) {
+		e.stopPropagation()
+		// Validate dates before applying
+		const fromDate = dayjs(this.dateFrom.value)
+		const toDate = dayjs(this.dateTo.value)
+
+		if (!fromDate.isValid() || !toDate.isValid()) {
+			return
+		}
+
+		// Ensure from date is before to date
+		if (fromDate.isAfter(toDate)) {
+			this.setDateRange(toDate.format(this.getDateFormat()), fromDate.format(this.getDateFormat()))
+		} else {
+			this.setDateRange(this.dateFrom.value, this.dateTo.value)
+		}
+
+		this.closeDropdown()
 	}
 
 	render() {
 		return html`
-			<!-- schmancy-menu typically provides a slot="button" for the trigger,
-             and then projects the menu items inside. -->
-			<schmancy-menu class="w-max" role="menu" aria-label="Date range presets and custom input">
-				<!-- The toggle/trigger slot -->
-				<schmancy-grid
-					@click=${(event: Event) => event.stopPropagation()}
-					slot="button"
-					align="center"
-					cols="auto 1fr auto"
-				>
-					<schmancy-icon-button
-						type="button"
-						aria-label="Shift date range backward"
-						@click=${(e: Event) => {
-							this.shiftDateRange(-1, e) // Pass the event
-						}}
-					>
-						arrow_left
-					</schmancy-icon-button>
+			<div class="relative ${this.disabled ? 'opacity-60 pointer-events-none' : ''}">
+				<!-- Trigger using the preferred schmancy-grid pattern -->
+				<div class="trigger-container">
+					<schmancy-grid @click=${(event: Event) => event.stopPropagation()} align="center" cols="auto 1fr auto">
+						<schmancy-icon-button
+							type="button"
+							aria-label="Shift date range backward"
+							@click=${(e: Event) => this.shiftDateRange(-1, e)}
+						>
+							arrow_left
+						</schmancy-icon-button>
 
-					<schmancy-button
-						class="w-max"
-						variant="outlined"
-						type="button"
-						aria-haspopup="menu"
-						.ariaExpanded=${String(false)}
-					>
-						${this.selectedDateRange || 'Date range'}
-					</schmancy-button>
+						<schmancy-button
+							class="w-max"
+							variant="outlined"
+							type="button"
+							aria-haspopup="menu"
+							aria-expanded=${this.isOpen}
+							@click=${(e: Event) => this.toggleDropdown(e)}
+						>
+							${this.selectedDateRange || this.placeholder}
+						</schmancy-button>
 
-					<schmancy-icon-button
-						type="button"
-						aria-label="Shift date range forward"
-						@click=${(e: Event) => {
-							this.shiftDateRange(1, e) // Pass the event
-						}}
-					>
-						arrow_right
-					</schmancy-icon-button>
-				</schmancy-grid>
+						<schmancy-icon-button
+							type="button"
+							aria-label="Shift date range forward"
+							@click=${(e: Event) => this.shiftDateRange(1, e)}
+						>
+							arrow_right
+						</schmancy-icon-button>
+					</schmancy-grid>
+				</div>
 
-				<!-- The menu surface: presets + manual date selection -->
-				${this.presetRanges.map(
-					preset => html`
-						<schmancy-menu-item role="menuitem" class="w-full" @click=${() => this.handlePresetChange(preset.label)}>
-							<schmancy-grid class="w-full" align="center" cols="auto 1fr auto"> ${preset.label} </schmancy-grid>
-						</schmancy-menu-item>
-					`,
-				)}
+				<!-- Dropdown -->
+				${this.isOpen
+					? html`
+							<schmancy-surface
+								class="dropdown absolute z-50 mt-1 min-w-64 max-w-96"
+								rounded="all"
+								elevation="3"
+								type="containerHigh"
+								@click="${(e: Event) => e.stopPropagation()}"
+								role="dialog"
+								aria-label="Date range picker"
+							>
+								<!-- Presets view -->
+								<div class="p-4">
+									<schmancy-grid gap="sm" class="mb-4">
+										${this.presetRanges.map(
+											preset => html`
+												<schmancy-button
+													variant="${this.activePreset === preset.label ? 'filled tonal' : 'text'}"
+													width="full"
+													class="text-left justify-start"
+													@click="${(e: Event) => this.handlePresetSelection(preset, e)}"
+												>
+													<schmancy-typography type="body" token="md"> ${preset.label} </schmancy-typography>
+												</schmancy-button>
+											`,
+										)}
+									</schmancy-grid>
 
-				<!-- Manual date range inputs + "Apply" button -->
-				<schmancy-grid gap="sm" flow="row" class="p-4">
-					<schmancy-input
-						id="checkin"
-						.type=${this.type}
-						.label=${this.dateFrom.label}
-						.value=${this.dateFrom.value}
-						min=${ifDefined(this.minDate)}
-						@click=${(event: Event) => event.stopPropagation()}
-						@change=${(event: SchmancyInputChangeEvent) => {
-							event.preventDefault()
-							event.stopPropagation()
-							const fmt = this.getDateFormat()
-							const selectedDate = dayjs(event.detail.value, fmt).format(fmt)
-							this.dateFrom.value = selectedDate
-							// Update the checkout input's min attribute:
-							this.checkOutInput.setAttribute('min', selectedDate)
-						}}
-					></schmancy-input>
+									<!-- Manual date inputs -->
+									<schmancy-grid gap="md" cols="1fr 1fr" class="mb-4">
+										<schmancy-input
+											type="${this.type}"
+											label="${this.dateFrom.label || 'From'}"
+											.value="${this.dateFrom.value}"
+											min="${ifDefined(this.minDate)}"
+											max="${ifDefined(this.maxDate)}"
+											@change="${(e: CustomEvent) => {
+												e.stopPropagation()
+												this.dateFrom.value = e.detail.value
+												this.updateSelectedDateRange()
+											}}"
+										></schmancy-input>
 
-					<schmancy-input
-						id="checkout"
-						.type=${this.type}
-						.label=${this.dateTo.label}
-						.value=${this.dateTo.value}
-						min=${ifDefined(this.dateFrom.value)}
-						max=${ifDefined(this.maxDate)}
-						@click=${(event: Event) => event.stopPropagation()}
-						@change=${(event: SchmancyInputChangeEvent) => {
-							event.preventDefault()
-							event.stopPropagation()
-							const fmt = this.getDateFormat()
-							const selectedDate = dayjs(event.detail.value, fmt).format(fmt)
-							this.dateTo.value = selectedDate
-						}}
-					></schmancy-input>
+										<schmancy-input
+											type="${this.type}"
+											label="${this.dateTo.label || 'To'}"
+											.value="${this.dateTo.value}"
+											min="${ifDefined(this.dateFrom.value)}"
+											max="${ifDefined(this.maxDate)}"
+											@change="${(e: CustomEvent) => {
+												e.stopPropagation()
+												this.dateTo.value = e.detail.value
+												this.updateSelectedDateRange()
+											}}"
+										></schmancy-input>
+									</schmancy-grid>
 
-					<schmancy-button
-						type="button"
-						variant="outlined"
-						@click=${(e: Event) => {
-							this.handleDateRangeChange(e)
-						}}
-					>
-						Apply
-					</schmancy-button>
-				</schmancy-grid>
-			</schmancy-menu>
+									<!-- Action buttons -->
+									<div class="flex justify-between">
+										${this.clearable
+											? html`
+													<schmancy-button variant="text" @click="${(e: Event) => this.handleClearSelection(e)}">
+														Clear
+													</schmancy-button>
+												`
+											: html`<div></div>`}
+
+										<div class="flex space-x-2">
+											<schmancy-button
+												variant="text"
+												@click="${(e: Event) => {
+													e.stopPropagation()
+													this.closeDropdown()
+												}}"
+											>
+												Cancel
+											</schmancy-button>
+
+											<schmancy-button variant="filled" @click="${(e: Event) => this.applyManualDateSelection(e)}">
+												Apply
+											</schmancy-button>
+										</div>
+									</div>
+								</div>
+							</schmancy-surface>
+						`
+					: ''}
+			</div>
 		`
-	}
-}
-
-/**
- * The payload for a date range change event.
- */
-export type TSchmancDateRangePayload = {
-	dateFrom?: string
-	dateTo?: string
-}
-
-/**
- * A custom event fired when the date range is updated.
- */
-export type SchmancyDateRangeChangeEvent = CustomEvent<TSchmancDateRangePayload>
-
-declare global {
-	interface HTMLElementTagNameMap {
-		'schmancy-date-range': SchmancyDateRange
 	}
 }
