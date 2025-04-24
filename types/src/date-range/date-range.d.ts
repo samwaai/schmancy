@@ -36,6 +36,7 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
     private selectedDateRange;
     private activePreset;
     private presetRanges;
+    private presetCategories;
     private triggerRef;
     private dropdownRef;
     private cleanupPositioner?;
@@ -57,9 +58,12 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
     private openDropdown;
     private closeDropdown;
     /**
+     * Helper method to safely add/subtract quarter values
+     */
+    private adjustQuarter;
+    /**
      * Shifts the date range based on its type (preset or custom)
-     * Improved to respect the unit (day, week, month) of presets
-     * For custom ranges, it shifts by the exact range duration
+     * Enhanced to properly handle various time units and preserve date patterns
      */
     private shiftDateRange;
     /**
