@@ -81,7 +81,7 @@ export default class SchmancyNotificationContainer extends $LitElement(style) {
 			title: options.title || '',
 			message: options.message,
 			type: options.type || 'info',
-			duration: options.duration !== undefined ? options.duration : 5000,
+			duration: options.duration !== undefined ? options.duration : 750,
 			closable: options.closable !== undefined ? options.closable : true,
 			playSound: options.playSound !== undefined ? options.playSound : this.playSound,
 		}
