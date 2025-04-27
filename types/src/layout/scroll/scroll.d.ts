@@ -11,6 +11,12 @@ export interface SchmancyScrollEvent extends CustomEvent<{
     clientHeight: number;
     /** Original scroll event */
     e: Event;
+    /** Current scroll position from the left (for horizontal scrolling) */
+    scrollLeft?: number;
+    /** Total scrollable width of the content (for horizontal scrolling) */
+    scrollWidth?: number;
+    /** Visible width of the container (for horizontal scrolling) */
+    clientWidth?: number;
 }> {
 }
 /**
@@ -23,6 +29,8 @@ export interface SchmancyScrollCommandEvent extends CustomEvent<{
     action: 'scrollTo';
     /** Scroll position for scrollTo action */
     top: number;
+    /** Horizontal scroll position for scrollTo action (optional) */
+    left?: number;
 }> {
 }
 declare global {
@@ -43,6 +51,16 @@ declare const SchmancyScroll_base: import("@mixins/index").Constructor<CustomEle
  * ```html
  * <schmancy-scroll hide name="main-content">
  *   <div>Scrollable content goes here</div>
+ * </schmancy-scroll>
+ * ```
+ *
+ * @example
+ * ```html
+ * <schmancy-scroll direction="horizontal" hide name="image-carousel">
+ *   <div class="flex">
+ *     <img src="image1.jpg" alt="Image 1">
+ *     <img src="image2.jpg" alt="Image 2">
+ *   </div>
  * </schmancy-scroll>
  * ```
  */
@@ -66,6 +84,16 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
      */
     name?: string;
     /**
+     * Direction of scrolling: vertical, horizontal, or both.
+     * - vertical: Only allows vertical scrolling
+     * - horizontal: Only allows horizontal scrolling
+     * - both: Allows both horizontal and vertical scrolling (default)
+     *
+     * @attr direction
+     * @example <schmancy-scroll direction="horizontal"></schmancy-scroll>
+     */
+    direction: 'vertical' | 'horizontal' | 'both';
+    /**
      * Reference to the inner scrollable div element
      * @public
      */
@@ -80,9 +108,16 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
     debounce: number;
     /**
      * Scrolls the container to the specified position
-     * @param top - The vertical position to scroll to (in pixels)
+     * @param options - ScrollToOptions or a number representing the top position
+     * @param top - For backward compatibility, if options is a number, this is treated as "behavior"
      */
     scrollTo(options?: ScrollToOptions | number, top?: number): void;
+    /**
+     * Scrolls the container horizontally to the specified position
+     * @param left - The horizontal position to scroll to (in pixels)
+     * @param behavior - The scroll behavior ('auto' or 'smooth')
+     */
+    scrollToLeft(left: number, behavior?: ScrollBehavior): void;
     /**
      * Called after the component's first update
      * Sets up the scroll event listener with debouncing
