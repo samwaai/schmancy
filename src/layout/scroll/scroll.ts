@@ -17,6 +17,12 @@ export interface SchmancyScrollEvent
 		clientHeight: number
 		/** Original scroll event */
 		e: Event
+		/** Current scroll position from the left (for horizontal scrolling) */
+		scrollLeft?: number
+		/** Total scrollable width of the content (for horizontal scrolling) */
+		scrollWidth?: number
+		/** Visible width of the container (for horizontal scrolling) */
+		clientWidth?: number
 	}> {}
 
 /**
@@ -30,6 +36,8 @@ export interface SchmancyScrollCommandEvent
 		action: 'scrollTo'
 		/** Scroll position for scrollTo action */
 		top: number
+		/** Horizontal scroll position for scrollTo action (optional) */
+		left?: number
 	}> {}
 
 // Augment the HTMLElementEventMap to include our custom events
@@ -51,6 +59,16 @@ declare global {
  * ```html
  * <schmancy-scroll hide name="main-content">
  *   <div>Scrollable content goes here</div>
+ * </schmancy-scroll>
+ * ```
+ *
+ * @example
+ * ```html
+ * <schmancy-scroll direction="horizontal" hide name="image-carousel">
+ *   <div class="flex">
+ *     <img src="image1.jpg" alt="Image 1">
+ *     <img src="image2.jpg" alt="Image 2">
+ *   </div>
  * </schmancy-scroll>
  * ```
  */
@@ -96,6 +114,18 @@ export class SchmancyScroll extends TailwindElement(css`
 	public name?: string
 
 	/**
+	 * Direction of scrolling: vertical, horizontal, or both.
+	 * - vertical: Only allows vertical scrolling
+	 * - horizontal: Only allows horizontal scrolling
+	 * - both: Allows both horizontal and vertical scrolling (default)
+	 *
+	 * @attr direction
+	 * @example <schmancy-scroll direction="horizontal"></schmancy-scroll>
+	 */
+	@property({ type: String, reflect: true })
+	public direction: 'vertical' | 'horizontal' | 'both' = 'both'
+
+	/**
 	 * Reference to the inner scrollable div element
 	 * @public
 	 */
@@ -114,17 +144,40 @@ export class SchmancyScroll extends TailwindElement(css`
 
 	/**
 	 * Scrolls the container to the specified position
-	 * @param top - The vertical position to scroll to (in pixels)
+	 * @param options - ScrollToOptions or a number representing the top position
+	 * @param top - For backward compatibility, if options is a number, this is treated as "behavior"
 	 */
 	public override scrollTo(options?: ScrollToOptions | number, top?: number): void {
+		if (!this.scroller) return
+
+		if (typeof options === 'number') {
+			// Legacy support for scrollTo(top, behavior)
+			this.scroller.scrollTo({
+				top: options,
+				behavior: top ? 'smooth' : 'auto',
+			})
+		} else if (options) {
+			this.scroller.scrollTo(options)
+		} else {
+			this.scroller.scrollTo({
+				top: 0,
+				left: 0,
+				behavior: 'auto',
+			})
+		}
+	}
+
+	/**
+	 * Scrolls the container horizontally to the specified position
+	 * @param left - The horizontal position to scroll to (in pixels)
+	 * @param behavior - The scroll behavior ('auto' or 'smooth')
+	 */
+	public scrollToLeft(left: number, behavior: ScrollBehavior = 'auto'): void {
 		if (this.scroller) {
-			if (typeof options === 'number') {
-				this.scroller.scrollTo({ top: options, behavior: top ? 'smooth' : 'auto' })
-			} else if (options) {
-				this.scroller.scrollTo(options)
-			} else {
-				this.scroller.scrollTo({ top: 0, behavior: 'auto' })
-			}
+			this.scroller.scrollTo({
+				left,
+				behavior,
+			})
 		}
 	}
 
@@ -143,12 +196,29 @@ export class SchmancyScroll extends TailwindElement(css`
 				takeUntil(this.disconnecting), // Unsubscribe when the element is destroyed
 			)
 			.subscribe(e => {
+				// Always include the original required properties for backward compatibility
 				const scrollTop = this.scroller.scrollTop
 				const scrollHeight = this.scroller.scrollHeight
 				const clientHeight = this.scroller.clientHeight
+
+				// Include horizontal scroll information as optional properties
+				const scrollLeft = this.scroller.scrollLeft
+				const scrollWidth = this.scroller.scrollWidth
+				const clientWidth = this.scroller.clientWidth
+
 				this.dispatchEvent(
 					new CustomEvent('scroll', {
-						detail: { scrollTop, scrollHeight, clientHeight, e },
+						detail: {
+							// Original required properties first
+							scrollTop,
+							scrollHeight,
+							clientHeight,
+							e,
+							// New optional properties last
+							scrollLeft,
+							scrollWidth,
+							clientWidth,
+						},
 						bubbles: true,
 						composed: true,
 					}) as SchmancyScrollEvent,
@@ -164,10 +234,17 @@ export class SchmancyScroll extends TailwindElement(css`
 			)
 			.subscribe(e => {
 				if (e.detail.action === 'scrollTo' && typeof e.detail.top === 'number') {
-					this.scrollTo({
-						top: e.detail.top,
+					const options: ScrollToOptions = {
 						behavior: 'smooth',
-					})
+						top: e.detail.top, // Required for backward compatibility
+					}
+
+					// Add optional left position if provided
+					if (typeof e.detail.left === 'number') {
+						options.left = e.detail.left
+					}
+
+					this.scrollTo(options)
 				}
 			})
 	}
@@ -178,9 +255,13 @@ export class SchmancyScroll extends TailwindElement(css`
 	 * @protected
 	 */
 	protected render() {
-		// The classes are dynamically assigned based on the `hide` property.
+		// The classes are dynamically assigned based on the properties
 		const classes = {
-			'h-full w-full inset-0 overflow-x-auto overflow-y-auto scroll-smooth overscroll-contain': true,
+			'h-full w-full inset-0 scroll-smooth overscroll-contain': true,
+			'overflow-y-auto': this.direction !== 'horizontal',
+			'overflow-y-hidden': this.direction === 'horizontal',
+			'overflow-x-auto': this.direction !== 'vertical',
+			'overflow-x-hidden': this.direction === 'vertical',
 			'scrollbar-hide': this.hide,
 		}
 
