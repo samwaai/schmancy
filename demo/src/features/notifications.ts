@@ -30,6 +30,7 @@ export default class NotificationDemo extends $LitElement() {
 		$notify.success('Operation completed successfully', {
 			title: 'Success',
 			playSound: this.playSound,
+			duration: 500,
 		})
 	}
 
@@ -65,7 +66,7 @@ export default class NotificationDemo extends $LitElement() {
 		$notify.warning('This notification cannot be manually closed', {
 			title: 'No Close Button',
 			closable: false,
-			duration: 5000,
+			duration: 500,
 			playSound: this.playSound,
 		})
 	}

@@ -42,9 +42,9 @@ export default class SchmancyNotificationContainer extends $LitElement(style) {
 		| 'bottom-left'
 		| 'top-center'
 		| 'bottom-center' = 'top-right'
-	@property({ type: Number }) maxVisibleNotifications = 5
+	@property({ type: Number }) maxVisibleNotifications = 2
 	@property({ type: Boolean }) playSound = false
-	@property({ type: Number }) audioVolume = 0.5
+	@property({ type: Number }) audioVolume = 0.1
 
 	@state() private _notifications: NotificationItem[] = []
 

@@ -7,6 +7,13 @@ import { NotificationOptions } from './notification-container'
 export class NotificationService {
 	private static instance: NotificationService
 
+	// Default notification options
+	private static DEFAULT_OPTIONS: Partial<NotificationOptions> = {
+		duration: 1000, // 1 seconds - long enough to be readable
+		closable: true,
+		playSound: true,
+	}
+
 	// Private constructor for singleton pattern
 	private constructor() {}
 
@@ -25,14 +32,22 @@ export class NotificationService {
 	 * @returns The ID of the created notification
 	 */
 	public notify(options: NotificationOptions): string {
-		const id = options.id || `notification-${Date.now()}-${Math.floor(Math.random() * 10000)}`
+		// Apply default options
+		const completeOptions = {
+			...NotificationService.DEFAULT_OPTIONS,
+			...options,
+			// Override with duraton from options if provided, otherwise use default
+			duration: options.duration ?? NotificationService.DEFAULT_OPTIONS.duration,
+		}
+
+		const id = completeOptions.id || `notification-${Date.now()}-${Math.floor(Math.random() * 10000)}`
 
 		// Create and dispatch event
 		const event = new CustomEvent('schmancy-notification', {
 			bubbles: true,
 			composed: true,
 			detail: {
-				...options,
+				...completeOptions,
 				id,
 			},
 		})
@@ -84,6 +99,32 @@ export class NotificationService {
 			...options,
 		})
 	}
+
+	/**
+	 * Show a notification with a custom duration
+	 */
+	public customDuration(
+		message: string,
+		duration: number,
+		options: Partial<Omit<NotificationOptions, 'message' | 'duration'>> = {},
+	): string {
+		return this.notify({
+			message,
+			duration,
+			...options,
+		})
+	}
+
+	/**
+	 * Show a persistent notification (won't auto-dismiss)
+	 */
+	public persistent(message: string, options: Partial<Omit<NotificationOptions, 'message' | 'duration'>> = {}): string {
+		return this.notify({
+			message,
+			duration: 0, // Zero duration means no auto-close
+			...options,
+		})
+	}
 }
 
 /**
@@ -123,6 +164,27 @@ export const $notify = {
 	 */
 	error: (message: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string => {
 		return NotificationService.getInstance().error(message, options)
+	},
+
+	/**
+	 * Show a notification with a custom duration
+	 * @param message The notification message
+	 * @param duration Duration in milliseconds before auto-dismissing (0 for no auto-dismiss)
+	 * @param options Additional notification options
+	 */
+	customDuration: (
+		message: string,
+		duration: number,
+		options: Partial<Omit<NotificationOptions, 'message' | 'duration'>> = {},
+	): string => {
+		return NotificationService.getInstance().customDuration(message, duration, options)
+	},
+
+	/**
+	 * Show a persistent notification that won't auto-dismiss
+	 */
+	persistent: (message: string, options: Partial<Omit<NotificationOptions, 'message' | 'duration'>> = {}): string => {
+		return NotificationService.getInstance().persistent(message, options)
 	},
 }
 
