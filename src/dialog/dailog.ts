@@ -3,7 +3,6 @@ import { color } from '@schmancy/directives'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { fromEvent, takeUntil } from 'rxjs'
 
