@@ -9,11 +9,11 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
     /**
      * Dialog title
      */
-    title: string;
+    title: any;
     /**
      * Dialog message
      */
-    message: string;
+    message: any;
     /**
      * Text for confirm button
      */
