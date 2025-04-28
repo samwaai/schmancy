@@ -219,16 +219,6 @@ export class ConfirmDialog extends $LitElement(css`
 			top: `${this._position.y}px`,
 		}
 
-		const buttonClasses = {
-			primary: {
-				'primary-default': this.variant === 'default',
-				'error-default': this.variant === 'danger',
-			},
-			secondary: {
-				'surface-low': true,
-			},
-		}
-
 		return html`
 			<div class="overlay" @click=${this._handleCancel}></div>
 
