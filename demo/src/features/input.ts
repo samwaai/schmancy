@@ -46,6 +46,17 @@ export class DemoInput extends $LitElement(css`
 		const v = undefined
 		return html`
 			<schmancy-surface type="container" fill="all" rounded="left">
+				<schmancy-dropdown>
+					<button slot="trigger">Open Dropdown</button>
+
+					<schmancy-dropdown-content>
+						<schmancy-list>
+							<schmancy-list-item>Option 1</schmancy-list-item>
+							<schmancy-list-item>Option 2</schmancy-list-item>
+							<schmancy-list-item>Option 3</schmancy-list-item>
+						</schmancy-list>
+					</schmancy-dropdown-content>
+				</schmancy-dropdown>
 				<schmancy-tooltip>
 					<div slot="content" class="p-2 max-w-xs">
 						<p>Verification requires all items to match exactly and the invoice total to equal the order total.</p>
