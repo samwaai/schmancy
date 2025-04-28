@@ -15,7 +15,6 @@ export class SchmancyDropdownContent extends TailwindElement(css`
 		position: absolute;
 		z-index: 1000;
 		min-width: 10rem;
-		padding: 0.5rem 0;
 		margin: 0;
 		text-align: left;
 		list-style: none;
@@ -48,7 +47,6 @@ export class SchmancyDropdownContent extends TailwindElement(css`
 		background-color: var(--schmancy-sys-color-surface-container);
 		border-radius: 0.375rem;
 		box-shadow: var(--schmancy-sys-elevation-3);
-		padding: 0.5rem 0;
 		will-change: transform;
 		transform-origin: top left;
 		animation: dropdownAnimation 0.1s ease-out forwards;
