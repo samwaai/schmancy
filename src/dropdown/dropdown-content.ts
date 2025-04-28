@@ -42,6 +42,17 @@ export class SchmancyDropdownContent extends TailwindElement(css`
 			transform: scale(1);
 		}
 	}
+
+	/* Apply styles to content both in the component and when teleported to the portal */
+	.schmancy-dropdown-content {
+		background-color: var(--schmancy-sys-color-surface-container);
+		border-radius: 0.375rem;
+		box-shadow: var(--schmancy-sys-elevation-3);
+		padding: 0.5rem 0;
+		will-change: transform;
+		transform-origin: top left;
+		animation: dropdownAnimation 0.1s ease-out forwards;
+	}
 `) {
 	/**
 	 * Width of the dropdown content
@@ -69,6 +80,7 @@ export class SchmancyDropdownContent extends TailwindElement(css`
 
 	render() {
 		const classes = {
+			'schmancy-dropdown-content': true,
 			'overflow-auto': true,
 			'shadow-none': !this.shadow,
 			'rounded-none': this.radius === 'none',
@@ -84,7 +96,7 @@ export class SchmancyDropdownContent extends TailwindElement(css`
 		}
 
 		return html`
-			<div class=${this.classMap(classes)} style=${this.styleMap(styles)}>
+			<div class=${this.classMap(classes)} style=${this.styleMap(styles)} part="content">
 				<slot></slot>
 			</div>
 		`

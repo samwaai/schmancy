@@ -46,6 +46,7 @@ export class DemoInput extends $LitElement(css`
 		const v = undefined
 		return html`
 			<schmancy-surface type="container" fill="all" rounded="left">
+				<example-basic-dropdown></example-basic-dropdown>
 				<schmancy-dropdown>
 					<button slot="trigger">Open Dropdown</button>
 
@@ -338,5 +339,57 @@ export class DemoInput extends $LitElement(css`
 declare global {
 	interface HTMLElementTagNameMap {
 		'demo-input': DemoInput
+	}
+}
+
+/**
+ * Example component showing basic dropdown usage
+ */
+@customElement('example-basic-dropdown')
+export class ExampleBasicDropdown extends $LitElement() {
+	render() {
+		return html`
+			<div style="padding: 2rem; overflow: hidden;">
+				<h3>Basic Dropdown Example</h3>
+				<p>This example demonstrates the portal-based dropdown that avoids overflow issues.</p>
+
+				<div style="margin-top: 2rem;">
+					<schmancy-dropdown>
+						<button slot="trigger">Open Dropdown</button>
+
+						<schmancy-dropdown-content>
+							<div style="padding: 1rem;">
+								<h4>Dropdown Content</h4>
+								<p>This content is rendered in a portal at the document root level.</p>
+								<button>Action 1</button>
+								<button>Action 2</button>
+							</div>
+						</schmancy-dropdown-content>
+					</schmancy-dropdown>
+				</div>
+
+				<div style="height: 50px; overflow: hidden; margin-top: 2rem; border: 1px solid #ccc; padding: 1rem;">
+					<p>Container with overflow: hidden</p>
+					<schmancy-dropdown>
+						<button slot="trigger">Open Dropdown (in overflow container)</button>
+
+						<schmancy-dropdown-content class="">
+							<div style="padding: 1rem;" class="min-w-[50vw]">
+								<h4>Dropdown Content</h4>
+								<p>This content will still be fully visible despite parent overflow.</p>
+								<button>Action 1</button>
+								<button>Action 2</button>
+							</div>
+						</schmancy-dropdown-content>
+					</schmancy-dropdown>
+				</div>
+			</div>
+		`
+	}
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'example-basic-dropdown': ExampleBasicDropdown
 	}
 }

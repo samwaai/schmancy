@@ -1,7 +1,7 @@
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
-import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
+import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { filter, fromEvent, takeUntil } from 'rxjs'
 
 /**
@@ -49,7 +49,9 @@ export class SchmancyDropdown extends $LitElement(css`
 	distance = 8
 
 	@query('.trigger-container') triggerContainer!: HTMLElement
-	@query('schmancy-dropdown-content') content!: HTMLElement
+	@query('.dropdown-content-container') contentContainer!: HTMLElement
+	@queryAssignedElements({ flatten: true }) contentElements!: HTMLElement[]
+	@state() private portal: HTMLElement | null = null
 
 	@queryAssignedElements({ slot: 'trigger', flatten: true })
 	triggerElements!: Array<HTMLElement>
@@ -58,6 +60,9 @@ export class SchmancyDropdown extends $LitElement(css`
 
 	connectedCallback() {
 		super.connectedCallback()
+
+		// Create portal container for teleporting content to document body
+		this.setupPortal()
 
 		// Listen for document clicks to close dropdown when clicking outside
 		fromEvent<MouseEvent>(document, 'click')
@@ -81,6 +86,36 @@ export class SchmancyDropdown extends $LitElement(css`
 	}
 
 	/**
+	 * Set up the portal element for teleporting content
+	 */
+	private setupPortal() {
+		// Check if portal container exists
+		let portalContainer = document.getElementById('schmancy-portal-container')
+
+		// Create portal container if it doesn't exist
+		if (!portalContainer) {
+			portalContainer = document.createElement('div')
+			portalContainer.id = 'schmancy-portal-container'
+			portalContainer.style.position = 'fixed'
+			portalContainer.style.zIndex = '10000'
+			portalContainer.style.top = '0'
+			portalContainer.style.left = '0'
+			portalContainer.style.pointerEvents = 'none'
+			document.body.appendChild(portalContainer)
+		}
+
+		// Create portal for this specific dropdown
+		const portal = document.createElement('div')
+		portal.className = 'schmancy-dropdown-portal'
+		portal.style.position = 'absolute'
+		portal.style.pointerEvents = 'auto'
+		portal.style.display = 'none'
+		portalContainer.appendChild(portal)
+
+		this.portal = portal
+	}
+
+	/**
 	 * Check if an event originated from within this component
 	 */
 	private isEventFromSelf(event: Event): boolean {
@@ -89,6 +124,13 @@ export class SchmancyDropdown extends $LitElement(css`
 
 	disconnectedCallback() {
 		this.cleanupPositioner?.()
+
+		// Remove portal when component is disconnected
+		if (this.portal) {
+			this.portal.remove()
+			this.portal = null
+		}
+
 		super.disconnectedCallback()
 	}
 
@@ -107,32 +149,75 @@ export class SchmancyDropdown extends $LitElement(css`
 				this.setupPositioner()
 			} else {
 				this.cleanupPositioner?.()
+
+				// Hide portal when dropdown is closed
+				if (this.portal) {
+					this.portal.style.display = 'none'
+					this.portal.innerHTML = ''
+				}
 			}
 		}
 	}
 
 	/**
-	 * Setup floating UI positioning
+	 * Setup floating UI positioning with teleportation
 	 */
 	private setupPositioner() {
-		if (!this.triggerContainer || !this.content) return
+		if (!this.triggerContainer || !this.portal) return
 
-		this.cleanupPositioner = autoUpdate(this.triggerContainer, this.content, () => {
-			computePosition(this.triggerContainer, this.content, {
+		// Show the portal
+		this.portal.style.display = 'block'
+
+		// Move content to portal
+		this.teleportContentToPortal()
+
+		// Setup positioning
+		this.cleanupPositioner = autoUpdate(this.triggerContainer, this.portal, () => {
+			computePosition(this.triggerContainer, this.portal, {
 				placement: this.placement,
 				middleware: [
 					offset(this.distance),
 					flip({
 						fallbackPlacements: ['top-start', 'bottom-start'],
 					}),
-					shift({ padding: 8 }),
+					shift({ padding: 0 }),
 				],
 			}).then(({ x, y }) => {
-				Object.assign(this.content.style, {
+				// Update portal position
+				Object.assign(this.portal.style, {
 					left: `${x}px`,
-					top: `${y}px`,
+					top: `${y - 8}px`,
 				})
 			})
+		})
+	}
+
+	/**
+	 * Move slotted content to the portal
+	 */
+	private teleportContentToPortal() {
+		if (!this.portal) return
+
+		// Clear existing content
+		this.portal.innerHTML = ''
+
+		// Clone and move slotted content to portal
+		this.contentElements.forEach(element => {
+			// Get computed styles to ensure portal content matches original styling
+			const clonedElement = element.cloneNode(true) as HTMLElement
+
+			// Ensure dropdown-content elements maintain their styles when teleported
+			if (element.tagName.toLowerCase() === 'schmancy-dropdown-content') {
+				clonedElement.addEventListener('slotchange', () => {
+					// Propagate any slot changes to class changes on children
+					const contentDiv = clonedElement.shadowRoot?.querySelector('[part="content"]')
+					if (contentDiv) {
+						contentDiv.classList.add('schmancy-dropdown-content')
+					}
+				})
+			}
+
+			this.portal?.appendChild(clonedElement)
 		})
 	}
 
@@ -150,14 +235,16 @@ export class SchmancyDropdown extends $LitElement(css`
 				<slot name="trigger"></slot>
 			</div>
 
-			<slot
-				?hidden=${!this.open}
-				@slotchange=${() => {
-					if (this.open) {
-						this.setupPositioner()
-					}
-				}}
-			></slot>
+			<div class="dropdown-content-container" ?hidden=${!this.open}>
+				<slot
+					@slotchange=${() => {
+						if (this.open) {
+							this.teleportContentToPortal()
+							this.setupPositioner()
+						}
+					}}
+				></slot>
+			</div>
 		`
 	}
 }
