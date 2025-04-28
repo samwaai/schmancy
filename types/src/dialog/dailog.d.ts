@@ -1,16 +1,10 @@
 declare const ConfirmDialog_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * A minimal, positioned confirm dialog component
+ * A minimal confirm dialog web component with a super-simple API
  *
  * @element confirm-dialog
- * @fires confirm - When the confirm button is clicked
- * @fires cancel - When the cancel button is clicked or outside is clicked
  */
 export declare class ConfirmDialog extends ConfirmDialog_base {
-    /**
-     * Whether the dialog is open
-     */
-    open: boolean;
     /**
      * Dialog title
      */
@@ -32,38 +26,60 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
      */
     variant: 'default' | 'danger';
     /**
-     * Internal position state
+     * Current position of the dialog
      */
-    private _position;
+    private position;
     /**
-     * Last clicked position for initial placement
+     * Current active promise resolver
      */
-    private _clickPosition;
+    private resolvePromise?;
     /**
-     * Show the dialog at specific coordinates
+     * Simple API: Show the dialog at a specific position
+     * @returns Promise that resolves to true (confirm) or false (cancel)
      */
-    showAt(x: number, y: number): void;
+    show(positionOrEvent: {
+        x: number;
+        y: number;
+    } | MouseEvent | TouchEvent): Promise<boolean>;
     /**
-     * Hide the dialog
+     * Simple API: Hide the dialog
      */
-    hide(): void;
+    hide(confirmed?: boolean): void;
     /**
-     * Find the best position for the dialog based on click coordinates
+     * Calculate optimal position based on click coordinates
      */
-    private _calculateOptimalPosition;
+    private calculatePosition;
     /**
-     * Setup event listeners when dialog opens
+     * Handle lifecycle callback when dialog is first rendered
      */
-    private _setupListeners;
+    firstUpdated(): void;
     /**
      * Handle confirm action
      */
-    private _handleConfirm;
+    private handleConfirm;
     /**
      * Handle cancel action
      */
-    private _handleCancel;
+    private handleCancel;
     render(): import("lit-html").TemplateResult<1>;
+    /**
+     * Static helper for even simpler API
+     */
+    static confirm(options: {
+        title?: string;
+        message?: string;
+        confirmText?: string;
+        cancelText?: string;
+        variant?: 'default' | 'danger';
+        position: {
+            x: number;
+            y: number;
+        } | MouseEvent | TouchEvent;
+    }): Promise<boolean>;
+    /**
+     * Even simpler shorthand method - just pass the event and message
+     */
+    static ask(event: MouseEvent | TouchEvent, message: string): Promise<boolean>;
 }
 declare global {
     interface HTMLElementTagNameMap {
