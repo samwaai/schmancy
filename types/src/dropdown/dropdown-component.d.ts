@@ -20,10 +20,16 @@ export declare class SchmancyDropdown extends SchmancyDropdown_base {
      */
     distance: number;
     triggerContainer: HTMLElement;
-    content: HTMLElement;
+    contentContainer: HTMLElement;
+    contentElements: HTMLElement[];
+    private portal;
     triggerElements: Array<HTMLElement>;
     private cleanupPositioner?;
     connectedCallback(): void;
+    /**
+     * Set up the portal element for teleporting content
+     */
+    private setupPortal;
     /**
      * Check if an event originated from within this component
      */
@@ -35,9 +41,13 @@ export declare class SchmancyDropdown extends SchmancyDropdown_base {
     toggle(): void;
     updated(changedProps: Map<string, any>): void;
     /**
-     * Setup floating UI positioning
+     * Setup floating UI positioning with teleportation
      */
     private setupPositioner;
+    /**
+     * Move slotted content to the portal
+     */
+    private teleportContentToPortal;
     /**
      * Handle trigger click to toggle dropdown
      */
