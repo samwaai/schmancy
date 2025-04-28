@@ -1,8 +1,9 @@
 declare const ConfirmDialog_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * A minimal confirm dialog web component with a super-simple API
+ * A confirm dialog web component with custom content support
  *
  * @element confirm-dialog
+ * @slot content - Optional slot for custom content
  */
 export declare class ConfirmDialog extends ConfirmDialog_base {
     /**
@@ -75,6 +76,7 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
             x: number;
             y: number;
         } | MouseEvent | TouchEvent;
+        width?: string;
     }): Promise<boolean>;
     /**
      * Even simpler shorthand method - just pass the event and message
