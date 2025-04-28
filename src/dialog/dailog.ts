@@ -2,67 +2,61 @@ import { $LitElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
-import { fromEvent, takeUntil } from 'rxjs'
 
 /**
- * A minimal, positioned confirm dialog component
+ * A minimal confirm dialog web component with a super-simple API
  *
  * @element confirm-dialog
- * @fires confirm - When the confirm button is clicked
- * @fires cancel - When the cancel button is clicked or outside is clicked
  */
 @customElement('confirm-dialog')
 export class ConfirmDialog extends $LitElement(css`
 	:host {
-		display: block;
 		position: fixed;
+		z-index: 10000;
 		inset: 0;
-		z-index: 1000;
-		visibility: hidden;
-		pointer-events: none;
+		display: none;
 	}
 
-	:host([open]) {
-		visibility: visible;
-		pointer-events: auto;
-	}
-
-	.dialog {
-		position: absolute;
-		max-width: 360px;
-		width: max-content;
-		opacity: 0;
-		transform: scale(0.95);
-		transition:
-			opacity 0.15s ease,
-			transform 0.15s ease;
-	}
-
-	:host([open]) .dialog {
-		opacity: 1;
-		transform: scale(1);
+	:host([active]) {
+		display: block;
 	}
 
 	.overlay {
 		position: fixed;
 		inset: 0;
 		background: rgba(0, 0, 0, 0.4);
-		opacity: 0;
-		transition: opacity 0.15s ease;
+		animation: fade-in 150ms ease;
 	}
 
-	:host([open]) .overlay {
-		opacity: 1;
+	.dialog {
+		position: absolute;
+		max-width: 360px;
+		width: max-content;
+		animation: pop-in 150ms ease;
+	}
+
+	@keyframes pop-in {
+		from {
+			opacity: 0;
+			transform: scale(0.9);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 `) {
-	/**
-	 * Whether the dialog is open
-	 */
-	@property({ type: Boolean, reflect: true })
-	open = false
-
 	/**
 	 * Dialog title
 	 */
@@ -78,13 +72,13 @@ export class ConfirmDialog extends $LitElement(css`
 	/**
 	 * Text for confirm button
 	 */
-	@property({ type: String })
+	@property({ type: String, attribute: 'confirm-text' })
 	confirmText = 'Confirm'
 
 	/**
 	 * Text for cancel button
 	 */
-	@property({ type: String })
+	@property({ type: String, attribute: 'cancel-text' })
 	cancelText = 'Cancel'
 
 	/**
@@ -94,104 +88,115 @@ export class ConfirmDialog extends $LitElement(css`
 	variant: 'default' | 'danger' = 'default'
 
 	/**
-	 * Internal position state
+	 * Current position of the dialog
 	 */
-	@state() private _position = { x: 0, y: 0 }
+	private position = { x: 0, y: 0 }
 
 	/**
-	 * Last clicked position for initial placement
+	 * Current active promise resolver
 	 */
-	private _clickPosition = { x: 0, y: 0 }
+	private resolvePromise?: (value: boolean) => void
 
 	/**
-	 * Show the dialog at specific coordinates
+	 * Simple API: Show the dialog at a specific position
+	 * @returns Promise that resolves to true (confirm) or false (cancel)
 	 */
-	public showAt(x: number, y: number) {
-		this._clickPosition = { x, y }
-		this._position = this._calculateOptimalPosition(x, y)
-		this.open = true
-		this._setupListeners()
-	}
+	async show(positionOrEvent: { x: number; y: number } | MouseEvent | TouchEvent): Promise<boolean> {
+		// Extract position from event or use direct coordinates
+		let x: number, y: number
 
-	/**
-	 * Hide the dialog
-	 */
-	public hide() {
-		this.open = false
-	}
+		if ('clientX' in positionOrEvent) {
+			// It's a mouse event
+			x = positionOrEvent.clientX
+			y = positionOrEvent.clientY
+		} else if ('touches' in positionOrEvent && positionOrEvent.touches.length) {
+			// It's a touch event
+			x = positionOrEvent.touches[0].clientX
+			y = positionOrEvent.touches[0].clientY
+		} else {
+			// It's a position object with x,y coordinates
+			const pos = positionOrEvent as { x: number; y: number }
+			x = pos.x
+			y = pos.y
+		}
 
-	/**
-	 * Find the best position for the dialog based on click coordinates
-	 */
-	private _calculateOptimalPosition(x: number, y: number) {
-		// Wait for next frame to ensure dialog is rendered and has dimensions
-		requestAnimationFrame(() => {
-			const dialog = this.shadowRoot?.querySelector('.dialog') as HTMLElement
-			if (!dialog) return
+		// Set position and make dialog visible
+		this.position = this.calculatePosition(x, y)
+		this.setAttribute('active', '')
 
-			const dialogWidth = dialog.offsetWidth
-			const dialogHeight = dialog.offsetHeight
-			const viewport = {
-				width: window.innerWidth,
-				height: window.innerHeight,
-			}
-
-			// Start with the click position
-			let newX = x
-			let newY = y
-
-			// Ensure dialog stays in viewport horizontally
-			if (newX + dialogWidth > viewport.width - 16) {
-				newX = Math.max(16, viewport.width - dialogWidth - 16)
-			}
-
-			// Ensure dialog stays in viewport vertically
-			if (newY + dialogHeight > viewport.height - 16) {
-				// Place above click if there's room
-				if (y > dialogHeight + 16) {
-					newY = y - dialogHeight - 8
-				} else {
-					// Otherwise place at top of screen with small margin
-					newY = 16
-				}
-			}
-
-			// Update the position state
-			this._position = { x: newX, y: newY }
+		// Return a promise that resolves when the user makes a choice
+		return new Promise<boolean>(resolve => {
+			this.resolvePromise = resolve
 		})
+	}
 
-		// Return initial position for first render
+	/**
+	 * Simple API: Hide the dialog
+	 */
+	hide(confirmed = false) {
+		this.removeAttribute('active')
+
+		// Resolve any pending promise
+		if (this.resolvePromise) {
+			this.resolvePromise(confirmed)
+			this.resolvePromise = undefined
+		}
+	}
+
+	/**
+	 * Calculate optimal position based on click coordinates
+	 */
+	private calculatePosition(x: number, y: number) {
+		// Default to click position
 		return { x, y }
 	}
 
 	/**
-	 * Setup event listeners when dialog opens
+	 * Handle lifecycle callback when dialog is first rendered
 	 */
-	private _setupListeners() {
-		// Listen for ESC key
-		fromEvent<KeyboardEvent>(document, 'keydown')
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe(e => {
-				if (e.key === 'Escape' && this.open) {
-					this._handleCancel()
-				}
-			})
+	firstUpdated() {
+		// Optimize position after first render when we know the size
+		setTimeout(() => {
+			const dialog = this.shadowRoot?.querySelector('.dialog') as HTMLElement
+			if (!dialog) return
 
-		// Handle window resize to reposition dialog if needed
-		fromEvent(window, 'resize')
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe(() => {
-				if (this.open) {
-					this._position = this._calculateOptimalPosition(this._clickPosition.x, this._clickPosition.y)
+			// Get dialog dimensions
+			const width = dialog.offsetWidth
+			const height = dialog.offsetHeight
+
+			// Get viewport dimensions
+			const viewportWidth = window.innerWidth
+			const viewportHeight = window.innerHeight
+
+			// Reposition if needed to keep dialog in viewport
+			let { x, y } = this.position
+
+			// Make sure dialog stays within viewport horizontally
+			if (x + width > viewportWidth - 16) {
+				x = Math.max(16, viewportWidth - width - 16)
+			}
+
+			// Make sure dialog stays within viewport vertically
+			if (y + height > viewportHeight - 16) {
+				// Position above if space available, otherwise at top
+				if (y > height + 32) {
+					y = y - height - 16
+				} else {
+					y = 16
 				}
-			})
+			}
+
+			// Update dialog position
+			dialog.style.left = `${x}px`
+			dialog.style.top = `${y}px`
+		}, 0)
 	}
 
 	/**
 	 * Handle confirm action
 	 */
-	private _handleConfirm() {
-		this.hide()
+	private handleConfirm() {
+		this.hide(true)
 		this.dispatchEvent(
 			new CustomEvent('confirm', {
 				bubbles: true,
@@ -203,8 +208,8 @@ export class ConfirmDialog extends $LitElement(css`
 	/**
 	 * Handle cancel action
 	 */
-	private _handleCancel() {
-		this.hide()
+	private handleCancel() {
+		this.hide(false)
 		this.dispatchEvent(
 			new CustomEvent('cancel', {
 				bubbles: true,
@@ -215,33 +220,22 @@ export class ConfirmDialog extends $LitElement(css`
 
 	render() {
 		const dialogStyles = {
-			left: `${this._position.x}px`,
-			top: `${this._position.y}px`,
+			left: `${this.position.x}px`,
+			top: `${this.position.y}px`,
 		}
 
 		return html`
-			<div class="overlay" @click=${this._handleCancel}></div>
+			<div class="overlay" @click=${this.handleCancel}></div>
 
-			<div
-				class="dialog"
-				style=${styleMap(dialogStyles)}
-				role="alertdialog"
-				aria-modal="true"
-				aria-labelledby="dialog-title"
-				aria-describedby="dialog-message"
-			>
+			<div class="dialog" style=${styleMap(dialogStyles)} role="alertdialog" aria-modal="true">
 				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
 					<div class="p-4">
-						<div id="dialog-title" class="mb-2">
-							<schmancy-typography type="title" token="md"> ${this.title} </schmancy-typography>
-						</div>
+						<schmancy-typography type="title" token="md" class="mb-2"> ${this.title} </schmancy-typography>
 
-						<div id="dialog-message" class="mb-4">
-							<schmancy-typography type="body"> ${this.message} </schmancy-typography>
-						</div>
+						<schmancy-typography type="body" class="mb-4"> ${this.message} </schmancy-typography>
 
 						<div class="flex justify-end gap-3">
-							<schmancy-button variant="outlined" @click=${this._handleCancel}> ${this.cancelText} </schmancy-button>
+							<schmancy-button variant="outlined" @click=${this.handleCancel}> ${this.cancelText} </schmancy-button>
 
 							<schmancy-button
 								variant="filled"
@@ -253,7 +247,7 @@ export class ConfirmDialog extends $LitElement(css`
 									color:
 										this.variant === 'danger' ? SchmancyTheme.sys.color.error.on : SchmancyTheme.sys.color.primary.on,
 								})}
-								@click=${this._handleConfirm}
+								@click=${this.handleConfirm}
 							>
 								${this.confirmText}
 							</schmancy-button>
@@ -262,6 +256,46 @@ export class ConfirmDialog extends $LitElement(css`
 				</schmancy-surface>
 			</div>
 		`
+	}
+
+	/**
+	 * Static helper for even simpler API
+	 */
+	static async confirm(options: {
+		title?: string
+		message?: string
+		confirmText?: string
+		cancelText?: string
+		variant?: 'default' | 'danger'
+		position: { x: number; y: number } | MouseEvent | TouchEvent
+	}): Promise<boolean> {
+		// Create dialog if it doesn't exist
+		let dialog = document.querySelector('confirm-dialog') as ConfirmDialog
+
+		if (!dialog) {
+			dialog = document.createElement('confirm-dialog') as ConfirmDialog
+			document.body.appendChild(dialog)
+		}
+
+		// Set options
+		if (options.title) dialog.title = options.title
+		if (options.message) dialog.message = options.message
+		if (options.confirmText) dialog.confirmText = options.confirmText
+		if (options.cancelText) dialog.cancelText = options.cancelText
+		if (options.variant) dialog.variant = options.variant
+
+		// Show dialog and return promise
+		return dialog.show(options.position)
+	}
+
+	/**
+	 * Even simpler shorthand method - just pass the event and message
+	 */
+	static async ask(event: MouseEvent | TouchEvent, message: string): Promise<boolean> {
+		return this.confirm({
+			message,
+			position: event,
+		})
 	}
 }
 
