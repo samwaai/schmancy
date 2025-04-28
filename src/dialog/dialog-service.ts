@@ -28,8 +28,8 @@ export class DialogService {
 
 	// Default dialog options
 	private static DEFAULT_OPTIONS: Partial<DialogOptions> = {
-		title: 'Confirm Action',
-		confirmText: 'Confirm',
+		title: undefined,
+		confirmText: undefined,
 		cancelText: 'Cancel',
 		variant: 'default',
 		width: '360px',
