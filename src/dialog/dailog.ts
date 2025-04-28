@@ -2,7 +2,7 @@ import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
-import { when } from 'lit/directives/when'
+import { when } from 'lit/directives/when.js'
 
 /**
  * A confirm dialog web component with custom content support
