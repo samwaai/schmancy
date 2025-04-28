@@ -1,8 +1,8 @@
 import { $LitElement } from '@mixins/index'
+import { $dialog } from '@schmancy/dialog'
 import { SchmancySheetPosition, sheet } from '@schmancy/sheet'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { DemoButton } from '../button'
 import DemoTypography from '../typography'
 import DemoForm from './form'
 
@@ -17,12 +17,22 @@ export class DemoSheet extends $LitElement(css`
 			<schmancy-grid gap="md">
 				<schmancy-button
 					variant="elevated"
-					@click=${() => {
-						sheet.open({
-							component: new DemoButton(),
-							header: 'visible',
-							lock: true,
-						})
+					@click=${(e: MouseEvent) => {
+						// Basic message dialog
+						// $dialog.ask('Are you sure you want to delete this item?')
+
+						// Using a custom component with Lit
+						$dialog.component(
+							html`
+								<schmancy-form class="p-4">
+									<schmancy-typography type="body"> This is a custom component inside a dialog! </schmancy-typography>
+									<schmancy-input required label="Enter your name" class="mt-4"></schmancy-input>
+								</schmancy-form>
+							`,
+							{
+								position: e,
+							},
+						)
 					}}
 				>
 					Bottom Sheet

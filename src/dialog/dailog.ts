@@ -1,14 +1,13 @@
 import { $LitElement } from '@mixins/index'
-import { color } from '@schmancy/directives'
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
 
 /**
- * A minimal confirm dialog web component with a super-simple API
+ * A confirm dialog web component with custom content support
  *
  * @element confirm-dialog
+ * @slot content - Optional slot for custom content
  */
 @customElement('confirm-dialog')
 export class ConfirmDialog extends $LitElement(css`
@@ -17,6 +16,7 @@ export class ConfirmDialog extends $LitElement(css`
 		z-index: 10000;
 		inset: 0;
 		display: none;
+		--dialog-width: 360px;
 	}
 
 	:host([active]) {
@@ -32,7 +32,7 @@ export class ConfirmDialog extends $LitElement(css`
 
 	.dialog {
 		position: absolute;
-		max-width: 360px;
+		max-width: var(--dialog-width);
 		width: max-content;
 		animation: pop-in 150ms ease;
 	}
@@ -224,35 +224,26 @@ export class ConfirmDialog extends $LitElement(css`
 			top: `${this.position.y}px`,
 		}
 
+		const hasCustomContent = this.querySelectorAll('[slot="content"]').length > 0
+
 		return html`
 			<div class="overlay" @click=${this.handleCancel}></div>
 
 			<div class="dialog" style=${styleMap(dialogStyles)} role="alertdialog" aria-modal="true">
 				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
-					<div class="p-4">
+					<schmancy-form @submit=${this.handleConfirm} class="p-4">
 						<schmancy-typography type="title" token="md" class="mb-2"> ${this.title} </schmancy-typography>
 
-						<schmancy-typography type="body" class="mb-4"> ${this.message} </schmancy-typography>
+						${hasCustomContent
+							? html`<div class="mb-4"><slot name="content"></slot></div>`
+							: html`<schmancy-typography type="body" class="mb-4"> ${this.message} </schmancy-typography>`}
 
 						<div class="flex justify-end gap-3">
 							<schmancy-button variant="outlined" @click=${this.handleCancel}> ${this.cancelText} </schmancy-button>
 
-							<schmancy-button
-								variant="filled"
-								${color({
-									bgColor:
-										this.variant === 'danger'
-											? SchmancyTheme.sys.color.error.default
-											: SchmancyTheme.sys.color.primary.default,
-									color:
-										this.variant === 'danger' ? SchmancyTheme.sys.color.error.on : SchmancyTheme.sys.color.primary.on,
-								})}
-								@click=${this.handleConfirm}
-							>
-								${this.confirmText}
-							</schmancy-button>
+							<schmancy-button type="submit" variant="filled"> ${this.confirmText} </schmancy-button>
 						</div>
-					</div>
+					</schmancy-form>
 				</schmancy-surface>
 			</div>
 		`
@@ -268,6 +259,7 @@ export class ConfirmDialog extends $LitElement(css`
 		cancelText?: string
 		variant?: 'default' | 'danger'
 		position: { x: number; y: number } | MouseEvent | TouchEvent
+		width?: string
 	}): Promise<boolean> {
 		// Create dialog if it doesn't exist
 		let dialog = document.querySelector('confirm-dialog') as ConfirmDialog
@@ -283,6 +275,7 @@ export class ConfirmDialog extends $LitElement(css`
 		if (options.confirmText) dialog.confirmText = options.confirmText
 		if (options.cancelText) dialog.cancelText = options.cancelText
 		if (options.variant) dialog.variant = options.variant
+		if (options.width) dialog.style.setProperty('--dialog-width', options.width)
 
 		// Show dialog and return promise
 		return dialog.show(options.position)
