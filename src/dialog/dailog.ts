@@ -62,13 +62,13 @@ export class ConfirmDialog extends $LitElement(css`
 	 * Dialog title
 	 */
 	@property({ type: String })
-	title = 'Confirm Action'
+	title = undefined
 
 	/**
 	 * Dialog message
 	 */
 	@property({ type: String })
-	message = 'Are you sure you want to proceed?'
+	message = undefined
 
 	/**
 	 * Text for confirm button
