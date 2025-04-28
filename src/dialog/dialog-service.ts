@@ -163,6 +163,7 @@ export class DialogService {
 			...options,
 			content,
 			// Clear message if content is provided
+			title: undefined,
 			message: undefined,
 		})
 	}

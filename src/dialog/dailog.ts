@@ -2,6 +2,7 @@ import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
+import { when } from 'lit/directives/when'
 
 /**
  * A confirm dialog web component with custom content support
@@ -232,8 +233,11 @@ export class ConfirmDialog extends $LitElement(css`
 			<div class="dialog" style=${styleMap(dialogStyles)} role="alertdialog" aria-modal="true">
 				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
 					<schmancy-form @submit=${this.handleConfirm} class="p-4">
-						<schmancy-typography type="title" token="md" class="mb-2"> ${this.title} </schmancy-typography>
-
+						${when(
+							this.title,
+							() =>
+								html` <schmancy-typography type="title" token="md" class="mb-2"> ${this.title} </schmancy-typography>`,
+						)}
 						${hasCustomContent
 							? html`<div class="mb-4"><slot name="content"></slot></div>`
 							: html`<schmancy-typography type="body" class="mb-4"> ${this.message} </schmancy-typography>`}
