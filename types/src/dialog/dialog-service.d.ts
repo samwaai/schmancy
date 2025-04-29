@@ -24,6 +24,7 @@ export interface DialogOptions {
 export declare class DialogService {
     private static instance;
     private static DEFAULT_OPTIONS;
+    private activeDialogs;
     private constructor();
     /**
      * Get the singleton instance
@@ -34,6 +35,11 @@ export declare class DialogService {
      * @returns Promise that resolves to true (confirm) or false (cancel)
      */
     confirm(options: DialogOptions): Promise<boolean>;
+    /**
+     * Dismiss the most recently opened dialog
+     * @returns true if a dialog was dismissed, false if no dialogs were open
+     */
+    dismiss(): boolean;
     /**
      * Show a simple confirmation dialog with just a message
      * @returns Promise that resolves to true (confirm) or false (cancel)
@@ -78,5 +84,10 @@ export declare const $dialog: {
      * @returns Promise that resolves to true (confirm) or false (cancel)
      */
     component: (content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, "content" | "message">) => Promise<boolean>;
+    /**
+     * Dismiss the most recently opened dialog
+     * @returns true if a dialog was dismissed, false if no dialogs were open
+     */
+    dismiss: () => boolean;
 };
 export default DialogService;
