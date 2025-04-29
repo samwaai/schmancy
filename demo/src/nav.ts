@@ -25,6 +25,7 @@ import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import { SchmancyTypewriterDemo } from './features/typewriter'
 import DemoTypography from './features/typography'
+import { DemoAvatars } from './features/avatar'
 const NavContext = createContext<
 	Array<{
 		name: string
@@ -57,6 +58,7 @@ export class DemoNav extends $LitElement(css`
 				this.activeTab = r.component?.toLowerCase().replaceAll('-', '')
 			})
 		NavContext.replace([
+			{ name: 'Avatar', component: DemoAvatars },
 			{
 				name: 'Badges',
 				component: DemoBadges,
