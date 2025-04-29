@@ -35,6 +35,9 @@ export class DialogService {
 		width: '360px',
 	}
 
+	// Track active dialogs to handle dismissing the most recent one
+	private activeDialogs: ConfirmDialog[] = []
+
 	// Private constructor for singleton pattern
 	private constructor() {}
 
@@ -117,8 +120,17 @@ export class DialogService {
 			dialog.addEventListener('cancel', onCancel)
 		}
 
+		// Add this dialog to active dialogs
+		this.activeDialogs.push(dialog)
+
 		// Show dialog and return promise
 		return dialog.show(completeOptions.position).finally(() => {
+			// Remove from active dialogs when closed
+			const index = this.activeDialogs.indexOf(dialog)
+			if (index !== -1) {
+				this.activeDialogs.splice(index, 1)
+			}
+
 			// Clean up the content when dialog closes
 			if (completeOptions.content) {
 				const contentEl = dialog.querySelector('[slot="content"]')
@@ -127,6 +139,24 @@ export class DialogService {
 				}
 			}
 		})
+	}
+
+	/**
+	 * Dismiss the most recently opened dialog
+	 * @returns true if a dialog was dismissed, false if no dialogs were open
+	 */
+	public dismiss(): boolean {
+		if (this.activeDialogs.length === 0) {
+			return false
+		}
+
+		// Get the most recently opened dialog (last in the array)
+		const dialog = this.activeDialogs[this.activeDialogs.length - 1]
+
+		// Hide the dialog (with cancel result)
+		dialog.hide(false)
+
+		return true
 	}
 
 	/**
@@ -216,6 +246,14 @@ export const $dialog = {
 		options?: Omit<DialogOptions, 'content' | 'message'>,
 	): Promise<boolean> => {
 		return DialogService.getInstance().component(content, options)
+	},
+
+	/**
+	 * Dismiss the most recently opened dialog
+	 * @returns true if a dialog was dismissed, false if no dialogs were open
+	 */
+	dismiss: (): boolean => {
+		return DialogService.getInstance().dismiss()
 	},
 }
 
