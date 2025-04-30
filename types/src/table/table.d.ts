@@ -31,6 +31,10 @@ export declare class SchmancyDataTable<T extends Record<string, any> = any> exte
     private filteredData;
     constructor();
     protected willUpdate(changedProperties: Map<PropertyKey, unknown>): void;
+    /**
+     * Helper function to check if a value is a Date object in a type-safe way
+     */
+    private isDate;
     private processData;
     private toggleSort;
     private renderSortIndicator;
