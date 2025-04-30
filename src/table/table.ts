@@ -69,31 +69,56 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 		}
 	}
 
-	// Process the data (filter and sort)
+	/**
+	 * Helper function to check if a value is a Date object in a type-safe way
+	 */
+	private isDate(value: any): value is Date {
+		return value && typeof value === 'object' && Object.prototype.toString.call(value) === '[object Date]'
+	}
+
 	private processData(): void {
 		let result = [...this.data]
 
 		// Apply sorting
 		if (this.sortable && this.sortColumn && this.sortDirection) {
 			result.sort((a, b) => {
-				const aValue = a[this.sortColumn as keyof T] as any
-				const bValue = b[this.sortColumn as keyof T] as any
+				const aValue = a[this.sortColumn as keyof T]
+				const bValue = b[this.sortColumn as keyof T]
 
-				// Handle different types of values
-				if (typeof aValue === 'string' && typeof bValue === 'string') {
-					return this.sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
-				} else if (typeof aValue === 'number' && typeof bValue === 'number') {
+				// Handle null/undefined values - always sort them to the end regardless of sort direction
+				if (aValue === null || aValue === undefined) {
+					return this.sortDirection === 'asc' ? 1 : -1
+				}
+				if (bValue === null || bValue === undefined) {
+					return this.sortDirection === 'asc' ? -1 : 1
+				}
+
+				// Handle numbers
+				if (typeof aValue === 'number' && typeof bValue === 'number') {
 					return this.sortDirection === 'asc' ? aValue - bValue : bValue - aValue
-				} else if (aValue && bValue && aValue instanceof Date && bValue instanceof Date) {
+				}
+
+				// Detect and handle numeric strings - convert to numbers if both values are numeric
+				const aNumeric = typeof aValue === 'string' && !isNaN(Number(aValue))
+				const bNumeric = typeof bValue === 'string' && !isNaN(Number(bValue))
+
+				if (aNumeric && bNumeric) {
+					const aNum = parseFloat(aValue as string)
+					const bNum = parseFloat(bValue as string)
+					return this.sortDirection === 'asc' ? aNum - bNum : bNum - aNum
+				}
+
+				// Handle dates - with proper type checking
+				if (this.isDate(aValue) && this.isDate(bValue)) {
 					return this.sortDirection === 'asc'
 						? aValue.getTime() - bValue.getTime()
 						: bValue.getTime() - aValue.getTime()
-				} else {
-					// Fallback to string comparison
-					const aStr = String(aValue || '')
-					const bStr = String(bValue || '')
-					return this.sortDirection === 'asc' ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr)
 				}
+
+				// Convert to strings for string comparison or fallback comparison
+				const aStr = String(aValue)
+				const bStr = String(bValue)
+				return this.sortDirection === 'asc' ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr)
 			})
 		}
 
