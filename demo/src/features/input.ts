@@ -47,6 +47,34 @@ export class DemoInput extends $LitElement(css`
 		return html`
 			<schmancy-surface type="container" fill="all" rounded="left">
 				<example-basic-dropdown></example-basic-dropdown>
+
+				<schmancy-radio-group
+					class="flex flex-col sm:flex-row
+   gap-4"
+				>
+					<schmancy-radio-button value="inventoryItem">
+						<div slot="label">
+							<div class="font-medium">Direct Mapping</div>
+							<div
+								class="text-xs 
+  text-on-surface-variant"
+							>
+								Connect this menu item directly to inventory items
+							</div>
+						</div>
+					</schmancy-radio-button>
+					<schmancy-radio-button value="recipe">
+						<div slot="label">
+							<div class="font-medium">Recipe</div>
+							<div
+								class="text-xs 
+  text-on-surface-variant"
+							>
+								Create a recipe with ingredients
+							</div>
+						</div>
+					</schmancy-radio-button>
+				</schmancy-radio-group>
 				<schmancy-dropdown>
 					<button slot="trigger">Open Dropdown</button>
 
