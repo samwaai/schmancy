@@ -170,7 +170,6 @@ export default class SchmancyNotification extends $LitElement(style) {
 		if (!this._visible && this._closing) return html``
 
 		const typeStyles = this._getTypeStyles()
-		const iconSize = '20px'
 
 		// Calculate elevation based on hover state
 		const elevationLevel = this._hovered ? '3' : '2'
@@ -187,41 +186,58 @@ export default class SchmancyNotification extends $LitElement(style) {
 					transform: this._closing ? 'translateX(120%)' : 'translateX(0)',
 					opacity: this._closing ? '0' : '1',
 					boxShadow: `var(--schmancy-sys-elevation-${elevationLevel})`,
-					transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease',
+					transition:
+						'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease',
 				})}
 				@mouseenter=${this._handleMouseEnter}
 				@mouseleave=${this._handleMouseLeave}
 			>
 				<div class="notification-content">
-					<div 
-						class="icon-container" 
-						${color({ 
-							color: typeStyles.iconColor, 
-							bgColor: `color-mix(in srgb, ${typeStyles.iconColor} 10%, transparent)`
+					<div
+						class="icon-container"
+						${color({
+							color: typeStyles.iconColor,
+							bgColor: `color-mix(in srgb, ${typeStyles.iconColor} 10%, transparent)`,
 						})}
 					>
 						${typeStyles.icon}
 					</div>
 
 					<div class="content">
-						${this.title ? html` 
-							<div class="title" style=${styleMap({
-								color: this.type === 'info' ? `color-mix(in srgb, ${SchmancyTheme.sys.color.primary.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)` :
-										this.type === 'success' ? `color-mix(in srgb, ${SchmancyTheme.sys.color.success.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)` :
-										this.type === 'warning' ? `color-mix(in srgb, ${SchmancyTheme.sys.color.tertiary.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)` :
-										`color-mix(in srgb, ${SchmancyTheme.sys.color.error.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)`
-							})}>${this.title}</div> 
-						` : ''}
+						${this.title
+							? html`
+									<div
+										class="title"
+										style=${styleMap({
+											color:
+												this.type === 'info'
+													? `color-mix(in srgb, ${SchmancyTheme.sys.color.primary.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)`
+													: this.type === 'success'
+														? `color-mix(in srgb, ${SchmancyTheme.sys.color.success.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)`
+														: this.type === 'warning'
+															? `color-mix(in srgb, ${SchmancyTheme.sys.color.tertiary.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)`
+															: `color-mix(in srgb, ${SchmancyTheme.sys.color.error.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)`,
+										})}
+									>
+										${this.title}
+									</div>
+								`
+							: ''}
 
 						<div class="message">${this.message}</div>
 					</div>
 
 					${this.closable
 						? html`
-								<button class="close-button" aria-label="Close notification" @click=${this.close}
+								<button
+									class="close-button"
+									aria-label="Close notification"
+									@click=${this.close}
 									style=${styleMap({
-										color: this.type === 'neutral' ? SchmancyTheme.sys.color.surface.onVariant :
-												`color-mix(in srgb, ${typeStyles.iconColor} 80%, ${SchmancyTheme.sys.color.surface.onVariant} 20%)`
+										color:
+											this.type === 'info'
+												? SchmancyTheme.sys.color.surface.onVariant
+												: `color-mix(in srgb, ${typeStyles.iconColor} 80%, ${SchmancyTheme.sys.color.surface.onVariant} 20%)`,
 									})}
 								>
 									<svg

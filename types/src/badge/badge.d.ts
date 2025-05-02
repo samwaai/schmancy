@@ -56,6 +56,7 @@ export declare class SchmancyBadgeV2 extends SchmancyBadgeV2_base {
     /**
      * Convert the size to appropriate Tailwind classes for the badge container
      * Using harmonious padding ratios based on golden ratio principles
+     * Refined for more elegant proportions
      */
     private getSizeClasses;
     /**
@@ -73,6 +74,7 @@ export declare class SchmancyBadgeV2 extends SchmancyBadgeV2_base {
     private getExoticStyles;
     /**
      * Get background and text colors based on selected color variant
+     * Enhanced for more elegant color combinations with refined contrasts
      */
     private getColorStyles;
     render(): import("lit-html").TemplateResult<1>;
