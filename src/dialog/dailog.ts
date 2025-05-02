@@ -1,7 +1,6 @@
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { styleMap } from 'lit/directives/style-map.js'
 import { when } from 'lit/directives/when.js'
 
 /**
@@ -28,34 +27,18 @@ export class ConfirmDialog extends $LitElement(css`
 		position: fixed;
 		inset: 0;
 		background: rgba(0, 0, 0, 0.4);
-		animation: fade-in 150ms ease;
 	}
 
 	.dialog {
 		position: absolute;
 		max-width: var(--dialog-width);
 		width: max-content;
-		animation: pop-in 150ms ease;
-	}
-
-	@keyframes pop-in {
-		from {
-			opacity: 0;
-			transform: scale(0.9);
-		}
-		to {
-			opacity: 1;
-			transform: scale(1);
-		}
-	}
-
-	@keyframes fade-in {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
+		max-height: calc(100vh - 40px); /* Prevent exceeding viewport height */
+		/* Center initially */
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -55%); /* Slight upward shift looks better */
+		overflow: auto; /* Allow scrolling for oversized content */
 	}
 `) {
 	/**
@@ -102,11 +85,15 @@ export class ConfirmDialog extends $LitElement(css`
 	 * Simple API: Show the dialog at a specific position
 	 * @returns Promise that resolves to true (confirm) or false (cancel)
 	 */
-	async show(positionOrEvent: { x: number; y: number } | MouseEvent | TouchEvent): Promise<boolean> {
+	async show(positionOrEvent?: { x: number; y: number } | MouseEvent | TouchEvent): Promise<boolean> {
 		// Extract position from event or use direct coordinates
 		let x: number, y: number
 
-		if ('clientX' in positionOrEvent) {
+		if (!positionOrEvent) {
+			// Default to center of viewport if no position provided
+			x = window.innerWidth / 2
+			y = window.innerHeight / 2
+		} else if ('clientX' in positionOrEvent) {
 			// It's a mouse event
 			x = positionOrEvent.clientX
 			y = positionOrEvent.clientY
@@ -121,8 +108,11 @@ export class ConfirmDialog extends $LitElement(css`
 			y = pos.y
 		}
 
-		// Set position and make dialog visible
+		// Pre-calculate position before showing dialog
 		this.position = this.calculatePosition(x, y)
+
+		// Make dialog active but ensure position is calculated first
+		// to prevent visual bouncing
 		this.setAttribute('active', '')
 
 		// Return a promise that resolves when the user makes a choice
@@ -146,9 +136,26 @@ export class ConfirmDialog extends $LitElement(css`
 
 	/**
 	 * Calculate optimal position based on click coordinates
+	 * with viewport boundary checks to prevent dialogs from appearing off-screen
 	 */
 	private calculatePosition(x: number, y: number) {
-		// Default to click position
+		// We can't know the exact dimensions until the dialog is rendered
+		// But we can make an initial adjustment to improve positioning
+		// For more accurate positioning, we'll do a second adjustment in firstUpdated
+
+		// Provide some margin from edges
+		const margin = 20
+
+		// Get viewport dimensions
+		const viewportWidth = window.innerWidth
+		const viewportHeight = window.innerHeight
+
+		// Ensure initial x is within viewport bounds
+		x = Math.max(margin, Math.min(x, viewportWidth - margin))
+
+		// Ensure initial y is within viewport bounds
+		y = Math.max(margin, Math.min(y, viewportHeight - margin))
+
 		return { x, y }
 	}
 
@@ -156,41 +163,78 @@ export class ConfirmDialog extends $LitElement(css`
 	 * Handle lifecycle callback when dialog is first rendered
 	 */
 	firstUpdated() {
-		// Optimize position after first render when we know the size
-		setTimeout(() => {
-			const dialog = this.shadowRoot?.querySelector('.dialog') as HTMLElement
-			if (!dialog) return
+		// Immediate positioning without animations
+		const dialog = this.shadowRoot?.querySelector('.dialog') as HTMLElement
+		if (!dialog) return
 
-			// Get dialog dimensions
-			const width = dialog.offsetWidth
-			const height = dialog.offsetHeight
+		// Run synchronously to ensure immediate positioning
+		// Get dialog dimensions
+		const width = dialog.offsetWidth
+		const height = dialog.offsetHeight
 
-			// Get viewport dimensions
-			const viewportWidth = window.innerWidth
-			const viewportHeight = window.innerHeight
+		// Get viewport dimensions
+		const viewportWidth = window.innerWidth
+		const viewportHeight = window.innerHeight
 
-			// Reposition if needed to keep dialog in viewport
-			let { x, y } = this.position
+		// Standard margin from edges
+		const margin = 20
 
-			// Make sure dialog stays within viewport horizontally
-			if (x + width > viewportWidth - 16) {
-				x = Math.max(16, viewportWidth - width - 16)
+		// Get dialog initial position
+		let { x, y } = this.position
+
+		// Check if this is a centered dialog (default case or explicitly centered)
+		const isCentered = Math.abs(x - viewportWidth / 2) < 10 && Math.abs(y - viewportHeight / 2) < 10
+
+		if (isCentered) {
+			// For centered dialogs, keep using the CSS transform-based centering
+			return
+		}
+
+		// For non-centered dialogs, calculate the ideal position
+		// HORIZONTAL POSITIONING
+		// First check if dialog extends beyond right edge
+		if (x + width > viewportWidth - margin) {
+			// Try to align to right edge with margin
+			x = viewportWidth - width - margin
+		}
+
+		// Make sure it's not off the left edge either
+		if (x < margin) {
+			x = margin
+		}
+
+		// If dialog is wider than viewport, center it
+		if (width > viewportWidth - margin * 2) {
+			x = (viewportWidth - width) / 2
+		}
+
+		// VERTICAL POSITIONING
+		// Check if the dialog extends beyond bottom edge
+		if (y + height > viewportHeight - margin) {
+			// Try to position above the click point if there's space
+			if (y > height + margin) {
+				// Position above the click point
+				y = y - height - margin
+			} else {
+				// Otherwise, try to center vertically
+				y = Math.max(margin, (viewportHeight - height) / 2)
 			}
+		}
 
-			// Make sure dialog stays within viewport vertically
-			if (y + height > viewportHeight - 16) {
-				// Position above if space available, otherwise at top
-				if (y > height + 32) {
-					y = y - height - 16
-				} else {
-					y = 16
-				}
-			}
+		// Make sure it's not off the top edge
+		if (y < margin) {
+			y = margin
+		}
 
-			// Update dialog position
-			dialog.style.left = `${x}px`
-			dialog.style.top = `${y}px`
-		}, 0)
+		// If dialog is taller than viewport, align to top with margin
+		if (height > viewportHeight - margin * 2) {
+			y = margin
+		}
+
+		// Apply position immediately without animations
+		dialog.style.transform = 'none' // Remove transform-based centering
+		dialog.style.left = `${Math.max(0, Math.round(x))}px`
+		dialog.style.top = `${Math.max(0, Math.round(y))}px`
 	}
 
 	/**
@@ -220,17 +264,14 @@ export class ConfirmDialog extends $LitElement(css`
 	}
 
 	render() {
-		const dialogStyles = {
-			left: `${this.position.x}px`,
-			top: `${this.position.y}px`,
-		}
-
+		// For initial rendering, use transform-based centering from CSS
+		// firstUpdated will handle precise positioning after measuring
 		const hasCustomContent = this.querySelectorAll('[slot="content"]').length > 0
 
 		return html`
 			<div class="overlay" @click=${this.handleCancel}></div>
 
-			<div class="dialog" style=${styleMap(dialogStyles)} role="alertdialog" aria-modal="true">
+			<div class="dialog" role="alertdialog" aria-modal="true">
 				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
 					<schmancy-form @submit=${this.handleConfirm} class="p-4">
 						${when(
@@ -262,7 +303,7 @@ export class ConfirmDialog extends $LitElement(css`
 		confirmText?: string
 		cancelText?: string
 		variant?: 'default' | 'danger'
-		position: { x: number; y: number } | MouseEvent | TouchEvent
+		position?: { x: number; y: number } | MouseEvent | TouchEvent
 		width?: string
 	}): Promise<boolean> {
 		// Create dialog if it doesn't exist
@@ -286,9 +327,9 @@ export class ConfirmDialog extends $LitElement(css`
 	}
 
 	/**
-	 * Even simpler shorthand method - just pass the event and message
+	 * Even simpler shorthand method - just pass message and optionally an event
 	 */
-	static async ask(event: MouseEvent | TouchEvent, message: string): Promise<boolean> {
+	static async ask(message: string, event?: MouseEvent | TouchEvent): Promise<boolean> {
 		return this.confirm({
 			message,
 			position: event,

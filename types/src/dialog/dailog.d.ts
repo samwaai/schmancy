@@ -38,7 +38,7 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
      * Simple API: Show the dialog at a specific position
      * @returns Promise that resolves to true (confirm) or false (cancel)
      */
-    show(positionOrEvent: {
+    show(positionOrEvent?: {
         x: number;
         y: number;
     } | MouseEvent | TouchEvent): Promise<boolean>;
@@ -72,16 +72,16 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
         confirmText?: string;
         cancelText?: string;
         variant?: 'default' | 'danger';
-        position: {
+        position?: {
             x: number;
             y: number;
         } | MouseEvent | TouchEvent;
         width?: string;
     }): Promise<boolean>;
     /**
-     * Even simpler shorthand method - just pass the event and message
+     * Even simpler shorthand method - just pass message and optionally an event
      */
-    static ask(event: MouseEvent | TouchEvent, message: string): Promise<boolean>;
+    static ask(message: string, event?: MouseEvent | TouchEvent): Promise<boolean>;
 }
 declare global {
     interface HTMLElementTagNameMap {

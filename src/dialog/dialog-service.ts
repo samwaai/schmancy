@@ -10,7 +10,7 @@ export interface DialogOptions {
 	confirmText?: string
 	cancelText?: string
 	variant?: 'default' | 'danger'
-	position: { x: number; y: number } | MouseEvent | TouchEvent
+	position?: { x: number; y: number } | MouseEvent | TouchEvent
 
 	// New options for component rendering
 	content?: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult)
@@ -166,7 +166,7 @@ export class DialogService {
 	public ask(message: string, event?: MouseEvent | TouchEvent): Promise<boolean> {
 		return this.confirm({
 			message,
-			position: event || this.getCenteredPosition(),
+			position: event,
 		})
 	}
 
@@ -187,7 +187,7 @@ export class DialogService {
 	 */
 	public component(
 		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
-		options: Omit<DialogOptions, 'content' | 'message'> = { position: this.getCenteredPosition() },
+		options: Omit<DialogOptions, 'content' | 'message'> = {},
 	): Promise<boolean> {
 		return this.confirm({
 			...options,

@@ -8,7 +8,7 @@ export interface DialogOptions {
     confirmText?: string;
     cancelText?: string;
     variant?: 'default' | 'danger';
-    position: {
+    position?: {
         x: number;
         y: number;
     } | MouseEvent | TouchEvent;
