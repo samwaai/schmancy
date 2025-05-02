@@ -13,6 +13,8 @@ import { DemoBusy } from './features/busy'
 import { DemoButton } from './features/button'
 import { DemoCard } from './features/card'
 import { DemoContentDrawer } from './features/drawer-content'
+import { DemoDialog } from './features/dialog'
+import { DemoDialogTest } from './features/dialog-test'
 import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoList } from './features/list'
@@ -60,6 +62,8 @@ export class DemoNav extends $LitElement(css`
 			})
 		NavContext.replace([
 			{ name: 'Radio', component: DemoRadio },
+			{ name: 'Dialog', component: DemoDialog },
+			{ name: 'Dialog Test', component: DemoDialogTest },
 			{ name: 'Avatar', component: DemoAvatars },
 			{
 				name: 'Badges',

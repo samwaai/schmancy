@@ -1,5 +1,7 @@
 export * from './button'
 export * from './card'
+export * from './dialog'
+export * from './dialog-test'
 export * from './drawer-content'
 export * from './input'
 export * from './layout'

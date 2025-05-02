@@ -38,6 +38,9 @@ export class DialogService {
 
 	// Track active dialogs to handle dismissing the most recent one
 	private activeDialogs: ConfirmDialog[] = []
+	
+	// Track component dialogs (schmancy-dialog instances)
+	private activeRawDialogs: any[] = []
 
 	// Private constructor for singleton pattern
 	private constructor() {}
@@ -143,21 +146,99 @@ export class DialogService {
 	}
 
 	/**
-	 * Dismiss the most recently opened dialog
+	 * Show a dialog with custom component content
+	 * Always renders content directly without any headers or action buttons
+	 * @returns Promise that resolves when dialog is closed
+	 */
+	public component(
+		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
+		options: Omit<DialogOptions, 'content' | 'message'> = {},
+	): Promise<boolean> {
+		// Create a direct container for the component without any wrapping
+		const directContentContainer = document.createElement('div');
+		directContentContainer.style.height = '100%';
+		directContentContainer.style.width = '100%';
+		directContentContainer.classList.add('schmancy-dialog-content-container');
+		
+		// Render the content directly
+		if (typeof content === 'function') {
+			const result = content();
+			if (result instanceof HTMLElement) {
+				directContentContainer.appendChild(result);
+			} else {
+				render(result, directContentContainer);
+			}
+		} else if (content instanceof HTMLElement) {
+			directContentContainer.appendChild(content);
+		} else {
+			render(content, directContentContainer);
+		}
+		
+		// Create dialog if it doesn't exist
+		let dialog = document.querySelector('schmancy-dialog') as any;
+		if (!dialog) {
+			dialog = document.createElement('schmancy-dialog');
+			document.body.appendChild(dialog);
+		}
+		
+		// Always use raw component rendering with no actions
+		dialog.appendChild(directContentContainer);
+		
+		// Set width from options
+		if (options.width) {
+			dialog.style.setProperty('--dialog-width', options.width);
+		}
+		
+		// Add to active raw dialogs for dismiss functionality
+		this.activeRawDialogs.push(dialog);
+		
+		// Show dialog and return promise with cleanup
+		const promise = dialog.show(options.position);
+		return promise.finally(() => {
+			// Clean up content when dialog closes
+			if (directContentContainer && directContentContainer.parentNode) {
+				directContentContainer.parentNode.removeChild(directContentContainer);
+			}
+			
+			// Remove from active raw dialogs
+			const index = this.activeRawDialogs.indexOf(dialog);
+			if (index !== -1) {
+				this.activeRawDialogs.splice(index, 1);
+			}
+		});
+	}
+
+	/**
+	 * Dismiss the most recently opened dialog (either confirm or component type)
 	 * @returns true if a dialog was dismissed, false if no dialogs were open
 	 */
 	public dismiss(): boolean {
-		if (this.activeDialogs.length === 0) {
-			return false
+		// Try component dialog first (they're more likely to be on top)
+		if (this.activeRawDialogs.length > 0) {
+			// Get the most recently opened raw dialog (last in the array)
+			const dialog = this.activeRawDialogs[this.activeRawDialogs.length - 1];
+			
+			// Hide the dialog
+			dialog.hide(false);
+			
+			// Remove from active dialogs
+			this.activeRawDialogs.pop();
+			
+			return true;
+		}
+		
+		// Fall back to confirm dialogs
+		if (this.activeDialogs.length > 0) {
+			// Get the most recently opened dialog (last in the array)
+			const dialog = this.activeDialogs[this.activeDialogs.length - 1];
+			
+			// Hide the dialog (with cancel result)
+			dialog.hide(false);
+			
+			return true;
 		}
 
-		// Get the most recently opened dialog (last in the array)
-		const dialog = this.activeDialogs[this.activeDialogs.length - 1]
-
-		// Hide the dialog (with cancel result)
-		dialog.hide(false)
-
-		return true
+		return false;
 	}
 
 	/**
@@ -179,37 +260,6 @@ export class DialogService {
 		return this.confirm({
 			...options,
 			variant: 'danger',
-		})
-	}
-
-	/**
-	 * Show a dialog with custom component content
-	 * @returns Promise that resolves to true (confirm) or false (cancel)
-	 */
-	public component(
-		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
-		options: Omit<DialogOptions, 'content' | 'message'> = {},
-	): Promise<boolean> {
-		// By default, component dialogs have hideActions=true
-		const useActions = options.hideActions === false;
-		
-		if (!useActions) {
-			return this.confirm({
-				...options,
-				content,
-				title: undefined,
-				message: undefined,
-				confirmText: '', // Hide buttons by setting empty text
-				cancelText: '',
-			})
-		}
-		
-		return this.confirm({
-			...options,
-			content,
-			// Clear message if content is provided
-			title: undefined,
-			message: undefined,
 		})
 	}
 
@@ -255,7 +305,7 @@ export const $dialog = {
 
 	/**
 	 * Show a dialog with custom component content
-	 * @returns Promise that resolves to true (confirm) or false (cancel)
+	 * @returns Promise that resolves when dialog is closed
 	 */
 	component: (
 		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
@@ -266,6 +316,7 @@ export const $dialog = {
 
 	/**
 	 * Show a simple dialog without title or actions, just content
+	 * This is an alias for component() since all component dialogs are now simple by design
 	 * @returns Promise that resolves when dialog is closed
 	 */
 	simple: (

@@ -267,7 +267,9 @@ export class ConfirmDialog extends $LitElement(css`
 		// For initial rendering, use transform-based centering from CSS
 		// firstUpdated will handle precise positioning after measuring
 		const hasCustomContent = this.querySelectorAll('[slot="content"]').length > 0
-		const showButtons = this.confirmText && this.cancelText
+		// Only show buttons if both confirmText and cancelText are non-empty strings
+		const showButtons = this.confirmText && this.confirmText.trim() !== '' && 
+		                    this.cancelText && this.cancelText.trim() !== ''
 
 		return html`
 			<div class="overlay" @click=${this.handleCancel}></div>
@@ -276,14 +278,15 @@ export class ConfirmDialog extends $LitElement(css`
 				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
 					<schmancy-form @submit=${this.handleConfirm} class="p-4">
 						${when(
-							this.title,
+							this.title && this.title.trim() !== '',
 							() =>
 								html` <schmancy-typography type="title" token="md" class="mb-2"> ${this.title} </schmancy-typography>`,
 						)}
 						${hasCustomContent
 							? html`<div class="${showButtons ? 'mb-4' : ''}"><slot name="content"></slot></div>`
-							: html`<schmancy-typography type="body" class="mb-4"> ${this.message} </schmancy-typography>`}
-
+							: when(this.message && this.message.trim() !== '', 
+								() => html`<schmancy-typography type="body" class="mb-4"> ${this.message} </schmancy-typography>`
+							)}
 						${when(
 							showButtons,
 							() => html`
@@ -291,7 +294,7 @@ export class ConfirmDialog extends $LitElement(css`
 									<schmancy-button variant="outlined" @click=${this.handleCancel}> ${this.cancelText} </schmancy-button>
 									<schmancy-button type="submit" variant="filled"> ${this.confirmText} </schmancy-button>
 								</div>
-							`
+							`,
 						)}
 					</schmancy-form>
 				</schmancy-surface>
