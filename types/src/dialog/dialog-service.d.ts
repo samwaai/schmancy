@@ -16,6 +16,7 @@ export interface DialogOptions {
     width?: string;
     onConfirm?: () => void;
     onCancel?: () => void;
+    hideActions?: boolean;
 }
 /**
  * Dialog service for centralized dialog management.
@@ -84,6 +85,11 @@ export declare const $dialog: {
      * @returns Promise that resolves to true (confirm) or false (cancel)
      */
     component: (content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, "content" | "message">) => Promise<boolean>;
+    /**
+     * Show a simple dialog without title or actions, just content
+     * @returns Promise that resolves when dialog is closed
+     */
+    simple: (content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, "content" | "message" | "title" | "confirmText" | "cancelText">) => Promise<boolean>;
     /**
      * Dismiss the most recently opened dialog
      * @returns true if a dialog was dismissed, false if no dialogs were open
