@@ -9,13 +9,15 @@ declare const RadioGroup_base: import("@mixins/index").Constructor<CustomElement
 export declare class RadioGroup extends RadioGroup_base {
     label: string;
     name: string;
-    selected: string;
+    value: string;
     options: SchmancyRadioGroupOption[];
     required: boolean;
     private selection$;
     connectedCallback(): void;
     disconnectedCallback(): void;
     private handleSelection;
+    private updateChildRadioButtons;
+    updated(changedProperties: Map<string, any>): void;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
