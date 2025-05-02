@@ -389,14 +389,19 @@ class UserProfile extends LitElement {
 	@select(userStore, state => state.name)
 	username: string
 
-	// Select with options
+	// Select with options (required: true is default since v0.2.178)
 	@select(userStore, state => state.preferences, {
-		required: true, // Wait for non-null value before rendering
 		deepClone: true, // Deep clone values to prevent mutations
 		updateOnly: false, // Set property and trigger update
 		debug: false, // Enable debug logging
 	})
 	preferences: Preferences
+	
+	// Override the default required behavior
+	@select(userStore, state => state.optionalData, {
+		required: false // Don't wait for non-null value before rendering
+	})
+	optionalData: OptionalData
 
 	// Select an item from a collection
 	@selectItem(todosStore, function (this: TodoItem) {

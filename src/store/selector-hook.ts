@@ -48,7 +48,7 @@ type PropertyDescriptor<T> = {
  * Options for selecting from a store
  */
 interface SelectOptions {
-	/** If true, will wait for selector to emit a non-null value before calling connectedCallback */
+	/** If true, will wait for selector to emit a non-null value before calling connectedCallback. Default is true. */
 	required?: boolean
 
 	/** If true, will only update the component and not set the property value */
@@ -121,7 +121,7 @@ function cleanupSelectorResources(component: ComponentWithLifecycle): void {
 export function select<T, R>(
 	store: IStore<T> | ICollectionStore<T>,
 	selectorFn: (state: any) => R = (state: R) => state,
-	options: SelectOptions = {},
+	options: SelectOptions = { required: true },
 ) {
 	return function (proto: Record<string, any>, propName: string, _descriptor?: PropertyDescriptor<R>) {
 		// Register as a Lit property
@@ -232,7 +232,7 @@ export function select<T, R>(
 export function selectItem<T>(
 	store: ICollectionStore<T>,
 	keyGetter: (component: any) => string,
-	options: SelectOptions = {},
+	options: SelectOptions = { required: true },
 ) {
 	return function (proto: Record<string, any>, propName: string, _descriptor?: PropertyDescriptor<T | undefined>) {
 		select(
