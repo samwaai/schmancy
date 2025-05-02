@@ -48,6 +48,7 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
     hide(confirmed?: boolean): void;
     /**
      * Calculate optimal position based on click coordinates
+     * with viewport boundary checks to prevent dialogs from appearing off-screen
      */
     private calculatePosition;
     /**
