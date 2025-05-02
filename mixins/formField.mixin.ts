@@ -1,8 +1,8 @@
 import { CSSResult, LitElement, PropertyValueMap } from 'lit'
 import { property } from 'lit/decorators.js'
-import { IBaseMixin } from '../mixins/baseElement'
-import { Constructor } from '../mixins/constructor'
-import { ITailwindElementMixin, TailwindElement } from '../mixins/tailwind.mixin'
+import { IBaseMixin } from './baseElement'
+import { Constructor } from './constructor'
+import { ITailwindElementMixin, TailwindElement } from './tailwind.mixin'
 
 /**
  * Interface defining the properties and methods that the FormFieldMixin adds.

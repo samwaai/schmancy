@@ -17,6 +17,7 @@ import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoList } from './features/list'
 import NotificationDemo from './features/notifications'
+import { DemoRadio } from './features/radio'
 import { DemoRouter } from './features/router'
 import { DemoSheet } from './features/sheet/sheet'
 import { DemoSurface } from './features/surface'
@@ -58,6 +59,7 @@ export class DemoNav extends $LitElement(css`
 				this.activeTab = r.component?.toLowerCase().replaceAll('-', '')
 			})
 		NavContext.replace([
+			{ name: 'Radio', component: DemoRadio },
 			{ name: 'Avatar', component: DemoAvatars },
 			{
 				name: 'Badges',

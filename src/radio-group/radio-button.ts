@@ -1,13 +1,14 @@
 import { TailwindElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { FormFieldMixin } from '../../mixins/formField.mixin'
 
 @customElement('schmancy-radio-button')
-export class RadioButton extends TailwindElement() {
-	@property({ type: String }) value = ''
+export class RadioButton extends FormFieldMixin(TailwindElement()) {
+	@property({ type: String }) override value = ''
 	@property({ type: Boolean, reflect: true }) checked = false
-	@property({ type: Boolean }) disabled = false
-	@property({ type: String }) name = ''
+	@property({ type: Boolean }) override disabled = false
+	@property({ type: String }) override name = ''
 
 	connectedCallback() {
 		super.connectedCallback()
@@ -36,13 +37,7 @@ export class RadioButton extends TailwindElement() {
 		} else {
 			// Standalone usage
 			this.checked = true
-			this.dispatchEvent(
-				new CustomEvent('change', {
-					detail: { value: this.value },
-					bubbles: true,
-					composed: true,
-				}),
-			)
+			this.emitChange({ value: this.value })
 		}
 	}
 

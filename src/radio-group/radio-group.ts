@@ -4,6 +4,7 @@ import { Subject } from 'rxjs'
 import style from './radio-group.scss?inline'
 import { TailwindElement } from '@mixins/index'
 import { when } from 'lit/directives/when.js'
+import { FormFieldMixin } from '../../mixins/formField.mixin'
 
 export type SchmancyRadioGroupOption = {
 	label: string
@@ -13,24 +14,19 @@ export type SchmancyRadioGroupChangeEvent = CustomEvent<{
 	value: string
 }>
 @customElement('schmancy-radio-group')
-export class RadioGroup extends TailwindElement(style) {
-	@property({ type: String }) label = ''
-	@property({ type: String }) name = ''
-	@property({ type: String }) value = ''
+export class RadioGroup extends FormFieldMixin(TailwindElement(style)) {
+	@property({ type: String }) override label = ''
+	@property({ type: String }) override name = ''
+	@property({ type: String }) override value = ''
 	@property({ type: Array }) options: SchmancyRadioGroupOption[] = []
-	@property({ type: Boolean }) required: boolean = false
+	@property({ type: Boolean }) override required: boolean = false
 	private selection$ = new Subject<string>()
 
 	connectedCallback() {
 		super.connectedCallback()
 		this.selection$.subscribe(value => {
 			this.value = value
-			this.dispatchEvent(
-				new CustomEvent('change', {
-					detail: { value },
-					bubbles: true,
-				}),
-			)
+			this.emitChange({ value })
 			// Update all child radio buttons
 			this.updateChildRadioButtons()
 		})
