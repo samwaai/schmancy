@@ -2,6 +2,7 @@ import { $LitElement } from '@mixins/index'
 import { $notify } from '@schmancy/notification'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
+import { tooltip } from '../../../src/tooltip/tooltip.directive'
 
 @customElement('demo-button')
 export class DemoButton extends $LitElement(css`
@@ -14,6 +15,7 @@ export class DemoButton extends $LitElement(css`
 			<schmancy-grid gap="md">
 				<schmancy-typography type="title">Normal</schmancy-typography>
 				<schmancy-icon-button
+					${tooltip('Delete this item', { position: 'left' })}
 					@click=${() => {
 						$notify.success('Operation completed successfully.')
 					}}

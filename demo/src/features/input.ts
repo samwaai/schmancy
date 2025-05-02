@@ -58,11 +58,21 @@ export class DemoInput extends $LitElement(css`
 						</schmancy-list>
 					</schmancy-dropdown-content>
 				</schmancy-dropdown>
-				<schmancy-tooltip>
-					<div slot="content" class="p-2 max-w-xs">
-						<p>Verification requires all items to match exactly and the invoice total to equal the order total.</p>
-					</div>
-					<schmancy-icon-button><schmancy-icon>help_outline</schmancy-icon></schmancy-icon-button>
+				<!-- Simple usage -->
+				<schmancy-tooltip text="Find Product Image">
+					<schmancy-button variant="outlined" size="sm" icon>
+						<schmancy-icon size="18px">image_search</schmancy-icon>
+					</schmancy-button>
+				</schmancy-tooltip>
+
+				<!-- With custom position -->
+				<schmancy-tooltip text="Delete this item" position="left">
+					<button>Delete</button>
+				</schmancy-tooltip>
+
+				<!-- With custom delay -->
+				<schmancy-tooltip text="Save progress" delay="500">
+					<schmancy-icon>save</schmancy-icon>
 				</schmancy-tooltip>
 				<schmancy-scroll scroll-padding-end="24" hide>
 					<schmancy-chips wrap="nowrap">
