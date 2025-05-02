@@ -40,6 +40,8 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 		display: flex;
 		align-items: center;
 		line-height: 1;
+		letter-spacing: 0.01em;
+		font-kerning: normal;
 	}
 
 	/* Improved vertical alignment for icon and text */
@@ -65,6 +67,35 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+
+	/* Elegant hover effect for better interactivity */
+	:host([outlined]) div[part="badge"] {
+		transition: all 0.2s ease;
+	}
+
+	:host([outlined]) div[part="badge"]:hover {
+		filter: brightness(0.95);
+		transform: translateY(-1px);
+	}
+
+	/* Non-outlined badges get subtle hover effects */
+	:host(:not([outlined])) div[part="badge"]:hover {
+		filter: brightness(0.98);
+	}
+
+	/* Enhanced pulse animation for better attention-getting */
+	@keyframes elegant-pulse {
+		0%, 100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.85;
+		}
+	}
+
+	.animate-pulse {
+		animation: elegant-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 	}
 `) {
 	/**
@@ -112,18 +143,19 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 	/**
 	 * Convert the size to appropriate Tailwind classes for the badge container
 	 * Using harmonious padding ratios based on golden ratio principles
+	 * Refined for more elegant proportions
 	 */
 	private getSizeClasses(): string {
 		switch (this.size) {
 			case 'xs':
-				return 'text-xs py-1 px-1.5 gap-0.5 leading-none'
+				return 'text-xs py-0.75 px-1.5 gap-0.5 leading-none'
 			case 'sm':
-				return 'text-xs py-1.5 px-2 gap-0.5 tracking-wide leading-none'
+				return 'text-xs py-1.5 px-2.5 gap-0.5 tracking-wide leading-none'
 			case 'lg':
-				return 'text-base py-2 px-3 gap-1 tracking-wide'
+				return 'text-base py-2 px-4 gap-1 tracking-wide'
 			case 'md':
 			default:
-				return 'text-sm py-1.5 px-2.5 gap-0.5'
+				return 'text-sm py-1.5 px-3 gap-0.5'
 		}
 	}
 
@@ -180,43 +212,44 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 
 	/**
 	 * Get background and text colors based on selected color variant
+	 * Enhanced for more elegant color combinations with refined contrasts
 	 */
 	private getColorStyles() {
 		const colors: Record<BadgeColor, { bg: string; text: string; border?: string }> = {
 			primary: {
-				bg: this.outlined ? 'transparent' : SchmancyTheme.sys.color.primary.container,
+				bg: this.outlined ? 'transparent' : `color-mix(in srgb, ${SchmancyTheme.sys.color.primary.container} 92%, ${SchmancyTheme.sys.color.primary.default} 8%)`,
 				text: this.outlined ? SchmancyTheme.sys.color.primary.default : SchmancyTheme.sys.color.primary.onContainer,
-				border: this.outlined ? SchmancyTheme.sys.color.primary.default : undefined,
+				border: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.primary.default} 90%, ${SchmancyTheme.sys.color.surface.highest} 10%)` : undefined,
 			},
 			secondary: {
-				bg: this.outlined ? 'transparent' : SchmancyTheme.sys.color.secondary.container,
+				bg: this.outlined ? 'transparent' : `color-mix(in srgb, ${SchmancyTheme.sys.color.secondary.container} 95%, ${SchmancyTheme.sys.color.secondary.default} 5%)`,
 				text: this.outlined ? SchmancyTheme.sys.color.secondary.default : SchmancyTheme.sys.color.secondary.onContainer,
-				border: this.outlined ? SchmancyTheme.sys.color.secondary.default : undefined,
+				border: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.secondary.default} 85%, ${SchmancyTheme.sys.color.surface.highest} 15%)` : undefined,
 			},
 			tertiary: {
-				bg: this.outlined ? 'transparent' : SchmancyTheme.sys.color.tertiary.container,
+				bg: this.outlined ? 'transparent' : `color-mix(in srgb, ${SchmancyTheme.sys.color.tertiary.container} 94%, ${SchmancyTheme.sys.color.tertiary.default} 6%)`,
 				text: this.outlined ? SchmancyTheme.sys.color.tertiary.default : SchmancyTheme.sys.color.tertiary.onContainer,
-				border: this.outlined ? SchmancyTheme.sys.color.tertiary.default : undefined,
+				border: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.tertiary.default} 88%, ${SchmancyTheme.sys.color.surface.highest} 12%)` : undefined,
 			},
 			success: {
-				bg: this.outlined ? 'transparent' : SchmancyTheme.sys.color.success.container,
+				bg: this.outlined ? 'transparent' : `color-mix(in srgb, ${SchmancyTheme.sys.color.success.container} 90%, ${SchmancyTheme.sys.color.success.default} 10%)`,
 				text: this.outlined ? SchmancyTheme.sys.color.success.default : SchmancyTheme.sys.color.success.onContainer,
-				border: this.outlined ? SchmancyTheme.sys.color.success.default : undefined,
+				border: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.success.default} 85%, ${SchmancyTheme.sys.color.surface.bright} 15%)` : undefined,
 			},
 			warning: {
-				bg: this.outlined ? 'transparent' : SchmancyTheme.sys.color.tertiary.container,
+				bg: this.outlined ? 'transparent' : `color-mix(in srgb, ${SchmancyTheme.sys.color.tertiary.container} 85%, ${SchmancyTheme.sys.color.tertiary.default} 15%)`,
 				text: this.outlined ? SchmancyTheme.sys.color.tertiary.default : SchmancyTheme.sys.color.tertiary.onContainer,
-				border: this.outlined ? SchmancyTheme.sys.color.tertiary.default : undefined,
+				border: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.tertiary.default} 90%, ${SchmancyTheme.sys.color.surface.highest} 10%)` : undefined,
 			},
 			error: {
-				bg: this.outlined ? 'transparent' : SchmancyTheme.sys.color.error.container,
+				bg: this.outlined ? 'transparent' : `color-mix(in srgb, ${SchmancyTheme.sys.color.error.container} 92%, ${SchmancyTheme.sys.color.error.default} 8%)`,
 				text: this.outlined ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.error.onContainer,
-				border: this.outlined ? SchmancyTheme.sys.color.error.default : undefined,
+				border: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.error.default} 88%, ${SchmancyTheme.sys.color.surface.bright} 12%)` : undefined,
 			},
 			neutral: {
-				bg: this.outlined ? 'transparent' : SchmancyTheme.sys.color.surface.high,
-				text: this.outlined ? SchmancyTheme.sys.color.surface.on : SchmancyTheme.sys.color.surface.on,
-				border: this.outlined ? SchmancyTheme.sys.color.outline : undefined,
+				bg: this.outlined ? 'transparent' : `color-mix(in srgb, ${SchmancyTheme.sys.color.surface.high} 95%, ${SchmancyTheme.sys.color.outline} 5%)`,
+				text: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.surface.on} 95%, ${SchmancyTheme.sys.color.surface.default} 5%)` : SchmancyTheme.sys.color.surface.on,
+				border: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.outline} 85%, ${SchmancyTheme.sys.color.surface.highest} 15%)` : undefined,
 			},
 		}
 
@@ -236,11 +269,22 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 			[shapeClasses]: true,
 			'animate-pulse': this.pulse,
 			'border border-solid': this.outlined,
-			'shadow-sm': !this.outlined && this.size !== 'xs',
+			'shadow-sm': !this.outlined && this.size === 'sm',
+			'shadow': !this.outlined && this.size === 'md',
+			'shadow-md': !this.outlined && this.size === 'lg',
 		}
 
+		// Refined styles for a more elegant look
 		const styles = {
 			borderColor: colorStyles.border,
+			transition: 'all 0.2s ease',
+			...(this.outlined ? {
+				backdropFilter: 'blur(4px)',
+				borderWidth: '1px',
+			} : {}),
+			...(this.size === 'lg' && !this.outlined ? {
+				boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1)'
+			} : {}),
 			...exoticStyles,
 		}
 

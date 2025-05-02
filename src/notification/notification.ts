@@ -170,6 +170,10 @@ export default class SchmancyNotification extends $LitElement(style) {
 		if (!this._visible && this._closing) return html``
 
 		const typeStyles = this._getTypeStyles()
+		const iconSize = '20px'
+
+		// Calculate elevation based on hover state
+		const elevationLevel = this._hovered ? '3' : '2'
 
 		return html`
 			<div
@@ -182,25 +186,47 @@ export default class SchmancyNotification extends $LitElement(style) {
 				style=${styleMap({
 					transform: this._closing ? 'translateX(120%)' : 'translateX(0)',
 					opacity: this._closing ? '0' : '1',
+					boxShadow: `var(--schmancy-sys-elevation-${elevationLevel})`,
+					transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease',
 				})}
 				@mouseenter=${this._handleMouseEnter}
 				@mouseleave=${this._handleMouseLeave}
 			>
 				<div class="notification-content">
-					<div class="icon-container" ${color({ color: typeStyles.iconColor })}>${typeStyles.icon}</div>
+					<div 
+						class="icon-container" 
+						${color({ 
+							color: typeStyles.iconColor, 
+							bgColor: `color-mix(in srgb, ${typeStyles.iconColor} 10%, transparent)`
+						})}
+					>
+						${typeStyles.icon}
+					</div>
 
 					<div class="content">
-						${this.title ? html` <div class="title">${this.title}</div> ` : ''}
+						${this.title ? html` 
+							<div class="title" style=${styleMap({
+								color: this.type === 'info' ? `color-mix(in srgb, ${SchmancyTheme.sys.color.primary.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)` :
+										this.type === 'success' ? `color-mix(in srgb, ${SchmancyTheme.sys.color.success.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)` :
+										this.type === 'warning' ? `color-mix(in srgb, ${SchmancyTheme.sys.color.tertiary.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)` :
+										`color-mix(in srgb, ${SchmancyTheme.sys.color.error.default} 90%, ${SchmancyTheme.sys.color.surface.on} 10%)`
+							})}>${this.title}</div> 
+						` : ''}
 
 						<div class="message">${this.message}</div>
 					</div>
 
 					${this.closable
 						? html`
-								<button class="close-button" aria-label="Close notification" @click=${this.close}>
+								<button class="close-button" aria-label="Close notification" @click=${this.close}
+									style=${styleMap({
+										color: this.type === 'neutral' ? SchmancyTheme.sys.color.surface.onVariant :
+												`color-mix(in srgb, ${typeStyles.iconColor} 80%, ${SchmancyTheme.sys.color.surface.onVariant} 20%)`
+									})}
+								>
 									<svg
-										width="16"
-										height="16"
+										width="18"
+										height="18"
 										viewBox="0 0 24 24"
 										fill="none"
 										stroke="currentColor"
@@ -222,7 +248,7 @@ export default class SchmancyNotification extends $LitElement(style) {
 								<div
 									class="progress-bar"
 									style="width: ${this._progress}%"
-									${color({ bgColor: typeStyles.progressColor })}
+									${color({ color: typeStyles.progressColor })}
 								></div>
 							</div>
 						`
@@ -251,7 +277,7 @@ export default class SchmancyNotification extends $LitElement(style) {
 						</svg>
 					`,
 					iconColor: SchmancyTheme.sys.color.success.default,
-					progressColor: SchmancyTheme.sys.color.success.default,
+					progressColor: `color-mix(in srgb, ${SchmancyTheme.sys.color.success.default} 95%, ${SchmancyTheme.sys.color.success.container} 5%)`,
 				}
 			case 'warning':
 				return {
@@ -272,7 +298,7 @@ export default class SchmancyNotification extends $LitElement(style) {
 						</svg>
 					`,
 					iconColor: SchmancyTheme.sys.color.tertiary.default,
-					progressColor: SchmancyTheme.sys.color.tertiary.default,
+					progressColor: `color-mix(in srgb, ${SchmancyTheme.sys.color.tertiary.default} 90%, ${SchmancyTheme.sys.color.tertiary.container} 10%)`,
 				}
 			case 'error':
 				return {
@@ -293,7 +319,7 @@ export default class SchmancyNotification extends $LitElement(style) {
 						</svg>
 					`,
 					iconColor: SchmancyTheme.sys.color.error.default,
-					progressColor: SchmancyTheme.sys.color.error.default,
+					progressColor: `color-mix(in srgb, ${SchmancyTheme.sys.color.error.default} 92%, ${SchmancyTheme.sys.color.error.container} 8%)`,
 				}
 			case 'info':
 			default:
@@ -315,7 +341,7 @@ export default class SchmancyNotification extends $LitElement(style) {
 						</svg>
 					`,
 					iconColor: SchmancyTheme.sys.color.primary.default,
-					progressColor: SchmancyTheme.sys.color.primary.default,
+					progressColor: `color-mix(in srgb, ${SchmancyTheme.sys.color.primary.default} 94%, ${SchmancyTheme.sys.color.primary.container} 6%)`,
 				}
 		}
 	}
