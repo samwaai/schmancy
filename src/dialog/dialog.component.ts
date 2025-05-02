@@ -1,16 +1,15 @@
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
-import { when } from 'lit/directives/when.js'
+import { customElement } from 'lit/decorators.js'
 
 /**
- * A confirm dialog web component with custom content support
+ * A basic dialog web component without title or actions
  *
- * @element confirm-dialog
- * @slot content - Optional slot for custom content
+ * @element schmancy-dialog
+ * @slot default - Content slot for dialog body
  */
-@customElement('confirm-dialog')
-export class ConfirmDialog extends $LitElement(css`
+@customElement('schmancy-dialog')
+export class SchmancyDialog extends $LitElement(css`
 	:host {
 		position: fixed;
 		z-index: 10000;
@@ -42,36 +41,6 @@ export class ConfirmDialog extends $LitElement(css`
 	}
 `) {
 	/**
-	 * Dialog title
-	 */
-	@property({ type: String })
-	title = undefined
-
-	/**
-	 * Dialog message
-	 */
-	@property({ type: String })
-	message = undefined
-
-	/**
-	 * Text for confirm button
-	 */
-	@property({ type: String, attribute: 'confirm-text' })
-	confirmText = 'Confirm'
-
-	/**
-	 * Text for cancel button
-	 */
-	@property({ type: String, attribute: 'cancel-text' })
-	cancelText = 'Cancel'
-
-	/**
-	 * Dialog variant (affects button colors)
-	 */
-	@property({ type: String })
-	variant: 'default' | 'danger' = 'default'
-
-	/**
 	 * Current position of the dialog
 	 */
 	private position = { x: 0, y: 0 }
@@ -83,7 +52,7 @@ export class ConfirmDialog extends $LitElement(css`
 
 	/**
 	 * Simple API: Show the dialog at a specific position
-	 * @returns Promise that resolves to true (confirm) or false (cancel)
+	 * @returns Promise that resolves when dialog is closed
 	 */
 	async show(positionOrEvent?: { x: number; y: number } | MouseEvent | TouchEvent): Promise<boolean> {
 		// Extract position from event or use direct coordinates
@@ -124,12 +93,12 @@ export class ConfirmDialog extends $LitElement(css`
 	/**
 	 * Simple API: Hide the dialog
 	 */
-	hide(confirmed = false) {
+	hide(result = false) {
 		this.removeAttribute('active')
 
 		// Resolve any pending promise
 		if (this.resolvePromise) {
-			this.resolvePromise(confirmed)
+			this.resolvePromise(result)
 			this.resolvePromise = undefined
 		}
 	}
@@ -238,25 +207,12 @@ export class ConfirmDialog extends $LitElement(css`
 	}
 
 	/**
-	 * Handle confirm action
+	 * Handle close action
 	 */
-	private handleConfirm() {
-		this.hide(true)
-		this.dispatchEvent(
-			new CustomEvent('confirm', {
-				bubbles: true,
-				composed: true,
-			}),
-		)
-	}
-
-	/**
-	 * Handle cancel action
-	 */
-	private handleCancel() {
+	private handleClose() {
 		this.hide(false)
 		this.dispatchEvent(
-			new CustomEvent('cancel', {
+			new CustomEvent('close', {
 				bubbles: true,
 				composed: true,
 			}),
@@ -264,86 +220,22 @@ export class ConfirmDialog extends $LitElement(css`
 	}
 
 	render() {
-		// For initial rendering, use transform-based centering from CSS
-		// firstUpdated will handle precise positioning after measuring
-		const hasCustomContent = this.querySelectorAll('[slot="content"]').length > 0
-		const showButtons = this.confirmText && this.cancelText
-
 		return html`
-			<div class="overlay" @click=${this.handleCancel}></div>
+			<div class="overlay" @click=${this.handleClose}></div>
 
-			<div class="dialog" role="alertdialog" aria-modal="true">
+			<div class="dialog" role="dialog" aria-modal="true">
 				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
-					<schmancy-form @submit=${this.handleConfirm} class="p-4">
-						${when(
-							this.title,
-							() =>
-								html` <schmancy-typography type="title" token="md" class="mb-2"> ${this.title} </schmancy-typography>`,
-						)}
-						${hasCustomContent
-							? html`<div class="${showButtons ? 'mb-4' : ''}"><slot name="content"></slot></div>`
-							: html`<schmancy-typography type="body" class="mb-4"> ${this.message} </schmancy-typography>`}
-
-						${when(
-							showButtons,
-							() => html`
-								<div class="flex justify-end gap-3">
-									<schmancy-button variant="outlined" @click=${this.handleCancel}> ${this.cancelText} </schmancy-button>
-									<schmancy-button type="submit" variant="filled"> ${this.confirmText} </schmancy-button>
-								</div>
-							`
-						)}
-					</schmancy-form>
+					<div class="p-4">
+						<slot></slot>
+					</div>
 				</schmancy-surface>
 			</div>
 		`
-	}
-
-	/**
-	 * Static helper for even simpler API
-	 */
-	static async confirm(options: {
-		title?: string
-		message?: string
-		confirmText?: string
-		cancelText?: string
-		variant?: 'default' | 'danger'
-		position?: { x: number; y: number } | MouseEvent | TouchEvent
-		width?: string
-	}): Promise<boolean> {
-		// Create dialog if it doesn't exist
-		let dialog = document.querySelector('confirm-dialog') as ConfirmDialog
-
-		if (!dialog) {
-			dialog = document.createElement('confirm-dialog') as ConfirmDialog
-			document.body.appendChild(dialog)
-		}
-
-		// Set options
-		if (options.title) dialog.title = options.title
-		if (options.message) dialog.message = options.message
-		if (options.confirmText) dialog.confirmText = options.confirmText
-		if (options.cancelText) dialog.cancelText = options.cancelText
-		if (options.variant) dialog.variant = options.variant
-		if (options.width) dialog.style.setProperty('--dialog-width', options.width)
-
-		// Show dialog and return promise
-		return dialog.show(options.position)
-	}
-
-	/**
-	 * Even simpler shorthand method - just pass message and optionally an event
-	 */
-	static async ask(message: string, event?: MouseEvent | TouchEvent): Promise<boolean> {
-		return this.confirm({
-			message,
-			position: event,
-		})
 	}
 }
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'confirm-dialog': ConfirmDialog
+		'schmancy-dialog': SchmancyDialog
 	}
 }

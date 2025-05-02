@@ -1,10 +1,10 @@
 import { $LitElement } from '@mixins/index'
-import { $dialog } from '@schmancy/dialog'
 import { SchmancySheetPosition, sheet } from '@schmancy/sheet'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import DemoTypography from '../typography'
 import DemoForm from './form'
+import { $dialog } from '@schmancy/dialog'
 
 @customElement('demo-sheet')
 export class DemoSheet extends $LitElement(css`

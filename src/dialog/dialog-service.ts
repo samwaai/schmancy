@@ -17,6 +17,7 @@ export interface DialogOptions {
 	width?: string
 	onConfirm?: () => void
 	onCancel?: () => void
+	hideActions?: boolean // Set to true to hide all buttons and title
 }
 
 /**
@@ -189,6 +190,20 @@ export class DialogService {
 		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
 		options: Omit<DialogOptions, 'content' | 'message'> = {},
 	): Promise<boolean> {
+		// By default, component dialogs have hideActions=true
+		const useActions = options.hideActions === false;
+		
+		if (!useActions) {
+			return this.confirm({
+				...options,
+				content,
+				title: undefined,
+				message: undefined,
+				confirmText: '', // Hide buttons by setting empty text
+				cancelText: '',
+			})
+		}
+		
 		return this.confirm({
 			...options,
 			content,
@@ -207,6 +222,7 @@ export class DialogService {
 			y: window.innerHeight / 2,
 		}
 	}
+
 }
 
 /**
@@ -244,6 +260,17 @@ export const $dialog = {
 	component: (
 		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
 		options?: Omit<DialogOptions, 'content' | 'message'>,
+	): Promise<boolean> => {
+		return DialogService.getInstance().component(content, options)
+	},
+
+	/**
+	 * Show a simple dialog without title or actions, just content
+	 * @returns Promise that resolves when dialog is closed
+	 */
+	simple: (
+		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
+		options?: Omit<DialogOptions, 'content' | 'message' | 'title' | 'confirmText' | 'cancelText'>,
 	): Promise<boolean> => {
 		return DialogService.getInstance().component(content, options)
 	},
