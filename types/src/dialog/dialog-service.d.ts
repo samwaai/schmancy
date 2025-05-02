@@ -26,6 +26,7 @@ export declare class DialogService {
     private static instance;
     private static DEFAULT_OPTIONS;
     private activeDialogs;
+    private activeRawDialogs;
     private constructor();
     /**
      * Get the singleton instance
@@ -37,7 +38,13 @@ export declare class DialogService {
      */
     confirm(options: DialogOptions): Promise<boolean>;
     /**
-     * Dismiss the most recently opened dialog
+     * Show a dialog with custom component content
+     * Always renders content directly without any headers or action buttons
+     * @returns Promise that resolves when dialog is closed
+     */
+    component(content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, 'content' | 'message'>): Promise<boolean>;
+    /**
+     * Dismiss the most recently opened dialog (either confirm or component type)
      * @returns true if a dialog was dismissed, false if no dialogs were open
      */
     dismiss(): boolean;
@@ -51,11 +58,6 @@ export declare class DialogService {
      * @returns Promise that resolves to true (confirm) or false (cancel)
      */
     danger(options: Omit<DialogOptions, 'variant'>): Promise<boolean>;
-    /**
-     * Show a dialog with custom component content
-     * @returns Promise that resolves to true (confirm) or false (cancel)
-     */
-    component(content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, 'content' | 'message'>): Promise<boolean>;
     /**
      * Get a centered position for the dialog
      */
@@ -82,11 +84,12 @@ export declare const $dialog: {
     danger: (options: Omit<DialogOptions, "variant">) => Promise<boolean>;
     /**
      * Show a dialog with custom component content
-     * @returns Promise that resolves to true (confirm) or false (cancel)
+     * @returns Promise that resolves when dialog is closed
      */
     component: (content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, "content" | "message">) => Promise<boolean>;
     /**
      * Show a simple dialog without title or actions, just content
+     * This is an alias for component() since all component dialogs are now simple by design
      * @returns Promise that resolves when dialog is closed
      */
     simple: (content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, "content" | "message" | "title" | "confirmText" | "cancelText">) => Promise<boolean>;
