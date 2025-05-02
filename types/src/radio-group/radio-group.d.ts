@@ -5,7 +5,7 @@ export type SchmancyRadioGroupOption = {
 export type SchmancyRadioGroupChangeEvent = CustomEvent<{
     value: string;
 }>;
-declare const RadioGroup_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const RadioGroup_base: import("@mixins/index").Constructor<import("../../mixins/formField.mixin").IFormFieldMixin> & import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class RadioGroup extends RadioGroup_base {
     label: string;
     name: string;

@@ -1,7 +1,7 @@
 import { CSSResult, LitElement } from 'lit';
-import { IBaseMixin } from '../mixins/baseElement';
-import { Constructor } from '../mixins/constructor';
-import { ITailwindElementMixin } from '../mixins/tailwind.mixin';
+import { IBaseMixin } from './baseElement';
+import { Constructor } from './constructor';
+import { ITailwindElementMixin } from './tailwind.mixin';
 /**
  * Interface defining the properties and methods that the FormFieldMixin adds.
  */
