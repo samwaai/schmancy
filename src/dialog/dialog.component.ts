@@ -1,6 +1,9 @@
+import { autoUpdate, computePosition, flip, offset, Placement, shift, size, Strategy } from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
+import { fromEvent } from 'rxjs'
+import { debounceTime } from 'rxjs/operators'
 
 /**
  * A basic dialog web component without title or actions
@@ -33,11 +36,14 @@ export class SchmancyDialog extends $LitElement(css`
 		max-width: var(--dialog-width);
 		width: max-content;
 		max-height: calc(100vh - 40px); /* Prevent exceeding viewport height */
-		/* Center initially */
+		overflow: auto; /* Allow scrolling for oversized content */
+	}
+
+	/* Used when centered for initial positioning */
+	.dialog.centered {
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -55%); /* Slight upward shift looks better */
-		overflow: auto; /* Allow scrolling for oversized content */
 	}
 `) {
 	/**
@@ -49,6 +55,18 @@ export class SchmancyDialog extends $LitElement(css`
 	 * Current active promise resolver
 	 */
 	private resolvePromise?: (value: boolean) => void
+
+	/**
+	 * Store cleanup function for position auto-updates
+	 */
+	private cleanupAutoUpdate?: () => void
+
+	/**
+	 * Virtual element to use as reference for positioning
+	 */
+	private virtualReference?: {
+		getBoundingClientRect: () => DOMRect
+	}
 
 	/**
 	 * Simple API: Show the dialog at a specific position
@@ -77,11 +95,17 @@ export class SchmancyDialog extends $LitElement(css`
 			y = pos.y
 		}
 
-		// Pre-calculate position before showing dialog
-		this.position = this.calculatePosition(x, y)
+		// Store initial position
+		this.position = { x, y }
 
-		// Make dialog active but ensure position is calculated first
-		// to prevent visual bouncing
+		// Create virtual reference element at the provided coordinates
+		this.virtualReference = {
+			getBoundingClientRect() {
+				return new DOMRect(x, y, 0, 0)
+			},
+		}
+
+		// Make dialog active
 		this.setAttribute('active', '')
 
 		// Return a promise that resolves when the user makes a choice
@@ -96,6 +120,12 @@ export class SchmancyDialog extends $LitElement(css`
 	hide(result = false) {
 		this.removeAttribute('active')
 
+		// Clean up any auto-update subscription
+		if (this.cleanupAutoUpdate) {
+			this.cleanupAutoUpdate()
+			this.cleanupAutoUpdate = undefined
+		}
+
 		// Resolve any pending promise
 		if (this.resolvePromise) {
 			this.resolvePromise(result)
@@ -104,106 +134,191 @@ export class SchmancyDialog extends $LitElement(css`
 	}
 
 	/**
-	 * Calculate optimal position based on click coordinates
-	 * with viewport boundary checks to prevent dialogs from appearing off-screen
+	 * Set up position auto-updating when dialog content changes or window resizes
 	 */
-	private calculatePosition(x: number, y: number) {
-		// We can't know the exact dimensions until the dialog is rendered
-		// But we can make an initial adjustment to improve positioning
-		// For more accurate positioning, we'll do a second adjustment in firstUpdated
-
-		// Provide some margin from edges
-		const margin = 20
-
-		// Get viewport dimensions
+	private setupPositioning(dialog: HTMLElement) {
 		const viewportWidth = window.innerWidth
 		const viewportHeight = window.innerHeight
 
-		// Ensure initial x is within viewport bounds
-		x = Math.max(margin, Math.min(x, viewportWidth - margin))
+		// Check if this is a centered dialog
+		const isCentered =
+			Math.abs(this.position.x - viewportWidth / 2) < 10 && Math.abs(this.position.y - viewportHeight / 2) < 10
 
-		// Ensure initial y is within viewport bounds
-		y = Math.max(margin, Math.min(y, viewportHeight - margin))
+		if (isCentered) {
+			// For centered dialogs, use CSS-based centering
+			dialog.classList.add('centered')
 
-		return { x, y }
+			// Always set up auto-update for content changes, even for centered dialogs
+			this.cleanupAutoUpdate = autoUpdate(
+				document.body, // Use body as reference for centered dialogs
+				dialog,
+				() => {
+					// If dialog has the centered class, ensure it stays visible
+					// even when content changes its dimensions
+					if (dialog.classList.contains('centered')) {
+						// Adjust max-height to ensure dialog stays within viewport
+						const availableHeight = window.innerHeight - 40
+						if (dialog.offsetHeight > availableHeight) {
+							dialog.style.maxHeight = `${availableHeight}px`
+						}
+					}
+				},
+				{
+					elementResize: true,
+					ancestorScroll: true,
+				},
+			)
+
+			return
+		}
+
+		// Remove centered class if it exists
+		dialog.classList.remove('centered')
+
+		// Use Floating UI's autoUpdate to continually update position
+		if (this.virtualReference) {
+			this.cleanupAutoUpdate = autoUpdate(this.virtualReference, dialog, () => this.updatePosition(dialog), {
+				ancestorScroll: true,
+				ancestorResize: true,
+				elementResize: true,
+				animationFrame: true, // Enable continuous updates for smoother repositioning
+			})
+
+			// Initial positioning
+			this.updatePosition(dialog)
+		}
+	}
+
+	/**
+	 * Update dialog position using Floating UI
+	 */
+	private async updatePosition(dialog: HTMLElement) {
+		if (!this.virtualReference) return
+
+		// Force window bounds recalculation on resize
+		if (this.position.x > 0 && this.position.y > 0) {
+			// Update virtual reference to consider current window size
+			const viewportWidth = window.innerWidth
+			const viewportHeight = window.innerHeight
+
+			// Ensure position is constrained to current viewport
+			const x = Math.min(this.position.x, viewportWidth - 20)
+			const y = Math.min(this.position.y, viewportHeight - 20)
+
+			// Update virtual reference with current viewport-constrained position
+			this.virtualReference = {
+				getBoundingClientRect() {
+					return new DOMRect(x, y, 0, 0)
+				},
+			}
+		}
+
+		const placement: Placement = 'bottom-start'
+		const strategy: Strategy = 'absolute'
+		const margin = 20 // Standard margin from edges
+
+		const { x, y } = await computePosition(this.virtualReference, dialog, {
+			placement,
+			strategy,
+			middleware: [
+				// Offset from the reference point
+				offset(margin),
+
+				// Flip to opposite side if no space
+				flip({
+					fallbackPlacements: ['top-start', 'bottom-end', 'top-end'],
+					fallbackStrategy: 'bestFit',
+				}),
+
+				// Shift along the preferred axis to stay in view
+				shift({
+					padding: margin, // Keep margin from viewport edges
+				}),
+
+				// Resize dialog if needed
+				size({
+					apply({ availableWidth, availableHeight, elements }) {
+						// If dialog is wider than available space
+						if (elements.floating.offsetWidth > availableWidth) {
+							Object.assign(elements.floating.style, {
+								maxWidth: `${Math.max(availableWidth - margin * 2, 280)}px`, // Keep at least 280px if possible
+							})
+						}
+
+						// If dialog is taller than available space
+						if (elements.floating.offsetHeight > availableHeight) {
+							Object.assign(elements.floating.style, {
+								maxHeight: `${availableHeight - margin * 2}px`,
+							})
+						}
+					},
+					padding: margin, // Keep margin from viewport edges
+				}),
+			],
+		})
+
+		// Apply the computed position
+		Object.assign(dialog.style, {
+			left: `${Math.round(x)}px`,
+			top: `${Math.round(y)}px`,
+			transform: 'none', // Remove any transform that might interfere
+		})
+	}
+
+	// Store resize subscription
+	private resizeSubscription?: { unsubscribe: () => void }
+
+	/**
+	 * Handle component disconnection from DOM
+	 */
+	disconnectedCallback() {
+		super.disconnectedCallback()
+
+		// Clean up subscriptions
+		if (this.resizeSubscription) {
+			this.resizeSubscription.unsubscribe()
+			this.resizeSubscription = undefined
+		}
+
+		if (this.cleanupAutoUpdate) {
+			this.cleanupAutoUpdate()
+			this.cleanupAutoUpdate = undefined
+		}
 	}
 
 	/**
 	 * Handle lifecycle callback when dialog is first rendered
 	 */
 	firstUpdated() {
-		// Immediate positioning without animations
 		const dialog = this.shadowRoot?.querySelector('.dialog') as HTMLElement
 		if (!dialog) return
 
-		// Run synchronously to ensure immediate positioning
-		// Get dialog dimensions
-		const width = dialog.offsetWidth
-		const height = dialog.offsetHeight
+		// Set up positioning with Floating UI
+		this.setupPositioning(dialog)
 
-		// Get viewport dimensions
-		const viewportWidth = window.innerWidth
-		const viewportHeight = window.innerHeight
+		// Set up window resize subscription using RxJS with debounce
+		this.resizeSubscription = fromEvent(window, 'resize')
+			.pipe(debounceTime(50)) // Faster response time
+			.subscribe(() => {
+				// Get current viewport dimensions
+				const viewportWidth = window.innerWidth
+				const viewportHeight = window.innerHeight
 
-		// Standard margin from edges
-		const margin = 20
+				// If using CSS centered positioning, ensure it stays centered
+				const isCentered =
+					Math.abs(this.position.x - viewportWidth / 2) < 10 && Math.abs(this.position.y - viewportHeight / 2) < 10
 
-		// Get dialog initial position
-		let { x, y } = this.position
+				if (isCentered) {
+					// Update position to new center
+					this.position = {
+						x: viewportWidth / 2,
+						y: viewportHeight / 2,
+					}
+				}
 
-		// Check if this is a centered dialog (default case or explicitly centered)
-		const isCentered = Math.abs(x - viewportWidth / 2) < 10 && Math.abs(y - viewportHeight / 2) < 10
-
-		if (isCentered) {
-			// For centered dialogs, keep using the CSS transform-based centering
-			return
-		}
-
-		// For non-centered dialogs, calculate the ideal position
-		// HORIZONTAL POSITIONING
-		// First check if dialog extends beyond right edge
-		if (x + width > viewportWidth - margin) {
-			// Try to align to right edge with margin
-			x = viewportWidth - width - margin
-		}
-
-		// Make sure it's not off the left edge either
-		if (x < margin) {
-			x = margin
-		}
-
-		// If dialog is wider than viewport, center it
-		if (width > viewportWidth - margin * 2) {
-			x = (viewportWidth - width) / 2
-		}
-
-		// VERTICAL POSITIONING
-		// Check if the dialog extends beyond bottom edge
-		if (y + height > viewportHeight - margin) {
-			// Try to position above the click point if there's space
-			if (y > height + margin) {
-				// Position above the click point
-				y = y - height - margin
-			} else {
-				// Otherwise, try to center vertically
-				y = Math.max(margin, (viewportHeight - height) / 2)
-			}
-		}
-
-		// Make sure it's not off the top edge
-		if (y < margin) {
-			y = margin
-		}
-
-		// If dialog is taller than viewport, align to top with margin
-		if (height > viewportHeight - margin * 2) {
-			y = margin
-		}
-
-		// Apply position immediately without animations
-		dialog.style.transform = 'none' // Remove transform-based centering
-		dialog.style.left = `${Math.max(0, Math.round(x))}px`
-		dialog.style.top = `${Math.max(0, Math.round(y))}px`
+				// Always update position on resize
+				this.updatePosition(dialog)
+			})
 	}
 
 	/**
