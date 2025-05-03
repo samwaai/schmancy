@@ -13,18 +13,18 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	/**
 	 * @attr type - The type of the typography.
 	 * @default inherit
-	 * @type {'display' | 'headline' | 'title' | 'body' | 'label'}
+	 * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'}
 	 */
 	@property({ type: String, reflect: true })
-	type: 'display' | 'headline' | 'title' | 'body' | 'label'
+	type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'
 
 	/**
 	 * @attr token - The token of the typography.
 	 * @default 'md'
-	 * @type {'sm' |'md' |'lg'}
+	 * @type {'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'}
 	 */
 	@property({ type: String, reflect: true })
-	token: 'sm' | 'md' | 'lg' = 'md'
+	token: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' = 'md'
 
 	/**
 	 * @attr
@@ -74,30 +74,51 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 			'line-clamp-none': this.maxLines === undefined,
 
 			// Display
+			'text-[72px] tracking-[-0.5px] leading-[80px]': this.type === 'display' && this.token === '2xl',
+			'text-[64px] tracking-[-0.25px] leading-[72px]': this.type === 'display' && this.token === 'xl',
 			'text-[57px] tracking-[-0.25px] leading-[64px]': this.type === 'display' && this.token === 'lg',
 			'text-[45px] tracking-[0px] leading-[52px]': this.type === 'display' && this.token === 'md',
 			'text-[36px] tracking-[0px] leading-[44px]': this.type === 'display' && this.token === 'sm',
+			'text-[28px] tracking-[0px] leading-[36px]': this.type === 'display' && this.token === 'xs',
 
 			// Headline
-			'text-[32px] tracking-[0px] leading-[40px]': this.type === 'headline' && this.token === 'lg',
-			'text-[28px] tracking-[0px] leading-[36px]': this.type === 'headline' && this.token === 'md',
-			'text-[24px] tracking-[0px] leading-[32px]': this.type === 'headline' && this.token === 'sm',
+			'text-[36px] tracking-[0px] leading-[44px] headline-xl': this.type === 'headline' && this.token === 'xl',
+			'text-[32px] tracking-[0px] leading-[40px] headline-lg': this.type === 'headline' && this.token === 'lg',
+			'text-[28px] tracking-[0px] leading-[36px] headline-md': this.type === 'headline' && this.token === 'md',
+			'text-[24px] tracking-[0px] leading-[32px] headline-sm': this.type === 'headline' && this.token === 'sm',
+			'text-[20px] tracking-[0px] leading-[28px] headline-xs': this.type === 'headline' && this.token === 'xs',
 
 			// Title
-			'text-[22px] tracking-[0px] leading-[28px]': this.type === 'title' && this.token === 'lg',
-			'font-medium text-[16px] tracking-[0.15px] leading-[24px]': this.type === 'title' && this.token === 'md',
-			'font-medium text-[14px] tracking-[0.1px] leading-[20px]':
-				(this.type === 'title' && this.token === 'sm') || (this.type === 'label' && this.token === 'lg'),
+			'text-[24px] tracking-[0px] leading-[32px] title-xl': this.type === 'title' && this.token === 'xl',
+			'text-[22px] tracking-[0px] leading-[28px] title-lg': this.type === 'title' && this.token === 'lg',
+			'font-medium text-[16px] tracking-[0.15px] leading-[24px] title-md': this.type === 'title' && this.token === 'md',
+			'font-medium text-[14px] tracking-[0.1px] leading-[20px] title-sm': this.type === 'title' && this.token === 'sm',
+			'font-medium text-[12px] tracking-[0.1px] leading-[16px] title-xs': this.type === 'title' && this.token === 'xs',
+
+			// Subtitle
+			'font-medium text-[20px] tracking-[0.15px] leading-[28px] subtitle-xl':
+				this.type === 'subtitle' && this.token === 'xl',
+			'font-medium text-[18px] tracking-[0.15px] leading-[24px] subtitle-lg':
+				this.type === 'subtitle' && this.token === 'lg',
+			'font-medium text-[16px] tracking-[0.15px] leading-[24px] subtitle-md':
+				this.type === 'subtitle' && this.token === 'md',
+			'font-medium text-[14px] tracking-[0.1px] leading-[20px] subtitle-sm':
+				this.type === 'subtitle' && this.token === 'sm',
+			'font-medium text-[12px] tracking-[0.1px] leading-[16px] subtitle-xs':
+				this.type === 'subtitle' && this.token === 'xs',
 
 			// Body
+			'text-[18px] tracking-[0.5px] leading-[28px]': this.type === 'body' && this.token === 'xl',
 			'text-[16px] tracking-[0.5px] leading-[24px]': this.type === 'body' && this.token === 'lg',
 			'text-[14px] tracking-[0.25px] leading-[20px]': this.type === 'body' && this.token === 'md',
 			'text-[12px] tracking-[0.4px] leading-[16px]': this.type === 'body' && this.token === 'sm',
+			'text-[10px] tracking-[0.4px] leading-[14px]': this.type === 'body' && this.token === 'xs',
 
 			// Label
-			// large label is the same as Title sm
+			'font-medium text-[14px] tracking-[0.1px] leading-[20px]': this.type === 'label' && this.token === 'lg',
 			'text-[12px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'md',
 			'text-[11px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'sm',
+			'text-[10px] tracking-[0.5px] leading-[14px]': this.type === 'label' && this.token === 'xs',
 
 			'font-bold': this.weight === 'bold',
 			'font-medium': this.weight === 'medium',

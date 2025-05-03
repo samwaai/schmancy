@@ -1015,6 +1015,7 @@ __metadata:
     "@lit-labs/virtualizer": "npm:^2.1.0"
     "@lit/context": "npm:^1.1.5"
     "@material/material-color-utilities": "npm:^0.3.0"
+    "@material/mwc-base": "npm:^0.27.0"
     "@material/web": "npm:^2.3.0"
     "@rollup/plugin-strip": "npm:^3.0.4"
     "@rollup/plugin-terser": "npm:^0.4.4"
@@ -1028,6 +1029,8 @@ __metadata:
     "@types/uuid": "npm:^10.0.0"
     "@typescript-eslint/parser": "npm:^8.29.1"
     "@vitest/ui": "npm:^3.1.1"
+    "@webcomponents/scoped-custom-element-registry": "npm:^0.0.10"
+    "@webcomponents/webcomponentsjs": "npm:^2.8.0"
     autoprefixer: "npm:^10.4.21"
     c8: "npm:^10.1.3"
     cleave.js: "npm:^1.6.0"
@@ -1923,6 +1926,20 @@ __metadata:
     loupe: "npm:^3.1.3"
     tinyrainbow: "npm:^2.0.0"
   checksum: 10c0/a9cfe0c0f095b58644ce3ba08309de5be8564c10dad9e62035bd378e60b2834e6a256e6e4ded7dcf027fdc2371301f7965040ad3e6323b747d5b3abbb7ceb0d6
+  languageName: node
+  linkType: hard
+
+"@webcomponents/scoped-custom-element-registry@npm:^0.0.10":
+  version: 0.0.10
+  resolution: "@webcomponents/scoped-custom-element-registry@npm:0.0.10"
+  checksum: 10c0/97fdb174f6795b20a3f6e8af9018b6c3e48c6a2bf40b87ef606d9b4616df32b0dc67a085f8ca1fda0e4327b3237ae76626bf1bbea3cfea0e03ce743f915a39cc
+  languageName: node
+  linkType: hard
+
+"@webcomponents/webcomponentsjs@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "@webcomponents/webcomponentsjs@npm:2.8.0"
+  checksum: 10c0/f3634dea123572ce86d22e86a863771f805edc535b9656256d855412d4800dd2d219eeee3e40f003885e008f8fc80a4a8dcc15e0bade3246ac25639e48c34294
   languageName: node
   linkType: hard
 

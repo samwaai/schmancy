@@ -8,13 +8,15 @@ import { repeat } from 'lit/directives/repeat.js'
 import { filter, map } from 'rxjs'
 import { fullHeight } from '../../src/directives/height'
 import { DemoAnimatedText } from './features/animated-text'
+import { DemoAvatars } from './features/avatar'
 import DemoBadges from './features/badges'
 import { DemoBusy } from './features/busy'
 import { DemoButton } from './features/button'
 import { DemoCard } from './features/card'
-import { DemoContentDrawer } from './features/drawer-content'
 import { DemoDialog } from './features/dialog'
+import { DemoDialogShowcase } from './features/dialog-showcase'
 import { DemoDialogTest } from './features/dialog-test'
+import { DemoContentDrawer } from './features/drawer-content'
 import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoList } from './features/list'
@@ -28,7 +30,6 @@ import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import { SchmancyTypewriterDemo } from './features/typewriter'
 import DemoTypography from './features/typography'
-import { DemoAvatars } from './features/avatar'
 const NavContext = createContext<
 	Array<{
 		name: string
@@ -64,6 +65,7 @@ export class DemoNav extends $LitElement(css`
 			{ name: 'Radio', component: DemoRadio },
 			{ name: 'Dialog', component: DemoDialog },
 			{ name: 'Dialog Test', component: DemoDialogTest },
+			{ name: 'Dialog Showcase', component: DemoDialogShowcase },
 			{ name: 'Avatar', component: DemoAvatars },
 			{
 				name: 'Badges',

@@ -6,6 +6,7 @@ import { ConfirmDialog } from './dailog'
  */
 export interface DialogOptions {
 	title?: string
+	subtitle?: string
 	message?: string
 	confirmText?: string
 	cancelText?: string
@@ -30,6 +31,7 @@ export class DialogService {
 	// Default dialog options
 	private static DEFAULT_OPTIONS: Partial<DialogOptions> = {
 		title: undefined,
+		subtitle: undefined,
 		confirmText: undefined,
 		cancelText: 'Cancel',
 		variant: 'default',
@@ -80,6 +82,7 @@ export class DialogService {
 
 		// Set basic options
 		if (completeOptions.title) dialog.title = completeOptions.title
+		if (completeOptions.subtitle) dialog.subtitle = completeOptions.subtitle
 		if (completeOptions.message) dialog.message = completeOptions.message
 		if (completeOptions.confirmText) dialog.confirmText = completeOptions.confirmText
 		if (completeOptions.cancelText) dialog.cancelText = completeOptions.cancelText

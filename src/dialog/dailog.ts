@@ -54,6 +54,12 @@ export class ConfirmDialog extends $LitElement(css`
 	title = undefined
 
 	/**
+	 * Dialog subtitle
+	 */
+	@property({ type: String })
+	subtitle = undefined
+
+	/**
 	 * Dialog message
 	 */
 	@property({ type: String })
@@ -396,8 +402,18 @@ export class ConfirmDialog extends $LitElement(css`
 					<schmancy-form @submit=${this.handleConfirm} class="p-4">
 						${when(
 							this.title && this.title.trim() !== '',
-							() =>
-								html` <schmancy-typography type="title" token="md" class="mb-2"> ${this.title} </schmancy-typography>`,
+							() => html`
+								<schmancy-typography type="title" token="md" class="mb-1"> ${this.title} </schmancy-typography>
+								${when(
+									this.subtitle && this.subtitle.trim() !== '',
+									() => html`
+										<schmancy-typography type="subtitle" token="xs" class="mb-2">
+											${this.subtitle}
+										</schmancy-typography>
+									`,
+									() => html``
+								)}
+							`,
 						)}
 						${hasCustomContent
 							? html`<div class="${showButtons ? 'mb-4' : ''}"><slot name="content"></slot></div>`
@@ -425,6 +441,7 @@ export class ConfirmDialog extends $LitElement(css`
 	 */
 	static async confirm(options: {
 		title?: string
+		subtitle?: string
 		message?: string
 		confirmText?: string
 		cancelText?: string
@@ -442,6 +459,7 @@ export class ConfirmDialog extends $LitElement(css`
 
 		// Set options
 		if (options.title) dialog.title = options.title
+		if (options.subtitle) dialog.subtitle = options.subtitle
 		if (options.message) dialog.message = options.message
 		if (options.confirmText) dialog.confirmText = options.confirmText
 		if (options.cancelText) dialog.cancelText = options.cancelText
