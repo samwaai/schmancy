@@ -11,6 +11,10 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
      */
     title: any;
     /**
+     * Dialog subtitle
+     */
+    subtitle: any;
+    /**
      * Dialog message
      */
     message: any;
@@ -88,6 +92,7 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
      */
     static confirm(options: {
         title?: string;
+        subtitle?: string;
         message?: string;
         confirmText?: string;
         cancelText?: string;

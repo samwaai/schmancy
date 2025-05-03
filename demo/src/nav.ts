@@ -14,7 +14,7 @@ import { DemoBusy } from './features/busy'
 import { DemoButton } from './features/button'
 import { DemoCard } from './features/card'
 import { DemoDialog } from './features/dialog'
-import { DemoDialogShowcase } from './features/dialog-showcase'
+import { DemoDialogPlayground } from './features/dialog-playground'
 import { DemoDialogTest } from './features/dialog-test'
 import { DemoContentDrawer } from './features/drawer-content'
 import { DemoIcons } from './features/icons'
@@ -65,7 +65,7 @@ export class DemoNav extends $LitElement(css`
 			{ name: 'Radio', component: DemoRadio },
 			{ name: 'Dialog', component: DemoDialog },
 			{ name: 'Dialog Test', component: DemoDialogTest },
-			{ name: 'Dialog Showcase', component: DemoDialogShowcase },
+			{ name: 'Dialog Showcase', component: DemoDialogPlayground },
 			{ name: 'Avatar', component: DemoAvatars },
 			{
 				name: 'Badges',

@@ -4,6 +4,7 @@ import { TemplateResult } from 'lit';
  */
 export interface DialogOptions {
     title?: string;
+    subtitle?: string;
     message?: string;
     confirmText?: string;
     cancelText?: string;

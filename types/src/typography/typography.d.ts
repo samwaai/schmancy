@@ -7,15 +7,15 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
     /**
      * @attr type - The type of the typography.
      * @default inherit
-     * @type {'display' | 'headline' | 'title' | 'body' | 'label'}
+     * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'}
      */
-    type: 'display' | 'headline' | 'title' | 'body' | 'label';
+    type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label';
     /**
      * @attr token - The token of the typography.
      * @default 'md'
-     * @type {'sm' |'md' |'lg'}
+     * @type {'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'}
      */
-    token: 'sm' | 'md' | 'lg';
+    token: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
     /**
      * @attr
      * @default inherit

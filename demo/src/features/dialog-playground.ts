@@ -8,846 +8,643 @@ import '@schmancy/typography'
 import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
-// Import playground elements
-import '@webcomponents/scoped-custom-element-registry'
-import 'playground-elements/playground-file-editor.js'
-import 'playground-elements/playground-preview.js'
-import 'playground-elements/playground-project.js'
-
 @customElement('demo-dialog-playground')
 export class DemoDialogPlayground extends $LitElement(css`
 	:host {
 		display: block;
 	}
 
-	.component-demo {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 32px;
+	.demo-container {
 		margin-top: 24px;
 	}
 
-	.editor-container {
-		height: 500px;
-		overflow: hidden;
+	.example-section {
+		border: 1px solid #e2e8f0;
 		border-radius: 8px;
-		box-shadow:
-			0 4px 6px -1px rgba(0, 0, 0, 0.1),
-			0 2px 4px -1px rgba(0, 0, 0, 0.06);
-	}
-
-	.preview-container {
-		height: 500px;
-		border-radius: 8px;
-		box-shadow:
-			0 4px 6px -1px rgba(0, 0, 0, 0.1),
-			0 2px 4px -1px rgba(0, 0, 0, 0.06);
-	}
-
-	playground-preview {
-		height: 100%;
-		width: 100%;
-		border-radius: 8px;
+		padding: 24px;
+		margin-bottom: 24px;
 		background-color: white;
 	}
 
-	playground-file-editor {
-		height: 100%;
-		border-radius: 8px;
-		font-family: 'JetBrains Mono', 'Fira Code', monospace;
-	}
-
-	.controls {
+	.example-header {
 		display: flex;
-		flex-direction: column;
-		gap: 12px;
-		margin-top: 24px;
-	}
-
-	/* Custom styling for playground elements */
-	::part(line-numbers) {
-		background-color: #f8fafc;
-	}
-
-	::part(editor) {
-		font-family: 'JetBrains Mono', 'Fira Code', monospace;
-		font-size: 14px;
-	}
-
-	h3 {
-		margin-top: 0;
-		margin-bottom: 8px;
-	}
-
-	.controls-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 16px;
-	}
-
-	.tab-container {
-		margin-top: 16px;
-	}
-
-	.example-select {
+		justify-content: space-between;
+		align-items: center;
 		margin-bottom: 16px;
+	}
+
+	.code-block {
+		background-color: #f8fafc;
+		border-radius: 6px;
+		padding: 16px;
+		font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+		font-size: 14px;
+		line-height: 1.5;
+		white-space: pre-wrap;
+		overflow-x: auto;
+		margin-bottom: 20px;
+		border: 1px solid #e2e8f0;
+	}
+
+	.actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 8px;
+		margin-top: 16px;
 	}
 `) {
 	@state() private activeExample = 'basic'
 
-	// Basic Dialog Example
-	private basicDialogExample = `
-import { html, render } from 'lit';
-import { $dialog } from '@schmancy/dialog';
+	private examples = {
+		basic: {
+			title: 'Basic Dialog',
+			description: 'A simple dialog with title, subtitle, message, and standard buttons.',
+			code: `import { $dialog } from '@schmancy/dialog';
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Render the demo component
-  render(html\`
-    <div style="padding: 20px;">
-      <h2 style="margin-bottom: 16px;">Dialog Examples</h2>
-      <button id="openDialog" class="button">Open Dialog</button>
-    </div>
-  \`, document.body);
-
-  // Add click handler
-  document.getElementById('openDialog').addEventListener('click', () => {
-    $dialog.confirm({
-      title: 'Basic Dialog',
-      subtitle: 'This is a subtitle with additional context',
-      message: 'This is a basic confirmation dialog with title, subtitle, and buttons.',
-      confirmText: 'Confirm',
-      cancelText: 'Cancel'
-    }).then(result => {
-      console.log('Dialog result:', result);
-    });
+// Basic dialog with title, subtitle, message, and buttons
+function openBasicDialog() {
+  $dialog.confirm({
+    title: 'Basic Dialog',
+    subtitle: 'This is a subtitle with additional context',
+    message: 'This is a basic confirmation dialog with title, subtitle, and buttons.',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel'
+  }).then(result => {
+    console.log('Dialog result:', result);
   });
-});
+}
 
-// Add some basic styles
-const style = document.createElement('style');
-style.textContent = \`
-  body { 
-    font-family: system-ui, -apple-system, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
-  }
-  .button {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  .button:hover {
-    background-color: #4338ca;
-  }
-\`;
-document.head.appendChild(style);
-`
-
-	// Custom Component Dialog
-	private customDialogExample = `
-import { html, render } from 'lit';
+// Button to trigger dialog
+const button = document.createElement('schmancy-button');
+button.setAttribute('variant', 'filled');
+button.textContent = 'Open Basic Dialog';
+button.addEventListener('click', openBasicDialog);
+document.body.appendChild(button);`,
+		},
+		custom: {
+			title: 'Custom Component Dialog',
+			description: 'A custom dialog with rich UI components and styling using Schmancy components.',
+			code: `import { html } from 'lit';
 import { $dialog } from '@schmancy/dialog';
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Render the demo component
-  render(html\`
-    <div style="padding: 20px;">
-      <h2 style="margin-bottom: 16px;">Custom Component Dialog</h2>
-      <button id="openDialog" class="button">Open Custom Dialog</button>
-    </div>
-  \`, document.body);
-
-  // Add click handler
-  document.getElementById('openDialog').addEventListener('click', () => {
-    // Create a dynamic custom component
-    $dialog.component(html\`
-      <div class="custom-content">
-        <div class="header">
-          <div class="avatar"></div>
-          <div class="info">
-            <h3>John Doe</h3>
-            <p>Software Engineer</p>
-          </div>
-        </div>
-        
-        <div class="body">
-          <p>This dialog demonstrates a completely custom component with styling.</p>
-          <div class="stats">
-            <div class="stat">
-              <span class="value">42</span>
-              <span class="label">Projects</span>
-            </div>
-            <div class="stat">
-              <span class="value">1.5k</span>
-              <span class="label">Followers</span>
-            </div>
-            <div class="stat">
-              <span class="value">120</span>
-              <span class="label">Following</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="footer">
-          <button class="button-secondary" @click=\${() => $dialog.dismiss()}>Close</button>
-          <button class="button-primary">View Profile</button>
+// Function to open a custom component dialog
+function openCustomDialog() {
+  $dialog.component(html\`
+    <schmancy-surface rounded="all" class="p-0 overflow-hidden w-full">
+      <div class="flex items-center p-4 border-b border-gray-200">
+        <div class="w-12 h-12 rounded-full bg-primary-400 mr-4"></div>
+        <div>
+          <schmancy-typography type="title" token="md">John Doe</schmancy-typography>
+          <schmancy-typography type="body" token="sm" class="text-gray-500">Software Engineer</schmancy-typography>
         </div>
       </div>
-    \`, { width: '400px' });
-  });
-});
-
-// Add some custom styles
-const style = document.createElement('style');
-style.textContent = \`
-  body { 
-    font-family: system-ui, -apple-system, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
-  }
-  .button {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  .button:hover {
-    background-color: #4338ca;
-  }
-  
-  .custom-content {
-    width: 100%;
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  
-  .header {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background-color: #6366f1;
-    margin-right: 16px;
-  }
-  
-  .info h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-  }
-  
-  .info p {
-    margin: 4px 0 0;
-    color: #6b7280;
-    font-size: 14px;
-  }
-  
-  .body {
-    padding: 16px;
-  }
-  
-  .stats {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 16px;
-    text-align: center;
-  }
-  
-  .stat {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .value {
-    font-size: 20px;
-    font-weight: 600;
-    color: #4f46e5;
-  }
-  
-  .label {
-    font-size: 14px;
-    color: #6b7280;
-  }
-  
-  .footer {
-    padding: 16px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    border-top: 1px solid #e5e7eb;
-  }
-  
-  .button-primary {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .button-secondary {
-    background-color: white;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-\`;
-document.head.appendChild(style);
-`
-
-	// Advanced Dialog Example
-	private advancedDialogExample = `
-import { html, render } from 'lit';
-import { $dialog } from '@schmancy/dialog';
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Render the demo component
-  render(html\`
-    <div style="padding: 20px;">
-      <h2 style="margin-bottom: 16px;">Interactive Dialog</h2>
-      <button id="openDialog" class="button">Open Form Dialog</button>
-    </div>
-  \`, document.body);
-
-  // Mock API function
-  const mockSubmit = async (email) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ success: true, email });
-      }, 1500);
-    });
-  };
-
-  // Add click handler
-  document.getElementById('openDialog').addEventListener('click', () => {
-    // Create an interactive form dialog
-    let emailValue = '';
-    let isSubmitting = false;
-    let errorMessage = '';
-    
-    const formDialog = () => {
-      return html\`
-        <div class="form-dialog">
-          <div class="header">
-            <h2>Subscribe to Newsletter</h2>
-            <p>Get the latest updates directly to your inbox</p>
+      
+      <div class="p-4">
+        <schmancy-typography type="body" token="md">This dialog demonstrates a custom component with Schmancy UI.</schmancy-typography>
+        
+        <div class="flex justify-around mt-4 text-center">
+          <div class="flex flex-col">
+            <schmancy-typography type="title" token="lg" class="text-primary-500">42</schmancy-typography>
+            <schmancy-typography type="body" token="sm" class="text-gray-500">Projects</schmancy-typography>
           </div>
-          
-          <div class="body">
-            <form id="subscribeForm" @submit=\${handleSubmit}>
-              <div class="form-field \${errorMessage ? 'has-error' : ''}">
-                <label for="email">Email Address</label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  placeholder="your@email.com"
-                  .value=\${emailValue}
-                  @input=\${(e) => { 
-                    emailValue = e.target.value;
-                    errorMessage = '';
-                    // Force re-render of the component
-                    $dialog.dismiss();
-                    setTimeout(() => {
-                      $dialog.component(formDialog(), { width: '400px' });
-                    }, 0);
-                  }}
-                  ?disabled=\${isSubmitting}
-                  required
-                />
-                \${errorMessage ? html\`<div class="error-message">\${errorMessage}</div>\` : ''}
-              </div>
-              
-              <div class="form-field checkbox">
-                <input type="checkbox" id="terms" required />
-                <label for="terms">I agree to the terms and conditions</label>
-              </div>
-            </form>
+          <div class="flex flex-col">
+            <schmancy-typography type="title" token="lg" class="text-primary-500">1.5k</schmancy-typography>
+            <schmancy-typography type="body" token="sm" class="text-gray-500">Followers</schmancy-typography>
           </div>
-          
-          <div class="footer">
-            <button 
-              class="button-secondary" 
-              @click=\${() => $dialog.dismiss()}
-              ?disabled=\${isSubmitting}
-            >
-              Cancel
-            </button>
-            <button 
-              class="button-primary \${isSubmitting ? 'loading' : ''}" 
-              type="submit"
-              form="subscribeForm"
-              ?disabled=\${isSubmitting}
-            >
-              \${isSubmitting ? 'Submitting...' : 'Subscribe'}
-            </button>
+          <div class="flex flex-col">
+            <schmancy-typography type="title" token="lg" class="text-primary-500">120</schmancy-typography>
+            <schmancy-typography type="body" token="sm" class="text-gray-500">Following</schmancy-typography>
           </div>
         </div>
-      \`;
-    };
-    
-    // Handle form submission
-    const handleSubmit = async (e) => {
-      e.preventDefault();
+      </div>
       
-      if (!emailValue) {
-        errorMessage = 'Email is required';
-        // Force re-render
-        $dialog.dismiss();
-        setTimeout(() => {
-          $dialog.component(formDialog(), { width: '400px' });
-        }, 0);
-        return;
-      }
-      
-      // Show loading state
-      isSubmitting = true;
-      // Force re-render
-      $dialog.dismiss();
-      setTimeout(() => {
-        $dialog.component(formDialog(), { width: '400px' });
-      }, 0);
-      
-      try {
-        // Submit form data
-        const result = await mockSubmit(emailValue);
-        
-        if (result.success) {
-          // Show success message
-          $dialog.dismiss();
-          setTimeout(() => {
-            $dialog.confirm({
-              title: 'Success!',
-              message: \`Thank you for subscribing with \${result.email}. We've sent you a confirmation email.\`,
-              confirmText: 'OK',
-              cancelText: '',
-            });
-          }, 0);
-        }
-      } catch (error) {
-        // Show error
-        isSubmitting = false;
-        errorMessage = 'An error occurred. Please try again.';
-        
-        // Force re-render
-        $dialog.dismiss();
-        setTimeout(() => {
-          $dialog.component(formDialog(), { width: '400px' });
-        }, 0);
-      }
-    };
-    
-    // Open the dialog
-    $dialog.component(formDialog(), { width: '400px' });
-  });
-});
+      <div class="p-4 flex justify-end gap-2 border-t border-gray-200">
+        <schmancy-button variant="outlined" @click=\${() => $dialog.dismiss()}>Close</schmancy-button>
+        <schmancy-button variant="filled">View Profile</schmancy-button>
+      </div>
+    </schmancy-surface>
+  \`, { width: '400px' });
+}
 
-// Add custom styles
-const style = document.createElement('style');
-style.textContent = \`
-  body { 
-    font-family: system-ui, -apple-system, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
-  }
-  .button {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  .button:hover {
-    background-color: #4338ca;
-  }
-  
-  .form-dialog {
-    width: 100%;
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  
-  .header {
-    padding: 24px 24px 0;
-  }
-  
-  .header h2 {
-    margin: 0 0 8px;
-    font-size: 20px;
-    font-weight: 600;
-    color: #111827;
-  }
-  
-  .header p {
-    margin: 0;
-    color: #6b7280;
-    font-size: 14px;
-  }
-  
-  .body {
-    padding: 16px 24px;
-  }
-  
-  .form-field {
-    margin-bottom: 16px;
-  }
-  
-  .form-field label {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151;
-  }
-  
-  .form-field input[type="email"] {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-  
-  .form-field input[type="email"]:focus {
-    outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
-  }
-  
-  .form-field.has-error input {
-    border-color: #ef4444;
-  }
-  
-  .error-message {
-    margin-top: 4px;
-    color: #ef4444;
-    font-size: 12px;
-  }
-  
-  .form-field.checkbox {
-    display: flex;
-    align-items: center;
-  }
-  
-  .form-field.checkbox input {
-    margin-right: 8px;
-  }
-  
-  .form-field.checkbox label {
-    margin-bottom: 0;
-    font-weight: normal;
-  }
-  
-  .footer {
-    padding: 16px 24px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    border-top: 1px solid #e5e7eb;
-  }
-  
-  .button-primary {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    min-width: 100px;
-  }
-  
-  .button-primary:disabled {
-    background-color: #c7d2fe;
-    cursor: not-allowed;
-  }
-  
-  .button-primary.loading {
-    position: relative;
-  }
-  
-  .button-primary.loading::after {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    top: calc(50% - 7px);
-    left: calc(50% - 7px);
-    border: 2px solid transparent;
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .button-secondary {
-    background-color: white;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  .button-secondary:disabled {
-    color: #9ca3af;
-    border-color: #e5e7eb;
-    cursor: not-allowed;
-  }
-\`;
-document.head.appendChild(style);
-`
-
-	// Stacked Dialogs Example
-	private stackedDialogExample = `
-import { html, render } from 'lit';
+// Button to trigger dialog
+const button = document.createElement('schmancy-button');
+button.setAttribute('variant', 'filled');
+button.textContent = 'Open Custom Component Dialog';
+button.addEventListener('click', openCustomDialog);
+document.body.appendChild(button);`,
+		},
+		form: {
+			title: 'Form Dialog',
+			description: 'An interactive form dialog with validation, loading states, and dynamic content.',
+			code: `import { html } from 'lit';
 import { $dialog } from '@schmancy/dialog';
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Render the demo component
-  render(html\`
-    <div style="padding: 20px;">
-      <h2 style="margin-bottom: 16px;">Stacked Dialogs</h2>
-      <button id="openDialog" class="button">Open First Dialog</button>
-    </div>
-  \`, document.body);
+// State variables
+let isSubmitting = false;
+let errorMessage = '';
+let emailValue = '';
 
-  // Add click handler
-  document.getElementById('openDialog').addEventListener('click', () => {
-    // First dialog
-    $dialog.confirm({
-      title: 'First Dialog',
-      message: 'This is the first dialog in the stack.',
-      confirmText: 'Open Second Dialog',
-      cancelText: 'Cancel'
-    }).then(result => {
-      if (result) {
-        // Second dialog
-        $dialog.confirm({
-          title: 'Second Dialog',
-          subtitle: 'Stacked on top of the first one',
-          message: 'This is the second dialog, stacked on top of the first one.',
-          confirmText: 'Open Third Dialog',
-          cancelText: 'Go Back'
-        }).then(result => {
-          if (result) {
-            // Third dialog
-            $dialog.confirm({
-              title: 'Third Dialog',
-              subtitle: 'The deepest level',
-              message: 'This is the third dialog in the stack. Notice how dialogs are managed and layered properly.',
-              confirmText: 'Complete',
-              cancelText: 'Go Back'
-            }).then(result => {
-              if (result) {
-                // Final confirmation
-                $dialog.confirm({
-                  title: 'Success!',
-                  message: 'You have successfully navigated through all the dialog layers.',
-                  confirmText: 'Great!',
-                  cancelText: ''
-                });
-              }
-            });
-          }
-        });
-      }
-    });
+// Mock API function
+const mockSubmit = async (email) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ success: true, email });
+    }, 1500);
   });
-});
+};
 
-// Add some basic styles
-const style = document.createElement('style');
-style.textContent = \`
-  body { 
-    font-family: system-ui, -apple-system, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
+// Handler for form submission
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!emailValue) {
+    errorMessage = 'Email is required';
+    updateDialog();
+    return;
   }
-  .button {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
+  
+  // Show loading state
+  isSubmitting = true;
+  updateDialog();
+  
+  try {
+    // Submit form data
+    const result = await mockSubmit(emailValue);
+    
+    if (result.success) {
+      // Show success message
+      $dialog.dismiss();
+      setTimeout(() => {
+        $dialog.confirm({
+          title: 'Success!',
+          message: \`Thank you for subscribing with \${result.email}. We've sent you a confirmation email.\`,
+          confirmText: 'OK',
+          cancelText: '',
+        });
+      }, 0);
+    }
+  } catch (error) {
+    // Show error
+    isSubmitting = false;
+    errorMessage = 'An error occurred. Please try again.';
+    updateDialog();
   }
-  .button:hover {
-    background-color: #4338ca;
-  }
-\`;
-document.head.appendChild(style);
-`
+};
+
+// Helper function to update the dialog
+const updateDialog = () => {
+  $dialog.dismiss();
+  setTimeout(() => {
+    openFormDialog();
+  }, 0);
+};
+
+// Create a form dialog
+function openFormDialog() {
+  $dialog.component(html\`
+    <schmancy-surface rounded="all" class="p-5 max-w-md mx-auto">
+      <schmancy-typography type="title" token="lg" class="mb-1">Subscribe to Newsletter</schmancy-typography>
+      <schmancy-typography type="body" token="sm" class="text-gray-500 mb-4">
+        Get the latest updates directly to your inbox
+      </schmancy-typography>
+      
+      <form @submit=\${handleSubmit}>
+        <div class="mb-4">
+          <label for="email" class="block text-sm font-medium mb-1">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            class="w-full p-2 border rounded \${errorMessage ? 'border-red-500' : 'border-gray-300'}" 
+            placeholder="your@email.com"
+            .value=\${emailValue}
+            @input=\${(e) => { 
+              emailValue = e.target.value;
+              errorMessage = '';
+            }}
+            ?disabled=\${isSubmitting}
+            required
+          />
+          \${errorMessage ? html\`<div class="text-red-500 text-sm mt-1">\${errorMessage}</div>\` : ''}
+        </div>
+        
+        <div class="flex items-center mb-4">
+          <input type="checkbox" id="terms" required class="mr-2" />
+          <label for="terms" class="text-sm">I agree to the terms and conditions</label>
+        </div>
+        
+        <div class="flex justify-end gap-2">
+          <schmancy-button 
+            variant="outlined" 
+            @click=\${() => $dialog.dismiss()}
+            ?disabled=\${isSubmitting}
+          >
+            Cancel
+          </schmancy-button>
+          <schmancy-button 
+            variant="filled"
+            type="submit"
+            class="\${isSubmitting ? 'opacity-75' : ''}"
+            ?disabled=\${isSubmitting}
+          >
+            \${isSubmitting ? 'Submitting...' : 'Subscribe'}
+          </schmancy-button>
+        </div>
+      </form>
+    </schmancy-surface>
+  \`, { width: '400px' });
+}
+
+// Button to trigger dialog
+const button = document.createElement('schmancy-button');
+button.setAttribute('variant', 'filled');
+button.textContent = 'Open Form Dialog';
+button.addEventListener('click', openFormDialog);
+document.body.appendChild(button);`,
+		},
+		stacked: {
+			title: 'Stacked Dialogs',
+			description: 'A series of stacked dialogs that open on top of each other, creating a multi-step flow.',
+			code: `import { $dialog } from '@schmancy/dialog';
+
+// Function to demonstrate stacked dialogs
+function openStackedDialogs() {
+  // First dialog
+  $dialog.confirm({
+    title: 'First Dialog',
+    message: 'This is the first dialog in the stack.',
+    confirmText: 'Open Second Dialog',
+    cancelText: 'Cancel'
+  }).then(result => {
+    if (result) {
+      // Second dialog
+      $dialog.confirm({
+        title: 'Second Dialog',
+        subtitle: 'Stacked on top of the first one',
+        message: 'This is the second dialog, stacked on top of the first one.',
+        confirmText: 'Open Third Dialog',
+        cancelText: 'Go Back'
+      }).then(result => {
+        if (result) {
+          // Third dialog
+          $dialog.confirm({
+            title: 'Third Dialog',
+            subtitle: 'The deepest level',
+            message: 'This is the third dialog in the stack. Notice how dialogs are managed and layered properly.',
+            confirmText: 'Complete',
+            cancelText: 'Go Back'
+          }).then(result => {
+            if (result) {
+              // Final confirmation
+              $dialog.confirm({
+                title: 'Success!',
+                message: 'You have successfully navigated through all the dialog layers.',
+                confirmText: 'Great!',
+                cancelText: ''
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+// Button to trigger stacked dialogs
+const button = document.createElement('schmancy-button');
+button.setAttribute('variant', 'filled');
+button.textContent = 'Open Stacked Dialogs';
+button.addEventListener('click', openStackedDialogs);
+document.body.appendChild(button);`,
+		},
+	}
+
+	private handleChangeExample(e: Event) {
+		const select = e.target as HTMLSelectElement
+		if (select) {
+			this.activeExample = select.value
+		}
+	}
 
 	private getExampleCode() {
+		return this.examples[this.activeExample]?.code || ''
+	}
+
+	private copyCode() {
+		const code = this.getExampleCode()
+		navigator.clipboard.writeText(code).then(() => {
+			const copyButton = this.shadowRoot?.querySelector('.copy-button')
+			if (copyButton instanceof HTMLElement) {
+				copyButton.textContent = 'Copied!'
+				setTimeout(() => {
+					copyButton.textContent = 'Copy Code'
+				}, 2000)
+			}
+		})
+	}
+
+	// Run button directly triggers the dialog example based on active selection
+	private runExample() {
+		// Execute the appropriate dialog example based on the active tab
 		switch (this.activeExample) {
 			case 'basic':
-				return this.basicDialogExample
+				this.runBasicDialog()
+				break
 			case 'custom':
-				return this.customDialogExample
-			case 'advanced':
-				return this.advancedDialogExample
+				this.runCustomDialog()
+				break
+			case 'form':
+				this.runFormDialog()
+				break
 			case 'stacked':
-				return this.stackedDialogExample
-			default:
-				return this.basicDialogExample
+				this.runStackedDialogs()
+				break
 		}
 	}
 
-	private getExampleDescription() {
-		switch (this.activeExample) {
-			case 'basic':
-				return html`
-					<p>
-						A simple dialog with title, subtitle, message, and standard buttons. Shows how to use the basic dialog API
-						with the new subtitle feature.
-					</p>
-				`
-			case 'custom':
-				return html`
-					<p>
-						A fully custom component dialog with profile card styling. Demonstrates how to create rich, custom UI within
-						dialogs.
-					</p>
-				`
-			case 'advanced':
-				return html`
-					<p>
-						An interactive form dialog with validation, loading states, and dynamic content. Shows how to handle complex
-						user interactions.
-					</p>
-				`
-			case 'stacked':
-				return html`
-					<p>
-						Demonstrates stacked dialogs that open on top of each other, creating a multi-step flow with proper
-						layering.
-					</p>
-				`
-			default:
-				return html`<p>Select an example to see its description.</p>`
+	// Example implementations
+	private runBasicDialog() {
+		import('@schmancy/dialog').then(module => {
+			const $dialog = module.$dialog
+			$dialog
+				.confirm({
+					title: 'Basic Dialog',
+					message: 'This is a basic confirmation dialog with title, subtitle, and buttons.',
+					confirmText: 'Confirm',
+					cancelText: 'Cancel',
+				})
+				.then(result => {
+					console.log('Dialog result:', result)
+				})
+		})
+	}
+
+	private runCustomDialog() {
+		import('@schmancy/dialog').then(module => {
+			const $dialog = module.$dialog
+			$dialog.component(
+				html`
+					<schmancy-surface rounded="all" class="p-0 overflow-hidden w-full">
+						<div class="flex items-center p-4 border-b border-gray-200">
+							<div class="w-12 h-12 rounded-full bg-primary-400 mr-4"></div>
+							<div>
+								<schmancy-typography type="title" token="md">John Doe</schmancy-typography>
+								<schmancy-typography type="body" token="sm" class="text-gray-500"
+									>Software Engineer</schmancy-typography
+								>
+							</div>
+						</div>
+
+						<div class="p-4">
+							<schmancy-typography type="body" token="md"
+								>This dialog demonstrates a custom component with Schmancy UI.</schmancy-typography
+							>
+
+							<div class="flex justify-around mt-4 text-center">
+								<div class="flex flex-col">
+									<schmancy-typography type="title" token="lg" class="text-primary-500">42</schmancy-typography>
+									<schmancy-typography type="body" token="sm" class="text-gray-500">Projects</schmancy-typography>
+								</div>
+								<div class="flex flex-col">
+									<schmancy-typography type="title" token="lg" class="text-primary-500">1.5k</schmancy-typography>
+									<schmancy-typography type="body" token="sm" class="text-gray-500">Followers</schmancy-typography>
+								</div>
+								<div class="flex flex-col">
+									<schmancy-typography type="title" token="lg" class="text-primary-500">120</schmancy-typography>
+									<schmancy-typography type="body" token="sm" class="text-gray-500">Following</schmancy-typography>
+								</div>
+							</div>
+						</div>
+
+						<div class="p-4 flex justify-end gap-2 border-t border-gray-200">
+							<schmancy-button variant="outlined" @click=${() => $dialog.dismiss()}>Close</schmancy-button>
+							<schmancy-button variant="filled">View Profile</schmancy-button>
+						</div>
+					</schmancy-surface>
+				`,
+				{ width: '400px' },
+			)
+		})
+	}
+
+	// State variables for form dialog
+	private formDialogSubmitting = false
+	private formDialogErrorMessage = ''
+	private formDialogEmail = ''
+
+	private runFormDialog() {
+		// Reset form state
+		this.formDialogSubmitting = false
+		this.formDialogErrorMessage = ''
+		this.formDialogEmail = ''
+
+		this.showFormDialog()
+	}
+
+	private showFormDialog() {
+		import('@schmancy/dialog').then(module => {
+			const $dialog = module.$dialog
+			$dialog.component(
+				html`
+					<schmancy-surface rounded="all" class="p-5 max-w-md mx-auto">
+						<schmancy-typography type="title" token="lg" class="mb-1">Subscribe to Newsletter</schmancy-typography>
+						<schmancy-typography type="body" token="sm" class="text-gray-500 mb-4">
+							Get the latest updates directly to your inbox
+						</schmancy-typography>
+
+						<form @submit=${this.handleFormDialogSubmit}>
+							<div class="mb-4">
+								<label for="email" class="block text-sm font-medium mb-1">Email Address</label>
+								<input
+									type="email"
+									id="email"
+									class="w-full p-2 border rounded ${this.formDialogErrorMessage
+										? 'border-red-500'
+										: 'border-gray-300'}"
+									placeholder="your@email.com"
+									.value=${this.formDialogEmail}
+									@input=${(e: any) => {
+										this.formDialogEmail = e.target.value
+										this.formDialogErrorMessage = ''
+									}}
+									?disabled=${this.formDialogSubmitting}
+									required
+								/>
+								${this.formDialogErrorMessage
+									? html`<div class="text-red-500 text-sm mt-1">${this.formDialogErrorMessage}</div>`
+									: ''}
+							</div>
+
+							<div class="flex items-center mb-4">
+								<input type="checkbox" id="terms" required class="mr-2" />
+								<label for="terms" class="text-sm">I agree to the terms and conditions</label>
+							</div>
+
+							<div class="flex justify-end gap-2">
+								<schmancy-button
+									variant="outlined"
+									@click=${() => {
+										import('@schmancy/dialog').then(module => {
+											module.$dialog.dismiss()
+										})
+									}}
+									?disabled=${this.formDialogSubmitting}
+								>
+									Cancel
+								</schmancy-button>
+								<schmancy-button
+									variant="filled"
+									type="submit"
+									class="${this.formDialogSubmitting ? 'opacity-75' : ''}"
+									?disabled=${this.formDialogSubmitting}
+								>
+									${this.formDialogSubmitting ? 'Submitting...' : 'Subscribe'}
+								</schmancy-button>
+							</div>
+						</form>
+					</schmancy-surface>
+				`,
+				{ width: '400px' },
+			)
+		})
+	}
+
+	private async handleFormDialogSubmit(e: Event) {
+		e.preventDefault()
+
+		if (!this.formDialogEmail) {
+			this.formDialogErrorMessage = 'Email is required'
+			this.updateFormDialog()
+			return
+		}
+
+		// Show loading state
+		this.formDialogSubmitting = true
+		this.updateFormDialog()
+
+		try {
+			// Mock API call
+			await new Promise(resolve => setTimeout(resolve, 1500))
+
+			// Show success message
+			import('@schmancy/dialog').then(module => {
+				const $dialog = module.$dialog
+				$dialog.dismiss()
+				setTimeout(() => {
+					$dialog.confirm({
+						title: 'Success!',
+						message: `Thank you for subscribing with ${this.formDialogEmail}. We've sent you a confirmation email.`,
+						confirmText: 'OK',
+						cancelText: '',
+					})
+				}, 100)
+			})
+		} catch (error) {
+			// Show error
+			this.formDialogSubmitting = false
+			this.formDialogErrorMessage = 'An error occurred. Please try again.'
+			this.updateFormDialog()
 		}
 	}
 
-	private handleExampleChange(e: Event) {
-		const select = e.target as HTMLSelectElement
-		this.activeExample = select.value
+	private updateFormDialog() {
+		import('@schmancy/dialog').then(module => {
+			module.$dialog.dismiss()
+			setTimeout(() => {
+				this.showFormDialog()
+			}, 100)
+		})
 	}
 
-	firstUpdated() {
-		// Initial project setup
-		const project = this.renderRoot.querySelector('playground-project')
-		if (project) {
-			project.config = {
-				files: {
-					'index.html': {
-						content: `<!DOCTYPE html>
-<html>
-  <head>
-    <title>Schmancy Dialog Demo</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="./index.js"></script>
-  </head>
-  <body>
-    <!-- Content will be rendered via Lit -->
-  </body>
-</html>`,
-						type: 'html',
-					},
-					'index.js': {
-						content: this.getExampleCode(),
-						type: 'js',
-					},
-				},
-				importMap: {
-					imports: {
-						lit: 'https://cdn.jsdelivr.net/npm/lit@2.8.0/+esm',
-						'@schmancy/dialog': '/assets/dialog-bundle.js',
-					},
-				},
-			}
-		}
-	}
-
-	updated(changedProps: Map<string, any>) {
-		if (changedProps.has('activeExample')) {
-			const project = this.renderRoot.querySelector('playground-project')
-			if (project) {
-				project.fileByName('index.js').setContent(this.getExampleCode())
-			}
-		}
+	private runStackedDialogs() {
+		import('@schmancy/dialog').then(module => {
+			const $dialog = module.$dialog
+			// First dialog
+			$dialog
+				.confirm({
+					title: 'First Dialog',
+					message: 'This is the first dialog in the stack.',
+					confirmText: 'Open Second Dialog',
+					cancelText: 'Cancel',
+				})
+				.then(result => {
+					if (result) {
+						// Second dialog
+						$dialog
+							.confirm({
+								title: 'Second Dialog',
+								message: 'This is the second dialog, stacked on top of the first one.',
+								confirmText: 'Open Third Dialog',
+								cancelText: 'Go Back',
+							})
+							.then(result => {
+								if (result) {
+									// Third dialog
+									$dialog
+										.confirm({
+											title: 'Third Dialog',
+											message:
+												'This is the third dialog in the stack. Notice how dialogs are managed and layered properly.',
+											confirmText: 'Complete',
+											cancelText: 'Go Back',
+										})
+										.then(result => {
+											if (result) {
+												// Final confirmation
+												$dialog.confirm({
+													title: 'Success!',
+													message: 'You have successfully navigated through all the dialog layers.',
+													confirmText: 'Great!',
+													cancelText: '',
+												})
+											}
+										})
+								}
+							})
+					}
+				})
+		})
 	}
 
 	render() {
+		const example = this.examples[this.activeExample]
+
 		return html`
-			<schmancy-surface type="container" fill="all" rounded="left" class="p-4">
-				<schmancy-typography type="headline" token="md">Interactive Dialog Playground</schmancy-typography>
-				<schmancy-typography type="subtitle" token="sm" class="mt-2">
-					Live code editor with real-time preview - edit and see results instantly
+			<schmancy-surface type="container" rounded="left" class="p-6">
+				<schmancy-typography type="headline" token="md" class="mb-1">Dialog Examples</schmancy-typography>
+				<schmancy-typography type="subtitle" token="sm" class="text-gray-600 mb-6">
+					Explore different dialog patterns with code examples
 				</schmancy-typography>
 
-				<div class="example-select">
-					<schmancy-form>
-						<div class="mb-4 mt-6">
-							<label for="example-select" class="block text-sm font-medium mb-1">Select Example:</label>
-							<select
-								id="example-select"
-								class="block w-full border border-gray-300 rounded-md p-2"
-								.value=${this.activeExample}
-								@change=${this.handleExampleChange}
-							>
-								<option value="basic">Basic Dialog</option>
-								<option value="custom">Custom Component Dialog</option>
-								<option value="advanced">Interactive Form Dialog</option>
-								<option value="stacked">Stacked Dialogs</option>
-							</select>
-						</div>
-					</schmancy-form>
-
-					<div class="mb-4">${this.getExampleDescription()}</div>
+				<div class="mb-6">
+					<schmancy-typography type="subtitle" token="sm" class="mb-2">Select Example:</schmancy-typography>
+					<select
+						class="border border-gray-300 rounded p-2 w-full md:w-64"
+						@change=${this.handleChangeExample}
+						.value=${this.activeExample}
+					>
+						<option value="basic">Basic Dialog</option>
+						<option value="custom">Custom Component Dialog</option>
+						<option value="form">Form Dialog</option>
+						<option value="stacked">Stacked Dialogs</option>
+					</select>
 				</div>
 
-				<div class="component-demo">
-					<div class="editor-container">
-						<playground-project>
-							<playground-file-editor filename="index.js" line-numbers theme="light"></playground-file-editor>
-						</playground-project>
+				<div class="example-section">
+					<div class="example-header">
+						<schmancy-typography type="title" token="lg">${example.title}</schmancy-typography>
+						<schmancy-button variant="text" size="sm" class="copy-button" @click=${this.copyCode}>
+							Copy Code
+						</schmancy-button>
 					</div>
 
-					<div class="preview-container">
-						<playground-preview></playground-preview>
+					<schmancy-typography type="body" token="md" class="mb-4"> ${example.description} </schmancy-typography>
+
+					<div class="code-block">
+						<pre><code>${this.getExampleCode()}</code></pre>
+					</div>
+
+					<div class="actions">
+						<schmancy-button variant="filled" @click=${this.runExample}> Run Example </schmancy-button>
 					</div>
 				</div>
 			</schmancy-surface>
