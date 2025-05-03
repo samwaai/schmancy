@@ -15,6 +15,14 @@ export declare class SchmancyDialog extends SchmancyDialog_base {
      */
     private resolvePromise?;
     /**
+     * Store cleanup function for position auto-updates
+     */
+    private cleanupAutoUpdate?;
+    /**
+     * Virtual element to use as reference for positioning
+     */
+    private virtualReference?;
+    /**
      * Simple API: Show the dialog at a specific position
      * @returns Promise that resolves when dialog is closed
      */
@@ -27,10 +35,18 @@ export declare class SchmancyDialog extends SchmancyDialog_base {
      */
     hide(result?: boolean): void;
     /**
-     * Calculate optimal position based on click coordinates
-     * with viewport boundary checks to prevent dialogs from appearing off-screen
+     * Set up position auto-updating when dialog content changes or window resizes
      */
-    private calculatePosition;
+    private setupPositioning;
+    /**
+     * Update dialog position using Floating UI
+     */
+    private updatePosition;
+    private resizeSubscription?;
+    /**
+     * Handle component disconnection from DOM
+     */
+    disconnectedCallback(): void;
     /**
      * Handle lifecycle callback when dialog is first rendered
      */
