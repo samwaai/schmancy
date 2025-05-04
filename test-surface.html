@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surface Test</title>
+  <script type="module" src="./dist/schmancy.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      line-height: 1.5;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .test-case {
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    .demo-wrapper {
+      border: 1px dashed #999;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .demo-box {
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+    }
+    .highlight {
+      border: 2px solid #ff0000;
+      padding: 2px;
+      margin: 2px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Surface Component Test</h1>
+  
+  <div class="container">
+    <div class="test-case">
+      <h2>Basic Surface</h2>
+      <p>Testing the standard surface with padding applied</p>
+      <div class="demo-wrapper">
+        <schmancy-surface type="container" elevation="2" class="p-6">
+          <p>This content should have padding inside the surface</p>
+        </schmancy-surface>
+      </div>
+    </div>
+    
+    <div class="test-case">
+      <h2>Nested Content</h2>
+      <p>Testing various padding and margin classes</p>
+      <div class="demo-wrapper">
+        <schmancy-surface type="container" elevation="2" class="p-4 m-2">
+          <div class="demo-box p-2">
+            <p>Box with internal padding</p>
+          </div>
+          <div class="demo-box mt-3">
+            <p class="p-2">Text with margin-top on container</p>
+          </div>
+        </schmancy-surface>
+      </div>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="test-case">
+      <h2>Different Background Colors</h2>
+      <p>Testing background color with padding</p>
+      <div class="demo-wrapper">
+        <schmancy-surface type="container" elevation="2" class="p-4 bg-blue-100">
+          <p>This content should have blue background and padding</p>
+        </schmancy-surface>
+      </div>
+    </div>
+    
+    <div class="test-case">
+      <h2>Border Radius with Padding</h2>
+      <p>Testing rounded corners with padding</p>
+      <div class="demo-wrapper">
+        <schmancy-surface rounded="all" type="container" elevation="2" class="p-4">
+          <p>This content should have rounded corners and padding</p>
+        </schmancy-surface>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Wait for components to be defined and updated
+    window.addEventListener('load', () => {
+      // Add some highlighting to show the structure
+      setTimeout(() => {
+        // Adding visual indicators for debugging
+        document.querySelectorAll('schmancy-surface').forEach(surface => {
+          // Add an indicator to see if padding is working correctly
+          const indicator = document.createElement('span');
+          indicator.className = 'highlight';
+          indicator.textContent = 'Corner indicator';
+          surface.appendChild(indicator);
+        });
+      }, 500);
+    });
+  </script>
+</body>
+</html>

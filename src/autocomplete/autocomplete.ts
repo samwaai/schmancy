@@ -13,6 +13,7 @@ import style from './autocomplete.scss?inline'
  */
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 	value: string | string[]
+	values?: string[] // Only present when multi=true
 }>
 
 /**
@@ -22,6 +23,10 @@ export type SchmancyAutocompleteChangeEvent = CustomEvent<{
  * @element schmancy-autocomplete
  * @slot - Default slot for option elements
  * @slot trigger - Optional slot to override the default input element
+ * 
+ * @property {string} value - The selected value for single-select mode. In multi-select mode,
+ *                           this is a comma-separated string of values (kept for backward compatibility).
+ * @property {string[]} values - The selected values as an array for multi-select mode (preferred API for multi-select).
  */
 @customElement('schmancy-autocomplete')
 export default class SchmancyAutocomplete extends $LitElement(style) {
@@ -36,7 +41,23 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	@property({ type: String }) autocomplete = 'off'
 	@property({ type: Number }) debounceMs = 200 // Debounce delay in milliseconds
 
-	// Value property with getter/setter
+	// Values property for multi-select mode (preferred API for multi-select)
+	@property({ type: Array })
+	get values() {
+		return [...this._selectedValues]
+	}
+	set values(vals: string[]) {
+		this._selectedValues = Array.isArray(vals) ? [...vals] : []
+		this._syncOptionsSelection()
+		this._updateInputDisplay()
+
+		// Dispatch change event when values are set programmatically
+		if (this.isConnected) {
+			this._fireChangeEvent()
+		}
+	}
+
+	// Value property with getter/setter (maintained for backward compatibility)
 	@property({ type: String, reflect: true })
 	get value() {
 		if (this.multi) {
@@ -574,8 +595,13 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 	 * Fire change event
 	 */
 	private _fireChangeEvent() {
-		const detail = {
+		const detail: SchmancyAutocompleteChangeEvent['detail'] = {
 			value: this.multi ? this._selectedValues : this._selectedValue,
+		}
+
+		// Include values property in the event detail when in multi-select mode
+		if (this.multi) {
+			detail.values = [...this._selectedValues]
 		}
 
 		this.dispatchEvent(

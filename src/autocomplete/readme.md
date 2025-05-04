@@ -64,8 +64,12 @@ export class ExampleAutocomplete extends LitElement {
 	}
 
 	handleMultipleChange(event) {
-		this.multipleSelectedValues = event.detail.value
+		// Use the new values property for array access
+		this.multipleSelectedValues = event.detail.values || []
 		console.log('Multiple Selected Values:', this.multipleSelectedValues)
+		
+		// Legacy value is also available as a comma-separated string
+		console.log('Legacy value format:', event.detail.value)
 	}
 
 	render() {
@@ -140,6 +144,61 @@ Include your custom Lit component in your HTML file, for example, index.html:
 		<example-autocomplete></example-autocomplete>
 	</body>
 </html>
+```
+
+## API Documentation
+
+### Properties
+
+| Property      | Type      | Description                                                                                      |
+|---------------|-----------|--------------------------------------------------------------------------------------------------|
+| `value`       | `string`  | For single-select: the selected value. For multi-select: comma-separated list (legacy support).  |
+| `values`      | `string[]`| Array of selected values for multi-select mode (preferred API for multi-select).                 |
+| `multi`       | `boolean` | Enable multi-select mode. Default: `false`                                                       |
+| `label`       | `string`  | Label displayed above the input.                                                                 |
+| `placeholder` | `string`  | Input placeholder text.                                                                          |
+| `required`    | `boolean` | Mark the input as required for form validation.                                                  |
+| `maxHeight`   | `string`  | Maximum height of the dropdown. Default: `'300px'`                                               |
+| `autocomplete`| `string`  | Value for the input's autocomplete attribute. Default: `'off'`                                   |
+| `size`        | `string`  | Size of the input field: 'sm', 'md', 'lg'. Default: `'md'`                                       |
+| `debounceMs`  | `number`  | Debounce delay in milliseconds for filtering. Default: `200`                                     |
+| `description` | `string`  | Description text for screen readers.                                                             |
+
+### Events
+
+| Event    | Detail                                                | Description                          |
+|----------|-------------------------------------------------------|--------------------------------------|
+| `change` | `{ value: string \| string[], values?: string[] }`    | Fired when selection changes.        |
+
+The `change` event for multi-select now includes both:
+- `detail.value`: Comma-separated string of values (legacy support)
+- `detail.values`: Array of selected values (new preferred API)
+
+### Usage Example with the New API
+
+```js
+// Setting values with the new API
+const autocomplete = document.querySelector('schmancy-autocomplete');
+
+// For single-select:
+autocomplete.value = 'option1';
+
+// For multi-select:
+autocomplete.values = ['option1', 'option2', 'option3'];
+
+// Using the component with Lit
+html`
+  <schmancy-autocomplete
+    multi
+    .values=${this.selectedValues}
+    @change=${(e) => {
+      // Use the new array values property
+      this.selectedValues = e.detail.values || [];
+    }}
+  >
+    <!-- options -->
+  </schmancy-autocomplete>
+`;
 ```
 
 ## License
