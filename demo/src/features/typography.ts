@@ -1,4 +1,5 @@
 import { $LitElement } from '@mixins/index'
+import '@schmancy/icons'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -14,7 +15,10 @@ export default class DemoTypography extends $LitElement(css`
 				<schmancy-typography lineHeight="50px" fontSize="80px" letterSpacing="1px" type="display" token="lg"
 					>Display (lg)</schmancy-typography
 				>
-				<schmancy-typography type="display">Display (md) </schmancy-typography>
+				<schmancy-typography type="display">
+					Display (md)
+					<schmancy-icon>help</schmancy-icon>
+				</schmancy-typography>
 				<schmancy-typography type="display" token="sm">Display (sm) </schmancy-typography>
 				<schmancy-typography type="headline" token="lg">Headline (lg)</schmancy-typography>
 				<schmancy-typography type="headline" token="md">Headline (md)</schmancy-typography>

@@ -14,3 +14,28 @@ p {
 	display: block;
 	font-family: inherit;
 }
+
+// Support flex layout for icon alignment
+:host(.flex) {
+	display: flex;
+}
+
+:host(.inline-flex) {
+	display: inline-flex;
+}
+
+:host(.items-center) {
+	align-items: center;
+}
+
+:host(.justify-center) {
+	justify-content: center;
+}
+
+:host(.gap-1) {
+	gap: 0.25rem;
+}
+
+:host(.gap-2) {
+	gap: 0.5rem;
+}

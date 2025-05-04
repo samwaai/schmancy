@@ -7,6 +7,7 @@ import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { filter, map } from 'rxjs'
 import { fullHeight } from '../../src/directives/height'
+import { DemoDialogShowcase } from './features'
 import { DemoAnimatedText } from './features/animated-text'
 import { DemoAvatars } from './features/avatar'
 import DemoBadges from './features/badges'
@@ -15,12 +16,12 @@ import { DemoButton } from './features/button'
 import { DemoCard } from './features/card'
 import { DemoDialog } from './features/dialog'
 import { DemoDialogPlayground } from './features/dialog-playground'
-import { DemoDialogTest } from './features/dialog-test'
 import { DemoContentDrawer } from './features/drawer-content'
 import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoList } from './features/list'
 import NotificationDemo from './features/notifications'
+import { DemoPlayground } from './features/playground-demo'
 import { DemoRadio } from './features/radio'
 import { DemoRouter } from './features/router'
 import { DemoSheet } from './features/sheet/sheet'
@@ -30,6 +31,8 @@ import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import { SchmancyTypewriterDemo } from './features/typewriter'
 import DemoTypography from './features/typography'
+import { TypographyIconDemo } from './features/typography-icon-demo'
+import { TypographyIconTest } from './features/typography-icon-test'
 const NavContext = createContext<
 	Array<{
 		name: string
@@ -62,9 +65,10 @@ export class DemoNav extends $LitElement(css`
 				this.activeTab = r.component?.toLowerCase().replaceAll('-', '')
 			})
 		NavContext.replace([
+			{ name: 'Interactive Playground', component: DemoPlayground },
 			{ name: 'Radio', component: DemoRadio },
 			{ name: 'Dialog', component: DemoDialog },
-			{ name: 'Dialog Test', component: DemoDialogTest },
+			{ name: 'Dialog Test', component: DemoDialogShowcase },
 			{ name: 'Dialog Showcase', component: DemoDialogPlayground },
 			{ name: 'Avatar', component: DemoAvatars },
 			{

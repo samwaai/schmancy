@@ -60,6 +60,7 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 
 	render() {
 		const classes = {
+			'inline-flex': true,
 			'hyphens-none items-center': true,
 			'text-center': this.align === 'center',
 			'text-start': this.align === 'left',

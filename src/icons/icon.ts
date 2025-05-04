@@ -27,7 +27,7 @@ export default class SchmancyIcon extends $LitElement(css`
 			'opsz' 24;
 	}
 	:host {
-		display: flex;
+		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 	}
@@ -69,7 +69,7 @@ export default class SchmancyIcon extends $LitElement(css`
 		}
 
 		return html`
-			<span class="material-symbols-outlined" style=${this.styleMap(style)}>
+			<span class="material-symbols-outlined w-fit" style=${this.styleMap(style)}>
 				<slot .hidden=${this.busy}></slot>
 			</span>
 		`
