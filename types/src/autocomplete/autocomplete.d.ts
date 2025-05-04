@@ -5,6 +5,7 @@ import SchmancyInputV2 from '@schmancy/input/input-v2';
  */
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string | string[];
+    values?: string[];
 }>;
 declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
@@ -14,6 +15,10 @@ declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mix
  * @element schmancy-autocomplete
  * @slot - Default slot for option elements
  * @slot trigger - Optional slot to override the default input element
+ *
+ * @property {string} value - The selected value for single-select mode. In multi-select mode,
+ *                           this is a comma-separated string of values (kept for backward compatibility).
+ * @property {string[]} values - The selected values as an array for multi-select mode (preferred API for multi-select).
  */
 export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     required: boolean;
@@ -25,6 +30,8 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     size: InputSize;
     autocomplete: string;
     debounceMs: number;
+    get values(): string[];
+    set values(vals: string[]);
     get value(): string;
     set value(val: string);
     private _open;
