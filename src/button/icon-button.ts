@@ -1,7 +1,6 @@
 import { $LitElement } from '@mixins/index'
 import { css, html, LitElement, PropertyValueMap } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
 import { ButtonVariant } from './button'
@@ -155,12 +154,12 @@ export class SchmnacyIconButton extends $LitElement(css`
 					part="base"
 					href=${ifDefined(this.disabled ? undefined : this.href)}
 					aria-label=${ifDefined(this.ariaLabel)}
-					class="${classMap(classes)}"
+					class="${this.classMap(classes)}"
 					tabindex=${this.disabled ? '-1' : '0'}
 					aria-disabled=${this.disabled}
 					@click=${this.disabled ? this._preventDefault : undefined}
 				>
-					${when(!this.disabled, () => html`<div class="absolute inset-0 ${classMap(stateLayerClasses)}"></div>`)}
+					${when(!this.disabled, () => html`<div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div>`)}
 					<schmancy-icon size=${this.size === 'sm' ? '18px' : this.size === 'md' ? '24px' : '32px'}>
 						<slot></slot>
 					</schmancy-icon>
@@ -174,11 +173,11 @@ export class SchmnacyIconButton extends $LitElement(css`
 				part="base"
 				aria-label=${ifDefined(this.ariaLabel)}
 				?disabled=${this.disabled}
-				class="${classMap(classes)}"
+				class="${this.classMap(classes)}"
 				type=${ifDefined(this.type)}
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
-				${when(!this.disabled, () => html`<div class="absolute inset-0 ${classMap(stateLayerClasses)}"></div>`)}
+				${when(!this.disabled, () => html`<div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div>`)}
 				<schmancy-icon size=${this.size === 'sm' ? '18px' : this.size === 'md' ? '24px' : '32px'}>
 					<slot></slot>
 				</schmancy-icon>
