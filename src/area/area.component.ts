@@ -179,6 +179,7 @@ export class SchmancyArea extends $LitElement(css`
 						component: component.tagName,
 						state: route.state,
 						area: this.name,
+						params: route.params,
 					})
 
 					area.$current.next(area.current)
@@ -202,7 +203,7 @@ export class SchmancyArea extends $LitElement(css`
 		return encodeURIComponent(
 			JSON.stringify({
 				...oldAreaState,
-				[this.name]: { component: tag.toLowerCase(), state: route.state },
+				[this.name]: { component: tag.toLowerCase(), state: route.state, params: route.params },
 			}),
 		).concat(`${queryParams}`)
 	}
