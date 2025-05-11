@@ -177,9 +177,9 @@ export class SchmancyArea extends $LitElement(css`
 					}
 					area.current.set(this.name, {
 						component: component.tagName,
-						state: route.state,
+						state: route.state || {},
 						area: this.name,
-						params: route.params,
+						params: route.params || {},
 					})
 
 					area.$current.next(area.current)

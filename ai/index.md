@@ -4,6 +4,7 @@ This directory contains concise reference documentation for the Schmancy compone
 
 ## Components
 
+- [Area](./area.md) - Routing and subscription API for application areas
 - [Button](./button.md) - Primary, secondary, and tertiary buttons with various states
 - [Dialog](./dialog.md) - Modal dialog boxes for confirmations and custom content
 - [Form](./form.md) - Form containers with validation capabilities
@@ -36,18 +37,32 @@ Each reference file follows a consistent pattern:
 component.method() -> returnType
 @event // Event description with { detail: { properties } }
 
-// Examples of common usage patterns
-// Example comment
+// Examples of common usage patterns (numbered for clarity)
+// 1. Basic usage
 <component-name attribute="value">
   Example content
 </component-name>
+
+// 2. Advanced configuration
+<component-name attribute="value" advanced-config="true">
+  Complex example
+</component-name>
 ```
+
+Each component documentation also includes:
+
+- **Related Components**: Links to related components with relationship descriptions
+- **Technical Details**: Interfaces, types, CSS custom properties
+- **Common Use Cases**: Practical examples with explanations
 
 This format is designed to quickly convey:
 1. Component tag names and attributes
 2. Available options and variations
 3. Component methods and events
-4. Common usage patterns
+4. Relationships to other components
+5. Practical usage patterns
+
+For detailed documentation guidelines, see [template.md](./template.md).
 
 ## Library Structure
 

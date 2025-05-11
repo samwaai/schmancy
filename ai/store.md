@@ -9,131 +9,88 @@ const store = createStore({
   initialState: {
     count: 0,
     users: [],
-    settings: {
-      darkMode: false
-    }
+    settings: { darkMode: false }
   }
 });
 
-// Creating a store with actions
+// Store with actions
 const counterStore = createStore({
   initialState: { count: 0 },
   actions: {
-    increment: (state, amount = 1) => {
-      state.count += amount;
-    },
-    decrement: (state, amount = 1) => {
-      state.count -= amount;
-    },
-    reset: (state) => {
-      state.count = 0;
-    }
+    increment: (state, amount = 1) => { state.count += amount; },
+    decrement: (state, amount = 1) => { state.count -= amount; },
+    reset: (state) => { state.count = 0; }
   }
 });
 
 // Store Context Creation
-import { createContext } from 'schmancy/store';
+import { createContext, createCollectionContext } from 'schmancy/store';
 
-// Object context (plain object state)
-const settingsContext = createContext(store, 'settings');
+// Object/array/collection contexts
+const settingsContext = createContext(store, 'settings');           // Object
+const usersContext = createContext(store, 'users');                 // Array
+const todoCollection = createCollectionContext(store, 'todos');     // Collection with IDs
 
-// Array context (array state)
-const usersContext = createContext(store, 'users');
-
-// Collection context (optimized for collections with IDs)
-const todoCollection = createCollectionContext(store, 'todos');
-
-// Actions
-// Using actions
-counterStore.actions.increment(5);
-counterStore.actions.decrement();
-counterStore.actions.reset();
-
-// Creating custom actions
-store.createAction('addUser', (state, user) => {
+// State Manipulation Methods
+store.createAction('addUser', (state, user) => {                    // Custom action
   state.users.push(user);
 });
 
-// Updates (direct state mutation, enabled by Immer)
-store.update(state => {
+store.update(state => {                                             // Direct update
   state.count++;
-  state.users.push({ id: 1, name: 'John' });
   state.settings.darkMode = true;
 });
 
-// Context-specific updates
-settingsContext.update(settings => {
-  settings.darkMode = true;
-  settings.fontSize = 'large';
-});
-
-usersContext.update(users => {
-  users.push({ id: 2, name: 'Alice' });
-});
-
-// Collection operations
-todoCollection.add({ id: '1', text: 'Buy milk', completed: false });
-todoCollection.update('1', item => { item.completed = true; });
-todoCollection.remove('1');
+todoCollection.add({ id: '1', text: 'Buy milk' });                  // Collection add
+todoCollection.update('1', item => { item.completed = true; });     // Collection update
+todoCollection.remove('1');                                         // Collection remove
 
 // Selectors
-import { createSelector } from 'schmancy/store';
+import { createSelector, useSelector } from 'schmancy/store';
 
-// Basic selectors
+// Basic and computed selectors
 const getCount = state => state.count;
-const getUsers = state => state.users;
-
-// Computed selectors
 const getActiveUsers = createSelector(
-  getUsers,
+  state => state.users,
   (users) => users.filter(user => user.active)
 );
 
-const getCompletedTodoCount = createSelector(
-  state => state.todos,
-  (todos) => todos.filter(todo => todo.completed).length
-);
-
-// Using hooks with selectors
-import { useSelector } from 'schmancy/store';
-
-// In a component
-const count = useSelector(getCount);
-const activeUsers = useSelector(getActiveUsers);
-
-// Subscribe to state changes
-const unsubscribe = store.subscribe(state => {
-  console.log('State updated:', state);
-});
-
-// Unsubscribe when no longer needed
-unsubscribe();
-
-// Local Storage Integration
-import { StorageManager } from 'schmancy/store';
-
-// Persist store to localStorage
-const storageManager = new StorageManager({
-  key: 'app-store',
-  storage: localStorage,
-  serialize: JSON.stringify,
-  deserialize: JSON.parse
-});
-
-storageManager.connect(store);
+// Component integration
+function MyComponent() {
+  const count = useSelector(getCount);
+  const activeUsers = useSelector(getActiveUsers);
+  
+  // React to state changes
+}
 
 // Examples
-// Complete store setup example
-const appStore = createStore({
+// 1. Theme store with persistence
+const themeStore = createStore({
+  initialState: { mode: 'light', fontSize: 'medium' },
+  actions: {
+    toggleTheme: state => {
+      state.mode = state.mode === 'light' ? 'dark' : 'light';
+    },
+    setFontSize: (state, size) => {
+      state.fontSize = size;
+    }
+  }
+});
+
+// LocalStorage persistence
+import { StorageManager } from 'schmancy/store';
+new StorageManager({
+  key: 'theme-store',
+  storage: localStorage
+}).connect(themeStore);
+
+// 2. Todo application store
+const todoStore = createStore({
   initialState: {
-    counter: { value: 0 },
     todos: [],
-    theme: 'light'
+    filter: 'all'
   },
   actions: {
-    incrementCounter: (state, amount = 1) => {
-      state.counter.value += amount;
-    },
     addTodo: (state, text) => {
       state.todos.push({
         id: Date.now().toString(),
@@ -143,29 +100,136 @@ const appStore = createStore({
     },
     toggleTodo: (state, id) => {
       const todo = state.todos.find(todo => todo.id === id);
-      if (todo) {
-        todo.completed = !todo.completed;
-      }
+      if (todo) todo.completed = !todo.completed;
     },
-    setTheme: (state, theme) => {
-      state.theme = theme;
+    setFilter: (state, filter) => {
+      state.filter = filter;
     }
   }
 });
 
-// Using in components
-const TodoApp = () => {
-  const todos = useSelector(state => state.todos);
-  const theme = useSelector(state => state.theme);
-  
-  const addNewTodo = (text) => {
-    appStore.actions.addTodo(text);
-  };
-  
-  const toggleTodoStatus = (id) => {
-    appStore.actions.toggleTodo(id);
-  };
-  
-  // Render component
-};
+// 3. Filtered todos selector
+const getFilteredTodos = createSelector(
+  state => state.todos,
+  state => state.filter,
+  (todos, filter) => {
+    switch (filter) {
+      case 'active': return todos.filter(t => !t.completed);
+      case 'completed': return todos.filter(t => t.completed);
+      default: return todos;
+    }
+  }
+);
 ```
+
+## Related Components
+- **[Area](./area.md)**: Uses similar reactive patterns for routing state
+- **[Theme](./theme.md)**: Often uses store for theme state management
+- **[Form](./form.md)**: Can use store for form state management
+
+## Technical Details
+
+### Store Interfaces
+```typescript
+interface StoreOptions<T> {
+  initialState: T;
+  actions?: Record<string, (state: T, ...args: any[]) => void>;
+}
+
+interface Store<T> {
+  getState(): T;
+  update(updater: (state: T) => void): void;
+  subscribe(listener: (state: T) => void): () => void;
+  createAction<Args extends any[]>(
+    name: string,
+    action: (state: T, ...args: Args) => void
+  ): (...args: Args) => void;
+}
+
+interface Context<T> {
+  get(): T;
+  update(updater: (state: T) => void): void;
+  subscribe(listener: (state: T) => void): () => void;
+}
+
+interface CollectionContext<T> extends Context<Record<string, T>> {
+  add(item: T): void;
+  update(id: string, updater: (item: T) => void): void;
+  remove(id: string): void;
+}
+```
+
+### Integration with Immer
+The store uses Immer under the hood to enable immutable updates with mutable syntax. This means you can write code that appears to directly modify the state, but behind the scenes, it's creating a new immutable state tree.
+
+```js
+// This looks like direct mutation but is actually immutable
+store.update(state => {
+  state.count++;           // Modifying a primitive
+  state.users.push(user);  // Modifying an array
+  state.deep.nested.value = true; // Modifying a nested property
+});
+```
+
+### Common Use Cases
+
+1. **Application theme state**
+   ```js
+   const themeStore = createStore({
+     initialState: { mode: 'light' },
+     actions: {
+       toggleTheme: state => {
+         state.mode = state.mode === 'light' ? 'dark' : 'light';
+       }
+     }
+   });
+   
+   // In a component
+   const mode = useSelector(state => state.mode);
+   const toggleTheme = () => themeStore.actions.toggleTheme();
+   ```
+
+2. **Form state management**
+   ```js
+   const formStore = createStore({
+     initialState: {
+       values: { name: '', email: '' },
+       errors: {},
+       isDirty: false,
+       isSubmitting: false
+     },
+     actions: {
+       setField: (state, field, value) => {
+         state.values[field] = value;
+         state.isDirty = true;
+       },
+       setError: (state, field, error) => {
+         state.errors[field] = error;
+       },
+       submit: (state) => {
+         state.isSubmitting = true;
+       },
+       reset: (state) => {
+         state.values = { name: '', email: '' };
+         state.errors = {};
+         state.isDirty = false;
+       }
+     }
+   });
+   ```
+
+3. **Filtered data with memoization**
+   ```js
+   const getFilteredItems = createSelector(
+     state => state.items,
+     state => state.filters,
+     (items, filters) => {
+       return items.filter(item => {
+         // Apply filters
+         return Object.entries(filters).every(([key, value]) => 
+           !value || item[key] === value
+         );
+       });
+     }
+   );
+   ```

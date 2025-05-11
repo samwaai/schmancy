@@ -75,11 +75,15 @@ export default defineConfig({
 					},
 				}),
 				copy({
-					// Copy the mixins folder into dist/mixins
+					// Copy the mixins and ai folders into dist
 					targets: [
 						{
 							src: resolve(__dirname, 'mixins') + '/**/*',
 							dest: resolve(__dirname, 'dist/mixins'),
+						},
+						{
+							src: resolve(__dirname, 'ai') + '/**/*',
+							dest: resolve(__dirname, 'dist/ai'),
 						},
 					],
 					// Ensures it runs after everything else is bundled

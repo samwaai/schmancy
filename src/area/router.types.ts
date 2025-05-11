@@ -1,8 +1,8 @@
 export type RouteAction = {
 	component: CustomElementConstructor | string | HTMLElement
 	area: string
-	state?: object
-	params?: Record<string, any>
+	state?: Record<string, unknown>
+	params?: Record<string, unknown>
 	historyStrategy?: THistoryStrategy
 	clearQueryParams?: string[] | null
 }
@@ -10,8 +10,50 @@ export type RouteAction = {
 export type ActiveRoute = {
 	component: string
 	area: string
-	state?: object
-	params?: Record<string, any>
+	state?: Record<string, unknown>
+	params?: Record<string, unknown>
+}
+
+/**
+ * Interface for subscribing to area changes
+ */
+export interface AreaSubscription {
+	/**
+	 * Subscribe to a specific area
+	 * @param areaName Name of the area to subscribe to
+	 * @param skipCurrent Whether to skip the current value
+	 * @returns Observable of the active route for the specified area
+	 */
+	on(areaName: string, skipCurrent?: boolean): import('rxjs').Observable<ActiveRoute>
+	
+	/**
+	 * Subscribe to all areas
+	 * @param skipCurrent Whether to skip the current value
+	 * @returns Observable of all active routes
+	 */
+	all(skipCurrent?: boolean): import('rxjs').Observable<Map<string, ActiveRoute>>
+	
+	/**
+	 * Get state from an area
+	 * @param areaName Name of the area to subscribe to
+	 * @returns Observable of the area's state
+	 */
+	getState<T = unknown>(areaName: string): import('rxjs').Observable<T>
+	
+	/**
+	 * Get params from an area
+	 * @param areaName Name of the area to subscribe to
+	 * @returns Observable of the area's params
+	 */
+	params<T extends Record<string, unknown> = Record<string, unknown>>(areaName: string): import('rxjs').Observable<T>
+	
+	/**
+	 * Get a specific param from an area
+	 * @param areaName Name of the area to subscribe to
+	 * @param key Key of the param to select
+	 * @returns Observable of the param value
+	 */
+	param<T = unknown>(areaName: string, key: string): import('rxjs').Observable<T>
 }
 
 export type THistoryStrategy = 'push' | 'replace' | 'pop' | 'silent'
