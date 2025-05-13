@@ -50,6 +50,35 @@
   </tbody>
 </schmancy-table>
 
+// Data Table with programmatic columns and custom sorting
+<schmancy-table
+  .columns=${[
+    { 
+      name: 'Name', 
+      key: 'name', 
+      sortable: true 
+    },
+    { 
+      name: 'Date Joined', 
+      key: 'dateJoined', 
+      sortable: true,
+      // Custom sort by Unix timestamp
+      value: (item) => new Date(item.dateJoined).getTime()
+    },
+    { 
+      name: 'Profile Completion', 
+      key: 'profile',
+      sortable: true,
+      // Sort by completion percentage 
+      value: (item) => item.profile.completionPercentage,
+      // Display with custom rendering
+      render: (item) => html`${item.profile.completionPercentage}%`
+    }
+  ]}
+  .data=${users}
+  sortable>
+</schmancy-table>
+
 // Table Properties
 striped: boolean          // Apply alternating row colors
 bordered: boolean         // Add borders to cells
@@ -59,6 +88,15 @@ responsive: boolean       // Make table horizontally scrollable on small screens
 sortable: boolean         // Enable column sorting
 selectable: boolean       // Enable row selection
 loading: boolean          // Show loading state
+
+// Column Configuration Properties (when using programmatic columns)
+name: string              // Display name for the column header
+key?: keyof T             // Object property to access for this column
+align?: string            // Text alignment ('left', 'right', 'center')
+weight?: string           // Font weight ('normal', 'bold')
+render?: function         // Custom render function for complex content: (item) => TemplateResult
+sortable?: boolean        // Whether this column supports sorting
+value?: function          // Custom value function for sorting: (item) => any
 
 // Row Properties
 selected: boolean         // Whether the row is selected
@@ -105,7 +143,7 @@ data: object              // Data object for the row
   </tbody>
 </schmancy-table>
 
-// Sortable table
+// Sortable table - standard HTML structure
 <schmancy-table
   sortable
   @sort=${(e) => sortData(e.detail.column, e.detail.direction)}>
@@ -140,6 +178,66 @@ data: object              // Data object for the row
       </tr>
     `)}
   </tbody>
+</schmancy-table>
+
+// Sortable table - programmatic with custom value functions
+<schmancy-table
+  .data=${userData}
+  .columns=${[
+    {
+      name: 'ID', 
+      key: 'id', 
+      sortable: true
+    },
+    {
+      name: 'User', 
+      key: 'user', 
+      sortable: true,
+      // Sort by last name for "user" column
+      value: (item) => item.user.lastName,
+      // Custom render function for complex data
+      render: (item) => html`
+        <div class="flex items-center">
+          <schmancy-avatar src=${item.user.avatar} size="sm"></schmancy-avatar>
+          <div class="ml-2">
+            <div>${item.user.firstName} ${item.user.lastName}</div>
+            <div class="text-sm text-gray-500">${item.user.email}</div>
+          </div>
+        </div>
+      `
+    },
+    {
+      name: 'Status', 
+      key: 'status', 
+      sortable: true,
+      // Sort by status priority (numeric value) but display text
+      value: (item) => statusPriorities[item.status] || 0,
+      render: (item) => html`
+        <schmancy-badge variant=${getStatusVariant(item.status)}>
+          ${item.status}
+        </schmancy-badge>
+      `
+    },
+    {
+      name: 'Created', 
+      key: 'createdAt', 
+      sortable: true,
+      // Sort by timestamp but display formatted date
+      value: (item) => new Date(item.createdAt).getTime(),
+      render: (item) => formatDate(item.createdAt)
+    },
+    {
+      name: 'Actions',
+      render: (item) => html`
+        <div class="flex space-x-2">
+          <schmancy-icon-button icon="edit" @click=${() => editItem(item)}></schmancy-icon-button>
+          <schmancy-icon-button icon="delete" @click=${() => deleteItem(item)}></schmancy-icon-button>
+        </div>
+      `
+    }
+  ]}
+  sortable
+  @sort=${(e) => console.log('Sort changed:', e.detail)}>
 </schmancy-table>
 
 // Selectable table

@@ -8,6 +8,7 @@ export interface TableColumn<T extends Record<string, any> = any> {
     weight?: 'normal' | 'bold';
     render?: (item: T) => TemplateResult | string | number;
     sortable?: boolean;
+    value?: (item: T) => any; // Custom value function for sorting
 }
 export interface RowEventDetail<T> {
     item: T;

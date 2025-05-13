@@ -13,6 +13,7 @@ export interface TableColumn<T extends Record<string, any> = any> {
 	weight?: 'normal' | 'bold'
 	render?: (item: T) => TemplateResult | string | number // Custom render function for complex content
 	sortable?: boolean // Whether this column is sortable
+	value?: (item: T) => any // Custom value function for sorting
 }
 
 // Define an event detail interface for row events.
@@ -81,9 +82,22 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 
 		// Apply sorting
 		if (this.sortable && this.sortColumn && this.sortDirection) {
+			// Find the column configuration for the sorting column
+			const sortColumnConfig = this.columns.find(col => col.key === this.sortColumn);
+			
 			result.sort((a, b) => {
-				const aValue = a[this.sortColumn as keyof T]
-				const bValue = b[this.sortColumn as keyof T]
+				// Use the value function if provided in the column configuration
+				let aValue, bValue;
+				
+				if (sortColumnConfig && sortColumnConfig.value) {
+					// Use custom value function for sorting
+					aValue = sortColumnConfig.value(a);
+					bValue = sortColumnConfig.value(b);
+				} else {
+					// Use standard property access
+					aValue = a[this.sortColumn as keyof T];
+					bValue = b[this.sortColumn as keyof T];
+				}
 
 				// Handle null/undefined values - always sort them to the end regardless of sort direction
 				if (aValue === null || aValue === undefined) {
