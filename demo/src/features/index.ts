@@ -1,3 +1,4 @@
+export * from './area-showcase'
 export * from './button'
 export * from './card'
 export * from './dialog'

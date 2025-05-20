@@ -1,6 +1,27 @@
 # Schmancy Area
 
-A lightweight routing and state management system for web components.
+A lightweight, reactive routing and state management system for web components.
+
+## Overview
+
+Schmancy Area simplifies client-side routing for web component applications by providing a seamless way to handle navigation, component loading, and state management with a minimal API.
+
+```typescript
+// Define router outlets in your template
+<schmancy-area name="main" default="home-page"></schmancy-area>
+
+// Navigate to a component
+area.push({
+  component: 'user-profile',
+  area: 'main',
+  params: { userId: '123' }
+});
+
+// Subscribe to changes
+area.on('main').subscribe(route => {
+  console.log(`Component: ${route.component}`);
+});
+```
 
 ## Installation
 
@@ -10,40 +31,79 @@ npm install @schmancy/area
 
 ## Basic Usage
 
+### Define Router Areas
+
+Place `<schmancy-area>` elements wherever you want dynamic components to render:
+
+```html
+<!-- Main content area -->
+<schmancy-area name="main" default="home-page"></schmancy-area>
+
+<!-- Optional additional areas -->
+<schmancy-area name="sidebar"></schmancy-area>
+<schmancy-area name="modal"></schmancy-area>
+```
+
+Each area is an independent router outlet that can display different components.
+
+### Navigate Between Views
+
 ```typescript
 import { area } from '@schmancy/area';
 
-// Navigate to a new area
+// Using a tag name
 area.push({
-  component: UserProfileComponent,
+  component: 'user-profile',
   area: 'main',
-  historyStrategy: 'push',
   params: { userId: '123' }
 });
 
-// Subscribe to area changes
-area.on('main').subscribe(route => {
-  console.log('Main area component changed:', route.component);
+// Using a component constructor
+area.push({
+  component: UserProfileComponent,
+  area: 'main',
+  state: { view: 'details' }
+});
+
+// Using a component instance
+const customElement = document.createElement('custom-element');
+customElement.setAttribute('custom-attr', 'value');
+area.push({
+  component: customElement,
+  area: 'main'
+});
+
+// Using a dynamic import (lazy-loading)
+area.push({
+  component: import('./components/heavy-dashboard.js'),
+  area: 'main'
 });
 ```
 
-## Area Subscriptions
+### Subscribe to Area Changes
 
-The area system provides a reactive API for subscribing to navigation changes.
-
-### Subscribe to a Specific Area
+The area service provides a reactive API for subscribing to navigation changes:
 
 ```typescript
-// Get notified when the 'main' area changes
+// Subscribe to a specific area
 area.on('main').subscribe(route => {
-  console.log('Main area route:', route);
+  console.log('Component:', route.component);
+  console.log('Params:', route.params);
+  console.log('State:', route.state);
+});
+
+// Monitor all active routes
+area.all().subscribe(routes => {
+  console.log('Active routes:', routes);
 });
 ```
 
-### Access State and Params
+### Type-Safe State and Parameters
+
+Use TypeScript generics for type safety:
 
 ```typescript
-// Get typed state data
+// Type-safe state
 interface UserState {
   name: string;
   permissions: string[];
@@ -54,128 +114,225 @@ area.getState<UserState>('user').subscribe(state => {
   console.log(`Permissions: ${state.permissions.join(', ')}`);
 });
 
-// Get typed params
+// Type-safe parameters
 area.params<{ id: string }>('user').subscribe(params => {
-  console.log(`User ID: ${params.id}`);
+  fetchUser(params.id);
 });
 
-// Get a specific param value
-area.param<string>('user', 'id').subscribe(id => {
-  console.log(`User ID: ${id}`);
-});
-```
-
-### Subscribe to All Areas
-
-```typescript
-// Monitor all active routes
-area.all().subscribe(routes => {
-  console.log('Active routes:', routes);
-});
-```
-
-## Custom Components
-
-Create components that respond to area changes:
-
-```typescript
-class UserProfileComponent extends HTMLElement {
-  connectedCallback() {
-    // Subscribe to the userId param
-    this.subscription = area.param<string>('user', 'id')
-      .subscribe(id => {
-        this.loadUserData(id);
-      });
-  }
-  
-  disconnectedCallback() {
-    // Clean up subscription
-    this.subscription.unsubscribe();
-  }
-  
-  loadUserData(id) {
-    // Fetch and display user data
-    fetch(`/api/users/${id}`)
-      .then(response => response.json())
-      .then(data => {
-        this.renderUser(data);
-      });
-  }
-}
-
-customElements.define('user-profile', UserProfileComponent);
-```
-
-## API Reference
-
-### area.push(routeAction)
-
-Push a new route to an area.
-
-```typescript
-area.push({
-  component: DashboardComponent, // Component constructor, tag name, or instance
-  area: 'main',                  // Area name
-  historyStrategy: 'push',       // 'push', 'replace', 'pop', or 'silent'
-  state: { view: 'summary' },    // Optional state object
-  params: { period: 'monthly' }  // Optional parameters
-});
-```
-
-### area.on(areaName, skipCurrent?)
-
-Subscribe to changes for a specific area.
-
-```typescript
-area.on('main').subscribe(route => {
-  console.log('Area changed:', route);
-});
-```
-
-### area.getState<T>(areaName)
-
-Get state from an area with type safety.
-
-```typescript
-area.getState<{ view: string }>('main').subscribe(state => {
-  console.log('View:', state.view);
-});
-```
-
-### area.params<T>(areaName)
-
-Get params from an area with type safety.
-
-```typescript
-area.params<{ id: string }>('user').subscribe(params => {
-  console.log('User ID:', params.id);
-});
-```
-
-### area.param<T>(areaName, key)
-
-Get a specific param value.
-
-```typescript
+// Get a specific parameter value
 area.param<string>('user', 'id').subscribe(id => {
   console.log('User ID:', id);
 });
 ```
 
-### area.all(skipCurrent?)
+## Advanced Features
 
-Subscribe to all active routes.
+### History Strategy Options
+
+Control how the browser history is updated:
 
 ```typescript
-area.all().subscribe(routes => {
-  console.log('All routes:', routes);
+area.push({
+  component: 'user-profile',
+  area: 'main',
+  historyStrategy: 'push'    // Adds a new history entry (default)
+});
+
+area.push({
+  component: 'settings',
+  area: 'main',
+  historyStrategy: 'replace' // Replaces the current history entry
+});
+
+area.push({
+  component: 'sidebar-menu',
+  area: 'sidebar',
+  historyStrategy: 'silent'  // No history change
+});
+
+area.push({
+  component: 'menu',
+  area: 'popup',
+  historyStrategy: 'pop'     // Similar to replace
 });
 ```
 
-### area.pop(areaName)
+### Managing Query Parameters
 
-Remove an area from the current state.
+Clear specific query parameters during navigation:
 
 ```typescript
-area.pop('sidebar');
+area.push({
+  component: 'search-results',
+  area: 'main',
+  params: { query: 'new-search' },
+  clearQueryParams: ['page', 'sort'] // Removes these query params
+});
 ```
+
+### Remove Areas
+
+Remove an area from the current state:
+
+```typescript
+// Remove the 'modal' area
+area.pop('modal');
+```
+
+### DOM Event Listening
+
+For non-RxJS consumers, area changes also dispatch DOM events:
+
+```javascript
+// Format: schmancy-area-${areaName}-changed
+window.addEventListener('schmancy-area-main-changed', event => {
+  const { component, params, state } = event.detail;
+  updateUI(component, params, state);
+});
+```
+
+## API Reference
+
+### SchmancyArea Component
+
+```typescript
+@customElement('schmancy-area')
+export class SchmancyArea extends LitElement {
+  /**
+   * The name of the router outlet
+   * @required
+   */
+  @property() name!: string;
+  
+  /**
+   * Default component to display if none is specified
+   * Can be a tag name, component constructor, or template
+   */
+  @property() default!: string | Promise<NodeModule> | CustomElementConstructor | TemplateResult<1>;
+}
+```
+
+### Area Service
+
+```typescript
+// Navigation
+area.push(routeAction: RouteAction): void
+area.pop(areaName: string): void
+
+// Subscriptions
+area.on(areaName: string, skipCurrent?: boolean): Observable<ActiveRoute>
+area.all(skipCurrent?: boolean): Observable<Map<string, ActiveRoute>>
+area.getState<T>(areaName: string): Observable<T>
+area.params<T>(areaName: string): Observable<T>
+area.param<T>(areaName: string, key: string): Observable<T>
+
+// URL State
+area.state: Record<string, unknown> // Current URL state object
+```
+
+### Types
+
+```typescript
+// Route Action - used for navigation
+interface RouteAction {
+  component: CustomElementConstructor | string | HTMLElement | Promise<NodeModule>;
+  area: string;
+  state?: Record<string, unknown>;
+  params?: Record<string, unknown>;
+  historyStrategy?: 'push' | 'replace' | 'pop' | 'silent';
+  clearQueryParams?: string[] | null;
+}
+
+// Active Route - current state of an area
+interface ActiveRoute {
+  component: string;
+  area: string;
+  state?: Record<string, unknown>;
+  params?: Record<string, unknown>;
+}
+```
+
+## Integration with Other Schmancy Components
+
+Schmancy Area works seamlessly with:
+- **Schmancy Store** for more complex state management
+- **Schmancy Layout** for responsive layouts
+- **Schmancy Teleport** for advanced component transportation
+- **Schmancy Sheet** for modal overlays
+
+## Examples
+
+### Basic Navigation
+
+```typescript
+// Define router outlets
+<schmancy-area name="main" default="home-page"></schmancy-area>
+
+// Navigate to a component
+area.push({
+  component: 'user-profile',
+  area: 'main'
+});
+```
+
+### Parameters and State
+
+```typescript
+// Navigate with params and state
+area.push({
+  component: 'product-detail',
+  area: 'main',
+  params: { productId: '12345' },
+  state: { showReviews: true }
+});
+
+// Access params and state
+area.param<string>('main', 'productId').subscribe(id => {
+  fetchProduct(id);
+});
+
+area.getState<{ showReviews: boolean }>('main').subscribe(state => {
+  if (state.showReviews) {
+    loadReviews();
+  }
+});
+```
+
+### Multiple Independent Areas
+
+```typescript
+// Define multiple areas
+<schmancy-area name="main"></schmancy-area>
+<schmancy-area name="sidebar"></schmancy-area>
+<schmancy-area name="modal"></schmancy-area>
+
+// Update each area independently
+area.push({ component: 'product-list', area: 'main' });
+area.push({ component: 'filter-panel', area: 'sidebar' });
+area.push({ component: 'quick-view', area: 'modal', params: { id: '123' } });
+
+// Remove a modal
+area.pop('modal');
+```
+
+### Navigation Guards
+
+```typescript
+area.on('protected-area').pipe(
+  switchMap(route => {
+    if (!isAuthenticated()) {
+      area.push({ component: 'login-page', area: 'main' });
+      return EMPTY;
+    }
+    return of(route);
+  })
+).subscribe(handleProtectedRoute);
+```
+
+## Best Practices
+
+1. **Define clear area responsibilities** - Each area should have a well-defined purpose
+2. **Use type-safe state and params** - Leverage TypeScript generics for type safety
+3. **Unsubscribe from observables** - Always clean up subscriptions in disconnectedCallback()
+4. **Be consistent with history strategies** - Use the same strategy for similar navigation patterns
+5. **Consider using default components** - Provide fallback components for empty areas

@@ -2,6 +2,8 @@ import '@material/web/checkbox/checkbox.js'
 import { TailwindElement } from '@mixins/index'
 import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { ifDefined } from 'lit/directives/if-defined.js'
+import { when } from 'lit/directives/when.js'
 
 export type schmancyCheckBoxChangeEvent = CustomEvent<{
 	value: boolean
@@ -33,6 +35,17 @@ export class SchmancyCheckbox extends TailwindElement() {
 	value = false
 
 	/**
+	 * @attr {boolean} checked - Alternative property for checkbox state (alias for value).
+	 */
+	@property({ type: Boolean })
+	get checked() {
+		return this.value
+	}
+	set checked(val: boolean) {
+		this.value = val
+	}
+
+	/**
 	 * @attr {boolean} disabled - The disabled state of the checkbox.
 	 */
 	@property({ type: Boolean })
@@ -55,6 +68,12 @@ export class SchmancyCheckbox extends TailwindElement() {
 	 */
 	@property({ type: String })
 	id = 'checkbox-' + Math.random().toString(36)
+
+	/**
+	 * @attr {string} label - The label text for the checkbox.
+	 */
+	@property({ type: String })
+	label?: string
 
 	/**
 	 * @attr {sm | md | lg } size - The size of the checkbox.
@@ -81,7 +100,10 @@ export class SchmancyCheckbox extends TailwindElement() {
 					}}
 				>
 				</md-checkbox>
-				<slot></slot>
+				${when(this.label, 
+					() => html`<span>${this.label}</span>`, 
+					() => html`<slot></slot>`
+				)}
 			</label>
 		`
 	}

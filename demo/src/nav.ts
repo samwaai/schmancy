@@ -9,6 +9,7 @@ import { filter, map } from 'rxjs'
 import { fullHeight } from '../../src/directives/height'
 import { DemoDialogShowcase } from './features'
 import { DemoAnimatedText } from './features/animated-text'
+import { DemoArea } from './features/area-showcase'
 import { DemoAvatars } from './features/avatar'
 import DemoBadges from './features/badges'
 import { DemoBusy } from './features/busy'
@@ -31,8 +32,6 @@ import { DemoTabs } from './features/tabs'
 import { DemoTree } from './features/tree'
 import { SchmancyTypewriterDemo } from './features/typewriter'
 import DemoTypography from './features/typography'
-import { TypographyIconDemo } from './features/typography-icon-demo'
-import { TypographyIconTest } from './features/typography-icon-test'
 const NavContext = createContext<
 	Array<{
 		name: string
@@ -65,6 +64,8 @@ export class DemoNav extends $LitElement(css`
 				this.activeTab = r.component?.toLowerCase().replaceAll('-', '')
 			})
 		NavContext.replace([
+			{name:'Router', component:DemoArea},
+
 			{ name: 'Interactive Playground', component: DemoPlayground },
 			{ name: 'Radio', component: DemoRadio },
 			{ name: 'Dialog', component: DemoDialog },
