@@ -151,6 +151,30 @@ area.on('protected-area').pipe(
 ).subscribe(handleProtectedRoute);
 ```
 
+### Component Reloading Pattern
+
+When updating the same component with different parameters, use this pattern to ensure re-rendering:
+
+```ts
+// First push to the main routing area to force component re-creation
+area.push({
+  area: 'main-area',
+  component: 'user-profile',
+  params: { userId: '456' },
+  historyStrategy: 'push'
+});
+
+// Then update any subscription areas with the silent history strategy
+area.push({
+  area: 'user-area',
+  component: 'user-profile',
+  params: { userId: '456' },
+  historyStrategy: 'silent' // Don't create history entry
+});
+```
+
+This works around the `distinctUntilChanged` behavior in the Area component that compares only component names, not params.
+
 ## Related Components
 
 - **[Store](./store.md)** - For more complex state management
