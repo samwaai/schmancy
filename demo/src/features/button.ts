@@ -13,6 +13,14 @@ export class DemoButton extends $LitElement(css`
 	render() {
 		return html`
 			<schmancy-grid gap="md">
+				<schmancy-circular-progress indeterminate size="xs"></schmancy-circular-progress>
+				<schmancy-circular-progress indeterminate size="lg"></schmancy-circular-progress>
+
+				<!-- Custom pixel size -->
+				<schmancy-circular-progress indeterminate size="100"></schmancy-circular-progress>
+
+				<!-- Custom CSS size -->
+				<schmancy-circular-progress indeterminate size="3rem"></schmancy-circular-progress>
 				<schmancy-typography type="title">Normal</schmancy-typography>
 				<schmancy-icon-button
 					${tooltip('Delete this item', { position: 'left' })}

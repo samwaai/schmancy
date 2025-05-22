@@ -7,6 +7,7 @@ export * from './button';
 export * from './card';
 export * from './checkbox';
 export * from './chips';
+export * from './circular-progress';
 export * from './components';
 export * from './content-drawer';
 export * from './date-range';
