@@ -4,18 +4,57 @@ This directory contains concise reference documentation for the Schmancy compone
 
 ## Components
 
+### Core Components
+- [Animated Text](./animated-text.md) - Animated text effects with word and letter animations
 - [Area](./area.md) - Routing and subscription API for application areas
+- [Autocomplete](./autocomplete.md) - Searchable input with dropdown suggestions
+- [Avatar](./avatar.md) - User profile images with fallback initials
+- [Badge](./badge.md) - Status indicators and notification counts
+- [Busy](./busy.md) - Loading states and progress indicators
 - [Button](./button.md) - Primary, secondary, and tertiary buttons with various states
+- [Card](./card.md) - Content containers with headers and actions
+- [Checkbox](./checkbox.md) - Checkable input with indeterminate state
+- [Chips](./chips.md) - Compact elements for input or selection
+
+### Layout & Navigation
 - [Content Drawer](./content-drawer.md) - Sliding panel system for navigation and overlays
+- [Date Range](./date-range.md) - Date range selector with presets
+- [Delay](./delay.md) - Delayed content rendering with animations
 - [Dialog](./dialog.md) - Modal dialog boxes for confirmations and custom content
-- [Form](./form.md) - Form containers with validation capabilities
-- [Input](./input.md) - Text input fields with various types and features
+- [Divider](./divider.md) - Visual separators with animations
+- [Dropdown](./dropdown.md) - Floating dropdown menus
 - [Layout](./layout.md) - Flex and grid layout components
 - [List](./list.md) - Interactive lists with selection support
+- [Menu](./menu.md) - Context and dropdown menus
+- [Nav Drawer](./nav-drawer.md) - Responsive navigation drawer system
+
+### Form Elements
+- [Form](./form.md) - Form containers with validation capabilities
+- [Input](./input.md) - Text input fields with various types and features
+- [Option](./option.md) - Option elements for selects and autocomplete
+- [Radio Group](./radio-group.md) - Single-selection radio button groups
+- [Select](./select.md) - Dropdown selection components
+- [Textarea](./textarea.md) - Multi-line text input
+
+### Feedback & Interaction
 - [Notification](./notification.md) - Toast notifications and alerts
 - [Sheet](./sheet.md) - Side panels and drawers
-- [Store](./store.md) - State management system
+- [Slider](./slider.md) - Carousel component for content
+- [Steps](./steps.md) - Multi-step process indicators
 - [Tabs](./tabs.md) - Tabbed interface components
+- [Tooltip](./tooltip.md) - Contextual help text
+
+### Utilities
+- [Icons](./icons.md) - Material Design icon system
+- [Store](./store.md) - State management system
+- [Surface](./surface.md) - Elevation and container system
+- [Table](./table.md) - Data table components
+- [Teleport](./teleport.md) - FLIP animations between DOM positions
+- [Theme](./theme.md) - Material Design 3 theming system
+- [Theme Button](./theme-button.md) - Theme switching button
+- [Tree](./tree.md) - Hierarchical tree view
+- [Typography](./typography.md) - Text styling system
+- [Typewriter](./typewriter.md) - Typing animation effects
 
 ## Reference Format
 

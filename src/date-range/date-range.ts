@@ -773,13 +773,14 @@ export class SchmancyDateRange extends $LitElement() {
 				${this.isOpen
 					? html`
 							<schmancy-surface
-								class="dropdown absolute z-50 mt-1 min-w-64 max-w-96"
+								class="z-50 mt-1 min-w-64 max-w-96"
 								rounded="all"
 								elevation="3"
 								type="containerHigh"
 								@click="${(e: Event) => e.stopPropagation()}"
 								role="dialog"
 								aria-label="Date range picker"
+								fill="all"
 							>
 								<!-- Presets view with categories -->
 								<div class="p-4">

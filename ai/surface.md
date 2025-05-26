@@ -1,221 +1,160 @@
 # Schmancy Surface - AI Reference
 
 ```js
-// Basic Surface
+// Surface Component
 <schmancy-surface
-  elevation="0|1|2|3|4|5"
-  rounded="none|sm|md|lg|xl|full"
-  padding="none|xs|sm|md|lg|xl">
-  Surface content goes here
+  fill="all|width|height|auto"
+  rounded="none|top|left|right|bottom|all"
+  type="surface|surfaceDim|surfaceBright|containerLowest|containerLow|container|containerHigh|containerHighest"
+  elevation="0|1|2|3|4|5">
+  Content goes here
 </schmancy-surface>
 
-// Surface with color
-<schmancy-surface
-  color="primary|secondary|tertiary|surface|background|error"
-  theme="light|dark">
-  Colored surface content
-</schmancy-surface>
+// Properties
+fill: string          // "all", "width", "height", "auto" (default: "auto")
+rounded: string       // Corner rounding: "none", "top", "left", "right", "bottom", "all" (default: "none")
+type: string          // Surface color variant (default: "surface")
+elevation: number     // Shadow depth 0-5 (default: 0)
 
-// Interactive surface
-<schmancy-surface
-  interactive
-  @click=${handleClick}>
-  Click me!
-</schmancy-surface>
-
-// Surface with border
-<schmancy-surface
-  bordered
-  border-color="primary|secondary|tertiary|divider|error"
-  border-width="thin|medium|thick"
-  border-style="solid|dashed|dotted">
-  Surface with border
-</schmancy-surface>
-
-// Surface with dimensions
-<schmancy-surface
-  width="300px"
-  height="200px"
-  min-width="200px"
-  max-width="500px"
-  min-height="100px"
-  max-height="300px">
-  Fixed size surface
-</schmancy-surface>
-
-// Surface Properties
-elevation: number|string  // Shadow elevation (0-5)
-rounded: string           // Border radius: "none", "sm", "md", "lg", "xl", "full"
-padding: string           // Padding: "none", "xs", "sm", "md", "lg", "xl"
-margin: string            // Margin: "none", "xs", "sm", "md", "lg", "xl"
-color: string             // Background color (theme color or CSS value)
-theme: string             // Theme: "light", "dark"
-interactive: boolean      // Enable hover and active states
-bordered: boolean         // Show border
-borderColor: string       // Border color
-borderWidth: string       // Border width: "thin", "medium", "thick"
-borderStyle: string       // Border style: "solid", "dashed", "dotted"
-width: string             // Width
-height: string            // Height
-minWidth: string          // Minimum width
-maxWidth: string          // Maximum width
-minHeight: string         // Minimum height
-maxHeight: string         // Maximum height
-fullWidth: boolean        // Take full width of parent
-fullHeight: boolean       // Take full height of parent
-
-// Surface Context
-// For theme-aware surfaces and consistent styling
-import { SurfaceContext } from 'schmancy/surface';
-
-const surfaceContext = new SurfaceContext({
-  elevation: 1,
-  rounded: 'md',
-  padding: 'md',
-  theme: 'light'
-});
+// Surface Types (background colors)
+"surface"             // Default surface color
+"surfaceDim"          // Dimmed surface
+"surfaceBright"       // Bright surface
+"containerLowest"     // Lowest container elevation
+"containerLow"        // Low container elevation
+"container"           // Standard container
+"containerHigh"       // High container elevation
+"containerHighest"    // Highest container elevation
 
 // Examples
-// Basic card-like surface
-<schmancy-surface
-  elevation="2"
-  rounded="lg"
-  padding="lg">
+// 1. Basic surface
+<schmancy-surface>
+  Basic content
+</schmancy-surface>
+
+// 2. Elevated card
+<schmancy-surface 
+  elevation="2" 
+  rounded="all"
+  type="containerLow">
   <h3>Card Title</h3>
-  <p>This is a basic card surface with elevation, rounded corners, and padding.</p>
+  <p>Card content</p>
 </schmancy-surface>
 
-// Interactive card
+// 3. Full-width surface
+<schmancy-surface 
+  fill="width"
+  type="surfaceDim"
+  elevation="1">
+  Full width content
+</schmancy-surface>
+
+// 4. Dashboard panel
 <schmancy-surface
-  elevation="1"
-  rounded="md"
-  padding="md"
-  interactive
-  @click=${navigateToDetails}>
-  <div style="display: flex; align-items: center; gap: 16px;">
-    <schmancy-avatar
-      src="path/to/avatar.jpg"
-      size="large">
-    </schmancy-avatar>
-    
-    <div>
-      <h3>John Doe</h3>
-      <p>Software Engineer</p>
-    </div>
-    
-    <schmancy-icon
-      icon="chevron-right"
-      style="margin-left: auto;">
-    </schmancy-icon>
+  elevation="3"
+  rounded="all"
+  type="containerHighest"
+  fill="all">
+  <div class="dashboard-content">
+    <!-- Content -->
   </div>
 </schmancy-surface>
-
-// Alert surfaces
-<schmancy-surface
-  color="primary"
-  rounded="md"
-  padding="md"
-  bordered
-  border-color="primary"
-  style="--surface-color-opacity: 0.1;">
-  <div style="display: flex; align-items: center; gap: 16px;">
-    <schmancy-icon icon="info" color="primary"></schmancy-icon>
-    <div>
-      <h4>Information</h4>
-      <p>This is an informational message.</p>
-    </div>
-  </div>
-</schmancy-surface>
-
-<schmancy-surface
-  color="error"
-  rounded="md"
-  padding="md"
-  bordered
-  border-color="error"
-  style="--surface-color-opacity: 0.1;">
-  <div style="display: flex; align-items: center; gap: 16px;">
-    <schmancy-icon icon="alert-triangle" color="error"></schmancy-icon>
-    <div>
-      <h4>Error</h4>
-      <p>Something went wrong. Please try again.</p>
-    </div>
-  </div>
-</schmancy-surface>
-
-// Surface grid layout
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-  <schmancy-surface
-    elevation="1"
-    rounded="md"
-    padding="md">
-    <h3>Card 1</h3>
-    <p>Content for card 1.</p>
-  </schmancy-surface>
-  
-  <schmancy-surface
-    elevation="1"
-    rounded="md"
-    padding="md">
-    <h3>Card 2</h3>
-    <p>Content for card 2.</p>
-  </schmancy-surface>
-  
-  <schmancy-surface
-    elevation="1"
-    rounded="md"
-    padding="md">
-    <h3>Card 3</h3>
-    <p>Content for card 3.</p>
-  </schmancy-surface>
-</div>
-
-// Dashboard panel
-<schmancy-surface
-  elevation="2"
-  rounded="lg"
-  padding="lg"
-  height="300px">
-  <div style="display: flex; flex-direction: column; height: 100%;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h3>Sales Overview</h3>
-      <schmancy-dropdown>
-        <schmancy-button slot="trigger" variant="tertiary" size="small">
-          <span>This Week</span>
-          <schmancy-icon slot="suffix" icon="chevron-down"></schmancy-icon>
-        </schmancy-button>
-        
-        <schmancy-menu slot="content">
-          <schmancy-menu-item value="day">Today</schmancy-menu-item>
-          <schmancy-menu-item value="week">This Week</schmancy-menu-item>
-          <schmancy-menu-item value="month">This Month</schmancy-menu-item>
-          <schmancy-menu-item value="year">This Year</schmancy-menu-item>
-        </schmancy-menu>
-      </schmancy-dropdown>
-    </div>
-    
-    <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
-      <!-- Chart or content would go here -->
-      <p>Chart placeholder</p>
-    </div>
-  </div>
-</schmancy-surface>
-
-// Using surface context
-<div .context=${surfaceContext}>
-  <schmancy-surface>
-    <h3>First Panel</h3>
-    <p>This surface inherits settings from the context.</p>
-  </schmancy-surface>
-  
-  <schmancy-surface>
-    <h3>Second Panel</h3>
-    <p>This surface also inherits settings from the context.</p>
-  </schmancy-surface>
-  
-  <schmancy-surface elevation="3" rounded="xl">
-    <h3>Custom Panel</h3>
-    <p>This surface overrides some context settings.</p>
-  </schmancy-surface>
-</div>
 ```
+
+## Related Components
+- **[Card](./card.md)**: Pre-styled surface for card layouts
+- **[Sheet](./sheet.md)**: Modal surface overlay
+- **[Dialog](./dialog.md)**: Elevated modal surface
+- **[Layout](./layout.md)**: Layout components that often contain surfaces
+
+## Technical Details
+
+### CSS Host Styling
+The component uses `:host` selectors for all styling:
+- No wrapper elements - styles apply directly to the component
+- Properties reflect to HTML attributes for CSS targeting
+- Uses CSS custom properties from the theme system
+
+### Theme Integration
+```css
+/* Background colors use theme variables */
+--schmancy-sys-color-surface-default
+--schmancy-sys-color-surface-dim
+--schmancy-sys-color-surface-bright
+--schmancy-sys-color-surface-lowest
+--schmancy-sys-color-surface-low
+--schmancy-sys-color-surface-container
+--schmancy-sys-color-surface-high
+--schmancy-sys-color-surface-highest
+
+/* Text color */
+--schmancy-sys-color-surface-on
+
+/* Elevation shadows */
+--schmancy-sys-elevation-1 through --schmancy-sys-elevation-5
+```
+
+### Context Provider
+Surface provides its type to descendant components via Lit Context:
+```js
+import { SchmancySurfaceTypeContext } from '@schmancy/surface'
+```
+
+## Common Use Cases
+
+1. **Content Cards**: Elevated surfaces for grouped content
+   ```html
+   <schmancy-surface elevation="2" rounded="all" type="containerLow">
+     <h3>Feature Card</h3>
+     <p>Description of the feature</p>
+     <schmancy-button>Learn More</schmancy-button>
+   </schmancy-surface>
+   ```
+
+2. **Page Sections**: Full-width background surfaces
+   ```html
+   <schmancy-surface fill="width" type="surfaceDim">
+     <section class="hero-section">
+       <h1>Welcome</h1>
+       <p>Hero content here</p>
+     </section>
+   </schmancy-surface>
+   ```
+
+3. **Modal Backgrounds**: High elevation surfaces
+   ```html
+   <schmancy-surface 
+     elevation="5" 
+     rounded="all" 
+     type="containerHighest">
+     <div class="modal-content">
+       <h2>Modal Title</h2>
+       <p>Modal body content</p>
+     </div>
+   </schmancy-surface>
+   ```
+
+4. **Nested Surfaces**: Different elevation levels
+   ```html
+   <schmancy-surface type="surface" fill="all">
+     <schmancy-surface 
+       elevation="1" 
+       rounded="all" 
+       type="containerLow">
+       <p>Nested content with different elevation</p>
+     </schmancy-surface>
+   </schmancy-surface>
+   ```
+
+5. **Sidebar Panels**: Directional rounding
+   ```html
+   <schmancy-surface 
+     fill="height" 
+     rounded="right" 
+     elevation="2"
+     type="containerHigh">
+     <nav class="sidebar">
+       <!-- Navigation items -->
+     </nav>
+   </schmancy-surface>
+   ```
