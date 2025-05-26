@@ -6,6 +6,7 @@ This directory contains concise reference documentation for the Schmancy compone
 
 - [Area](./area.md) - Routing and subscription API for application areas
 - [Button](./button.md) - Primary, secondary, and tertiary buttons with various states
+- [Content Drawer](./content-drawer.md) - Sliding panel system for navigation and overlays
 - [Dialog](./dialog.md) - Modal dialog boxes for confirmations and custom content
 - [Form](./form.md) - Form containers with validation capabilities
 - [Input](./input.md) - Text input fields with various types and features

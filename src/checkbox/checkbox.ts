@@ -2,7 +2,6 @@ import '@material/web/checkbox/checkbox.js'
 import { TailwindElement } from '@mixins/index'
 import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
 
 export type schmancyCheckBoxChangeEvent = CustomEvent<{

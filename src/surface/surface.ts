@@ -3,7 +3,6 @@ import { TailwindElement } from '@mixins/tailwind.mixin'
 import { TSurfaceColor } from '@schmancy/types'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js' // Import classMap
 
 export const SchmancySurfaceTypeContext = createContext<TSurfaceColor>('surface')
 
@@ -26,6 +25,14 @@ export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto'
  */
 @customElement('schmancy-surface')
 export class SchmancySurface extends TailwindElement(css`
+	:host {
+		display: block;
+		position: relative;
+		inset: 0;
+		box-sizing: border-box;
+	}
+	
+	/* Fill styles */
 	:host([fill='all']) {
 		height: 100%;
 		width: 100%;
@@ -36,8 +43,76 @@ export class SchmancySurface extends TailwindElement(css`
 	:host([fill='height']) {
 		height: 100%;
 	}
-	:host {
-		display: block;
+	
+	/* Rounded corner styles */
+	:host([rounded='none']) {
+		border-radius: 0;
+	}
+	:host([rounded='top']) {
+		border-radius: 8px 8px 0 0;
+	}
+	:host([rounded='left']) {
+		border-radius: 8px 0 0 8px;
+	}
+	:host([rounded='right']) {
+		border-radius: 0 8px 8px 0;
+	}
+	:host([rounded='bottom']) {
+		border-radius: 0 0 8px 8px;
+	}
+	:host([rounded='all']) {
+		border-radius: 8px;
+	}
+	
+	/* Elevation styles */
+	:host([elevation='1']) {
+		box-shadow: var(--schmancy-sys-elevation-1);
+	}
+	:host([elevation='2']) {
+		box-shadow: var(--schmancy-sys-elevation-2);
+	}
+	:host([elevation='3']) {
+		box-shadow: var(--schmancy-sys-elevation-3);
+	}
+	:host([elevation='4']) {
+		box-shadow: var(--schmancy-sys-elevation-4);
+	}
+	:host([elevation='5']) {
+		box-shadow: var(--schmancy-sys-elevation-5);
+	}
+	
+	/* Surface type styles - background and text colors */
+	:host([type='surface']) {
+		background-color: var(--schmancy-sys-color-surface-default);
+		color: var(--schmancy-sys-color-surface-on);
+	}
+	:host([type='surfaceDim']) {
+		background-color: var(--schmancy-sys-color-surface-dim);
+		color: var(--schmancy-sys-color-surface-on);
+	}
+	:host([type='surfaceBright']) {
+		background-color: var(--schmancy-sys-color-surface-bright);
+		color: var(--schmancy-sys-color-surface-on);
+	}
+	:host([type='containerLowest']) {
+		background-color: var(--schmancy-sys-color-surface-lowest);
+		color: var(--schmancy-sys-color-surface-on);
+	}
+	:host([type='containerLow']) {
+		background-color: var(--schmancy-sys-color-surface-low);
+		color: var(--schmancy-sys-color-surface-on);
+	}
+	:host([type='container']) {
+		background-color: var(--schmancy-sys-color-surface-container);
+		color: var(--schmancy-sys-color-surface-on);
+	}
+	:host([type='containerHigh']) {
+		background-color: var(--schmancy-sys-color-surface-high);
+		color: var(--schmancy-sys-color-surface-on);
+	}
+	:host([type='containerHighest']) {
+		background-color: var(--schmancy-sys-color-surface-highest);
+		color: var(--schmancy-sys-color-surface-on);
 	}
 `) {
 	/**
@@ -53,7 +128,7 @@ export class SchmancySurface extends TailwindElement(css`
 	 * Options: 'none', 'top', 'left', 'right', 'bottom', 'all'.
 	 * @default 'none'
 	 */
-	@property()
+	@property({ reflect: true })
 	rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' = 'none'
 
 	/**
@@ -64,7 +139,7 @@ export class SchmancySurface extends TailwindElement(css`
 	 * @default 'surface'
 	 */
 	@provide({ context: SchmancySurfaceTypeContext })
-	@property()
+	@property({ reflect: true })
 	type: TSurfaceColor = 'surface'
 
 	/**
@@ -76,53 +151,7 @@ export class SchmancySurface extends TailwindElement(css`
 	elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
 
 	protected render(): unknown {
-		const classes = {
-			relative: true,
-			'inset-0': true,
-			block: true,
-			'box-border': true,
-			// Rounding classes
-			'rounded-none': this.rounded === 'none',
-			'rounded-t-[8px]': this.rounded === 'top',
-			'rounded-l-[8px]': this.rounded === 'left',
-			'rounded-r-[8px]': this.rounded === 'right',
-			'rounded-b-[8px]': this.rounded === 'bottom',
-			'rounded-[8px]': this.rounded === 'all',
-			// Fill classes
-			'w-full': this.fill === 'width' || this.fill === 'all',
-			'h-full': this.fill === 'height' || this.fill === 'all',
-			// Elevation shadow classes
-			'shadow-xs': this.elevation === 1,
-			'shadow-sm': this.elevation === 2,
-			'shadow-md': this.elevation === 3,
-			'shadow-lg': this.elevation === 4,
-			'shadow-xl': this.elevation === 5,
-			// Text color based on the surface variant for optimal readability
-			'text-surface-on':
-				this.type === 'surface' ||
-				this.type === 'surfaceDim' ||
-				this.type === 'surfaceBright' ||
-				this.type === 'containerLowest' ||
-				this.type === 'containerLow' ||
-				this.type === 'container' ||
-				this.type === 'containerHigh' ||
-				this.type === 'containerHighest',
-			// Background color classes based on the surface variant
-			'bg-surface-default': this.type === 'surface',
-			'bg-surface-dim': this.type === 'surfaceDim',
-			'bg-surface-bright': this.type === 'surfaceBright',
-			'bg-surface-lowest': this.type === 'containerLowest',
-			'bg-surface-low': this.type === 'containerLow',
-			'bg-surface-container': this.type === 'container',
-			'bg-surface-high': this.type === 'containerHigh',
-			'bg-surface-highest': this.type === 'containerHighest',
-		}
-
-		return html`
-			<section class=${classMap(classes)}>
-				<slot></slot>
-			</section>
-		`
+		return html`<slot></slot>`
 	}
 }
 

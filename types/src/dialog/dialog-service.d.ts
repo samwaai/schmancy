@@ -9,6 +9,7 @@ export interface DialogOptions {
     confirmText?: string;
     cancelText?: string;
     variant?: 'default' | 'danger';
+    confirmColor?: 'primary' | 'error' | 'warning' | 'success';
     position?: {
         x: number;
         y: number;

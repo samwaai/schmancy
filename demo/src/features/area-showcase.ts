@@ -1,365 +1,355 @@
 import { $LitElement } from '@mixins/index'
-import { area } from '@schmancy/area'
-import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { area, HISTORY_STRATEGY } from '@schmancy/area'
+import { html, css } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 
-// Example components for routing demonstration
-@customElement('area-page-home')
-class AreaPageHome extends $LitElement() {
+// ============================================
+// MINIMAL DEMO COMPONENTS
+// ============================================
+
+@customElement('demo-home')
+class DemoHome extends $LitElement(css`
+  :host { display: block; }
+`) {
   render() {
     return html`
-      <schmancy-surface type="container" rounded="all" elevation="1" class="p-6">
-        <schmancy-typography type="headline" token="lg">Home Page</schmancy-typography>
-        <schmancy-typography class="mt-2">
-          Welcome to the Area routing system demo. Use the navigation on the left to explore different pages.
-        </schmancy-typography>
-      </schmancy-surface>
+      <div class="p-4">
+        <h2 class="text-2xl font-bold mb-2">Home</h2>
+        <p class="text-gray-600">A simple home component</p>
+      </div>
     `
   }
 }
 
-@customElement('area-page-profile')
-class AreaPageProfile extends $LitElement() {
-  @state() userId: string = '123'
-
-  connectedCallback(): void {
-    super.connectedCallback()
-    // Subscribe to params
-    area.param<string>('profile-area', 'userId').subscribe(id => {
-      this.userId = id
-    })
-  }
-
+@customElement('demo-user')
+class DemoUser extends $LitElement(css`
+  :host { display: block; }
+`) {
+  @property({ type: String }) userId = ''
+  
   render() {
     return html`
-      <schmancy-surface type="container" rounded="all" elevation="1" class="p-6">
-        <schmancy-typography type="headline" token="lg">User Profile</schmancy-typography>
-        <schmancy-typography class="mt-2">
-          Viewing profile for user ID: ${this.userId}
-        </schmancy-typography>
-        
-        <schmancy-grid gap="md" cols="2" class="mt-4">
-          <schmancy-button 
-            variant="filled" 
-            @click=${() => this.changeUser('123')}
-          >
-            User 123
-          </schmancy-button>
-          <schmancy-button 
-            variant="filled tonal" 
-            @click=${() => this.changeUser('456')}
-          >
-            User 456
-          </schmancy-button>
-        </schmancy-grid>
-      </schmancy-surface>
+      <div class="p-4">
+        <h2 class="text-2xl font-bold mb-2">User ${this.userId}</h2>
+        <p class="text-gray-600">Showing profile for user: ${this.userId || 'Guest'}</p>
+      </div>
     `
-  }
-
-  changeUser(id: string) {
-    // Push to main-area to force a component re-render
-    // This triggers the Area distinctUntilChanged to recognize a change
-    area.push({
-      area: 'main-area',
-      component: 'area-page-profile',
-      params: { userId: id },
-      historyStrategy: 'push'
-    })
-    
-    // Update the profile-area state as well for subscriptions
-    area.push({
-      area: 'profile-area',
-      component: 'area-page-profile',
-      params: { userId: id },
-      historyStrategy: 'silent'  // We don't want this to create a history entry
-    })
   }
 }
 
-@customElement('area-page-settings')
-class AreaPageSettings extends $LitElement() {
-  @state() settings = {
-    darkMode: false,
-    notifications: true
-  }
-
-  connectedCallback(): void {
-    super.connectedCallback()
-    // Subscribe to state
-    area.getState<{darkMode: boolean, notifications: boolean}>('settings-area').subscribe(state => {
-      if (state) {
-        this.settings = state
-      }
-    })
-  }
-
+@customElement('demo-settings')
+class DemoSettings extends $LitElement(css`
+  :host { display: block; }
+`) {
+  @property({ type: String }) tab = 'general'
+  
   render() {
     return html`
-      <schmancy-surface type="container" rounded="all" elevation="1" class="p-6">
-        <schmancy-typography type="headline" token="lg">Settings</schmancy-typography>
+      <div class="p-4">
+        <h2 class="text-2xl font-bold mb-2">Settings</h2>
+        <p class="text-gray-600">Active tab: ${this.tab}</p>
+      </div>
+    `
+  }
+}
+
+// ============================================
+// MAIN SHOWCASE COMPONENT
+// ============================================
+
+@customElement('area-showcase')
+export class AreaShowcase extends $LitElement(css`
+  :host {
+    display: block;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  
+  .code-block {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  
+  .example-section {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 2rem 0;
+  }
+  
+  .example-section:last-child {
+    border-bottom: none;
+  }
+  
+  schmancy-area {
+    min-height: 120px;
+    background: #f9fafb;
+    border: 2px dashed #e5e7eb;
+    border-radius: 0.5rem;
+  }
+`) {
+  render() {
+    return html`
+      <div class="max-w-4xl mx-auto p-6">
+        <h1 class="text-4xl font-bold mb-2">Area Router</h1>
+        <p class="text-xl text-gray-600 mb-8">A powerful client-side routing system for web components</p>
         
-        <div class="mt-4 flex flex-col gap-4">
-          <schmancy-checkbox
-            label="Dark Mode"
-            .checked=${this.settings.darkMode}
-            @change=${() => this.updateSetting('darkMode', !this.settings.darkMode)}
-          ></schmancy-checkbox>
+        <!-- Example 1: Basic Navigation -->
+        <div class="example-section">
+          <h2 class="text-2xl font-semibold mb-4">1. Basic Navigation</h2>
+          <p class="text-gray-600 mb-4">Simple component switching with area.push()</p>
           
-          <schmancy-checkbox
-            label="Enable Notifications"
-            .checked=${this.settings.notifications}
-            @change=${() => this.updateSetting('notifications', !this.settings.notifications)}
-          ></schmancy-checkbox>
+          <div class="mb-4 space-x-2">
+            <schmancy-button variant="outlined" @click=${() => this.navigate('demo-home')}>
+              Home
+            </schmancy-button>
+            <schmancy-button variant="outlined" @click=${() => this.navigate('demo-settings')}>
+              Settings
+            </schmancy-button>
+          </div>
+          
+          <schmancy-area name="demo-basic"></schmancy-area>
+          
+          <pre class="code-block mt-4">// Navigate to a component
+area.push({
+  area: 'demo-basic',
+  component: 'demo-home',
+  historyStrategy: HISTORY_STRATEGY.push
+})</pre>
         </div>
-      </schmancy-surface>
-    `
-  }
-
-  updateSetting(key: keyof typeof this.settings, value: boolean) {
-    this.settings = {
-      ...this.settings,
-      [key]: value
-    }
-    
-    // Push to main-area to force a component re-render
-    area.push({
-      area: 'main-area',
-      component: 'area-page-settings',
-      state: this.settings,
-      historyStrategy: 'replace'
-    })
-    
-    // Also update settings-area for subscriptions
-    area.push({
-      area: 'settings-area',
-      component: 'area-page-settings',
-      state: this.settings,
-      historyStrategy: 'silent'
-    })
-  }
-}
-
-@customElement('area-page-dashboard')
-class AreaPageDashboard extends $LitElement() {
-  @state() activeTab = 'overview'
-
-  render() {
-    return html`
-      <schmancy-surface type="container" rounded="all" elevation="1" class="p-6">
-        <schmancy-typography type="headline" token="lg">Dashboard</schmancy-typography>
         
-        <schmancy-tab-group 
-          class="mt-4" 
-          .activeTab=${this.activeTab} 
-          @tab-changed=${(e: CustomEvent) => this.activeTab = e.detail}
-        >
-          <schmancy-tab value="overview" label="Overview">
-            <div class="mt-4">
-              <schmancy-typography>Dashboard overview content</schmancy-typography>
-            </div>
-          </schmancy-tab>
-          <schmancy-tab value="stats" label="Statistics">
-            <div class="mt-4">
-              <schmancy-typography>Statistics content with charts and data</schmancy-typography>
-            </div>
-          </schmancy-tab>
-          <schmancy-tab value="reports" label="Reports">
-            <div class="mt-4">
-              <schmancy-typography>Reports and analytics content</schmancy-typography>
-            </div>
-          </schmancy-tab>
-        </schmancy-tab-group>
-      </schmancy-surface>
-    `
-  }
-}
+        <!-- Example 2: Route Parameters -->
+        <div class="example-section">
+          <h2 class="text-2xl font-semibold mb-4">2. Route Parameters</h2>
+          <p class="text-gray-600 mb-4">Pass data to components via params</p>
+          
+          <div class="mb-4 space-x-2">
+            <schmancy-button variant="outlined" @click=${() => this.navigateUser('123')}>
+              User 123
+            </schmancy-button>
+            <schmancy-button variant="outlined" @click=${() => this.navigateUser('456')}>
+              User 456
+            </schmancy-button>
+            <schmancy-button variant="outlined" @click=${() => this.navigateUser('789')}>
+              User 789
+            </schmancy-button>
+          </div>
+          
+          <schmancy-area name="users"></schmancy-area>
+          
+          <pre class="code-block mt-4">// Navigate with parameters
+area.push({
+  area: 'users',
+  component: 'demo-user',
+  params: { userId: '123' },
+  historyStrategy: HISTORY_STRATEGY.push
+})
 
-@customElement('area-modal-example')
-class AreaModalExample extends $LitElement() {
-  @property() name = 'Modal'
-
-  connectedCallback(): void {
-    super.connectedCallback()
-    area.param<string>('modal-area', 'name').subscribe(name => {
-      if (name) this.name = name
-    })
-  }
-
+// In your component, params are passed as properties
+@customElement('demo-user')
+class DemoUser extends LitElement {
+  @property({ type: String }) userId = ''
+  
   render() {
-    return html`
-      <schmancy-surface type="containerHigh" rounded="all" elevation="3" class="p-6 max-w-md mx-auto">
-        <schmancy-typography type="headline" token="md">Modal Example: ${this.name}</schmancy-typography>
-        <schmancy-typography class="my-4">This is a modal dialog controlled by the Area router</schmancy-typography>
-        <div class="flex justify-end">
-          <schmancy-button variant="filled" @click=${this.closeModal}>Close</schmancy-button>
+    return html\`User: \${this.userId}\`
+  }
+}</pre>
         </div>
-      </schmancy-surface>
+        
+        <!-- Example 3: Multiple Areas -->
+        <div class="example-section">
+          <h2 class="text-2xl font-semibold mb-4">3. Multiple Areas</h2>
+          <p class="text-gray-600 mb-4">Use multiple areas for complex layouts</p>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm font-semibold mb-2">Left Panel</p>
+              <div class="mb-2 space-x-2">
+                <schmancy-button size="sm" variant="text" @click=${() => this.navigatePanel('left', 'demo-home')}>
+                  Home
+                </schmancy-button>
+                <schmancy-button size="sm" variant="text" @click=${() => this.navigatePanel('left', 'demo-settings')}>
+                  Settings
+                </schmancy-button>
+              </div>
+              <schmancy-area name="left-panel"></schmancy-area>
+            </div>
+            
+            <div>
+              <p class="text-sm font-semibold mb-2">Right Panel</p>
+              <div class="mb-2 space-x-2">
+                <schmancy-button size="sm" variant="text" @click=${() => this.navigatePanel('right', 'demo-user', { userId: '999' })}>
+                  User
+                </schmancy-button>
+                <schmancy-button size="sm" variant="text" @click=${() => this.navigatePanel('right', 'demo-settings', { tab: 'advanced' })}>
+                  Settings
+                </schmancy-button>
+              </div>
+              <schmancy-area name="right-panel"></schmancy-area>
+            </div>
+          </div>
+          
+          <pre class="code-block mt-4">// Multiple areas on the same page
+<schmancy-area name="left-panel"></schmancy-area>
+<schmancy-area name="right-panel"></schmancy-area>
+
+// Navigate different areas independently
+area.push({ area: 'left-panel', component: 'demo-home' })
+area.push({ area: 'right-panel', component: 'demo-user' })</pre>
+        </div>
+        
+        <!-- Example 4: History Strategies -->
+        <div class="example-section">
+          <h2 class="text-2xl font-semibold mb-4">4. History Strategies</h2>
+          <p class="text-gray-600 mb-4">Control browser history behavior</p>
+          
+          <div class="mb-4 space-x-2">
+            <schmancy-button variant="outlined" @click=${() => this.navigateWithStrategy('push')}>
+              Push (adds to history)
+            </schmancy-button>
+            <schmancy-button variant="outlined" @click=${() => this.navigateWithStrategy('replace')}>
+              Replace (replaces current)
+            </schmancy-button>
+            <schmancy-button variant="outlined" @click=${() => this.navigateWithStrategy('silent')}>
+              Silent (no history change)
+            </schmancy-button>
+          </div>
+          
+          <schmancy-area name="history-demo"></schmancy-area>
+          
+          <pre class="code-block mt-4">// Different history strategies
+area.push({
+  area: 'history-demo',
+  component: 'demo-home',
+  historyStrategy: HISTORY_STRATEGY.push    // adds to history
+})
+
+area.push({
+  area: 'history-demo',
+  component: 'demo-home',
+  historyStrategy: HISTORY_STRATEGY.replace // replaces current
+})
+
+area.push({
+  area: 'history-demo',
+  component: 'demo-home',
+  historyStrategy: HISTORY_STRATEGY.silent  // no history change
+})</pre>
+        </div>
+        
+        <!-- Example 5: Subscribing to Route Changes -->
+        <div class="example-section">
+          <h2 class="text-2xl font-semibold mb-4">5. Subscribing to Changes</h2>
+          <p class="text-gray-600 mb-4">React to route changes in your components</p>
+          
+          <pre class="code-block">// Subscribe to area changes
+area.on('my-area').subscribe(route => {
+  console.log('Route changed:', route)
+})
+
+// Get current route
+const currentRoute = area.getRoute('my-area')
+
+// Subscribe to specific param
+area.param&lt;string&gt;('my-area', 'userId').subscribe(userId => {
+  console.log('User ID changed:', userId)
+})
+
+// Subscribe to route state
+area.getState&lt;MyState&gt;('my-area').subscribe(state => {
+  console.log('State changed:', state)
+})</pre>
+        </div>
+        
+        <!-- Example 6: Default Components -->
+        <div class="example-section">
+          <h2 class="text-2xl font-semibold mb-4">6. Default Components</h2>
+          <p class="text-gray-600 mb-4">Set fallback components for areas</p>
+          
+          <pre class="code-block"><!-- Set a default component -->
+<schmancy-area name="app" default="demo-home"></schmancy-area>
+
+<!-- The default will be shown when:
+     - The area is first rendered
+     - No valid route is found
+     - Navigation fails -->
+</pre>
+        </div>
+        
+        <!-- API Reference -->
+        <div class="example-section">
+          <h2 class="text-2xl font-semibold mb-4">API Quick Reference</h2>
+          
+          <pre class="code-block">import { area, HISTORY_STRATEGY } from '@schmancy/area'
+
+// Navigation
+area.push({ area, component, params?, state?, historyStrategy? })
+
+// Subscriptions
+area.on(areaName)                    // Subscribe to area changes
+area.params(areaName)                // Get all params
+area.param(areaName, paramName)      // Get specific param
+area.getState(areaName)              // Get route state
+
+// Utilities
+area.getRoute(areaName)              // Get current route (sync)
+area.hasArea(areaName)               // Check if area exists
+area.getActiveAreas()                // Get all active area names
+area.pop(areaName)                   // Remove area
+area.clear()                         // Clear all areas</pre>
+        </div>
+      </div>
     `
   }
-
-  closeModal() {
-    // Pop removes the area from state
-    area.pop('modal-area')
-  }
-}
-
-// Main demo component
-@customElement('demo-area')
-export class DemoArea extends $LitElement() {
-  @state() currentPage = ''
-  @state() showModal = false
-  @state() areaStates = {}
-
-  connectedCallback(): void {
-    super.connectedCallback()
-    
-    // Subscribe to main area changes
-    area.on('main-area').subscribe(route => {
-      this.currentPage = route.component
-    })
-
-    // Subscribe to modal area to show/hide modal
-    area.on('modal-area').subscribe(route => {
-      this.showModal = !!route.component
-    })
-
-    // Subscribe to all areas to display current state
-    area.all().subscribe(areas => {
-      const states: Record<string, any> = {}
-      areas.forEach((route, name) => {
-        states[name] = {
-          component: route.component,
-          state: route.state || {},
-          params: route.params || {}
-        }
-      })
-      this.areaStates = states
-    })
-
-    // Initialize with home page if no route is set
-    setTimeout(() => {
-      if (!this.currentPage) {
-        this.navigateTo('home')
-      }
-    }, 100)
-  }
-
-  navigateTo(page: string, params?: Record<string, unknown>, state?: Record<string, unknown>) {
-    let component: string
-    switch(page) {
-      case 'profile':
-        component = 'area-page-profile'
-        break
-      case 'settings':
-        component = 'area-page-settings'
-        break
-      case 'dashboard':
-        component = 'area-page-dashboard'
-        break
-      case 'home':
-      default:
-        component = 'area-page-home'
-    }
-
+  
+  private navigate(component: string) {
     area.push({
-      area: 'main-area',
+      area: 'demo-basic',
+      component,
+      historyStrategy: HISTORY_STRATEGY.push
+    })
+  }
+  
+  private navigateUser(userId: string) {
+    area.push({
+      area: 'users',
+      component: 'demo-user',
+      params: { userId },
+      historyStrategy: HISTORY_STRATEGY.push
+    })
+  }
+  
+  private navigatePanel(panel: string, component: string, params?: Record<string, unknown>) {
+    area.push({
+      area: `${panel}-panel`,
       component,
       params,
-      state,
-      historyStrategy: 'push'
+      historyStrategy: HISTORY_STRATEGY.push
     })
   }
-
-  openModal(name: string = 'Example Modal') {
+  
+  private navigateWithStrategy(strategy: string) {
+    const component = strategy === 'push' ? 'demo-home' : 
+                     strategy === 'replace' ? 'demo-user' : 'demo-settings'
+    
     area.push({
-      area: 'modal-area',
-      component: 'area-modal-example',
-      params: { name },
-      historyStrategy: 'push'
+      area: 'history-demo',
+      component,
+      params: { strategy },
+      historyStrategy: HISTORY_STRATEGY[strategy as keyof typeof HISTORY_STRATEGY]
     })
-  }
-
-  render() {
-    return html`
-      <schmancy-surface type="surface" fill="all" class="p-6">
-        <schmancy-typography type="headline" token="xl" class="mb-6">
-          Schmancy Area Router
-        </schmancy-typography>
-
-        <schmancy-grid cols="auto 1fr" gap="lg">
-          <!-- Navigation Sidebar -->
-          <div class="w-48 border-r border-gray-200 pr-4">
-            <schmancy-typography type="label" token="md" class="mb-4">Navigation</schmancy-typography>
-            
-            <schmancy-list>
-              <schmancy-list-item 
-                rounded
-                .selected=${this.currentPage.toUpperCase() === 'AREA-PAGE-HOME'}
-                @click=${() => this.navigateTo('home')}
-              >Home</schmancy-list-item>
-              
-              <schmancy-list-item 
-                rounded
-                .selected=${this.currentPage.toUpperCase() === 'AREA-PAGE-PROFILE'}
-                @click=${() => this.navigateTo('profile', { userId: '123' })}
-              >Profile</schmancy-list-item>
-              
-              <schmancy-list-item 
-                rounded
-                .selected=${this.currentPage.toUpperCase() === 'AREA-PAGE-SETTINGS'}
-                @click=${() => this.navigateTo('settings', {}, { darkMode: false, notifications: true })}
-              >Settings</schmancy-list-item>
-              
-              <schmancy-list-item 
-                rounded
-                .selected=${this.currentPage.toUpperCase() === 'AREA-PAGE-DASHBOARD'}
-                @click=${() => this.navigateTo('dashboard')}
-              >Dashboard</schmancy-list-item>
-            </schmancy-list>
-
-            <schmancy-typography type="label" token="md" class="mt-6 mb-4">Modal Demo</schmancy-typography>
-            
-            <div class="flex flex-col gap-2">
-              <schmancy-button variant="filled" @click=${() => this.openModal('Simple Modal')}>
-                Open Modal
-              </schmancy-button>
-              <schmancy-button variant="outlined" @click=${() => this.openModal('Custom Modal')}>
-                Open Custom Modal
-              </schmancy-button>
-            </div>
-          </div>
-
-          <!-- Main Content Area -->
-          <div class="flex-1">
-            <!-- Main Router Area -->
-            <schmancy-area name="main-area" default="area-page-home"></schmancy-area>
-            
-            <!-- Area States Display -->
-            <schmancy-surface type="containerLow" rounded="all" elevation="1" class="mt-6 p-4">
-              <schmancy-typography type="headline" token="sm" class="mb-4">Current Area States</schmancy-typography>
-              <pre class="bg-gray-100 p-4 rounded overflow-auto text-sm">${JSON.stringify(this.areaStates, null, 2)}</pre>
-            </schmancy-surface>
-          </div>
-        </schmancy-grid>
-
-        <!-- Modal Area (conditionally rendered) -->
-        ${this.showModal ? html`
-          <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <schmancy-area name="modal-area"></schmancy-area>
-          </div>
-        ` : ''}
-      </schmancy-surface>
-    `
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'demo-area': DemoArea
-    'area-page-home': AreaPageHome
-    'area-page-profile': AreaPageProfile
-    'area-page-settings': AreaPageSettings
-    'area-page-dashboard': AreaPageDashboard
-    'area-modal-example': AreaModalExample
+    'area-showcase': AreaShowcase
+    'demo-home': DemoHome
+    'demo-user': DemoUser
+    'demo-settings': DemoSettings
   }
 }

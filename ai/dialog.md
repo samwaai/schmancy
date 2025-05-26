@@ -27,6 +27,7 @@ $dialog.confirm({
   confirmText?,
   cancelText?,
   variant?: "default"|"danger",
+  confirmColor?: "primary"|"error"|"warning"|"success",  // Button color for confirm action
   position?: {x,y}|MouseEvent|TouchEvent,
   width?: string,
   content?: TemplateResult|HTMLElement|Function,
@@ -83,6 +84,15 @@ const confirmed = await $dialog.confirm({
   cancelText: "Cancel",
   variant: "danger",
   position: event
+});
+
+// Confirmation with colored button
+const confirmed = await $dialog.confirm({
+  title: "Delete Transaction",
+  message: `Are you sure you want to delete this transaction of ${amount} units?`,
+  confirmText: "Delete",
+  cancelText: "Cancel",
+  confirmColor: "error",  // Makes confirm button red
 });
 
 // Dialog with custom content

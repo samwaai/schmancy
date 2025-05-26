@@ -10,7 +10,6 @@ export class DemoCard extends $LitElement(css`
 `) {
 	render() {
 		return html`
-			<schmancy-surface fill type="surface">
 				<schmancy-grid
 					.rcols=${{
 						sm: '1fr',
@@ -52,7 +51,6 @@ export class DemoCard extends $LitElement(css`
 						</schmancy-card-content>
 					</schmancy-card>
 				</schmancy-grid>
-			</schmancy-surface>
 		`
 	}
 }

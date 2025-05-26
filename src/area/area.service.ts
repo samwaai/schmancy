@@ -1,4 +1,21 @@
-import { Observable, ReplaySubject, Subject, bufferTime, filter, fromEvent, map, of, skip, tap, timeout, zip } from 'rxjs'
+import { 
+	Observable, 
+	ReplaySubject, 
+	Subject, 
+	bufferTime, 
+	filter, 
+	fromEvent, 
+	map, 
+	of, 
+	skip, 
+	tap, 
+	timeout, 
+	zip,
+	shareReplay,
+	distinctUntilChanged,
+	catchError,
+	EMPTY
+} from 'rxjs'
 import { SchmancyTeleportation } from '../teleport'
 import { ActiveRoute, AreaSubscription, RouteAction } from './router.types'
 
@@ -13,6 +30,9 @@ export type FINDING_MORTIES_EVENT = CustomEvent<{
 	component: SchmancyTeleportation
 }>
 
+// WeakMap for better memory management of area subjects
+const areaSubjectsCache = new WeakMap<AreaService, Map<string, ReplaySubject<ActiveRoute>>>()
+
 class AreaService implements AreaSubscription {
 	private static instance: AreaService
 	public prettyURL = false
@@ -22,16 +42,26 @@ class AreaService implements AreaSubscription {
 	public $current = new ReplaySubject<Map<string, ActiveRoute>>(1)
 	
 	// Create a dictionary of ReplaySubjects for area-specific subscriptions
-	private areaSubjects = new Map<string, ReplaySubject<ActiveRoute>>()
+	private get areaSubjects(): Map<string, ReplaySubject<ActiveRoute>> {
+		let subjects = areaSubjectsCache.get(this)
+		if (!subjects) {
+			subjects = new Map()
+			areaSubjectsCache.set(this, subjects)
+		}
+		return subjects
+	}
 	
 	public enableHistoryMode = true
 	private findingMortiesEvent = new CustomEvent<FINDING_MORTIES_EVENT['detail']>(FINDING_MORTIES)
+	private disposed = false
 
 	constructor() {
 		this.$current.next(this.current)
 		
 		// Subscribe to current changes to update area-specific subjects
 		this.$current.subscribe(currentAreas => {
+			if (this.disposed) return
+			
 			// For each area in the current map
 			currentAreas.forEach((route, areaName) => {
 				// Get or create a subject for this area
@@ -43,13 +73,13 @@ class AreaService implements AreaSubscription {
 	}
 
 	/**
-	 * Get or create a ReplaySubject for a specific area
-	 * @param areaName The name of the area
-	 * @returns ReplaySubject for the specified area
+	 * Get or create a ReplaySubject for a specific area with proper cleanup
 	 */
 	private getOrCreateAreaSubject(areaName: string): ReplaySubject<ActiveRoute> {
-		if (!this.areaSubjects.has(areaName)) {
-			const subject = new ReplaySubject<ActiveRoute>(1)
+		let subject = this.areaSubjects.get(areaName)
+		
+		if (!subject || subject.closed) {
+			subject = new ReplaySubject<ActiveRoute>(1)
 			this.areaSubjects.set(areaName, subject)
 			
 			// If the area already exists in current, emit it immediately
@@ -64,99 +94,141 @@ class AreaService implements AreaSubscription {
 			}
 		}
 		
-		const subject = this.areaSubjects.get(areaName)
-		if (!subject) {
-			throw new Error(`Failed to create or retrieve subject for area: ${areaName}`)
-		}
-		
 		return subject
 	}
 
 	/**
-	 * Subscribe to a specific area
-	 * @param areaName Name of the area to subscribe to
-	 * @param skipCurrent Whether to skip the current value
-	 * @returns Observable of the active route for the specified area
+	 * Subscribe to a specific area with caching
 	 */
 	on(areaName: string, skipCurrent = false): Observable<ActiveRoute> {
-		const areaSubject = this.getOrCreateAreaSubject(areaName)
+		if (!areaName) {
+			throw new Error('Area name is required')
+		}
 		
-		return skipCurrent ? areaSubject.pipe(skip(1)) : areaSubject.asObservable()
+		const areaSubject = this.getOrCreateAreaSubject(areaName)
+		const observable = areaSubject.asObservable().pipe(
+			// Add distinct to prevent duplicate emissions
+			distinctUntilChanged((a, b) => 
+				a.component === b.component &&
+				JSON.stringify(a.state) === JSON.stringify(b.state) &&
+				JSON.stringify(a.params) === JSON.stringify(b.params)
+			),
+			// Share the subscription
+			shareReplay(1)
+		)
+		
+		return skipCurrent ? observable.pipe(skip(1)) : observable
 	}
 	
 	/**
 	 * Subscribe to all areas
-	 * @param skipCurrent Whether to skip the current value
-	 * @returns Observable of all active routes
 	 */
 	all(skipCurrent = false): Observable<Map<string, ActiveRoute>> {
-		return skipCurrent ? this.$current.pipe(skip(1)) : this.$current.asObservable()
+		const observable = this.$current.asObservable().pipe(
+			shareReplay(1)
+		)
+		return skipCurrent ? observable.pipe(skip(1)) : observable
 	}
 	
 	/**
-	 * Get state from an area
-	 * @param areaName Name of the area to subscribe to
-	 * @returns Observable of the area's state
+	 * Get state from an area with type safety
 	 */
 	getState<T = unknown>(areaName: string): Observable<T> {
+		if (!areaName) {
+			throw new Error('Area name is required')
+		}
+		
 		return this.on(areaName).pipe(
-			map(route => route.state as unknown),
-			filter((state): state is NonNullable<unknown> => state !== undefined),
-			map(state => state as T)
+			map(route => route.state),
+			filter((state): state is NonNullable<Record<string, unknown>> => 
+				state !== undefined && state !== null
+			),
+			distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+			map(state => state as T),
+			catchError(err => {
+				console.error(`Error getting state for area "${areaName}":`, err)
+				return EMPTY
+			})
 		)
 	}
 	
 	/**
-	 * Get params from an area
-	 * @param areaName Name of the area to subscribe to
-	 * @returns Observable of the area's params
+	 * Get params from an area with type safety
 	 */
 	params<T extends Record<string, unknown> = Record<string, unknown>>(areaName: string): Observable<T> {
+		if (!areaName) {
+			throw new Error('Area name is required')
+		}
+		
 		return this.on(areaName).pipe(
-			map(route => route.params as unknown),
-			filter((params): params is NonNullable<unknown> => params !== undefined),
-			map(params => params as T)
+			map(route => route.params),
+			filter((params): params is NonNullable<Record<string, unknown>> => 
+				params !== undefined && params !== null
+			),
+			distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+			map(params => params as T),
+			catchError(err => {
+				console.error(`Error getting params for area "${areaName}":`, err)
+				return EMPTY
+			})
 		)
 	}
 	
 	/**
-	 * Get a specific param from an area
-	 * @param areaName Name of the area to subscribe to
-	 * @param key Key of the param to select
-	 * @returns Observable of the param value
+	 * Get a specific param from an area with null safety
 	 */
 	param<T = unknown>(areaName: string, key: string): Observable<T> {
+		if (!areaName || !key) {
+			throw new Error('Area name and key are required')
+		}
+		
 		return this.params<Record<string, unknown>>(areaName).pipe(
-			map(params => params[key] as unknown),
+			map(params => params[key]),
 			filter((value): value is NonNullable<unknown> => value !== undefined),
-			map(value => value as T)
+			distinctUntilChanged(),
+			map(value => value as T),
+			catchError(err => {
+				console.error(`Error getting param "${key}" for area "${areaName}":`, err)
+				return EMPTY
+			})
 		)
 	}
 
+	/**
+	 * Find teleportation components
+	 */
 	find() {
 		return zip([
 			fromEvent<HERE_RICKY_EVENT>(window, HERE_RICKY).pipe(
 				map(e => e.detail),
 				bufferTime(0),
-				tap(console.log),
 			),
 			of(1).pipe(tap(() => window.dispatchEvent(this.findingMortiesEvent))),
 		]).pipe(
 			map(([component]) => component),
 			timeout(1),
+			catchError(() => EMPTY)
 		)
 	}
 
 	/**
-	 * Push a new route action
-	 * @param r Route action to push
+	 * Push a new route action with validation
 	 */
 	push(r: RouteAction) {
+		if (!r.area) {
+			throw new Error('Area is required for route action')
+		}
+		
 		// Ensure state and params are initialized
-		const routeAction = {
+		const routeAction: RouteAction = {
 			...r,
 			state: r.state || {},
 			params: r.params || {}
+		}
+		
+		// Add to history if enabled
+		if (this.enableHistoryMode) {
+			routerHistory.next(routeAction)
 		}
 		
 		this.request.next(routeAction)
@@ -166,8 +238,6 @@ class AreaService implements AreaSubscription {
 	
 	/**
 	 * Dispatch a DOM event for a specific area change
-	 * @param areaName Name of the area that changed
-	 * @param routeAction The route action that was pushed
 	 */
 	private dispatchAreaEvent(areaName: string, routeAction: RouteAction) {
 		const eventName = `schmancy-area-${areaName}-changed`
@@ -185,13 +255,73 @@ class AreaService implements AreaSubscription {
 		window.dispatchEvent(event)
 	}
 
+	/**
+	 * Remove an area from the current state
+	 */
 	pop(name: string) {
-		const newState = JSON.parse(JSON.stringify(area.state))
+		if (!name) {
+			throw new Error('Area name is required')
+		}
+		
+		const newState = { ...this.state }
 		delete newState[name]
-		console.log(area.state, newState)
-		history.replaceState(null, '', encodeURIComponent(JSON.stringify(newState)))
+		
+		// Update the URL
+		const encoded = encodeURIComponent(JSON.stringify(newState))
+		history.replaceState(null, '', `/${encoded}${location.search}`)
+		
+		// Remove from current map
+		this.current.delete(name)
+		this.$current.next(this.current)
+		
+		// Complete the area subject
+		const areaSubject = this.areaSubjects.get(name)
+		if (areaSubject) {
+			areaSubject.complete()
+			this.areaSubjects.delete(name)
+		}
 	}
 	
+	/**
+	 * Clear all areas
+	 */
+	clear() {
+		// Complete all area subjects
+		this.areaSubjects.forEach(subject => subject.complete())
+		this.areaSubjects.clear()
+		
+		// Clear current state
+		this.current.clear()
+		this.$current.next(this.current)
+		
+		// Update URL
+		history.replaceState(null, '', `/${location.search}`)
+	}
+	
+	/**
+	 * Dispose of the service and clean up resources
+	 */
+	dispose() {
+		if (this.disposed) return
+		
+		this.disposed = true
+		
+		// Complete all subjects
+		this.areaSubjects.forEach(subject => subject.complete())
+		this.areaSubjects.clear()
+		
+		this.request.complete()
+		this.$current.complete()
+		routerHistory.complete()
+		
+		// Clear references
+		this.current.clear()
+		areaSubjectsCache.delete(this)
+	}
+	
+	/**
+	 * Get singleton instance
+	 */
 	static getInstance() {
 		if (!AreaService.instance) {
 			AreaService.instance = new AreaService()
@@ -199,17 +329,55 @@ class AreaService implements AreaSubscription {
 		return AreaService.instance
 	}
 
-	get state() {
+	/**
+	 * Get current state from URL
+	 */
+	get state(): Record<string, unknown> {
 		const pathname = location.pathname.split('/').pop()
-		let areaState = {}
+		if (!pathname) return {}
+		
 		try {
-			areaState = pathname ? JSON.parse(decodeURIComponent(pathname)) : {}
+			const decoded = decodeURIComponent(pathname)
+			const parsed = JSON.parse(decoded)
+			
+			if (typeof parsed === 'object' && parsed !== null) {
+				return parsed
+			}
 		} catch {
-			areaState = {}
+			// Ignore parse errors
 		}
-		return areaState
+		
+		return {}
+	}
+	
+	/**
+	 * Check if an area exists in current state
+	 */
+	hasArea(areaName: string): boolean {
+		return this.current.has(areaName)
+	}
+	
+	/**
+	 * Get all active area names
+	 */
+	getActiveAreas(): string[] {
+		return Array.from(this.current.keys())
+	}
+	
+	/**
+	 * Get route for a specific area synchronously
+	 */
+	getRoute(areaName: string): ActiveRoute | undefined {
+		return this.current.get(areaName)
 	}
 }
 
 export const area = AreaService.getInstance()
 export default area
+
+// Cleanup on page unload
+if (typeof window !== 'undefined') {
+	window.addEventListener('unload', () => {
+		area.dispose()
+	})
+}

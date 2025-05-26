@@ -24,6 +24,11 @@ export declare class SchmancyCheckbox extends SchmancyCheckbox_base {
      */
     value: boolean;
     /**
+     * @attr {boolean} checked - Alternative property for checkbox state (alias for value).
+     */
+    get checked(): boolean;
+    set checked(val: boolean);
+    /**
      * @attr {boolean} disabled - The disabled state of the checkbox.
      */
     disabled: boolean;
@@ -39,6 +44,10 @@ export declare class SchmancyCheckbox extends SchmancyCheckbox_base {
      * @attr {string} id - The id of the checkbox.
      */
     id: string;
+    /**
+     * @attr {string} label - The label text for the checkbox.
+     */
+    label?: string;
     /**
      * @attr {sm | md | lg } size - The size of the checkbox.
      */

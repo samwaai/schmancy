@@ -17,63 +17,81 @@ declare class AreaService implements AreaSubscription {
     request: ReplaySubject<RouteAction>;
     current: Map<string, ActiveRoute>;
     $current: ReplaySubject<Map<string, ActiveRoute>>;
-    private areaSubjects;
+    private get areaSubjects();
     enableHistoryMode: boolean;
     private findingMortiesEvent;
+    private disposed;
     constructor();
     /**
-     * Get or create a ReplaySubject for a specific area
-     * @param areaName The name of the area
-     * @returns ReplaySubject for the specified area
+     * Get or create a ReplaySubject for a specific area with proper cleanup
      */
     private getOrCreateAreaSubject;
     /**
-     * Subscribe to a specific area
-     * @param areaName Name of the area to subscribe to
-     * @param skipCurrent Whether to skip the current value
-     * @returns Observable of the active route for the specified area
+     * Subscribe to a specific area with caching
      */
     on(areaName: string, skipCurrent?: boolean): Observable<ActiveRoute>;
     /**
      * Subscribe to all areas
-     * @param skipCurrent Whether to skip the current value
-     * @returns Observable of all active routes
      */
     all(skipCurrent?: boolean): Observable<Map<string, ActiveRoute>>;
     /**
-     * Get state from an area
-     * @param areaName Name of the area to subscribe to
-     * @returns Observable of the area's state
+     * Get state from an area with type safety
      */
     getState<T = unknown>(areaName: string): Observable<T>;
     /**
-     * Get params from an area
-     * @param areaName Name of the area to subscribe to
-     * @returns Observable of the area's params
+     * Get params from an area with type safety
      */
     params<T extends Record<string, unknown> = Record<string, unknown>>(areaName: string): Observable<T>;
     /**
-     * Get a specific param from an area
-     * @param areaName Name of the area to subscribe to
-     * @param key Key of the param to select
-     * @returns Observable of the param value
+     * Get a specific param from an area with null safety
      */
     param<T = unknown>(areaName: string, key: string): Observable<T>;
-    find(): Observable<any>;
     /**
-     * Push a new route action
-     * @param r Route action to push
+     * Find teleportation components
+     */
+    find(): Observable<{
+        component: SchmancyTeleportation;
+    }[]>;
+    /**
+     * Push a new route action with validation
      */
     push(r: RouteAction): void;
     /**
      * Dispatch a DOM event for a specific area change
-     * @param areaName Name of the area that changed
-     * @param routeAction The route action that was pushed
      */
     private dispatchAreaEvent;
+    /**
+     * Remove an area from the current state
+     */
     pop(name: string): void;
+    /**
+     * Clear all areas
+     */
+    clear(): void;
+    /**
+     * Dispose of the service and clean up resources
+     */
+    dispose(): void;
+    /**
+     * Get singleton instance
+     */
     static getInstance(): AreaService;
-    get state(): {};
+    /**
+     * Get current state from URL
+     */
+    get state(): Record<string, unknown>;
+    /**
+     * Check if an area exists in current state
+     */
+    hasArea(areaName: string): boolean;
+    /**
+     * Get all active area names
+     */
+    getActiveAreas(): string[];
+    /**
+     * Get route for a specific area synchronously
+     */
+    getRoute(areaName: string): ActiveRoute | undefined;
 }
 export declare const area: AreaService;
 export default area;

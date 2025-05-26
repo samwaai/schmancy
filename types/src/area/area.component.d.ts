@@ -10,7 +10,7 @@ export declare class SchmancyArea extends SchmancyArea_base {
      * @required
      */
     name: string;
-    default: string | Promise<NodeModule> | CustomElementConstructor | TemplateResult<1>;
+    default: string | CustomElementConstructor | TemplateResult<1>;
     /**
      *
      * @param pathname pathname from the browser location API

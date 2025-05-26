@@ -11,6 +11,7 @@ export interface DialogOptions {
 	confirmText?: string
 	cancelText?: string
 	variant?: 'default' | 'danger'
+	confirmColor?: 'primary' | 'error' | 'warning' | 'success' // Button color for confirm action
 	position?: { x: number; y: number } | MouseEvent | TouchEvent
 
 	// New options for component rendering
@@ -87,6 +88,7 @@ export class DialogService {
 		if (completeOptions.confirmText) dialog.confirmText = completeOptions.confirmText
 		if (completeOptions.cancelText) dialog.cancelText = completeOptions.cancelText
 		if (completeOptions.variant) dialog.variant = completeOptions.variant
+		if (completeOptions.confirmColor) dialog.confirmColor = completeOptions.confirmColor
 		if (completeOptions.width) dialog.style.setProperty('--dialog-width', completeOptions.width)
 
 		// Handle custom content if provided

@@ -44,7 +44,7 @@ export class SchmancyArea extends $LitElement(css`
 	 */
 	@property() name!: string
 
-	@property() default!: string | Promise<NodeModule> | CustomElementConstructor | TemplateResult<1>
+	@property() default!: string | CustomElementConstructor | TemplateResult<1>
 
 	/**
 	 *
@@ -55,8 +55,13 @@ export class SchmancyArea extends $LitElement(css`
 	getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY) {
 		return of(pathname).pipe(
 			map(path => path.split('/').pop() ?? ''),
-			map(path => decodeURIComponent(path)),
-			map(path => JSON.parse(path)),
+			map(path => {
+				try {
+					return JSON.parse(decodeURIComponent(path))
+				} catch {
+					return {}
+				}
+			}),
 			map(routes => routes[this.name] as TRouteArea),
 			map(component =>
 				!component && this.default
@@ -88,7 +93,6 @@ export class SchmancyArea extends $LitElement(css`
 
 	protected firstUpdated(): void {
 		if (!this.name) {
-			// TOOD: maybe enforce this to be unique
 			throw new Error('Area name or default component not set')
 		}
 
@@ -120,7 +124,10 @@ export class SchmancyArea extends $LitElement(css`
 					if (typeof b.component === 'function') return false
 					else if (typeof b.component === 'string') bComponent = b.component
 
-					return bComponent?.replaceAll('-', '').toLowerCase() === aComponent?.replaceAll('-', '').toLowerCase()
+					const sameComponent = bComponent?.replaceAll('-', '').toLowerCase() === aComponent?.replaceAll('-', '').toLowerCase()
+					const sameParams = JSON.stringify(a.params || {}) === JSON.stringify(b.params || {})
+					
+					return sameComponent && sameParams
 				}),
 			)
 			.pipe(
@@ -128,32 +135,53 @@ export class SchmancyArea extends $LitElement(css`
 					const c = route.component
 					if (c instanceof Promise) {
 						// Dynamic import module
-						return from(c).pipe(map(x => ({ component: x.exports.default as CustomElementConstructor, route })))
+						return from(c).pipe(
+							map((x: any) => ({ component: (x.exports?.default || x.default) as CustomElementConstructor, route })),
+							catchError(() => EMPTY)
+						)
 					} else {
 						// Already a string, function, or element
 						return of({ component: c, route })
 					}
 				}),
 				map(({ component, route }) => {
+					let element: HTMLElement
+					
 					if (typeof component === 'string') {
 						// Tag name
-						return { component: document.createElement(component), route }
+						element = document.createElement(component)
 					} else if (component instanceof HTMLElement) {
 						// Already an element instance
-						return { component, route }
+						element = component
 					} else if (typeof component === 'function') {
 						// Custom element constructor
-						return { component: new component(), route }
+						element = new component()
+					} else {
+						// @ts-ignore - we know component exists
+						element = component
 					}
+					
+					// Set params as properties on the element
+					if (route.params) {
+						Object.entries(route.params).forEach(([key, value]) => {
+							(element as any)[key] = value
+						})
+					}
+					
+					// Set state as well if provided
+					if (route.state) {
+						(element as any).state = route.state
+					}
+					
+					return { component: element, route }
 				}),
-				distinctUntilChanged((prev, curr) => prev.component.tagName === curr.component.tagName),
 				// create the new view and add it to the DOM
 				map(({ component, route }) => {
 					const oldView = this.shadowRoot?.children[0]
 					const oldViewExists = !!oldView
 
 					// Remove the old view (if any)
-					oldView.remove()
+					oldView?.remove()
 					// Native Web Animations API - fade in
 					// "ease: cubic-bezier(0.25, 0.8, 0.25, 1)" was used in the old code
 					component.classList.add('opacity-0')
@@ -237,6 +265,7 @@ export class SchmancyArea extends $LitElement(css`
 	disconnectedCallback(): void {
 		super.disconnectedCallback()
 		this.disconnecting.next(true)
+		this.disconnecting.complete()
 	}
 
 	render() {

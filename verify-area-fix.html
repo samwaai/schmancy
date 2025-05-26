@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Area Fix</title>
+    <script type="module">
+        // Import the built files
+        import './dist/index.js';
+        
+        // Wait for components to be defined
+        customElements.whenDefined('schmancy-area').then(() => {
+            console.log('✅ schmancy-area is defined');
+            
+            // Test the area service
+            const { area, HISTORY_STRATEGY } = window.schmancy || {};
+            if (!area) {
+                console.error('❌ Area service not found on window.schmancy');
+                return;
+            }
+            
+            console.log('✅ Area service found');
+            
+            // Test pushing routes with different params
+            const testRoutes = () => {
+                console.log('\n🧪 Testing route changes with params...\n');
+                
+                // First route
+                console.log('1️⃣ Pushing route with userId: 123');
+                area.push({
+                    area: 'test-area',
+                    component: 'test-component',
+                    params: { userId: '123' },
+                    historyStrategy: HISTORY_STRATEGY.push
+                });
+                
+                setTimeout(() => {
+                    // Second route - same component, different params
+                    console.log('2️⃣ Pushing route with userId: 456 (same component, different params)');
+                    area.push({
+                        area: 'test-area',
+                        component: 'test-component',
+                        params: { userId: '456' },
+                        historyStrategy: HISTORY_STRATEGY.push
+                    });
+                    
+                    // Check if the area service has the updated params
+                    setTimeout(() => {
+                        const currentRoute = area.getRoute('test-area');
+                        console.log('📍 Current route:', currentRoute);
+                        
+                        if (currentRoute?.params?.userId === '456') {
+                            console.log('✅ Params updated correctly!');
+                        } else {
+                            console.error('❌ Params not updated. Current params:', currentRoute?.params);
+                        }
+                    }, 100);
+                }, 1000);
+            };
+            
+            // Run test
+            testRoutes();
+        });
+    </script>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        #log {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Area Router Fix Verification</h1>
+    <p>Check the console for test results...</p>
+    <schmancy-area name="test-area"></schmancy-area>
+</body>
+</html>

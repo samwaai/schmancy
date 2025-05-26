@@ -84,6 +84,12 @@ export class ConfirmDialog extends $LitElement(css`
 	variant: 'default' | 'danger' = 'default'
 
 	/**
+	 * Confirm button color
+	 */
+	@property({ type: String, attribute: 'confirm-color' })
+	confirmColor?: 'primary' | 'error' | 'warning' | 'success'
+
+	/**
 	 * Current position of the dialog
 	 */
 	private position = { x: 0, y: 0 }
@@ -386,6 +392,26 @@ export class ConfirmDialog extends $LitElement(css`
 		)
 	}
 
+	/**
+	 * Get the CSS class for the confirm button based on color
+	 */
+	private getConfirmButtonClass(): string {
+		// Map confirmColor to appropriate CSS classes
+		const colorMap = {
+			error: 'bg-red-600 hover:bg-red-700 text-white',
+			warning: 'bg-orange-600 hover:bg-orange-700 text-white',
+			success: 'bg-green-600 hover:bg-green-700 text-white',
+			primary: ''
+		}
+
+		// If variant is danger, use error color
+		if (this.variant === 'danger' || this.confirmColor === 'error') {
+			return colorMap.error
+		}
+
+		return colorMap[this.confirmColor || 'primary'] || ''
+	}
+
 	render() {
 		// For initial rendering, use transform-based centering from CSS
 		// firstUpdated will handle precise positioning after measuring
@@ -426,7 +452,7 @@ export class ConfirmDialog extends $LitElement(css`
 							() => html`
 								<div class="flex justify-end gap-3">
 									<schmancy-button variant="outlined" @click=${this.handleCancel}> ${this.cancelText} </schmancy-button>
-									<schmancy-button type="submit" variant="filled"> ${this.confirmText} </schmancy-button>
+									<schmancy-button type="submit" variant="filled" class=${this.getConfirmButtonClass()}> ${this.confirmText} </schmancy-button>
 								</div>
 							`,
 						)}
