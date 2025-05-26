@@ -772,6 +772,7 @@ export class SchmancyDateRange extends $LitElement() {
 				<!-- Dropdown -->
 				${this.isOpen
 					? html`
+					<section class="absolute flex-1">
 							<schmancy-surface
 								class="z-50 mt-1 min-w-64 max-w-96"
 								rounded="all"
@@ -868,6 +869,7 @@ export class SchmancyDateRange extends $LitElement() {
 									</div>
 								</div>
 							</schmancy-surface>
+							</section>
 						`
 					: ''}
 			</div>
