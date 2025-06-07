@@ -19,19 +19,19 @@ export declare class NotificationService {
     /**
      * Show an info notification
      */
-    info(message: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>): string;
+    info(message?: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>): string;
     /**
      * Show a success notification
      */
-    success(message: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>): string;
+    success(message?: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>): string;
     /**
      * Show a warning notification
      */
-    warning(message: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>): string;
+    warning(message?: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>): string;
     /**
      * Show an error notification
      */
-    error(message: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>): string;
+    error(message?: string, options?: Partial<Omit<NotificationOptions, 'message' | 'type'>>): string;
     /**
      * Show a notification with a custom duration
      */
@@ -52,19 +52,19 @@ export declare const $notify: {
     /**
      * Show an info notification
      */
-    info: (message: string, options?: Partial<Omit<NotificationOptions, "message" | "type">>) => string;
+    info: (message?: string, options?: Partial<Omit<NotificationOptions, "message" | "type">>) => string;
     /**
      * Show a success notification
      */
-    success: (message: string, options?: Partial<Omit<NotificationOptions, "message" | "type">>) => string;
+    success: (message?: string, options?: Partial<Omit<NotificationOptions, "message" | "type">>) => string;
     /**
      * Show a warning notification
      */
-    warning: (message: string, options?: Partial<Omit<NotificationOptions, "message" | "type">>) => string;
+    warning: (message?: string, options?: Partial<Omit<NotificationOptions, "message" | "type">>) => string;
     /**
      * Show an error notification
      */
-    error: (message: string, options?: Partial<Omit<NotificationOptions, "message" | "type">>) => string;
+    error: (message?: string, options?: Partial<Omit<NotificationOptions, "message" | "type">>) => string;
     /**
      * Show a notification with a custom duration
      * @param message The notification message

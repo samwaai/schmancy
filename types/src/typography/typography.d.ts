@@ -7,9 +7,9 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
     /**
      * @attr type - The type of the typography.
      * @default inherit
-     * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'}
+     * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' | 'caption'}
      */
-    type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label';
+    type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' | 'caption';
     /**
      * @attr token - The token of the typography.
      * @default 'md'
