@@ -13,10 +13,10 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	/**
 	 * @attr type - The type of the typography.
 	 * @default inherit
-	 * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'}
+	 * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' | 'caption'}
 	 */
 	@property({ type: String, reflect: true })
-	type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'
+	type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' | 'caption'
 
 	/**
 	 * @attr token - The token of the typography.
@@ -116,10 +116,18 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 			'text-[10px] tracking-[0.4px] leading-[14px]': this.type === 'body' && this.token === 'xs',
 
 			// Label
+			'font-medium text-[18px] tracking-[0.1px] leading-[24px]': this.type === 'label' && this.token === '2xl',
+			'font-medium text-[16px] tracking-[0.1px] leading-[22px]': this.type === 'label' && this.token === 'xl',
 			'font-medium text-[14px] tracking-[0.1px] leading-[20px]': this.type === 'label' && this.token === 'lg',
 			'text-[12px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'md',
 			'text-[11px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'sm',
 			'text-[10px] tracking-[0.5px] leading-[14px]': this.type === 'label' && this.token === 'xs',
+
+			// Caption
+			'text-[12px] tracking-[0.3px] leading-[16px]': this.type === 'caption' && this.token === 'lg',
+			'text-[11px] tracking-[0.4px] leading-[16px]': this.type === 'caption' && this.token === 'md',
+			'text-[10px] tracking-[0.4px] leading-[13px]': this.type === 'caption' && this.token === 'sm',
+			'text-[9px] tracking-[0.4px] leading-[12px]': this.type === 'caption' && this.token === 'xs',
 
 			'font-bold': this.weight === 'bold',
 			'font-medium': this.weight === 'medium',

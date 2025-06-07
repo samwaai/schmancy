@@ -59,10 +59,11 @@ export class NotificationService {
 	/**
 	 * Show an info notification
 	 */
-	public info(message: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string {
+	public info(message?: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string {
 		return this.notify({
-			message,
+			message: message ?? '',
 			type: 'info',
+			duration: message ? options.duration : 1,
 			...options,
 		})
 	}
@@ -70,10 +71,11 @@ export class NotificationService {
 	/**
 	 * Show a success notification
 	 */
-	public success(message: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string {
+	public success(message?: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string {
 		return this.notify({
-			message,
+			message: message ?? '',
 			type: 'success',
+			duration: message ? options.duration : 1,
 			...options,
 		})
 	}
@@ -81,10 +83,11 @@ export class NotificationService {
 	/**
 	 * Show a warning notification
 	 */
-	public warning(message: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string {
+	public warning(message?: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string {
 		return this.notify({
-			message,
+			message: message ?? '',
 			type: 'warning',
+			duration: message ? options.duration : 1,
 			...options,
 		})
 	}
@@ -92,10 +95,11 @@ export class NotificationService {
 	/**
 	 * Show an error notification
 	 */
-	public error(message: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string {
+	public error(message?: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string {
 		return this.notify({
-			message,
+			message: message ?? '',
 			type: 'error',
+			duration: message ? options.duration : 1,
 			...options,
 		})
 	}
@@ -141,28 +145,28 @@ export const $notify = {
 	/**
 	 * Show an info notification
 	 */
-	info: (message: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string => {
+	info: (message?: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string => {
 		return NotificationService.getInstance().info(message, options)
 	},
 
 	/**
 	 * Show a success notification
 	 */
-	success: (message: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string => {
+	success: (message?: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string => {
 		return NotificationService.getInstance().success(message, options)
 	},
 
 	/**
 	 * Show a warning notification
 	 */
-	warning: (message: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string => {
+	warning: (message?: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string => {
 		return NotificationService.getInstance().warning(message, options)
 	},
 
 	/**
 	 * Show an error notification
 	 */
-	error: (message: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string => {
+	error: (message?: string, options: Partial<Omit<NotificationOptions, 'message' | 'type'>> = {}): string => {
 		return NotificationService.getInstance().error(message, options)
 	},
 
