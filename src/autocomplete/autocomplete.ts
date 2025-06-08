@@ -7,26 +7,26 @@ import { customElement, property, query, queryAssignedElements, state } from 'li
 import { classMap } from 'lit/directives/class-map.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import {
-	BehaviorSubject,
-	combineLatest,
-	EMPTY,
-	fromEvent,
-	merge,
-	of,
-	Subject,
-	timer
+    BehaviorSubject,
+    combineLatest,
+    EMPTY,
+    fromEvent,
+    merge,
+    of,
+    Subject,
+    timer
 } from 'rxjs'
 import {
-	debounceTime,
-	distinctUntilChanged,
-	filter,
-	map,
-	startWith,
-	switchMap,
-	take,
-	takeUntil,
-	tap,
-	withLatestFrom
+    debounceTime,
+    distinctUntilChanged,
+    filter,
+    map,
+    startWith,
+    switchMap,
+    take,
+    takeUntil,
+    tap,
+    withLatestFrom
 } from 'rxjs/operators'
 import style from './autocomplete.scss?inline'
 
@@ -104,7 +104,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     private _options$ = new BehaviorSubject<SchmancyOption[]>([])
     private _optionSelect$ = new Subject<SchmancyOption>()
     private _documentClick$ = new Subject<MouseEvent>()
-    private _autofillDetected$ = new Subject<string>()
     private _checkAutofill$ = new Subject<void>()
 
     connectedCallback() {
@@ -228,7 +227,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         // Option selection pipeline
         this._optionSelect$.pipe(
             withLatestFrom(this._selectedValue$, this._selectedValues$),
-            tap(([option, currentValue, currentValues]) => {
+            tap(([option, _, currentValues]) => {
                 if (this.multi) {
                     const index = currentValues.indexOf(option.value)
                     const newValues = index > -1
@@ -642,7 +641,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         `
     }
 
-    private _handleKeyDown(e: KeyboardEvent) {
+    private _handleKeyDown(_e: KeyboardEvent) {
         fromEvent<KeyboardEvent>(document, 'keydown').pipe(
             take(1),
             withLatestFrom(this._open$, this._options$),
