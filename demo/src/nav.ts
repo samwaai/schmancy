@@ -7,6 +7,7 @@ import { repeat } from 'lit/directives/repeat.js'
 import { filter, map } from 'rxjs'
 import { AreaShowcase } from './features/area-showcase'
 import { DemoAnimatedText } from './features/animated-text'
+import { DemoAutocomplete } from './features/autocomplete'
 import { DemoAvatars } from './features/avatar'
 import DemoBadges from './features/badges'
 import { DemoBusy } from './features/busy'
@@ -168,6 +169,7 @@ export class DemoNav extends $LitElement(css`
     {
       title: 'Form Controls',
       demos: [
+        { name: 'Autocomplete', component: DemoAutocomplete },
         { name: 'Radio', component: DemoRadio },
         { name: 'Slider', component: DemoSlider },
       ]

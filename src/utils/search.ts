@@ -1,7 +1,7 @@
 /**
  * Calculate similarity score between two strings.
  * Returns a value between 0 (no match) and 1 (exact match).
- * Includes all similarity methods from the original filter directive.
+ * Optimized for autocomplete with prioritization of start matches and whole words.
  *
  * @param query The search query string
  * @param target The target string to compare against
@@ -16,32 +16,63 @@ export function similarity(query: string, target: string): number {
 	const normalizedQuery = query.toLowerCase().trim()
 	const normalizedTarget = target.toLowerCase().trim()
 
-	// Simple exact match check
+	// 1. Exact match (case-insensitive)
 	if (normalizedQuery === normalizedTarget) return 1
 
-	// Calculate different similarity metrics using all methods from the original filter
+	// 2. Target starts with query (highest priority for autocomplete)
+	if (normalizedTarget.startsWith(normalizedQuery)) {
+		// Give higher score to shorter targets (more precise matches)
+		const lengthRatio = normalizedQuery.length / normalizedTarget.length
+		return 0.95 + (lengthRatio * 0.05) // Score between 0.95 and 1.0
+	}
 
-	// 1. Direct substring match
-	const substringScore = normalizedTarget.includes(normalizedQuery) ? 1 : 0
+	// 3. Word boundary match (query matches start of any word in target)
+	const words = normalizedTarget.split(/[\s\-_]+/)
+	for (const word of words) {
+		if (word.startsWith(normalizedQuery)) {
+			// Score based on which word matched (earlier words score higher)
+			const wordIndex = words.indexOf(word)
+			const wordPositionScore = 1 - (wordIndex / words.length) * 0.1
+			return 0.85 * wordPositionScore // Score between 0.765 and 0.85
+		}
+	}
 
-	// 2. Subsequence check
-	const subsequenceScore = isSubsequence(normalizedQuery, normalizedTarget) ? 0.8 : 0
+	// 4. Direct substring match (query appears anywhere in target)
+	if (normalizedTarget.includes(normalizedQuery)) {
+		// Score based on position (earlier position scores higher)
+		const position = normalizedTarget.indexOf(normalizedQuery)
+		const positionScore = 1 - (position / normalizedTarget.length) * 0.2
+		return 0.7 * positionScore // Score between 0.56 and 0.7
+	}
 
-	// 3. Anagram/character frequency match
-	const anagramScore = hasAllCharacters(normalizedQuery, normalizedTarget) ? 0.7 : 0
+	// 5. Subsequence check (all query chars appear in order)
+	if (isSubsequence(normalizedQuery, normalizedTarget)) {
+		return 0.5
+	}
 
-	// 4. Dice coefficient based on bigrams
+	// 6. Fuzzy matching for typos
+	// 6a. Dice coefficient (good for similar words)
 	const diceScore = diceCoefficient(normalizedQuery, normalizedTarget)
-
-	// 5. Levenshtein distance
+	
+	// 6b. Levenshtein distance (good for typos)
 	const maxLength = Math.max(normalizedQuery.length, normalizedTarget.length)
 	const levenshteinDistance = calculateLevenshtein(normalizedQuery, normalizedTarget)
 	const levenshteinScore = maxLength ? 1 - levenshteinDistance / maxLength : 0
 
-	// Return the maximum score from all methods
-	return Math.max(substringScore, subsequenceScore, anagramScore, diceScore, levenshteinScore)
+	// 6c. Character frequency match (anagram-like)
+	const anagramScore = hasAllCharacters(normalizedQuery, normalizedTarget) ? 0.3 : 0
+
+	// Combine fuzzy scores with weights
+	const fuzzyScore = Math.max(
+		diceScore * 0.4,
+		levenshteinScore * 0.4,
+		anagramScore
+	)
+
+	return fuzzyScore
 }
 
+// Keep the rest of the helper functions as they are...
 /**
  * Check if string 'sub' is a subsequence of string 'str'.
  * All characters in 'sub' must appear in order in 'str'.

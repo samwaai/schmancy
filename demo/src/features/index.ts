@@ -1,4 +1,5 @@
 export * from './area-showcase'
+export * from './autocomplete'
 export * from './button'
 export * from './card'
 export * from './dialog'
