@@ -7,30 +7,26 @@ import { customElement, property, query, queryAssignedElements, state } from 'li
 import { classMap } from 'lit/directives/class-map.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import {
-    BehaviorSubject,
-    combineLatest,
-    EMPTY,
-    fromEvent,
-    merge,
-    Observable,
-    of,
-    Subject,
-    timer,
+	BehaviorSubject,
+	combineLatest,
+	EMPTY,
+	fromEvent,
+	merge,
+	of,
+	Subject,
+	timer
 } from 'rxjs'
 import {
-    catchError,
-    debounceTime,
-    distinctUntilChanged,
-    filter,
-    finalize,
-    map,
-    share,
-    startWith,
-    switchMap,
-    take,
-    takeUntil,
-    tap,
-    withLatestFrom,
+	debounceTime,
+	distinctUntilChanged,
+	filter,
+	map,
+	startWith,
+	switchMap,
+	take,
+	takeUntil,
+	tap,
+	withLatestFrom
 } from 'rxjs/operators'
 import style from './autocomplete.scss?inline'
 
