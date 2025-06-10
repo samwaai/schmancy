@@ -64,6 +64,7 @@
 		"cleave.js": "^1.6.0",
 		"dayjs": "^1.11.13",
 		"fastest-levenshtein": "^1.0.16",
+		"highlight.js": "^11.11.1",
 		"immer": "^10.1.1",
 		"lit": "^3.3.0",
 		"playground-elements": "^0.20.0",

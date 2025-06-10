@@ -59,9 +59,40 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	@property({ type: String }) fontSize: string | undefined
 
 	render() {
+		// Check if the host element has layout-related classes
+		const hasFlexClass = this.classList?.contains('flex')
+		const hasGridClass = this.classList?.contains('grid')
+		const hasInlineFlexClass = this.classList?.contains('inline-flex')
+		const hasInlineGridClass = this.classList?.contains('inline-grid')
+		
+		// Determine which element to use based on layout classes
+		const isLayoutContainer = hasFlexClass || hasGridClass || hasInlineFlexClass || hasInlineGridClass
+		
+		// Extract layout-related classes from the host element
+		const layoutClasses: string[] = []
+		if (this.classList) {
+			this.classList.forEach((className) => {
+				// Include flex/grid related classes
+				if (className.startsWith('flex') || 
+					className.startsWith('grid') || 
+					className.startsWith('gap') || 
+					className.startsWith('items') || 
+					className.startsWith('justify') || 
+					className.startsWith('content') || 
+					className.startsWith('place') ||
+					className === 'inline-flex' ||
+					className === 'inline-grid') {
+					layoutClasses.push(className)
+				}
+			})
+		}
+
 		const classes = {
-			flex: this.classList?.contains('flex'),
-			'hyphens-none items-center': true,
+			// Apply layout classes if this is a layout container
+			...layoutClasses.reduce((acc, cls) => ({ ...acc, [cls]: true }), {}),
+			
+			// Typography-specific classes
+			'hyphens-none': true,
 			'text-center': this.align === 'center',
 			'text-start': this.align === 'left',
 			'text-right': this.align === 'right',
@@ -144,11 +175,20 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 			lineHeight: this.lineHeight,
 		}
 
-		return html`
-			<span style=${this.styleMap(styles)} class=${this.classMap(classes)}>
-				<slot></slot>
-			</span>
-		`
+		// Use div for layout containers, span for inline text
+		if (isLayoutContainer) {
+			return html`
+				<div style=${this.styleMap(styles)} class=${this.classMap(classes)}>
+					<slot></slot>
+				</div>
+			`
+		} else {
+			return html`
+				<span style=${this.styleMap(styles)} class=${this.classMap(classes)}>
+					<slot></slot>
+				</span>
+			`
+		}
 	}
 }
 declare global {

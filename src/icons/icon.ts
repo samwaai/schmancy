@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
@@ -7,7 +7,7 @@ import { customElement, property, state } from 'lit/decorators.js'
  * Material Symbols icon component with configurable size
  */
 @customElement('schmancy-icon')
-export default class SchmancyIcon extends $LitElement(css`
+export default class SchmancyIcon extends TailwindElement(css`
 	.material-symbols-outlined {
 		font-family: 'Material Symbols Outlined';
 		font-weight: normal;
