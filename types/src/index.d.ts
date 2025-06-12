@@ -2,6 +2,7 @@ export * from './animated-text';
 export * from './area';
 export * from './autocomplete';
 export * from './badge';
+export * from './boat';
 export * from './busy';
 export * from './button';
 export * from './card';
