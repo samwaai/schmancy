@@ -10,6 +10,7 @@ import { DemoAnimatedText } from './features/animated-text'
 import { DemoAutocomplete } from './features/autocomplete'
 import { DemoAvatars } from './features/avatar'
 import DemoBadges from './features/badges'
+import { DemoBoat } from './features/boat'
 import { DemoBusy } from './features/busy'
 import { DemoButton } from './features/button'
 import { DemoCard } from './features/card'
@@ -143,6 +144,7 @@ export class DemoNav extends $LitElement(css`
         { name: 'Tabs', component: DemoTabs },
         { name: 'Content Drawer', component: DemoContentDrawer },
         { name: 'Sheet', component: DemoSheet },
+        { name: 'Boat', component: DemoBoat },
       ]
     },
     {

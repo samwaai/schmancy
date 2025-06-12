@@ -8,6 +8,7 @@ import { createCompoundSelector, createContext, select } from '@schmancy/index'
 import { fullHeight } from '../../src/directives/height'
 import './features/index'
 import { DemoInput } from './features/index'
+import '../../src/boat/boat'
 
 type Theme = {
 	color: string
