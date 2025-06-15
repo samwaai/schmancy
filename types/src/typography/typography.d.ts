@@ -1,4 +1,4 @@
-declare const SchmancyTypography_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyTypography_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 /**
  * @element schmancy-typography
  * @slot - The text for the typography.
@@ -29,7 +29,6 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
      * @public
      */
     weight: 'normal' | 'medium' | 'bold' | undefined;
-    lineHeight: string | undefined;
     /**
      *
      * @attr
@@ -39,10 +38,7 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
      */
     transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined;
     maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined;
-    letterSpacing: string | undefined;
-    fontSize: string | undefined;
-    updated(changedProperties: Map<string | number | symbol, unknown>): void;
-    render(): import("lit-html").TemplateResult<1>;
+    protected render(): unknown;
 }
 declare global {
     interface HTMLElementTagNameMap {
