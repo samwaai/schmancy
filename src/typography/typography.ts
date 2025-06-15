@@ -1,37 +1,353 @@
 import { TailwindElement } from '@mixins/index'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import typographyStyle from './typography.scss?inline'
-// based on M3 typography https://m3.material.io/styles/typography/overview
+
+// Material Design 3 typography - https://m3.material.io/styles/typography/type-scale-tokens
 
 /**
  * @element schmancy-typography
  * @slot - The text for the typography.
  */
 @customElement('schmancy-typography')
-export class SchmancyTypography extends TailwindElement(typographyStyle) {
+export class SchmancyTypography extends TailwindElement(css`
+	:host {
+		display: inline;
+		font-family: inherit;
+		hyphens: none;
+	}
+
+	/* Display as block when flex/grid classes are applied */
+	:host(.flex) {
+		display: flex;
+	}
+
+	:host(.inline-flex) {
+		display: inline-flex;
+	}
+
+	:host(.grid) {
+		display: grid;
+	}
+
+	:host(.inline-grid) {
+		display: inline-grid;
+	}
+
+	:host(.block) {
+		display: block;
+	}
+
+	/* Text alignment */
+	:host([align='center']) {
+		text-align: center;
+	}
+
+	:host([align='left']) {
+		text-align: start;
+	}
+
+	:host([align='right']) {
+		text-align: right;
+	}
+
+	:host([align='justify']) {
+		text-align: justify;
+	}
+
+	/* Max lines / line clamping */
+	:host([max-lines='1']) {
+		display: -webkit-box;
+		-webkit-line-clamp: 1;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	:host([max-lines='2']) {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	:host([max-lines='3']) {
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	:host([max-lines='4']) {
+		display: -webkit-box;
+		-webkit-line-clamp: 4;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	:host([max-lines='5']) {
+		display: -webkit-box;
+		-webkit-line-clamp: 5;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	:host([max-lines='6']) {
+		display: -webkit-box;
+		-webkit-line-clamp: 6;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	/* Font weight */
+	:host([weight='bold']) {
+		font-weight: 700;
+	}
+
+	:host([weight='medium']) {
+		font-weight: 500;
+	}
+
+	:host([weight='normal']) {
+		font-weight: 400;
+	}
+
+	/* Text transform */
+	:host([transform='uppercase']) {
+		text-transform: uppercase;
+	}
+
+	:host([transform='lowercase']) {
+		text-transform: lowercase;
+	}
+
+	:host([transform='capitalize']) {
+		text-transform: capitalize;
+	}
+
+	:host([transform='normal']) {
+		text-transform: none;
+	}
+
+	/* Display typography variants - Material Design 3 + Extended */
+	:host([type='display'][token='xl']) {
+		font-size: 72px;
+		line-height: 80px;
+		font-weight: 400;
+	}
+
+	:host([type='display'][token='lg']) {
+		font-size: 57px;
+		line-height: 64px;
+		font-weight: 400;
+	}
+
+	:host([type='display'][token='md']) {
+		font-size: 45px;
+		line-height: 52px;
+		font-weight: 400;
+	}
+
+	:host([type='display'][token='sm']) {
+		font-size: 36px;
+		line-height: 44px;
+		font-weight: 400;
+	}
+
+	:host([type='display'][token='xs']) {
+		font-size: 28px;
+		line-height: 36px;
+		font-weight: 400;
+	}
+
+	/* Headline typography variants - Material Design 3 + Extended */
+	:host([type='headline'][token='xl']) {
+		font-size: 36px;
+		line-height: 44px;
+		font-weight: 400;
+	}
+
+	:host([type='headline'][token='lg']) {
+		font-size: 32px;
+		line-height: 40px;
+		font-weight: 400;
+	}
+
+	:host([type='headline'][token='md']) {
+		font-size: 28px;
+		line-height: 36px;
+		font-weight: 400;
+	}
+
+	:host([type='headline'][token='sm']) {
+		font-size: 24px;
+		line-height: 32px;
+		font-weight: 400;
+	}
+
+	:host([type='headline'][token='xs']) {
+		font-size: 20px;
+		line-height: 28px;
+		font-weight: 400;
+	}
+
+	/* Title typography variants - Material Design 3 + Extended */
+	:host([type='title'][token='xl']) {
+		font-size: 24px;
+		line-height: 32px;
+		font-weight: 400;
+	}
+
+	:host([type='title'][token='lg']) {
+		font-size: 22px;
+		line-height: 28px;
+		font-weight: 400;
+	}
+
+	:host([type='title'][token='md']) {
+		font-size: 16px;
+		line-height: 24px;
+		font-weight: 500;
+	}
+
+	:host([type='title'][token='sm']) {
+		font-size: 14px;
+		line-height: 20px;
+		font-weight: 500;
+	}
+
+	:host([type='title'][token='xs']) {
+		font-size: 12px;
+		line-height: 16px;
+		font-weight: 500;
+	}
+
+	/* Subtitle typography variants - Extended from Material Design 3 */
+	:host([type='subtitle'][token='xl']) {
+		font-size: 20px;
+		line-height: 28px;
+		font-weight: 500;
+	}
+
+	:host([type='subtitle'][token='lg']) {
+		font-size: 18px;
+		line-height: 24px;
+		font-weight: 500;
+	}
+
+	:host([type='subtitle'][token='md']) {
+		font-size: 16px;
+		line-height: 24px;
+		font-weight: 500;
+	}
+
+	:host([type='subtitle'][token='sm']) {
+		font-size: 14px;
+		line-height: 20px;
+		font-weight: 500;
+	}
+
+	:host([type='subtitle'][token='xs']) {
+		font-size: 12px;
+		line-height: 16px;
+		font-weight: 500;
+	}
+
+	/* Body typography variants - Material Design 3 + Extended */
+	:host([type='body'][token='xl']) {
+		font-size: 18px;
+		line-height: 28px;
+		font-weight: 400;
+	}
+
+	:host([type='body'][token='lg']) {
+		font-size: 16px;
+		line-height: 24px;
+		font-weight: 400;
+	}
+
+	:host([type='body'][token='md']) {
+		font-size: 14px;
+		line-height: 20px;
+		font-weight: 400;
+	}
+
+	:host([type='body'][token='sm']) {
+		font-size: 12px;
+		line-height: 16px;
+		font-weight: 400;
+	}
+
+	:host([type='body'][token='xs']) {
+		font-size: 10px;
+		line-height: 14px;
+		font-weight: 400;
+	}
+
+	/* Label typography variants - Material Design 3 + Extended */
+	:host([type='label'][token='xl']) {
+		font-size: 16px;
+		line-height: 22px;
+		font-weight: 500;
+	}
+
+	:host([type='label'][token='lg']) {
+		font-size: 14px;
+		line-height: 20px;
+		font-weight: 500;
+	}
+
+	:host([type='label'][token='md']) {
+		font-size: 12px;
+		line-height: 16px;
+		font-weight: 500;
+	}
+
+	:host([type='label'][token='sm']) {
+		font-size: 11px;
+		line-height: 16px;
+		font-weight: 500;
+	}
+
+	:host([type='label'][token='xs']) {
+		font-size: 10px;
+		line-height: 14px;
+		font-weight: 500;
+	}
+
+	/* Custom properties for dynamic values */
+	:host([letter-spacing]) {
+		letter-spacing: var(--typography-letter-spacing);
+	}
+
+	:host([font-size]) {
+		font-size: var(--typography-font-size);
+	}
+
+	:host([line-height]) {
+		line-height: var(--typography-line-height);
+	}
+`) {
 	/**
 	 * @attr type - The type of the typography.
-	 * @default inherit
-	 * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' | 'caption'}
+	 * @default 'body'
+	 * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'}
 	 */
 	@property({ type: String, reflect: true })
-	type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' | 'caption'
+	type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' = 'body'
 
 	/**
 	 * @attr token - The token of the typography.
 	 * @default 'md'
-	 * @type {'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'}
+	 * @type {'xs' | 'sm' | 'md' | 'lg' | 'xl'}
 	 */
 	@property({ type: String, reflect: true })
-	token: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' = 'md'
+	token: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md'
 
 	/**
 	 * @attr
 	 * @default inherit
 	 * @type {'left' |'center' |'right'}
 	 */
-	@property({ type: String })
+	@property({ type: String, reflect: true })
 	align: 'left' | 'center' | 'justify' | 'right' | undefined
 
 	/**
@@ -40,10 +356,12 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	 * @type {'normal' | 'medium' |'bold'}
 	 * @public
 	 */
-	@property({ type: String })
+	@property({ type: String, reflect: true })
 	weight: 'normal' | 'medium' | 'bold' | undefined
 
-	@property({ type: String }) lineHeight: string | undefined
+	@property({ type: String, attribute: 'line-height', reflect: true }) 
+	lineHeight: string | undefined
+	
 	/**
 	 *
 	 * @attr
@@ -51,146 +369,40 @@ export class SchmancyTypography extends TailwindElement(typographyStyle) {
 	 * @type {'uppercase' |'lowercase' |'capitalize' |'normal'}
 	 * @public
 	 */
-	@property({ type: String }) transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined
+	@property({ type: String, reflect: true }) 
+	transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined
 
-	@property({ type: Number }) maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+	@property({ type: Number, attribute: 'max-lines', reflect: true }) 
+	maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined
 
-	@property({ type: String }) letterSpacing: string | undefined
-	@property({ type: String }) fontSize: string | undefined
+	@property({ type: String, attribute: 'letter-spacing', reflect: true }) 
+	letterSpacing: string | undefined
+	
+	@property({ type: String, attribute: 'font-size', reflect: true }) 
+	fontSize: string | undefined
 
-	render() {
-		// Check if the host element has layout-related classes
-		const hasFlexClass = this.classList?.contains('flex')
-		const hasGridClass = this.classList?.contains('grid')
-		const hasInlineFlexClass = this.classList?.contains('inline-flex')
-		const hasInlineGridClass = this.classList?.contains('inline-grid')
+	updated(changedProperties: Map<string | number | symbol, unknown>) {
+		super.updated(changedProperties)
 		
-		// Determine which element to use based on layout classes
-		const isLayoutContainer = hasFlexClass || hasGridClass || hasInlineFlexClass || hasInlineGridClass
+		// Update CSS custom properties for dynamic values
+		if (changedProperties.has('letterSpacing') && this.letterSpacing) {
+			this.style.setProperty('--typography-letter-spacing', this.letterSpacing)
+		}
 		
-		// Extract layout-related classes from the host element
-		const layoutClasses: string[] = []
-		if (this.classList) {
-			this.classList.forEach((className) => {
-				// Include flex/grid related classes
-				if (className.startsWith('flex') || 
-					className.startsWith('grid') || 
-					className.startsWith('gap') || 
-					className.startsWith('items') || 
-					className.startsWith('justify') || 
-					className.startsWith('content') || 
-					className.startsWith('place') ||
-					className === 'inline-flex' ||
-					className === 'inline-grid') {
-					layoutClasses.push(className)
-				}
-			})
+		if (changedProperties.has('fontSize') && this.fontSize) {
+			this.style.setProperty('--typography-font-size', this.fontSize)
 		}
-
-		const classes = {
-			// Apply layout classes if this is a layout container
-			...layoutClasses.reduce((acc, cls) => ({ ...acc, [cls]: true }), {}),
-			
-			// Typography-specific classes
-			'hyphens-none': true,
-			'text-center': this.align === 'center',
-			'text-start': this.align === 'left',
-			'text-right': this.align === 'right',
-			'text-justify': this.align === 'justify',
-			'line-clamp-1': this.maxLines === 1,
-			'line-clamp-2': this.maxLines === 2,
-			'line-clamp-3': this.maxLines === 3,
-			'line-clamp-4': this.maxLines === 4,
-			'line-clamp-5': this.maxLines === 5,
-			'line-clamp-6': this.maxLines === 6,
-			'line-clamp-none': this.maxLines === undefined,
-
-			// Display
-			'text-[72px] tracking-[-0.5px] leading-[80px]': this.type === 'display' && this.token === '2xl',
-			'text-[64px] tracking-[-0.25px] leading-[72px]': this.type === 'display' && this.token === 'xl',
-			'text-[57px] tracking-[-0.25px] leading-[64px]': this.type === 'display' && this.token === 'lg',
-			'text-[45px] tracking-[0px] leading-[52px]': this.type === 'display' && this.token === 'md',
-			'text-[36px] tracking-[0px] leading-[44px]': this.type === 'display' && this.token === 'sm',
-			'text-[28px] tracking-[0px] leading-[36px]': this.type === 'display' && this.token === 'xs',
-
-			// Headline
-			'text-[36px] tracking-[0px] leading-[44px] headline-xl': this.type === 'headline' && this.token === 'xl',
-			'text-[32px] tracking-[0px] leading-[40px] headline-lg': this.type === 'headline' && this.token === 'lg',
-			'text-[28px] tracking-[0px] leading-[36px] headline-md': this.type === 'headline' && this.token === 'md',
-			'text-[24px] tracking-[0px] leading-[32px] headline-sm': this.type === 'headline' && this.token === 'sm',
-			'text-[20px] tracking-[0px] leading-[28px] headline-xs': this.type === 'headline' && this.token === 'xs',
-
-			// Title
-			'text-[24px] tracking-[0px] leading-[32px] title-xl': this.type === 'title' && this.token === 'xl',
-			'text-[22px] tracking-[0px] leading-[28px] title-lg': this.type === 'title' && this.token === 'lg',
-			'font-medium text-[16px] tracking-[0.15px] leading-[24px] title-md': this.type === 'title' && this.token === 'md',
-			'font-medium text-[14px] tracking-[0.1px] leading-[20px] title-sm': this.type === 'title' && this.token === 'sm',
-			'font-medium text-[12px] tracking-[0.1px] leading-[16px] title-xs': this.type === 'title' && this.token === 'xs',
-
-			// Subtitle
-			'font-medium text-[20px] tracking-[0.15px] leading-[28px] subtitle-xl':
-				this.type === 'subtitle' && this.token === 'xl',
-			'font-medium text-[18px] tracking-[0.15px] leading-[24px] subtitle-lg':
-				this.type === 'subtitle' && this.token === 'lg',
-			'font-medium text-[16px] tracking-[0.15px] leading-[24px] subtitle-md':
-				this.type === 'subtitle' && this.token === 'md',
-			'font-medium text-[14px] tracking-[0.1px] leading-[20px] subtitle-sm':
-				this.type === 'subtitle' && this.token === 'sm',
-			'font-medium text-[12px] tracking-[0.1px] leading-[16px] subtitle-xs':
-				this.type === 'subtitle' && this.token === 'xs',
-
-			// Body
-			'text-[18px] tracking-[0.5px] leading-[28px]': this.type === 'body' && this.token === 'xl',
-			'text-[16px] tracking-[0.5px] leading-[24px]': this.type === 'body' && this.token === 'lg',
-			'text-[14px] tracking-[0.25px] leading-[20px]': this.type === 'body' && this.token === 'md',
-			'text-[12px] tracking-[0.4px] leading-[16px]': this.type === 'body' && this.token === 'sm',
-			'text-[10px] tracking-[0.4px] leading-[14px]': this.type === 'body' && this.token === 'xs',
-
-			// Label
-			'font-medium text-[18px] tracking-[0.1px] leading-[24px]': this.type === 'label' && this.token === '2xl',
-			'font-medium text-[16px] tracking-[0.1px] leading-[22px]': this.type === 'label' && this.token === 'xl',
-			'font-medium text-[14px] tracking-[0.1px] leading-[20px]': this.type === 'label' && this.token === 'lg',
-			'text-[12px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'md',
-			'text-[11px] tracking-[0.5px] leading-[16px]': this.type === 'label' && this.token === 'sm',
-			'text-[10px] tracking-[0.5px] leading-[14px]': this.type === 'label' && this.token === 'xs',
-
-			// Caption
-			'text-[12px] tracking-[0.3px] leading-[16px]': this.type === 'caption' && this.token === 'lg',
-			'text-[11px] tracking-[0.4px] leading-[16px]': this.type === 'caption' && this.token === 'md',
-			'text-[10px] tracking-[0.4px] leading-[13px]': this.type === 'caption' && this.token === 'sm',
-			'text-[9px] tracking-[0.4px] leading-[12px]': this.type === 'caption' && this.token === 'xs',
-
-			'font-bold': this.weight === 'bold',
-			'font-medium': this.weight === 'medium',
-			'font-normal': this.weight === 'normal',
-
-			uppercase: this.transform === 'uppercase',
-			lowercase: this.transform === 'lowercase',
-			capitalize: this.transform === 'capitalize',
-		}
-
-		const styles = {
-			letterSpacing: this.letterSpacing,
-			fontSize: this.fontSize,
-			lineHeight: this.lineHeight,
-		}
-
-		// Use div for layout containers, span for inline text
-		if (isLayoutContainer) {
-			return html`
-				<div style=${this.styleMap(styles)} class=${this.classMap(classes)}>
-					<slot></slot>
-				</div>
-			`
-		} else {
-			return html`
-				<span style=${this.styleMap(styles)} class=${this.classMap(classes)}>
-					<slot></slot>
-				</span>
-			`
+		
+		if (changedProperties.has('lineHeight') && this.lineHeight) {
+			this.style.setProperty('--typography-line-height', this.lineHeight)
 		}
 	}
+
+	render() {
+		return html`<slot></slot>`
+	}
 }
+
 declare global {
 	interface HTMLElementTagNameMap {
 		'schmancy-typography': SchmancyTypography

@@ -4,7 +4,7 @@ export type RouteAction = {
 	state?: Record<string, unknown>
 	params?: Record<string, unknown>
 	historyStrategy?: THistoryStrategy
-	clearQueryParams?: string[] | null
+	clearQueryParams?: string[] | boolean | null
 }
 
 export type ActiveRoute = {

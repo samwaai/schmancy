@@ -136,11 +136,11 @@ export class SchmancySurface extends TailwindElement(css`
 	 * Provided to descendant components via context.
 	 * Options: 'surface', 'surfaceDim', 'surfaceBright', 'containerLowest',
 	 * 'containerLow', 'container', 'containerHigh', 'containerHighest'.
-	 * @default 'surface'
+	 * @default 'container'
 	 */
 	@provide({ context: SchmancySurfaceTypeContext })
 	@property({ reflect: true })
-	type: TSurfaceColor = 'surface'
+	type: TSurfaceColor = 'container'
 
 	/**
 	 * Defines the elevation level (shadow depth) of the surface.

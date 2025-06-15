@@ -62,7 +62,7 @@ export class DemoBoat extends $LitElement() {
                 <schmancy-surface class="mb-8 p-4 rounded-lg">
                     <schmancy-grid gap="md">
                         <schmancy-typography type="title" token="md">Try it out</schmancy-typography>
-                        <schmancy-flex gap="md" wrap>
+                        <schmancy-flex gap="md">
                             <schmancy-button 
                                 variant="filled"
                                 @click=${() => this.boatState = 'minimized'}

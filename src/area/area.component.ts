@@ -236,17 +236,23 @@ export class SchmancyArea extends $LitElement(css`
 		).concat(`${queryParams}`)
 	}
 
-	queryParamClear(params?: string[]) {
+	queryParamClear(params?: string[] | boolean) {
 		if (!params) {
 			return ''
 		}
 		// get query params from url
 		const urlParams = new URLSearchParams(location.search)
-		// remove query params
-		params.forEach(param => urlParams.delete(param))
-		// update url
-		if (urlParams.toString() === '') return ''
-		return `?${urlParams.toString()}`
+		
+		if (params === true) {
+			// Clear all query params
+			return ''
+		} else {
+			// Clear specific query params
+			params.forEach(param => urlParams.delete(param))
+			// update url
+			if (urlParams.toString() === '') return ''
+			return `?${urlParams.toString()}`
+		}
 	}
 
 	checkForTeleportationRequests() {

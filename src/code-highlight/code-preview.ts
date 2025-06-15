@@ -1,5 +1,5 @@
 import { TailwindElement } from '@mixins/index'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 /**
@@ -8,7 +8,14 @@ import { customElement, property, state } from 'lit/decorators.js'
  * Takes the content as a slot and displays both the source and rendered result
  */
 @customElement('schmancy-code-preview')
-export class SchmancyCodePreview extends TailwindElement() {
+export class SchmancyCodePreview extends TailwindElement(
+	css`:host{
+		display:block;
+		overflow:hidden;
+		position:relative;
+		inset:0;
+	}`
+) {
 	/**
 	 * Programming language for syntax highlighting
 	 */
