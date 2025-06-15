@@ -1,374 +1,371 @@
 import { $LitElement } from '@mixins/index'
-import { SchmancyAutocompleteChangeEvent } from '@schmancy/autocomplete'
-import { SchmancyChipsChangeEvent } from '@schmancy/chips'
-import dayjs from 'dayjs'
-import { PropertyValueMap, css, html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
-import { repeat } from 'lit/directives/repeat.js'
+import { html } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import '../shared/installation-section'
 
 @customElement('demo-input')
-export class DemoInput extends $LitElement(css`
-	:host {
-		display: block;
-	}
-`) {
-	@state() country?: string
-	@state() chip = ''
-
-	@state() value = 'email'
-	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-		super.firstUpdated(_changedProperties)
-		this.country = 'DE'
-	}
-
-	connectedCallback(): void {
-		super.connectedCallback()
-		setTimeout(() => {
-			this.chip = 'chip1'
-			this.value = 'phone'
-		}, 1000)
-	}
+export class DemoInput extends $LitElement() {
 	render() {
-		const options = [
-			{
-				value: 'option1',
-				label: 'Option 1',
-			},
-			{
-				value: 'option2',
-				label: 'Option 2',
-			},
-			{
-				value: 'option3',
-				label: 'Option 3',
-			},
-		]
-		const v = undefined
 		return html`
-			<schmancy-surface type="container" fill="all" rounded="left">
-				<example-basic-dropdown></example-basic-dropdown>
+			<schmancy-surface class="p-8">
+				<!-- Component Title -->
+				<schmancy-typography type="display" token="lg" class="mb-4 block">
+					Input
+				</schmancy-typography>
+				<schmancy-typography type="body" token="lg" class="mb-8 text-surface-onVariant block">
+					Material Design 3 text input fields for capturing user data with validation support.
+				</schmancy-typography>
 
-				<schmancy-radio-group
-					class="flex flex-col sm:flex-row
-   gap-4"
-				>
-					<schmancy-radio-button value="inventoryItem">
-						<div slot="label">
-							<div class="font-medium">Direct Mapping</div>
-							<div
-								class="text-xs 
-  text-on-surface-variant"
-							>
-								Connect this menu item directly to inventory items
+				<!-- Installation -->
+				<installation-section></installation-section>
+
+				<!-- Import -->
+				<div class="mb-8">
+					<schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
+					<schmancy-code-preview language="javascript">
+						import '@mhmo91/schmancy/input'
+					</schmancy-code-preview>
+				</div>
+
+				<!-- API Reference -->
+				<div class="mb-12">
+					<schmancy-typography type="title" token="lg" class="mb-4 block">API Reference</schmancy-typography>
+					
+					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden">
+						<table class="w-full">
+							<thead class="bg-surface-container">
+								<tr>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Property</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Type</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Default</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Description</schmancy-typography>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">type</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">
+											'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'date' | 'time' | 'datetime-local'
+										</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">'text'</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Input type</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">label</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">''</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Input label</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">placeholder</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">''</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Placeholder text</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">value</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">''</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Input value</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">hint</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">''</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Helper text below input</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">error</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">boolean | string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">false</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Error state or message</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">disabled</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">false</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Disable input</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">required</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">false</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Mark as required</schmancy-typography>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</schmancy-surface>
+				</div>
+
+				<!-- Examples -->
+				<div>
+					<schmancy-typography type="title" token="lg" class="mb-6 block">Examples</schmancy-typography>
+					
+					<schmancy-grid gap="lg" class="w-full">
+						<!-- Basic Text Input -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-4 max-w-md">
+								<schmancy-input 
+									label="Username" 
+									placeholder="Enter your username"
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Email" 
+									type="email" 
+									placeholder="user@example.com"
+									hint="We'll never share your email"
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Password" 
+									type="password" 
+									placeholder="Enter password"
+									hint="At least 8 characters"
+								></schmancy-input>
 							</div>
-						</div>
-					</schmancy-radio-button>
-					<schmancy-radio-button value="recipe">
-						<div slot="label">
-							<div class="font-medium">Recipe</div>
-							<div
-								class="text-xs 
-  text-on-surface-variant"
-							>
-								Create a recipe with ingredients
+						</schmancy-code-preview>
+
+						<!-- Input States -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-4 max-w-md">
+								<schmancy-input 
+									label="Required Field" 
+									placeholder="This field is required"
+									required
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Error State" 
+									placeholder="Invalid input"
+									error="Please enter a valid email address"
+									value="invalid-email"
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Disabled Input" 
+									placeholder="Cannot edit"
+									disabled
+									value="Disabled value"
+								></schmancy-input>
 							</div>
-						</div>
-					</schmancy-radio-button>
-				</schmancy-radio-group>
-				<schmancy-dropdown>
-					<button slot="trigger">Open Dropdown</button>
+						</schmancy-code-preview>
 
-					<schmancy-dropdown-content>
-						<schmancy-list>
-							<schmancy-list-item>Option 1</schmancy-list-item>
-							<schmancy-list-item>Option 2</schmancy-list-item>
-							<schmancy-list-item>Option 3</schmancy-list-item>
-						</schmancy-list>
-					</schmancy-dropdown-content>
-				</schmancy-dropdown>
-				<!-- Simple usage -->
-				<schmancy-tooltip text="Find Product Image">
-					<schmancy-button variant="outlined" size="sm" icon>
-						<schmancy-icon size="18px">image_search</schmancy-icon>
-					</schmancy-button>
-				</schmancy-tooltip>
+						<!-- Number and Date Inputs -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-4 max-w-md">
+								<schmancy-input 
+									label="Quantity" 
+									type="number" 
+									placeholder="0"
+									min="0"
+									max="100"
+									step="5"
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Birth Date" 
+									type="date"
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Appointment Time" 
+									type="time"
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Event Date & Time" 
+									type="datetime-local"
+								></schmancy-input>
+							</div>
+						</schmancy-code-preview>
 
-				<!-- With custom position -->
-				<schmancy-tooltip text="Delete this item" position="left">
-					<button>Delete</button>
-				</schmancy-tooltip>
+						<!-- Input with Icons -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-4 max-w-md">
+								<schmancy-input 
+									label="Search" 
+									placeholder="Search products..."
+								>
+									<schmancy-icon slot="leading">search</schmancy-icon>
+								</schmancy-input>
+								
+								<schmancy-input 
+									label="Phone Number" 
+									type="tel"
+									placeholder="+1 (555) 123-4567"
+								>
+									<schmancy-icon slot="leading">phone</schmancy-icon>
+								</schmancy-input>
+								
+								<schmancy-input 
+									label="Website" 
+									type="url"
+									placeholder="https://example.com"
+								>
+									<schmancy-icon slot="trailing">open_in_new</schmancy-icon>
+								</schmancy-input>
+							</div>
+						</schmancy-code-preview>
 
-				<!-- With custom delay -->
-				<schmancy-tooltip text="Save progress" delay="500">
-					<schmancy-icon>save</schmancy-icon>
-				</schmancy-tooltip>
-				<schmancy-scroll scroll-padding-end="24" hide>
-					<schmancy-chips wrap="nowrap">
-						${repeat(
-							Array.from({ length: 14 }, (_, i) => {
-								const date = dayjs().add(i, 'days')
-								const day = date.format('ddd DD MMM')
-								return day
-							}),
-							a => a,
-							(a, i) => html`
-								<schmancy-chip .value=${a} .selected=${i === 0} label=${a} @click=${() => {}}> ${a} </schmancy-chip>
-							`,
-						)}
-					</schmancy-chips>
-				</schmancy-scroll>
-				<schmancy-surface type="container" class="p-2 mb-4">
-					<schmancy-typography type="headline">V2 Input Form</schmancy-typography>
-					<sch-form
-						@submit=${(e: CustomEvent) => {
-							console.log('V2 Form data:', e.detail.data)
-							alert('V2 Form submitted! Check console for details.')
-						}}
-						class="flex flex-col gap-2"
-					>
-						<sch-input
-							label="Email Address"
-							name="email"
-							type="email"
-							placeholder="example@domain.com"
-							required
-							hint="We'll never share your email"
-						></sch-input>
+						<!-- Form Example -->
+						<schmancy-code-preview language="html">
+							<schmancy-form 
+								@submit="${(e) => {
+									console.log('Form data:', e.detail.data);
+									alert('Form submitted! Check console.');
+								}}"
+								class="space-y-4 max-w-md"
+							>
+								<schmancy-typography type="headline" token="sm" class="block mb-4">
+									Contact Form
+								</schmancy-typography>
+								
+								<schmancy-input 
+									label="Full Name" 
+									name="name"
+									placeholder="John Doe"
+									required
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Email Address" 
+									name="email"
+									type="email"
+									placeholder="john@example.com"
+									required
+									hint="We'll use this to contact you"
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Phone Number" 
+									name="phone"
+									type="tel"
+									placeholder="+1 (555) 123-4567"
+									pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+								></schmancy-input>
+								
+								<schmancy-textarea 
+									label="Message" 
+									name="message"
+									placeholder="Your message..."
+									rows="4"
+									required
+								></schmancy-textarea>
+								
+								<div class="flex gap-2 mt-6">
+									<schmancy-button type="submit" variant="filled">
+										Send Message
+									</schmancy-button>
+									<schmancy-button type="reset" variant="text">
+										Clear
+									</schmancy-button>
+								</div>
+							</schmancy-form>
+						</schmancy-code-preview>
 
-						<sch-input
-							label="Password"
-							name="password"
-							type="text"
-							placeholder="Enter password"
-							required
-							hint="At least 8 characters"
-							minlength="8"
-						></sch-input>
-
-						<sch-input label="Birth Date" name="birthdate" type="date" required></sch-input>
-
-						<schmancy-select required label="Preferred Contact Method" name="contactMethod">
-							${repeat(
-								['email', 'phone', 'mail'],
-								option => option,
-								option => html`<schmancy-option value="${option}">${option}</schmancy-option>`,
-							)}
-						</schmancy-select>
-
-						<schmancy-textarea
-							label="Additional Comments"
-							name="comments"
-							placeholder="Share your thoughts..."
-							rows="3"
-						></schmancy-textarea>
-
-						<div class="flex items-center mb-2">
-							<schmancy-checkbox name="subscribe">Subscribe to newsletter</schmancy-checkbox>
-						</div>
-
-						<schmancy-button variant="filled" type="submit">Submit V2 Form</schmancy-button>
-					</sch-form>
-				</schmancy-surface>
-				<schmancy-surface type="surface" rounded="left">
-					<schmancy-form
-						@submit=${(e: CustomEvent) => {
-							console.log('Form submitted:', e.detail.data)
-							alert('Form submitted successfully! Check console for details.')
-						}}
-						class="p-2 flex flex-col gap-2"
-					>
-						<schmancy-typography type="headline">Form Example with Validation </schmancy-typography>
-						<schmancy-input
-							label="Full Name"
-							name="name"
-							placeholder="Enter your full name"
-							required
-							hint="Please provide your full legal name"
-						></schmancy-input>
-
-						<schmancy-select-timezones required></schmancy-select-timezones>
-
-						<schmancy-button variant="filled" type="submit">Submit</schmancy-button>
-					</schmancy-form>
-
-					<form>
-						<schmancy-select-countries
-							.value=${this.country}
-							@change=${(e: CustomEvent<SchmancyAutocompleteChangeEvent>) => {
-								console.log('e.detail', e.detail)
-							}}
-						></schmancy-select-countries>
-					</form>
-				</schmancy-surface>
-
-				<schmancy-grid class="p-4 w-full" flow="row" justify="start" gap="md">
-					<schmancy-checkbox> checkbox </schmancy-checkbox>
-					<!-- Single-select example -->
-					<schmancy-select .value=${v ?? ''} label="Choose an option">
-						${repeat(
-							options,
-							o => o.value,
-							option =>
-								html` <schmancy-option value=${option.value} label=${option.label}> ${option.label} </schmancy-option>`,
-						)}
-					</schmancy-select>
-					<!-- date range -->
-					<!-- input number -->
-					<schmancy-input step="0.01" type="number" label="Input number" placeholder="placeholder"></schmancy-input>
-
-					<schmancy-date-range
-						type="date"
-						.dateFrom=${{
-							label: 'Check-in',
-							value: dayjs().startOf('day').format('YYYY-MM-DDTHH:mm'),
-						}}
-						.dateTo=${{
-							label: 'Check-out',
-							value: dayjs().endOf('D').format('YYYY-MM-DDTHH:mm'),
-						}}
-						@change=${(e: CustomEvent) => {
-							console.log('e.detail', e.detail)
-						}}
-					></schmancy-date-range>
-
-					<schmancy-grid justify="end">
-						<schmancy-menu>
-							<schmancy-menu-item>Item 1 with very long text </schmancy-menu-item>
-							<schmancy-menu-item>Item 2</schmancy-menu-item>
-							<schmancy-menu-item>Item 3</schmancy-menu-item>
-						</schmancy-menu>
+						<!-- Validation Example -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-4 max-w-md">
+								<schmancy-input 
+									label="Username" 
+									placeholder="alphanumeric only"
+									pattern="[a-zA-Z0-9]+"
+									minlength="3"
+									maxlength="20"
+									hint="3-20 characters, letters and numbers only"
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Age" 
+									type="number"
+									min="18"
+									max="120"
+									hint="Must be 18 or older"
+								></schmancy-input>
+								
+								<schmancy-input 
+									label="Website URL" 
+									type="url"
+									pattern="https://.*"
+									hint="Must start with https://"
+								></schmancy-input>
+							</div>
+						</schmancy-code-preview>
 					</schmancy-grid>
-
-					<schmancy-chips
-						.values=${['chip1']}
-						multi
-						@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
-							console.log('e.detail', e.detail)
-						}}
-					>
-						<schmancy-chip readOnly selected label="Chip 1" value="chip1"></schmancy-chip>
-						<schmancy-chip label="Chip 2" value="chip2"></schmancy-chip>
-						<schmancy-chip label="Chip 3" value="chip3"></schmancy-chip>
-					</schmancy-chips>
-
-					<!-- single -->
-					<schmancy-button
-						@click=${() => {
-							this.chip = ''
-						}}
-						>reset Chips</schmancy-button
-					>
-					<schmancy-chips
-						.value=${this.chip}
-						@change=${(e: CustomEvent<SchmancyChipsChangeEvent>) => {
-							console.log('e.detail', e.detail)
-						}}
-					>
-						${repeat(
-							['chip1', 'chip2', 'chip3'],
-							c => c,
-							c => html` <schmancy-chip label=${c} value=${c}> ${c} </schmancy-chip>`,
-						)}
-					</schmancy-chips>
-					<schmancy-textarea label="Textarea" placeholder="placeholder"></schmancy-textarea>
-
-					<schmancy-autocomplete
-						multi
-						placeholder="Search for options"
-						label="Select options"
-						value="option1,option2"
-						@change="${e => console.log('Selected values:', e.detail.value)}"
-					>
-						<schmancy-option value="option1" label="Option 1">
-							Option 1
-							<schmancy-icon-button
-								@click=${e => {
-									e.stopPropagation()
-									e.preventDefault()
-									console.log('edit')
-								}}
-								slot="support"
-								>edit</schmancy-icon-button
-							>
-						</schmancy-option>
-						<schmancy-option value="option2" label="Option 2">Option 2</schmancy-option>
-						<schmancy-option value="option3" label="Option 3">Option 3</schmancy-option>
-						<schmancy-option value="option4" label="Option 4">Option 4</schmancy-option>
-					</schmancy-autocomplete>
-					<schmancy-input
-						class="w-full"
-						type="date"
-						label="Input"
-						placeholder="placeholder"
-						@change=${(e: Event) => {
-							console.log('change', e)
-						}}
-					></schmancy-input>
-					<!-- Single-select example -->
-					<schmancy-select label="Choose an option" placeholder="Select an option">
-						<schmancy-option value="option1" label="Option 1"> Option 1 </schmancy-option>
-						<schmancy-option value="option2" label="Option 2"> Option 2 </schmancy-option>
-						<schmancy-option value="option3" label="Option 3"> Option 3 </schmancy-option>
-					</schmancy-select>
-
-					<br />
-
-					<!-- Multi-select example -->
-					<schmancy-select .value=${['option2']} label="Choose multiple options" placeholder="Select options" multi>
-						<schmancy-option value="option1" label="Option 1"> Option 1</schmancy-option>
-						<schmancy-option value="option2" label="Option 2"> Option 2</schmancy-option>
-						<schmancy-option value="option3" label="Option 3">Option 3</schmancy-option>
-						<schmancy-option value="option4" label="Option 4">Option 4</schmancy-option>
-					</schmancy-select>
-					<schmancy-form
-						@submit=${() => {
-							// e.preventDefault()
-							console.log('submit')
-						}}
-					>
-						<schmancy-payment-card-form
-							@change=${e => {
-								console.log(e.detail)
-							}}
-						></schmancy-payment-card-form>
-						<!-- <schmancy-button type="submit">Submit</schmancy-button> -->
-					</schmancy-form>
-					<schmancy-input
-						.error=${true}
-						hint="another day another moment"
-						label="Input"
-						placeholder="placeholder"
-					></schmancy-input>
-					<schmancy-input label="disabled Input" placeholder="placeholder" disabled></schmancy-input>
-
-					<schmancy-autocomplete
-						@change=${(e: SchmancyAutocompleteChangeEvent) => {
-							console.log('e.detail', e.detail)
-						}}
-						@reset=${() => {}}
-						label="Status"
-						value="All"
-					>
-						${[
-							'All',
-							'New',
-							'Paid CC',
-							'Approved',
-							'Modified',
-							'Checked-In',
-							'Checked-Out',
-							'No show',
-							'Cancelled',
-							'Invalid CC',
-							'Debtor',
-							'Problematic',
-							'Prepaid',
-							'Paid',
-							'Paid bank',
-							'Completed',
-						].map(o => html` <schmancy-option .value="${o}" .label=${o}> ${o}</schmancy-option>`)}
-					</schmancy-autocomplete>
-				</schmancy-grid>
+				</div>
 			</schmancy-surface>
 		`
 	}
@@ -377,57 +374,5 @@ export class DemoInput extends $LitElement(css`
 declare global {
 	interface HTMLElementTagNameMap {
 		'demo-input': DemoInput
-	}
-}
-
-/**
- * Example component showing basic dropdown usage
- */
-@customElement('example-basic-dropdown')
-export class ExampleBasicDropdown extends $LitElement() {
-	render() {
-		return html`
-			<div style="padding: 2rem; overflow: hidden;">
-				<h3>Basic Dropdown Example</h3>
-				<p>This example demonstrates the portal-based dropdown that avoids overflow issues.</p>
-
-				<div style="margin-top: 2rem;">
-					<schmancy-dropdown>
-						<button slot="trigger">Open Dropdown</button>
-
-						<schmancy-dropdown-content>
-							<div style="padding: 1rem;">
-								<h4>Dropdown Content</h4>
-								<p>This content is rendered in a portal at the document root level.</p>
-								<button>Action 1</button>
-								<button>Action 2</button>
-							</div>
-						</schmancy-dropdown-content>
-					</schmancy-dropdown>
-				</div>
-
-				<div style="height: 50px; overflow: hidden; margin-top: 2rem; border: 1px solid #ccc; padding: 1rem;">
-					<p>Container with overflow: hidden</p>
-					<schmancy-dropdown>
-						<button slot="trigger">Open Dropdown (in overflow container)</button>
-
-						<schmancy-dropdown-content class="">
-							<div style="padding: 1rem;" class="min-w-[50vw]">
-								<h4>Dropdown Content</h4>
-								<p>This content will still be fully visible despite parent overflow.</p>
-								<button>Action 1</button>
-								<button>Action 2</button>
-							</div>
-						</schmancy-dropdown-content>
-					</schmancy-dropdown>
-				</div>
-			</div>
-		`
-	}
-}
-
-declare global {
-	interface HTMLElementTagNameMap {
-		'example-basic-dropdown': ExampleBasicDropdown
 	}
 }

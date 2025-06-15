@@ -128,3 +128,81 @@ This pattern works best for components where:
 - You need clean external API
 - Performance is important
 - Design system integration is needed
+
+## Component Demo Guidelines
+
+When creating demos for Schmancy components, follow this structure:
+
+1. **Component Title & Description**
+   - Use display/headline typography for the component name
+   - Brief description using body text with `text-surface-onVariant`
+
+2. **Installation Section** (use shared `installation-section` component)
+   - Shows npm/yarn installation commands
+   - Consistent across all demos
+
+3. **Import Instructions**
+   - Show the exact import statement needed
+   - Use `schmancy-code-preview` with language="javascript"
+
+4. **API Reference Table**
+   - Present before examples
+   - Include: Property, Type, Default, Description columns
+   - Use `schmancy-surface type="surfaceDim"` for the table container
+   - Use proper typography components for headers and cells
+
+5. **Additional Reference Tables** (if applicable)
+   - Type scales, size references, etc.
+   - Format: value/line-height with annotations
+
+6. **Examples Section**
+   - Start with basic usage
+   - Progress to real-world scenarios
+   - Group related examples logically
+   - Use `schmancy-grid gap="lg"` for layout
+   - Each example in `schmancy-code-preview`
+
+### Example Structure:
+```typescript
+<schmancy-surface class="p-8">
+  <!-- Title -->
+  <schmancy-typography type="display" token="lg" class="mb-4 block">
+    Component Name
+  </schmancy-typography>
+  <schmancy-typography type="body" token="lg" class="mb-8 text-surface-onVariant block">
+    Component description
+  </schmancy-typography>
+
+  <!-- Installation -->
+  <installation-section></installation-section>
+
+  <!-- Import -->
+  <div class="mb-8">
+    <schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
+    <schmancy-code-preview language="javascript">
+      import '@mhmo91/schmancy/component-name'
+    </schmancy-code-preview>
+  </div>
+
+  <!-- API Reference -->
+  <div class="mb-12">
+    <schmancy-typography type="title" token="lg" class="mb-4 block">API Reference</schmancy-typography>
+    <!-- Table here -->
+  </div>
+
+  <!-- Examples -->
+  <div>
+    <schmancy-typography type="title" token="lg" class="mb-6 block">Examples</schmancy-typography>
+    <schmancy-grid gap="lg" class="w-full">
+      <!-- Example blocks -->
+    </schmancy-grid>
+  </div>
+</schmancy-surface>
+```
+
+### Best Practices:
+- Keep examples concise and practical
+- Show real-world use cases
+- Avoid mixing inline and block display in examples
+- Use consistent spacing (mb-4, mb-8, mb-12)
+- Make examples self-contained and easy to copy
