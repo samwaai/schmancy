@@ -5,34 +5,52 @@ import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { filter, map } from 'rxjs'
-import { AreaShowcase } from './features/area-showcase'
-import { DemoAnimatedText } from './features/animated-text'
-import { DemoAutocomplete } from './features/autocomplete'
-import { DemoAvatars } from './features/avatar'
-import DemoBadges from './features/badges'
-import { DemoBoat } from './features/boat'
-import { DemoBusy } from './features/busy'
+
+// Core Components
+import DemoTypography from './features/typography'
 import { DemoButton } from './features/button'
 import { DemoCard } from './features/card'
-import { DemoDialog } from './features/dialog'
-import { DemoDialogConfirm } from './features/dialog-confirm-demo'
-import { DemoDialogPlayground } from './features/dialog-playground'
-import { DemoDialogShowcase } from './features/dialog-showcase'
-import { DemoContentDrawer } from './features/drawer-content'
-import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
-import { DemoList } from './features/list'
-import NotificationDemo from './features/notifications'
-import { DemoPlayground } from './features/playground-demo'
-import { DemoRadio } from './features/radio'
-import { DemoSheet } from './features/sheet/sheet'
-import { DemoSlider } from './features/slider'
 import { DemoSurface } from './features/surface'
-import { TableDemo } from './features/table'
-import { DemoTabs } from './features/tabs'
-import { DemoTree } from './features/tree'
-import { SchmancyTypewriterDemo } from './features/typewriter'
-import DemoTypography from './features/typography'
+import { DemoIcons } from './features/icons'
+
+// Layout & Navigation
+import { DemoLayout } from './features/layout'
+
+// Form Controls
+import { DemoAutocomplete } from './features/autocomplete'
+import { DemoRadio } from './features/radio'
+import { DemoSlider } from './features/slider'
+
+// TODO: Components that need demo rewrite:
+// - Tabs (demo/src/features/tabs.ts)
+// - Drawer (demo/src/features/drawer-content.ts)
+// - Sheet (demo/src/features/sheet/sheet.ts)
+// - Table (demo/src/features/table.ts)
+// - List (demo/src/features/list.ts)
+// - Tree (demo/src/features/tree.ts)
+// - Avatar (demo/src/features/avatar.ts)
+// - Badges (demo/src/features/badges.ts)
+// - Dialog (demo/src/features/dialog-showcase.ts)
+// - Notifications (demo/src/features/notifications.ts)
+// - Loading/Busy (demo/src/features/busy.ts)
+// - Area Router (demo/src/features/area-showcase.ts)
+// - Router (demo/src/features/router.ts)
+// - Boat (demo/src/features/boat.ts)
+// - Animated Text (demo/src/features/animated-text.ts)
+// - Typewriter (demo/src/features/typewriter.ts)
+// - Checkbox (missing demo)
+// - Switch (missing demo)
+// - Select (missing demo)
+// - Divider (missing demo)
+// - Chip (missing demo)
+// - Progress (missing demo)
+// - Menu (missing demo)
+// - Tooltip (missing demo)
+// - Fab (missing demo)
+// - Navigation Drawer (missing demo)
+// - Navigation Rail (missing demo)
+// - Snackbar (missing demo)
 
 interface DemoSection {
   title: string
@@ -53,7 +71,7 @@ export class DemoNav extends $LitElement(css`
   
   .nav-header {
     padding: 1rem;
-    border-bottom: 1px solid var(--surface-variant);
+    border-bottom: 1px solid var(--schmancy-sys-color-outline);
     flex-shrink: 0;
   }
   
@@ -66,16 +84,14 @@ export class DemoNav extends $LitElement(css`
   
   .search-container {
     padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--surface-variant);
+    border-bottom: 1px solid var(--schmancy-sys-color-outline);
     flex-shrink: 0;
   }
-  
-  
   
   .search-input {
     width: 100%;
     padding: 0.5rem 1rem;
-    border: 1px solid var(--surface-variant);
+    border: 1px solid var(--schmancy-sys-color-outline);
     border-radius: 0.25rem;
     background: transparent;
     font-size: 0.875rem;
@@ -84,23 +100,27 @@ export class DemoNav extends $LitElement(css`
   
   .search-input:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: var(--schmancy-sys-color-primary-default);
   }
   
   .search-input::placeholder {
-    color: var(--on-surface-variant);
+    color: var(--schmancy-sys-color-surface-onVariant);
   }
-  
   
   .section-title {
     font-size: 0.6875rem;
     font-weight: 500;
-    color: var(--on-surface-variant);
+    color: var(--schmancy-sys-color-surface-onVariant);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     opacity: 0.7;
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
   }
   
+  .section-title:first-child {
+    margin-top: 0;
+  }
   
   schmancy-list {
     margin-bottom: 1rem;
@@ -112,78 +132,42 @@ export class DemoNav extends $LitElement(css`
     font-size: 0.875rem;
   }
   
-  
-  
   .no-results {
     text-align: center;
     padding: 2rem;
-    color: var(--on-surface-variant);
+    color: var(--schmancy-sys-color-surface-onVariant);
     font-size: 0.875rem;
   }
-  
 `) {
   @state() activeComponent: string = ''
   @state() searchQuery: string = ''
 
   private sections: DemoSection[] = [
     {
-      title: 'Core Components',
+      title: 'Core',
       demos: [
         { name: 'Typography', component: DemoTypography },
         { name: 'Button', component: DemoButton },
-        { name: 'Input', component: DemoInput },
-        { name: 'Icons', component: DemoIcons },
-        { name: 'Surface', component: DemoSurface },
         { name: 'Card', component: DemoCard },
+        { name: 'Surface', component: DemoSurface },
+        { name: 'Icons', component: DemoIcons },
       ]
     },
     {
-      title: 'Navigation',
+      title: 'Forms',
       demos: [
-        { name: 'Area Router', component: AreaShowcase },
-        { name: 'Tabs', component: DemoTabs },
-        { name: 'Content Drawer', component: DemoContentDrawer },
-        { name: 'Sheet', component: DemoSheet },
-        { name: 'Boat', component: DemoBoat },
-      ]
-    },
-    {
-      title: 'Data Display',
-      demos: [
-        { name: 'Table', component: TableDemo },
-        { name: 'List', component: DemoList },
-        { name: 'Tree', component: DemoTree },
-        { name: 'Avatar', component: DemoAvatars },
-        { name: 'Badges', component: DemoBadges },
-      ]
-    },
-    {
-      title: 'Feedback',
-      demos: [
-        { name: 'Dialog', component: DemoDialog },
-        { name: 'Dialog Confirm', component: DemoDialogConfirm },
-        { name: 'Dialog Showcase', component: DemoDialogShowcase },
-        { name: 'Dialog Playground', component: DemoDialogPlayground },
-        { name: 'Notifications', component: NotificationDemo },
-        { name: 'Busy', component: DemoBusy },
-      ]
-    },
-    {
-      title: 'Form Controls',
-      demos: [
+        { name: 'Input', component: DemoInput },
         { name: 'Autocomplete', component: DemoAutocomplete },
         { name: 'Radio', component: DemoRadio },
         { name: 'Slider', component: DemoSlider },
       ]
     },
     {
-      title: 'Advanced',
+      title: 'Layout',
       demos: [
-        { name: 'Interactive Playground', component: DemoPlayground },
-        { name: 'Animated Text', component: DemoAnimatedText },
-        { name: 'Typewriter', component: SchmancyTypewriterDemo },
+        { name: 'Layout', component: DemoLayout },
       ]
-    }
+    },
   ]
 
   connectedCallback(): void {
@@ -197,7 +181,7 @@ export class DemoNav extends $LitElement(css`
       )
       .subscribe(r => {
         if (r?.component) {
-          // Convert tag name (e.g., 'area-showcase') to class name format (e.g., 'areashowcase')
+          // Convert tag name to class name format
           this.activeComponent = r.component.toLowerCase().replace(/-/g, '')
         }
       })
@@ -229,7 +213,6 @@ export class DemoNav extends $LitElement(css`
   private handleSearch(e: Event) {
     this.searchQuery = (e.target as HTMLInputElement).value
   }
-  
 
   render() {
     const filtered = this.filteredSections
@@ -237,7 +220,13 @@ export class DemoNav extends $LitElement(css`
     return html`
       <div class="nav-header">
         <schmancy-typography type="headline" token="md">
-          Schmancy
+          Schmancy Components
+        </schmancy-typography>
+        <schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+          Material Design 3 Web Components
+        </schmancy-typography>
+        <schmancy-typography type="label" token="sm" class="text-error-default mt-2 block">
+          TODO: 30+ components need demos
         </schmancy-typography>
       </div>
       
@@ -245,7 +234,7 @@ export class DemoNav extends $LitElement(css`
         <input
           type="search"
           class="search-input"
-          placeholder="Search..."
+          placeholder="Search components..."
           .value=${this.searchQuery}
           @input=${this.handleSearch}
         />

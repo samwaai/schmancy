@@ -1,292 +1,339 @@
-import { html, LitElement } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
-import { repeat } from 'lit/directives/repeat.js'
-import { $notify } from '@schmancy/notification'
-import { $dialog } from '@schmancy/dialog'
-import countriesData from '@schmancy/extra/countries/countries.data'
-import '@schmancy/autocomplete'
-import type { SchmancyAutocompleteChangeEvent } from '@schmancy/autocomplete/autocomplete'
+import { $LitElement } from '@mixins/index'
+import { html } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import '../shared/installation-section'
 
 @customElement('demo-autocomplete')
-export class DemoAutocomplete extends LitElement {
-	@state() private formData: any = {}
-	@state() private selectedCountry = ''
-	@state() private selectedTimezone = ''
-	@state() private selectedFruit = ''
-
-	private handleSubmit = async (e: CustomEvent) => {
-		console.log('handleSubmit called!', e)
-		console.error('SUBMIT HANDLER TRIGGERED!')
-		e.preventDefault()
-		
-		// schmancy-form passes FormData in the detail property
-		const formData = e.detail as FormData
-		const data = Object.fromEntries(formData.entries())
-		
-		// Add autocomplete values if not already in formData
-		if (!data.country) {
-			data.country = this.selectedCountry
-		}
-		
-		this.formData = data
-		
-		// Always log form submission
-		console.log('=== FORM SUBMITTED ===')
-		console.log('Form data:', data)
-		console.log('Selected country:', this.selectedCountry)
-		console.log('All form values:', {
-			fullname: data.fullname,
-			email: data.email,
-			phone: data.phone,
-			address: data.address,
-			postal: data.postal,
-			city: data.city,
-			country: data.country
-		})
-		console.log('===================')
-		
-		// Show form data in dialog with syntax highlighting
-		$dialog.component(
-			html`
-				<div style="padding: 1.5rem;">
-					<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-					<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-					<pre style="margin: 0; font-size: 14px;"><code class="language-json" id="form-data-code">${JSON.stringify(data, null, 2)}</code></pre>
-					<script>
-						// Highlight the code block after it's rendered
-						setTimeout(() => {
-							const codeBlock = document.getElementById('form-data-code');
-							if (codeBlock && window.hljs) {
-								window.hljs.highlightElement(codeBlock);
-							}
-						}, 100);
-					</script>
-				</div>
-			`,
-			{
-				title: 'Form Data',
-				width: '500px',
-				confirmText: 'OK',
-				cancelText: ''
-			}
-		)
-		
-		$notify.success('Form submitted! Browser should remember these values for autofill.')
-	}
-
+export class DemoAutocomplete extends $LitElement() {
 	render() {
-		console.log('DemoAutocomplete rendering...')
 		return html`
-			<schmancy-surface type="container">
-				<div style="padding: 2rem; max-width: 800px; margin: 0 auto;">
-					<schmancy-typography type="headline" token="lg" style="margin-bottom: 1rem">
-						Autocomplete Component Demo
-					</schmancy-typography>
+			<schmancy-surface class="p-8">
+				<!-- Component Title -->
+				<schmancy-typography type="display" token="lg" class="mb-4 block">
+					Autocomplete
+				</schmancy-typography>
+				<schmancy-typography type="body" token="lg" class="mb-8 text-surface-onVariant block">
+					Searchable dropdown with single and multi-select support, perfect for large option sets.
+				</schmancy-typography>
+
+				<!-- Installation -->
+				<installation-section></installation-section>
+
+				<!-- Import -->
+				<div class="mb-8">
+					<schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
+					<schmancy-code-preview language="javascript">
+						import '@mhmo91/schmancy/autocomplete'
+						import '@mhmo91/schmancy/option'
+					</schmancy-code-preview>
+				</div>
+
+				<!-- API Reference -->
+				<div class="mb-12">
+					<schmancy-typography type="title" token="lg" class="mb-4 block">API Reference</schmancy-typography>
 					
-					<schmancy-typography type="body" token="lg" style="margin-bottom: 2rem; color: var(--schmancy-sys-color-outline)">
-						Test browser autofill integration with the autocomplete component. Fill the form once, navigate away, then return to test autofill.
-					</schmancy-typography>
+					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden">
+						<table class="w-full">
+							<thead class="bg-surface-container">
+								<tr>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Property</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Type</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Default</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Description</schmancy-typography>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">value</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string | string[]</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">''</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Selected value(s)</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">multi</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">false</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Enable multi-selection</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">placeholder</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">''</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Placeholder text</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">label</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">''</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Field label</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">required</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">false</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Mark as required</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">disabled</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">false</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Disable interactions</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">autocomplete</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">''</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Browser autocomplete attribute</schmancy-typography>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</schmancy-surface>
+				</div>
 
-					<!-- Autofill Test Section -->
-					<schmancy-card type="outlined" style="margin-bottom: 2rem">
-						<schmancy-card-content>
-							<schmancy-typography type="title" token="lg" style="margin-bottom: 1rem">
-								Browser Autofill Test
-							</schmancy-typography>
-							
-							<schmancy-form @submit=${this.handleSubmit} id="autofill-test-form">
-								<schmancy-grid gap="md">
-									<!-- Personal Information -->
-									<schmancy-typography type="label" token="lg">Personal Information</schmancy-typography>
-									
-									<sch-input
-										name="fullname"
-										autocomplete="name"
+				<!-- Examples -->
+				<div>
+					<schmancy-typography type="title" token="lg" class="mb-6 block">Examples</schmancy-typography>
+					
+					<schmancy-grid gap="lg" class="w-full">
+						<!-- Basic Single Select -->
+						<schmancy-code-preview language="html">
+							<schmancy-autocomplete
+								placeholder="Select a fruit"
+								label="Favorite Fruit"
+								@change="${(e) => console.log('Selected:', e.detail.value)}"
+							>
+								<schmancy-option value="apple">Apple</schmancy-option>
+								<schmancy-option value="banana">Banana</schmancy-option>
+								<schmancy-option value="orange">Orange</schmancy-option>
+								<schmancy-option value="grape">Grape</schmancy-option>
+								<schmancy-option value="strawberry">Strawberry</schmancy-option>
+								<schmancy-option value="watermelon">Watermelon</schmancy-option>
+								<schmancy-option value="pineapple">Pineapple</schmancy-option>
+								<schmancy-option value="mango">Mango</schmancy-option>
+							</schmancy-autocomplete>
+						</schmancy-code-preview>
+
+						<!-- Multi Select -->
+						<schmancy-code-preview language="html">
+							<schmancy-autocomplete
+								multi
+								placeholder="Select languages"
+								label="Programming Languages"
+								value="js,python"
+								@change="${(e) => console.log('Selected:', e.detail.values)}"
+							>
+								<schmancy-option value="js">JavaScript</schmancy-option>
+								<schmancy-option value="ts">TypeScript</schmancy-option>
+								<schmancy-option value="python">Python</schmancy-option>
+								<schmancy-option value="java">Java</schmancy-option>
+								<schmancy-option value="csharp">C#</schmancy-option>
+								<schmancy-option value="go">Go</schmancy-option>
+								<schmancy-option value="rust">Rust</schmancy-option>
+								<schmancy-option value="swift">Swift</schmancy-option>
+							</schmancy-autocomplete>
+						</schmancy-code-preview>
+
+						<!-- With Icons -->
+						<schmancy-code-preview language="html">
+							<schmancy-autocomplete
+								placeholder="Select a status"
+								label="Project Status"
+							>
+								<schmancy-option value="active">
+									<schmancy-icon slot="start" class="text-success-default">check_circle</schmancy-icon>
+									Active
+								</schmancy-option>
+								<schmancy-option value="pending">
+									<schmancy-icon slot="start" class="text-warning-default">schedule</schmancy-icon>
+									Pending
+								</schmancy-option>
+								<schmancy-option value="completed">
+									<schmancy-icon slot="start" class="text-primary-default">task_alt</schmancy-icon>
+									Completed
+								</schmancy-option>
+								<schmancy-option value="cancelled">
+									<schmancy-icon slot="start" class="text-error-default">cancel</schmancy-icon>
+									Cancelled
+								</schmancy-option>
+							</schmancy-autocomplete>
+						</schmancy-code-preview>
+
+						<!-- Country Select with Autofill -->
+						<schmancy-code-preview language="html">
+							<schmancy-form @submit="${(e) => console.log('Form data:', e.detail)}">
+								<div class="space-y-4 max-w-md">
+									<schmancy-autocomplete
+										name="country"
+										autocomplete="country-name"
 										required
-										placeholder="Full Name"
-										label="Full Name"
-									></sch-input>
+										placeholder="Select your country"
+										label="Country"
+									>
+										<schmancy-option value="US">United States</schmancy-option>
+										<schmancy-option value="CA">Canada</schmancy-option>
+										<schmancy-option value="MX">Mexico</schmancy-option>
+										<schmancy-option value="GB">United Kingdom</schmancy-option>
+										<schmancy-option value="FR">France</schmancy-option>
+										<schmancy-option value="DE">Germany</schmancy-option>
+										<schmancy-option value="JP">Japan</schmancy-option>
+										<schmancy-option value="CN">China</schmancy-option>
+										<schmancy-option value="IN">India</schmancy-option>
+										<schmancy-option value="BR">Brazil</schmancy-option>
+									</schmancy-autocomplete>
 									
-									<schmancy-grid cols="1fr 1fr" gap="md">
-										<sch-input
-											name="email"
-											autocomplete="email"
-											required
-											type="email"
-											placeholder="Email Address"
-											label="Email"
-										></sch-input>
-										<sch-input
-											name="phone"
-											autocomplete="tel"
-											required
-											type="tel"
-											placeholder="Phone Number"
-											label="Phone"
-										></sch-input>
-									</schmancy-grid>
-									
-									<schmancy-divider></schmancy-divider>
-									
-									<!-- Address Information -->
-									<schmancy-typography type="label" token="lg">Billing Address</schmancy-typography>
-									
-									<sch-input
-										name="address"
-										autocomplete="street-address"
-										placeholder="Street Address"
-										label="Street Address"
-									></sch-input>
-									
-									<schmancy-grid cols="2fr 2fr 3fr" gap="md">
-										<sch-input
-											name="postal"
-											autocomplete="postal-code"
-											required
-											placeholder="Postal Code"
-											label="Postal Code"
-										></sch-input>
-										
-										<sch-input
-											name="city"
-											autocomplete="address-level2"
-											required
-											placeholder="City"
-											label="City"
-										></sch-input>
-										
-										<schmancy-autocomplete
-											name="country"
-											autocomplete="country-name"
-											required
-											placeholder="Select Country"
-											label="Country"
-											.value=${this.selectedCountry}
-											@change=${(e: SchmancyAutocompleteChangeEvent) => {
-												this.selectedCountry = e.detail.value as string
-												$notify.info(`Country selected: ${e.detail.value}`)
-											}}
-										>
-											${repeat(
-												countriesData, // Top 50 countries for demo
-												c => c.code,
-												c => html`
-													<schmancy-option .value=${c.code} .label=${c.name}>
-														${c.name}
-													</schmancy-option>
-												`
-											)}
-										</schmancy-autocomplete>
-									</schmancy-grid>
-									
-									
-									<schmancy-button type="submit" variant="filled" style="margin-top: 1rem">
-										Submit Form
+									<schmancy-button type="submit" variant="filled">
+										Submit
 									</schmancy-button>
-								</schmancy-grid>
+								</div>
 							</schmancy-form>
-						</schmancy-card-content>
-					</schmancy-card>
+						</schmancy-code-preview>
 
-					<!-- Other Autocomplete Examples -->
-					<schmancy-card type="outlined" style="margin-bottom: 2rem">
-						<schmancy-card-content>
-							<schmancy-typography type="title" token="lg" style="margin-bottom: 1rem">
-								Basic Autocomplete Examples
-							</schmancy-typography>
-							
-							<schmancy-grid gap="lg">
-								<!-- Single Select -->
-								<div>
-									<schmancy-typography type="subtitle" token="md" style="margin-bottom: 0.5rem">
-										Single Select
-									</schmancy-typography>
-									<schmancy-autocomplete
-										placeholder="Select a fruit"
-										label="Favorite Fruit"
-										.value=${this.selectedFruit}
-										@change=${(e: SchmancyAutocompleteChangeEvent) => {
-											this.selectedFruit = e.detail.value as string
-											$notify.success(`Selected: ${e.detail.value}`)
-										}}
-									>
-										<schmancy-option value="apple">Apple</schmancy-option>
-										<schmancy-option value="banana">Banana</schmancy-option>
-										<schmancy-option value="orange">Orange</schmancy-option>
-										<schmancy-option value="grape">Grape</schmancy-option>
-										<schmancy-option value="strawberry">Strawberry</schmancy-option>
-										<schmancy-option value="watermelon">Watermelon</schmancy-option>
-										<schmancy-option value="pineapple">Pineapple</schmancy-option>
-										<schmancy-option value="mango">Mango</schmancy-option>
-									</schmancy-autocomplete>
-								</div>
-								
-								<!-- Multi Select -->
-								<div>
-									<schmancy-typography type="subtitle" token="md" style="margin-bottom: 0.5rem">
-										Multi Select
-									</schmancy-typography>
-									<schmancy-autocomplete
-										multi
-										placeholder="Select languages"
-										label="Programming Languages"
-										@change=${(e: SchmancyAutocompleteChangeEvent) => {
-											console.log('Selected languages:', e.detail.values)
-											$notify.info(`Selected: ${e.detail.values?.join(', ') || 'None'}`)
-										}}
-									>
-										<schmancy-option value="js">JavaScript</schmancy-option>
-										<schmancy-option value="ts">TypeScript</schmancy-option>
-										<schmancy-option value="python">Python</schmancy-option>
-										<schmancy-option value="java">Java</schmancy-option>
-										<schmancy-option value="csharp">C#</schmancy-option>
-										<schmancy-option value="go">Go</schmancy-option>
-										<schmancy-option value="rust">Rust</schmancy-option>
-										<schmancy-option value="swift">Swift</schmancy-option>
-									</schmancy-autocomplete>
-								</div>
-								
-								<!-- With Description -->
-								<div>
-									<schmancy-typography type="subtitle" token="md" style="margin-bottom: 0.5rem">
-										With Description
-									</schmancy-typography>
-									<schmancy-autocomplete
-										placeholder="Search for a timezone"
-										label="Timezone"
-										description="Start typing to filter timezones"
-										.value=${this.selectedTimezone}
-										@change=${(e: SchmancyAutocompleteChangeEvent) => {
-											this.selectedTimezone = e.detail.value as string
-										}}
-									>
-										<schmancy-option value="UTC">UTC (Coordinated Universal Time)</schmancy-option>
-										<schmancy-option value="America/New_York">Eastern Time (US & Canada)</schmancy-option>
-										<schmancy-option value="America/Chicago">Central Time (US & Canada)</schmancy-option>
-										<schmancy-option value="America/Denver">Mountain Time (US & Canada)</schmancy-option>
-										<schmancy-option value="America/Los_Angeles">Pacific Time (US & Canada)</schmancy-option>
-										<schmancy-option value="Europe/London">London</schmancy-option>
-										<schmancy-option value="Europe/Paris">Paris</schmancy-option>
-										<schmancy-option value="Asia/Tokyo">Tokyo</schmancy-option>
-										<schmancy-option value="Australia/Sydney">Sydney</schmancy-option>
-									</schmancy-autocomplete>
-								</div>
-							</schmancy-grid>
-						</schmancy-card-content>
-					</schmancy-card>
+						<!-- With Descriptions -->
+						<schmancy-code-preview language="html">
+							<schmancy-autocomplete
+								placeholder="Choose a plan"
+								label="Subscription Plan"
+							>
+								<schmancy-option value="free">
+									<div>
+										<schmancy-typography type="body" token="md">Free</schmancy-typography>
+										<schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+											Basic features for personal use
+										</schmancy-typography>
+									</div>
+								</schmancy-option>
+								<schmancy-option value="pro">
+									<div>
+										<schmancy-typography type="body" token="md">Pro</schmancy-typography>
+										<schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+											Advanced features for professionals
+										</schmancy-typography>
+									</div>
+								</schmancy-option>
+								<schmancy-option value="enterprise">
+									<div>
+										<schmancy-typography type="body" token="md">Enterprise</schmancy-typography>
+										<schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+											Full suite for large organizations
+										</schmancy-typography>
+									</div>
+								</schmancy-option>
+							</schmancy-autocomplete>
+						</schmancy-code-preview>
 
-					<!-- Debug Information -->
-					${Object.keys(this.formData).length > 0 ? html`
-						<schmancy-card type="filled">
-							<schmancy-card-content>
-								<schmancy-typography type="title" token="md" style="margin-bottom: 0.5rem">
-									Last Submitted Form Data
-								</schmancy-typography>
-								<pre style="background: var(--schmancy-sys-color-surface-container); padding: 1rem; border-radius: 4px; overflow-x: auto;">
-${JSON.stringify(this.formData, null, 2)}</pre>
-							</schmancy-card-content>
-						</schmancy-card>
-					` : ''}
+						<!-- Disabled State -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-4">
+								<schmancy-autocomplete
+									disabled
+									value="locked"
+									label="Disabled Autocomplete"
+								>
+									<schmancy-option value="locked">Locked Value</schmancy-option>
+									<schmancy-option value="other">Other Option</schmancy-option>
+								</schmancy-autocomplete>
+								
+								<schmancy-autocomplete
+									label="With Disabled Options"
+									placeholder="Some options are disabled"
+								>
+									<schmancy-option value="available">Available</schmancy-option>
+									<schmancy-option value="sold-out" disabled>Sold Out</schmancy-option>
+									<schmancy-option value="coming-soon" disabled>Coming Soon</schmancy-option>
+									<schmancy-option value="in-stock">In Stock</schmancy-option>
+								</schmancy-autocomplete>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Large Dataset Example -->
+						<schmancy-code-preview language="html">
+							<schmancy-autocomplete
+								placeholder="Search timezones..."
+								label="Timezone"
+								hint="Start typing to filter results"
+							>
+								<schmancy-option value="UTC">UTC (Coordinated Universal Time)</schmancy-option>
+								<schmancy-option value="America/New_York">Eastern Time (US & Canada)</schmancy-option>
+								<schmancy-option value="America/Chicago">Central Time (US & Canada)</schmancy-option>
+								<schmancy-option value="America/Denver">Mountain Time (US & Canada)</schmancy-option>
+								<schmancy-option value="America/Los_Angeles">Pacific Time (US & Canada)</schmancy-option>
+								<schmancy-option value="America/Anchorage">Alaska Time</schmancy-option>
+								<schmancy-option value="Pacific/Honolulu">Hawaii Time</schmancy-option>
+								<schmancy-option value="Europe/London">London</schmancy-option>
+								<schmancy-option value="Europe/Paris">Paris</schmancy-option>
+								<schmancy-option value="Europe/Berlin">Berlin</schmancy-option>
+								<schmancy-option value="Asia/Tokyo">Tokyo</schmancy-option>
+								<schmancy-option value="Asia/Shanghai">Shanghai</schmancy-option>
+								<schmancy-option value="Asia/Dubai">Dubai</schmancy-option>
+								<schmancy-option value="Australia/Sydney">Sydney</schmancy-option>
+								<schmancy-option value="Pacific/Auckland">Auckland</schmancy-option>
+							</schmancy-autocomplete>
+						</schmancy-code-preview>
+					</schmancy-grid>
 				</div>
 			</schmancy-surface>
 		`

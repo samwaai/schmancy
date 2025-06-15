@@ -1,222 +1,297 @@
 import { $LitElement } from '@mixins/index'
-import { css, html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { html } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import '../shared/installation-section'
 
 @customElement('demo-radio')
-export class DemoRadio extends $LitElement(css`
-  :host {
-    display: block;
-  }
-`) {
-  @state() radioValue = ''
-  @state() radioGroupValue = ''
-  @state() colorOption = 'red'
+export class DemoRadio extends $LitElement() {
+	render() {
+		return html`
+			<schmancy-surface class="p-8">
+				<!-- Component Title -->
+				<schmancy-typography type="display" token="lg" class="mb-4 block">
+					Radio
+				</schmancy-typography>
+				<schmancy-typography type="body" token="lg" class="mb-8 text-surface-onVariant block">
+					Material Design 3 radio buttons for single-choice selection from multiple options.
+				</schmancy-typography>
 
-  render() {
-    return html`
-      <schmancy-surface type="container" fill="all" rounded="left" class="p-4">
-        <schmancy-typography type="headline">Radio Components</schmancy-typography>
-        
-        <div class="grid gap-6 mt-4">
-          <!-- Individual Radio Buttons Demo -->
-          <div>
-            <schmancy-typography type="title" class="mb-2">Individual Radio Buttons</schmancy-typography>
-            <div class="flex flex-col gap-4">
-              <schmancy-radio-button 
-                value="option1" 
-                name="demo-radio" 
-                ?checked=${this.radioValue === 'option1'}
-                @change=${(e: CustomEvent) => this.radioValue = e.detail.value}
-              >
-                <div slot="label">Option 1</div>
-              </schmancy-radio-button>
-              
-              <schmancy-radio-button 
-                value="option2" 
-                name="demo-radio" 
-                ?checked=${this.radioValue === 'option2'}
-                @change=${(e: CustomEvent) => this.radioValue = e.detail.value}
-              >
-                <div slot="label">Option 2</div>
-              </schmancy-radio-button>
-              
-              <schmancy-radio-button 
-                value="option3" 
-                name="demo-radio" 
-                ?checked=${this.radioValue === 'option3'}
-                @change=${(e: CustomEvent) => this.radioValue = e.detail.value}
-              >
-                <div slot="label">Option 3</div>
-              </schmancy-radio-button>
-            </div>
-            <div class="mt-2">Selected value: ${this.radioValue || 'None'}</div>
-          </div>
+				<!-- Installation -->
+				<installation-section></installation-section>
 
-          <!-- Radio Group Demo -->
-          <div>
-            <schmancy-typography type="title" class="mb-2">Radio Group (Using Options)</schmancy-typography>
-            <schmancy-radio-group
-              label="Select an option"
-              name="demo-group"
-              .value=${this.radioGroupValue}
-              .options=${[
-                { label: 'Option A', value: 'A' },
-                { label: 'Option B', value: 'B' },
-                { label: 'Option C', value: 'C' }
-              ]}
-              @change=${(e: CustomEvent) => this.radioGroupValue = e.detail.value}
-            ></schmancy-radio-group>
-            <div class="mt-2">Selected value: ${this.radioGroupValue || 'None'}</div>
-          </div>
+				<!-- Import -->
+				<div class="mb-8">
+					<schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
+					<schmancy-code-preview language="javascript">
+						import '@mhmo91/schmancy/radio-button'
+						import '@mhmo91/schmancy/radio-group'
+					</schmancy-code-preview>
+				</div>
 
-          <!-- Radio Group with Slotted Content -->
-          <div>
-            <schmancy-typography type="title" class="mb-2">Radio Group (Using Slotted Content)</schmancy-typography>
-            <schmancy-radio-group
-              label="Select a color"
-              name="color-options"
-              .value=${this.colorOption}
-              @change=${(e: CustomEvent) => this.colorOption = e.detail.value}
-            >
-              <schmancy-radio-button value="red">
-                <div slot="label" class="flex items-center gap-2">
-                  <div class="w-4 h-4 rounded-full bg-red-500"></div>
-                  <span>Red</span>
-                </div>
-              </schmancy-radio-button>
-              
-              <schmancy-radio-button value="green">
-                <div slot="label" class="flex items-center gap-2">
-                  <div class="w-4 h-4 rounded-full bg-green-500"></div>
-                  <span>Green</span>
-                </div>
-              </schmancy-radio-button>
-              
-              <schmancy-radio-button value="blue">
-                <div slot="label" class="flex items-center gap-2">
-                  <div class="w-4 h-4 rounded-full bg-blue-500"></div>
-                  <span>Blue</span>
-                </div>
-              </schmancy-radio-button>
-            </schmancy-radio-group>
-            <div class="mt-2">Selected color: ${this.colorOption}</div>
-          </div>
+				<!-- API Reference -->
+				<div class="mb-12">
+					<schmancy-typography type="title" token="lg" class="mb-4 block">API Reference</schmancy-typography>
+					
+					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden">
+						<table class="w-full">
+							<thead class="bg-surface-container">
+								<tr>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Component</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Properties</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Description</schmancy-typography>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">schmancy-radio-button</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">
+											value: string<br>
+											name: string<br>
+											checked: boolean<br>
+											disabled: boolean
+										</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Individual radio button</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">schmancy-radio-group</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">
+											value: string<br>
+											name: string<br>
+											label: string<br>
+											required: boolean<br>
+											options: Array&lt;{label: string, value: string}&gt;
+										</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Radio button group container</schmancy-typography>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</schmancy-surface>
+				</div>
 
-          <!-- Form Integration Demo -->
-          <div class="mt-4 border-t pt-4">
-            <schmancy-typography type="title" class="mb-4">Form Integration</schmancy-typography>
-            
-            <schmancy-form
-              @submit=${(e: CustomEvent) => {
-                console.log('Form submitted:', e.detail)
-                alert('Form submitted! Check console for details.')
-              }}
-              class="flex flex-col gap-4"
-            >
-              <schmancy-input
-                label="Name"
-                name="name"
-                placeholder="Enter your name"
-                required
-              ></schmancy-input>
-              
-              <div>
-                <label class="block text-base font-semibold text-gray-900 mb-2">Gender</label>
-                <schmancy-radio-group
-                  name="gender"
-                  required
-                >
-                  <schmancy-radio-button value="male">
-                    <div slot="label">Male</div>
-                  </schmancy-radio-button>
-                  
-                  <schmancy-radio-button value="female">
-                    <div slot="label">Female</div>
-                  </schmancy-radio-button>
-                  
-                  <schmancy-radio-button value="other">
-                    <div slot="label">Other</div>
-                  </schmancy-radio-button>
-                </schmancy-radio-group>
-              </div>
-              
-              <div>
-                <label class="block text-base font-semibold text-gray-900 mb-2">Communication Preference</label>
-                <schmancy-radio-group
-                  name="contact_preference"
-                  .options=${[
-                    { label: 'Email', value: 'email' },
-                    { label: 'Phone', value: 'phone' },
-                    { label: 'Post', value: 'post' }
-                  ]}
-                ></schmancy-radio-group>
-              </div>
-              
-              <schmancy-button variant="filled" type="submit" class="mt-2">Submit Form</schmancy-button>
-            </schmancy-form>
-          </div>
+				<!-- Examples -->
+				<div>
+					<schmancy-typography type="title" token="lg" class="mb-6 block">Examples</schmancy-typography>
+					
+					<schmancy-grid gap="lg" class="w-full">
+						<!-- Basic Radio Group -->
+						<schmancy-code-preview language="html">
+							<schmancy-radio-group
+								label="Select your preferred contact method"
+								name="contact"
+								value="email"
+								@change="${(e) => console.log('Selected:', e.detail.value)}"
+							>
+								<schmancy-radio-button value="email">
+									<div slot="label">Email</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="phone">
+									<div slot="label">Phone</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="mail">
+									<div slot="label">Mail</div>
+								</schmancy-radio-button>
+							</schmancy-radio-group>
+						</schmancy-code-preview>
 
-          <!-- V2 Form Integration Demo -->
-          <div class="mt-4 border-t pt-4">
-            <schmancy-typography type="title" class="mb-4">V2 Form Integration</schmancy-typography>
-            
-            <sch-form
-              @submit=${(e: CustomEvent) => {
-                console.log('V2 Form submitted:', e.detail)
-                alert('V2 Form submitted! Check console for details.')
-              }}
-              class="flex flex-col gap-4"
-            >
-              <sch-input
-                label="Full Name"
-                name="full_name"
-                placeholder="Enter your full name"
-                required
-              ></sch-input>
-              
-              <div>
-                <label class="block text-base font-semibold text-gray-900 mb-2">Experience Level</label>
-                <schmancy-radio-group
-                  name="experience"
-                  required
-                >
-                  <schmancy-radio-button value="beginner">
-                    <div slot="label">Beginner</div>
-                  </schmancy-radio-button>
-                  
-                  <schmancy-radio-button value="intermediate">
-                    <div slot="label">Intermediate</div>
-                  </schmancy-radio-button>
-                  
-                  <schmancy-radio-button value="advanced">
-                    <div slot="label">Advanced</div>
-                  </schmancy-radio-button>
-                </schmancy-radio-group>
-              </div>
-              
-              <div>
-                <label class="block text-base font-semibold text-gray-900 mb-2">Subscription Plan</label>
-                <schmancy-radio-group
-                  name="plan"
-                  .options=${[
-                    { label: 'Basic', value: 'basic' },
-                    { label: 'Premium', value: 'premium' },
-                    { label: 'Enterprise', value: 'enterprise' }
-                  ]}
-                ></schmancy-radio-group>
-              </div>
-              
-              <schmancy-button variant="filled" type="submit" class="mt-2">Submit V2 Form</schmancy-button>
-            </sch-form>
-          </div>
-        </div>
-      </schmancy-surface>
-    `
-  }
+						<!-- Radio Group with Options Array -->
+						<schmancy-code-preview language="html">
+							<schmancy-radio-group
+								label="Choose a subscription plan"
+								name="plan"
+								.options="${[
+									{ label: 'Basic - $9/month', value: 'basic' },
+									{ label: 'Pro - $19/month', value: 'pro' },
+									{ label: 'Enterprise - $49/month', value: 'enterprise' }
+								]}"
+								@change="${(e) => console.log('Plan selected:', e.detail.value)}"
+							></schmancy-radio-group>
+						</schmancy-code-preview>
+
+						<!-- Radio with Rich Content -->
+						<schmancy-code-preview language="html">
+							<schmancy-radio-group
+								label="Select shipping method"
+								name="shipping"
+							>
+								<schmancy-radio-button value="standard">
+									<div slot="label">
+										<div class="font-medium">Standard Shipping</div>
+										<div class="text-xs text-surface-onVariant">5-7 business days • Free</div>
+									</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="express">
+									<div slot="label">
+										<div class="font-medium">Express Shipping</div>
+										<div class="text-xs text-surface-onVariant">2-3 business days • $9.99</div>
+									</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="overnight">
+									<div slot="label">
+										<div class="font-medium">Overnight Shipping</div>
+										<div class="text-xs text-surface-onVariant">Next business day • $24.99</div>
+									</div>
+								</schmancy-radio-button>
+							</schmancy-radio-group>
+						</schmancy-code-preview>
+
+						<!-- Horizontal Layout -->
+						<schmancy-code-preview language="html">
+							<schmancy-radio-group
+								label="Size"
+								name="size"
+								class="flex flex-row gap-4"
+							>
+								<schmancy-radio-button value="s">
+									<div slot="label">S</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="m">
+									<div slot="label">M</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="l">
+									<div slot="label">L</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="xl">
+									<div slot="label">XL</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="xxl">
+									<div slot="label">XXL</div>
+								</schmancy-radio-button>
+							</schmancy-radio-group>
+						</schmancy-code-preview>
+
+						<!-- Disabled Options -->
+						<schmancy-code-preview language="html">
+							<schmancy-radio-group
+								label="Select a payment method"
+								name="payment"
+								value="card"
+							>
+								<schmancy-radio-button value="card">
+									<div slot="label">Credit Card</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="paypal">
+									<div slot="label">PayPal</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="bitcoin" disabled>
+									<div slot="label">Bitcoin (Coming Soon)</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="applepay" disabled>
+									<div slot="label">Apple Pay (Coming Soon)</div>
+								</schmancy-radio-button>
+							</schmancy-radio-group>
+						</schmancy-code-preview>
+
+						<!-- Form Integration -->
+						<schmancy-code-preview language="html">
+							<schmancy-form
+								@submit="${(e) => {
+									console.log('Form data:', e.detail.data);
+									alert('Form submitted! Check console.');
+								}}"
+								class="space-y-4 max-w-md"
+							>
+								<schmancy-typography type="headline" token="sm" class="block mb-4">
+									User Preferences
+								</schmancy-typography>
+								
+								<schmancy-input
+									label="Name"
+									name="name"
+									placeholder="Enter your name"
+									required
+								></schmancy-input>
+								
+								<schmancy-radio-group
+									label="Notification Preference"
+									name="notifications"
+									required
+								>
+									<schmancy-radio-button value="all">
+										<div slot="label">All notifications</div>
+									</schmancy-radio-button>
+									<schmancy-radio-button value="important">
+										<div slot="label">Important only</div>
+									</schmancy-radio-button>
+									<schmancy-radio-button value="none">
+										<div slot="label">No notifications</div>
+									</schmancy-radio-button>
+								</schmancy-radio-group>
+								
+								<schmancy-radio-group
+									label="Theme"
+									name="theme"
+									.options="${[
+										{ label: 'Light', value: 'light' },
+										{ label: 'Dark', value: 'dark' },
+										{ label: 'System', value: 'system' }
+									]}"
+								></schmancy-radio-group>
+								
+								<schmancy-button type="submit" variant="filled">
+									Save Preferences
+								</schmancy-button>
+							</schmancy-form>
+						</schmancy-code-preview>
+
+						<!-- Visual Radio Options -->
+						<schmancy-code-preview language="html">
+							<schmancy-radio-group
+								label="Choose a color theme"
+								name="color"
+							>
+								<schmancy-radio-button value="red">
+									<div slot="label" class="flex items-center gap-2">
+										<div class="w-4 h-4 rounded-full bg-red-500"></div>
+										<span>Red</span>
+									</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="green">
+									<div slot="label" class="flex items-center gap-2">
+										<div class="w-4 h-4 rounded-full bg-green-500"></div>
+										<span>Green</span>
+									</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="blue">
+									<div slot="label" class="flex items-center gap-2">
+										<div class="w-4 h-4 rounded-full bg-blue-500"></div>
+										<span>Blue</span>
+									</div>
+								</schmancy-radio-button>
+								<schmancy-radio-button value="purple">
+									<div slot="label" class="flex items-center gap-2">
+										<div class="w-4 h-4 rounded-full bg-purple-500"></div>
+										<span>Purple</span>
+									</div>
+								</schmancy-radio-button>
+							</schmancy-radio-group>
+						</schmancy-code-preview>
+					</schmancy-grid>
+				</div>
+			</schmancy-surface>
+		`
+	}
 }
 
 declare global {
-  interface HTMLElementTagNameMap {
-    'demo-radio': DemoRadio
-  }
+	interface HTMLElementTagNameMap {
+		'demo-radio': DemoRadio
+	}
 }

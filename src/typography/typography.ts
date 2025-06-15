@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { TailwindElement } from '@mixins/tailwind.mixin'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -11,30 +11,9 @@ import { customElement, property } from 'lit/decorators.js'
 @customElement('schmancy-typography')
 export class SchmancyTypography extends TailwindElement(css`
 	:host {
-		display: inline;
+		display: block;
 		font-family: inherit;
 		hyphens: none;
-	}
-
-	/* Display as block when flex/grid classes are applied */
-	:host(.flex) {
-		display: flex;
-	}
-
-	:host(.inline-flex) {
-		display: inline-flex;
-	}
-
-	:host(.grid) {
-		display: grid;
-	}
-
-	:host(.inline-grid) {
-		display: inline-grid;
-	}
-
-	:host(.block) {
-		display: block;
 	}
 
 	/* Text alignment */
@@ -313,18 +292,7 @@ export class SchmancyTypography extends TailwindElement(css`
 		font-weight: 500;
 	}
 
-	/* Custom properties for dynamic values */
-	:host([letter-spacing]) {
-		letter-spacing: var(--typography-letter-spacing);
-	}
-
-	:host([font-size]) {
-		font-size: var(--typography-font-size);
-	}
-
-	:host([line-height]) {
-		line-height: var(--typography-line-height);
-	}
+	/* Note: Custom letter-spacing, font-size, and line-height should be applied via inline styles or Tailwind classes */
 `) {
 	/**
 	 * @attr type - The type of the typography.
@@ -358,9 +326,6 @@ export class SchmancyTypography extends TailwindElement(css`
 	 */
 	@property({ type: String, reflect: true })
 	weight: 'normal' | 'medium' | 'bold' | undefined
-
-	@property({ type: String, attribute: 'line-height', reflect: true }) 
-	lineHeight: string | undefined
 	
 	/**
 	 *
@@ -375,30 +340,7 @@ export class SchmancyTypography extends TailwindElement(css`
 	@property({ type: Number, attribute: 'max-lines', reflect: true }) 
 	maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined
 
-	@property({ type: String, attribute: 'letter-spacing', reflect: true }) 
-	letterSpacing: string | undefined
-	
-	@property({ type: String, attribute: 'font-size', reflect: true }) 
-	fontSize: string | undefined
-
-	updated(changedProperties: Map<string | number | symbol, unknown>) {
-		super.updated(changedProperties)
-		
-		// Update CSS custom properties for dynamic values
-		if (changedProperties.has('letterSpacing') && this.letterSpacing) {
-			this.style.setProperty('--typography-letter-spacing', this.letterSpacing)
-		}
-		
-		if (changedProperties.has('fontSize') && this.fontSize) {
-			this.style.setProperty('--typography-font-size', this.fontSize)
-		}
-		
-		if (changedProperties.has('lineHeight') && this.lineHeight) {
-			this.style.setProperty('--typography-line-height', this.lineHeight)
-		}
-	}
-
-	render() {
+	protected render(): unknown {
 		return html`<slot></slot>`
 	}
 }
