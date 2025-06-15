@@ -20,7 +20,7 @@ export declare class SchmancyArea extends SchmancyArea_base {
     getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY): import("rxjs").Observable<RouteAction>;
     protected firstUpdated(): void;
     newPath(tag: string, route: RouteAction): string;
-    queryParamClear(params?: string[]): string;
+    queryParamClear(params?: string[] | boolean): string;
     checkForTeleportationRequests(): import("rxjs").Observable<any[]>;
     disconnectedCallback(): void;
     render(): TemplateResult<1>;

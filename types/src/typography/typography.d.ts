@@ -6,16 +6,16 @@ declare const SchmancyTypography_base: import("@mixins/index").Constructor<Custo
 export declare class SchmancyTypography extends SchmancyTypography_base {
     /**
      * @attr type - The type of the typography.
-     * @default inherit
-     * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' | 'caption'}
+     * @default 'body'
+     * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'}
      */
-    type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' | 'caption';
+    type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label';
     /**
      * @attr token - The token of the typography.
      * @default 'md'
-     * @type {'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'}
+     * @type {'xs' | 'sm' | 'md' | 'lg' | 'xl'}
      */
-    token: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+    token: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     /**
      * @attr
      * @default inherit
@@ -41,6 +41,7 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
     maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined;
     letterSpacing: string | undefined;
     fontSize: string | undefined;
+    updated(changedProperties: Map<string | number | symbol, unknown>): void;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
