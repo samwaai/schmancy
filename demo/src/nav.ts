@@ -1,10 +1,20 @@
-import { $LitElement } from '@mixins/index'
+import { TailwindElement } from '@mixins/index'
 import { area } from '@schmancy/area'
 import { schmancyNavDrawer } from '@schmancy/nav-drawer'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { filter, map } from 'rxjs'
+
+// Key Features
+import { DemoArea } from './features/area'
+import { DemoAreaBasic } from './features/area-basic'
+import { DemoAreaParams } from './features/area-params'
+import { DemoAreaState } from './features/area-state'
+import { DemoAreaDefault } from './features/area-default'
+import { DemoAreaHistory } from './features/area-history'
+import { DemoAreaMulti } from './features/area-multi'
+import { DemoContext } from './features/context'
 
 // Core Components
 import DemoTypography from './features/typography'
@@ -22,36 +32,6 @@ import { DemoAutocomplete } from './features/autocomplete'
 import { DemoRadio } from './features/radio'
 import { DemoSlider } from './features/slider'
 
-// TODO: Components that need demo rewrite:
-// - Tabs (demo/src/features/tabs.ts)
-// - Drawer (demo/src/features/drawer-content.ts)
-// - Sheet (demo/src/features/sheet/sheet.ts)
-// - Table (demo/src/features/table.ts)
-// - List (demo/src/features/list.ts)
-// - Tree (demo/src/features/tree.ts)
-// - Avatar (demo/src/features/avatar.ts)
-// - Badges (demo/src/features/badges.ts)
-// - Dialog (demo/src/features/dialog-showcase.ts)
-// - Notifications (demo/src/features/notifications.ts)
-// - Loading/Busy (demo/src/features/busy.ts)
-// - Area Router (demo/src/features/area-showcase.ts)
-// - Router (demo/src/features/router.ts)
-// - Boat (demo/src/features/boat.ts)
-// - Animated Text (demo/src/features/animated-text.ts)
-// - Typewriter (demo/src/features/typewriter.ts)
-// - Checkbox (missing demo)
-// - Switch (missing demo)
-// - Select (missing demo)
-// - Divider (missing demo)
-// - Chip (missing demo)
-// - Progress (missing demo)
-// - Menu (missing demo)
-// - Tooltip (missing demo)
-// - Fab (missing demo)
-// - Navigation Drawer (missing demo)
-// - Navigation Rail (missing demo)
-// - Snackbar (missing demo)
-
 interface DemoSection {
   title: string
   demos: Array<{
@@ -61,88 +41,29 @@ interface DemoSection {
 }
 
 @customElement('demo-nav')
-export class DemoNav extends $LitElement(css`
-  :host {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
-  
-  .nav-header {
-    padding: 1rem;
-    border-bottom: 1px solid var(--schmancy-sys-color-outline);
-    flex-shrink: 0;
-  }
-  
-  .nav-content {
-    padding: 1rem;
-    overflow-y: auto;
-    flex: 1;
-    min-height: 0;
-  }
-  
-  .search-container {
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--schmancy-sys-color-outline);
-    flex-shrink: 0;
-  }
-  
-  .search-input {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--schmancy-sys-color-outline);
-    border-radius: 0.25rem;
-    background: transparent;
-    font-size: 0.875rem;
-    transition: border-color 0.2s ease;
-  }
-  
-  .search-input:focus {
-    outline: none;
-    border-color: var(--schmancy-sys-color-primary-default);
-  }
-  
-  .search-input::placeholder {
-    color: var(--schmancy-sys-color-surface-onVariant);
-  }
-  
-  .section-title {
-    font-size: 0.6875rem;
-    font-weight: 500;
-    color: var(--schmancy-sys-color-surface-onVariant);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    opacity: 0.7;
-    margin-bottom: 0.5rem;
-    margin-top: 1rem;
-  }
-  
-  .section-title:first-child {
-    margin-top: 0;
-  }
-  
-  schmancy-list {
-    margin-bottom: 1rem;
-  }
-  
-  schmancy-list-item {
-    margin: 0.125rem 0;
-    cursor: pointer;
-    font-size: 0.875rem;
-  }
-  
-  .no-results {
-    text-align: center;
-    padding: 2rem;
-    color: var(--schmancy-sys-color-surface-onVariant);
-    font-size: 0.875rem;
-  }
-`) {
+export class DemoNav extends TailwindElement() {
   @state() activeComponent: string = ''
   @state() searchQuery: string = ''
 
   private sections: DemoSection[] = [
+    {
+      title: 'Key Features',
+      demos: [
+        { name: 'Context', component: DemoContext },
+      ]
+    },
+    {
+      title: 'Area',
+      demos: [
+        { name: 'Overview', component: DemoArea },
+        { name: 'Basic Navigation', component: DemoAreaBasic },
+        { name: 'With Parameters', component: DemoAreaParams },
+        { name: 'State Management', component: DemoAreaState },
+        { name: 'Default Component', component: DemoAreaDefault },
+        { name: 'History Strategies', component: DemoAreaHistory },
+        { name: 'Multiple Areas', component: DemoAreaMulti },
+      ]
+    },
     {
       title: 'Core',
       demos: [
@@ -191,8 +112,8 @@ export class DemoNav extends $LitElement(css`
     schmancyNavDrawer.close(this)
     area.push({
       area: 'main',
-      component,
-      historyStrategy: 'push'
+      component
+      // Remove explicit historyStrategy - let it use default behavior
     })
   }
 
@@ -218,57 +139,58 @@ export class DemoNav extends $LitElement(css`
     const filtered = this.filteredSections
     
     return html`
-      <div class="nav-header">
-        <schmancy-typography type="headline" token="md">
-          Schmancy Components
-        </schmancy-typography>
-        <schmancy-typography type="body" token="sm" class="text-surface-onVariant">
-          Material Design 3 Web Components
-        </schmancy-typography>
-        <schmancy-typography type="label" token="sm" class="text-error-default mt-2 block">
-          TODO: 30+ components need demos
-        </schmancy-typography>
-      </div>
-      
-      <div class="search-container">
-        <input
-          type="search"
-          class="search-input"
-          placeholder="Search components..."
-          .value=${this.searchQuery}
-          @input=${this.handleSearch}
-        />
-      </div>
-      
-      <div class="nav-content">
-        ${filtered.length === 0 
-          ? html`<div class="no-results">No components found</div>`
-          : repeat(
-          filtered,
-          section => section.title,
-          section => {
-            return html`
-              <div>
-                <div class="section-title">${section.title}</div>
-                <schmancy-list>
-                  ${repeat(
-                  section.demos,
-                  demo => demo.name,
-                  demo => html`
-                    <schmancy-list-item
-                      rounded
-                      .selected=${this.activeComponent === demo.component.name?.toLowerCase().replace(/-/g, '')}
-                      @click=${() => this.navigate(demo.component)}
-                    >
-                      ${demo.name}
-                    </schmancy-list-item>
-                  `
-                  )}
-                </schmancy-list>
-              </div>
-            `
-          }
-        )}
+      <div class="flex flex-col h-screen overflow-hidden">
+        <div class="p-6 flex-shrink-0">
+          <schmancy-typography type="headline" token="sm" class="mb-1">
+            Schmancy
+          </schmancy-typography>
+          <schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+            Web Component Library
+          </schmancy-typography>
+        </div>
+<!--         
+        <div class="px-6 pb-4 flex-shrink-0">
+          <schmancy-input
+            type="search"
+            placeholder="Search components..."
+            .value=${this.searchQuery}
+            @input=${this.handleSearch}
+            .variant=${'outlined'}
+            class="w-full"
+          ></schmancy-input>
+        </div> -->
+        
+        <div class="px-4 overflow-y-auto flex-1 min-h-0">
+          ${filtered.length === 0 
+            ? html`<div class="text-center p-8 text-surface-onVariant text-sm">No components found</div>`
+            : repeat(
+            filtered,
+            section => section.title,
+            section => {
+              return html`
+                <div>
+                  <div class="text-xs font-semibold text-primary-default mb-3 mt-6 first:mt-0">${section.title}</div>
+                  <schmancy-list>
+                    ${repeat(
+                      section.demos,
+                      demo => demo.name,
+                      demo => html`
+                        <schmancy-list-item
+                          rounded
+                          class="my-1 cursor-pointer text-sm rounded-lg transition-colors hover:bg-surface-container"
+                          .selected=${this.activeComponent === demo.component.name?.toLowerCase().replace(/-/g, '')}
+                          @click=${() => this.navigate(demo.component)}
+                        >
+                          ${demo.name}
+                        </schmancy-list-item>
+                      `
+                    )}
+                  </schmancy-list>
+                </div>
+              `
+            }
+          )}
+        </div>
       </div>
     `
   }

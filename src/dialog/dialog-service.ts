@@ -34,7 +34,7 @@ export class DialogService {
 		title: undefined,
 		subtitle: undefined,
 		confirmText: undefined,
-		cancelText: 'Cancel',
+		cancelText: undefined,
 		variant: 'default',
 		width: '360px',
 	}

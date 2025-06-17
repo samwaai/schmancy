@@ -3,7 +3,6 @@ import { TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import {
 	EMPTY,
-	bufferTime,
 	catchError,
 	distinctUntilChanged,
 	filter,
@@ -15,17 +14,19 @@ import {
 	switchMap,
 	take,
 	takeUntil,
-	tap,
-	timeout,
+	tap
 } from 'rxjs'
 import { isPresent } from 'ts-is-present'
 import area from './area.service'
-import { HISTORY_STRATEGY, RouteAction } from './router.types'
+import { ActiveRoute, HISTORY_STRATEGY, RouteAction } from './router.types'
 
 type TRouteArea = {
 	component: string
 	state: object | undefined
+	params?: Record<string, unknown>
 }
+
+type NavigationSource = 'programmatic' | 'browser' | 'initial'
 
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
@@ -47,12 +48,9 @@ export class SchmancyArea extends $LitElement(css`
 	@property() default!: string | CustomElementConstructor | TemplateResult<1>
 
 	/**
-	 *
-	 * @param pathname pathname from the browser location API
-	 * @param historyStrategy  the history strategy to use for the route like PUSH, REPLACE, or SILENT
-	 * @returns rxjs pipes that will return the component to render and the history strategy to use
+	 * Get component from pathname with better error handling
 	 */
-	getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY) {
+	getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY, source: 'browser' | 'initial' = 'initial') {
 		return of(pathname).pipe(
 			map(path => path.split('/').pop() ?? ''),
 			map(path => {
@@ -68,6 +66,7 @@ export class SchmancyArea extends $LitElement(css`
 					? {
 							component: this.default,
 							state: undefined,
+							params: undefined
 						}
 					: component,
 			),
@@ -75,20 +74,47 @@ export class SchmancyArea extends $LitElement(css`
 			map((component: TRouteArea) => ({
 				area: this.name,
 				component: component.component ?? this.default,
-				state: component.state,
-				historyStrategy,
-			})),
-			map(x => x as RouteAction),
-			catchError(() => {
+				state: component.state || {},
+				params: component.params || {},
+				historyStrategy
+			} as RouteAction)),
+			catchError((error) => {
+				console.error('Error parsing component from pathname:', error)
 				return this.default
 					? of({
 							area: this.name,
 							component: this.default,
 							historyStrategy,
+							state: {},
+							params: {}
 						} as RouteAction)
 					: EMPTY
 			}),
 		)
+	}
+
+	/**
+	 * Get component from browser state with fallback to URL
+	 */
+	getComponentFromBrowserState(event: PopStateEvent): RouteAction | null {
+		try {
+			const browserState = event.state
+			if (browserState && browserState.schmancyAreas && browserState.schmancyAreas[this.name]) {
+				const areaState = browserState.schmancyAreas[this.name]
+				return {
+					area: this.name,
+					component: areaState.component,
+					state: areaState.state || {},
+					params: areaState.params || {},
+					historyStrategy: HISTORY_STRATEGY.silent,
+					_source: 'browser'
+				}
+			}
+		} catch (error) {
+			console.error('Error reading browser state:', error)
+		}
+		
+		return null
 	}
 
 	protected firstUpdated(): void {
@@ -96,58 +122,145 @@ export class SchmancyArea extends $LitElement(css`
 			throw new Error('Area name or default component not set')
 		}
 
-		// active outlet changes
+		// Create a single merged stream for ALL events that might affect this area
 		merge(
-			// 1) initial load from location.pathname
+			// 1. Initial load from URL
 			of(location.pathname).pipe(
-				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
-				map(route => route as RouteAction),
+				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent, 'initial')),
 				take(1),
+				tap(route => console.log(`[${this.name}] Initial load:`, route))
 			),
-			// 2) requests to change the route for this area
-			area.request.pipe(filter(({ area }) => area === this.name)),
-			// 3) popstate events (back, forward)
+
+			// 2. Direct navigation requests to this area
+			area.request.pipe(
+				filter(({ area }) => area === this.name),
+				tap(route => console.log(`[${this.name}] Navigation request:`, route))
+			),
+
+			// 3. Browser navigation (back/forward)
 			fromEvent<PopStateEvent>(window, 'popstate').pipe(
-				map(e => (e.target as Window).location.pathname),
-				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
-				map(route => route as RouteAction),
+				// Parse the state to see if this area is affected
+				switchMap(event => {
+					console.log(`[${this.name}] Processing popstate event:`, event)
+					const state = event.state?.schmancyAreas?.[this.name]
+					const pathname = (event.target as Window).location.pathname
+					
+					// If this area exists in the state, use it
+					if (state) {
+						return of({
+							area: this.name,
+							component: state.component,
+							state: state.state || {},
+							params: state.params || {},
+							historyStrategy: HISTORY_STRATEGY.silent
+						} as RouteAction)
+					}
+					
+					// Check if it exists in the URL
+					return this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent, 'browser').pipe(
+						// If nothing found in URL and no default, emit empty component
+						switchMap(route => {
+							if (!route.component && !this.default) {
+								return of({
+									area: this.name,
+									component: '',  // Empty component to track state change
+									state: {},
+									params: {},
+									historyStrategy: HISTORY_STRATEGY.silent
+								} as RouteAction)
+							}
+							return of(route)
+						})
+					)
+				}),
+				tap(route => console.log(`[${this.name}] Browser navigation:`, route))
 			),
+
+			// 4. Handle area.pop() - when area is removed from current map
+			area.$current.pipe(
+				map(currentAreas => !currentAreas.has(this.name)),
+				distinctUntilChanged(),
+				filter(removed => removed),
+				map(() => ({
+					area: this.name,
+					component: this.default || '',  // Use default or empty component
+					state: {},
+					params: {},
+					historyStrategy: HISTORY_STRATEGY.silent
+				} as RouteAction)),
+				tap(() => console.log(`[${this.name}] Area cleared via pop()`))
+			)
 		)
 			.pipe(
-				filter(request => !!request.component),
+				// Allow empty string component (means clear)
+				filter(request => request.component !== null && request.component !== undefined),
 				takeUntil(this.disconnecting),
+				// Prevent duplicate navigations
 				distinctUntilChanged((a, b) => {
-					let aComponent, bComponent
-					if (typeof a.component === 'function') return false
-					else if (typeof a.component === 'string') aComponent = a.component
-
-					if (typeof b.component === 'function') return false
-					else if (typeof b.component === 'string') bComponent = b.component
-
-					const sameComponent = bComponent?.replaceAll('-', '').toLowerCase() === aComponent?.replaceAll('-', '').toLowerCase()
-					const sameParams = JSON.stringify(a.params || {}) === JSON.stringify(b.params || {})
+					// Compare component names (normalize)
+					let aComponent: string = '', bComponent: string = ''
 					
-					return sameComponent && sameParams
+					// Handle function components by comparing constructor names
+					if (typeof a.component === 'function') {
+						aComponent = (a.component as any).name || a.component.toString()
+					} else if (typeof a.component === 'string') {
+						aComponent = a.component
+					}
+
+					if (typeof b.component === 'function') {
+						bComponent = (b.component as any).name || b.component.toString()
+					} else if (typeof b.component === 'string') {
+						bComponent = b.component
+					}
+
+					// Normalize component names for comparison
+					const normalizeComponent = (c: string) => c?.replaceAll('-', '').toLowerCase()
+					const sameComponent = normalizeComponent(aComponent) === normalizeComponent(bComponent)
+					const sameParams = JSON.stringify(a.params || {}) === JSON.stringify(b.params || {})
+					const sameState = JSON.stringify(a.state || {}) === JSON.stringify(b.state || {})
+					
+					const result = sameComponent && sameParams && sameState
+					
+					if (!result) {
+						console.log(`[${this.name}] Route change detected:`, {
+							sameComponent,
+							sameParams, 
+							sameState
+						})
+					}
+					
+					return result
 				}),
 			)
 			.pipe(
+				// Resolve component (handle dynamic imports, constructors, etc.)
 				switchMap(route => {
 					const c = route.component
 					if (c instanceof Promise) {
 						// Dynamic import module
 						return from(c).pipe(
-							map((x: any) => ({ component: (x.exports?.default || x.default) as CustomElementConstructor, route })),
-							catchError(() => EMPTY)
+							map((x: any) => ({ 
+								component: (x.exports?.default || x.default) as CustomElementConstructor, 
+								route 
+							})),
+							catchError(error => {
+								console.error(`[${this.name}] Failed to load dynamic component:`, error)
+								return EMPTY
+							})
 						)
 					} else {
 						// Already a string, function, or element
 						return of({ component: c, route })
 					}
 				}),
+				// Create DOM element
 				map(({ component, route }) => {
-					let element: HTMLElement
+					let element: HTMLElement | null = null
 					
-					if (typeof component === 'string') {
+					if (component === '') {
+						// Empty component means clear the area
+						element = null
+					} else if (typeof component === 'string') {
 						// Tag name
 						element = document.createElement(component)
 					} else if (component instanceof HTMLElement) {
@@ -162,61 +275,118 @@ export class SchmancyArea extends $LitElement(css`
 					}
 					
 					// Set params as properties on the element
-					if (route.params) {
+					if (element && route.params) {
 						Object.entries(route.params).forEach(([key, value]) => {
 							(element as any)[key] = value
 						})
 					}
 					
 					// Set state as well if provided
-					if (route.state) {
+					if (element && route.state) {
 						(element as any).state = route.state
 					}
 					
 					return { component: element, route }
 				}),
-				// create the new view and add it to the DOM
-				map(({ component, route }) => {
-					const oldView = this.shadowRoot?.children[0]
-					const oldViewExists = !!oldView
-
-					// Remove the old view (if any)
-					oldView?.remove()
-					// Native Web Animations API - fade in
-					// "ease: cubic-bezier(0.25, 0.8, 0.25, 1)" was used in the old code
-					component.classList.add('opacity-0')
-					this.shadowRoot?.append(component)
-					component.animate([{ opacity: 0 }, { opacity: 1 }], {
-						duration: oldViewExists ? 150 : 100,
-						easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-						fill: 'forwards',
-					})
-
-					// Insert the new view
-
-					return { component, route }
-				}),
+				// Update DOM and handle side effects
 				tap(({ component, route }) => {
-					// Handle history updates
-					if (typeof route.historyStrategy === 'undefined' || route.historyStrategy === 'push') {
-						history.pushState(route.state, '', this.newPath(component.tagName, route))
-					} else if (route.historyStrategy && ['replace', 'pop'].includes(route.historyStrategy)) {
-						history.replaceState(route.state, '', this.newPath(component.tagName, route))
-					}
-					area.current.set(this.name, {
-						component: component.tagName,
-						state: route.state || {},
-						area: this.name,
-						params: route.params || {},
-					})
-
-					area.$current.next(area.current)
+					// Update DOM
+					this.updateDOM(component)
+					
+					// Update internal state first
+					this.updateInternalState(route, component)
+					
+					// Handle browser history
+					this.updateBrowserHistory(route, component)
+				}),
+				// Error handling
+				catchError(error => {
+					console.error(`[${this.name}] Navigation error:`, error)
+					return EMPTY
 				}),
 				takeUntil(this.disconnecting),
 			)
-			.subscribe()
+			.subscribe({
+				error: (error) => {
+					console.error(`[${this.name}] Subscription error:`, error)
+				}
+			})
 	}
 
+	/**
+	 * Update the DOM with the new component
+	 */
+	private updateDOM(component: HTMLElement | null) {
+		const oldView = this.shadowRoot?.children[0]
+		const oldViewExists = !!oldView
+
+		// Remove the old view (if any)
+		oldView?.remove()
+		
+		// If component is null, we're clearing the area
+		if (!component) {
+			return
+		}
+		
+		// Add new component with animation
+		component.classList.add('opacity-0')
+		this.shadowRoot?.append(component)
+		
+		// Animate in
+		component.animate([{ opacity: 0 }, { opacity: 1 }], {
+			duration: oldViewExists ? 150 : 100,
+			easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+			fill: 'forwards',
+		})
+	}
+
+	/**
+	 * Update internal router state
+	 */
+	private updateInternalState(route: RouteAction, component: HTMLElement | null) {
+		// If component is null, we're clearing
+		if (!component) {
+			// Don't update state - it's already been cleared by the service
+			return
+		}
+		
+		const activeRoute: ActiveRoute = {
+			component: component.tagName.toLowerCase(),
+			state: route.state || {},
+			area: this.name,
+			params: route.params || {},
+		}
+
+		area.current.set(this.name, activeRoute)
+		area.$current.next(area.current)
+	}
+
+	/**
+	 * Update browser history (only for programmatic navigation)
+	 */
+	private updateBrowserHistory(route: RouteAction, component: HTMLElement | null) {
+		if (!area.enableHistoryMode) return
+		
+		// If clearing, don't update history (already handled by service)
+		if (!component) {
+			return
+		}
+		
+		const activeRoute: ActiveRoute = {
+			component: component.tagName.toLowerCase(),
+			state: route.state || {},
+			area: this.name,
+			params: route.params || {},
+		}
+
+		// Use the service method to update browser history
+		area._updateBrowserHistory(this.name, activeRoute, route.historyStrategy)
+	}
+
+
+	/**
+	 * Create URL path for the route (legacy method, now handled by service)
+	 */
 	newPath(tag: string, route: RouteAction) {
 		const oldPathname = location.pathname.split('/').pop()
 		let oldAreaState = {}
@@ -236,6 +406,9 @@ export class SchmancyArea extends $LitElement(css`
 		).concat(`${queryParams}`)
 	}
 
+	/**
+	 * Clear query parameters
+	 */
 	queryParamClear(params?: string[] | boolean) {
 		if (!params) {
 			return ''
@@ -253,25 +426,6 @@ export class SchmancyArea extends $LitElement(css`
 			if (urlParams.toString() === '') return ''
 			return `?${urlParams.toString()}`
 		}
-	}
-
-	checkForTeleportationRequests() {
-		return fromEvent<CustomEvent>(window, 'FLIP_REQUEST').pipe(
-			map(e => e.detail),
-			bufferTime(0),
-			tap(() => {
-				this.dispatchEvent(new CustomEvent('FLIP_STARTED'))
-			}),
-			takeUntil(this.disconnecting),
-			timeout(0),
-			catchError(() => of(null)),
-		)
-	}
-
-	disconnectedCallback(): void {
-		super.disconnectedCallback()
-		this.disconnecting.next(true)
-		this.disconnecting.complete()
 	}
 
 	render() {

@@ -73,9 +73,11 @@ export class SchmancyCodePreview extends TailwindElement(
 			? 'grid grid-cols-1 lg:grid-cols-2 gap-0' 
 			: 'flex flex-col'
 
+		const showPreview = this.language.toLowerCase() === 'html'
+		
 		return html`
 			<schmancy-surface class="rounded-lg overflow-hidden">
-				<div class="${containerClass}">
+				<div class="${showPreview ? containerClass : ''}">
 					<!-- Code section with proper overflow handling -->
 					<div class="min-w-0 overflow-hidden">
 						<schmancy-code
@@ -86,12 +88,19 @@ export class SchmancyCodePreview extends TailwindElement(
 						></schmancy-code>
 					</div>
 					
-					<!-- Preview section with proper overflow handling -->
-					<div class="min-w-0 overflow-auto">
-						<schmancy-surface type="surfaceBright" class="p-6 h-full">
+					<!-- Preview section (only visible for HTML) -->
+					${showPreview ? html`
+						<div class="min-w-0 overflow-auto">
+							<schmancy-surface type="surfaceBright" class="p-6 h-full">
+								<slot></slot>
+							</schmancy-surface>
+						</div>
+					` : html`
+						<!-- Hidden slot to capture content -->
+						<div class="hidden">
 							<slot></slot>
-						</schmancy-surface>
-					</div>
+						</div>
+					`}
 				</div>
 			</schmancy-surface>
 		`

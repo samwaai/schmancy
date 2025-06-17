@@ -70,7 +70,7 @@ export default class SchmancyDemo extends $LitElement(css`
 									console.log('scroll', e)
 								}}
 							>
-								<schmancy-area name="main" .default=${DemoInput}></schmancy-area>
+								<schmancy-area name="main"></schmancy-area>
 							</schmancy-scroll>
 						</schmancy-nav-drawer-content>
 					</schmancy-nav-drawer>

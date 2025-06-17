@@ -2,25 +2,23 @@ import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import hljs from 'highlight.js/lib/core'
-import xml from 'highlight.js/lib/languages/xml'
 import javascript from 'highlight.js/lib/languages/javascript'
 import typescript from 'highlight.js/lib/languages/typescript'
-import cssLang from 'highlight.js/lib/languages/css'
-import json from 'highlight.js/lib/languages/json'
+import xml from 'highlight.js/lib/languages/xml'
+import markdown from 'highlight.js/lib/languages/markdown'
 import bash from 'highlight.js/lib/languages/bash'
 
-// Register languages
-hljs.registerLanguage('xml', xml)
-hljs.registerLanguage('html', xml)
+// Register only the languages we need
 hljs.registerLanguage('javascript', javascript)
 hljs.registerLanguage('typescript', typescript)
-hljs.registerLanguage('css', cssLang)
-hljs.registerLanguage('json', json)
+hljs.registerLanguage('html', xml)
+hljs.registerLanguage('xml', xml)
+hljs.registerLanguage('markdown', markdown)
 hljs.registerLanguage('bash', bash)
 
 /**
  * @element schmancy-code
- * Code highlighting component using highlight.js with Schmancy dark theme
+ * Code highlighting component using highlight.js with custom dark theme
  */
 @customElement('schmancy-code')
 export class SchmancyCode extends TailwindElement(css`
@@ -30,74 +28,80 @@ export class SchmancyCode extends TailwindElement(css`
 		overflow: hidden;
 	}
 	
-	/* Highlight.js theme using Schmancy colors */
+	/* Custom dark theme for highlight.js */
 	.hljs {
-		color: var(--schmancy-sys-color-surface-on);
+		display: block;
+		overflow-x: auto;
+		color: #abb2bf;
 		background: transparent;
 	}
+	
 	.hljs-comment,
-	.hljs-quote,
-	.hljs-deletion {
-		color: var(--schmancy-sys-color-surface-onVariant);
-		opacity: 0.6;
+	.hljs-quote {
+		color: #5c6370;
 		font-style: italic;
 	}
+	
+	.hljs-doctag,
 	.hljs-keyword,
-	.hljs-selector-tag,
-	.hljs-built_in,
-	.hljs-tag .hljs-name {
-		color: var(--schmancy-sys-color-primary-default);
-		font-weight: 500;
+	.hljs-formula {
+		color: #c678dd;
 	}
+	
+	.hljs-section,
+	.hljs-name,
+	.hljs-selector-tag,
+	.hljs-deletion,
+	.hljs-subst {
+		color: #e06c75;
+	}
+	
+	.hljs-literal {
+		color: #56b6c2;
+	}
+	
 	.hljs-string,
 	.hljs-regexp,
 	.hljs-addition,
-	.hljs-selector-attr,
-	.hljs-selector-pseudo {
-		color: var(--schmancy-sys-color-success-default);
+	.hljs-attribute,
+	.hljs-meta-string {
+		color: #98c379;
 	}
-	.hljs-number,
-	.hljs-literal,
+	
+	.hljs-built_in,
+	.hljs-class .hljs-title {
+		color: #e6c07b;
+	}
+	
+	.hljs-attr,
 	.hljs-variable,
 	.hljs-template-variable,
-	.hljs-tag .hljs-attr {
-		color: var(--schmancy-sys-color-tertiary-default);
-	}
-	.hljs-title,
-	.hljs-section,
-	.hljs-selector-id,
-	.hljs-function .hljs-title {
-		color: var(--schmancy-sys-color-secondary-default);
-		font-weight: 500;
-	}
 	.hljs-type,
-	.hljs-class .hljs-title,
-	.hljs-title.class_,
-	.hljs-doctag {
-		color: var(--schmancy-sys-color-secondary-container);
-		font-weight: 500;
+	.hljs-selector-class,
+	.hljs-selector-attr,
+	.hljs-selector-pseudo,
+	.hljs-number {
+		color: #d19a66;
 	}
-	.hljs-attribute,
-	.hljs-attr,
-	.hljs-meta {
-		color: var(--schmancy-sys-color-primary-container);
+	
+	.hljs-symbol,
+	.hljs-bullet,
+	.hljs-link,
+	.hljs-meta,
+	.hljs-selector-id,
+	.hljs-title {
+		color: #61aeee;
 	}
-	.hljs-punctuation {
-		color: var(--schmancy-sys-color-surface-onVariant);
-		opacity: 0.8;
-	}
-	.hljs-tag {
-		color: var(--schmancy-sys-color-surface-onVariant);
-	}
-	.hljs-strong,
-	.hljs-name {
-		font-weight: 600;
-	}
+	
 	.hljs-emphasis {
 		font-style: italic;
 	}
+	
+	.hljs-strong {
+		font-weight: bold;
+	}
+	
 	.hljs-link {
-		color: var(--schmancy-sys-color-primary-default);
 		text-decoration: underline;
 	}
 `) {
@@ -131,6 +135,18 @@ export class SchmancyCode extends TailwindElement(css`
 	@property({ type: Boolean })
 	copyButton: boolean = true
 
+	/**
+	 * Highlighted line numbers (comma-separated or ranges like "1-3,5,7-9")
+	 */
+	@property({ type: String })
+	highlightLines?: string
+
+	/**
+	 * Maximum height before scrolling
+	 */
+	@property({ type: String })
+	maxHeight?: string
+
 	@state()
 	private copied: boolean = false
 
@@ -138,20 +154,44 @@ export class SchmancyCode extends TailwindElement(css`
 		if (!this.code) return ''
 		
 		try {
-			const highlighted = hljs.highlight(this.code.trim(), { language: this.language })
-			return this.lineNumbers ? this.addLineNumbers(highlighted.value) : highlighted.value
+			const result = hljs.highlight(this.code.trim(), { language: this.language })
+			return this.lineNumbers ? this.addLineNumbers(result.value) : result.value
 		} catch {
 			// Fallback to auto-detection if language is not supported
-			const highlighted = hljs.highlightAuto(this.code.trim())
-			return this.lineNumbers ? this.addLineNumbers(highlighted.value) : highlighted.value
+			const result = hljs.highlightAuto(this.code.trim())
+			return this.lineNumbers ? this.addLineNumbers(result.value) : result.value
 		}
+	}
+
+	private getHighlightedLines(): Set<number> {
+		const lines = new Set<number>()
+		if (!this.highlightLines) return lines
+		
+		const parts = this.highlightLines.split(',')
+		for (const part of parts) {
+			if (part.includes('-')) {
+				const [start, end] = part.split('-').map(n => parseInt(n.trim()))
+				for (let i = start; i <= end; i++) {
+					lines.add(i)
+				}
+			} else {
+				lines.add(parseInt(part.trim()))
+			}
+		}
+		return lines
 	}
 
 	private addLineNumbers(code: string): string {
 		const lines = code.split('\n')
-		return lines.map((line, index) => 
-			`<span class="block"><span class="inline-block w-12 pr-4 text-right text-surface-onVariant opacity-50 select-none text-sm">${index + 1}</span>${line}</span>`
-		).join('\n')
+		const highlightedLines = this.getHighlightedLines()
+		
+		return lines.map((line, index) => {
+			const lineNumber = index + 1
+			const isHighlighted = highlightedLines.has(lineNumber)
+			const highlightClass = isHighlighted ? 'bg-primary-container bg-opacity-20' : ''
+			
+			return `<span class="block ${highlightClass}"><span class="inline-block w-12 pr-4 text-right text-surface-onVariant opacity-50 select-none text-sm">${lineNumber}</span>${line}</span>`
+		}).join('\n')
 	}
 
 	private async copyCode() {
@@ -171,20 +211,15 @@ export class SchmancyCode extends TailwindElement(css`
 			javascript: 'JavaScript',
 			typescript: 'TypeScript',
 			html: 'HTML',
-			xml: 'XML',
-			css: 'CSS',
-			json: 'JSON',
-			bash: 'Bash',
-			sh: 'Shell',
-			jsx: 'JSX',
-			tsx: 'TSX'
+			markdown: 'Markdown',
+			bash: 'Bash'
 		}
 		
 		if (this.filename) {
 			return this.filename
 		}
 		
-		return languageMap[this.language] || this.language.toUpperCase()
+		return languageMap[this.language.toLowerCase()] || this.language.toUpperCase()
 	}
 
 
@@ -193,26 +228,35 @@ export class SchmancyCode extends TailwindElement(css`
 			<schmancy-theme mode="dark">
 				<div class="border border-outline rounded-lg bg-surface-dim overflow-hidden">
 					<!-- Header -->
-					<div class="flex items-center justify-between px-4 py-3 bg-surface-container border-b border-outline">
-						<span class="text-sm font-medium text-surface-onVariant opacity-80">
-							${this.getLanguageLabel()}
-						</span>
+					<div class="flex items-center justify-between px-4 py-2 bg-surface-container border-b border-outline">
+						<div class="flex items-center gap-2">
+							<div class="flex gap-1.5">
+								<div class="w-3 h-3 rounded-full bg-error-default opacity-60"></div>
+								<div class="w-3 h-3 rounded-full bg-warning-default opacity-60"></div>
+								<div class="w-3 h-3 rounded-full bg-success-default opacity-60"></div>
+							</div>
+							<span class="text-xs font-medium text-surface-onVariant opacity-70 ml-2">
+								${this.getLanguageLabel()}
+							</span>
+						</div>
 						${this.copyButton ? html`
 							<schmancy-button
-								.variant="${this.copied? "filled":'outlined'}"
+								.variant="${this.copied ? 'filled tonal' : 'text'}"
+								size="sm"
 								@click=${this.copyCode}
+								class="transition-all"
 							>
-								<schmancy-icon size="16px">
+								<schmancy-icon size="16">
 									${this.copied ? 'check' : 'content_copy'}
 								</schmancy-icon>
-								${this.copied ? 'Copied!' : 'Copy'}
+								<span class="ml-1">${this.copied ? 'Copied!' : 'Copy'}</span>
 							</schmancy-button>
 						` : ''}
 					</div>
 					
 					<!-- Code -->
-					<div class="overflow-x-auto">
-						<pre class="p-6 m-0 min-w-0"><code class="text-sm whitespace-pre" .innerHTML=${this.highlightedCode}></code></pre>
+					<div class="overflow-auto" style="${this.maxHeight ? `max-height: ${this.maxHeight}` : ''}">
+						<pre class="p-4 m-0 min-w-0"><code class="hljs text-sm leading-relaxed whitespace-pre font-mono" .innerHTML=${this.highlightedCode}></code></pre>
 					</div>
 				</div>
 			</schmancy-theme>

@@ -33,6 +33,9 @@ export type FINDING_MORTIES_EVENT = CustomEvent<{
 // WeakMap for better memory management of area subjects
 const areaSubjectsCache = new WeakMap<AreaService, Map<string, ReplaySubject<ActiveRoute>>>()
 
+// Track navigation source to prevent history conflicts
+type NavigationSource = 'programmatic' | 'browser' | 'initial'
+
 class AreaService implements AreaSubscription {
 	private static instance: AreaService
 	public prettyURL = false
@@ -54,6 +57,7 @@ class AreaService implements AreaSubscription {
 	public enableHistoryMode = true
 	private findingMortiesEvent = new CustomEvent<FINDING_MORTIES_EVENT['detail']>(FINDING_MORTIES)
 	private disposed = false
+	public isProcessingPopstate = false
 
 	constructor() {
 		this.$current.next(this.current)
@@ -70,6 +74,26 @@ class AreaService implements AreaSubscription {
 				areaSubject.next(route)
 			})
 		})
+
+		// Initialize from browser state if available
+		this.initializeFromBrowserState()
+	}
+
+	/**
+	 * Initialize router state from browser history state
+	 */
+	private initializeFromBrowserState() {
+		try {
+			const browserState = history.state
+			if (browserState && browserState.schmancyAreas) {
+				Object.entries(browserState.schmancyAreas).forEach(([areaName, route]) => {
+					this.current.set(areaName, route as ActiveRoute)
+				})
+				this.$current.next(this.current)
+			}
+		} catch (error) {
+			console.warn('Failed to initialize from browser state:', error)
+		}
 	}
 
 	/**
@@ -107,7 +131,7 @@ class AreaService implements AreaSubscription {
 		
 		const areaSubject = this.getOrCreateAreaSubject(areaName)
 		const observable = areaSubject.asObservable().pipe(
-			// Add distinct to prevent duplicate emissions
+			// Add distinct to prevent duplicate emissions - now includes state
 			distinctUntilChanged((a, b) => 
 				a.component === b.component &&
 				JSON.stringify(a.state) === JSON.stringify(b.state) &&
@@ -219,11 +243,17 @@ class AreaService implements AreaSubscription {
 			throw new Error('Area is required for route action')
 		}
 		
+		// Prevent processing during popstate handling
+		if (this.isProcessingPopstate) {
+			return
+		}
+		
 		// Ensure state and params are initialized
 		const routeAction: RouteAction = {
 			...r,
 			state: r.state || {},
-			params: r.params || {}
+			params: r.params || {},
+			_source: 'programmatic' as NavigationSource
 		}
 		
 		// Add to history if enabled
@@ -234,6 +264,163 @@ class AreaService implements AreaSubscription {
 		this.request.next(routeAction)
 		// Emit an area-specific event for those who want to listen directly to DOM events
 		this.dispatchAreaEvent(routeAction.area, routeAction)
+	}
+
+	/**
+	 * Internal method to update route from browser navigation
+	 * This should only be called by area components during popstate handling
+	 */
+	_updateFromBrowser(routeAction: RouteAction) {
+		const enhancedRoute: RouteAction = {
+			...routeAction,
+			state: routeAction.state || {},
+			params: routeAction.params || {},
+			_source: 'browser' as NavigationSource
+		}
+		
+		this.isProcessingPopstate = true
+		this.request.next(enhancedRoute)
+		this.isProcessingPopstate = false
+	}
+
+	/**
+	 * Update browser history state (called by area components)
+	 */
+	_updateBrowserHistory(areaName: string, route: ActiveRoute, historyStrategy?: string) {
+		if (!this.enableHistoryMode) return
+		
+		try {
+			// Get current browser state or create new one
+			const currentState = history.state || {}
+			const schmancyAreas = currentState.schmancyAreas || {}
+			
+			// Update the specific area - only include non-empty state/params
+			const areaData: any = {
+				component: route.component,
+				area: route.area
+			}
+			
+			// Only include state if it has content
+			if (route.state && Object.keys(route.state).length > 0) {
+				areaData.state = route.state
+			}
+			
+			// Only include params if it has content
+			if (route.params && Object.keys(route.params).length > 0) {
+				areaData.params = route.params
+			}
+			
+			schmancyAreas[areaName] = areaData
+			
+			const newState = {
+				...currentState,
+				schmancyAreas
+			}
+			
+			// Create clean URL
+			const url = this.createCleanURL(schmancyAreas)
+			
+			// Update browser history
+			if (historyStrategy === 'replace' || historyStrategy === 'pop') {
+				history.replaceState(newState, '', url)
+			} else if (historyStrategy === 'push' || !historyStrategy) {
+				history.pushState(newState, '', url)
+			}
+			// 'silent' strategy doesn't update browser history
+			
+		} catch (error) {
+			console.error('Failed to update browser history:', error)
+		}
+	}
+
+	/**
+	 * Create a clean URL from area states
+	 */
+	private createCleanURL(areas: Record<string, ActiveRoute>): string {
+		if (this.prettyURL) {
+			// Create pretty URLs - customize this based on your routing needs
+			const mainArea = areas.main
+			if (mainArea) {
+				let path = `/${mainArea.component}`
+				
+				// Add simple params to URL
+				const searchParams = new URLSearchParams()
+				if (mainArea.params) {
+					Object.entries(mainArea.params).forEach(([key, value]) => {
+						if (typeof value === 'string' || typeof value === 'number') {
+							searchParams.set(key, String(value))
+						}
+					})
+				}
+				
+				const query = searchParams.toString()
+				return path + (query ? `?${query}` : '')
+			}
+		}
+		
+		// Fallback to encoded state in URL (original behavior)
+		try {
+			// Clean up empty objects before encoding
+			const cleanedAreas: Record<string, any> = {}
+			Object.entries(areas).forEach(([areaName, route]) => {
+				const cleanRoute: any = { component: route.component }
+				
+				// Only include state if it has content
+				if (route.state && Object.keys(route.state).length > 0) {
+					cleanRoute.state = route.state
+				}
+				
+				// Only include params if it has content
+				if (route.params && Object.keys(route.params).length > 0) {
+					cleanRoute.params = route.params
+				}
+				
+				cleanedAreas[areaName] = cleanRoute
+			})
+			
+			const encoded = encodeURIComponent(JSON.stringify(cleanedAreas))
+			return `/${encoded}${location.search}`
+		} catch (error) {
+			console.error('Failed to encode URL state:', error)
+			return location.pathname
+		}
+	}
+
+	/**
+	 * Restore state from browser history state
+	 */
+	restoreFromBrowserState(browserState: any): Record<string, ActiveRoute> {
+		try {
+			if (browserState && browserState.schmancyAreas) {
+				return browserState.schmancyAreas
+			}
+		} catch (error) {
+			console.error('Failed to restore from browser state:', error)
+		}
+		
+		// Fallback to URL parsing (original behavior)
+		return this.parseStateFromURL()
+	}
+
+	/**
+	 * Parse state from URL (fallback method)
+	 */
+	private parseStateFromURL(): Record<string, ActiveRoute> {
+		const pathname = location.pathname.split('/').pop()
+		if (!pathname) return {}
+		
+		try {
+			const decoded = decodeURIComponent(pathname)
+			const parsed = JSON.parse(decoded)
+			
+			if (typeof parsed === 'object' && parsed !== null) {
+				return parsed
+			}
+		} catch {
+			// Ignore parse errors
+		}
+		
+		return {}
 	}
 	
 	/**
@@ -263,22 +450,27 @@ class AreaService implements AreaSubscription {
 			throw new Error('Area name is required')
 		}
 		
-		const newState = { ...this.state }
-		delete newState[name]
-		
-		// Update the URL
-		const encoded = encodeURIComponent(JSON.stringify(newState))
-		history.replaceState(null, '', `/${encoded}${location.search}`)
-		
 		// Remove from current map
 		this.current.delete(name)
 		this.$current.next(this.current)
 		
-		// Complete the area subject
-		const areaSubject = this.areaSubjects.get(name)
-		if (areaSubject) {
-			areaSubject.complete()
-			this.areaSubjects.delete(name)
+		// Update browser history
+		if (this.enableHistoryMode) {
+			try {
+				const currentState = history.state || {}
+				const schmancyAreas = { ...(currentState.schmancyAreas || {}) }
+				delete schmancyAreas[name]
+				
+				const newState = {
+					...currentState,
+					schmancyAreas
+				}
+				
+				const url = this.createCleanURL(schmancyAreas)
+				history.replaceState(newState, '', url)
+			} catch (error) {
+				console.error('Failed to update history after pop:', error)
+			}
 		}
 	}
 	
@@ -295,7 +487,9 @@ class AreaService implements AreaSubscription {
 		this.$current.next(this.current)
 		
 		// Update URL
-		history.replaceState(null, '', `/${location.search}`)
+		if (this.enableHistoryMode) {
+			history.replaceState({ schmancyAreas: {} }, '', `/${location.search}`)
+		}
 	}
 	
 	/**
@@ -330,24 +524,21 @@ class AreaService implements AreaSubscription {
 	}
 
 	/**
-	 * Get current state from URL
+	 * Get current state from URL (deprecated - use browser state instead)
 	 */
 	get state(): Record<string, unknown> {
-		const pathname = location.pathname.split('/').pop()
-		if (!pathname) return {}
-		
+		// Try browser state first
 		try {
-			const decoded = decodeURIComponent(pathname)
-			const parsed = JSON.parse(decoded)
-			
-			if (typeof parsed === 'object' && parsed !== null) {
-				return parsed
+			const browserState = history.state
+			if (browserState && browserState.schmancyAreas) {
+				return browserState.schmancyAreas
 			}
 		} catch {
-			// Ignore parse errors
+			// Fallback to URL parsing
 		}
 		
-		return {}
+		// Fallback to URL parsing (original behavior)
+		return this.parseStateFromURL()
 	}
 	
 	/**
