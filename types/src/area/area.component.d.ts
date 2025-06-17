@@ -14,7 +14,7 @@ export declare class SchmancyArea extends SchmancyArea_base {
     /**
      * Get component from pathname with better error handling
      */
-    getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY, source?: 'browser' | 'initial'): import("rxjs").Observable<RouteAction>;
+    getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY): import("rxjs").Observable<RouteAction>;
     /**
      * Get component from browser state with fallback to URL
      */
