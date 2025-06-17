@@ -26,7 +26,6 @@ type TRouteArea = {
 	params?: Record<string, unknown>
 }
 
-type NavigationSource = 'programmatic' | 'browser' | 'initial'
 
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
@@ -50,7 +49,7 @@ export class SchmancyArea extends $LitElement(css`
 	/**
 	 * Get component from pathname with better error handling
 	 */
-	getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY, source: 'browser' | 'initial' = 'initial') {
+	getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY) {
 		return of(pathname).pipe(
 			map(path => path.split('/').pop() ?? ''),
 			map(path => {
@@ -126,7 +125,7 @@ export class SchmancyArea extends $LitElement(css`
 		merge(
 			// 1. Initial load from URL
 			of(location.pathname).pipe(
-				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent, 'initial')),
+				switchMap(pathname => this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent)),
 				take(1),
 				tap(route => console.log(`[${this.name}] Initial load:`, route))
 			),
@@ -157,7 +156,7 @@ export class SchmancyArea extends $LitElement(css`
 					}
 					
 					// Check if it exists in the URL
-					return this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent, 'browser').pipe(
+					return this.getComponentFromPathname(pathname, HISTORY_STRATEGY.silent).pipe(
 						// If nothing found in URL and no default, emit empty component
 						switchMap(route => {
 							if (!route.component && !this.default) {

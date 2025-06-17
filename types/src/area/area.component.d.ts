@@ -12,17 +12,34 @@ export declare class SchmancyArea extends SchmancyArea_base {
     name: string;
     default: string | CustomElementConstructor | TemplateResult<1>;
     /**
-     *
-     * @param pathname pathname from the browser location API
-     * @param historyStrategy  the history strategy to use for the route like PUSH, REPLACE, or SILENT
-     * @returns rxjs pipes that will return the component to render and the history strategy to use
+     * Get component from pathname with better error handling
      */
-    getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY): import("rxjs").Observable<RouteAction>;
+    getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY, source?: 'browser' | 'initial'): import("rxjs").Observable<RouteAction>;
+    /**
+     * Get component from browser state with fallback to URL
+     */
+    getComponentFromBrowserState(event: PopStateEvent): RouteAction | null;
     protected firstUpdated(): void;
+    /**
+     * Update the DOM with the new component
+     */
+    private updateDOM;
+    /**
+     * Update internal router state
+     */
+    private updateInternalState;
+    /**
+     * Update browser history (only for programmatic navigation)
+     */
+    private updateBrowserHistory;
+    /**
+     * Create URL path for the route (legacy method, now handled by service)
+     */
     newPath(tag: string, route: RouteAction): string;
+    /**
+     * Clear query parameters
+     */
     queryParamClear(params?: string[] | boolean): string;
-    checkForTeleportationRequests(): import("rxjs").Observable<any[]>;
-    disconnectedCallback(): void;
     render(): TemplateResult<1>;
 }
 declare global {

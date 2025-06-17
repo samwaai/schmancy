@@ -1,7 +1,7 @@
 declare const SchmancyCode_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element schmancy-code
- * Code highlighting component using highlight.js with Schmancy dark theme
+ * Code highlighting component using highlight.js with custom dark theme
  */
 export declare class SchmancyCode extends SchmancyCode_base {
     /**
@@ -24,8 +24,17 @@ export declare class SchmancyCode extends SchmancyCode_base {
      * Show copy button
      */
     copyButton: boolean;
+    /**
+     * Highlighted line numbers (comma-separated or ranges like "1-3,5,7-9")
+     */
+    highlightLines?: string;
+    /**
+     * Maximum height before scrolling
+     */
+    maxHeight?: string;
     private copied;
     private get highlightedCode();
+    private getHighlightedLines;
     private addLineNumbers;
     private copyCode;
     private getLanguageLabel;

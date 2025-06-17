@@ -1,10 +1,11 @@
 export type RouteAction = {
-    component: CustomElementConstructor | string | HTMLElement;
+    component: CustomElementConstructor | string | HTMLElement | Promise<any>;
     area: string;
     state?: Record<string, unknown>;
     params?: Record<string, unknown>;
     historyStrategy?: THistoryStrategy;
     clearQueryParams?: string[] | boolean | null;
+    _source?: 'programmatic' | 'browser' | 'initial';
 };
 export type ActiveRoute = {
     component: string;
@@ -55,4 +56,11 @@ export declare enum HISTORY_STRATEGY {
     replace = "replace",
     pop = "pop",
     silent = "silent"
+}
+/**
+ * Browser history state structure used by Schmancy Area
+ */
+export interface SchmancyHistoryState {
+    schmancyAreas: Record<string, ActiveRoute>;
+    [key: string]: any;
 }

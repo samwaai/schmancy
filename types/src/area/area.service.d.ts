@@ -21,7 +21,12 @@ declare class AreaService implements AreaSubscription {
     enableHistoryMode: boolean;
     private findingMortiesEvent;
     private disposed;
+    isProcessingPopstate: boolean;
     constructor();
+    /**
+     * Initialize router state from browser history state
+     */
+    private initializeFromBrowserState;
     /**
      * Get or create a ReplaySubject for a specific area with proper cleanup
      */
@@ -57,6 +62,27 @@ declare class AreaService implements AreaSubscription {
      */
     push(r: RouteAction): void;
     /**
+     * Internal method to update route from browser navigation
+     * This should only be called by area components during popstate handling
+     */
+    _updateFromBrowser(routeAction: RouteAction): void;
+    /**
+     * Update browser history state (called by area components)
+     */
+    _updateBrowserHistory(areaName: string, route: ActiveRoute, historyStrategy?: string): void;
+    /**
+     * Create a clean URL from area states
+     */
+    private createCleanURL;
+    /**
+     * Restore state from browser history state
+     */
+    restoreFromBrowserState(browserState: any): Record<string, ActiveRoute>;
+    /**
+     * Parse state from URL (fallback method)
+     */
+    private parseStateFromURL;
+    /**
      * Dispatch a DOM event for a specific area change
      */
     private dispatchAreaEvent;
@@ -77,7 +103,7 @@ declare class AreaService implements AreaSubscription {
      */
     static getInstance(): AreaService;
     /**
-     * Get current state from URL
+     * Get current state from URL (deprecated - use browser state instead)
      */
     get state(): Record<string, unknown>;
     /**
