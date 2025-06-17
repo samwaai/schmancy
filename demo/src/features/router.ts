@@ -35,6 +35,28 @@ export class DemoRouter extends $LitElement(css`
 						variant="elevated"
 						>page 2</schmancy-button
 					>
+					<schmancy-button
+						@click=${() => {
+							area.push({
+								area: 'subrouter',
+								component: DemoIcons,
+								clearQueryParams: true
+							})
+						}}
+						variant="elevated"
+						>page 1 (clear all query)</schmancy-button
+					>
+					<schmancy-button
+						@click=${() => {
+							area.push({
+								area: 'subrouter',
+								component: DemoCard,
+								clearQueryParams: ['foo', 'bar']
+							})
+						}}
+						variant="elevated"
+						>page 2 (clear foo & bar)</schmancy-button
+					>
 				</schmancy-grid>
 				<schmancy-area name="subrouter"> </schmancy-area>
 			</schmancy-grid>
