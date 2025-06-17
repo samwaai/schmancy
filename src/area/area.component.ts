@@ -379,7 +379,7 @@ export class SchmancyArea extends $LitElement(css`
 		}
 
 		// Use the service method to update browser history
-		area._updateBrowserHistory(this.name, activeRoute, route.historyStrategy)
+		area._updateBrowserHistory(this.name, activeRoute, route.historyStrategy, route.clearQueryParams)
 	}
 
 

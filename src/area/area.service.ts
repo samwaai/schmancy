@@ -286,7 +286,7 @@ class AreaService implements AreaSubscription {
 	/**
 	 * Update browser history state (called by area components)
 	 */
-	_updateBrowserHistory(areaName: string, route: ActiveRoute, historyStrategy?: string) {
+	_updateBrowserHistory(areaName: string, route: ActiveRoute, historyStrategy?: string, clearQueryParams?: string[] | boolean | null) {
 		if (!this.enableHistoryMode) return
 		
 		try {
@@ -318,7 +318,7 @@ class AreaService implements AreaSubscription {
 			}
 			
 			// Create clean URL
-			const url = this.createCleanURL(schmancyAreas)
+			const url = this.createCleanURL(schmancyAreas, clearQueryParams)
 			
 			// Update browser history
 			if (historyStrategy === 'replace' || historyStrategy === 'pop') {
@@ -336,7 +336,25 @@ class AreaService implements AreaSubscription {
 	/**
 	 * Create a clean URL from area states
 	 */
-	private createCleanURL(areas: Record<string, ActiveRoute>): string {
+	private createCleanURL(areas: Record<string, ActiveRoute>, clearQueryParams?: string[] | boolean | null): string {
+		// Handle query parameters
+		let queryString = ''
+		
+		if (clearQueryParams !== true) {
+			// Get current query params
+			const urlParams = new URLSearchParams(location.search)
+			
+			// Clear specific params if provided
+			if (Array.isArray(clearQueryParams)) {
+				clearQueryParams.forEach(param => urlParams.delete(param))
+			}
+			
+			// Convert back to string
+			queryString = urlParams.toString()
+			queryString = queryString ? `?${queryString}` : ''
+		}
+		// If clearQueryParams === true, queryString remains empty (all params cleared)
+		
 		if (this.prettyURL) {
 			// Create pretty URLs - customize this based on your routing needs
 			const mainArea = areas.main
@@ -344,7 +362,7 @@ class AreaService implements AreaSubscription {
 				let path = `/${mainArea.component}`
 				
 				// Add simple params to URL
-				const searchParams = new URLSearchParams()
+				const searchParams = new URLSearchParams(queryString)
 				if (mainArea.params) {
 					Object.entries(mainArea.params).forEach(([key, value]) => {
 						if (typeof value === 'string' || typeof value === 'number') {
@@ -379,7 +397,7 @@ class AreaService implements AreaSubscription {
 			})
 			
 			const encoded = encodeURIComponent(JSON.stringify(cleanedAreas))
-			return `/${encoded}${location.search}`
+			return `/${encoded}${queryString}`
 		} catch (error) {
 			console.error('Failed to encode URL state:', error)
 			return location.pathname
