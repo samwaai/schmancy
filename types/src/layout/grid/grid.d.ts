@@ -1,4 +1,14 @@
 import Layout from '../layout';
+/**
+ * @deprecated Use Tailwind CSS grid classes directly instead of this component.
+ * This component will be removed in a future version.
+ *
+ * Migration guide:
+ * - Replace <schmancy-grid> with <div class="grid ...">
+ * - Use Tailwind's grid utilities: grid-cols-*, gap-*, items-*, justify-items-*, etc.
+ *
+ * @element schmancy-grid
+ */
 export declare class SchmancyGrid extends Layout {
     static styles: any[];
     layout: boolean;

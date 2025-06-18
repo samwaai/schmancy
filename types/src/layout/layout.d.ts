@@ -1,4 +1,14 @@
 declare const Layout_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+/**
+ * @deprecated Use Tailwind CSS utility classes directly on HTML elements instead of this base class.
+ * This component will be removed in a future version.
+ *
+ * Migration guide:
+ * - Use inline styles or Tailwind utility classes for layout properties
+ * - Replace properties like padding, margin, width, etc. with their CSS equivalents
+ *
+ * @class Layout
+ */
 export default class Layout extends Layout_base {
     static styles: any;
     layout: boolean;

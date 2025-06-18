@@ -1,5 +1,14 @@
 import Layout from '../layout';
 /**
+ * @deprecated Use Tailwind CSS flex classes directly instead of this component.
+ * This component will be removed in a future version.
+ *
+ * Migration guide:
+ * - Replace <sch-flex> with <div class="flex ...">
+ * - Use Tailwind's flex utilities: flex-row, flex-col, gap-*, items-*, justify-*, etc.
+ *
+ * Original documentation:
+ *
  * SchmancyFlex exposes a flex container with all the Tailwind CSS 4 options:
  *
  * - **Display**: By default uses `flex` but can be set to inline using the `inline` property.
