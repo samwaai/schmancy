@@ -13,6 +13,11 @@ export declare class SchmancyCodePreview extends SchmancyCodePreview_base {
      * Show code on top or side-by-side
      */
     layout: 'vertical' | 'horizontal';
+    /**
+     * Whether to render/execute the code in preview section
+     * When false, only shows the code without rendering
+     */
+    preview: boolean;
     private slotContent;
     connectedCallback(): void;
     render(): import("lit-html").TemplateResult<1>;
