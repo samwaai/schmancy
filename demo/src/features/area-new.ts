@@ -1,13 +1,12 @@
 import { $LitElement } from '@mixins/index'
-import { area } from '@schmancy/area'
-import '@schmancy/code-highlight'
-import { css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { html, css } from 'lit'
+import { customElement, state, property } from 'lit/decorators.js'
 import '../shared/installation-section'
+import { area } from '@schmancy/area'
 
 // Simple demo components
-@customElement('area-demo-home-page')
-class AreaDemoHomePage extends $LitElement() {
+@customElement('demo-home-page')
+class DemoHomePage extends $LitElement() {
 	render() {
 		return html`
 			<div class="p-8 text-center">
@@ -21,8 +20,8 @@ class AreaDemoHomePage extends $LitElement() {
 	}
 }
 
-@customElement('area-demo-about-page')
-class AreaDemoAboutPage extends $LitElement() {
+@customElement('demo-about-page')
+class DemoAboutPage extends $LitElement() {
 	render() {
 		return html`
 			<div class="p-8 text-center">
@@ -36,32 +35,17 @@ class AreaDemoAboutPage extends $LitElement() {
 	}
 }
 
-@customElement('area-demo-contact-page')
-class AreaDemoContactPage extends $LitElement() {
-	render() {
-		return html`
-			<div class="p-8 text-center">
-				<schmancy-icon size="64" class="text-tertiary mb-4">mail</schmancy-icon>
-				<schmancy-typography type="headline" token="lg" class="mb-2">Contact Us</schmancy-typography>
-				<schmancy-typography type="body" token="md" class="text-surface-onVariant">
-					Get in touch with our team
-				</schmancy-typography>
-			</div>
-		`
-	}
-}
-
-@customElement('area-demo-user-profile')
-class AreaDemoUserProfile extends $LitElement() {
-	@property({ type: String }) userId?: string
-	@property({ type: String }) username?: string
+@customElement('demo-user-profile')
+class DemoUserProfile extends $LitElement() {
+	@property() userId?: string
+	@property() username?: string
 
 	render() {
 		return html`
 			<div class="p-8">
 				<schmancy-icon size="64" class="text-tertiary mb-4">person</schmancy-icon>
 				<schmancy-typography type="headline" token="lg" class="mb-4">User Profile</schmancy-typography>
-				<schmancy-surface type="container" class="p-4 rounded-lg">
+				<schmancy-surface type="surfaceContainer" class="p-4 rounded-lg">
 					<div class="space-y-2">
 						<div><strong>User ID:</strong> ${this.userId || 'Not provided'}</div>
 						<div><strong>Username:</strong> ${this.username || 'Not provided'}</div>
@@ -72,8 +56,8 @@ class AreaDemoUserProfile extends $LitElement() {
 	}
 }
 
-@customElement('demo-area')
-export class DemoArea extends $LitElement(css`
+@customElement('demo-area-refactored')
+export class DemoAreaRefactored extends $LitElement(css`
 	.example-section {
 		margin-bottom: 3rem;
 	}
@@ -89,149 +73,7 @@ export class DemoArea extends $LitElement(css`
 		margin-top: 1rem;
 	}
 `) {
-	// Code examples as string literals to prevent execution
-	private readonly codeExamples = {
-		import: `import '@mhmo91/schmancy/area'
-import { area } from '@mhmo91/schmancy/area'`,
-
-		quickStart: `<!-- 1. Add an area to your HTML -->
-<schmancy-area name="main"></schmancy-area>
-
-<script type="module">
-  import { area } from '@mhmo91/schmancy/area'
-  
-  // 2. Navigate to a component
-  area.push({
-    area: 'main',
-    component: 'my-component'
-  })
-  
-  // 3. Clear the area
-  area.pop('main')
-</script>`,
-
-		basicNavigation: `// Navigate to a component
-area.push({
-  area: 'main',
-  component: 'area-demo-home-page'
-})
-
-// Navigate to another component
-area.push({
-  area: 'main',
-  component: 'area-demo-about-page'
-})
-
-// Clear the area
-area.pop('main')`,
-
-		passingParams: `// Pass parameters to component
-area.push({
-  area: 'main',
-  component: 'area-demo-user-profile',
-  params: {
-    userId: '123',
-    username: 'john_doe'
-  }
-})
-
-// Parameters become properties on the component
-// @property() userId?: string
-// @property() username?: string`,
-
-		defaultComponent: `<!-- Set a default component -->
-<schmancy-area 
-  name="main" 
-  default="area-demo-home-page"
-></schmancy-area>`,
-
-		stateManagement: `// Pass state to components
-area.push({
-  area: 'main',
-  component: 'product-details',
-  state: {
-    productId: '123',
-    category: 'electronics',
-    filters: { price: 'low-to-high' }
-  }
-})
-
-// Subscribe to state changes
-area.getState('main').subscribe(state => {
-  console.log('State updated:', state)
-})`,
-
-		multipleAreas: `<!-- Create a layout with multiple areas -->
-<div class="app-layout">
-  <header>
-    <schmancy-area name="header"></schmancy-area>
-  </header>
-  <aside>
-    <schmancy-area name="sidebar"></schmancy-area>
-  </aside>
-  <main>
-    <schmancy-area name="content"></schmancy-area>
-  </main>
-</div>`,
-
-		clearQueryParams: `// Clear all query parameters on navigation
-area.push({
-  area: 'main',
-  component: 'home-page',
-  clearQueryParams: true
-})
-
-// Clear specific query parameters
-area.push({
-  area: 'main',
-  component: 'search-results',
-  clearQueryParams: ['filter', 'sort']
-})`,
-
-		dynamicImports: `// Load components dynamically
-area.push({
-  area: 'main',
-  component: import('./components/heavy-component.js')
-})
-
-// Or with a constructor
-import { MyComponent } from './my-component.js'
-area.push({
-  area: 'main',
-  component: MyComponent
-})`,
-
-		observableSubscriptions: `// Subscribe to route changes
-area.on('main').subscribe(route => {
-  console.log('Active component:', route.component)
-  console.log('Parameters:', route.params)
-  console.log('State:', route.state)
-})
-
-// Get specific parameter
-area.param('main', 'userId').subscribe(userId => {
-  console.log('User ID changed:', userId)
-})`,
-
-		historyStrategy: `// Different history strategies
-area.push({
-  area: 'main',
-  component: 'page-component',
-  historyStrategy: 'push'    // Add to browser history (default)
-})
-
-area.push({
-  area: 'main',
-  component: 'modal-component',
-  historyStrategy: 'replace' // Replace current history entry
-})
-
-area.push({
-  area: 'main',
-  component: 'temp-component',
-  historyStrategy: 'silent'  // No history update
-})`
-	}
+	@state() activeTab = 'overview'
 
 	render() {
 		return html`
@@ -250,10 +92,10 @@ area.push({
 				<!-- Import -->
 				<div class="mb-8">
 					<schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
-					<schmancy-code 
-						language="javascript" 
-						.code=${this.codeExamples.import}
-					></schmancy-code>
+					<schmancy-code-preview language="javascript">
+						import '@mhmo91/schmancy/area'
+						import { area } from '@mhmo91/schmancy/area'
+					</schmancy-code-preview>
 				</div>
 
 				<!-- Quick Start -->
@@ -263,10 +105,23 @@ area.push({
 						Create dynamic content areas in three simple steps:
 					</schmancy-typography>
 					
-					<schmancy-code 
-						language="html" 
-						.code=${this.codeExamples.quickStart}
-					></schmancy-code>
+					<schmancy-code-preview language="html">
+						<!-- 1. Add an area to your HTML -->
+						<schmancy-area name="main"></schmancy-area>
+
+						<script type="module">
+							import { area } from '@mhmo91/schmancy/area'
+							
+							// 2. Navigate to a component
+							area.push({
+								area: 'main',
+								component: 'my-component'
+							})
+							
+							// 3. Clear the area
+							area.pop('main')
+						</script>
+					</schmancy-code-preview>
 				</div>
 
 				<!-- Live Examples -->
@@ -286,24 +141,17 @@ area.push({
 						<div class="flex gap-2 mb-4">
 							<schmancy-button 
 								variant="filled"
-								@click=${() => area.push({ area: 'demo-basic', component: 'area-demo-home-page' })}
+								@click=${() => area.push({ area: 'demo-basic', component: 'demo-home-page' })}
 							>
 								<schmancy-icon>home</schmancy-icon>
 								Home
 							</schmancy-button>
 							<schmancy-button 
 								variant="filled"
-								@click=${() => area.push({ area: 'demo-basic', component: 'area-demo-about-page' })}
+								@click=${() => area.push({ area: 'demo-basic', component: 'demo-about-page' })}
 							>
 								<schmancy-icon>info</schmancy-icon>
 								About
-							</schmancy-button>
-							<schmancy-button 
-								variant="filled"
-								@click=${() => area.push({ area: 'demo-basic', component: 'area-demo-contact-page' })}
-							>
-								<schmancy-icon>mail</schmancy-icon>
-								Contact
 							</schmancy-button>
 							<schmancy-button 
 								variant="outlined"
@@ -321,10 +169,16 @@ area.push({
 						
 						<!-- Code example -->
 						<div class="code-section">
-							<schmancy-code 
-								language="javascript" 
-								.code=${this.codeExamples.basicNavigation}
-							></schmancy-code>
+							<schmancy-code-preview language="javascript" ?preview=${false}>
+								// Navigate to a component
+								area.push({
+									area: 'main',
+									component: 'demo-home-page'
+								})
+								
+								// Clear the area
+								area.pop('main')
+							</schmancy-code-preview>
 						</div>
 					</schmancy-surface>
 				</div>
@@ -345,7 +199,7 @@ area.push({
 								variant="filled tonal"
 								@click=${() => area.push({ 
 									area: 'demo-params', 
-									component: 'area-demo-user-profile',
+									component: 'demo-user-profile',
 									params: { userId: '123', username: 'john_doe' }
 								})}
 							>
@@ -355,7 +209,7 @@ area.push({
 								variant="filled tonal"
 								@click=${() => area.push({ 
 									area: 'demo-params', 
-									component: 'area-demo-user-profile',
+									component: 'demo-user-profile',
 									params: { userId: '456', username: 'jane_smith' }
 								})}
 							>
@@ -370,10 +224,21 @@ area.push({
 						
 						<!-- Code example -->
 						<div class="code-section">
-							<schmancy-code 
-								language="javascript" 
-								.code=${this.codeExamples.passingParams}
-							></schmancy-code>
+							<schmancy-code-preview language="javascript" ?preview=${false}>
+								// Pass parameters to component
+								area.push({
+									area: 'main',
+									component: 'demo-user-profile',
+									params: {
+										userId: '123',
+										username: 'john_doe'
+									}
+								})
+								
+								// Parameters become properties on the component
+								// @property() userId?: string
+								// @property() username?: string
+							</schmancy-code-preview>
 						</div>
 					</schmancy-surface>
 				</div>
@@ -390,14 +255,14 @@ area.push({
 						
 						<!-- Demo area with default -->
 						<div class="demo-area mb-4">
-							<schmancy-area name="demo-default" default="area-demo-home-page"></schmancy-area>
+							<schmancy-area name="demo-default" default="demo-home-page"></schmancy-area>
 						</div>
 						
 						<!-- Demo controls -->
 						<div class="flex gap-2">
 							<schmancy-button 
 								variant="filled"
-								@click=${() => area.push({ area: 'demo-default', component: 'area-demo-about-page' })}
+								@click=${() => area.push({ area: 'demo-default', component: 'demo-about-page' })}
 							>
 								Navigate to About
 							</schmancy-button>
@@ -411,10 +276,13 @@ area.push({
 						
 						<!-- Code example -->
 						<div class="code-section">
-							<schmancy-code 
-								language="html" 
-								.code=${this.codeExamples.defaultComponent}
-							></schmancy-code>
+							<schmancy-code-preview language="html" ?preview=${false}>
+								<!-- Set a default component -->
+								<schmancy-area 
+									name="main" 
+									default="demo-home-page"
+								></schmancy-area>
+							</schmancy-code-preview>
 						</div>
 					</schmancy-surface>
 				</div>
@@ -499,43 +367,75 @@ area.push({
 				<div class="mb-12">
 					<schmancy-typography type="title" token="lg" class="mb-4 block">Advanced Usage</schmancy-typography>
 					
-					<div class="grid gap-6">
+					<schmancy-grid gap="lg">
 						<!-- State Management -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.stateManagement}
-						></schmancy-code>
+						<schmancy-code-preview language="javascript" ?preview=${false}>
+							// Pass state to components
+							area.push({
+								area: 'main',
+								component: 'product-details',
+								state: {
+									productId: '123',
+									category: 'electronics',
+									filters: { price: 'low-to-high' }
+								}
+							})
+							
+							// Subscribe to state changes
+							area.getState('main').subscribe(state => {
+								console.log('State updated:', state)
+							})
+						</schmancy-code-preview>
 
 						<!-- Multiple Areas -->
-						<schmancy-code 
-							language="html" 
-							.code=${this.codeExamples.multipleAreas}
-						></schmancy-code>
+						<schmancy-code-preview language="html" ?preview=${false}>
+							<!-- Create a layout with multiple areas -->
+							<div class="app-layout">
+								<header>
+									<schmancy-area name="header"></schmancy-area>
+								</header>
+								<aside>
+									<schmancy-area name="sidebar"></schmancy-area>
+								</aside>
+								<main>
+									<schmancy-area name="content"></schmancy-area>
+								</main>
+							</div>
+						</schmancy-code-preview>
 
 						<!-- Clear Query Parameters -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.clearQueryParams}
-						></schmancy-code>
+						<schmancy-code-preview language="javascript" ?preview=${false}>
+							// Clear all query parameters on navigation
+							area.push({
+								area: 'main',
+								component: 'home-page',
+								clearQueryParams: true
+							})
+							
+							// Clear specific query parameters
+							area.push({
+								area: 'main',
+								component: 'search-results',
+								clearQueryParams: ['filter', 'sort']
+							})
+						</schmancy-code-preview>
 
 						<!-- Dynamic Imports -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.dynamicImports}
-						></schmancy-code>
-
-						<!-- Observable Subscriptions -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.observableSubscriptions}
-						></schmancy-code>
-
-						<!-- History Strategy -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.historyStrategy}
-						></schmancy-code>
-					</div>
+						<schmancy-code-preview language="javascript" ?preview=${false}>
+							// Load components dynamically
+							area.push({
+								area: 'main',
+								component: import('./components/heavy-component.js')
+							})
+							
+							// Or with a constructor
+							import { MyComponent } from './my-component.js'
+							area.push({
+								area: 'main',
+								component: MyComponent
+							})
+						</schmancy-code-preview>
+					</schmancy-grid>
 				</div>
 			</schmancy-surface>
 		`
@@ -544,8 +444,7 @@ area.push({
 	disconnectedCallback() {
 		super.disconnectedCallback()
 		// Clean up demo areas
-		const areas = ['demo-basic', 'demo-params', 'demo-default']
-		areas.forEach((name: string) => {
+		['demo-basic', 'demo-params', 'demo-default'].forEach(name => {
 			if (area.hasArea(name)) {
 				area.pop(name)
 			}
@@ -555,10 +454,9 @@ area.push({
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'demo-area': DemoArea
-		'area-demo-home-page': AreaDemoHomePage
-		'area-demo-about-page': AreaDemoAboutPage
-		'area-demo-contact-page': AreaDemoContactPage
-		'area-demo-user-profile': AreaDemoUserProfile
+		'demo-area-refactored': DemoAreaRefactored
+		'demo-home-page': DemoHomePage
+		'demo-about-page': DemoAboutPage
+		'demo-user-profile': DemoUserProfile
 	}
 }

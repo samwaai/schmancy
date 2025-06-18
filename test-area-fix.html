@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Area Fix</title>
+    <script type="module">
+        // Import the area demo
+        import './demo/src/features/area.ts';
+        
+        // Test if components are correctly defined
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Testing custom elements...');
+            
+            const elements = [
+                'area-demo-home-page',
+                'area-demo-about-page', 
+                'area-demo-contact-page',
+                'area-demo-user-profile',
+                'demo-area'
+            ];
+            
+            elements.forEach(name => {
+                const isDefined = customElements.get(name) !== undefined;
+                console.log(`${name}: ${isDefined ? '✓ Defined' : '✗ Not defined'}`);
+            });
+            
+            // Try creating an instance
+            try {
+                const area = document.createElement('demo-area');
+                document.body.appendChild(area);
+                console.log('✓ demo-area created successfully');
+            } catch (e) {
+                console.error('✗ Error creating demo-area:', e);
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Testing Area Component Fix</h1>
+    <p>Check the browser console for results.</p>
+</body>
+</html>

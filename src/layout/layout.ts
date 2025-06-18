@@ -1,6 +1,16 @@
 import { TailwindElement } from '@mixins/index'
 import { property } from 'lit/decorators.js'
 
+/**
+ * @deprecated Use Tailwind CSS utility classes directly on HTML elements instead of this base class.
+ * This component will be removed in a future version.
+ * 
+ * Migration guide:
+ * - Use inline styles or Tailwind utility classes for layout properties
+ * - Replace properties like padding, margin, width, etc. with their CSS equivalents
+ * 
+ * @class Layout
+ */
 export default class Layout extends TailwindElement() {
 	static styles = [this.styles]
 	layout = true

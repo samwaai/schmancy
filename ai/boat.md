@@ -31,25 +31,25 @@ The boat component is a bottom sheet that slides up from the bottom of the scree
     Boat Title
   </schmancy-typography>
   
-  <schmancy-flex direction="column" gap="md" class="p-4">
+  <div class="flex flex-col gap-4 p-4">
     <schmancy-typography>
       This is the main content of the boat component.
     </schmancy-typography>
-  </schmancy-flex>
+  </div>
 </schmancy-boat>
 ```
 
 ### With Icon in Header
 ```html
 <schmancy-boat state="minimized" @change="${(e) => console.log(e.detail)}">
-  <schmancy-flex slot="header" gap="sm" content="center">
+  <div slot="header" class="flex gap-2 justify-center">
     <schmancy-icon>info</schmancy-icon>
     <schmancy-typography variant="title">Settings</schmancy-typography>
-  </schmancy-flex>
+  </div>
   
-  <schmancy-flex direction="column" gap="md" class="p-4">
+  <div class="flex flex-col gap-4 p-4">
     <!-- Settings content -->
-  </schmancy-flex>
+  </div>
 </schmancy-boat>
 ```
 

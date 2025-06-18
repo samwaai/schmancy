@@ -4,6 +4,16 @@ import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, takeUnti
 import Layout from '../layout'
 import style from './grid.scss?inline'
 
+/**
+ * @deprecated Use Tailwind CSS grid classes directly instead of this component.
+ * This component will be removed in a future version.
+ * 
+ * Migration guide:
+ * - Replace <schmancy-grid> with <div class="grid ...">
+ * - Use Tailwind's grid utilities: grid-cols-*, gap-*, items-*, justify-items-*, etc.
+ * 
+ * @element schmancy-grid
+ */
 @customElement('schmancy-grid')
 export class SchmancyGrid extends Layout {
 	static styles = [Layout.styles, unsafeCSS(style)]

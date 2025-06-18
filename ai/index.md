@@ -23,7 +23,7 @@ This directory contains concise reference documentation for the Schmancy compone
 - [Dialog](./dialog.md) - Modal dialog boxes for confirmations and custom content
 - [Divider](./divider.md) - Visual separators with animations
 - [Dropdown](./dropdown.md) - Floating dropdown menus
-- [Layout](./layout.md) - Flex and grid layout components
+- [Layout](./layout.md) - **⚠️ DEPRECATED** - Use Tailwind CSS utilities instead
 - [List](./list.md) - Interactive lists with selection support
 - [Menu](./menu.md) - Context and dropdown menus
 - [Nav Drawer](./nav-drawer.md) - Responsive navigation drawer system

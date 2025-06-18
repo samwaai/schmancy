@@ -35,7 +35,7 @@ export class SchmancyCodePreview extends TailwindElement(
 	 * When false, only shows the code without rendering
 	 */
 	@property({ type: Boolean })
-	preview: boolean = true
+	preview: boolean = false
 
 	@state()
 	private slotContent: string = ''

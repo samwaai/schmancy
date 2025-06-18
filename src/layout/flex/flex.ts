@@ -4,6 +4,17 @@ import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import Layout from '../layout'
 import style from './flex.scss?inline'
+
+/**
+ * @deprecated Use Tailwind CSS flex classes directly instead of this component.
+ * This component will be removed in a future version.
+ * 
+ * Migration guide:
+ * - Replace <schmancy-flex> with <div class="flex ...">
+ * - Use Tailwind's flex utilities: flex-row, flex-col, gap-*, items-*, justify-*, etc.
+ * 
+ * @element schmancy-flex
+ */
 @customElement('schmancy-flex')
 export class SchmancyFlex extends Layout {
 	static styles = [Layout.styles, unsafeCSS(style)]
