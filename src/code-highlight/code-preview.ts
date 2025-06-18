@@ -1,6 +1,8 @@
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
+import { timer } from 'rxjs'
+import { take } from 'rxjs/operators'
 
 /**
  * @element schmancy-code-preview
@@ -28,13 +30,20 @@ export class SchmancyCodePreview extends TailwindElement(
 	@property({ type: String })
 	layout: 'vertical' | 'horizontal' = 'vertical'
 
+	/**
+	 * Whether to render/execute the code in preview section
+	 * When false, only shows the code without rendering
+	 */
+	@property({ type: Boolean })
+	preview: boolean = true
+
 	@state()
 	private slotContent: string = ''
 
 	connectedCallback() {
 		super.connectedCallback()
 		// Capture the slot content as HTML string
-		setTimeout(() => {
+		timer(0).pipe(take(1)).subscribe(() => {
 			const slot = this.shadowRoot?.querySelector('slot')
 			if (slot) {
 				const nodes = slot.assignedNodes({ flatten: true })
@@ -65,7 +74,7 @@ export class SchmancyCodePreview extends TailwindElement(
 					.join('\n')
 					.trim()
 			}
-		}, 0)
+		})
 	}
 
 	render() {
@@ -73,7 +82,7 @@ export class SchmancyCodePreview extends TailwindElement(
 			? 'grid grid-cols-1 lg:grid-cols-2 gap-0' 
 			: 'flex flex-col'
 
-		const showPreview = this.language.toLowerCase() === 'html'
+		const showPreview = this.preview && this.language.toLowerCase() === 'html'
 		
 		return html`
 			<schmancy-surface class="rounded-lg overflow-hidden">
@@ -88,7 +97,7 @@ export class SchmancyCodePreview extends TailwindElement(
 						></schmancy-code>
 					</div>
 					
-					<!-- Preview section (only visible for HTML) -->
+					<!-- Preview section (only visible for HTML and when preview is enabled) -->
 					${showPreview ? html`
 						<div class="min-w-0 overflow-auto">
 							<schmancy-surface type="surfaceBright" class="p-6 h-full">

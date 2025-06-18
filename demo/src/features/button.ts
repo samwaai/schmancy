@@ -215,6 +215,16 @@ export class DemoButton extends $LitElement() {
 							</form>
 						</schmancy-code-preview>
 
+						<!-- Example without preview (code only) -->
+						<schmancy-code-preview language="html" ?preview=${false}>
+							<!-- This is an example HTML template -->
+							<template id="button-template">
+								<schmancy-button variant="filled">
+									Template Button
+								</schmancy-button>
+							</template>
+						</schmancy-code-preview>
+
 						<!-- Button Group -->
 						<schmancy-code-preview language="html">
 							<div class="inline-flex rounded-lg overflow-hidden divide-x divide-outline">

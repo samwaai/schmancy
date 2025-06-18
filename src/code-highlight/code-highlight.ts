@@ -7,6 +7,7 @@ import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
 import markdown from 'highlight.js/lib/languages/markdown'
 import bash from 'highlight.js/lib/languages/bash'
+import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 
 // Register only the languages we need
 hljs.registerLanguage('javascript', javascript)
@@ -18,7 +19,7 @@ hljs.registerLanguage('bash', bash)
 
 /**
  * @element schmancy-code
- * Code highlighting component using highlight.js with custom dark theme
+ * Code highlighting component using highlight.js with default theme
  */
 @customElement('schmancy-code')
 export class SchmancyCode extends TailwindElement(css`
@@ -28,26 +29,27 @@ export class SchmancyCode extends TailwindElement(css`
 		overflow: hidden;
 	}
 	
-	/* Custom dark theme for highlight.js */
+	/* Import highlight.js default dark theme */
 	.hljs {
 		display: block;
 		overflow-x: auto;
+		padding: 0.5em;
 		color: #abb2bf;
-		background: transparent;
+		background: #282c34;
 	}
-	
+
 	.hljs-comment,
 	.hljs-quote {
 		color: #5c6370;
 		font-style: italic;
 	}
-	
+
 	.hljs-doctag,
 	.hljs-keyword,
 	.hljs-formula {
 		color: #c678dd;
 	}
-	
+
 	.hljs-section,
 	.hljs-name,
 	.hljs-selector-tag,
@@ -55,11 +57,11 @@ export class SchmancyCode extends TailwindElement(css`
 	.hljs-subst {
 		color: #e06c75;
 	}
-	
+
 	.hljs-literal {
 		color: #56b6c2;
 	}
-	
+
 	.hljs-string,
 	.hljs-regexp,
 	.hljs-addition,
@@ -67,12 +69,12 @@ export class SchmancyCode extends TailwindElement(css`
 	.hljs-meta-string {
 		color: #98c379;
 	}
-	
+
 	.hljs-built_in,
 	.hljs-class .hljs-title {
 		color: #e6c07b;
 	}
-	
+
 	.hljs-attr,
 	.hljs-variable,
 	.hljs-template-variable,
@@ -83,7 +85,7 @@ export class SchmancyCode extends TailwindElement(css`
 	.hljs-number {
 		color: #d19a66;
 	}
-	
+
 	.hljs-symbol,
 	.hljs-bullet,
 	.hljs-link,
@@ -92,17 +94,42 @@ export class SchmancyCode extends TailwindElement(css`
 	.hljs-title {
 		color: #61aeee;
 	}
-	
+
 	.hljs-emphasis {
 		font-style: italic;
 	}
-	
+
 	.hljs-strong {
 		font-weight: bold;
 	}
-	
+
 	.hljs-link {
 		text-decoration: underline;
+	}
+
+	/* Minimal custom styles for line numbers and highlighting */
+	.code-with-lines {
+		background: transparent;
+		padding: 0;
+	}
+
+	.code-line {
+		display: block;
+		padding-left: 0;
+	}
+
+	.code-line.highlighted {
+		background-color: rgba(97, 174, 238, 0.15);
+	}
+
+	.line-number {
+		display: inline-block;
+		width: 3rem;
+		padding-right: 1rem;
+		text-align: right;
+		color: #5c6370;
+		user-select: none;
+		font-size: inherit;
 	}
 `) {
 	/**
@@ -153,14 +180,35 @@ export class SchmancyCode extends TailwindElement(css`
 	private get highlightedCode(): string {
 		if (!this.code) return ''
 		
+		let highlightedHtml = ''
+		
 		try {
+			// Use highlight.js to get highlighted code
 			const result = hljs.highlight(this.code.trim(), { language: this.language })
-			return this.lineNumbers ? this.addLineNumbers(result.value) : result.value
+			highlightedHtml = result.value
 		} catch {
 			// Fallback to auto-detection if language is not supported
-			const result = hljs.highlightAuto(this.code.trim())
-			return this.lineNumbers ? this.addLineNumbers(result.value) : result.value
+			try {
+				const result = hljs.highlightAuto(this.code.trim())
+				highlightedHtml = result.value
+			} catch {
+				// Final fallback to escaped plain text
+				highlightedHtml = this.escapeHtml(this.code.trim())
+			}
 		}
+
+		// Process for line numbers and highlighting if needed
+		if (this.lineNumbers || this.highlightLines) {
+			return this.addLineFeatures(highlightedHtml)
+		}
+
+		return highlightedHtml
+	}
+
+	private escapeHtml(text: string): string {
+		const div = document.createElement('div')
+		div.textContent = text
+		return div.innerHTML
 	}
 
 	private getHighlightedLines(): Set<number> {
@@ -169,29 +217,41 @@ export class SchmancyCode extends TailwindElement(css`
 		
 		const parts = this.highlightLines.split(',')
 		for (const part of parts) {
-			if (part.includes('-')) {
-				const [start, end] = part.split('-').map(n => parseInt(n.trim()))
-				for (let i = start; i <= end; i++) {
-					lines.add(i)
+			const trimmed = part.trim()
+			if (trimmed.includes('-')) {
+				const [start, end] = trimmed.split('-').map(n => parseInt(n.trim()))
+				if (!isNaN(start) && !isNaN(end)) {
+					for (let i = start; i <= end; i++) {
+						lines.add(i)
+					}
 				}
 			} else {
-				lines.add(parseInt(part.trim()))
+				const lineNum = parseInt(trimmed)
+				if (!isNaN(lineNum)) {
+					lines.add(lineNum)
+				}
 			}
 		}
 		return lines
 	}
 
-	private addLineNumbers(code: string): string {
-		const lines = code.split('\n')
+	private addLineFeatures(highlightedHtml: string): string {
+		const lines = highlightedHtml.split('\n')
 		const highlightedLines = this.getHighlightedLines()
 		
 		return lines.map((line, index) => {
 			const lineNumber = index + 1
 			const isHighlighted = highlightedLines.has(lineNumber)
-			const highlightClass = isHighlighted ? 'bg-primary-container bg-opacity-20' : ''
+			const lineClass = isHighlighted ? 'code-line highlighted' : 'code-line'
 			
-			return `<span class="block ${highlightClass}"><span class="inline-block w-12 pr-4 text-right text-surface-onVariant opacity-50 select-none text-sm">${lineNumber}</span>${line}</span>`
-		}).join('\n')
+			let content = ''
+			if (this.lineNumbers) {
+				content += `<span class="line-number">${lineNumber}</span>`
+			}
+			content += line
+			
+			return `<div class="${lineClass}">${content}</div>`
+		}).join('')
 	}
 
 	private async copyCode() {
@@ -222,8 +282,9 @@ export class SchmancyCode extends TailwindElement(css`
 		return languageMap[this.language.toLowerCase()] || this.language.toUpperCase()
 	}
 
-
 	render() {
+		const codeClass = this.lineNumbers || this.highlightLines ? 'code-with-lines' : 'hljs'
+		
 		return html`
 			<schmancy-theme mode="dark">
 				<div class="border border-outline rounded-lg bg-surface-dim overflow-hidden">
@@ -256,7 +317,7 @@ export class SchmancyCode extends TailwindElement(css`
 					
 					<!-- Code -->
 					<div class="overflow-auto" style="${this.maxHeight ? `max-height: ${this.maxHeight}` : ''}">
-						<pre class="p-4 m-0 min-w-0"><code class="hljs text-sm leading-relaxed whitespace-pre font-mono" .innerHTML=${this.highlightedCode}></code></pre>
+						<pre class="m-0"><code class="${codeClass}">${unsafeHTML(this.highlightedCode)}</code></pre>
 					</div>
 				</div>
 			</schmancy-theme>
