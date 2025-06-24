@@ -368,7 +368,7 @@ export class DemoTypography extends $LitElement() {
 						</schmancy-code-preview>
 
 						<!-- Type Scale Hierarchy -->
-						<schmancy-code-preview language="html">
+						<schmancy-code-preview preview language="html">
 							<article class="space-y-4">
 								<schmancy-typography type="display" token="xl" class="block">
 									Display XL

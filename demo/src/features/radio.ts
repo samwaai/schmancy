@@ -1,10 +1,14 @@
 import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
+import { map } from 'lit/directives/map.js'
 import '../shared/installation-section'
 
 @customElement('demo-radio')
 export class DemoRadio extends $LitElement() {
+	@state() selectedEventType = 'single'
+	@state() selectedPlan = 'basic'
+	
 	render() {
 		return html`
 			<schmancy-surface class="p-8">
@@ -84,6 +88,37 @@ export class DemoRadio extends $LitElement() {
 							</tbody>
 						</table>
 					</schmancy-surface>
+
+					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden mt-4">
+						<table class="w-full">
+							<thead class="bg-surface-container">
+								<tr>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Event</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Detail</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Description</schmancy-typography>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">change</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">{ value: string }</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Fired when selection changes</schmancy-typography>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</schmancy-surface>
 				</div>
 
 				<!-- Examples -->
@@ -92,12 +127,12 @@ export class DemoRadio extends $LitElement() {
 					
 					<schmancy-grid gap="lg" class="w-full">
 						<!-- Basic Radio Group -->
-						<schmancy-code-preview language="html">
+						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-radio-group
 								label="Select your preferred contact method"
 								name="contact"
 								value="email"
-								@change="${(e) => console.log('Selected:', e.detail.value)}"
+								@change="${(e: CustomEvent<{value: string}>) => console.log('Selected:', e.detail.value)}"
 							>
 								<schmancy-radio-button value="email">
 									<div slot="label">Email</div>
@@ -112,7 +147,7 @@ export class DemoRadio extends $LitElement() {
 						</schmancy-code-preview>
 
 						<!-- Radio Group with Options Array -->
-						<schmancy-code-preview language="html">
+						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-radio-group
 								label="Choose a subscription plan"
 								name="plan"
@@ -121,39 +156,39 @@ export class DemoRadio extends $LitElement() {
 									{ label: 'Pro - $19/month', value: 'pro' },
 									{ label: 'Enterprise - $49/month', value: 'enterprise' }
 								]}"
-								@change="${(e) => console.log('Plan selected:', e.detail.value)}"
+								@change="${(e: CustomEvent<{value: string}>) => console.log('Plan selected:', e.detail.value)}"
 							></schmancy-radio-group>
 						</schmancy-code-preview>
 
-						<!-- Radio with Rich Content -->
-						<schmancy-code-preview language="html">
+						<!-- Radio with Rich Content using Schmancy Components -->
+						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-radio-group
-								label="Select shipping method"
-								name="shipping"
+								label="Select event type"
+								name="eventType"
+								value="single"
+								@change="${(e: CustomEvent<{value: string}>) => console.log('Event type:', e.detail.value)}"
 							>
-								<schmancy-radio-button value="standard">
-									<div slot="label">
-										<div class="font-medium">Standard Shipping</div>
-										<div class="text-xs text-surface-onVariant">5-7 business days • Free</div>
-									</div>
+								<schmancy-radio-button value="single">
+									<schmancy-grid gap="xs" slot="label">
+										<schmancy-typography type="body" token="md">Single Ticket</schmancy-typography>
+										<schmancy-typography type="label" token="sm" class="text-surface-onVariant">
+											Standard purchase flow - cheapest available ticket
+										</schmancy-typography>
+									</schmancy-grid>
 								</schmancy-radio-button>
-								<schmancy-radio-button value="express">
-									<div slot="label">
-										<div class="font-medium">Express Shipping</div>
-										<div class="text-xs text-surface-onVariant">2-3 business days • $9.99</div>
-									</div>
-								</schmancy-radio-button>
-								<schmancy-radio-button value="overnight">
-									<div slot="label">
-										<div class="font-medium">Overnight Shipping</div>
-										<div class="text-xs text-surface-onVariant">Next business day • $24.99</div>
-									</div>
+								<schmancy-radio-button value="multi">
+									<schmancy-grid gap="xs" slot="label">
+										<schmancy-typography type="body" token="md">Multi Ticket</schmancy-typography>
+										<schmancy-typography type="label" token="sm" class="text-surface-onVariant">
+											Cart experience - customers can select multiple ticket types
+										</schmancy-typography>
+									</schmancy-grid>
 								</schmancy-radio-button>
 							</schmancy-radio-group>
 						</schmancy-code-preview>
 
 						<!-- Horizontal Layout -->
-						<schmancy-code-preview language="html">
+						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-radio-group
 								label="Size"
 								name="size"
@@ -178,7 +213,7 @@ export class DemoRadio extends $LitElement() {
 						</schmancy-code-preview>
 
 						<!-- Disabled Options -->
-						<schmancy-code-preview language="html">
+						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-radio-group
 								label="Select a payment method"
 								name="payment"
@@ -200,9 +235,9 @@ export class DemoRadio extends $LitElement() {
 						</schmancy-code-preview>
 
 						<!-- Form Integration -->
-						<schmancy-code-preview language="html">
+						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-form
-								@submit="${(e) => {
+								@submit="${(e: CustomEvent) => {
 									console.log('Form data:', e.detail.data);
 									alert('Form submitted! Check console.');
 								}}"
@@ -252,7 +287,7 @@ export class DemoRadio extends $LitElement() {
 						</schmancy-code-preview>
 
 						<!-- Visual Radio Options -->
-						<schmancy-code-preview language="html">
+						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-radio-group
 								label="Choose a color theme"
 								name="color"
@@ -282,6 +317,80 @@ export class DemoRadio extends $LitElement() {
 									</div>
 								</schmancy-radio-button>
 							</schmancy-radio-group>
+						</schmancy-code-preview>
+
+						<!-- State Management Example -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<schmancy-grid gap="md">
+								<schmancy-radio-group
+									label="Choose pricing plan"
+									name="pricing"
+									value="${this.selectedPlan}"
+									@change="${(e: CustomEvent<{value: string}>) => {
+										this.selectedPlan = e.detail.value
+									}}"
+								>
+									${map(['basic', 'pro', 'enterprise'], (plan) => html`
+										<schmancy-radio-button value="${plan}">
+											<schmancy-grid gap="xs" slot="label">
+												<schmancy-typography type="body" token="md" transform="capitalize">
+													${plan} Plan
+												</schmancy-typography>
+												<schmancy-typography type="label" token="sm" class="text-surface-onVariant">
+													${plan === 'basic' ? '$9/month - Essential features' :
+													  plan === 'pro' ? '$19/month - Advanced features + priority support' :
+													  '$49/month - Everything + dedicated account manager'}
+												</schmancy-typography>
+											</schmancy-grid>
+										</schmancy-radio-button>
+									`)}
+								</schmancy-radio-group>
+								
+								<schmancy-surface type="containerLow" class="p-4 rounded-lg">
+									<schmancy-typography type="body" token="md">
+										Selected plan: <span class="font-medium text-primary-default">${this.selectedPlan}</span>
+									</schmancy-typography>
+								</schmancy-surface>
+							</schmancy-grid>
+						</schmancy-code-preview>
+
+						<!-- Real-world Ticket Selection Example -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<schmancy-grid gap="lg">
+								<schmancy-radio-group
+									label="Event ticket type"
+									name="ticketType"
+									value="${this.selectedEventType}"
+									@change="${(e: CustomEvent<{value: string}>) => {
+										this.selectedEventType = e.detail.value as 'single' | 'multi'
+									}}"
+								>
+									<schmancy-radio-button value="single">
+										<schmancy-grid gap="xs" slot="label">
+											<schmancy-typography type="body" token="md">Single Ticket</schmancy-typography>
+											<schmancy-typography type="label" token="sm" class="text-surface-onVariant">
+												Standard purchase flow - cheapest available ticket
+											</schmancy-typography>
+										</schmancy-grid>
+									</schmancy-radio-button>
+									<schmancy-radio-button value="multi">
+										<schmancy-grid gap="xs" slot="label">
+											<schmancy-typography type="body" token="md">Multi Ticket</schmancy-typography>
+											<schmancy-typography type="label" token="sm" class="text-surface-onVariant">
+												Cart experience - customers can select multiple ticket types
+											</schmancy-typography>
+										</schmancy-grid>
+									</schmancy-radio-button>
+								</schmancy-radio-group>
+								
+								<schmancy-surface class="p-4 rounded-lg bg-primary-default">
+									<schmancy-typography type="body" token="md" class="text-primary-on">
+										${this.selectedEventType === 'single' 
+											? 'Customers will be directed to purchase a single ticket at the best available price.'
+											: 'Customers can browse different ticket categories and add multiple tickets to their cart.'}
+									</schmancy-typography>
+								</schmancy-surface>
+							</schmancy-grid>
 						</schmancy-code-preview>
 					</schmancy-grid>
 				</div>
