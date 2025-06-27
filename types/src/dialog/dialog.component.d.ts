@@ -7,6 +7,10 @@ declare const SchmancyDialog_base: CustomElementConstructor & import("@mixins/in
  */
 export declare class SchmancyDialog extends SchmancyDialog_base {
     /**
+     * Unique identifier for the dialog instance
+     */
+    uid: string;
+    /**
      * Current position of the dialog
      */
     private position;
@@ -47,6 +51,14 @@ export declare class SchmancyDialog extends SchmancyDialog_base {
      * Handle component disconnection from DOM
      */
     disconnectedCallback(): void;
+    /**
+     * Handle component connection to DOM
+     */
+    connectedCallback(): void;
+    /**
+     * Announce this dialog's presence to the service
+     */
+    private announcePresence;
     /**
      * Handle lifecycle callback when dialog is first rendered
      */

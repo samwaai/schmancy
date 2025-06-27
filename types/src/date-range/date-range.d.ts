@@ -32,19 +32,22 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
     required: boolean;
     placeholder: string;
     clearable: boolean;
+    allowDirectInput: boolean;
     private isOpen;
     private selectedDateRange;
     private activePreset;
+    private announceMessage;
+    private isMobile;
+    private isTyping;
+    private typedValue;
     private presetRanges;
     private presetCategories;
-    private triggerRef;
-    private dropdownRef;
-    private cleanupPositioner?;
+    private inputRef;
+    private memoizedPresets;
     connectedCallback(): void;
     private setupEventHandlers;
     disconnectedCallback(): void;
     updated(changedProps: PropertyValues): void;
-    private setupDropdownPosition;
     private initPresetRanges;
     private getDateFormat;
     /**
@@ -53,7 +56,6 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
     private updateSelectedDateRange;
     private setDateRange;
     private handlePresetSelection;
-    private handleClearSelection;
     private toggleDropdown;
     private openDropdown;
     private closeDropdown;
@@ -67,11 +69,39 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
      */
     private shiftDateRange;
     /**
+     * Handle keyboard navigation for accessibility
+     */
+    private handleKeyboardNavigation;
+    /**
      * Checks if the current date range matches any predefined preset,
      * and updates the activePreset accordingly
      */
     private checkAndUpdateActivePreset;
     private applyManualDateSelection;
+    /**
+     * Check if view is mobile
+     */
+    private checkMobileView;
+    /**
+     * Handle direct text input
+     */
+    private handleDirectInput;
+    /**
+     * Parse typed date range
+     */
+    private parseTypedDateRange;
+    /**
+     * Handle input blur to parse typed dates
+     */
+    private handleInputBlur;
+    /**
+     * Create dialog content
+     */
+    private createDialogContent;
+    /**
+     * Announce messages to screen readers
+     */
+    private announceToScreenReader;
     render(): import("lit-html").TemplateResult<1>;
 }
 export {};

@@ -19,6 +19,7 @@ export interface DialogOptions {
     onConfirm?: () => void;
     onCancel?: () => void;
     hideActions?: boolean;
+    targetContainer?: HTMLElement;
 }
 /**
  * Dialog service for centralized dialog management.
@@ -29,11 +30,21 @@ export declare class DialogService {
     private static DEFAULT_OPTIONS;
     private activeDialogs;
     private activeRawDialogs;
+    private dialogSubject;
+    private dismissSubject;
     private constructor();
     /**
      * Get the singleton instance
      */
     static getInstance(): DialogService;
+    /**
+     * Sets up the main dialog opening logic using RxJS pipes
+     */
+    private setupDialogOpeningLogic;
+    /**
+     * Sets up the dialog dismissal logic
+     */
+    private setupDialogDismissLogic;
     /**
      * Show a confirmation dialog
      * @returns Promise that resolves to true (confirm) or false (cancel)

@@ -1,6 +1,7 @@
-declare const SchmancyBoat_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+type BoatState = 'hidden' | 'minimized' | 'expanded';
+declare const SchmancyBoat_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export default class SchmancyBoat extends SchmancyBoat_base {
-    state: 'hidden' | 'minimized' | 'expanded';
+    state: BoatState;
     toggleState(): void;
     protected render(): unknown;
 }
