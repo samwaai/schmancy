@@ -915,14 +915,6 @@ export class SchmancyDateRange extends $LitElement() {
 		}
 	}
 
-	/**
-	 * Check if a date is today
-	 */
-	private isToday(dateStr: string): boolean {
-		if (!dateStr) return false
-		const date = dayjs(dateStr)
-		return date.isValid() && date.isSame(dayjs(), 'day')
-	}
 
 
 	/**
