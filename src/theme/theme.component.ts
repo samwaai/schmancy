@@ -3,11 +3,12 @@ import { argbFromHex, themeFromSourceColor } from '@material/material-color-util
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Observable, of, switchMap } from 'rxjs'
+import { Observable, of, switchMap, fromEvent } from 'rxjs'
 import { themeContext } from './context'
 import { formateTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
 import style from './theme.style.css?inline'
+import { DialogWhereAreYouRicky, DialogWhereAreYouRickyEvent, DialogHereMorty } from '../dialog/dialog-events'
 export const tailwindStyles = unsafeCSS(style)
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 const $colorScheme = new Observable<string>(subscriber => {
@@ -55,6 +56,35 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 				this.scheme = scheme as 'dark' | 'light'
 				this.registerTheme()
 			})
+
+		// Listen for dialog discovery events
+		fromEvent<DialogWhereAreYouRickyEvent>(window, DialogWhereAreYouRicky).subscribe(event => {
+			// Check if the dialog should be created in this theme
+			// The first theme to respond will host the dialog
+			const existingDialog = this.querySelector(`schmancy-dialog[uid="${event.detail.uid}"]`) || 
+			                      this.querySelector(`confirm-dialog[uid="${event.detail.uid}"]`)
+			
+			if (existingDialog) {
+				// Announce that we have an existing dialog here
+				window.dispatchEvent(
+					new CustomEvent(DialogHereMorty, {
+						detail: { dialog: existingDialog },
+						bubbles: true,
+						composed: true,
+					})
+				)
+			} else {
+				// This theme will claim the dialog by responding
+				// The dialog service will then create the dialog in this theme
+				window.dispatchEvent(
+					new CustomEvent(DialogHereMorty, {
+						detail: { dialog: null, theme: this },
+						bubbles: true,
+						composed: true,
+					})
+				)
+			}
+		})
 	}
 	registerTheme() {
 		let theme = formateTheme(

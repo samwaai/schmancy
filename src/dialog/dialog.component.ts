@@ -1,9 +1,10 @@
 import { autoUpdate, computePosition, flip, offset, Placement, shift, size, Strategy } from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
-import { customElement } from 'lit/decorators.js'
-import { fromEvent } from 'rxjs'
+import { customElement, property } from 'lit/decorators.js'
+import { fromEvent, tap } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
+import { DialogWhereAreYouRicky, DialogWhereAreYouRickyEvent, DialogHereMorty } from './dialog-events'
 
 /**
  * A basic dialog web component without title or actions
@@ -46,6 +47,11 @@ export class SchmancyDialog extends $LitElement(css`
 		transform: translate(-50%, -55%); /* Slight upward shift looks better */
 	}
 `) {
+	/**
+	 * Unique identifier for the dialog instance
+	 */
+	@property({ type: String, reflect: true }) uid: string
+
 	/**
 	 * Current position of the dialog
 	 */
@@ -284,6 +290,33 @@ export class SchmancyDialog extends $LitElement(css`
 			this.cleanupAutoUpdate()
 			this.cleanupAutoUpdate = undefined
 		}
+	}
+
+	/**
+	 * Handle component connection to DOM
+	 */
+	connectedCallback() {
+		super.connectedCallback()
+		
+		// Listen for "where are you ricky" events
+		fromEvent<DialogWhereAreYouRickyEvent>(window, DialogWhereAreYouRicky).pipe(
+			tap(e => {
+				if (e.detail.uid === this.uid) this.announcePresence()
+			}),
+		).subscribe()
+	}
+
+	/**
+	 * Announce this dialog's presence to the service
+	 */
+	private announcePresence() {
+		this.dispatchEvent(
+			new CustomEvent(DialogHereMorty, {
+				detail: { dialog: this },
+				bubbles: true,
+				composed: true,
+			}),
+		)
 	}
 
 	/**

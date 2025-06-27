@@ -1,10 +1,12 @@
-import { $LitElement } from '../../mixins'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
+import { TailwindElement } from '@mixins/tailwind.mixin'
+
+type BoatState = 'hidden' | 'minimized' | 'expanded'
 
 @customElement('schmancy-boat')
-export default class SchmancyBoat extends $LitElement(css`
+export default class SchmancyBoat extends TailwindElement(css`
     @media (min-width: 1024px) {
         .translate-y-full-minus-64 {
             /* translate to left 0 */
@@ -37,7 +39,7 @@ export default class SchmancyBoat extends $LitElement(css`
         type: String,
         reflect: true,
     })
-    state: 'hidden' | 'minimized' | 'expanded' = 'hidden'
+    state: BoatState = 'hidden'
 
     toggleState() {
         this.state = this.state === 'minimized' ? 'expanded' : 'minimized'
@@ -49,16 +51,17 @@ export default class SchmancyBoat extends $LitElement(css`
             }),
         )
     }
+
     protected render(): unknown {
         const classes = {
-            'shadow-2xl h-auto z-[100] w-[100vw] md:w-[70vw] lg:w-[60vw] xl:w-[40vw] max-h-[80vh] fixed bottom-0 right-0 transition-all duration-300 ease-in-out transform-gpu overflow-y-auto':
+            'shadow-2xl h-auto z-[100] w-[100vw] md:w-[70vw] lg:w-[60vw] xl:w-[40vw] max-h-[80vh] fixed bottom-0 right-0 transition-all duration-300 ease-in-out transform-gpu overflow-y-auto flex flex-col':
                 true,
             'translate-y-full-minus-64': this.state === 'minimized',
             'translate-y-full': this.state === 'hidden',
             'translate-y-0': this.state === 'expanded',
         }
         return html`
-            <schmancy-grid rows="auto 1fr" class="${this.classMap(classes)}">
+            <div class="${this.classMap(classes)}">
                 <section class="sticky top-0 z-10">
                     <schmancy-surface
                         elevation="4"
@@ -77,37 +80,54 @@ export default class SchmancyBoat extends $LitElement(css`
                         elevation="1"
                         type="containerLowest"
                     >
-                        <schmancy-grid
-                            cols="auto 1fr auto auto"
-                            content="center"
-                            justify="stretch"
-                            class="sticky top-0 px-4 py-3"
-                            gap="md"
-                        >
-                            <slot name="header"></slot>
-                            <span></span>
+                        <div class="sticky top-0 px-4 py-3 flex items-center justify-between gap-4">
+                            <div class="flex-1 flex items-center">
+                                <slot name="header"></slot>
+                            </div>
 
-                            <schmancy-button
-                                variant="filled tonal"
-                                @click=${(e: Event) => {
-                                    e.preventDefault()
-                                    e.stopPropagation()
-                                    this.toggleState()
-                                }}
-                            >
-                                ${when(
-                                    this.state === 'minimized',
-                                    () => html`<schmancy-icon>expand</schmancy-icon>`,
-                                    () => html`<schmancy-icon>hide</schmancy-icon>`,
-                                )}
-                            </schmancy-button>
-                        </schmancy-grid>
+                            <div class="flex items-center gap-2">
+                                <schmancy-icon-button
+                                    variant="filled tonal"
+                                    @click=${(e: Event) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        this.toggleState()
+                                    }}
+                                    title=${this.state === 'minimized' ? 'Expand' : 'Minimize'}
+                                >
+                                    ${when(
+                                        this.state === 'minimized',
+                                        () => html`expand`,
+                                        () => html`minimize`,
+                                    )}
+                                </schmancy-icon-button>
+                                
+                                <schmancy-icon-button
+                                    variant="text"
+                                    @click=${(e: Event) => {
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                        this.state = 'hidden'
+                                        this.dispatchEvent(
+                                            new CustomEvent('change', {
+                                                detail: this.state,
+                                                bubbles: true,
+                                                composed: true,
+                                            }),
+                                        )
+                                    }}
+                                    title="Close"
+                                >
+                                    close
+                                </schmancy-icon-button>
+                            </div>
+                        </div>
                     </schmancy-surface>
                 </section>
                 <schmancy-surface .hidden=${this.state !== 'expanded'} type="containerLow" class="z-0 flex-1">
                     <slot></slot>
                 </schmancy-surface>
-            </schmancy-grid>
+            </div>
         `
     }
 }

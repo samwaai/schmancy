@@ -1,5 +1,7 @@
 import { render, TemplateResult } from 'lit'
+import { defaultIfEmpty, fromEvent, map, takeUntil, timer, Subject, switchMap, forkJoin, of, tap } from 'rxjs'
 import { ConfirmDialog } from './dailog'
+import { DialogHereMorty, DialogHereMortyEvent, DialogWhereAreYouRicky } from './dialog-events'
 
 /**
  * Dialog service options interface with component support
@@ -20,6 +22,15 @@ export interface DialogOptions {
 	onConfirm?: () => void
 	onCancel?: () => void
 	hideActions?: boolean // Set to true to hide all buttons and title
+	targetContainer?: HTMLElement // Container to append dialog to (defaults to document.body)
+}
+
+interface DialogTarget {
+	options: DialogOptions
+	type: 'confirm' | 'component'
+	content?: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult)
+	resolve?: (value: boolean) => void
+	reject?: (reason?: any) => void
 }
 
 /**
@@ -44,9 +55,18 @@ export class DialogService {
 	
 	// Track component dialogs (schmancy-dialog instances)
 	private activeRawDialogs: any[] = []
+	
+	// Subject for dialog opening requests
+	private dialogSubject = new Subject<DialogTarget>()
+	
+	// Subject for dialog dismissal requests
+	private dismissSubject = new Subject<string>()
 
 	// Private constructor for singleton pattern
-	private constructor() {}
+	private constructor() {
+		this.setupDialogOpeningLogic()
+		this.setupDialogDismissLogic()
+	}
 
 	/**
 	 * Get the singleton instance
@@ -57,96 +77,277 @@ export class DialogService {
 		}
 		return DialogService.instance
 	}
+	
+	/**
+	 * Sets up the main dialog opening logic using RxJS pipes
+	 */
+	private setupDialogOpeningLogic() {
+		this.dialogSubject
+			.pipe(
+				switchMap(target =>
+					forkJoin([
+						fromEvent<DialogHereMortyEvent>(window, DialogHereMorty).pipe(
+							takeUntil(timer(100)),
+							map(e => e.detail),
+							defaultIfEmpty(undefined),
+						),
+						of(target).pipe(
+							tap(() => {
+								const uid = target.type === 'confirm' 
+									? `confirm-dialog-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+									: `dialog-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+								
+								window.dispatchEvent(
+									new CustomEvent(DialogWhereAreYouRicky, {
+										detail: { uid },
+										bubbles: true,
+										composed: true,
+									}),
+								)
+								
+								// Store uid in target for later use
+								;(target as any).uid = uid
+							}),
+						),
+					]),
+				),
+				map(([response, target]) => {
+					let dialog: ConfirmDialog | any
+					let targetContainer: HTMLElement
+					
+					if (response?.dialog) {
+						// Use existing dialog
+						dialog = response.dialog
+						targetContainer = dialog.parentElement as HTMLElement
+					} else {
+						// Determine container - use responding theme or fallback
+						if (response?.theme) {
+							targetContainer = response.theme as HTMLElement
+						} else {
+							targetContainer = target.options.targetContainer || 
+							                 document.querySelector('schmancy-theme') as HTMLElement || 
+							                 document.body
+						}
+						
+						// Create appropriate dialog type
+						if (target.type === 'confirm') {
+							dialog = document.createElement('confirm-dialog') as ConfirmDialog
+						} else {
+							dialog = document.createElement('schmancy-dialog')
+						}
+						
+						dialog.setAttribute('uid', (target as any).uid)
+						targetContainer.appendChild(dialog)
+					}
+					
+					return { dialog, target, targetContainer }
+				}),
+				tap(({ dialog, target }) => {
+					if (target.type === 'confirm') {
+						// Configure confirm dialog
+						const confirmDialog = dialog as ConfirmDialog
+						const options = target.options
+						
+						if (options.title) confirmDialog.title = options.title
+						if (options.subtitle) confirmDialog.subtitle = options.subtitle
+						if (options.message) confirmDialog.message = options.message
+						if (options.confirmText) confirmDialog.confirmText = options.confirmText
+						if (options.cancelText) confirmDialog.cancelText = options.cancelText
+						if (options.variant) confirmDialog.variant = options.variant
+						if (options.confirmColor) confirmDialog.confirmColor = options.confirmColor
+						if (options.width) confirmDialog.style.setProperty('--dialog-width', options.width)
+						
+						// Handle custom content if provided
+						if (options.content) {
+							const contentContainer = document.createElement('div')
+							contentContainer.slot = 'content'
+							
+							if (typeof options.content === 'function') {
+								const result = options.content()
+								if (result instanceof HTMLElement) {
+									contentContainer.appendChild(result)
+								} else {
+									render(result, contentContainer)
+								}
+							} else if (options.content instanceof HTMLElement) {
+								contentContainer.appendChild(options.content)
+							} else {
+								render(options.content, contentContainer)
+							}
+							
+							confirmDialog.appendChild(contentContainer)
+						}
+						
+						// Add to active dialogs
+						this.activeDialogs.push(confirmDialog)
+					} else {
+						// Configure component dialog
+						if (target.content) {
+							const directContentContainer = document.createElement('div')
+							directContentContainer.style.height = '100%'
+							directContentContainer.style.width = '100%'
+							directContentContainer.classList.add('schmancy-dialog-content-container')
+							
+							// Render the content directly
+							if (typeof target.content === 'function') {
+								const result = target.content()
+								if (result instanceof HTMLElement) {
+									directContentContainer.appendChild(result)
+								} else {
+									render(result, directContentContainer)
+								}
+							} else if (target.content instanceof HTMLElement) {
+								directContentContainer.appendChild(target.content)
+							} else {
+								render(target.content, directContentContainer)
+							}
+							
+							dialog.appendChild(directContentContainer)
+						}
+						
+						// Set width from options
+						if (target.options.width) {
+							dialog.style.setProperty('--dialog-width', target.options.width)
+						}
+						
+						// Add to active raw dialogs
+						this.activeRawDialogs.push(dialog)
+					}
+				}),
+				tap(({ dialog, target }) => {
+					// Show dialog and handle promise resolution
+					const position = target.options.position || this.getCenteredPosition()
+					
+					dialog.show(position).then((result: boolean) => {
+						if (target.resolve) {
+							target.resolve(result)
+						}
+						
+						// Cleanup
+						if (target.type === 'confirm') {
+							const index = this.activeDialogs.indexOf(dialog)
+							if (index !== -1) {
+								this.activeDialogs.splice(index, 1)
+							}
+							
+							// Clean up content
+							const contentEl = dialog.querySelector('[slot="content"]')
+							if (contentEl) {
+								dialog.removeChild(contentEl)
+							}
+						} else {
+							const index = this.activeRawDialogs.indexOf(dialog)
+							if (index !== -1) {
+								this.activeRawDialogs.splice(index, 1)
+							}
+							
+							// Clean up content
+							const contentContainer = dialog.querySelector('.schmancy-dialog-content-container')
+							if (contentContainer && contentContainer.parentNode) {
+								contentContainer.parentNode.removeChild(contentContainer)
+							}
+						}
+					}).catch((error: any) => {
+						if (target.reject) {
+							target.reject(error)
+						}
+					})
+					
+					// Set up event listeners for callbacks
+					if (target.options.onConfirm) {
+						const onConfirm = (_e: Event) => {
+							target.options.onConfirm!()
+							dialog.removeEventListener('confirm', onConfirm)
+						}
+						dialog.addEventListener('confirm', onConfirm)
+					}
+					
+					if (target.options.onCancel) {
+						const onCancel = (_e: Event) => {
+							target.options.onCancel!()
+							dialog.removeEventListener('cancel', onCancel)
+						}
+						dialog.addEventListener('cancel', onCancel)
+					}
+				}),
+			)
+			.subscribe()
+	}
+	
+	/**
+	 * Sets up the dialog dismissal logic
+	 */
+	private setupDialogDismissLogic() {
+		this.dismissSubject
+			.pipe(
+				switchMap(uid =>
+					forkJoin([
+						fromEvent<DialogHereMortyEvent>(window, DialogHereMorty).pipe(
+							takeUntil(timer(100)),
+							map(e => e.detail),
+							defaultIfEmpty(undefined),
+						),
+						of(uid).pipe(
+							tap(() => {
+								window.dispatchEvent(
+									new CustomEvent(DialogWhereAreYouRicky, { 
+										detail: { uid },
+										bubbles: true,
+										composed: true,
+									})
+								)
+							}),
+						),
+					]),
+				),
+				tap(([response, uid]) => {
+					if (response?.dialog) {
+						// Hide the dialog
+						response.dialog.hide(false)
+						
+						// Remove from tracking arrays
+						const confirmIndex = this.activeDialogs.indexOf(response.dialog)
+						if (confirmIndex !== -1) {
+							this.activeDialogs.splice(confirmIndex, 1)
+						}
+						
+						const rawIndex = this.activeRawDialogs.indexOf(response.dialog)
+						if (rawIndex !== -1) {
+							this.activeRawDialogs.splice(rawIndex, 1)
+						}
+					}
+				}),
+			)
+			.subscribe()
+	}
 
 	/**
 	 * Show a confirmation dialog
 	 * @returns Promise that resolves to true (confirm) or false (cancel)
 	 */
 	public confirm(options: DialogOptions): Promise<boolean> {
-		// Apply default options
-		const completeOptions = {
-			...DialogService.DEFAULT_OPTIONS,
-			...options,
-		}
-
-		// If no position is provided, center the dialog
-		if (!completeOptions.position) {
-			completeOptions.position = this.getCenteredPosition()
-		}
-
-		// Create or find the dialog
-		let dialog = document.querySelector('confirm-dialog') as ConfirmDialog
-		if (!dialog) {
-			dialog = document.createElement('confirm-dialog') as ConfirmDialog
-			document.body.appendChild(dialog)
-		}
-
-		// Set basic options
-		if (completeOptions.title) dialog.title = completeOptions.title
-		if (completeOptions.subtitle) dialog.subtitle = completeOptions.subtitle
-		if (completeOptions.message) dialog.message = completeOptions.message
-		if (completeOptions.confirmText) dialog.confirmText = completeOptions.confirmText
-		if (completeOptions.cancelText) dialog.cancelText = completeOptions.cancelText
-		if (completeOptions.variant) dialog.variant = completeOptions.variant
-		if (completeOptions.confirmColor) dialog.confirmColor = completeOptions.confirmColor
-		if (completeOptions.width) dialog.style.setProperty('--dialog-width', completeOptions.width)
-
-		// Handle custom content if provided
-		if (completeOptions.content) {
-			const contentContainer = document.createElement('div')
-			contentContainer.slot = 'content'
-
-			if (typeof completeOptions.content === 'function') {
-				const result = completeOptions.content()
-				if (result instanceof HTMLElement) {
-					contentContainer.appendChild(result)
-				} else {
-					render(result, contentContainer)
-				}
-			} else if (completeOptions.content instanceof HTMLElement) {
-				contentContainer.appendChild(completeOptions.content)
-			} else {
-				render(completeOptions.content, contentContainer)
+		return new Promise((resolve, reject) => {
+			// Apply default options
+			const completeOptions = {
+				...DialogService.DEFAULT_OPTIONS,
+				...options,
 			}
 
-			dialog.appendChild(contentContainer)
-		}
-
-		// Set up event listeners for optional callbacks
-		if (completeOptions.onConfirm) {
-			const onConfirm = (_e: Event) => {
-				completeOptions.onConfirm!()
-				dialog.removeEventListener('confirm', onConfirm)
-			}
-			dialog.addEventListener('confirm', onConfirm)
-		}
-
-		if (completeOptions.onCancel) {
-			const onCancel = (_e: Event) => {
-				completeOptions.onCancel!()
-				dialog.removeEventListener('cancel', onCancel)
-			}
-			dialog.addEventListener('cancel', onCancel)
-		}
-
-		// Add this dialog to active dialogs
-		this.activeDialogs.push(dialog)
-
-		// Show dialog and return promise
-		return dialog.show(completeOptions.position).finally(() => {
-			// Remove from active dialogs when closed
-			const index = this.activeDialogs.indexOf(dialog)
-			if (index !== -1) {
-				this.activeDialogs.splice(index, 1)
+			// If no position is provided, center the dialog
+			if (!completeOptions.position) {
+				completeOptions.position = this.getCenteredPosition()
 			}
 
-			// Clean up the content when dialog closes
-			if (completeOptions.content) {
-				const contentEl = dialog.querySelector('[slot="content"]')
-				if (contentEl) {
-					dialog.removeChild(contentEl)
-				}
+			// Create dialog target and emit to subject
+			const target: DialogTarget = {
+				options: completeOptions,
+				type: 'confirm',
+				content: completeOptions.content,
+				resolve,
+				reject,
 			}
+
+			this.dialogSubject.next(target)
 		})
 	}
 
@@ -159,58 +360,23 @@ export class DialogService {
 		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
 		options: Omit<DialogOptions, 'content' | 'message'> = {},
 	): Promise<boolean> {
-		// Create a direct container for the component without any wrapping
-		const directContentContainer = document.createElement('div');
-		directContentContainer.style.height = '100%';
-		directContentContainer.style.width = '100%';
-		directContentContainer.classList.add('schmancy-dialog-content-container');
-		
-		// Render the content directly
-		if (typeof content === 'function') {
-			const result = content();
-			if (result instanceof HTMLElement) {
-				directContentContainer.appendChild(result);
-			} else {
-				render(result, directContentContainer);
+		return new Promise((resolve, reject) => {
+			// If no position is provided, center the dialog
+			if (!options.position) {
+				options.position = this.getCenteredPosition()
 			}
-		} else if (content instanceof HTMLElement) {
-			directContentContainer.appendChild(content);
-		} else {
-			render(content, directContentContainer);
-		}
-		
-		// Create dialog if it doesn't exist
-		let dialog = document.querySelector('schmancy-dialog') as any;
-		if (!dialog) {
-			dialog = document.createElement('schmancy-dialog');
-			document.body.appendChild(dialog);
-		}
-		
-		// Always use raw component rendering with no actions
-		dialog.appendChild(directContentContainer);
-		
-		// Set width from options
-		if (options.width) {
-			dialog.style.setProperty('--dialog-width', options.width);
-		}
-		
-		// Add to active raw dialogs for dismiss functionality
-		this.activeRawDialogs.push(dialog);
-		
-		// Show dialog and return promise with cleanup
-		const promise = dialog.show(options.position);
-		return promise.finally(() => {
-			// Clean up content when dialog closes
-			if (directContentContainer && directContentContainer.parentNode) {
-				directContentContainer.parentNode.removeChild(directContentContainer);
+
+			// Create dialog target and emit to subject
+			const target: DialogTarget = {
+				options: options as DialogOptions,
+				type: 'component',
+				content,
+				resolve,
+				reject,
 			}
-			
-			// Remove from active raw dialogs
-			const index = this.activeRawDialogs.indexOf(dialog);
-			if (index !== -1) {
-				this.activeRawDialogs.splice(index, 1);
-			}
-		});
+
+			this.dialogSubject.next(target)
+		})
 	}
 
 	/**
@@ -221,29 +387,28 @@ export class DialogService {
 		// Try component dialog first (they're more likely to be on top)
 		if (this.activeRawDialogs.length > 0) {
 			// Get the most recently opened raw dialog (last in the array)
-			const dialog = this.activeRawDialogs[this.activeRawDialogs.length - 1];
+			const dialog = this.activeRawDialogs[this.activeRawDialogs.length - 1]
+			const uid = dialog.getAttribute('uid')
 			
-			// Hide the dialog
-			dialog.hide(false);
-			
-			// Remove from active dialogs
-			this.activeRawDialogs.pop();
-			
-			return true;
+			if (uid) {
+				this.dismissSubject.next(uid)
+				return true
+			}
 		}
 		
 		// Fall back to confirm dialogs
 		if (this.activeDialogs.length > 0) {
 			// Get the most recently opened dialog (last in the array)
-			const dialog = this.activeDialogs[this.activeDialogs.length - 1];
+			const dialog = this.activeDialogs[this.activeDialogs.length - 1]
+			const uid = dialog.getAttribute('uid')
 			
-			// Hide the dialog (with cancel result)
-			dialog.hide(false);
-			
-			return true;
+			if (uid) {
+				this.dismissSubject.next(uid)
+				return true
+			}
 		}
 
-		return false;
+		return false
 	}
 
 	/**

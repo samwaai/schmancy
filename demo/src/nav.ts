@@ -26,6 +26,7 @@ import { DemoIcons } from './features/icons'
 
 // Layout & Navigation
 import { DemoLayout } from './features/layout'
+import { DemoBoat } from './features/boat'
 
 // Form Controls
 import { DemoAutocomplete } from './features/autocomplete'
@@ -89,6 +90,7 @@ export class DemoNav extends TailwindElement() {
       title: 'Layout',
       demos: [
         { name: 'Layout', component: DemoLayout },
+        { name: 'Boat', component: DemoBoat },
       ]
     },
   ]

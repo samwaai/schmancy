@@ -17,7 +17,7 @@ export class DemoDateRange extends $LitElement() {
 					Date Range
 				</schmancy-typography>
 				<schmancy-typography type="body" token="lg" class="mb-8 text-surface-onVariant block">
-					Material Design 3 date range picker with presets, custom ranges, and flexible configuration options.
+					Advanced date range picker with keyboard navigation, mobile optimization, direct text input, and smart presets. Fully accessible with ARIA support.
 				</schmancy-typography>
 
 				<!-- Installation -->
@@ -194,6 +194,20 @@ export class DemoDateRange extends $LitElement() {
 										<schmancy-typography type="body" token="sm">Shows clear button</schmancy-typography>
 									</td>
 								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">allowDirectInput</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">true</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Allows typing dates directly</schmancy-typography>
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</schmancy-surface>
@@ -228,6 +242,72 @@ export class DemoDateRange extends $LitElement() {
 							</tbody>
 						</table>
 					</schmancy-surface>
+
+					<!-- Keyboard Shortcuts Table -->
+					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden mt-4">
+						<table class="w-full">
+							<thead class="bg-surface-container">
+								<tr>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Keyboard Shortcut</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Action</schmancy-typography>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">PageUp</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Navigate to previous date range</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">PageDown</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Navigate to next date range</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">Ctrl+Home</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Jump to start of current month</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">Ctrl+End</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Jump to end of current month</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">Escape</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Close date picker dropdown</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">Tab</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Navigate between elements (focus trapped in dropdown)</schmancy-typography>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</schmancy-surface>
 				</div>
 
 				<!-- Examples -->
@@ -242,6 +322,35 @@ export class DemoDateRange extends $LitElement() {
 									console.log('Date range changed:', e.detail)
 								}}"
 							></schmancy-date-range>
+						</schmancy-code-preview>
+
+						<!-- Direct Text Input -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									Type dates directly using formats like "Jan 1 - Jan 31" or "2024-01-01 to 2024-01-31"
+								</schmancy-typography>
+								<schmancy-date-range
+									allowDirectInput
+									placeholder="Type or select date range"
+									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+										console.log('Typed date range:', e.detail)
+									}}"
+								></schmancy-date-range>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Keyboard Navigation Demo -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									Use PageUp/PageDown keys to navigate through date ranges
+								</schmancy-typography>
+								<schmancy-date-range
+									.dateFrom="${{ label: 'Start', value: new Date().toISOString().split('T')[0] }}"
+									.dateTo="${{ label: 'End', value: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}"
+								></schmancy-date-range>
+							</div>
 						</schmancy-code-preview>
 
 						<!-- With Custom Labels -->
@@ -456,6 +565,30 @@ export class DemoDateRange extends $LitElement() {
 								.dateTo="${{ label: 'End', value: '2024-01-31' }}"
 								placeholder="Date selection disabled"
 							></schmancy-date-range>
+						</schmancy-code-preview>
+
+						<!-- Button-only Mode (No Direct Input) -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<schmancy-date-range
+								.allowDirectInput="${false}"
+								placeholder="Click to select dates"
+								@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									console.log('Selected:', e.detail)
+								}}"
+							></schmancy-date-range>
+						</schmancy-code-preview>
+
+						<!-- Today Highlighting -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									Today's date is automatically highlighted with a visual indicator
+								</schmancy-typography>
+								<schmancy-date-range
+									.dateFrom="${{ label: 'From', value: new Date().toISOString().split('T')[0] }}"
+									.dateTo="${{ label: 'To', value: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}"
+								></schmancy-date-range>
+							</div>
 						</schmancy-code-preview>
 					</div>
 				</div>
