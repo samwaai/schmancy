@@ -74,7 +74,6 @@ export class SchmancyDateRange extends $LitElement() {
 	}> = []
 
 	// DOM references
-	@query('.trigger-container') private triggerRef!: HTMLElement
 	@query('.date-range-input') private inputRef!: HTMLInputElement
 	
 	// Memoization cache
@@ -500,13 +499,7 @@ export class SchmancyDateRange extends $LitElement() {
 		$dialog.dismiss()
 	}
 
-	private handleClearSelection(e: Event) {
-		e.stopPropagation()
-		const emptyDate = ''
-		this.setDateRange(emptyDate, emptyDate)
-		this.activePreset = null
-		this.selectedDateRange = this.placeholder
-	}
+
 
 	private toggleDropdown(e: Event) {
 		e.stopPropagation()
@@ -931,16 +924,6 @@ export class SchmancyDateRange extends $LitElement() {
 		return date.isValid() && date.isSame(dayjs(), 'day')
 	}
 
-	/**
-	 * Get CSS classes for date input
-	 */
-	private getDateInputClasses(dateStr: string): string {
-		const classes: string[] = []
-		if (this.isToday(dateStr)) {
-			classes.push('ring-2 ring-primary-default')
-		}
-		return classes.join(' ')
-	}
 
 	/**
 	 * Create dialog content

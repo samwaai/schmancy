@@ -1,5 +1,5 @@
 import { render, TemplateResult } from 'lit'
-import { defaultIfEmpty, fromEvent, map, takeUntil, timer, Subject, switchMap, forkJoin, of, tap } from 'rxjs'
+import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, switchMap, takeUntil, tap, timer } from 'rxjs'
 import { ConfirmDialog } from './dailog'
 import { DialogHereMorty, DialogHereMortyEvent, DialogWhereAreYouRicky } from './dialog-events'
 
@@ -300,7 +300,7 @@ export class DialogService {
 						),
 					]),
 				),
-				tap(([response, uid]) => {
+				tap(([response]) => {
 					if (response?.dialog) {
 						// Hide the dialog
 						response.dialog.hide(false)
