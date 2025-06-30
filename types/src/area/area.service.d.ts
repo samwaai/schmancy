@@ -52,6 +52,14 @@ declare class AreaService implements AreaSubscription {
      */
     param<T = unknown>(areaName: string, key: string): Observable<T>;
     /**
+     * Get props from an area with type safety
+     */
+    props<T extends Record<string, unknown> = Record<string, unknown>>(areaName: string): Observable<T>;
+    /**
+     * Get a specific prop from an area with null safety
+     */
+    prop<T = unknown>(areaName: string, key: string): Observable<T>;
+    /**
      * Find teleportation components
      */
     find(): Observable<{

@@ -32,7 +32,8 @@ export type SheetWhereAreYouRickyEvent = CustomEvent<{
 }>;
 export declare const SheetWhereAreYouRicky = "are-you-there-sheet";
 export type SheetHereMortyEvent = CustomEvent<{
-    sheet: SchmancySheet;
+    sheet?: SchmancySheet;
+    theme?: HTMLElement;
 }>;
 export declare const SheetHereMorty = "yes-here";
 declare class BottomSheetService {
@@ -54,9 +55,9 @@ declare class BottomSheetService {
      */
     private setupPopStateListener;
     /**
-     * Dismiss a sheet by uid
+     * Dismiss a sheet by uid, or dismiss the most recently opened sheet if no uid provided
      */
-    dismiss(uid: string): void;
+    dismiss(uid?: string): void;
     /**
      * Open a sheet with the given target configuration
      */
