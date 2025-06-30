@@ -1,7 +1,6 @@
 import {
 	defaultIfEmpty,
 	delay,
-	filter,
 	forkJoin,
 	fromEvent,
 	map,
@@ -12,10 +11,10 @@ import {
 	take,
 	takeUntil,
 	tap,
-	timer,
+	timer
 } from 'rxjs'
+import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.component'
 import SchmancySheet from './sheet'
-import { ThemeWhereAreYou, ThemeHereIAmEvent, ThemeHereIAm } from '../theme/theme.component'
 
 export enum SchmancySheetPosition {
 	Side = 'side',
@@ -187,7 +186,7 @@ class BottomSheetService {
 					fromEvent<CustomEvent>(sheet, 'close')
 						.pipe(take(1))
 						.pipe(delay(300))
-						.subscribe(e => {
+						.subscribe(_ => {
 							// Use the sheet reference directly, not e.target
 							const sheetElement = sheet as SchmancySheet
 							console.log('Close event fired for sheet:', sheetElement)

@@ -2,19 +2,7 @@ import { Subject } from 'rxjs';
 import SchmancySheet from './sheet';
 export declare enum SchmancySheetPosition {
     Side = "side",
-    Bottom = "bottom",
-    /**
-     *  @deprecated use bottom instead
-     */
-    BottomCenter = "bottom-center",
-    /**
-     *  @deprecated use side instead
-     */
-    TopRight = "top-right",
-    /**
-     *  @deprecated use side instead
-     */
-    BottomRight = "bottom-right"
+    Bottom = "bottom"
 }
 type BottomSheeetTarget = {
     component: HTMLElement;
