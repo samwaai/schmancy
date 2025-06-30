@@ -20,18 +20,6 @@ import { ThemeWhereAreYou, ThemeHereIAmEvent, ThemeHereIAm } from '../theme/them
 export enum SchmancySheetPosition {
 	Side = 'side',
 	Bottom = 'bottom',
-	/**
-	 *  @deprecated use bottom instead
-	 */
-	BottomCenter = 'bottom-center',
-	/**
-	 *  @deprecated use side instead
-	 */
-	TopRight = 'top-right',
-	/**
-	 *  @deprecated use side instead
-	 */
-	BottomRight = 'bottom-right',
 }
 
 type BottomSheeetTarget = {
@@ -66,8 +54,8 @@ const getPosition = (): SchmancySheetPosition => {
 class BottomSheetService {
 	bottomSheet = new Subject<BottomSheeetTarget>()
 	$dismiss = new Subject<string>()
-	// Track currently open sheets by uid in order of opening
-	private activeSheets: string[] = []
+	// Track currently open sheets
+	private activeSheets = new Set<string>()
 	// To track if we've set up the popstate listener
 	private popStateListenerActive = false
 
@@ -120,6 +108,7 @@ class BottomSheetService {
 					
 					if (sheet) {
 						// Use existing sheet
+						console.log('Found existing sheet:', sheet)
 						targetContainer = sheet.parentElement as HTMLElement
 					} else {
 						// Determine container - use theme from discovery or fallback
@@ -128,6 +117,7 @@ class BottomSheetService {
 						                 document.body
 						
 						// Create new sheet
+						console.log('Creating new sheet for uid:', target.uid ?? target.component.tagName)
 						sheet = document.createElement('schmancy-sheet')
 						sheet.setAttribute('uid', target.uid ?? target.component.tagName)
 						targetContainer.appendChild(sheet)
@@ -140,7 +130,7 @@ class BottomSheetService {
 					sheet.setAttribute('position', position)
 
 					target.title && sheet.setAttribute('title', target.title)
-					target.persist && sheet.setAttribute('persist', target.persist ?? false)
+					target.persist && sheet.setAttribute('persist', String(target.persist))
 					target.header && sheet.setAttribute('header', target.header)
 
 					// Handle history logic if the property exists
@@ -152,23 +142,23 @@ class BottomSheetService {
 					return { target, sheet: sheet as SchmancySheet }
 				}),
 				delay(20),
-				filter(({ target, sheet }) => {
-					//  if the sheet has already the component, just show it
-					if (
-						target.persist &&
-						sheet?.shadowRoot
-							?.querySelector('slot')
-							?.assignedElements()
-							.find(e => e.tagName === target.component.tagName)
-					) {
-						sheet?.setAttribute('open', 'true')
-						return false
-					} else {
-						return true // if the sheet does not have the component, continue to the next step
-					}
-				}),
 				tap(({ target, sheet }) => {
-					sheet?.appendChild(target.component)
+					// Check if the sheet already has this component
+					const assignedElements = sheet?.shadowRoot
+						?.querySelector('slot')
+						?.assignedElements() || []
+					
+					console.log('Assigned elements in sheet:', assignedElements.map(e => e.tagName))
+					
+					const existingComponent = assignedElements.find(e => e.tagName === target.component.tagName)
+					
+					if (!existingComponent) {
+						// Need to append the component
+						console.log('Component not found, will append:', target.component.tagName)
+						sheet?.appendChild(target.component)
+					} else {
+						console.log('Component already exists, reusing:', target.component.tagName)
+					}
 				}),
 				delay(1),
 				tap(({ target, sheet }) => {
@@ -176,9 +166,7 @@ class BottomSheetService {
 
 					// Add to active sheets tracking
 					const uid = target.uid ?? target.component.tagName
-					if (!this.activeSheets.includes(uid)) {
-						this.activeSheets.push(uid)
-					}
+					this.activeSheets.add(uid)
 
 					// Handle history integration - default to true if not specified
 					const shouldHandleHistory = target.handleHistory !== false
@@ -194,27 +182,31 @@ class BottomSheetService {
 						// Push a new history state
 						history.pushState(historyState, '', window.location.href)
 					}
-				}),
-				tap(({ sheet }) => {
+
+					// Set up close event listener (always, not just for new sheets)
 					fromEvent<CustomEvent>(sheet, 'close')
 						.pipe(take(1))
 						.pipe(delay(300))
 						.subscribe(e => {
-							const target = e.target as SchmancySheet
-							console.log(target)
+							// Use the sheet reference directly, not e.target
+							const sheetElement = sheet as SchmancySheet
+							console.log('Close event fired for sheet:', sheetElement)
 
 							// Remove from active sheets tracking
-							if (target) {
-								const uid = target.getAttribute('uid')
+							if (sheetElement) {
+								const uid = sheetElement.getAttribute('uid')
 								if (uid) {
-									const index = this.activeSheets.indexOf(uid)
-									if (index > -1) {
-										this.activeSheets.splice(index, 1)
-									}
+									this.activeSheets.delete(uid)
 								}
 								
-								if (!target.persist) {
-									target.remove()
+								// Only keep sheet if persist is explicitly set to a truthy value
+								const persistAttr = sheetElement.getAttribute('persist')
+								const shouldRemove = !persistAttr || persistAttr === 'false'
+								console.log('Sheet close - persist:', persistAttr, 'shouldRemove:', shouldRemove)
+								
+								if (shouldRemove) {
+									console.log('Removing sheet from DOM:', uid)
+									sheetElement.remove()
 								}
 							}
 							
@@ -246,12 +238,12 @@ class BottomSheetService {
 					]),
 				),
 				tap(([response, uid]) => {
+					console.log('Dismiss called for uid:', uid, 'Found sheet:', !!response?.sheet)
 					if (response?.sheet) {
 						response.sheet.closeSheet()
-						const index = this.activeSheets.indexOf(uid)
-						if (index > -1) {
-							this.activeSheets.splice(index, 1)
-						}
+						this.activeSheets.delete(uid)
+					} else {
+						console.log('No sheet found to dismiss for uid:', uid)
 					}
 				}),
 			)
@@ -266,8 +258,9 @@ class BottomSheetService {
 
 		fromEvent<PopStateEvent>(window, 'popstate').subscribe(event => {
 			// If we have active sheets, close the most recently opened one
-			if (this.activeSheets.length > 0) {
-				const lastSheet = this.activeSheets[this.activeSheets.length - 1]
+			if (this.activeSheets.size > 0) {
+				// Get the last sheet (Set maintains insertion order)
+				const lastSheet = Array.from(this.activeSheets).pop()
 				if (lastSheet) {
 					this.dismiss(lastSheet)
 
@@ -287,9 +280,10 @@ class BottomSheetService {
 	 * Dismiss a sheet by uid, or dismiss the most recently opened sheet if no uid provided
 	 */
 	dismiss(uid?: string) {
-		if (!uid && this.activeSheets.length > 0) {
-			// Get the last sheet opened (last item in the array)
-			uid = this.activeSheets[this.activeSheets.length - 1]
+		if (!uid && this.activeSheets.size > 0) {
+			// Get the last sheet opened (Set maintains insertion order)
+			const sheetsArray = Array.from(this.activeSheets)
+			uid = sheetsArray[sheetsArray.length - 1]
 		}
 		
 		if (uid) {
@@ -308,15 +302,15 @@ class BottomSheetService {
 	 * Check if a sheet is currently open by uid
 	 */
 	isOpen(uid: string): boolean {
-		return this.activeSheets.includes(uid)
+		return this.activeSheets.has(uid)
 	}
 
 	/**
 	 * Close all open sheets
 	 */
 	closeAll() {
-		// Copy the array to avoid modification during iteration
-		[...this.activeSheets].forEach(uid => {
+		// Copy the set to avoid modification during iteration
+		Array.from(this.activeSheets).forEach(uid => {
 			this.dismiss(uid)
 		})
 	}
