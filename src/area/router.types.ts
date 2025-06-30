@@ -3,6 +3,7 @@ export type RouteAction = {
 	area: string
 	state?: Record<string, unknown>
 	params?: Record<string, unknown>
+	props?: Record<string, unknown> // Alias for params
 	historyStrategy?: THistoryStrategy
 	clearQueryParams?: string[] | boolean | null
 	_source?: 'programmatic' | 'browser' | 'initial' // Internal use only
@@ -13,6 +14,7 @@ export type ActiveRoute = {
 	area: string
 	state?: Record<string, unknown>
 	params?: Record<string, unknown>
+	props?: Record<string, unknown>
 }
 
 /**
@@ -55,6 +57,21 @@ export interface AreaSubscription {
 	 * @returns Observable of the param value
 	 */
 	param<T = unknown>(areaName: string, key: string): import('rxjs').Observable<T>
+	
+	/**
+	 * Get props from an area
+	 * @param areaName Name of the area to subscribe to
+	 * @returns Observable of the area's props
+	 */
+	props<T extends Record<string, unknown> = Record<string, unknown>>(areaName: string): import('rxjs').Observable<T>
+	
+	/**
+	 * Get a specific prop from an area
+	 * @param areaName Name of the area to subscribe to
+	 * @param key Key of the prop to select
+	 * @returns Observable of the prop value
+	 */
+	prop<T = unknown>(areaName: string, key: string): import('rxjs').Observable<T>
 }
 
 export type THistoryStrategy = 'push' | 'replace' | 'pop' | 'silent'

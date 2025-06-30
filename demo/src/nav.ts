@@ -9,29 +9,30 @@ import { filter, map } from 'rxjs'
 // Key Features
 import { DemoArea } from './features/area'
 import { DemoAreaBasic } from './features/area-basic'
-import { DemoAreaParams } from './features/area-params'
-import { DemoAreaState } from './features/area-state'
 import { DemoAreaDefault } from './features/area-default'
 import { DemoAreaHistory } from './features/area-history'
 import { DemoAreaMulti } from './features/area-multi'
+import { DemoAreaParams } from './features/area-params'
+import { DemoAreaState } from './features/area-state'
 import { DemoContext } from './features/context'
 
 // Core Components
-import DemoTypography from './features/typography'
 import { DemoButton } from './features/button'
 import { DemoCard } from './features/card'
+import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoSurface } from './features/surface'
-import { DemoIcons } from './features/icons'
+import DemoTypography from './features/typography'
 
 // Layout & Navigation
-import { DemoLayout } from './features/layout'
 import { DemoBoat } from './features/boat'
+import { DemoLayout } from './features/layout'
 
 // Form Controls
 import { DemoAutocomplete } from './features/autocomplete'
 import { DemoDateRange } from './features/date-range'
 import { DemoRadio } from './features/radio'
+import { DemoSheet } from './features/sheet-demo'
 import { DemoSlider } from './features/slider'
 
 interface DemoSection {
@@ -91,6 +92,9 @@ export class DemoNav extends TailwindElement() {
       demos: [
         { name: 'Layout', component: DemoLayout },
         { name: 'Boat', component: DemoBoat },
+        { 
+          name : 'Sheet' , component:DemoSheet
+        }
       ]
     },
   ]

@@ -111,9 +111,10 @@ class AreaService implements AreaSubscription {
 			if (currentRoute) {
 				subject.next({
 					...currentRoute,
-					// Ensure state and params are initialized if undefined
+					// Ensure state, params and props are initialized if undefined
 					state: currentRoute.state || {},
-					params: currentRoute.params || {}
+					params: currentRoute.params || {},
+					props: currentRoute.props || {}
 				})
 			}
 		}
@@ -217,6 +218,48 @@ class AreaService implements AreaSubscription {
 			})
 		)
 	}
+	
+	/**
+	 * Get props from an area with type safety
+	 */
+	props<T extends Record<string, unknown> = Record<string, unknown>>(areaName: string): Observable<T> {
+		if (!areaName) {
+			throw new Error('Area name is required')
+		}
+		
+		return this.on(areaName).pipe(
+			map(route => route.props),
+			filter((props): props is NonNullable<Record<string, unknown>> => 
+				props !== undefined && props !== null
+			),
+			distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+			map(props => props as T),
+			catchError(err => {
+				console.error(`Error getting props for area "${areaName}":`, err)
+				return EMPTY
+			})
+		)
+	}
+	
+	/**
+	 * Get a specific prop from an area with null safety
+	 */
+	prop<T = unknown>(areaName: string, key: string): Observable<T> {
+		if (!areaName || !key) {
+			throw new Error('Area name and key are required')
+		}
+		
+		return this.props<Record<string, unknown>>(areaName).pipe(
+			map(props => props[key]),
+			filter((value): value is NonNullable<unknown> => value !== undefined),
+			distinctUntilChanged(),
+			map(value => value as T),
+			catchError(err => {
+				console.error(`Error getting prop "${key}" for area "${areaName}":`, err)
+				return EMPTY
+			})
+		)
+	}
 
 	/**
 	 * Find teleportation components
@@ -248,11 +291,12 @@ class AreaService implements AreaSubscription {
 			return
 		}
 		
-		// Ensure state and params are initialized
+		// Ensure state, params and props are initialized
 		const routeAction: RouteAction = {
 			...r,
 			state: r.state || {},
 			params: r.params || {},
+			props: r.props || {},
 			_source: 'programmatic' as NavigationSource
 		}
 		
@@ -275,6 +319,7 @@ class AreaService implements AreaSubscription {
 			...routeAction,
 			state: routeAction.state || {},
 			params: routeAction.params || {},
+			props: routeAction.props || {},
 			_source: 'browser' as NavigationSource
 		}
 		
@@ -294,7 +339,7 @@ class AreaService implements AreaSubscription {
 			const currentState = history.state || {}
 			const schmancyAreas = currentState.schmancyAreas || {}
 			
-			// Update the specific area - only include non-empty state/params
+			// Update the specific area - only include non-empty state/params/props
 			const areaData: any = {
 				component: route.component,
 				area: route.area
@@ -308,6 +353,11 @@ class AreaService implements AreaSubscription {
 			// Only include params if it has content
 			if (route.params && Object.keys(route.params).length > 0) {
 				areaData.params = route.params
+			}
+			
+			// Only include props if it has content
+			if (route.props && Object.keys(route.props).length > 0) {
+				areaData.props = route.props
 			}
 			
 			schmancyAreas[areaName] = areaData
@@ -393,6 +443,11 @@ class AreaService implements AreaSubscription {
 					cleanRoute.params = route.params
 				}
 				
+				// Only include props if it has content
+				if (route.props && Object.keys(route.props).length > 0) {
+					cleanRoute.props = route.props
+				}
+				
 				cleanedAreas[areaName] = cleanRoute
 			})
 			
@@ -452,6 +507,7 @@ class AreaService implements AreaSubscription {
 				component: routeAction.component,
 				state: routeAction.state,
 				params: routeAction.params,
+				props: routeAction.props,
 				historyStrategy: routeAction.historyStrategy
 			},
 			bubbles: true,

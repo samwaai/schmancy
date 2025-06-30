@@ -138,7 +138,9 @@ export default class SchmancySheet extends $LitElement(style) {
 					class="overlay"
 					@click=${(e: Event) => {
 						e.stopPropagation()
-						if (!this.lock) sheet.dismiss(this.uid)
+						if (!this.lock) {
+							sheet.dismiss(this.uid)
+						}
 					}}
 				></div>
 				<schmancy-grid

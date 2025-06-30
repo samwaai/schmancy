@@ -523,7 +523,7 @@ export class SchmancyDateRange extends $LitElement() {
 		// Use the dialog service - it will automatically find the nearest schmancy-theme
 		$dialog.component(dialogContent, {
 			title: 'Select Date Range',
-			width: this.isMobile ? '100vw' : '800px',
+			width: this.isMobile ? '100vw' : 'fit-content',
 			hideActions: true
 		}).then(() => {
 			this.isOpen = false

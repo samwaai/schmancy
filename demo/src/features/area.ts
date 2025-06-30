@@ -1,6 +1,5 @@
 import { $LitElement } from '@mixins/index'
 import { area } from '@schmancy/area'
-import '@schmancy/code-highlight'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import '../shared/installation-section'
@@ -63,8 +62,41 @@ class AreaDemoUserProfile extends $LitElement() {
 				<schmancy-typography type="headline" token="lg" class="mb-4">User Profile</schmancy-typography>
 				<schmancy-surface type="container" class="p-4 rounded-lg">
 					<div class="space-y-2">
-						<div><strong>User ID:</strong> ${this.userId || 'Not provided'}</div>
-						<div><strong>Username:</strong> ${this.username || 'Not provided'}</div>
+						<div><strong>User ID:</strong> ${this.userId || 'Not provided'}
+						<div><strong>Username:</strong> ${this.username || 'Not provided'}
+					</div>
+				</schmancy-surface>
+			</div>
+		`
+	}
+}
+
+@customElement('area-demo-props-example')
+class AreaDemoPropsExample extends $LitElement() {
+	@property({ type: String }) heading?: string
+	@property({ type: Object }) data?: any
+	@property({ attribute: false }) onClick?: () => void
+
+	render() {
+		return html`
+			<div class="p-8">
+				<schmancy-icon size="64" class="text-primary mb-4">widgets</schmancy-icon>
+				<schmancy-typography type="headline" token="lg" class="mb-4">
+					${this.heading || 'Props Example'}
+				</schmancy-typography>
+				<schmancy-surface type="container" class="p-4 rounded-lg">
+					<div class="space-y-4">
+						<div><strong>Title prop:</strong> ${this.heading || 'Not provided'}</div>
+						<div><strong>Data prop:</strong> ${this.data ? JSON.stringify(this.data) : 'Not provided'}</div>
+						<div><strong>onClick prop:</strong> ${this.onClick ? 'Function provided' : 'Not provided'}</div>
+						${this.onClick ? html`
+							<schmancy-button 
+								variant="filled"
+								@click=${() => this.onClick?.()}
+							>
+								Trigger Callback
+							</schmancy-button>
+						` : ''}
 					</div>
 				</schmancy-surface>
 			</div>
@@ -139,6 +171,24 @@ area.push({
 // @property() userId?: string
 // @property() username?: string`,
 
+		passingProps: `// Pass props to component (component properties)
+area.push({
+  area: 'main',
+  component: 'my-component',
+  props: {
+    title: 'Hello World',
+    data: { id: 123, name: 'Test' },
+    onClick: () => console.log('Button clicked!')
+  }
+})
+
+// Props are set as properties on the component
+// @property() title?: string
+// @property() data?: any
+// @property() onClick?: () => void
+
+// Note: 'params' are for query parameters, 'props' are for component properties`,
+
 		defaultComponent: `<!-- Set a default component -->
 <schmancy-area 
   name="main" 
@@ -205,12 +255,18 @@ area.push({
 area.on('main').subscribe(route => {
   console.log('Active component:', route.component)
   console.log('Parameters:', route.params)
+  console.log('Props:', route.props)
   console.log('State:', route.state)
 })
 
-// Get specific parameter
+// Get specific parameter (query string)
 area.param('main', 'userId').subscribe(userId => {
   console.log('User ID changed:', userId)
+})
+
+// Get specific prop (component property)
+area.prop('main', 'orderId').subscribe(orderId => {
+  console.log('Order ID changed:', orderId)
 })`,
 
 		historyStrategy: `// Different history strategies
@@ -250,10 +306,9 @@ area.push({
 				<!-- Import -->
 				<div class="mb-8">
 					<schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
-					<schmancy-code 
-						language="javascript" 
-						.code=${this.codeExamples.import}
-					></schmancy-code>
+					<schmancy-code-preview language="javascript" .preview=${false}>
+${this.codeExamples.import}
+					</schmancy-code-preview>
 				</div>
 
 				<!-- Quick Start -->
@@ -263,10 +318,9 @@ area.push({
 						Create dynamic content areas in three simple steps:
 					</schmancy-typography>
 					
-					<schmancy-code 
-						language="html" 
-						.code=${this.codeExamples.quickStart}
-					></schmancy-code>
+					<schmancy-code-preview language="html" .preview=${false}>
+${this.codeExamples.quickStart}
+					</schmancy-code-preview>
 				</div>
 
 				<!-- Live Examples -->
@@ -321,10 +375,9 @@ area.push({
 						
 						<!-- Code example -->
 						<div class="code-section">
-							<schmancy-code 
-								language="javascript" 
-								.code=${this.codeExamples.basicNavigation}
-							></schmancy-code>
+							<schmancy-code-preview language="javascript" .preview=${false}>
+${this.codeExamples.basicNavigation}
+							</schmancy-code-preview>
 						</div>
 					</schmancy-surface>
 				</div>
@@ -370,19 +423,79 @@ area.push({
 						
 						<!-- Code example -->
 						<div class="code-section">
-							<schmancy-code 
-								language="javascript" 
-								.code=${this.codeExamples.passingParams}
-							></schmancy-code>
+							<schmancy-code-preview language="javascript" .preview=${false}>
+${this.codeExamples.passingParams}
+							</schmancy-code-preview>
 						</div>
 					</schmancy-surface>
 				</div>
 
-				<!-- Example 3: Default Component -->
+				<!-- Example 3: Passing Props -->
 				<div class="example-section">
 					<schmancy-surface type="surfaceDim" class="rounded-lg p-6">
 						<schmancy-typography type="headline" token="md" class="mb-2 block">
-							3. Default Component
+							3. Passing Props (Component Properties)
+						</schmancy-typography>
+						<schmancy-typography type="body" token="sm" class="mb-4 block text-surface-onVariant">
+							Pass properties directly to components (not as query parameters)
+						</schmancy-typography>
+						
+						<!-- Demo controls -->
+						<div class="flex gap-2 mb-4">
+							<schmancy-button 
+								variant="filled"
+								@click=${() => area.push({ 
+									area: 'demo-props', 
+									component: 'area-demo-props-example',
+									props: { 
+										title: 'Component with Props',
+										data: { message: 'This is complex data', timestamp: Date.now() },
+										onClick: () => console.log('Props callback triggered!')
+									}
+								})}
+							>
+								<schmancy-icon>widgets</schmancy-icon>
+								With All Props
+							</schmancy-button>
+							<schmancy-button 
+								variant="filled tonal"
+								@click=${() => area.push({ 
+									area: 'demo-props', 
+									component: 'area-demo-props-example',
+									props: { title: 'Simple Props Only' }
+								})}
+							>
+								<schmancy-icon>text_fields</schmancy-icon>
+								Simple Props
+							</schmancy-button>
+							<schmancy-button 
+								variant="outlined"
+								@click=${() => area.pop('demo-props')}
+							>
+								<schmancy-icon>clear</schmancy-icon>
+								Clear
+							</schmancy-button>
+						</div>
+						
+						<!-- Demo area -->
+						<div class="demo-area">
+							<schmancy-area name="demo-props"></schmancy-area>
+						</div>
+						
+						<!-- Code example -->
+						<div class="code-section">
+							<schmancy-code-preview language="javascript" .preview=${false}>
+${this.codeExamples.passingProps}
+							</schmancy-code-preview>
+						</div>
+					</schmancy-surface>
+				</div>
+
+				<!-- Example 4: Default Component -->
+				<div class="example-section">
+					<schmancy-surface type="surfaceDim" class="rounded-lg p-6">
+						<schmancy-typography type="headline" token="md" class="mb-2 block">
+							4. Default Component
 						</schmancy-typography>
 						<schmancy-typography type="body" token="sm" class="mb-4 block text-surface-onVariant">
 							Show a default component when area is empty
@@ -411,10 +524,9 @@ area.push({
 						
 						<!-- Code example -->
 						<div class="code-section">
-							<schmancy-code 
-								language="html" 
-								.code=${this.codeExamples.defaultComponent}
-							></schmancy-code>
+							<schmancy-code-preview language="html" .preview=${false}>
+${this.codeExamples.defaultComponent}
+							</schmancy-code-preview>
 						</div>
 					</schmancy-surface>
 				</div>
@@ -485,10 +597,30 @@ area.push({
 									<td class="p-4">areaName: string</td>
 									<td class="p-4">Get area state observable</td>
 								</tr>
-								<tr>
+								<tr class="border-b border-outline">
 									<td class="p-4"><code>hasArea()</code></td>
 									<td class="p-4">areaName: string</td>
 									<td class="p-4">Check if area has content</td>
+								</tr>
+								<tr class="border-b border-outline">
+									<td class="p-4"><code>params()</code></td>
+									<td class="p-4">areaName: string</td>
+									<td class="p-4">Get query parameters observable</td>
+								</tr>
+								<tr class="border-b border-outline">
+									<td class="p-4"><code>param()</code></td>
+									<td class="p-4">areaName: string, key: string</td>
+									<td class="p-4">Get specific query parameter</td>
+								</tr>
+								<tr class="border-b border-outline">
+									<td class="p-4"><code>props()</code></td>
+									<td class="p-4">areaName: string</td>
+									<td class="p-4">Get component properties observable</td>
+								</tr>
+								<tr>
+									<td class="p-4"><code>prop()</code></td>
+									<td class="p-4">areaName: string, key: string</td>
+									<td class="p-4">Get specific component property</td>
 								</tr>
 							</tbody>
 						</table>
@@ -501,40 +633,34 @@ area.push({
 					
 					<div class="grid gap-6">
 						<!-- State Management -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.stateManagement}
-						></schmancy-code>
+						<schmancy-code-preview language="javascript" .preview=${false}>
+${this.codeExamples.stateManagement}
+						</schmancy-code-preview>
 
 						<!-- Multiple Areas -->
-						<schmancy-code 
-							language="html" 
-							.code=${this.codeExamples.multipleAreas}
-						></schmancy-code>
+						<schmancy-code-preview language="html" .preview=${false}>
+${this.codeExamples.multipleAreas}
+						</schmancy-code-preview>
 
 						<!-- Clear Query Parameters -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.clearQueryParams}
-						></schmancy-code>
+						<schmancy-code-preview language="javascript" .preview=${false}>
+${this.codeExamples.clearQueryParams}
+						</schmancy-code-preview>
 
 						<!-- Dynamic Imports -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.dynamicImports}
-						></schmancy-code>
+						<schmancy-code-preview language="javascript" .preview=${false}>
+${this.codeExamples.dynamicImports}
+						</schmancy-code-preview>
 
 						<!-- Observable Subscriptions -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.observableSubscriptions}
-						></schmancy-code>
+						<schmancy-code-preview language="javascript" .preview=${false}>
+${this.codeExamples.observableSubscriptions}
+						</schmancy-code-preview>
 
 						<!-- History Strategy -->
-						<schmancy-code 
-							language="javascript" 
-							.code=${this.codeExamples.historyStrategy}
-						></schmancy-code>
+						<schmancy-code-preview language="javascript" .preview=${false}>
+${this.codeExamples.historyStrategy}
+						</schmancy-code-preview>
 					</div>
 				</div>
 			</schmancy-surface>
@@ -544,7 +670,7 @@ area.push({
 	disconnectedCallback() {
 		super.disconnectedCallback()
 		// Clean up demo areas
-		const areas = ['demo-basic', 'demo-params', 'demo-default']
+		const areas = ['demo-basic', 'demo-params', 'demo-props', 'demo-default']
 		areas.forEach((name: string) => {
 			if (area.hasArea(name)) {
 				area.pop(name)
@@ -560,5 +686,6 @@ declare global {
 		'area-demo-about-page': AreaDemoAboutPage
 		'area-demo-contact-page': AreaDemoContactPage
 		'area-demo-user-profile': AreaDemoUserProfile
+		'area-demo-props-example': AreaDemoPropsExample
 	}
 }

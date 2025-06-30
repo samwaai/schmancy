@@ -9,6 +9,16 @@ import { formateTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
 import style from './theme.style.css?inline'
 import { DialogWhereAreYouRicky, DialogWhereAreYouRickyEvent, DialogHereMorty } from '../dialog/dialog-events'
+import { SheetWhereAreYouRicky, SheetWhereAreYouRickyEvent, SheetHereMorty } from '../sheet/sheet.service'
+
+// Theme discovery events
+export type ThemeWhereAreYouEvent = CustomEvent<void>
+export const ThemeWhereAreYou = 'theme-where-are-you'
+
+export type ThemeHereIAmEvent = CustomEvent<{
+	theme: HTMLElement
+}>
+export const ThemeHereIAm = 'theme-here-i-am'
 export const tailwindStyles = unsafeCSS(style)
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 const $colorScheme = new Observable<string>(subscriber => {
@@ -57,10 +67,20 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 				this.registerTheme()
 			})
 
-		// Listen for dialog discovery events
+		// Listen for generic theme discovery events
+		fromEvent<ThemeWhereAreYouEvent>(window, ThemeWhereAreYou).subscribe(() => {
+			// Respond immediately with this theme container
+			window.dispatchEvent(
+				new CustomEvent(ThemeHereIAm, {
+					detail: { theme: this },
+					bubbles: true,
+					composed: true,
+				})
+			)
+		})
+
+		// Listen for dialog discovery events (for existing dialog checks)
 		fromEvent<DialogWhereAreYouRickyEvent>(window, DialogWhereAreYouRicky).subscribe(event => {
-			// Check if the dialog should be created in this theme
-			// The first theme to respond will host the dialog
 			const existingDialog = this.querySelector(`schmancy-dialog[uid="${event.detail.uid}"]`) || 
 			                      this.querySelector(`confirm-dialog[uid="${event.detail.uid}"]`)
 			
@@ -75,10 +95,34 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 				)
 			} else {
 				// This theme will claim the dialog by responding
-				// The dialog service will then create the dialog in this theme
 				window.dispatchEvent(
 					new CustomEvent(DialogHereMorty, {
 						detail: { dialog: null, theme: this },
+						bubbles: true,
+						composed: true,
+					})
+				)
+			}
+		})
+
+		// Listen for sheet discovery events (for existing sheet checks)
+		fromEvent<SheetWhereAreYouRickyEvent>(window, SheetWhereAreYouRicky).subscribe(event => {
+			const existingSheet = this.querySelector(`schmancy-sheet[uid="${event.detail.uid}"]`)
+			
+			if (existingSheet) {
+				// Announce that we have an existing sheet here
+				window.dispatchEvent(
+					new CustomEvent(SheetHereMorty, {
+						detail: { sheet: existingSheet },
+						bubbles: true,
+						composed: true,
+					})
+				)
+			} else {
+				// This theme will claim the sheet by responding
+				window.dispatchEvent(
+					new CustomEvent(SheetHereMorty, {
+						detail: { sheet: null, theme: this },
 						bubbles: true,
 						composed: true,
 					})

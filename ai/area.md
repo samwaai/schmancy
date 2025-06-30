@@ -30,7 +30,8 @@ area.push({
   component: 'user-profile',      // Component constructor, string tag name, or element instance
   area: 'main',                   // Target area name
   state?: { view: 'profile' },    // Optional state object
-  params?: { id: '123' },         // Optional parameters
+  params?: { id: '123' },         // Optional query parameters
+  props?: { userId: '123' },      // Optional component properties
   historyStrategy: 'push',        // 'push', 'replace', 'pop', 'silent'
   clearQueryParams?: ['sort']     // Clear specific query params
 });
@@ -41,8 +42,35 @@ area.pop('sidebar');              // Remove an area
 area.on(areaName, skipCurrent?)   // Subscribe to an area
 area.all(skipCurrent?)            // Subscribe to all areas 
 area.getState<T>(areaName)        // Get typed state from an area
-area.params<T>(areaName)          // Get typed params from an area
-area.param<T>(areaName, key)      // Get a specific param value
+area.params<T>(areaName)          // Get typed query params from an area
+area.param<T>(areaName, key)      // Get a specific query param value
+area.props<T>(areaName)           // Get typed component props from an area
+area.prop<T>(areaName, key)       // Get a specific component prop value
+```
+
+## Understanding Params vs Props
+
+- **`params`**: Query parameters that appear in the URL and are useful for bookmarkable state
+- **`props`**: Component properties passed directly to the element instance, useful for complex data like functions, objects, or internal state
+
+```ts
+// Using params (query parameters)
+area.push({
+  area: 'main',
+  component: 'user-profile',
+  params: { userId: '123', tab: 'settings' }  // Will be in URL
+});
+
+// Using props (component properties)
+area.push({
+  area: 'main',
+  component: 'my-component',
+  props: { 
+    data: complexObject,         // Complex object
+    onSave: handleSave,          // Function callback
+    isEnabled: true              // Boolean flag
+  }
+});
 ```
 
 ## Examples
@@ -60,9 +88,20 @@ area.push({
 area.push({
   component: ProductDetailComponent,
   area: 'main',
-  params: { productId: '12345' },
+  params: { productId: '12345' },  // Query parameters
   state: { showReviews: true },
   historyStrategy: 'push'
+});
+
+// Navigate with component properties
+area.push({
+  component: 'my-component',
+  area: 'main',
+  props: { 
+    title: 'Hello World',
+    data: { id: 123, name: 'Test' },
+    onClick: () => console.log('Clicked!')
+  }
 });
 ```
 
@@ -90,7 +129,8 @@ area.pop('modal');
 // Subscribe to area changes
 area.on('main').subscribe(route => {
   console.log(`Component: ${route.component}`);
-  console.log(`Params:`, route.params);
+  console.log(`Params:`, route.params);   // Query parameters
+  console.log(`Props:`, route.props);     // Component properties
 });
 
 // Type-safe state and params
@@ -109,6 +149,18 @@ area.params<UserParams>('user').subscribe(params => {
 // Get a specific parameter
 area.param<string>('product', 'productId').subscribe(id => {
   fetchProductDetails(id);
+});
+
+// Get component props
+area.props<{ title: string; data: any }>('main').subscribe(props => {
+  console.log('Title:', props.title);
+  console.log('Data:', props.data);
+});
+
+// Get a specific prop
+area.prop<() => void>('main', 'onClick').subscribe(callback => {
+  // Use the callback function
+  callback?.();
 });
 ```
 
@@ -190,7 +242,8 @@ interface RouteAction {
   component: CustomElementConstructor | string | HTMLElement | Promise<NodeModule>;
   area: string;
   state?: Record<string, unknown>;
-  params?: Record<string, unknown>;
+  params?: Record<string, unknown>;  // Query parameters
+  props?: Record<string, unknown>;   // Component properties
   historyStrategy?: 'push' | 'replace' | 'pop' | 'silent';
   clearQueryParams?: string[] | null;
 }
@@ -200,6 +253,7 @@ interface ActiveRoute {
   component: string;
   area: string;
   state?: Record<string, unknown>;
-  params?: Record<string, unknown>;
+  params?: Record<string, unknown>;  // Query parameters
+  props?: Record<string, unknown>;   // Component properties
 }
 ```

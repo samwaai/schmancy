@@ -24,6 +24,7 @@ type TRouteArea = {
 	component: string
 	state: object | undefined
 	params?: Record<string, unknown>
+	props?: Record<string, unknown>
 }
 
 
@@ -85,7 +86,8 @@ export class SchmancyArea extends $LitElement(css`
 							component: this.default,
 							historyStrategy,
 							state: {},
-							params: {}
+							params: {},
+							props: {}
 						} as RouteAction)
 					: EMPTY
 			}),

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Props Feature</title>
+    <script type="module">
+        import { area } from './dist/area/index.js';
+        import './dist/index.js';
+        
+        // Test component
+        class TestComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+            }
+            
+            connectedCallback() {
+                this.shadowRoot.innerHTML = `
+                    <div style="padding: 20px; border: 1px solid #ccc; margin: 10px;">
+                        <h2>Test Component</h2>
+                        <p>Order ID: ${this.orderId || 'Not provided'}</p>
+                        <p>Show Actions: ${this.showActions || false}</p>
+                        <button id="testBtn">Test Callback</button>
+                    </div>
+                `;
+                
+                this.shadowRoot.getElementById('testBtn').addEventListener('click', () => {
+                    if (this.onComplete) {
+                        this.onComplete();
+                    }
+                });
+            }
+        }
+        
+        customElements.define('test-component', TestComponent);
+        
+        // Test the props feature
+        window.testProps = () => {
+            area.push({
+                area: 'test-area',
+                component: 'test-component',
+                props: {
+                    orderId: '12345',
+                    showActions: true,
+                    onComplete: () => console.log('Props callback works!')
+                }
+            });
+        };
+        
+        // Test the params feature (for comparison)
+        window.testParams = () => {
+            area.push({
+                area: 'test-area',
+                component: 'test-component',
+                params: {
+                    orderId: '67890',
+                    showActions: false
+                }
+            });
+        };
+        
+        // Subscribe to props
+        area.props('test-area').subscribe(props => {
+            console.log('Props updated:', props);
+        });
+        
+        // Subscribe to params
+        area.params('test-area').subscribe(params => {
+            console.log('Params updated:', params);
+        });
+    </script>
+</head>
+<body>
+    <h1>Test Props Feature</h1>
+    
+    <div style="margin: 20px;">
+        <button onclick="testProps()">Test with Props</button>
+        <button onclick="testParams()">Test with Params</button>
+        <button onclick="area.pop('test-area')">Clear Area</button>
+    </div>
+    
+    <schmancy-area name="test-area"></schmancy-area>
+</body>
+</html>
