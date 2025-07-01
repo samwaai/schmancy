@@ -993,7 +993,6 @@ export class SchmancyDateRange extends $LitElement() {
 											preset => html`
 												<schmancy-button
 													variant="${this.activePreset === preset.label ? 'filled' : 'text'}"
-													size="sm"
 													class="w-full justify-start text-left"
 													@click="${(e: Event) => this.handlePresetSelection(preset, e)}"
 													aria-pressed="${this.activePreset === preset.label}"
