@@ -13,7 +13,7 @@ export class DemoButton extends $LitElement() {
 					Button
 				</schmancy-typography>
 				<schmancy-typography type="body" token="lg" class="mb-8 text-surface-onVariant block">
-					Material Design 3 buttons with multiple variants and states for user interactions.
+					Material Design 3 buttons with 5 variants and full accessibility support.
 				</schmancy-typography>
 
 				<!-- Installation -->
@@ -24,6 +24,7 @@ export class DemoButton extends $LitElement() {
 					<schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
 					<schmancy-code-preview language="javascript">
 						import '@mhmo91/schmancy/button'
+						import '@mhmo91/schmancy/icon-button' // For icon-only buttons
 					</schmancy-code-preview>
 				</div>
 
@@ -31,7 +32,9 @@ export class DemoButton extends $LitElement() {
 				<div class="mb-12">
 					<schmancy-typography type="title" token="lg" class="mb-4 block">API Reference</schmancy-typography>
 					
-					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden">
+					<!-- Button Component -->
+					<schmancy-typography type="title" token="md" class="mb-2 block">Button Component</schmancy-typography>
+					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden mb-6">
 						<table class="w-full">
 							<thead class="bg-surface-container">
 								<tr>
@@ -60,10 +63,10 @@ export class DemoButton extends $LitElement() {
 										</schmancy-typography>
 									</td>
 									<td class="p-4">
-										<code class="text-sm">'filled'</code>
+										<code class="text-sm">'text'</code>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">Button style variant</schmancy-typography>
+										<schmancy-typography type="body" token="sm">Visual style variant</schmancy-typography>
 									</td>
 								</tr>
 								<tr class="border-t border-outline">
@@ -84,6 +87,36 @@ export class DemoButton extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">type</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">
+											'button' | 'submit' | 'reset'
+										</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">'button'</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">HTML button type attribute</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">href</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">undefined</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Makes button a link</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
 										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">disabled</code>
 									</td>
 									<td class="p-4">
@@ -98,32 +131,132 @@ export class DemoButton extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">loading</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">ariaLabel</code>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
 									</td>
 									<td class="p-4">
-										<code class="text-sm">false</code>
+										<code class="text-sm">undefined</code>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">Show loading state</schmancy-typography>
+										<schmancy-typography type="body" token="sm">Accessibility label</schmancy-typography>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</schmancy-surface>
+
+					<!-- Icon Button Component -->
+					<schmancy-typography type="title" token="md" class="mb-2 block">Icon Button Component</schmancy-typography>
+					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden">
+						<table class="w-full">
+							<thead class="bg-surface-container">
+								<tr>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Property</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Type</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Default</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Description</schmancy-typography>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">variant</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">
+											'filled' | 'filled tonal' | 'outlined' | 'standard'
+										</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">'standard'</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Visual style variant</schmancy-typography>
 									</td>
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">type</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">size</code>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">
-											'button' | 'submit' | 'reset'
+											'sm' | 'md' | 'lg'
 										</schmancy-typography>
 									</td>
 									<td class="p-4">
-										<code class="text-sm">'button'</code>
+										<code class="text-sm">'md'</code>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">Button type attribute</schmancy-typography>
+										<schmancy-typography type="body" token="sm">Button size (40px, 48px, 56px)</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">ariaLabel</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">string</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">required</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Required accessibility label</schmancy-typography>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</schmancy-surface>
+				</div>
+
+				<!-- Slots -->
+				<div class="mb-12">
+					<schmancy-typography type="title" token="lg" class="mb-4 block">Slots</schmancy-typography>
+					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden">
+						<table class="w-full">
+							<thead class="bg-surface-container">
+								<tr>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Slot Name</schmancy-typography>
+									</th>
+									<th class="text-left p-4">
+										<schmancy-typography type="label" token="md">Description</schmancy-typography>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">default</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Button text content</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">prefix</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Icon or content before text</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">suffix</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Icon or content after text</schmancy-typography>
 									</td>
 								</tr>
 							</tbody>
@@ -139,22 +272,51 @@ export class DemoButton extends $LitElement() {
 						<!-- Button Variants -->
 						<schmancy-code-preview language="html">
 							<div class="flex flex-wrap gap-4">
-								<schmancy-button variant="elevated">elevated</schmancy-button>
-								<schmancy-button variant="filled">filled</schmancy-button>
-								<schmancy-button variant="filled tonal">filled tonal</schmancy-button>
-								<schmancy-button variant="outlined">outlined</schmancy-button>
-								<schmancy-button variant="text">text</schmancy-button>
+								<schmancy-button variant="elevated">Elevated</schmancy-button>
+								<schmancy-button variant="filled">Filled</schmancy-button>
+								<schmancy-button variant="filled tonal">Filled Tonal</schmancy-button>
+								<schmancy-button variant="outlined">Outlined</schmancy-button>
+								<schmancy-button variant="text">Text</schmancy-button>
 							</div>
 						</schmancy-code-preview>
 
 						<!-- Disabled States -->
 						<schmancy-code-preview language="html">
 							<div class="flex flex-wrap gap-4">
-								<schmancy-button disabled variant="elevated">elevated</schmancy-button>
-								<schmancy-button disabled variant="filled">filled</schmancy-button>
-								<schmancy-button disabled variant="filled tonal">tonal</schmancy-button>
-								<schmancy-button disabled variant="outlined">outlined</schmancy-button>
-								<schmancy-button disabled variant="text">text</schmancy-button>
+								<schmancy-button disabled variant="elevated">Elevated</schmancy-button>
+								<schmancy-button disabled variant="filled">Filled</schmancy-button>
+								<schmancy-button disabled variant="filled tonal">Tonal</schmancy-button>
+								<schmancy-button disabled variant="outlined">Outlined</schmancy-button>
+								<schmancy-button disabled variant="text">Text</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Buttons with Icons -->
+						<schmancy-code-preview language="html">
+							<div class="flex gap-4">
+								<schmancy-button variant="filled">
+									<schmancy-icon slot="prefix">add</schmancy-icon>
+									Add Item
+								</schmancy-button>
+								<schmancy-button variant="outlined">
+									Send
+									<schmancy-icon slot="suffix">send</schmancy-icon>
+								</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Icon-Only Buttons -->
+						<schmancy-code-preview language="html">
+							<div class="flex gap-4 items-center">
+								<schmancy-icon-button ariaLabel="Settings" size="sm">
+									settings
+								</schmancy-icon-button>
+								<schmancy-icon-button ariaLabel="Edit" variant="filled" size="md">
+									edit
+								</schmancy-icon-button>
+								<schmancy-icon-button ariaLabel="Delete" variant="outlined" size="lg">
+									delete
+								</schmancy-icon-button>
 							</div>
 						</schmancy-code-preview>
 
@@ -165,64 +327,46 @@ export class DemoButton extends $LitElement() {
 							</schmancy-button>
 						</schmancy-code-preview>
 
-						<!-- Button with Icon -->
+						<!-- Link Button -->
 						<schmancy-code-preview language="html">
 							<div class="flex gap-4">
-								<schmancy-button variant="filled">
-									<schmancy-icon slot="start">add</schmancy-icon>
-									Add Item
+								<schmancy-button href="https://example.com" variant="text">
+									External Link
+									<schmancy-icon slot="suffix">open_in_new</schmancy-icon>
 								</schmancy-button>
-								<schmancy-button variant="outlined">
-									Send
-									<schmancy-icon slot="end">send</schmancy-icon>
+								<schmancy-button href="/docs" variant="outlined">
+									View Documentation
 								</schmancy-button>
 							</div>
 						</schmancy-code-preview>
 
-						<!-- Loading State -->
+						<!-- Loading State Pattern -->
 						<schmancy-code-preview language="html">
 							<div class="flex gap-4">
-								<schmancy-button variant="filled" loading>
+								<schmancy-button variant="filled" disabled>
+									<schmancy-circular-progress slot="prefix" size="sm"></schmancy-circular-progress>
 									Processing...
 								</schmancy-button>
-								<schmancy-button variant="outlined" loading>
+								<schmancy-button variant="outlined" disabled>
 									Saving
+									<schmancy-circular-progress slot="suffix" size="sm"></schmancy-circular-progress>
 								</schmancy-button>
 							</div>
-						</schmancy-code-preview>
-
-						<!-- Custom Styled Button -->
-						<schmancy-code-preview language="html">
-							<schmancy-button variant="filled" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-								<schmancy-typography type="label" token="lg" class="px-4 py-2">
-									Custom Gradient
-								</schmancy-typography>
-							</schmancy-button>
 						</schmancy-code-preview>
 
 						<!-- Form Buttons -->
 						<schmancy-code-preview language="html">
 							<form class="space-y-4">
 								<schmancy-input placeholder="Enter your email" type="email"></schmancy-input>
-								<div class="flex gap-2">
-									<schmancy-button type="submit" variant="filled">
-										Submit
-									</schmancy-button>
+								<div class="flex gap-2 justify-end">
 									<schmancy-button type="reset" variant="text">
 										Reset
 									</schmancy-button>
+									<schmancy-button type="submit" variant="filled">
+										Submit
+									</schmancy-button>
 								</div>
 							</form>
-						</schmancy-code-preview>
-
-						<!-- Example without preview (code only) -->
-						<schmancy-code-preview language="html" ?preview=${false}>
-							<!-- This is an example HTML template -->
-							<template id="button-template">
-								<schmancy-button variant="filled">
-									Template Button
-								</schmancy-button>
-							</template>
 						</schmancy-code-preview>
 
 						<!-- Button Group -->
@@ -240,23 +384,22 @@ export class DemoButton extends $LitElement() {
 							</div>
 						</schmancy-code-preview>
 
-						<!-- Size Variations with Typography -->
+						<!-- Real-World Example: Action Bar -->
 						<schmancy-code-preview language="html">
-							<div class="flex items-center gap-4">
-								<schmancy-button variant="filled" class="h-auto">
-									<schmancy-typography type="label" token="sm" class="px-2 py-1">
-										Small
+							<schmancy-card>
+								<div class="p-6">
+									<schmancy-typography type="headline" token="sm" class="mb-2 block">
+										Confirm Action
 									</schmancy-typography>
-								</schmancy-button>
-								<schmancy-button variant="filled">
-									Default
-								</schmancy-button>
-								<schmancy-button variant="filled" class="h-auto">
-									<schmancy-typography type="headline" token="sm" class="px-6 py-4">
-										Large
+									<schmancy-typography type="body" token="md" class="text-surface-onVariant block">
+										Are you sure you want to delete this item? This action cannot be undone.
 									</schmancy-typography>
-								</schmancy-button>
-							</div>
+								</div>
+								<schmancy-card-action>
+									<schmancy-button variant="text">Cancel</schmancy-button>
+									<schmancy-button variant="filled">Delete</schmancy-button>
+								</schmancy-card-action>
+							</schmancy-card>
 						</schmancy-code-preview>
 					</schmancy-grid>
 				</div>

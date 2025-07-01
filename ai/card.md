@@ -1,59 +1,50 @@
 # Schmancy Card - AI Reference
 
-```js
-// Card Component
+Material Design 3 card components with optimized performance and clean API.
+
+```html
+<!-- Card Component -->
 <schmancy-card
   type="elevated|filled|outlined"
   elevation="0|1|2|3|4|5">
   Card content
 </schmancy-card>
 
-// Properties
+<!-- Properties -->
 type: string          // "elevated", "filled", "outlined" (default: "elevated")
-elevation: number     // Shadow depth 0-5 (default: 0)
+elevation: number     // Shadow depth 0-5 (default: 0, overrides type defaults)
 
-// Card Types
+<!-- Card Types -->
 "elevated"            // Surface with shadow, uses surface-low color
 "filled"              // Filled background, uses surface-highest color
-"outlined"            // Border outline, uses surface color
+"outlined"            // Border outline, uses surface-default color
 
-// Examples
-// 1. Basic elevated card
+<!-- Examples -->
+<!-- 1. Basic elevated card -->
 <schmancy-card>
   <h3>Card Title</h3>
   <p>Card content goes here</p>
 </schmancy-card>
 
-// 2. Filled card with custom elevation
+<!-- 2. Complete card structure -->
 <schmancy-card type="filled" elevation="2">
-  <schmancy-card-media>
-    <img src="image.jpg" alt="Card image">
-  </schmancy-card-media>
+  <schmancy-card-media src="image.jpg" fit="cover" alt="Product"></schmancy-card-media>
   <schmancy-card-content>
-    <h3>Product Name</h3>
-    <p>Product description</p>
+    <span slot="headline">Product Name</span>
+    <span slot="subhead">$29.99</span>
+    Product description goes here...
   </schmancy-card-content>
-  <schmancy-card-actions>
-    <schmancy-button>Add to Cart</schmancy-button>
-  </schmancy-card-actions>
+  <schmancy-card-action>
+    <schmancy-button variant="filled">Add to Cart</schmancy-button>
+  </schmancy-card-action>
 </schmancy-card>
 
-// 3. Outlined card
+<!-- 3. Outlined card -->
 <schmancy-card type="outlined">
-  <div style="padding: 16px;">
-    <h4>Settings</h4>
-    <p>Configure your preferences</p>
-  </div>
-</schmancy-card>
-
-// 4. Interactive card with hover effect
-<schmancy-card elevation="1">
-  <a href="/details" style="text-decoration: none; color: inherit;">
-    <div style="padding: 16px;">
-      <h3>Click for Details</h3>
-      <p>This card has hover elevation changes</p>
-    </div>
-  </a>
+  <schmancy-card-content>
+    <span slot="headline">Settings</span>
+    Configure your preferences here
+  </schmancy-card-content>
 </schmancy-card>
 ```
 
@@ -93,26 +84,56 @@ type="outlined"  -> --schmancy-sys-color-surface-default
 ## Card Sub-components
 
 ### Card Content
+Structured content area with headline and subhead slots.
+
 ```html
 <schmancy-card-content>
-  <h3>Title</h3>
-  <p>Description text</p>
+  <span slot="headline">Main Title</span>
+  <span slot="subhead">Subtitle or metadata</span>
+  Body content goes here...
 </schmancy-card-content>
+
+<!-- Properties -->
+- Automatic padding and spacing
+- Headline uses surface-on color
+- Subhead and body use surface-onVariant color
 ```
 
 ### Card Media  
+Media container with object-fit control.
+
 ```html
-<schmancy-card-media>
+<!-- With src attribute -->
+<schmancy-card-media 
+  src="image.jpg" 
+  fit="contain|cover|fill|none|scale-down"
+  alt="Description">
+</schmancy-card-media>
+
+<!-- With slotted content -->
+<schmancy-card-media fit="cover">
   <img src="image.jpg" alt="Media">
 </schmancy-card-media>
+
+<!-- Properties -->
+src: string           // Image source URL
+fit: string           // Object fit mode (default: "contain")
+alt: string           // Alt text for accessibility
 ```
 
-### Card Actions
+### Card Action
+Action area for buttons, positioned at bottom.
+
 ```html
-<schmancy-card-actions>
-  <schmancy-button>Action 1</schmancy-button>
-  <schmancy-button variant="text">Action 2</schmancy-button>
-</schmancy-card-actions>
+<schmancy-card-action>
+  <schmancy-button variant="filled">Primary</schmancy-button>
+  <schmancy-button variant="text">Secondary</schmancy-button>
+</schmancy-card-action>
+
+<!-- Properties -->
+- Flex layout with right alignment
+- Automatic spacing between buttons
+- Padding on all sides
 ```
 
 ## Common Use Cases
@@ -120,18 +141,16 @@ type="outlined"  -> --schmancy-sys-color-surface-default
 1. **Product Cards**: E-commerce product display
    ```html
    <schmancy-card type="elevated">
-     <schmancy-card-media>
-       <img src="product.jpg" alt="Product">
-     </schmancy-card-media>
+     <schmancy-card-media src="product.jpg" fit="cover" alt="Product"></schmancy-card-media>
      <schmancy-card-content>
-       <h3>Product Name</h3>
-       <p class="price">$29.99</p>
-       <p class="description">Product description...</p>
+       <span slot="headline">Product Name</span>
+       <span slot="subhead">$29.99</span>
+       Premium quality product with excellent features...
      </schmancy-card-content>
-     <schmancy-card-actions>
+     <schmancy-card-action>
        <schmancy-button variant="filled">Add to Cart</schmancy-button>
        <schmancy-button variant="text">Details</schmancy-button>
-     </schmancy-card-actions>
+     </schmancy-card-action>
    </schmancy-card>
    ```
 
@@ -150,7 +169,7 @@ type="outlined"  -> --schmancy-sys-color-surface-default
    ```html
    <schmancy-card type="outlined">
      <schmancy-card-content>
-       <h4>Notification Settings</h4>
+       <span slot="headline">Notification Settings</span>
        <schmancy-form>
          <schmancy-checkbox>Email notifications</schmancy-checkbox>
          <schmancy-checkbox>Push notifications</schmancy-checkbox>
@@ -162,25 +181,46 @@ type="outlined"  -> --schmancy-sys-color-surface-default
 4. **Media Cards**: Image galleries
    ```html
    <schmancy-card elevation="2">
-     <schmancy-card-media aspect-ratio="16:9">
-       <img src="gallery-image.jpg" alt="Gallery">
-     </schmancy-card-media>
+     <schmancy-card-media src="gallery.jpg" fit="cover" alt="Gallery"></schmancy-card-media>
      <schmancy-card-content>
-       <p>Image caption or description</p>
+       <span slot="subhead">Photo by Artist Name</span>
+       Beautiful landscape captured at sunset
      </schmancy-card-content>
    </schmancy-card>
    ```
 
-5. **List Item Cards**: Clickable list items
+5. **Article Cards**: Blog or news items
    ```html
-   <schmancy-card type="elevated" elevation="1">
-     <a href="/user/123" style="display: flex; padding: 16px; align-items: center; text-decoration: none; color: inherit;">
-       <schmancy-avatar src="user.jpg"></schmancy-avatar>
-       <div style="margin-left: 16px; flex: 1;">
-         <h4>User Name</h4>
-         <p>user@example.com</p>
-       </div>
-       <schmancy-icon icon="chevron-right"></schmancy-icon>
-     </a>
+   <schmancy-card type="outlined">
+     <schmancy-card-content>
+       <schmancy-typography type="label" token="sm" class="text-primary-default block mb-2">
+         TECHNOLOGY
+       </schmancy-typography>
+       <span slot="headline">The Future of Web Development</span>
+       <span slot="subhead">5 min read • March 15, 2024</span>
+       Explore the latest trends in web development...
+     </schmancy-card-content>
+     <schmancy-card-action>
+       <schmancy-button variant="text">Read More</schmancy-button>
+       <schmancy-button variant="text">
+         <schmancy-icon>share</schmancy-icon>
+       </schmancy-button>
+     </schmancy-card-action>
    </schmancy-card>
    ```
+
+## Performance Notes
+
+All card components use :host styling for optimal performance:
+- No wrapper elements or runtime class manipulation
+- CSS-only hover states and transitions
+- Efficient use of CSS custom properties
+- Minimal JavaScript overhead
+
+## Migration Guide
+
+If upgrading from older versions:
+1. Replace `<schmancy-card-actions>` with `<schmancy-card-action>`
+2. Update card-content to use slots for headline/subhead
+3. Card-media now supports direct src attribute
+4. All components use :host styling (no wrapper divs)

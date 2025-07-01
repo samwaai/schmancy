@@ -1,112 +1,150 @@
 # Schmancy Button - AI Reference
 
 ```js
-// Basic Button
+// Component Tags
 <schmancy-button
-  variant="elevated|filled|filled tonal|outlined|text"
-  width="full|auto"
-  type="button|submit|reset"
-  disabled?
-  href?
-  @click>
-  Button Text
+  variant="elevated|filled|filled tonal|outlined|text"  // Visual style (default: "text")
+  width="full|auto"                                     // Button width (default: "auto")
+  type="button|reset|submit"                            // HTML button type (default: "button")
+  href?="string"                                        // Makes button a link
+  disabled?                                             // Disable state
+  ariaLabel?="string"                                   // Accessibility label
+  @click=${handler}>
+  <!-- Content with optional prefix/suffix slots -->
 </schmancy-button>
 
-// Icon Button
+// Icon Button Component
 <schmancy-icon-button
-  variant="elevated|filled|filled tonal|outlined|text"
-  size="sm|md|lg"
-  width="full|auto"
-  type="button|submit|reset"
-  disabled?
-  href?
-  @click>
-  <!-- Icon content goes directly in the slot -->
-  <svg>...</svg> 
+  variant="filled|filled tonal|outlined|standard"      // Visual style (default: "standard")
+  size="sm|md|lg"                                      // Button size (default: "md")
+  disabled?                                             // Disable state
+  ariaLabel="string">                                  // REQUIRED for accessibility
+  icon_name
 </schmancy-icon-button>
 
-// Button with Icon
-<schmancy-button>
-  <schmancy-icon slot="prefix" icon="check"></schmancy-icon>
-  With Prefix Icon
-</schmancy-button>
+// Component Methods
+button.focus(options?: FocusOptions) -> void
+button.blur() -> void
+button.click() -> void
 
-<schmancy-button>
-  With Suffix Icon
-  <schmancy-icon slot="suffix" icon="arrow-right"></schmancy-icon>
-</schmancy-button>
-
-// Button Properties
-variant: string       // "elevated", "filled", "filled tonal", "outlined", "text" (default: "text")
-width: string         // "full", "auto" (default: "auto")
-type: string          // "button", "submit", "reset" (default: "button")
-disabled: boolean     // Whether the button is disabled
-href: string          // If provided, renders as an anchor (<a>) element
-ariaLabel: string     // Accessible label for the button
-
-// Icon Button Properties
-variant: string       // "elevated", "filled", "filled tonal", "outlined", "text" (default: "text")
-size: string          // "sm", "md", "lg" (default: "md")
-width: string         // "full", "auto" (default: "auto")
-type: string          // "button", "submit", "reset" (default: "button")
-disabled: boolean     // Whether the button is disabled
-href: string          // If provided, renders as an anchor (<a>) element
-ariaLabel: string     // Accessible label for the button
-
-// Button Methods
-focus(options?) -> void  // Sets focus on the button
-blur() -> void           // Removes focus from the button
-click() -> void          // Programmatically clicks the button
+// Slots
+default  // Button text content
+prefix   // Icon or content before text
+suffix   // Icon or content after text
 
 // Examples
-<schmancy-button variant="filled" @click=${() => console.log('clicked')}>
-  Filled Button
+// 1. Basic button with text
+<schmancy-button variant="filled">Save Changes</schmancy-button>
+
+// 2. Button with icon
+<schmancy-button variant="outlined">
+  <schmancy-icon slot="prefix">add</schmancy-icon>
+  Add Item
 </schmancy-button>
 
-<schmancy-button variant="outlined" disabled>
-  Disabled Button
-</schmancy-button>
+// 3. Button as link
+<schmancy-button href="/learn-more" variant="text">Learn More</schmancy-button>
 
-<schmancy-button variant="elevated">
-  Elevated Button
-</schmancy-button>
+// 4. Full width button
+<schmancy-button width="full" variant="filled">Submit Form</schmancy-button>
 
-<schmancy-button variant="text">
-  Text Button
-</schmancy-button>
-
-<schmancy-button variant="filled tonal">
-  Tonal Button
-</schmancy-button>
-
-<schmancy-button href="https://example.com" variant="outlined">
-  Link Button
-</schmancy-button>
-
-<schmancy-button width="full" variant="filled">
-  Full Width Button
-</schmancy-button>
-
-<schmancy-icon-button variant="filled" size="md">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-  </svg>
+// 5. Icon-only button
+<schmancy-icon-button variant="filled" ariaLabel="Settings">
+  settings
 </schmancy-icon-button>
 
-<schmancy-icon-button variant="text" size="sm">
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="18" cy="6" r="3"></circle>
-    <circle cx="6" cy="18" r="3"></circle>
-    <line x1="13" y1="6" x2="6" y2="14"></line>
-  </svg>
-</schmancy-icon-button>
-
-// Form submission button
-<schmancy-form @submit=${handleSubmit}>
-  <schmancy-input name="email" type="email" required></schmancy-input>
-  <schmancy-button type="submit" variant="filled">
-    Submit Form
-  </schmancy-button>
+// 6. Form submission buttons
+<schmancy-form @submit="${handleSubmit}">
+  <div class="flex gap-2 justify-end">
+    <schmancy-button type="button" variant="text">Cancel</schmancy-button>
+    <schmancy-button type="submit" variant="filled">Submit</schmancy-button>
+  </div>
 </schmancy-form>
+
+// 7. Loading state pattern
+<schmancy-button variant="filled" ?disabled="${isLoading}">
+  ${isLoading 
+    ? html`<schmancy-circular-progress slot="prefix" size="sm"></schmancy-circular-progress>`
+    : html`<schmancy-icon slot="prefix">send</schmancy-icon>`
+  }
+  ${isLoading ? 'Sending...' : 'Send Message'}
+</schmancy-button>
+
+// 8. Button group
+<div class="flex gap-2">
+  <schmancy-button variant="outlined">Edit</schmancy-button>
+  <schmancy-button variant="outlined">Delete</schmancy-button>
+  <schmancy-button variant="filled">Save</schmancy-button>
+</div>
 ```
+
+## Related Components
+- **[Icon](./icon.md)**: Used for button icons in prefix/suffix slots
+- **[Card Action](./card.md)**: Container for button groups in cards
+- **[Dialog](./dialog.md)**: Common usage for action buttons
+- **[Form](./form.md)**: Form submission context
+- **[FAB](./fab.md)**: Floating action button alternative
+- **[Circular Progress](./circular-progress.md)**: Loading indicator for buttons
+
+## Technical Details
+
+### Variant Hierarchy
+Material Design 3 emphasis levels (highest to lowest):
+1. `filled` - Primary actions, highest emphasis
+2. `filled tonal` / `elevated` - Important secondary actions
+3. `outlined` - Medium emphasis with clear boundaries
+4. `text` - Low emphasis, tertiary actions
+
+### Icon Button Sizes
+- `sm`: 40×40px container, 18px icon
+- `md`: 48×48px container, 24px icon (default)
+- `lg`: 56×56px container, 28px icon
+
+### CSS Custom Properties
+```css
+/* Applied to button host element */
+--schmancy-button-width: auto | 100%;  /* Controls button width */
+```
+
+### Accessibility
+- Buttons automatically include ARIA attributes
+- Icon-only buttons MUST have `ariaLabel`
+- Focus management methods available
+- Keyboard navigation fully supported
+
+### State Management
+- `disabled` attribute prevents all interactions
+- Loading states should disable button to prevent double-submission
+- Visual feedback through variant system
+
+## Common Use Cases
+
+1. **Primary Action Button**
+   ```html
+   <schmancy-button variant="filled" type="submit">
+     Complete Purchase
+   </schmancy-button>
+   ```
+
+2. **Secondary Action with Icon**
+   ```html
+   <schmancy-button variant="outlined">
+     <schmancy-icon slot="prefix">upload</schmancy-icon>
+     Upload File
+   </schmancy-button>
+   ```
+
+3. **Navigation Link Button**
+   ```html
+   <schmancy-button href="/documentation" variant="text">
+     View Documentation
+     <schmancy-icon slot="suffix">arrow_forward</schmancy-icon>
+   </schmancy-button>
+   ```
+
+4. **Responsive Mobile-First Button**
+   ```html
+   <schmancy-button variant="filled" class="w-full sm:w-auto">
+     Get Started
+   </schmancy-button>
+   ```
