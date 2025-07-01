@@ -48,7 +48,7 @@ export default class SchmancyDemo extends $LitElement(css`
 
 		setTimeout(() => {
 			UserContext.$.next({
-				name: 'Momomoooo',
+				name: 'Momooooo',
 			})
 		}, 5000)
 	}
