@@ -7,18 +7,22 @@ import { customElement } from 'lit/decorators.js'
  * @slot - The content of the action
  */
 @customElement('schmancy-card-action')
-export default class SchmancyCardMedia extends TailwindElement(css`
+export default class SchmancyCardAction extends TailwindElement(css`
 	:host {
-		display: block;
+		display: flex;
+		gap: 0.5rem;
+		padding: 0.5rem 1rem;
+		align-items: center;
+		justify-content: flex-end;
 	}
 `) {
 	protected render(): unknown {
-		return html` <section class="pb-4 px-4"><slot> </slot></section> `
+		return html`<slot></slot>`
 	}
 }
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-card-action': SchmancyCardMedia
+		'schmancy-card-action': SchmancyCardAction
 	}
 }

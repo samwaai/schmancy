@@ -139,6 +139,10 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 		theme = { ...theme, ...this.theme }
 
 		this.registerThemeValues('schmancy', '', theme)
+		
+		// Set the color-scheme CSS property on the host element
+		const hostElement = this.root ? document.body : (this.shadowRoot.host as HTMLElement)
+		hostElement.style.colorScheme = this.scheme === 'dark' ? 'dark' : 'light'
 	}
 
 	registerThemeValues(prefix = 'schmancy', path: string, value: Partial<TSchmancyTheme>): string | undefined {

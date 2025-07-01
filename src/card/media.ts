@@ -9,29 +9,64 @@ import { customElement, property } from 'lit/decorators.js'
 export default class SchmancyCardMedia extends TailwindElement(css`
 	:host {
 		display: block;
+		position: relative;
+		height: 200px;
+		overflow: hidden;
+	}
+	
+	/* Allow height to be overridden when used in flex/grid layouts */
+	:host-context(.h-full) {
+		height: 100%;
+	}
+	
+	::slotted(img),
+	img {
+		width: 100%;
+		height: 100%;
+		object-position: center;
+	}
+	
+	/* Object fit styles based on fit attribute */
+	:host([fit="contain"]) img,
+	:host([fit="contain"]) ::slotted(img) {
+		object-fit: contain;
+	}
+	
+	:host([fit="cover"]) img,
+	:host([fit="cover"]) ::slotted(img) {
+		object-fit: cover;
+	}
+	
+	:host([fit="fill"]) img,
+	:host([fit="fill"]) ::slotted(img) {
+		object-fit: fill;
+	}
+	
+	:host([fit="none"]) img,
+	:host([fit="none"]) ::slotted(img) {
+		object-fit: none;
+	}
+	
+	:host([fit="scale-down"]) img,
+	:host([fit="scale-down"]) ::slotted(img) {
+		object-fit: scale-down;
 	}
 `) {
 	@property({ type: String, reflect: true })
 	src: string = ''
 
-	@property({ type: String })
+	@property({ type: String, reflect: true })
 	fit: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down' = 'contain'
+	
+	@property({ type: String })
+	alt: string = ''
 
 	protected render(): unknown {
-		const styles = {
-			height: '200px',
-		}
-		const classes = {
-			'object-center': true,
-			'object-contain': this.fit === 'contain',
-			'object-cover w-full': this.fit === 'cover',
-			'object-fill': this.fit === 'fill',
-			'object-none': this.fit === 'none',
-			'object-scale-down': this.fit === 'scale-down',
-		}
-		return html`<schmancy-grid align="stretch" justify="stretch" gap="md">
-			<img src="${this.src}" style=${this.styleMap(styles)} class="${this.classMap(classes)}" />
-		</schmancy-grid>`
+		// If src is provided, render an img element
+		// Otherwise, allow users to slot their own content
+		return this.src 
+			? html`<img src="${this.src}" alt="${this.alt}" />` 
+			: html`<slot></slot>`
 	}
 }
 

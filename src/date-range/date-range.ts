@@ -2,7 +2,7 @@ import { $LitElement } from '@mixins/index'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import { html, PropertyValues } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { debounceTime, fromEvent, takeUntil, timer } from 'rxjs'
 import { $dialog } from '../dialog/dialog-service'
@@ -45,7 +45,6 @@ export class SchmancyDateRange extends $LitElement() {
 	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = 'Select date range'
 	@property({ type: Boolean }) clearable = true
-	@property({ type: Boolean }) allowDirectInput = true
 
 	// Internal states
 	@state() private isOpen = false
@@ -53,8 +52,6 @@ export class SchmancyDateRange extends $LitElement() {
 	@state() private activePreset: string | null = null
 	@state() private announceMessage: string = ''
 	@state() private isMobile = false
-	@state() private isTyping = false
-	@state() private typedValue = ''
 
 	// Default presets
 	private presetRanges: Array<{
@@ -73,8 +70,6 @@ export class SchmancyDateRange extends $LitElement() {
 		}>
 	}> = []
 
-	// DOM references
-	@query('.date-range-input') private inputRef!: HTMLInputElement
 	
 	// Memoization cache
 	private memoizedPresets = new Map<string, typeof this.presetCategories>()
@@ -523,7 +518,7 @@ export class SchmancyDateRange extends $LitElement() {
 		// Use the dialog service - it will automatically find the nearest schmancy-theme
 		$dialog.component(dialogContent, {
 			title: 'Select Date Range',
-			width: this.isMobile ? '100vw' : 'fit-content',
+			width: this.isMobile ? '100vw' : 'max-content',
 			hideActions: true
 		}).then(() => {
 			this.isOpen = false
@@ -856,65 +851,6 @@ export class SchmancyDateRange extends $LitElement() {
 		this.isMobile = window.innerWidth < 768
 	}
 
-	/**
-	 * Handle direct text input
-	 */
-	private handleDirectInput(e: Event) {
-		const input = e.target as HTMLInputElement
-		this.typedValue = input.value
-		this.isTyping = true
-	}
-
-	/**
-	 * Parse typed date range
-	 */
-	private parseTypedDateRange(value: string): { dateFrom: string; dateTo: string } | null {
-		// Common separators
-		const separators = [' to ', ' - ', ' – ', ' — ', '-', '–', '—']
-		let parts: string[] = []
-		
-		for (const sep of separators) {
-			if (value.includes(sep)) {
-				parts = value.split(sep).map(p => p.trim())
-				break
-			}
-		}
-		
-		if (parts.length !== 2) return null
-		
-		const fromDate = dayjs(parts[0])
-		const toDate = dayjs(parts[1])
-		
-		if (!fromDate.isValid() || !toDate.isValid()) return null
-		
-		return {
-			dateFrom: fromDate.format(this.getDateFormat()),
-			dateTo: toDate.format(this.getDateFormat())
-		}
-	}
-
-	/**
-	 * Handle input blur to parse typed dates
-	 */
-	private handleInputBlur() {
-		if (!this.isTyping || !this.typedValue) return
-		
-		const parsed = this.parseTypedDateRange(this.typedValue)
-		if (parsed) {
-			this.setDateRange(parsed.dateFrom, parsed.dateTo)
-			this.isTyping = false
-			this.typedValue = ''
-		} else {
-			// Reset to current value if parse fails
-			this.announceToScreenReader('Invalid date format. Please use format like: Jan 1, 2024 - Jan 31, 2024')
-			if (this.inputRef) {
-				this.inputRef.value = this.selectedDateRange
-			}
-			this.isTyping = false
-			this.typedValue = ''
-		}
-	}
-
 
 
 	/**
@@ -926,34 +862,24 @@ export class SchmancyDateRange extends $LitElement() {
 				<!-- Custom Range Section with Inline Calendars -->
 				<schmancy-surface type="container" class="rounded-xl p-4 mb-6">
 					<div class="flex flex-col gap-4">
-						<div class="flex items-center justify-between">
-							<schmancy-typography type="label" token="lg" class="text-surface-onVariant">
-								Custom Range
-							</schmancy-typography>
-							<schmancy-button variant="filled" @click="${(e: Event) => this.applyManualDateSelection(e)}">
-								Apply
-							</schmancy-button>
-						</div>
-						
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<!-- From Date Calendar -->
 							<div class="flex flex-col gap-2">
 								<schmancy-typography type="label" token="md" class="text-surface-onVariant">
 									${this.dateFrom.label || 'From'}
 								</schmancy-typography>
-								<input
+								<schmancy-input
 									type="${this.type}"
-									value="${this.dateFrom.value}"
+									.value="${this.dateFrom.value}"
 									min="${ifDefined(this.minDate)}"
 									max="${ifDefined(this.maxDate)}"
-									class="w-full p-3 rounded-lg border border-outline bg-surface-container text-surface-on focus:outline-none focus:ring-2 focus:ring-primary"
+									readonly
 									@change="${(e: Event) => {
 										const target = e.target as HTMLInputElement
 										this.dateFrom.value = target.value
 										this.updateSelectedDateRange()
 									}}"
-									style="color-scheme: ${this.getAttribute('scheme') === 'dark' ? 'dark' : 'light'}"
-								/>
+								></schmancy-input>
 							</div>
 							
 							<!-- To Date Calendar -->
@@ -961,20 +887,30 @@ export class SchmancyDateRange extends $LitElement() {
 								<schmancy-typography type="label" token="md" class="text-surface-onVariant">
 									${this.dateTo.label || 'To'}
 								</schmancy-typography>
-								<input
+								<schmancy-input
 									type="${this.type}"
-									value="${this.dateTo.value}"
+									.value="${this.dateTo.value}"
 									min="${ifDefined(this.dateFrom.value)}"
 									max="${ifDefined(this.maxDate)}"
-									class="w-full p-3 rounded-lg border border-outline bg-surface-container text-surface-on focus:outline-none focus:ring-2 focus:ring-primary"
+									readonly
 									@change="${(e: Event) => {
 										const target = e.target as HTMLInputElement
 										this.dateTo.value = target.value
 										this.updateSelectedDateRange()
 									}}"
-									style="color-scheme: ${this.getAttribute('scheme') === 'dark' ? 'dark' : 'light'}"
-								/>
+								></schmancy-input>
 							</div>
+						</div>
+						
+						<!-- Apply Button - Now at the bottom for logical flow -->
+						<div class="flex justify-end mt-2">
+							<schmancy-button 
+								variant="filled" 
+								@click="${(e: Event) => this.applyManualDateSelection(e)}"
+								?disabled="${!this.dateFrom.value || !this.dateTo.value}"
+							>
+								Apply
+							</schmancy-button>
 						</div>
 					</div>
 				</schmancy-surface>
@@ -1026,6 +962,7 @@ export class SchmancyDateRange extends $LitElement() {
 			})
 	}
 
+
 	render() {
 		return html`
 			<div class="relative ${this.disabled ? 'opacity-60 pointer-events-none' : ''}">
@@ -1036,7 +973,7 @@ export class SchmancyDateRange extends $LitElement() {
 
 				<!-- Trigger using the preferred schmancy-grid pattern -->
 				<div class="trigger-container">
-					<schmancy-grid @click=${(event: Event) => event.stopPropagation()} align="center" cols="auto 1fr auto">
+					<section @click=${(event: Event) => event.stopPropagation()} class="flex" >
 						<schmancy-icon-button
 							type="button"
 							aria-label="Previous ${this.activePreset ? this.activePreset.toLowerCase() : 'date range'}"
@@ -1046,43 +983,17 @@ export class SchmancyDateRange extends $LitElement() {
 							arrow_left
 						</schmancy-icon-button>
 
-						${this.allowDirectInput
-							? html`
-									<schmancy-input
-										class="date-range-input w-full"
-										type="text"
-										.value=${this.isTyping ? this.typedValue : this.selectedDateRange}
-										placeholder=${this.placeholder}
-										?disabled=${this.disabled}
-										?required=${this.required}
-										aria-haspopup="menu"
-										aria-expanded=${this.isOpen}
-										aria-label="Select or type date range. Current: ${this.selectedDateRange || 'No date selected'}"
-										@focus=${() => this.openDropdown()}
-										@input=${this.handleDirectInput}
-										@blur=${() => this.handleInputBlur()}
-										@keydown=${(e: KeyboardEvent) => {
-											if (e.key === 'Enter') {
-												e.preventDefault()
-												this.handleInputBlur()
-											}
-										}}
-									></schmancy-input>
-							  `
-							: html`
-									<schmancy-button
-										class="w-max"
-										variant="outlined"
-										type="button"
-										aria-haspopup="menu"
-										aria-expanded=${this.isOpen}
-										aria-label="Select date range. Current: ${this.selectedDateRange || 'No date selected'}"
-										@click=${(e: Event) => this.toggleDropdown(e)}
-									>
-										${this.selectedDateRange || this.placeholder}
-									</schmancy-button>
-							  `
-						}
+						<schmancy-button
+							class="w-max"
+							variant="outlined"
+							type="button"
+							aria-haspopup="menu"
+							aria-expanded=${this.isOpen}
+							aria-label="Select date range. Current: ${this.selectedDateRange || 'No date selected'}"
+							@click=${(e: Event) => this.toggleDropdown(e)}
+						>
+							${this.selectedDateRange || this.placeholder}
+						</schmancy-button>
 
 						<schmancy-icon-button
 							type="button"
@@ -1092,7 +1003,7 @@ export class SchmancyDateRange extends $LitElement() {
 						>
 							arrow_right
 						</schmancy-icon-button>
-					</schmancy-grid>
+					</section>
 				</div>
 			</div>
 		`
