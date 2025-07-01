@@ -442,13 +442,17 @@ sheet.dismiss()
 									const applyBtn = dateFilterContent.querySelector('#applyBtn')
 									const cancelBtn = dateFilterContent.querySelector('#cancelBtn')
 
-									dateRange?.addEventListener('change', (e) => {
+									dateRange?.addEventListener('change', (e: CustomEvent) => {
 										console.log('Date range selected:', e.detail)
 									})
 
 									applyBtn?.addEventListener('click', () => {
+										const dateRangeEl = dateRange as any
 										const event = new CustomEvent('filter-applied', {
-											detail: { dateFrom: dateRange.dateFrom, dateTo: dateRange.dateTo },
+											detail: { 
+												dateFrom: dateRangeEl?.dateFrom?.value || '', 
+												dateTo: dateRangeEl?.dateTo?.value || '' 
+											},
 											bubbles: true,
 											composed: true
 										})
@@ -463,8 +467,7 @@ sheet.dismiss()
 									sheet.open({
 										component: dateFilterContent,
 										title: 'Date Filter',
-										uid: 'date-filter',
-										position: 'side'
+										uid: 'date-filter'
 									})
 								}}
 							>
