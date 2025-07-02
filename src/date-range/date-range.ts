@@ -1,12 +1,14 @@
 import { $LitElement } from '@mixins/index'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
-import { html, PropertyValues } from 'lit'
+import { html, PropertyValues, TemplateResult } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { debounceTime, fromEvent, takeUntil, timer } from 'rxjs'
 import { $dialog } from '../dialog/dialog-service'
 import { validateInitialDateRange } from './date-utils'
+import { DateRangePreset, PresetCategory, generatePresetCategories } from './date-range-presets'
+import { formatDateRange, detectDateRangeType, calculateShiftParams, adjustQuarter } from './date-range-helpers'
 
 // Add quarter plugin to dayjs
 dayjs.extend(quarterOfYear)
@@ -15,9 +17,6 @@ export type SchmancyDateRangeChangeEvent = CustomEvent<{
 	dateFrom: string
 	dateTo: string
 }>
-
-// Custom type to include 'quarter' as a valid unit
-type ExtendedTimeUnit = dayjs.OpUnitType | 'quarter'
 
 /**
  * A date range selector that supports presets and manual date input.
@@ -54,25 +53,13 @@ export class SchmancyDateRange extends $LitElement() {
 	@state() private isMobile = false
 
 	// Default presets
-	private presetRanges: Array<{
-		label: string
-		range: { dateFrom: string; dateTo: string }
-		step: ExtendedTimeUnit
-	}> = []
+	private presetRanges: DateRangePreset[] = []
 
 	// Categorized presets
-	private presetCategories: Array<{
-		name: string
-		presets: Array<{
-			label: string
-			range: { dateFrom: string; dateTo: string }
-			step: ExtendedTimeUnit
-		}>
-	}> = []
+	private presetCategories: PresetCategory[] = []
 
-	
 	// Memoization cache
-	private memoizedPresets = new Map<string, typeof this.presetCategories>()
+	private memoizedPresets = new Map<string, PresetCategory[]>()
 
 	connectedCallback(): void {
 		super.connectedCallback()
@@ -147,235 +134,8 @@ export class SchmancyDateRange extends $LitElement() {
 			return
 		}
 
-		// Define categories with their presets
-		this.presetCategories = [
-			{
-				name: 'Days',
-				presets: [
-					{
-						label: 'Today',
-						range: {
-							dateFrom: dayjs().startOf('day').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'day',
-					},
-					{
-						label: 'Yesterday',
-						range: {
-							dateFrom: dayjs().subtract(1, 'days').startOf('day').format(format),
-							dateTo: dayjs().subtract(1, 'days').endOf('day').format(format),
-						},
-						step: 'day',
-					},
-					{
-						label: 'Last 7 Days',
-						range: {
-							dateFrom: dayjs().subtract(6, 'days').startOf('day').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'day',
-					},
-					{
-						label: 'Last 14 Days',
-						range: {
-							dateFrom: dayjs().subtract(13, 'days').startOf('day').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'day',
-					},
-					{
-						label: 'Last 30 Days',
-						range: {
-							dateFrom: dayjs().subtract(29, 'days').startOf('day').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'day',
-					},
-					{
-						label: 'Last 60 Days',
-						range: {
-							dateFrom: dayjs().subtract(59, 'days').startOf('day').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'day',
-					},
-					{
-						label: 'Last 90 Days',
-						range: {
-							dateFrom: dayjs().subtract(89, 'days').startOf('day').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'day',
-					},
-				],
-			},
-			{
-				name: 'Weeks',
-				presets: [
-					{
-						label: 'This Week',
-						range: {
-							dateFrom: dayjs().startOf('week').format(format),
-							dateTo: dayjs().endOf('week').format(format),
-						},
-						step: 'week',
-					},
-					{
-						label: 'Last Week',
-						range: {
-							dateFrom: dayjs().subtract(1, 'weeks').startOf('week').format(format),
-							dateTo: dayjs().subtract(1, 'weeks').endOf('week').format(format),
-						},
-						step: 'week',
-					},
-					{
-						label: 'Last 2 Weeks',
-						range: {
-							dateFrom: dayjs().subtract(2, 'weeks').startOf('week').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'week',
-					},
-					{
-						label: 'Last 4 Weeks',
-						range: {
-							dateFrom: dayjs().subtract(4, 'weeks').startOf('week').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'week',
-					},
-				],
-			},
-			{
-				name: 'Months',
-				presets: [
-					{
-						label: 'This Month',
-						range: {
-							dateFrom: dayjs().startOf('month').format(format),
-							dateTo: dayjs().endOf('month').format(format),
-						},
-						step: 'month',
-					},
-					{
-						label: 'Last Month',
-						range: {
-							dateFrom: dayjs().subtract(1, 'month').startOf('month').format(format),
-							dateTo: dayjs().subtract(1, 'month').endOf('month').format(format),
-						},
-						step: 'month',
-					},
-					{
-						label: 'Last 3 Months',
-						range: {
-							dateFrom: dayjs().subtract(3, 'months').startOf('month').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'month',
-					},
-					{
-						label: 'Last 6 Months',
-						range: {
-							dateFrom: dayjs().subtract(6, 'months').startOf('month').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'month',
-					},
-				],
-			},
-			{
-				name: 'Quarters',
-				presets: [
-					{
-						label: 'This Quarter',
-						range: {
-							dateFrom: dayjs().startOf('quarter').format(format),
-							dateTo: dayjs().endOf('quarter').format(format),
-						},
-						step: 'quarter',
-					},
-					{
-						label: 'Last Quarter',
-						range: {
-							dateFrom: dayjs().subtract(1, 'quarter').startOf('quarter').format(format),
-							dateTo: dayjs().subtract(1, 'quarter').endOf('quarter').format(format),
-						},
-						step: 'quarter',
-					},
-					{
-						label: 'Last 2 Quarters',
-						range: {
-							dateFrom: dayjs().subtract(2, 'quarters').startOf('quarter').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'quarter',
-					},
-					{
-						label: 'Last 4 Quarters',
-						range: {
-							dateFrom: dayjs().subtract(4, 'quarters').startOf('quarter').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'quarter',
-					},
-				],
-			},
-			{
-				name: 'Years',
-				presets: [
-					{
-						label: 'This Year',
-						range: {
-							dateFrom: dayjs().startOf('year').format(format),
-							dateTo: dayjs().endOf('year').format(format),
-						},
-						step: 'year',
-					},
-					{
-						label: 'Last Year',
-						range: {
-							dateFrom: dayjs().subtract(1, 'year').startOf('year').format(format),
-							dateTo: dayjs().subtract(1, 'year').endOf('year').format(format),
-						},
-						step: 'year',
-					},
-					{
-						label: 'Year to Date',
-						range: {
-							dateFrom: dayjs().startOf('year').format(format),
-							dateTo: dayjs().endOf('day').format(format),
-						},
-						step: 'day',
-					},
-				],
-			},
-		]
-
-		// For datetime-local type, add time-specific presets
-		if (this.type === 'datetime-local') {
-			this.presetCategories.unshift({
-				name: 'Hours',
-				presets: [
-					{
-						label: 'Last 24 Hours',
-						range: {
-							dateFrom: dayjs().subtract(24, 'hours').format(format),
-							dateTo: dayjs().format(format),
-						},
-						step: 'hour',
-					},
-					{
-						label: 'Last 12 Hours',
-						range: {
-							dateFrom: dayjs().subtract(12, 'hours').format(format),
-							dateTo: dayjs().format(format),
-						},
-						step: 'hour',
-					},
-				],
-			})
-		}
+		// Generate preset categories
+		this.presetCategories = generatePresetCategories(format, this.type === 'datetime-local')
 
 		// Flatten presets for other methods that expect a flat list
 		this.presetRanges = []
@@ -385,7 +145,7 @@ export class SchmancyDateRange extends $LitElement() {
 
 		// Add custom presets if provided
 		if (this.customPresets && this.customPresets.length > 0) {
-			const customCategory = {
+			const customCategory: PresetCategory = {
 				name: 'Custom',
 				presets: this.customPresets.map(preset => ({
 					label: preset.label,
@@ -393,7 +153,7 @@ export class SchmancyDateRange extends $LitElement() {
 						dateFrom: preset.dateFrom,
 						dateTo: preset.dateTo,
 					},
-					step: 'day' as ExtendedTimeUnit,
+					step: 'day' as const,
 				})),
 			}
 
@@ -430,44 +190,7 @@ export class SchmancyDateRange extends $LitElement() {
 
 		// Custom date range - create concise format
 		this.activePreset = null
-
-		if (!this.dateFrom.value || !this.dateTo.value) {
-			this.selectedDateRange = this.placeholder
-			return
-		}
-
-		const fromDate = dayjs(this.dateFrom.value)
-		const toDate = dayjs(this.dateTo.value)
-
-		if (!fromDate.isValid() || !toDate.isValid()) {
-			this.selectedDateRange = this.placeholder
-			return
-		}
-
-		// Format times if needed (for datetime-local)
-		const fromTime = this.type === 'datetime-local' ? fromDate.format(' h:mm A') : ''
-		const toTime = this.type === 'datetime-local' ? toDate.format(' h:mm A') : ''
-
-		// Check if same day
-		if (fromDate.isSame(toDate, 'day')) {
-			this.selectedDateRange = `${fromDate.format('MMM D, YYYY')}${fromTime}`
-			return
-		}
-
-		// Check if same month and year
-		if (fromDate.isSame(toDate, 'month') && fromDate.isSame(toDate, 'year')) {
-			this.selectedDateRange = `${fromDate.format('MMM D')}-${toDate.format('D, YYYY')}${toTime}`
-			return
-		}
-
-		// Check if same year
-		if (fromDate.isSame(toDate, 'year')) {
-			this.selectedDateRange = `${fromDate.format('MMM D')} - ${toDate.format('MMM D, YYYY')}${toTime}`
-			return
-		}
-
-		// Different years
-		this.selectedDateRange = `${fromDate.format('MMM D, YYYY')}${fromTime} - ${toDate.format('MMM D, YYYY')}${toTime}`
+		this.selectedDateRange = formatDateRange(this.dateFrom.value, this.dateTo.value, this.type, this.placeholder)
 	}
 
 	private setDateRange(dateFrom: string, dateTo: string) {
@@ -487,7 +210,7 @@ export class SchmancyDateRange extends $LitElement() {
 		)
 	}
 
-	private handlePresetSelection(preset: { label: string; range: { dateFrom: string; dateTo: string } }, e: Event) {
+	private handlePresetSelection(preset: DateRangePreset, e: Event) {
 		e.stopPropagation()
 		this.activePreset = preset.label
 		this.setDateRange(preset.range.dateFrom, preset.range.dateTo)
@@ -530,44 +253,9 @@ export class SchmancyDateRange extends $LitElement() {
 		this.isOpen = false
 	}
 
-	/**
-	 * Helper method to safely add/subtract quarter values
-	 */
-	private adjustQuarter(date: dayjs.Dayjs, amount: number, direction: 1 | -1): dayjs.Dayjs {
-		// Get current quarter (1-4)
-		const currentQuarter = date.quarter()
-
-		// Calculate new quarter
-		let newQuarter = currentQuarter + direction * amount
-		let yearAdjustment = 0
-
-		// Handle year boundaries
-		while (newQuarter > 4) {
-			newQuarter -= 4
-			yearAdjustment += 1
-		}
-
-		while (newQuarter < 1) {
-			newQuarter += 4
-			yearAdjustment -= 1
-		}
-
-		// Adjust year if needed
-		const adjustedDate = date.add(yearAdjustment, 'year')
-
-		// Set to the start of the new quarter
-		const newDate = adjustedDate.month((newQuarter - 1) * 3)
-
-		// Maintain the same day of month if possible
-		const daysInMonth = newDate.daysInMonth()
-		const targetDay = Math.min(date.date(), daysInMonth)
-
-		return newDate.date(targetDay)
-	}
 
 	/**
 	 * Shifts the date range based on its type (preset or custom)
-	 * Enhanced to properly handle various time units and preserve date patterns
 	 */
 	private shiftDateRange(direction: number, e: Event) {
 		e.stopPropagation()
@@ -580,175 +268,57 @@ export class SchmancyDateRange extends $LitElement() {
 		if (!fromDate.isValid() || !toDate.isValid()) return
 
 		const format = this.getDateFormat()
-
-		// Convert direction to a type that our helper methods can use
 		const dir = direction > 0 ? 1 : -1
+
+		// Get active preset and calculate shift parameters
+		const activePreset = this.presetRanges.find(p => p.label === this.activePreset)
+		const { unit, amount } = calculateShiftParams(fromDate, toDate, activePreset?.step)
+
+		// Detect date range type
+		const rangeType = detectDateRangeType(fromDate, toDate)
 
 		let newFromDate: dayjs.Dayjs
 		let newToDate: dayjs.Dayjs
 
-		// For preset ranges, use their specific step unit
-		const activePreset = this.presetRanges.find(p => p.label === this.activePreset)
-
-		// Detect if the date range represents full time periods
-		const isFullMonth = fromDate.date() === 1 && toDate.isSame(fromDate.endOf('month'), 'day')
-		const isFullQuarter =
-			fromDate.isSame(fromDate.startOf('quarter'), 'day') && toDate.isSame(toDate.endOf('quarter'), 'day')
-		const isFullYear = fromDate.isSame(fromDate.startOf('year'), 'day') && toDate.isSame(toDate.endOf('year'), 'day')
-		const isFullWeek = fromDate.day() === 0 && toDate.day() === 6 && toDate.diff(fromDate, 'days') === 6
-
-		// Determine shift unit and amount
-		let unit: ExtendedTimeUnit = 'day'
-		let amount = 1
-
-		if (activePreset) {
-			// Use the preset's specific unit (day, week, month, quarter, year)
-			unit = activePreset.step
-			amount = 1 // For presets, we shift by one unit
-		} else {
-			// For custom ranges, calculate the appropriate step size
-			const rangeDurationInDays = toDate.diff(fromDate, 'day')
-
-			// For very long ranges, use years
-			if (rangeDurationInDays >= 360) {
-				unit = 'year'
-				amount = Math.round(rangeDurationInDays / 365)
-			}
-			// For long ranges, use quarters
-			else if (rangeDurationInDays >= 90) {
-				unit = 'quarter'
-				amount = Math.round(rangeDurationInDays / 90)
-			}
-			// For medium-long ranges, use months
-			else if (rangeDurationInDays >= 30) {
-				unit = 'month'
-				amount = Math.round(rangeDurationInDays / 30)
-			}
-			// For medium ranges, use weeks
-			else if (rangeDurationInDays >= 7) {
-				unit = 'week'
-				amount = Math.round(rangeDurationInDays / 7)
-			}
-			// For shorter ranges, use days
-			else {
-				unit = 'day'
-				amount = rangeDurationInDays + 1 // Include both start and end days
-			}
-		}
-
-		// Handle special case for quarters
+		// Handle shifting based on unit
 		if (unit === 'quarter') {
-			if (isFullQuarter) {
-				// Full quarter logic
-				if (dir > 0) {
-					newFromDate = this.adjustQuarter(fromDate, amount, 1).startOf('quarter')
-					newToDate = newFromDate.endOf('quarter')
-				} else {
-					newFromDate = this.adjustQuarter(fromDate, amount, -1).startOf('quarter')
-					newToDate = newFromDate.endOf('quarter')
-				}
-			} else {
-				// Partial quarter logic - maintain day pattern
-				if (dir > 0) {
-					newFromDate = this.adjustQuarter(fromDate, amount, 1)
-					newToDate = this.adjustQuarter(toDate, amount, 1)
-				} else {
-					newFromDate = this.adjustQuarter(fromDate, amount, -1)
-					newToDate = this.adjustQuarter(toDate, amount, -1)
-				}
+			newFromDate = adjustQuarter(fromDate, amount, dir)
+			newToDate = adjustQuarter(toDate, amount, dir)
+			
+			if (rangeType.isFullQuarter) {
+				newFromDate = newFromDate.startOf('quarter')
+				newToDate = newFromDate.endOf('quarter')
 			}
-		}
-		// For hour-based units (used in datetime-local type)
-		else if (unit === 'hour') {
+		} else if (unit === 'hour') {
 			const rangeDurationInHours = toDate.diff(fromDate, 'hour')
+			newFromDate = dir > 0 ? fromDate.add(rangeDurationInHours, 'hour') : fromDate.subtract(rangeDurationInHours, 'hour')
+			newToDate = dir > 0 ? toDate.add(rangeDurationInHours, 'hour') : toDate.subtract(rangeDurationInHours, 'hour')
+		} else {
+			// Handle all other units (day, week, month, year)
 			if (dir > 0) {
-				newFromDate = fromDate.add(rangeDurationInHours, 'hour')
-				newToDate = toDate.add(rangeDurationInHours, 'hour')
+				newFromDate = fromDate.add(amount, unit as dayjs.ManipulateType)
+				newToDate = toDate.add(amount, unit as dayjs.ManipulateType)
 			} else {
-				newFromDate = fromDate.subtract(rangeDurationInHours, 'hour')
-				newToDate = toDate.subtract(rangeDurationInHours, 'hour')
+				newFromDate = fromDate.subtract(amount, unit as dayjs.ManipulateType)
+				newToDate = toDate.subtract(amount, unit as dayjs.ManipulateType)
 			}
-		}
-		// For year-based shifting
-		else if (unit === 'year' && isFullYear) {
-			// For full year ranges
-			if (dir > 0) {
-				newFromDate = fromDate.add(amount, 'year').startOf('year')
+
+			// Preserve full period ranges
+			if (unit === 'year' && rangeType.isFullYear) {
+				newFromDate = newFromDate.startOf('year')
 				newToDate = newFromDate.endOf('year')
-			} else {
-				newFromDate = fromDate.subtract(amount, 'year').startOf('year')
-				newToDate = newFromDate.endOf('year')
-			}
-		} else if (unit === 'year') {
-			// For year unit but not full year range
-			if (dir > 0) {
-				newFromDate = fromDate.add(amount, 'year')
-				newToDate = toDate.add(amount, 'year')
-			} else {
-				newFromDate = fromDate.subtract(amount, 'year')
-				newToDate = toDate.subtract(amount, 'year')
-			}
-		}
-		// For month-based shifting
-		else if (unit === 'month' && isFullMonth) {
-			// For full month ranges
-			if (dir > 0) {
-				newFromDate = fromDate.add(amount, 'month').startOf('month')
+			} else if (unit === 'month' && rangeType.isFullMonth) {
+				newFromDate = newFromDate.startOf('month')
 				newToDate = newFromDate.endOf('month')
-			} else {
-				newFromDate = fromDate.subtract(amount, 'month').startOf('month')
-				newToDate = newFromDate.endOf('month')
-			}
-		} else if (unit === 'month') {
-			// For month unit but not a full month range
-			if (dir > 0) {
-				newFromDate = fromDate.add(amount, 'month')
-				newToDate = toDate.add(amount, 'month')
-			} else {
-				newFromDate = fromDate.subtract(amount, 'month')
-				newToDate = toDate.subtract(amount, 'month')
-			}
-		}
-		// For week-based shifting
-		else if (unit === 'week' && isFullWeek) {
-			// For full week ranges
-			if (dir > 0) {
-				newFromDate = fromDate.add(amount, 'week').startOf('week')
-				newToDate = newFromDate.endOf('week')
-			} else {
-				newFromDate = fromDate.subtract(amount, 'week').startOf('week')
+			} else if (unit === 'week' && rangeType.isFullWeek) {
+				newFromDate = newFromDate.startOf('week')
 				newToDate = newFromDate.endOf('week')
 			}
-		} else if (unit === 'week') {
-			// For week unit but not full week range
-			if (dir > 0) {
-				newFromDate = fromDate.add(amount, 'week')
-				newToDate = toDate.add(amount, 'week')
-			} else {
-				newFromDate = fromDate.subtract(amount, 'week')
-				newToDate = toDate.subtract(amount, 'week')
-			}
-		}
-		// For day-based shifting (default)
-		else {
-			if (dir > 0) {
-				newFromDate = fromDate.add(amount, 'day')
-				newToDate = toDate.add(amount, 'day')
-			} else {
-				newFromDate = fromDate.subtract(amount, 'day')
-				newToDate = toDate.subtract(amount, 'day')
-			}
 		}
 
-		// Format the new dates and update the range
-		const newFromDateStr = newFromDate.format(format)
-		const newToDateStr = newToDate.format(format)
-
-		// Set new date range
-		this.setDateRange(newFromDateStr, newToDateStr)
-
-		// Check if the new date range matches a preset, and update activePreset if needed
-		this.checkAndUpdateActivePreset(newFromDateStr, newToDateStr)
+		// Update the date range
+		this.setDateRange(newFromDate.format(format), newToDate.format(format))
+		this.checkAndUpdateActivePreset(newFromDate.format(format), newToDate.format(format))
 	}
 
 	/**
@@ -853,10 +423,22 @@ export class SchmancyDateRange extends $LitElement() {
 
 
 
+	private handleFromDateChange(e: Event) {
+		const input = e.target as HTMLInputElement
+		this.dateFrom.value = input.value
+		this.updateSelectedDateRange()
+	}
+
+	private handleToDateChange(e: Event) {
+		const input = e.target as HTMLInputElement
+		this.dateTo.value = input.value
+		this.updateSelectedDateRange()
+	}
+
 	/**
 	 * Create dialog content
 	 */
-	private createDialogContent() {
+	private createDialogContent(): TemplateResult {
 		return html`
 			<div class="w-full min-h-[400px] max-h-[80vh] flex flex-col p-4">
 				<!-- Custom Range Section with Inline Calendars -->
@@ -873,11 +455,7 @@ export class SchmancyDateRange extends $LitElement() {
 									.value="${this.dateFrom.value}"
 									min="${ifDefined(this.minDate)}"
 									max="${ifDefined(this.maxDate)}"
-									@change="${(e: Event) => {
-										const target = e.target as HTMLInputElement
-										this.dateFrom.value = target.value
-										this.updateSelectedDateRange()
-									}}"
+									@change="${this.handleFromDateChange.bind(this)}"
 								></schmancy-input>
 							</div>
 							
@@ -891,11 +469,7 @@ export class SchmancyDateRange extends $LitElement() {
 									.value="${this.dateTo.value}"
 									min="${ifDefined(this.dateFrom.value)}"
 									max="${ifDefined(this.maxDate)}"
-									@change="${(e: Event) => {
-										const target = e.target as HTMLInputElement
-										this.dateTo.value = target.value
-										this.updateSelectedDateRange()
-									}}"
+									@change="${this.handleToDateChange.bind(this)}"
 								></schmancy-input>
 							</div>
 						</div>
@@ -970,8 +544,7 @@ export class SchmancyDateRange extends $LitElement() {
 				</div>
 
 				<!-- Trigger using the preferred schmancy-grid pattern -->
-				<div class="trigger-container">
-					<section @click=${(event: Event) => event.stopPropagation()} class="flex" >
+				<section @click=${(event: Event) => event.stopPropagation()} class="flex" >
 						<schmancy-icon-button
 							type="button"
 							aria-label="Previous ${this.activePreset ? this.activePreset.toLowerCase() : 'date range'}"
@@ -1001,8 +574,7 @@ export class SchmancyDateRange extends $LitElement() {
 						>
 							arrow_right
 						</schmancy-icon-button>
-					</section>
-				</div>
+				</section>
 			</div>
 		`
 	}
