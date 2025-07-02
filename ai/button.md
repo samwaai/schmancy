@@ -8,17 +8,20 @@
   type="button|reset|submit"                            // HTML button type (default: "button")
   href?="string"                                        // Makes button a link
   disabled?                                             // Disable state
-  ariaLabel?="string"                                   // Accessibility label
+  aria-label?="string"                                  // Accessibility label
   @click=${handler}>
   <!-- Content with optional prefix/suffix slots -->
 </schmancy-button>
 
 // Icon Button Component
 <schmancy-icon-button
-  variant="filled|filled tonal|outlined|standard"      // Visual style (default: "standard")
+  variant="elevated|filled|filled tonal|outlined|text"  // Visual style (default: "text")
   size="sm|md|lg"                                      // Button size (default: "md")
+  width="full|auto"                                     // Button width (default: "auto")
+  type="button|reset|submit"                            // HTML button type (default: "button")
+  href?="string"                                        // Makes button a link
   disabled?                                             // Disable state
-  ariaLabel="string">                                  // REQUIRED for accessibility
+  aria-label="string">                                  // Accessibility label
   icon_name
 </schmancy-icon-button>
 

@@ -2,7 +2,8 @@
 
 ```js
 // Basic Dialog Component
-<schmancy-dialog>
+<schmancy-dialog
+  uid?="string">                             // Unique identifier for dialog instance
   <!-- Dialog content goes here -->
   <div>Dialog content</div>
 </schmancy-dialog>
@@ -20,9 +21,25 @@ dialog.hide(result?) -> void                 // Hide dialog with optional result
 // Dialog Events
 @close   // Fires when dialog is closed
 
-// Service API (higher-level abstraction with additional components)
+// CSS Variables
+--dialog-width: 360px                        // Controls dialog width
+
+// Confirm Dialog Component (used internally by service)
+<confirm-dialog
+  title?="string"                            // Dialog title
+  subtitle?="string"                         // Dialog subtitle  
+  message?="string"                          // Dialog message
+  confirm-text?="string"                     // Confirm button text (default: "Confirm")
+  cancel-text?="string"                      // Cancel button text (default: "Cancel")
+  variant?="default|danger"                  // Dialog variant (default: "default")
+  confirm-color?="primary|error|warning|success">  // Confirm button color
+  <div slot="content">Custom content</div>
+</confirm-dialog>
+
+// Service API (higher-level abstraction)
 $dialog.confirm({
   title?,
+  subtitle?,
   message?,
   confirmText?,
   cancelText?,
@@ -32,12 +49,14 @@ $dialog.confirm({
   width?: string,
   content?: TemplateResult|HTMLElement|Function,
   onConfirm?: Function,
-  onCancel?: Function
+  onCancel?: Function,
+  targetContainer?: HTMLElement              // Container to append dialog to (defaults to document.body)
 }) -> Promise<boolean>
 
 $dialog.ask(message, event?) -> Promise<boolean>
 $dialog.danger({...options}) -> Promise<boolean>
 $dialog.component(content, options?) -> Promise<boolean>
+$dialog.dismiss() -> boolean                 // Dismiss most recently opened dialog
 
 // Examples
 // Basic dialog usage

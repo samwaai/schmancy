@@ -3,23 +3,27 @@
 ```js
 // Component Tag
 <schmancy-typography
-  type="display|headline|title|label|body"                // Typography scale type
-  token="lg|md|sm"                                        // Size token within type
-  class?="additional-tailwind-classes"                    // Additional styling
-  tag?="h1|h2|h3|h4|h5|h6|p|span|div"                   // HTML element (auto-determined by type/token)
-  @click=${handler}>                                      // Click handler
+  type="display|headline|title|subtitle|label|body"      // Typography scale type
+  token="xl|lg|md|sm|xs"                                 // Size token within type
+  align?="left|center|justify|right"                     // Text alignment
+  weight?="normal|medium|bold"                           // Font weight override
+  transform?="uppercase|lowercase|capitalize|normal"     // Text transformation
+  maxLines?="1|2|3|4|5|6"                               // Truncate with ellipsis
+  class?="additional-tailwind-classes"                   // Additional styling
+  @click=${handler}>                                     // Click handler
   <!-- Text content or HTML -->
 </schmancy-typography>
 
 // Import
 import '@mhmo91/schmancy/typography'
 
-// Typography Scale Reference
-// Display: lg (57/64), md (45/52), sm (36/44)
-// Headline: lg (32/40), md (28/36), sm (24/32)
-// Title: lg (22/28), md (16/24), sm (14/20)
-// Label: lg (14/20), md (12/16), sm (11/16)
-// Body: lg (16/24), md (14/20), sm (12/16)
+// Typography Scale Reference (size/line-height)
+// Display: xl (72/80), lg (57/64), md (45/52), sm (36/44), xs (28/36)
+// Headline: xl (36/44), lg (32/40), md (28/36), sm (24/32), xs (20/28)
+// Title: xl (28/36), lg (22/28), md (16/24), sm (14/20), xs (12/16)
+// Subtitle: xl (20/28), lg (18/24), md (16/20), sm (14/18), xs (12/16)
+// Label: xl (16/24), lg (14/20), md (12/16), sm (11/16), xs (10/14)
+// Body: xl (18/28), lg (16/24), md (14/20), sm (12/16), xs (10/14)
 
 // Examples
 // 1. Page heading (Display)
@@ -52,9 +56,9 @@ import '@mhmo91/schmancy/typography'
   Highlighted Section
 </schmancy-typography>
 
-// 7. Custom tag usage
-<schmancy-typography type="display" token="md" tag="h1">
-  Main Page Title
+// 7. Centered uppercase title
+<schmancy-typography type="title" token="lg" align="center" transform="uppercase">
+  Section Header
 </schmancy-typography>
 
 // 8. Clickable text
@@ -62,9 +66,9 @@ import '@mhmo91/schmancy/typography'
   Click me for more information
 </schmancy-typography>
 
-// 9. Mixed content with HTML
-<schmancy-typography type="body" token="lg">
-  This text contains <strong>bold</strong> and <em>italic</em> elements.
+// 9. Truncated text with ellipsis
+<schmancy-typography type="body" token="md" maxLines="2">
+  This is a long description that will be truncated after two lines with an ellipsis if it exceeds the available space...
 </schmancy-typography>
 
 // 10. Multiple typography in a card
@@ -91,40 +95,73 @@ import '@mhmo91/schmancy/typography'
 ## Technical Details
 
 ### Typography Scale System
-Material Design 3 typography scale with 5 scales, each with 3 sizes:
+Material Design 3 typography scale with 6 types, each with 5 sizes:
 
-**Display** - Largest text for big statements
+**Display** - Largest text for big statements (weight: 400)
+- `xl`: 72px/80px line-height
 - `lg`: 57px/64px line-height
 - `md`: 45px/52px line-height
 - `sm`: 36px/44px line-height
+- `xs`: 28px/36px line-height
 
-**Headline** - Section headers and important titles
+**Headline** - Section headers and important titles (weight: 400)
+- `xl`: 36px/44px line-height
 - `lg`: 32px/40px line-height
 - `md`: 28px/36px line-height
 - `sm`: 24px/32px line-height
+- `xs`: 20px/28px line-height
 
-**Title** - Smaller titles and subtitles
-- `lg`: 22px/28px line-height
-- `md`: 16px/24px line-height
-- `sm`: 14px/20px line-height
+**Title** - Smaller titles and subtitles (weight: 400-500)
+- `xl`: 28px/36px line-height (weight: 500)
+- `lg`: 22px/28px line-height (weight: 400)
+- `md`: 16px/24px line-height (weight: 500)
+- `sm`: 14px/20px line-height (weight: 500)
+- `xs`: 12px/16px line-height (weight: 500)
 
-**Label** - UI labels and buttons
+**Subtitle** - Secondary headings (weight: 400)
+- `xl`: 20px/28px line-height
+- `lg`: 18px/24px line-height
+- `md`: 16px/20px line-height
+- `sm`: 14px/18px line-height
+- `xs`: 12px/16px line-height
+
+**Label** - UI labels and buttons (weight: 500)
+- `xl`: 16px/24px line-height
 - `lg`: 14px/20px line-height
 - `md`: 12px/16px line-height
 - `sm`: 11px/16px line-height
+- `xs`: 10px/14px line-height
 
-**Body** - Main content text
+**Body** - Main content text (weight: 400)
+- `xl`: 18px/28px line-height
 - `lg`: 16px/24px line-height
 - `md`: 14px/20px line-height
 - `sm`: 12px/16px line-height
+- `xs`: 10px/14px line-height
 
-### Automatic Tag Selection
-The component automatically selects appropriate HTML tags:
-- Display: `h1`, `h2`, `h3`
-- Headline: `h3`, `h4`, `h5`
-- Title: `h5`, `h6`, `p`
-- Label: `span`
-- Body: `p`
+### Additional Properties
+
+**Text Alignment** (`align`)
+- `left`: Align text to the left
+- `center`: Center the text
+- `justify`: Justify text
+- `right`: Align text to the right
+
+**Font Weight** (`weight`)
+- `normal`: 400 weight
+- `medium`: 500 weight
+- `bold`: 700 weight
+
+**Text Transform** (`transform`)
+- `uppercase`: Convert to uppercase
+- `lowercase`: Convert to lowercase
+- `capitalize`: Capitalize first letter of each word
+- `normal`: No transformation
+
+**Line Clamping** (`maxLines`)
+- Truncates text after specified number of lines
+- Adds ellipsis (...) at the end
+- Values: 1-6 lines
 
 ### Theme Integration
 Typography automatically inherits colors from the theme:
@@ -132,14 +169,12 @@ Typography automatically inherits colors from the theme:
 - Respects surface container colors
 - Can be overridden with Tailwind classes
 
-### CSS Custom Properties
-The component uses Material Design 3 type scale tokens:
-```css
---schmancy-sys-typescale-[type]-[token]-size
---schmancy-sys-typescale-[type]-[token]-line-height
---schmancy-sys-typescale-[type]-[token]-weight
---schmancy-sys-typescale-[type]-[token]-letter-spacing
-```
+### Implementation Details
+- Uses Shadow DOM with encapsulated styles
+- All typography values are hardcoded in the component
+- Renders as a `<span>` element with `display: inherit`
+- Font family: system-ui, -apple-system, sans-serif
+- Letter spacing is set to 0 for all variants
 
 ## Common Use Cases
 

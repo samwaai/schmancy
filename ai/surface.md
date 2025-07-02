@@ -13,7 +13,7 @@
 // Properties
 fill: string          // "all", "width", "height", "auto" (default: "auto")
 rounded: string       // Corner rounding: "none", "top", "left", "right", "bottom", "all" (default: "none")
-type: string          // Surface color variant (default: "surface")
+type: string          // Surface color variant (default: "container")
 elevation: number     // Shadow depth 0-5 (default: 0)
 
 // Surface Types (background colors)
