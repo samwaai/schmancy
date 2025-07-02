@@ -34,8 +34,7 @@ export class ConfirmDialog extends $LitElement(css`
 
 	.dialog {
 		position: absolute;
-		max-width: var(--dialog-width);
-		width: max-content;
+		width: var(--dialog-width);
 		max-height: calc(100vh - 40px); /* Prevent exceeding viewport height */
 		overflow: auto; /* Allow scrolling for oversized content */
 	}

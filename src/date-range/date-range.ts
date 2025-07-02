@@ -873,7 +873,6 @@ export class SchmancyDateRange extends $LitElement() {
 									.value="${this.dateFrom.value}"
 									min="${ifDefined(this.minDate)}"
 									max="${ifDefined(this.maxDate)}"
-									readonly
 									@change="${(e: Event) => {
 										const target = e.target as HTMLInputElement
 										this.dateFrom.value = target.value
@@ -892,7 +891,6 @@ export class SchmancyDateRange extends $LitElement() {
 									.value="${this.dateTo.value}"
 									min="${ifDefined(this.dateFrom.value)}"
 									max="${ifDefined(this.maxDate)}"
-									readonly
 									@change="${(e: Event) => {
 										const target = e.target as HTMLInputElement
 										this.dateTo.value = target.value
