@@ -25,27 +25,6 @@ export class SchmancyDialog extends $LitElement(css`
 	:host([active]) {
 		display: block;
 	}
-
-	.overlay {
-		position: fixed;
-		inset: 0;
-		background: rgba(0, 0, 0, 0.4);
-	}
-
-	.dialog {
-		position: absolute;
-		max-width: var(--dialog-width);
-		width: max-content;
-		max-height: calc(100vh - 40px); /* Prevent exceeding viewport height */
-		overflow: auto; /* Allow scrolling for oversized content */
-	}
-
-	/* Used when centered for initial positioning */
-	.dialog.centered {
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -55%); /* Slight upward shift looks better */
-	}
 `) {
 	/**
 	 * Unique identifier for the dialog instance
@@ -151,22 +130,15 @@ export class SchmancyDialog extends $LitElement(css`
 			Math.abs(this.position.x - viewportWidth / 2) < 10 && Math.abs(this.position.y - viewportHeight / 2) < 10
 
 		if (isCentered) {
-			// For centered dialogs, use CSS-based centering
-			dialog.classList.add('centered')
-
-			// Always set up auto-update for content changes, even for centered dialogs
+			// For centered dialogs, set up auto-update for content changes
 			this.cleanupAutoUpdate = autoUpdate(
 				document.body, // Use body as reference for centered dialogs
 				dialog,
 				() => {
-					// If dialog has the centered class, ensure it stays visible
-					// even when content changes its dimensions
-					if (dialog.classList.contains('centered')) {
-						// Adjust max-height to ensure dialog stays within viewport
-						const availableHeight = window.innerHeight - 40
-						if (dialog.offsetHeight > availableHeight) {
-							dialog.style.maxHeight = `${availableHeight}px`
-						}
+					// Ensure dialog stays within viewport when content changes
+					const availableHeight = window.innerHeight - 40
+					if (dialog.offsetHeight > availableHeight) {
+						dialog.style.maxHeight = `${availableHeight}px`
 					}
 				},
 				{
@@ -177,9 +149,6 @@ export class SchmancyDialog extends $LitElement(css`
 
 			return
 		}
-
-		// Remove centered class if it exists
-		dialog.classList.remove('centered')
 
 		// Use Floating UI's autoUpdate to continually update position
 		if (this.virtualReference) {
@@ -323,7 +292,7 @@ export class SchmancyDialog extends $LitElement(css`
 	 * Handle lifecycle callback when dialog is first rendered
 	 */
 	firstUpdated() {
-		const dialog = this.shadowRoot?.querySelector('.dialog') as HTMLElement
+		const dialog = this.shadowRoot?.querySelector('[role="dialog"]') as HTMLElement
 		if (!dialog) return
 
 		// Set up positioning with Floating UI
@@ -368,10 +337,32 @@ export class SchmancyDialog extends $LitElement(css`
 	}
 
 	render() {
+		// Determine if the dialog is centered
+		const viewportWidth = window.innerWidth
+		const viewportHeight = window.innerHeight
+		const isCentered = Math.abs(this.position.x - viewportWidth / 2) < 10 && Math.abs(this.position.y - viewportHeight / 2) < 10
+		
+		const dialogClasses = {
+			'absolute': true,
+			'w-[var(--dialog-width)]': true, // Use the specified width
+			'max-w-[calc(100vw-2rem)]': true, // Prevent overflow on small screens
+			'max-h-[calc(100vh-40px)]': true,
+			'overflow-auto': true,
+			// Centered positioning
+			'top-1/2': isCentered,
+			'left-1/2': isCentered,
+			'-translate-x-1/2': isCentered,
+			'-translate-y-[55%]': isCentered, // Slight upward shift
+		}
+		
 		return html`
-			<div class="overlay" @click=${this.handleClose}></div>
+			<div class="fixed inset-0 bg-black/40" @click=${this.handleClose}></div>
 
-			<div class="dialog" role="dialog" aria-modal="true">
+			<div 
+				class=${this.classMap(dialogClasses)} 
+				role="dialog" 
+				aria-modal="true"
+			>
 				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
 					<slot></slot>
 				</schmancy-surface>
