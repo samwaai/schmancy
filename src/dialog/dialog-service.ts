@@ -247,6 +247,11 @@ export class DialogService {
 								contentContainer.parentNode.removeChild(contentContainer)
 							}
 						}
+						
+						// Remove dialog from DOM
+						if (dialog.parentElement) {
+							dialog.parentElement.removeChild(dialog)
+						}
 					}).catch((error: any) => {
 						if (target.reject) {
 							target.reject(error)
@@ -314,6 +319,11 @@ export class DialogService {
 						const rawIndex = this.activeRawDialogs.indexOf(response.dialog)
 						if (rawIndex !== -1) {
 							this.activeRawDialogs.splice(rawIndex, 1)
+						}
+						
+						// Remove dialog from DOM immediately
+						if (response.dialog.parentElement) {
+							response.dialog.parentElement.removeChild(response.dialog)
 						}
 					}
 				}),
