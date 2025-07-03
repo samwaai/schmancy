@@ -1,14 +1,14 @@
 import { $LitElement } from '@mixins/index'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
-import { html, PropertyValues, TemplateResult } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { ifDefined } from 'lit/directives/if-defined.js'
 import { debounceTime, fromEvent, takeUntil, timer } from 'rxjs'
 import { $dialog } from '../dialog/dialog-service'
+import { adjustQuarter, calculateShiftParams, detectDateRangeType, formatDateRange } from './date-range-helpers'
+import { DateRangePreset, generatePresetCategories, PresetCategory } from './date-range-presets'
 import { validateInitialDateRange } from './date-utils'
-import { DateRangePreset, PresetCategory, generatePresetCategories } from './date-range-presets'
-import { formatDateRange, detectDateRangeType, calculateShiftParams, adjustQuarter } from './date-range-helpers'
+import './date-range-dialog'
 
 // Add quarter plugin to dayjs
 dayjs.extend(quarterOfYear)
@@ -210,12 +210,6 @@ export class SchmancyDateRange extends $LitElement() {
 		)
 	}
 
-	private handlePresetSelection(preset: DateRangePreset, e: Event) {
-		e.stopPropagation()
-		this.activePreset = preset.label
-		this.setDateRange(preset.range.dateFrom, preset.range.dateTo)
-		$dialog.dismiss()
-	}
 
 
 
@@ -235,8 +229,32 @@ export class SchmancyDateRange extends $LitElement() {
 		
 		this.isOpen = true
 		
-		// Create dialog content
-		const dialogContent = this.createDialogContent()
+		// Create dialog with the new component
+		const dialogContent = html`
+			<schmancy-date-range-dialog
+				.type="${this.type}"
+				.dateFrom="${this.dateFrom}"
+				.dateTo="${this.dateTo}"
+				.minDate="${this.minDate}"
+				.maxDate="${this.maxDate}"
+				.activePreset="${this.activePreset}"
+				.presetCategories="${this.presetCategories}"
+				@preset-select="${(e: CustomEvent) => {
+					this.activePreset = e.detail.preset.label
+					this.setDateRange(e.detail.preset.range.dateFrom, e.detail.preset.range.dateTo)
+				}}"
+				@date-change="${() => this.updateSelectedDateRange()}"
+				@apply-dates="${(e: CustomEvent) => {
+					const { dateFrom, dateTo, swapIfNeeded } = e.detail
+					if (swapIfNeeded) {
+						this.setDateRange(dateTo, dateFrom)
+					} else {
+						this.setDateRange(dateFrom, dateTo)
+					}
+				}}"
+				@announce="${(e: CustomEvent) => this.announceToScreenReader(e.detail.message)}"
+			></schmancy-date-range-dialog>
+		`
 		
 		// Use the dialog service - it will automatically find the nearest schmancy-theme
 		$dialog.component(dialogContent, {
@@ -393,26 +411,6 @@ export class SchmancyDateRange extends $LitElement() {
 		}
 	}
 
-	private applyManualDateSelection(e: Event) {
-		e.stopPropagation()
-		// Validate dates before applying
-		const fromDate = dayjs(this.dateFrom.value)
-		const toDate = dayjs(this.dateTo.value)
-
-		if (!fromDate.isValid() || !toDate.isValid()) {
-			this.announceToScreenReader('Invalid date format. Please check your input.')
-			return
-		}
-
-		// Ensure from date is before to date
-		if (fromDate.isAfter(toDate)) {
-			this.setDateRange(toDate.format(this.getDateFormat()), fromDate.format(this.getDateFormat()))
-		} else {
-			this.setDateRange(this.dateFrom.value, this.dateTo.value)
-		}
-
-		$dialog.dismiss()
-	}
 
 	/**
 	 * Check if view is mobile
@@ -423,103 +421,6 @@ export class SchmancyDateRange extends $LitElement() {
 
 
 
-	private handleFromDateChange(e: Event) {
-		const input = e.target as HTMLInputElement
-		this.dateFrom.value = input.value
-		this.updateSelectedDateRange()
-	}
-
-	private handleToDateChange(e: Event) {
-		const input = e.target as HTMLInputElement
-		this.dateTo.value = input.value
-		this.updateSelectedDateRange()
-	}
-
-	/**
-	 * Create dialog content
-	 */
-	private createDialogContent(): TemplateResult {
-		return html`
-			<div class="w-full min-h-[400px] max-h-[80vh] flex flex-col p-4">
-				<!-- Custom Range Section with Inline Calendars -->
-				<schmancy-surface type="container" class="rounded-xl p-4 mb-6">
-					<div class="flex flex-col gap-4">
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<!-- From Date Calendar -->
-							<div class="flex flex-col gap-2">
-								<schmancy-typography type="label" token="md" class="text-surface-onVariant">
-									${this.dateFrom.label || 'From'}
-								</schmancy-typography>
-								<schmancy-input
-									type="${this.type}"
-									.value="${this.dateFrom.value}"
-									min="${ifDefined(this.minDate)}"
-									max="${ifDefined(this.maxDate)}"
-									@change="${this.handleFromDateChange.bind(this)}"
-								></schmancy-input>
-							</div>
-							
-							<!-- To Date Calendar -->
-							<div class="flex flex-col gap-2">
-								<schmancy-typography type="label" token="md" class="text-surface-onVariant">
-									${this.dateTo.label || 'To'}
-								</schmancy-typography>
-								<schmancy-input
-									type="${this.type}"
-									.value="${this.dateTo.value}"
-									min="${ifDefined(this.dateFrom.value)}"
-									max="${ifDefined(this.maxDate)}"
-									@change="${this.handleToDateChange.bind(this)}"
-								></schmancy-input>
-							</div>
-						</div>
-						
-						<!-- Apply Button - Now at the bottom for logical flow -->
-						<div class="flex justify-end mt-2">
-							<schmancy-button 
-								variant="filled" 
-								@click="${(e: Event) => this.applyManualDateSelection(e)}"
-								?disabled="${!this.dateFrom.value || !this.dateTo.value}"
-							>
-								Apply
-							</schmancy-button>
-						</div>
-					</div>
-				</schmancy-surface>
-
-				<!-- Presets Section -->
-				<div class="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-					<div class="grid grid-cols-2 md:grid-cols-5 gap-6">
-						${this.presetCategories.map(
-							category => html`
-								<div class="space-y-3">
-									<schmancy-typography type="title" token="md" class="text-surface-onVariant font-medium">
-										${category.name}
-									</schmancy-typography>
-									<div class="space-y-1">
-										${category.presets.map(
-											preset => html`
-												<schmancy-button
-													variant="${this.activePreset === preset.label ? 'filled' : 'text'}"
-													class="w-full justify-start text-left"
-													@click="${(e: Event) => this.handlePresetSelection(preset, e)}"
-													aria-pressed="${this.activePreset === preset.label}"
-													aria-label="${preset.label}: ${preset.range.dateFrom} to ${preset.range.dateTo}"
-													title="${preset.range.dateFrom} to ${preset.range.dateTo}"
-												>
-													<span class="truncate">${preset.label}</span>
-												</schmancy-button>
-											`,
-										)}
-									</div>
-								</div>
-							`,
-						)}
-					</div>
-				</div>
-			</div>
-		`
-	}
 
 	/**
 	 * Announce messages to screen readers
