@@ -5,7 +5,7 @@ import { createRef, ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
 import { distinctUntilChanged, filter, fromEvent, map, takeUntil } from 'rxjs'
 
-import { TailwindElement } from '@mixins/index'
+import { SchmancyFormField } from '@mixins/index'
 
 // color directive + theme interface
 import { color } from '@schmancy/directives'
@@ -49,7 +49,7 @@ export type InputSize = 'sm' | 'md' | 'lg'
  * native input behaviors while providing a stylish, accessible interface.
  */
 @customElement('schmancy-input')
-export default class SchmancyInput extends TailwindElement(style) {
+export default class SchmancyInput extends SchmancyFormField(style) {
 	// ----------------------------
 	//  A) Public properties
 	// ----------------------------
@@ -57,14 +57,10 @@ export default class SchmancyInput extends TailwindElement(style) {
 	/** Auto-incrementing counter for generating unique IDs */
 	static _idCounter = 0
 
-	@property({ reflect: true })
-	public override id = ''
+	/** Override value to be string only for input element */
+	@property({ type: String, reflect: true })
+	public override value = ''
 
-	/**
-	 * The label for the control. If populated, we render a `<label for="...">`.
-	 * If empty, we add an `aria-label` to the <input> for better screenreader support.
-	 */
-	@property({ type: String }) label = ''
 
 	/**
 	 * The type of input. (e.g. 'text', 'password', 'email', etc.)
@@ -72,34 +68,15 @@ export default class SchmancyInput extends TailwindElement(style) {
 	@property({ reflect: true })
 	public type: HTMLInputElement['type'] = 'text'
 
-	/**
-	 * Name attribute (for form submissions). By default, a unique fallback.
-	 */
-	@property()
-	public name = `name_${Date.now()}`
 
 	@property()
 	public placeholder = ''
 
-	/** Current value of the input. */
-	@property({ type: String, reflect: true })
-	public value = ''
 
 	/** Pattern validation attribute. */
 	@property({ type: String, reflect: true })
 	public pattern?: string
 
-	/** Whether the control is required for form validation. */
-	@property({ type: Boolean, reflect: true })
-	public required = false
-
-	/** Whether the control is disabled. */
-	@property({ type: Boolean, reflect: true })
-	public disabled = false
-
-	/** Whether the input is read-only. */
-	@property({ type: Boolean, reflect: true })
-	public readonly = false
 
 	/** If true, we visually show a pointer cursor even if readOnly. */
 	@property({ type: Boolean, reflect: true }) public clickable = false
@@ -148,18 +125,6 @@ export default class SchmancyInput extends TailwindElement(style) {
 	@property({ type: Number, reflect: true })
 	public override tabIndex = 0
 
-	/**
-	 * A small hint text or error message to display under the input.
-	 */
-	@property()
-	public hint?: string
-
-	/**
-	 * If true, we style the input as an error state, and possibly display
-	 * the hint as an error message.
-	 */
-	@property({ type: Boolean, reflect: true })
-	public error = false
 
 	/**
 	 * The size of the input.
@@ -186,11 +151,6 @@ export default class SchmancyInput extends TailwindElement(style) {
 	@property({ type: String })
 	public list?: string
 
-	/**
-	 * The validation message to display (mimics native input.validationMessage)
-	 */
-	@property({ type: String })
-	public validationMessage = ''
 
 	// ----------------------------
 	//  B) Queries & Refs
@@ -229,26 +189,12 @@ export default class SchmancyInput extends TailwindElement(style) {
 	// ----------------------------
 	//  D) Form-associated logic
 	// ----------------------------
-	static formAssociated = true
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		delegatesFocus: true, // so focus() goes to <input>
 	}
 
-	private internals?: ElementInternals
 	private formResetObserver?: MutationObserver
-
-	constructor() {
-		super()
-		if ('attachInternals' in this) {
-			try {
-				this.internals = this.attachInternals()
-			} catch {
-				// no-op for older browsers / polyfills
-				this.internals = undefined
-			}
-		}
-	}
 
 	/**
 	 * If user did not provide an ID, auto-generate one so <label for="...">
@@ -261,10 +207,6 @@ export default class SchmancyInput extends TailwindElement(style) {
 		super.willUpdate(changedProps)
 	}
 
-	/** The form this element is associated with, if any. */
-	get form() {
-		return this.internals?.form ?? null
-	}
 
 	protected override updated(changedProps: Map<string, unknown>) {
 		super.updated(changedProps)
@@ -276,16 +218,8 @@ export default class SchmancyInput extends TailwindElement(style) {
 				this.dirty = true
 			}
 
-			// Reflect the current value to the form internals, so it's submitted.
-			this.internals?.setFormValue(this.value)
-
 			// Update validation state when value changes
 			this.validateInput()
-		}
-
-		// Handle error state changes
-		if (changedProps.has('error')) {
-			this.updateValidityState()
 		}
 
 		// Store default value if this is the first update
@@ -314,7 +248,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 	 * Set up form integration with ElementInternals
 	 */
 	private setupFormIntegration() {
-		if (this.internals?.form) {
+		if (this.form) {
 			// Listen for form reset events
 			this.formResetObserver = new MutationObserver(mutations => {
 				for (const mutation of mutations) {
@@ -325,19 +259,19 @@ export default class SchmancyInput extends TailwindElement(style) {
 			})
 
 			// Observe the form for reset events
-			this.formResetObserver.observe(this.internals.form, {
+			this.formResetObserver.observe(this.form, {
 				attributes: true,
 				childList: false,
 				subtree: false,
 			})
 
 			// Also directly listen for the reset event
-			this.internals.form.addEventListener('reset', () => {
+			this.form.addEventListener('reset', () => {
 				this.resetToDefault()
 			})
 
 			// Listen for form submit events to mark field as submitted
-			this.internals.form.addEventListener('submit', () => {
+			this.form.addEventListener('submit', () => {
 				this.submitted = true
 				// Validate on form submission
 				this.validateInput(true)
@@ -421,21 +355,6 @@ export default class SchmancyInput extends TailwindElement(style) {
 		}
 	}
 
-	/**
-	 * Update validity state based on current error state
-	 */
-	private updateValidityState() {
-		if (this.error) {
-			// Only set custom validity if validationMessage is provided
-			if (this.validationMessage) {
-				this.internals?.setValidity({ customError: true }, this.validationMessage, this.inputElement)
-			} else {
-				this.internals?.setValidity({ customError: true }, 'Invalid input', this.inputElement)
-			}
-		} else {
-			this.internals?.setValidity({})
-		}
-	}
 
 	/**
 	 * Validate input based on required, pattern, etc.
@@ -483,30 +402,26 @@ export default class SchmancyInput extends TailwindElement(style) {
 			this.error = false
 		}
 
-		// Always update internals with current validity state
-		this.updateValidityState()
+		// The mixin will handle updating internals based on error state
 	}
 
 	/**
 	 * Check validity without showing validation UI
 	 */
-	public checkValidity() {
+	public override checkValidity() {
 		// Check internal input first
 		const inputValid = this.inputRef.value?.checkValidity() ?? true
 
-		// Also synchronize with internals API for better form integration
-		if (this.internals && !inputValid) {
-			this.internals.checkValidity()
-			return false
-		}
+		// Call parent implementation for basic validation
+		const parentValid = super.checkValidity()
 
-		return inputValid
+		return inputValid && parentValid
 	}
 
 	/**
 	 * Show validation UI and check validity
 	 */
-	public reportValidity() {
+	public override reportValidity() {
 		// Mark as touched and submitted to show validation
 		this.touched = true
 		this.submitted = true
@@ -517,36 +432,26 @@ export default class SchmancyInput extends TailwindElement(style) {
 		// Update our component's validation state with force=true
 		this.validateInput(true)
 
-		// Also report to internals API for better form integration
-		if (this.internals && !inputValid) {
-			this.internals.reportValidity()
-			return false
-		}
+		// Call parent implementation
+		const parentValid = super.reportValidity()
 
-		return inputValid
+		return inputValid && parentValid
 	}
 
 	/**
 	 * Set a custom validation error message
 	 */
-	public setCustomValidity(message: string) {
+	public override setCustomValidity(message: string) {
 		// Set on the native input
 		if (this.inputRef.value) {
 			this.inputRef.value.setCustomValidity(message)
 		}
 
-		// Also update our component state
-		this.validationMessage = message
+		// Call parent implementation
+		super.setCustomValidity(message)
+		
+		// Update error state based on validation strategy
 		this.error = message !== '' && this.shouldShowValidation()
-
-		// And update internals
-		if (this.internals) {
-			if (message) {
-				this.internals.setValidity({ customError: true }, message, this.inputElement)
-			} else {
-				this.internals.setValidity({})
-			}
-		}
 	}
 
 	// ----------------------------
@@ -627,14 +532,8 @@ export default class SchmancyInput extends TailwindElement(style) {
 				this.value = value
 				this.dirty = this.value !== this.defaultValue
 
-				// Fire regular change event with bubbling
-				this.dispatchEvent(
-					new CustomEvent<EventDetails>('change', {
-						detail: { value },
-						bubbles: true,
-						composed: true,
-					}),
-				)
+				// Fire regular change event using mixin helper
+				this.emitChange({ value })
 
 				// Run validation on change like native inputs
 				this.validateInput()
@@ -716,13 +615,7 @@ export default class SchmancyInput extends TailwindElement(style) {
 				)
 
 				// Also propagate as a change event like browsers do
-				this.dispatchEvent(
-					new CustomEvent<EventDetails>('change', {
-						detail: { value },
-						bubbles: true,
-						composed: true,
-					}),
-				)
+				this.emitChange({ value })
 			})
 
 		// Detect end of autofill (Chrome)
