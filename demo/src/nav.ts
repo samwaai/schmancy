@@ -31,6 +31,7 @@ import { DemoLayout } from './features/layout'
 // Form Controls
 import { DemoAutocomplete } from './features/autocomplete'
 import { DemoDateRange } from './features/date-range'
+import DemoProgress from './features/progress'
 import { DemoRadio } from './features/radio'
 import { DemoSheet } from './features/sheet-demo'
 import { DemoSlider } from './features/slider'
@@ -75,6 +76,7 @@ export class DemoNav extends TailwindElement() {
         { name: 'Card', component: DemoCard },
         { name: 'Surface', component: DemoSurface },
         { name: 'Icons', component: DemoIcons },
+        { name: 'Progress', component: DemoProgress },
       ]
     },
     {

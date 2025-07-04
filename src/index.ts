@@ -28,6 +28,7 @@ export * from './menu';
 export * from './nav-drawer';
 export * from './notification';
 export * from './option';
+export * from './progress';
 export * from './radio-group';
 export * from './rxjs-utils';
 export * from './select';

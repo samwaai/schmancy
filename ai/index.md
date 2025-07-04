@@ -15,6 +15,7 @@ This directory contains concise reference documentation for the Schmancy compone
 - [Card](./card.md) - Content containers with headers and actions
 - [Checkbox](./checkbox.md) - Checkable input with indeterminate state
 - [Chips](./chips.md) - Compact elements for input or selection
+- [Progress](./progress.md) - Linear progress indicator showing task completion
 
 ### Layout & Navigation
 - [Content Drawer](./content-drawer.md) - Sliding panel system for navigation and overlays

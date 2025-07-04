@@ -206,3 +206,14 @@ When creating demos for Schmancy components, follow this structure:
 - Avoid mixing inline and block display in examples
 - Use consistent spacing (mb-4, mb-8, mb-12)
 - Make examples self-contained and easy to copy
+
+## Styling Guidelines
+
+- Always prefer to use tailwind css over custom css
+
+## Development Guidelines
+
+- Never create test*.html files
+- Always use the demo project to setup demos
+- Always update ai/*.md upon code changes
+- Never import schmancy components in demo 
