@@ -1,4 +1,5 @@
 import { $LitElement } from '@mixins/index'
+import { SchmancyInputChangeEvent } from '@schmancy/input'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import '../shared/installation-section'
@@ -284,6 +285,7 @@ export class DemoInput extends $LitElement() {
 						<schmancy-code-preview language="html">
 							<schmancy-form 
 								@submit="${(e) => {
+									alert('about to sumbit')
 									console.log('Form data:', e.detail.data);
 									alert('Form submitted! Check console.');
 								}}"
@@ -298,6 +300,9 @@ export class DemoInput extends $LitElement() {
 									name="name"
 									placeholder="John Doe"
 									required
+									@change=${(e:SchmancyInputChangeEvent)=>{
+										alert(e.detail.value)
+									}}
 								></schmancy-input>
 								
 								<schmancy-input 

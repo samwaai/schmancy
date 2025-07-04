@@ -29,9 +29,9 @@ type EventDetails = {
  * - 'change': on native blur/change
  * - 'enter': specifically when user presses Enter
  */
-export type SchmancyInputInputEventV2 = CustomEvent<EventDetails>
-export type SchmancyInputChangeEventV2 = CustomEvent<EventDetails>
-export type SchmancyInputEnterEventV2 = CustomEvent<EventDetails>
+export type SchmancyInputInputEvent = CustomEvent<EventDetails>
+export type SchmancyInputChangeEvent = CustomEvent<EventDetails>
+export type SchmancyInputEnterEvent = CustomEvent<EventDetails>
 
 /**
  * Size variants for the input.
@@ -633,20 +633,28 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 	 * Set up enter key event handling
 	 */
 	private setupEnterKeyEvents() {
-		// Emit a custom 'enter' event when user presses Enter
-		fromEvent<KeyboardEvent>(this.inputElement, 'keyup')
+		// Listen for Enter on keydown
+		fromEvent<KeyboardEvent>(this.inputElement, 'keydown')
 			.pipe(
 				filter(ev => ev.key === 'Enter'),
 				takeUntil(this.disconnecting),
 			)
 			.subscribe(ev => {
 				const { value } = ev.target as HTMLInputElement
-				this.value = value
-				this.dirty = this.value !== this.defaultValue
+				
+				// Update value if changed
+				if (this.value !== value) {
+					this.value = value
+					this.dirty = this.value !== this.defaultValue
+				}
+				
+				// Blur the input to trigger change event naturally
+				// This mimics what happens when you tab out of the field
+				this.inputElement.blur()
 
 				// Dispatch enhanced enter event
 				const enterEvent = new CustomEvent<EventDetails>('enter', {
-					detail: { value },
+					detail: { value: this.value },
 					bubbles: true,
 					composed: true,
 				})
