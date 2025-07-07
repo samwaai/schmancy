@@ -11,13 +11,14 @@
   placeholder="Placeholder text"                      // Placeholder text
   hint?="Helper text"                                 // Helper text below input
   align?="left|center|right"                          // Text alignment (default: "left")
+  size?="sm|md|lg"                                   // Input size (default: "md")
   required?                                            // Required field
   disabled?                                            // Disabled state
   readonly?                                            // Read-only state
   clickable?                                           // Show pointer cursor when readonly
   error?                                               // Error state (boolean)
   autofocus?                                           // Auto-focus on render
-  spellcheck?                                          // Enable spellcheck
+  spellcheck?                                          // Enable spellcheck (default: false)
   inputmode?="none|text|tel|url|email|numeric|decimal|search" // Virtual keyboard hint
   autocomplete?="off|on|name|email|tel|etc"          // Autofill hints
   pattern?="regex"                                    // Validation pattern
@@ -26,12 +27,14 @@
   min?="number|date"                                  // Min value (number/date)
   max?="number|date"                                  // Max value (number/date)
   step?="number|any"                                  // Step increment
-  tabIndex?="number"                                  // Tab order
+  list?="datalist-id"                                // Associate with datalist
+  validateOn?="always|touched|dirty|submitted"        // Validation strategy (default: "touched")
   @input=${handleInput}                                // Every keystroke
   @change=${handleChange}                              // On blur/change
   @enter=${handleEnter}                                // Enter key pressed
   @focus=${handleFocus}                                // Focus event
-  @blur=${handleBlur}>                                 // Blur event
+  @blur=${handleBlur}                                  // Blur event
+  @autofill=${handleAutofill}>                         // Autofill detected
 </schmancy-input>
 
 // Input Methods
@@ -43,14 +46,23 @@ input.checkValidity() -> boolean
 input.reportValidity() -> boolean
 input.setCustomValidity(message: string) -> void
 input.getValidity() -> ValidityState
+input.setSelectionRange(start: number, end: number, direction?: 'forward'|'backward'|'none') -> void
+input.setRangeText(replacement: string, start?: number, end?: number, selectMode?: 'select'|'start'|'end'|'preserve') -> void
+
+// Input Properties
+input.selectionStart -> number | null
+input.selectionEnd -> number | null
+input.selectionDirection -> 'forward' | 'backward' | 'none' | null
 
 // Events (Custom Events with detail)
-@input  // CustomEvent<{ value: string }>
-@change // CustomEvent<{ value: string }>
-@enter  // CustomEvent<{ value: string }>
-@focus  // Standard FocusEvent
-@blur   // Standard FocusEvent
-@click  // Standard MouseEvent
+@input    // CustomEvent<{ value: string }>
+@change   // CustomEvent<{ value: string }>
+@enter    // CustomEvent<{ value: string }>
+@autofill // CustomEvent<{ value: string }>
+@reset    // CustomEvent<void>
+@focus    // Standard FocusEvent
+@blur     // Standard FocusEvent
+@click    // Standard MouseEvent
 
 // Examples
 // 1. Basic input with validation
@@ -142,18 +154,12 @@ input.checkValidity()     // Returns true/false
 input.reportValidity()    // Shows validation message
 input.setCustomValidity('Custom error')  // Set custom message
 input.getValidity()       // Get ValidityState object
-suffix: Content displayed after the input field
 ```
 
-### CSS Custom Properties
-```css
---schmancy-input-height: /* Controls the input height */
---schmancy-input-border-color: /* Controls the border color */
---schmancy-input-focus-color: /* Controls the focus color */
---schmancy-input-error-color: /* Controls the error state color */
---schmancy-input-success-color: /* Controls the success state color */
---schmancy-input-font-size: /* Controls the font size */
-```
+### Input Sizes
+- `sm`: 40px height, 14px font size, compact padding
+- `md`: 50px height, 16px font size, standard padding (default)
+- `lg`: 60px height, 18px font size, spacious padding
 
 ### Input v2 Interfaces
 ```typescript
@@ -172,17 +178,13 @@ interface InputParser {
 
 ### Common Use Cases
 
-1. **Password input with toggle visibility**
+1. **Password input with show/hide functionality**
    ```html
    <schmancy-input
      type="password"
      label="Password"
-     name="password">
-     <schmancy-icon 
-       slot="suffix" 
-       icon="eye" 
-       @click=${togglePasswordVisibility}>
-     </schmancy-icon>
+     name="password"
+     @enter=${handleSubmit}>
    </schmancy-input>
    ```
 
@@ -205,7 +207,10 @@ interface InputParser {
      label="Message"
      name="message"
      maxlength="100"
-     @input=${e => updateCharCount(e.target.value.length)}>
-     <span slot="suffix" id="charCount">0/100</span>
+     hint="0/100 characters"
+     @input=${e => {
+       const count = e.target.value.length;
+       e.target.hint = `${count}/100 characters`;
+     }}>
    </schmancy-input>
    ```

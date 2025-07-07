@@ -17,17 +17,17 @@
   <schmancy-option value="option3" disabled>Option 3</schmancy-option>
 </schmancy-select>
 
-// Select with helper text
+// Select with hint text
 <schmancy-select
   label="Country"
-  helper-text="Select your country of residence"
+  hint="Select your country of residence"
   required>
   <!-- Options -->
 </schmancy-select>
 
 // Multiple select
 <schmancy-select
-  multiple
+  multi
   label="Select Skills"
   .value=${['html', 'css']}
   @change=${(e) => console.log('Selected:', e.detail.value)}>

@@ -20,9 +20,9 @@ import '@mhmo91/schmancy/typography'
 // Typography Scale Reference (size/line-height)
 // Display: xl (72/80), lg (57/64), md (45/52), sm (36/44), xs (28/36)
 // Headline: xl (36/44), lg (32/40), md (28/36), sm (24/32), xs (20/28)
-// Title: xl (28/36), lg (22/28), md (16/24), sm (14/20), xs (12/16)
-// Subtitle: xl (20/28), lg (18/24), md (16/20), sm (14/18), xs (12/16)
-// Label: xl (16/24), lg (14/20), md (12/16), sm (11/16), xs (10/14)
+// Title: xl (24/32), lg (22/28), md (16/24), sm (14/20), xs (12/16)
+// Subtitle: xl (20/28), lg (18/24), md (16/24), sm (14/20), xs (12/16)
+// Label: xl (16/22), lg (14/20), md (12/16), sm (11/16), xs (10/14)
 // Body: xl (18/28), lg (16/24), md (14/20), sm (12/16), xs (10/14)
 
 // Examples
@@ -111,22 +111,22 @@ Material Design 3 typography scale with 6 types, each with 5 sizes:
 - `sm`: 24px/32px line-height
 - `xs`: 20px/28px line-height
 
-**Title** - Smaller titles and subtitles (weight: 400-500)
-- `xl`: 28px/36px line-height (weight: 500)
+**Title** - Smaller titles and subtitles (weight: 400)
+- `xl`: 24px/32px line-height (weight: 400)
 - `lg`: 22px/28px line-height (weight: 400)
 - `md`: 16px/24px line-height (weight: 500)
 - `sm`: 14px/20px line-height (weight: 500)
 - `xs`: 12px/16px line-height (weight: 500)
 
-**Subtitle** - Secondary headings (weight: 400)
+**Subtitle** - Secondary headings (weight: 500)
 - `xl`: 20px/28px line-height
 - `lg`: 18px/24px line-height
-- `md`: 16px/20px line-height
-- `sm`: 14px/18px line-height
+- `md`: 16px/24px line-height
+- `sm`: 14px/20px line-height
 - `xs`: 12px/16px line-height
 
 **Label** - UI labels and buttons (weight: 500)
-- `xl`: 16px/24px line-height
+- `xl`: 16px/22px line-height
 - `lg`: 14px/20px line-height
 - `md`: 12px/16px line-height
 - `sm`: 11px/16px line-height
@@ -172,9 +172,9 @@ Typography automatically inherits colors from the theme:
 ### Implementation Details
 - Uses Shadow DOM with encapsulated styles
 - All typography values are hardcoded in the component
-- Renders as a `<span>` element with `display: inherit`
-- Font family: system-ui, -apple-system, sans-serif
-- Letter spacing is set to 0 for all variants
+- Renders with `display: block` by default
+- Font family inherits from parent
+- All properties reflect to HTML attributes for CSS targeting
 
 ## Common Use Cases
 

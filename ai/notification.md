@@ -2,52 +2,50 @@
 
 ```js
 // Notification Service API
-import { $notification } from 'schmancy';
+import { $notification } from '@mhmo91/schmancy';
 
 // Display notification methods
-$notification.info(message, options?) -> NotificationRef
-$notification.success(message, options?) -> NotificationRef
-$notification.warning(message, options?) -> NotificationRef
-$notification.error(message, options?) -> NotificationRef
+$notification.info(message?, options?) -> string    // Returns notification ID
+$notification.success(message?, options?) -> string
+$notification.warning(message?, options?) -> string
+$notification.error(message?, options?) -> string
 
 // Custom notification
-$notification.show({
+$notification.notify({
   message: string,
-  type: 'info'|'success'|'warning'|'error',
+  type?: 'info'|'success'|'warning'|'error',
   title?: string,
-  duration?: number, // milliseconds, default 5000
-  closable?: boolean, // default true
-  actions?: [{
-    label: string,
-    onClick: Function
-  }],
-  position?: 'top-right'|'top-left'|'bottom-right'|'bottom-left'|'top'|'bottom',
-  onClose?: Function
-}) -> NotificationRef
-
-// NotificationRef object
-{
-  close(): void,  // Programmatically close the notification
-  id: string      // Unique ID of the notification
-}
+  duration?: number,      // milliseconds, default 1000 (1 second)
+  closable?: boolean,     // default true
+  playSound?: boolean,    // default true
+  id?: string            // custom ID
+}) -> string             // Returns notification ID
 
 // Notification Container Component
-<schmancy-notification-container
-  position="top-right|top-left|bottom-right|bottom-left|top|bottom"
-  max-count="5">
-</schmancy-notification-container>
+<sch-notification-container
+  position="top-right|top-left|bottom-right|bottom-left|top-center|bottom-center"
+  max-visible-notifications="2"     // Max number shown at once (default: 2)
+  play-sound="true|false"          // Enable/disable sounds (default: false)
+  audio-volume="0.1">               // Volume level 0-1 (default: 0.1)
+</sch-notification-container>
 
-// Notification Outlet (place notifications in specific locations)
-<schmancy-notification-outlet name="custom-location"></schmancy-notification-outlet>
-// Use with:
-$notification.show({ message: "Alert", outlet: "custom-location" });
-
-// Notification Audio
-$notification.setAudio(type, audioUrl) // Configure audio for notification types
+// Individual Notification Component (used internally)
+<sch-notification
+  title="Title"
+  message="Message text"
+  type="info|success|warning|error"
+  duration="5000"                   // Auto-close after ms (0 = no auto-close)
+  closable="true"
+  play-sound="true"
+  @close>                          // Fired when notification closes
+</sch-notification>
 
 // Examples
 // Basic usage
 $notification.success("Operation completed successfully");
+
+// Without message (just icon)
+$notification.success();
 
 // With options
 $notification.error("Failed to save changes", {
@@ -56,38 +54,26 @@ $notification.error("Failed to save changes", {
   closable: true
 });
 
-// With actions
-$notification.info("New update available", {
-  actions: [
-    {
-      label: "Update Now",
-      onClick: () => performUpdate()
-    },
-    {
-      label: "Remind Later",
-      onClick: () => scheduleReminder()
-    }
-  ]
-});
-
 // Custom notification
-$notification.show({
+$notification.notify({
   type: "info",
-  message: "Custom message with HTML content",
+  message: "Custom message",
   title: "Information",
   duration: 0, // won't auto-close
-  position: "bottom",
-  actions: [{
-    label: "Dismiss",
-    onClick: (ref) => ref.close()
-  }]
+  playSound: false
 });
 
-// With HTML content (using lit-html)
-$notification.info(html`
-  <div>
-    <strong>Hello</strong>
-    <p>This is a notification with <em>HTML</em> content</p>
-  </div>
-`);
+// Programmatic control
+const notificationId = $notification.info("Processing...", { duration: 0 });
+// Later, to remove it:
+const container = document.querySelector('sch-notification-container');
+container.removeNotification(notificationId);
+
+// Setup notification container
+// Add this once in your app layout:
+<sch-notification-container 
+  position="top-right"
+  max-visible-notifications="3"
+  play-sound="true">
+</sch-notification-container>
 ```

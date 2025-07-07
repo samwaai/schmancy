@@ -59,7 +59,7 @@ elevation: number     // Shadow depth 0-5 (default: 0, overrides type defaults)
 ### CSS Host Styling
 The component uses `:host` selectors for all styling:
 - No wrapper elements - clean component boundary
-- Type and elevation properties reflect to HTML attributes
+- CSS attribute selectors work with the properties
 - Automatic hover states for elevated and outlined types
 
 ### Theme Integration

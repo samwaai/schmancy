@@ -3,66 +3,59 @@
 ```js
 // Form Container
 <schmancy-form
-  @submit=${handleSubmit}
-  @validate=${handleValidation}
-  @change=${handleChange}>
+  novalidate?                              // Skip form validation on submit
+  @submit=${handleSubmit}                  // Form submission event
+  @reset=${handleReset}>                   // Form reset event
   <!-- Form fields go here -->
 </schmancy-form>
 
-// Form v2 (enhanced version with model binding)
-<schmancy-form-v2
-  .model=${formData}
-  .validators=${validators}
-  @submit=${handleSubmit}
-  @change=${handleChange}>
-  <!-- Form fields go here -->
-</schmancy-form-v2>
-
 // Form Methods
-form.submit() -> Promise<any>
-form.reset() -> void
-form.validate() -> Promise<boolean>
-form.setErrors({fieldName: errorMessage}) -> void
-form.getValues() -> Object
+form.submit() -> boolean                   // Submit the form programmatically
+form.reset() -> void                       // Reset all form fields to default values
+form.getFormData() -> FormData            // Get form data as FormData object
+form.reportValidity() -> boolean          // Check validity and show validation messages
+form.checkValidity() -> boolean           // Check validity without showing messages
 
 // Events
-@submit // { detail: { values: Object, isValid: boolean } }
-@validate // { detail: { errors: Object, isValid: boolean } }
-@change // { detail: { name: string, value: any, values: Object } }
+@submit // CustomEvent<FormData>          // Fired when form is submitted
+@reset  // CustomEvent                    // Fired when form is reset
 
 // Examples
 // 1. Basic form with validation
 <schmancy-form @submit=${(e) => {
-  const values = e.detail.values;
-  console.log('Form submitted:', values);
+  const formData = e.detail;
+  console.log('Form submitted:', formData);
+  // Convert FormData to object if needed
+  const values = Object.fromEntries(formData);
+  console.log('Values:', values);
 }}>
   <schmancy-input 
     name="email"
     label="Email Address"
-    required
-    error=${emailError}>
+    type="email"
+    required>
   </schmancy-input>
   
   <schmancy-button type="submit">Submit</schmancy-button>
 </schmancy-form>
 
-// 2. Form v2 with model binding and validators
-<schmancy-form-v2
-  .model=${{
-    username: '',
-    password: ''
-  }}
-  .validators=${{
-    username: (value) => value ? '' : 'Username is required',
-    password: (value) => value.length >= 8 ? '' : 'Password must be at least 8 characters'
-  }}
-  @submit=${(e) => console.log('Valid data:', e.detail.values)}>
+// 2. Form with multiple fields and validation
+<schmancy-form 
+  @submit=${async (e) => {
+    const formData = e.detail;
+    // Send to server
+    await fetch('/api/submit', {
+      method: 'POST',
+      body: formData
+    });
+  }}>
   
-  <schmancy-input name="username" label="Username"></schmancy-input>
-  <schmancy-input name="password" label="Password" type="password"></schmancy-input>
+  <schmancy-input name="username" label="Username" required></schmancy-input>
+  <schmancy-input name="password" label="Password" type="password" required></schmancy-input>
+  <schmancy-checkbox name="remember" label="Remember me"></schmancy-checkbox>
   
   <schmancy-button type="submit">Login</schmancy-button>
-</schmancy-form-v2>
+</schmancy-form>
 ```
 
 ## Related Components
@@ -89,20 +82,12 @@ success?                // Shows success state
 placeholder="Text"      // Placeholder text (where applicable)
 ```
 
-### Form v2 Interfaces
-```typescript
-interface FormModel {
-  [key: string]: any;
-}
-
-interface FormValidators {
-  [key: string]: (value: any, allValues: FormModel) => string | null;
-}
-
-interface FormErrors {
-  [key: string]: string;
-}
-```
+### Form Behavior
+- Submits when Enter key is pressed in input fields
+- Submits when submit button is clicked
+- Automatically collects data from all form controls
+- Supports native HTML5 validation
+- Works with custom Schmancy form components
 
 ### Common Use Cases
 
@@ -117,32 +102,44 @@ interface FormErrors {
    </schmancy-form>
    ```
 
-2. **Dynamic form fields**: Add or remove fields based on user input
+2. **Programmatic form submission**
    ```js
-   <schmancy-form-v2
-     .model=${dynamicModel}
-     .validators=${dynamicValidators}>
-     ${dynamicFields.map(field => html`
-       <schmancy-input name=${field.name} label=${field.label}></schmancy-input>
-     `)}
-     <button type="button" @click=${addField}>Add Field</button>
-   </schmancy-form-v2>
+   const form = document.querySelector('schmancy-form');
+   
+   // Check validity before submitting
+   if (form.checkValidity()) {
+     form.submit();
+   } else {
+     // Show validation messages
+     form.reportValidity();
+   }
    ```
 
 3. **Form with server validation**: Handle backend validation errors
    ```js
    async function submitForm(e) {
+     const formData = e.detail;
+     
      try {
        const response = await fetch('/api/submit', {
          method: 'POST',
-         body: JSON.stringify(e.detail.values)
+         body: formData
        });
-       const data = await response.json();
-       if (!data.success) {
-         formRef.setErrors(data.errors);
+       
+       if (!response.ok) {
+         // Handle server errors
+         const errors = await response.json();
+         // Update form fields with errors
+         Object.entries(errors).forEach(([field, message]) => {
+           const input = form.querySelector(`[name="${field}"]`);
+           if (input) {
+             input.error = true;
+             input.hint = message;
+           }
+         });
        }
      } catch (error) {
-       console.error(error);
+       console.error('Submission failed:', error);
      }
    }
    ```

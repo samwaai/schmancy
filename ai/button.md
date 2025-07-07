@@ -21,8 +21,8 @@
   type="button|reset|submit"                            // HTML button type (default: "button")
   href?="string"                                        // Makes button a link
   disabled?                                             // Disable state
-  aria-label="string">                                  // Accessibility label
-  icon_name
+  aria-label="string">                                  // Accessibility label (REQUIRED)
+  <!-- Icon name as content -->
 </schmancy-icon-button>
 
 // Component Methods
@@ -99,9 +99,9 @@ Material Design 3 emphasis levels (highest to lowest):
 4. `text` - Low emphasis, tertiary actions
 
 ### Icon Button Sizes
-- `sm`: 40×40px container, 18px icon
-- `md`: 48×48px container, 24px icon (default)
-- `lg`: 56×56px container, 28px icon
+- `sm`: 18px icon size
+- `md`: 24px icon size (default)
+- `lg`: 32px icon size
 
 ### CSS Custom Properties
 ```css
