@@ -1,56 +1,74 @@
 # Schmancy Radio Group - AI Reference
 
 ```js
-// Basic Radio Group
+// Basic Radio Group with options array
 <schmancy-radio-group
   name="radio-group-name"
   label="Group Label"
   value="selected-value"
+  .options=${[
+    { value: "option1", label: "Option 1" },
+    { value: "option2", label: "Option 2" },
+    { value: "option3", label: "Option 3" }
+  ]}
   required?
-  disabled?
-  error="Error message"
+  @change=${handleChange}>
+</schmancy-radio-group>
+
+// Radio Group with slotted radio buttons
+<schmancy-radio-group
+  label="Select payment method"
+  value="credit"
   @change=${handleChange}>
   
   <schmancy-radio-button
-    value="option1"
-    label="Option 1">
-  </schmancy-radio-button>
-  
-  <schmancy-radio-button
-    value="option2"
-    label="Option 2">
-  </schmancy-radio-button>
-  
-  <schmancy-radio-button
-    value="option3"
-    label="Option 3"
-    disabled>
-  </schmancy-radio-button>
-</schmancy-radio-group>
-
-// Radio Group with helper text
-<schmancy-radio-group
-  label="Select payment method"
-  helper-text="Choose your preferred payment option"
-  value="credit">
-  
-  <schmancy-radio-button
     value="credit"
-    label="Credit Card">
+    name="payment">
+    <span slot="label">Credit Card</span>
   </schmancy-radio-button>
   
   <schmancy-radio-button
     value="paypal"
-    label="PayPal">
+    name="payment">
+    <span slot="label">PayPal</span>
+  </schmancy-radio-button>
+  
+  <schmancy-radio-button
+    value="bank"
+    name="payment"
+    disabled>
+    <span slot="label">Bank Transfer</span>
   </schmancy-radio-button>
 </schmancy-radio-group>
 
-// Radio Button with custom content
-<schmancy-radio-button value="custom" label="Custom Option">
-  <div slot="description">
-    Additional description text that appears below the label
-  </div>
+// Standalone radio button (without group)
+<schmancy-radio-button 
+  value="standalone" 
+  name="standalone-radio"
+  checked
+  @change=${handleChange}>
+  <span slot="label">Standalone Option</span>
 </schmancy-radio-button>
+
+// Radio Group Properties
+name: string           // Form field name
+label: string          // Group label
+value: string          // Currently selected value
+options: Array<{       // Options array (alternative to slotted content)
+  value: string,
+  label: string
+}>
+required: boolean      // Whether selection is required
+
+// Radio Button Properties
+value: string          // The value of this option
+name: string           // Form field name (for standalone use)
+checked: boolean       // Whether this option is selected
+disabled: boolean      // Whether this option is disabled
+
+// Events
+@change  // CustomEvent<{ value: string }> - Fired when selection changes
+@radio-button-click  // Internal event for group communication
 
 // Radio Group Methods
 radioGroup.focus() -> void       // Focus the first/selected radio button

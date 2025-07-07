@@ -5,49 +5,39 @@
 <schmancy-checkbox
   name="checkbox-name"
   label="Checkbox Label"
-  value="checkbox-value"
-  checked?
-  indeterminate?
+  value="true|false"              // Boolean value (default: false)
+  checked?                        // Alias for value
   disabled?
   required?
+  size="sm|md|lg"                 // Size of checkbox (default: "md")
   @change=${handleChange}>
 </schmancy-checkbox>
 
-// Checkbox with helper text
+// Checkbox with label
 <schmancy-checkbox
   label="Subscribe to newsletter"
-  helper-text="You'll receive weekly updates">
+  value="false">
 </schmancy-checkbox>
 
-// Checkbox with error
+// Checkbox with slot content
 <schmancy-checkbox
-  label="Accept terms"
-  error="You must accept the terms to continue"
+  name="terms"
   required>
+  I accept the <a href="/terms">terms and conditions</a>
 </schmancy-checkbox>
-
-// Checkbox Methods
-checkbox.check() -> void       // Programmatically check
-checkbox.uncheck() -> void     // Programmatically uncheck
-checkbox.toggle() -> void      // Toggle current state
-checkbox.focus() -> void       // Focus the checkbox
-checkbox.blur() -> void        // Remove focus
-checkbox.validate() -> boolean // Validate and show error if invalid
 
 // Checkbox Properties
-checked: boolean       // The checked state
-indeterminate: boolean // Indeterminate state (neither checked nor unchecked)
-value: string          // The value attribute of the checkbox
-name: string           // The name attribute
+value: boolean         // The checked state (true/false)
+checked: boolean       // Alias for value
+name: string           // The name attribute (auto-generated if not provided)
+id: string             // The id attribute (auto-generated if not provided)
 disabled: boolean      // Whether the checkbox is disabled
 required: boolean      // Whether the checkbox is required
-error: string          // Error message to display
+label?: string         // Optional label text
+size: 'sm'|'md'|'lg'   // Size of the checkbox (default: 'md')
 
 // Checkbox Events
-@change  // Fires when checked state changes, with { detail: { checked, value } }
-@input   // Fires when value changes during interaction
-@focus   // Fires when checkbox gains focus
-@blur    // Fires when checkbox loses focus
+@change  // Fires when checked state changes, with { detail: { value: boolean } }
 
 // Examples
 // Basic usage
