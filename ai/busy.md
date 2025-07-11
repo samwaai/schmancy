@@ -13,8 +13,8 @@
 
 // Spinner Component
 <schmancy-spinner
-  size="small|medium|large"
-  color="primary|secondary|tertiary|currentColor">
+  size="24px"      // Any CSS size value (e.g., "16px", "2em", "32px")
+  color="gray">    // Currently not used - spinner uses secondary color
 </schmancy-spinner>
 
 // Busy overlaying content
@@ -50,16 +50,15 @@ delay: number           // Delay in ms before showing (to prevent flashing)
 minDuration: number     // Minimum duration in ms to show
 
 // Spinner Properties
-size: string            // Size: "small" (16px), "medium" (24px), "large" (48px), or custom size
-color: string           // Color: "primary", "secondary", "tertiary", "currentColor" or CSS color
-thickness: number       // Thickness of the spinner stroke
+size: string            // CSS size value (default: "24px"). Examples: "16px", "20px", "32px", "2rem"
+color: string           // Currently not used - spinner always uses secondary color
 
 // Examples
 // Basic usage
 <schmancy-busy active=${loading} label="Loading..."></schmancy-busy>
 
-// Spinner with custom size and color
-<schmancy-spinner size="32px" color="#ff5722"></schmancy-spinner>
+// Spinner with custom size
+<schmancy-spinner size="32px"></schmancy-spinner>
 
 // Busy indicator in a button
 <schmancy-button ?disabled=${loading}>

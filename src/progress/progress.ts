@@ -38,6 +38,9 @@ export default class SchmancyProgress extends TailwindElement(css`
   @property({ type: String, reflect: true })
   color: 'primary' | 'secondary' | 'tertiary' | 'error' | 'success' = 'primary'
 
+  @property({ type: Boolean, reflect: true })
+  glass = false
+
   private get percentage(): number {
     if (this.indeterminate) return 0
     return Math.min(100, Math.max(0, (this.value / this.max) * 100))
@@ -49,10 +52,19 @@ export default class SchmancyProgress extends TailwindElement(css`
       'relative': true,
       'overflow-hidden': true,
       'rounded-full': true,
-      'bg-surface-container': true,
       'h-0.5': this.size === 'sm',
       'h-1': this.size === 'md',
-      'h-2': this.size === 'lg'
+      'h-2': this.size === 'lg',
+      // Glass effect background
+      'backdrop-blur-xl': this.glass,
+      'backdrop-saturate-150': this.glass,
+      'bg-white/20': this.glass && !this.indeterminate,
+      'dark:bg-black/20': this.glass && !this.indeterminate,
+      'bg-surface-container': !this.glass,
+      'shadow-[inset_0_1px_2px_0_rgba(0,0,0,0.1)]': this.glass,
+      'border': this.glass,
+      'border-white/20': this.glass,
+      'dark:border-white/10': this.glass
     }
 
     const barClasses = {
@@ -61,11 +73,12 @@ export default class SchmancyProgress extends TailwindElement(css`
       'transition-all': true,
       'duration-300': true,
       'ease-in-out': true,
-      'bg-primary-default': this.color === 'primary',
-      'bg-secondary-default': this.color === 'secondary',
-      'bg-tertiary-default': this.color === 'tertiary',
-      'bg-error-default': this.color === 'error',
-      'bg-success-default': this.color === 'success',
+      'relative': true,
+      'bg-primary-default': this.color === 'primary' && !this.glass,
+      'bg-secondary-default': this.color === 'secondary' && !this.glass,
+      'bg-tertiary-default': this.color === 'tertiary' && !this.glass,
+      'bg-error-default': this.color === 'error' && !this.glass,
+      'bg-success-default': this.color === 'success' && !this.glass,
       'w-[30%]': this.indeterminate,
       'absolute': this.indeterminate,
       'indeterminate-animation': this.indeterminate
@@ -75,16 +88,33 @@ export default class SchmancyProgress extends TailwindElement(css`
       ? {} 
       : { width: `${this.percentage}%` }
 
+    // Glass effect bar classes
+    const glassBarClasses = {
+      'backdrop-blur-sm': this.glass,
+      'shadow-[0_0_20px_rgba(0,0,0,0.1)]': this.glass,
+      // Use semi-transparent background colors for glass effect
+      'bg-primary-default/70': this.glass && this.color === 'primary',
+      'bg-secondary-default/70': this.glass && this.color === 'secondary',
+      'bg-tertiary-default/70': this.glass && this.color === 'tertiary',
+      'bg-error-default/70': this.glass && this.color === 'error',
+      'bg-success-default/70': this.glass && this.color === 'success',
+    }
+
     return html`
       <div class="${classMap(containerClasses)}">
         <div 
-          class="${classMap(barClasses)}"
+          class="${classMap({...barClasses, ...glassBarClasses})}"
           style="${styleMap(barStyles)}"
           role="progressbar"
           aria-valuenow="${this.value}"
           aria-valuemin="0"
           aria-valuemax="${this.max}"
-        ></div>
+        >
+          ${this.glass ? html`
+            <!-- Glass shine effect -->
+            <div class="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-full"></div>
+          ` : ''}
+        </div>
       </div>
     `
   }

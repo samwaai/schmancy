@@ -18,6 +18,7 @@ import { DemoContext } from './features/context'
 
 // Core Components
 import { DemoButton } from './features/button'
+import { DemoBusy } from './features/busy'
 import { DemoCard } from './features/card'
 import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
@@ -77,6 +78,7 @@ export class DemoNav extends TailwindElement() {
         { name: 'Surface', component: DemoSurface },
         { name: 'Icons', component: DemoIcons },
         { name: 'Progress', component: DemoProgress },
+        { name: 'Spinner', component: DemoBusy },
       ]
     },
     {
