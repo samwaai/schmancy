@@ -97,6 +97,14 @@ export class SchmancySelect extends $LitElement(css`
 		// Add keyboard handling to host element
 		fromEvent<KeyboardEvent>(this, 'keydown').pipe(takeUntil(this.disconnecting)).subscribe(this.handleKeyDown)
 
+		// Listen for option-select events from child options
+		fromEvent<CustomEvent>(this, 'option-select')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe((e) => {
+				e.stopPropagation() // Prevent event from bubbling further
+				this.handleOptionSelect(e.detail.value)
+			})
+
 		// Listen for form submission events to mark field as submitted
 		if (this.internals?.form) {
 			this.internals.form.addEventListener('submit', this.formSubmitHandler)
@@ -125,13 +133,6 @@ export class SchmancySelect extends $LitElement(css`
 	firstUpdated() {
 		this.syncSelection()
 		this.setupOptionsAccessibility()
-
-		// Add click handlers to options
-		this.options.forEach(option => {
-			fromEvent(option, 'click')
-				.pipe(takeUntil(this.disconnecting))
-				.subscribe(() => this.handleOptionSelect(option.value))
-		})
 	}
 
 	updated(changedProps: PropertyValues) {

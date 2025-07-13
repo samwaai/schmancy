@@ -34,6 +34,7 @@ import { DemoAutocomplete } from './features/autocomplete'
 import { DemoDateRange } from './features/date-range'
 import DemoProgress from './features/progress'
 import { DemoRadio } from './features/radio'
+import { DemoSelect } from './features/select'
 import { DemoSheet } from './features/sheet-demo'
 import { DemoSlider } from './features/slider'
 
@@ -88,6 +89,7 @@ export class DemoNav extends TailwindElement() {
         { name: 'Autocomplete', component: DemoAutocomplete },
         { name: 'Date Range', component: DemoDateRange },
         { name: 'Radio', component: DemoRadio },
+        { name: 'Select', component: DemoSelect },
         { name: 'Slider', component: DemoSlider },
       ]
     },
