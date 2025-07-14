@@ -1,3 +1,5 @@
+  @reference "tailwindcss";
+
 :host {
 	@apply block w-full min-w-0;
 	/* Ensure no constraints on mobile */
@@ -17,9 +19,12 @@
 /* Reset native input styles for consistency */
 input {
 	/* Remove all native styling */
-	@apply appearance-none;
+	@apply appearance-none rounded-[8px];
 	/* Prevent Safari zoom on focus */
 	font-size: 16px;
+	width: -webkit-fill-available;
+	/* Ensure border radius is applied */
+	border-radius: 8px;
 }
 
 /* Remove number input spinners */
@@ -61,7 +66,7 @@ input[type="time"],
 input[type="month"],
 input[type="week"] {
 	/* Ensure consistent height and padding */
-	@apply block w-full;
+	@apply block w-full rounded-[8px];
 	/* Reset WebKit styling */
 	-webkit-appearance: none;
 	appearance: none;
@@ -73,6 +78,9 @@ input[type="week"] {
 	max-width: 100%;
 	/* Remove any default margins */
 	margin: 0;
+	/* Force border radius */
+	border-radius: 8px !important;
+	overflow: hidden;
 }
 
 /* WebKit date/time edit container - this is what needs centering */
