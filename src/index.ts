@@ -13,6 +13,7 @@ export * from './code-highlight';
 export * from './components';
 export * from './content-drawer';
 export * from './date-range';
+export * from './date-range-inline';
 export * from './delay';
 export * from './dialog';
 export * from './directives';

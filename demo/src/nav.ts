@@ -37,6 +37,7 @@ import { DemoRadio } from './features/radio'
 import { DemoSelect } from './features/select'
 import { DemoSheet } from './features/sheet-demo'
 import { DemoSlider } from './features/slider'
+import { DemoDateRangeInline } from './features/date-range-inline'
 
 interface DemoSection {
   title: string
@@ -88,6 +89,7 @@ export class DemoNav extends TailwindElement() {
         { name: 'Input', component: DemoInput },
         { name: 'Autocomplete', component: DemoAutocomplete },
         { name: 'Date Range', component: DemoDateRange },
+        {name:'Date Range inline',component:DemoDateRangeInline},
         { name: 'Radio', component: DemoRadio },
         { name: 'Select', component: DemoSelect },
         { name: 'Slider', component: DemoSlider },
