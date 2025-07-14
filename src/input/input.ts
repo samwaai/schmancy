@@ -784,8 +784,7 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 		const { height, padding, fontSize } = getHeightAndPadding()
 
 		const inputClasses = {
-			'w-full flex-1 rounded-[8px] border-0 bg-surface-highest text-surface-on': true,
-			'outline-secondary-default focus:outline-1 ': true,
+			'w-full rounded-[8px] border-0 bg-surface-highest text-surface-on': true,
 			'outline-secondary-default focus:outline-1': true,
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			'placeholder:text-muted': true,
