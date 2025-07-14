@@ -7,9 +7,7 @@ import { distinctUntilChanged, filter, fromEvent, map, takeUntil } from 'rxjs'
 
 import { SchmancyFormField } from '@mixins/index'
 
-// color directive + theme interface
-import { color } from '@schmancy/directives'
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
+// Import styles
 import style from './input.scss?inline'
 
 // If you want to be form-associated, define the type on `ElementInternals`.
@@ -783,38 +781,50 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 
 		const { height, padding, fontSize } = getHeightAndPadding()
 
+		// Check if it's a date-type input
+		const isDateType = ['date', 'datetime-local', 'time', 'month', 'week'].includes(this.type)
+
 		const inputClasses = {
-			'w-full rounded-[8px] border-0 bg-surface-highest text-surface-on': true,
+			// Base styles
+			'block w-full min-w-0 rounded-[8px] border-0 bg-surface-highest text-surface-on': true,
+			// Focus styles
 			'outline-secondary-default focus:outline-1': true,
+			// Disabled styles
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
+			// Placeholder
 			'placeholder:text-muted': true,
+			// Ring styles
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
-			// If not in error state, use standard ring color:
+			// Ring colors based on error state
 			'ring-secondary-default ring-outline focus:ring-secondary-default': !this.error,
-			// Error ring override:
 			'ring-error-default focus:ring-error-default': this.error,
-			// If read-only but "clickable" is true, show pointer. Otherwise normal text cursor.
-			'caret-transparent focus:outline-hidden cursor-pointer text-select-none': this.readonly,
+			// Readonly styles
+			'caret-transparent focus:outline-hidden cursor-pointer select-none': this.readonly,
 			'cursor-pointer': this.clickable,
-			// Alignment classes:
-			'text-center': this.align === 'center',
-			'text-right': this.align === 'right',
-			// Autofill class
+			// Text alignment (date inputs always left-aligned)
+			'text-left': this.align === 'left' || isDateType,
+			'text-center': this.align === 'center' && !isDateType,
+			'text-right': this.align === 'right' && !isDateType,
+			// Autofill
 			autofilled: this.isAutofilled,
 		}
 
 		const labelClasses = {
+			'block mb-1 font-medium': true,
 			'opacity-40': this.disabled,
-			'block mb-[4px]': true,
 			'text-sm': this.size === 'sm',
 			'text-base': this.size === 'md',
 			'text-lg': this.size === 'lg',
+			'text-primary-default': !this.error,
+			'text-error-default': this.error,
 		}
 
 		const styles = {
 			height,
 			padding,
 			fontSize,
+			// Ensure vertical centering for all input types
+			lineHeight: height,
 		}
 
 		/**
@@ -824,82 +834,60 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 		 * - If there's an error, we set aria-invalid and could set aria-errormessage.
 		 */
 		return html`
-			${when(
-				this.label,
-				() => html`
-					<label
-						for=${this.id}
-						id="label-${this.id}"
-						class=${this.classMap(labelClasses)}
-						${color({
-							color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
-						})}
-					>
-						<schmancy-typography type="label" token=${this.size === 'sm' ? 'sm' : this.size === 'lg' ? 'lg' : 'md'}>
-							${this.label}
-						</schmancy-typography>
-					</label>
-				`,
-			)}
-
-			<input
-				${color({
-					bgColor: SchmancyTheme.sys.color.surface.highest,
-					color: SchmancyTheme.sys.color.surface.on,
-				})}
-				${ref(this.inputRef)}
-				id=${this.id}
-				name=${this.name}
-				class=${this.classMap(inputClasses)}
-				style=${this.styleMap(styles)}
-				.value=${this.value}
-				.type=${this.type}
-				.autocomplete=${this.autocomplete}
-				.spellcheck=${this.spellcheck}
-				placeholder=${this.placeholder}
-				inputmode=${ifDefined(this.inputmode)}
-				pattern=${ifDefined(this.pattern)}
-				step=${ifDefined(this.step)}
-				minlength=${ifDefined(this.minlength)}
-				maxlength=${ifDefined(this.maxlength)}
-				min=${ifDefined(this.min)}
-				max=${ifDefined(this.max)}
-				list=${ifDefined(this.list)}
-				?required=${this.required}
-				?disabled=${this.disabled}
-				?readonly=${this.readonly}
-				aria-invalid=${this.error ? 'true' : 'false'}
-				aria-required=${this.required ? 'true' : 'false'}
-				aria-labelledby=${this.label ? `label-${this.id}` : nothing}
-				aria-describedby=${this.hint ? `hint-${this.id}` : nothing}
-				aria-label=${ifDefined(!this.label ? this.placeholder || 'Input' : undefined)}
-				aria-autocomplete=${this.list ? 'list' : 'none'}
-			/>
-
-			${when(
-				this.hint,
-				() => html`
-					<div
-						id="hint-${this.id}"
-						class="${this.size === 'sm'
-							? 'pt-[1px] text-xs'
-							: this.size === 'lg'
-								? 'pt-[3px] text-base'
-								: 'pt-[2px] text-sm'}"
-						${color({
-							color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
-						})}
-					>
-						<schmancy-typography
-							align="left"
-							type="label"
-							token=${this.size === 'sm' ? 'sm' : this.size === 'lg' ? 'lg' : 'md'}
+			<div class="w-full min-w-0 ${isDateType ? 'date-input-container' : ''}">
+				${when(
+					this.label,
+					() => html`
+						<label
+							for=${this.id}
+							class=${this.classMap(labelClasses)}
 						>
-							${this.hint}
-						</schmancy-typography>
-					</div>
-				`,
-			)}
+							${this.label}
+						</label>
+					`,
+				)}
+
+				<input
+					${ref(this.inputRef)}
+					id=${this.id}
+					name=${this.name}
+					class=${this.classMap(inputClasses)}
+					style=${this.styleMap(styles)}
+					.value=${this.value}
+					.type=${this.type}
+					.autocomplete=${this.autocomplete}
+					.spellcheck=${this.spellcheck}
+					placeholder=${this.placeholder}
+					inputmode=${ifDefined(this.inputmode)}
+					pattern=${ifDefined(this.pattern)}
+					step=${ifDefined(this.step)}
+					minlength=${ifDefined(this.minlength)}
+					maxlength=${ifDefined(this.maxlength)}
+					min=${ifDefined(this.min)}
+					max=${ifDefined(this.max)}
+					list=${ifDefined(this.list)}
+					?required=${this.required}
+					?disabled=${this.disabled}
+					?readonly=${this.readonly}
+					aria-invalid=${this.error ? 'true' : 'false'}
+					aria-required=${this.required ? 'true' : 'false'}
+					aria-labelledby=${this.label ? `label-${this.id}` : nothing}
+					aria-describedby=${this.hint || this.validationMessage ? `hint-${this.id}` : nothing}
+					aria-label=${ifDefined(!this.label ? this.placeholder || 'Input' : undefined)}
+				/>
+
+				${when(
+					this.hint || (this.error && this.validationMessage),
+					() => html`
+						<div
+							id="hint-${this.id}"
+							class="mt-1 text-sm ${this.error ? 'text-error-default' : 'text-surface-onVariant'}"
+						>
+							${this.error && this.validationMessage ? this.validationMessage : this.hint}
+						</div>
+					`,
+				)}
+			</div>
 		`
 	}
 }

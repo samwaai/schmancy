@@ -369,6 +369,55 @@ export class DemoInput extends $LitElement() {
 								></schmancy-input>
 							</div>
 						</schmancy-code-preview>
+
+						<!-- Real-world Example: Booking Form -->
+						<schmancy-code-preview language="html">
+							<div class="grid grid-cols-2 gap-4 max-w-2xl">
+								<schmancy-input
+									label="Check In"
+									type="date"
+									.value=${new Date().toISOString().split('T')[0]}
+									.min=${new Date().toISOString().split('T')[0]}
+									@change=${(e) => console.log('Check-in:', e.detail.value)}
+								></schmancy-input>
+								
+								<schmancy-input
+									label="Check Out"
+									type="date"
+									.value=${new Date(Date.now() + 86400000).toISOString().split('T')[0]}
+									.min=${new Date().toISOString().split('T')[0]}
+									@change=${(e) => console.log('Check-out:', e.detail.value)}
+								></schmancy-input>
+								
+								<schmancy-input
+									label="Guest Name"
+									type="text"
+									placeholder="John Doe"
+									required
+								></schmancy-input>
+								
+								<schmancy-input
+									label="Email"
+									type="email"
+									placeholder="guest@example.com"
+									required
+								></schmancy-input>
+								
+								<schmancy-input
+									label="Phone"
+									type="tel"
+									placeholder="+1 (555) 123-4567"
+								></schmancy-input>
+								
+								<schmancy-input
+									label="Number of Guests"
+									type="number"
+									min="1"
+									max="10"
+									value="2"
+								></schmancy-input>
+							</div>
+						</schmancy-code-preview>
 					</schmancy-grid>
 				</div>
 			</schmancy-surface>
