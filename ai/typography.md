@@ -52,7 +52,7 @@ import '@mhmo91/schmancy/typography'
 </schmancy-typography>
 
 // 6. With additional styling
-<schmancy-typography type="headline" token="sm" class="text-primary mb-4">
+<schmancy-typography type="headline" token="sm" class="mb-4 text-primary">
   Highlighted Section
 </schmancy-typography>
 
@@ -73,10 +73,10 @@ import '@mhmo91/schmancy/typography'
 
 // 10. Multiple typography in a card
 <schmancy-card class="p-6">
-  <schmancy-typography type="headline" token="sm" class="mb-2 block">
+  <schmancy-typography type="headline" token="sm" class="block mb-2">
     Card Title
   </schmancy-typography>
-  <schmancy-typography type="body" token="md" class="text-surface-onVariant mb-4 block">
+  <schmancy-typography type="body" token="md" class="block mb-4 text-surface-onVariant">
     This is a description that provides more context about the card content.
   </schmancy-typography>
   <schmancy-typography type="label" token="lg" class="text-primary">
@@ -180,17 +180,17 @@ Typography automatically inherits colors from the theme:
 
 1. **Page Layout**
    ```html
-   <schmancy-typography type="display" token="md" class="mb-4 block">
+   <schmancy-typography type="display" token="md" class="block mb-4">
      Dashboard
    </schmancy-typography>
-   <schmancy-typography type="body" token="lg" class="text-surface-onVariant block">
+   <schmancy-typography type="body" token="lg" class="block text-surface-onVariant">
      Welcome back! Here's your activity summary.
    </schmancy-typography>
    ```
 
 2. **Form Fields**
    ```html
-   <schmancy-typography type="label" token="md" class="mb-2 block">
+   <schmancy-typography type="label" token="md" class="block mb-2">
      Username
    </schmancy-typography>
    <schmancy-input placeholder="Enter username"></schmancy-input>
@@ -198,7 +198,7 @@ Typography automatically inherits colors from the theme:
 
 3. **Data Display**
    ```html
-   <schmancy-typography type="headline" token="md" class="text-primary block">
+   <schmancy-typography type="headline" token="md" class="block text-primary">
      $1,234.56
    </schmancy-typography>
    <schmancy-typography type="label" token="sm" class="text-surface-onVariant">
@@ -213,7 +213,7 @@ Typography automatically inherits colors from the theme:
        <schmancy-typography type="title" token="md" class="block">
          Feature One
        </schmancy-typography>
-       <schmancy-typography type="body" token="sm" class="text-surface-onVariant block">
+       <schmancy-typography type="body" token="sm" class="block text-surface-onVariant">
          Description of the first feature
        </schmancy-typography>
      </div>
