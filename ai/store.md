@@ -2,7 +2,7 @@
 
 ```js
 // Store Creation
-import { createStore } from 'schmancy/store';
+import { createStore } from '@mhmo91/schmancy';
 
 // Basic store creation
 const store = createStore({
@@ -24,7 +24,7 @@ const counterStore = createStore({
 });
 
 // Store Context Creation
-import { createContext, createCollectionContext } from 'schmancy/store';
+import { createContext, createCollectionContext } from '@mhmo91/schmancy';
 
 // Object/array/collection contexts
 const settingsContext = createContext(store, 'settings');           // Object
@@ -46,7 +46,7 @@ todoCollection.update('1', item => { item.completed = true; });     // Collectio
 todoCollection.remove('1');                                         // Collection remove
 
 // Selectors
-import { createSelector, useSelector } from 'schmancy/store';
+import { createSelector, useSelector } from '@mhmo91/schmancy';
 
 // Basic and computed selectors
 const getCount = state => state.count;
@@ -78,7 +78,7 @@ const themeStore = createStore({
 });
 
 // LocalStorage persistence
-import { StorageManager } from 'schmancy/store';
+import { StorageManager } from '@mhmo91/schmancy';
 new StorageManager({
   key: 'theme-store',
   storage: localStorage

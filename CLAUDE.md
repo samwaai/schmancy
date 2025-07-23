@@ -347,3 +347,7 @@ When creating demos for Schmancy components, follow this structure:
 - Always use the demo project to setup demos
 - Always update ai/*.md upon code changes
 - Never import schmancy components in demo 
+
+## Component Demo Navigation
+
+- Demo should always be demo as lit component added to nav

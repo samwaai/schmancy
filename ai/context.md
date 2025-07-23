@@ -105,6 +105,29 @@ export const loadingContext = createContext<boolean>(
 
 ## Using Contexts in Components
 
+### @select Decorator Behavior
+
+The `@select` decorator has specific behavior regarding `null` and `undefined` values:
+
+- **`null` is a valid value** - Components will render when the selected value is `null`
+- **`undefined` means "not ready"** - Components wait for a defined value before rendering
+- **`required: true` (default)** - Component waits for any value (including `null`) before initial render
+- **`required: false`** - Component renders immediately, even if value is `undefined`
+
+```typescript
+// This will render even when user is null
+@select(userContext, state => state?.user)
+user!: AuthUser | null
+
+// This will wait for a non-undefined value
+@select(userContext, state => state?.user, { required: true })
+user!: AuthUser | null
+
+// This renders immediately, even with undefined
+@select(userContext, state => state?.user, { required: false })
+user: AuthUser | null | undefined
+```
+
 ### Basic Component Integration
 
 ```typescript
@@ -121,9 +144,9 @@ export class MyComponent extends $LitElement() {
   @select(productsContext, products => Array.from(products.values()))
   productsList!: Product[]
   
-  // Required context (throws if undefined)
+  // Required context (waits for value before rendering, null is allowed)
   @select(configContext, config => config, { required: true })
-  config!: AppConfig
+  config!: AppConfig | null
   
   render() {
     return html`

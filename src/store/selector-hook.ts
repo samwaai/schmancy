@@ -48,7 +48,7 @@ type PropertyDescriptor<T> = {
  * Options for selecting from a store
  */
 interface SelectOptions {
-	/** If true, will wait for selector to emit a non-null value before calling connectedCallback. Default is true. */
+	/** If true, will wait for selector to emit a value (including null) before calling connectedCallback. Only undefined is considered "not ready". Default is true. */
 	required?: boolean
 
 	/** If true, will only update the component and not set the property value */
@@ -175,7 +175,8 @@ export function select<T, R>(
 					this.requestUpdate?.()
 
 					// If required and not initialized, call connectedCallback when we get a value
-					if (options.required && !this[INITIALIZED]!.has(propName) && newValue !== null && newValue !== undefined) {
+					// Allow null values but not undefined (undefined means the selector hasn't emitted yet)
+					if (options.required && !this[INITIALIZED]!.has(propName) && newValue !== undefined) {
 						if (options.debug) {
 							console.debug(`[select] Calling delayed connectedCallback for ${propName}`)
 						}

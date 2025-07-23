@@ -13,6 +13,7 @@ import {
 	tap,
 	timer
 } from 'rxjs'
+import { TemplateResult, render } from 'lit'
 import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.component'
 import SchmancySheet from './sheet'
 
@@ -22,7 +23,7 @@ export enum SchmancySheetPosition {
 }
 
 type BottomSheeetTarget = {
-	component: HTMLElement
+	component: HTMLElement | TemplateResult
 	uid?: string
 	position?: SchmancySheetPosition
 	persist?: boolean
@@ -86,10 +87,14 @@ class BottomSheetService {
 						),
 						of(target).pipe(
 							tap(() => {
+								// Determine uid - for TemplateResult use provided uid or generate one
+								const uid = target.uid ?? 
+									(target.component instanceof HTMLElement ? target.component.tagName : `sheet-${Date.now()}`)
+								
 								// First ask for existing sheet
 								window.dispatchEvent(
 									new CustomEvent(SheetWhereAreYouRicky, {
-										detail: { uid: target.uid ?? target.component.tagName },
+										detail: { uid },
 									}),
 								)
 								// Then ask for theme container
@@ -116,9 +121,11 @@ class BottomSheetService {
 						                 document.body
 						
 						// Create new sheet
-						console.log('Creating new sheet for uid:', target.uid ?? target.component.tagName)
+						const uid = target.uid ?? 
+							(target.component instanceof HTMLElement ? target.component.tagName : `sheet-${Date.now()}`)
+						console.log('Creating new sheet for uid:', uid)
 						sheet = document.createElement('schmancy-sheet')
-						sheet.setAttribute('uid', target.uid ?? target.component.tagName)
+						sheet.setAttribute('uid', uid)
 						targetContainer.appendChild(sheet)
 					}
 
@@ -142,21 +149,37 @@ class BottomSheetService {
 				}),
 				delay(20),
 				tap(({ target, sheet }) => {
-					// Check if the sheet already has this component
-					const assignedElements = sheet?.shadowRoot
-						?.querySelector('slot')
-						?.assignedElements() || []
-					
-					console.log('Assigned elements in sheet:', assignedElements.map(e => e.tagName))
-					
-					const existingComponent = assignedElements.find(e => e.tagName === target.component.tagName)
-					
-					if (!existingComponent) {
-						// Need to append the component
-						console.log('Component not found, will append:', target.component.tagName)
-						sheet?.appendChild(target.component)
+					if (target.component instanceof HTMLElement) {
+						// Handle HTMLElement components
+						const assignedElements = sheet?.shadowRoot
+							?.querySelector('slot')
+							?.assignedElements() || []
+						
+						console.log('Assigned elements in sheet:', assignedElements.map(e => e.tagName))
+						
+						const existingComponent = assignedElements.find(e => e.tagName === target.component.tagName)
+						
+						if (!existingComponent) {
+							// Need to append the component
+							console.log('Component not found, will append:', target.component.tagName)
+							sheet?.appendChild(target.component)
+						} else {
+							console.log('Component already exists, reusing:', target.component.tagName)
+						}
 					} else {
-						console.log('Component already exists, reusing:', target.component.tagName)
+						// Handle TemplateResult - render it into a container
+						const container = document.createElement('div')
+						container.setAttribute('slot', 'default')
+						render(target.component, container)
+						
+						// Clear existing content if any
+						const existingContent = sheet?.querySelector('[slot="default"]')
+						if (existingContent) {
+							existingContent.remove()
+						}
+						
+						sheet?.appendChild(container)
+						console.log('Rendered template literal into sheet')
 					}
 				}),
 				delay(1),
@@ -164,7 +187,8 @@ class BottomSheetService {
 					sheet?.setAttribute('open', 'true')
 
 					// Add to active sheets tracking
-					const uid = target.uid ?? target.component.tagName
+					const uid = target.uid ?? 
+						(target.component instanceof HTMLElement ? target.component.tagName : `sheet-${Date.now()}`)
 					this.activeSheets.add(uid)
 
 					// Handle history integration - default to true if not specified
