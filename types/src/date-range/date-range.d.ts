@@ -1,4 +1,5 @@
 import { PropertyValues } from 'lit';
+import './date-range-dialog';
 export type SchmancyDateRangeChangeEvent = CustomEvent<{
     dateFrom: string;
     dateTo: string;
@@ -32,17 +33,13 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
     required: boolean;
     placeholder: string;
     clearable: boolean;
-    allowDirectInput: boolean;
     private isOpen;
     private selectedDateRange;
     private activePreset;
     private announceMessage;
     private isMobile;
-    private isTyping;
-    private typedValue;
     private presetRanges;
     private presetCategories;
-    private inputRef;
     private memoizedPresets;
     connectedCallback(): void;
     private setupEventHandlers;
@@ -55,17 +52,11 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
      */
     private updateSelectedDateRange;
     private setDateRange;
-    private handlePresetSelection;
     private toggleDropdown;
     private openDropdown;
     private closeDropdown;
     /**
-     * Helper method to safely add/subtract quarter values
-     */
-    private adjustQuarter;
-    /**
      * Shifts the date range based on its type (preset or custom)
-     * Enhanced to properly handle various time units and preserve date patterns
      */
     private shiftDateRange;
     /**
@@ -77,27 +68,10 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
      * and updates the activePreset accordingly
      */
     private checkAndUpdateActivePreset;
-    private applyManualDateSelection;
     /**
      * Check if view is mobile
      */
     private checkMobileView;
-    /**
-     * Handle direct text input
-     */
-    private handleDirectInput;
-    /**
-     * Parse typed date range
-     */
-    private parseTypedDateRange;
-    /**
-     * Handle input blur to parse typed dates
-     */
-    private handleInputBlur;
-    /**
-     * Create dialog content
-     */
-    private createDialogContent;
     /**
      * Announce messages to screen readers
      */

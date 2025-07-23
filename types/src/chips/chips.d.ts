@@ -10,7 +10,7 @@ export default class SchmancyChips extends SchmancyChips_base {
     values: string[];
     value: string;
     chips: SchmancyChip[];
-    wrap: 'wrap' | 'nowrap';
+    wrap: boolean;
     change(e: CustomEvent<SchmancyChipChangeEvent>): Promise<void>;
     protected firstUpdated(_changedProperties: PropertyValues): void;
     attributeChangedCallback(name: string, old: string, value: string): void;

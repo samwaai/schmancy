@@ -5,6 +5,7 @@ declare const SchmancyCardMedia_base: import("@mixins/index").Constructor<Custom
 export default class SchmancyCardMedia extends SchmancyCardMedia_base {
     src: string;
     fit: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+    alt: string;
     protected render(): unknown;
 }
 declare global {

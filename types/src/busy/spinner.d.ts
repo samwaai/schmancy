@@ -2,6 +2,7 @@ declare const SchmnacySpinner_base: import("@mixins/index").Constructor<CustomEl
 export default class SchmnacySpinner extends SchmnacySpinner_base {
     color: string;
     size: string;
+    glass: boolean;
     protected render(): unknown;
 }
 declare global {
