@@ -1,44 +1,174 @@
 # Schmancy Development Guidelines
 
-## Theme Variables
+## Theme System
 
-When styling components, use Schmancy theme variables instead of hardcoded values. The theme variables are defined in `src/theme/theme.interface.ts`.
+Schmancy uses a Material Design 3-based theme system with Tailwind CSS integration. The theme provides semantic design tokens for colors, elevations, typography, and spacing.
 
-### Elevation Variables
+### Core Principles
 
-For shadows, use the elevation variables instead of custom box-shadow values:
+1. **Use semantic tokens, not raw colors** - Always use theme variables (`primary`, `surface`, etc.) instead of specific colors (`blue`, `red`)
+2. **CSS variables for runtime theming** - All theme values are CSS custom properties that update dynamically
+3. **Tailwind utilities for styling** - Use Tailwind classes with theme tokens for consistent styling
+4. **Dark mode automatic** - Theme automatically adjusts for light/dark mode based on user preference
 
-- `var(--schmancy-sys-elevation-0)` - No elevation
-- `var(--schmancy-sys-elevation-1)` - Lowest elevation
-- `var(--schmancy-sys-elevation-2)` - Low elevation
-- `var(--schmancy-sys-elevation-3)` - Medium elevation
-- `var(--schmancy-sys-elevation-4)` - High elevation
-- `var(--schmancy-sys-elevation-5)` - Highest elevation
+### Color System
 
-### Color Variables
+The theme uses a hierarchical color system with semantic naming:
 
-The theme provides a comprehensive color system:
+#### Surface Colors (Backgrounds & Containers)
+| CSS Variable | Tailwind Class | Usage |
+|-------------|----------------|--------|
+| `--schmancy-sys-color-surface-default` | `bg-surface` | Main background surfaces |
+| `--schmancy-sys-color-surface-dim` | `bg-surface-dim` | Dimmed/recessed surfaces |
+| `--schmancy-sys-color-surface-bright` | `bg-surface-bright` | Emphasized/elevated surfaces |
+| `--schmancy-sys-color-surface-container` | `bg-surface-container` | Card/container backgrounds |
+| `--schmancy-sys-color-surface-low` | `bg-surface-low` | Low emphasis containers |
+| `--schmancy-sys-color-surface-high` | `bg-surface-high` | High emphasis containers |
+| `--schmancy-sys-color-surface-lowest` | `bg-surface-lowest` | Lowest elevation (pure white/black) |
+| `--schmancy-sys-color-surface-highest` | `bg-surface-highest` | Highest elevation containers |
 
-- **Surface colors**: `var(--schmancy-sys-color-surface-*)` (default, dim, bright, container, low, high, highest, lowest, on, onVariant)
-- **Primary colors**: `var(--schmancy-sys-color-primary-*)` (default, on, container, onContainer)
-- **Secondary colors**: `var(--schmancy-sys-color-secondary-*)` (default, on, container, onContainer)
-- **Tertiary colors**: `var(--schmancy-sys-color-tertiary-*)` (default, on, container, onContainer)
-- **Error colors**: `var(--schmancy-sys-color-error-*)` (default, on, container, onContainer)
-- **Success colors**: `var(--schmancy-sys-color-success-*)` (default, on, container, onContainer)
-- **Outline colors**: `var(--schmancy-sys-color-outline)`, `var(--schmancy-sys-color-outlineVariant)`
-- **Scrim color**: `var(--schmancy-sys-color-scrim)`
+#### Color Roles (Primary, Secondary, Tertiary, Error, Success)
+Each color role has four variants:
+- `default` - The main color (e.g., `text-primary-default`, `bg-primary-default`)
+- `on` - Content color on the main color (e.g., `text-primary-on`)
+- `container` - Container background color (e.g., `bg-primary-container`)
+- `onContainer` - Content color on container (e.g., `text-primary-onContainer`)
 
-### Example Usage
+#### Text & Icon Colors
+- `text-surface-on` - Primary text/icons on surfaces
+- `text-surface-onVariant` - Secondary text/icons on surfaces
+- `text-outline` - Borders, dividers, and outlined elements
+- `text-outlineVariant` - Secondary borders and dividers
 
-Instead of:
+#### Utility Colors
+- `bg-scrim` - Modal overlays and scrims
+- `border-outline` - Default borders
+- `border-outlineVariant` - Secondary borders
+
+### Elevation System
+
+Use elevation variables for consistent depth and hierarchy:
+
 ```css
-box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+/* CSS Variables */
+--schmancy-sys-elevation-0    /* No shadow */
+--schmancy-sys-elevation-1    /* Cards, list items */
+--schmancy-sys-elevation-2    /* Raised buttons, elevated cards */
+--schmancy-sys-elevation-3    /* Dialogs, pickers */
+--schmancy-sys-elevation-4    /* Navigation drawers */
+--schmancy-sys-elevation-5    /* FABs, tooltips */
 ```
 
-Use:
+**Usage in CSS:**
 ```css
-box-shadow: var(--schmancy-sys-elevation-1);
+box-shadow: var(--schmancy-sys-elevation-2);
 ```
+
+### Typography
+
+- Base font: `--schmancy-font-family` (defaults to system fonts)
+- Use Schmancy typography components for consistent text styling
+- Tailwind typography utilities work with theme colors
+
+### Tailwind Integration
+
+#### Complete Color Reference
+
+**Surface Colors:**
+- Backgrounds: `bg-surface`, `bg-surface-dim`, `bg-surface-bright`, `bg-surface-container`, `bg-surface-low`, `bg-surface-high`, `bg-surface-highest`, `bg-surface-lowest`
+- Text: `text-surface`, `text-surface-dim`, `text-surface-bright`, etc.
+- Borders: `border-surface`, `border-surface-dim`, etc.
+
+**Primary Colors:**
+- `bg-primary-default`, `text-primary-default`, `border-primary-default`
+- `bg-primary-on`, `text-primary-on`, `border-primary-on`
+- `bg-primary-container`, `text-primary-container`, `border-primary-container`
+- `bg-primary-onContainer`, `text-primary-onContainer`, `border-primary-onContainer`
+
+**Secondary, Tertiary, Error, Success Colors:**
+- Follow the same pattern as Primary colors
+- Example: `bg-secondary-default`, `text-error-container`, `border-success-on`
+
+**Special Colors:**
+- Text on surfaces: `text-surface-on`, `text-surface-onVariant`
+- Outlines: `text-outline`, `text-outlineVariant`, `border-outline`, `border-outlineVariant`
+- Scrim: `bg-scrim`, `text-scrim`, `border-scrim`
+
+#### Quick Reference
+```html
+<!-- Backgrounds -->
+<div class="bg-surface">Main surface</div>
+<div class="bg-surface-container">Container</div>
+<div class="bg-primary-container">Primary container</div>
+
+<!-- Text -->
+<p class="text-surface-on">Primary text</p>
+<p class="text-surface-onVariant">Secondary text</p>
+<p class="text-primary-default">Primary colored text</p>
+
+<!-- Borders -->
+<div class="border border-outline">Default border</div>
+<div class="border-2 border-primary-default">Primary border</div>
+
+<!-- Combined -->
+<button class="bg-primary-default text-primary-on">
+  Primary Button
+</button>
+<div class="bg-surface-container text-surface-on border border-outline">
+  Card with border
+</div>
+```
+
+### Theme Implementation
+
+#### In Components (CSS)
+```css
+:host {
+  background-color: var(--schmancy-sys-color-surface-container);
+  color: var(--schmancy-sys-color-surface-on);
+  box-shadow: var(--schmancy-sys-elevation-1);
+}
+
+:host(:hover) {
+  box-shadow: var(--schmancy-sys-elevation-2);
+}
+```
+
+#### In Components (Tailwind)
+```html
+<div class="bg-surface-container text-surface-on shadow-elevation-1 hover:shadow-elevation-2">
+  Content
+</div>
+```
+
+#### TypeScript Access
+```typescript
+import schmancy from '@mhmo91/schmancy'
+
+// Access theme values programmatically
+const primaryColor = schmancy.theme.sys.color.primary.default
+```
+
+### Theme Context
+
+Wrap your app or component tree with `<schmancy-theme>` to apply theming:
+
+```html
+<schmancy-theme color="#6750A4" scheme="auto">
+  <!-- Your app content -->
+</schmancy-theme>
+```
+
+- `color`: Source color for theme generation
+- `scheme`: 'light', 'dark', or 'auto' (follows system preference)
+
+### Best Practices
+
+1. **Never hardcode colors** - Always use theme tokens
+2. **Semantic over specific** - Use `surface-container` not `gray-100`
+3. **Respect color relationships** - Use `on` variants for content on colored backgrounds
+4. **Test in both modes** - Ensure your UI works in light and dark themes
+5. **Use elevation meaningfully** - Higher elevation = higher importance/interactivity
 
 
 

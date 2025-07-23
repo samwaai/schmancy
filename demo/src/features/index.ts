@@ -2,6 +2,7 @@
 export * from './autocomplete'
 export * from './button'
 export * from './card'
+export * from './chips'
 export * from './date-range'
 export * from './icons'
 export * from './input'

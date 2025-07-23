@@ -1,21 +1,38 @@
 # Schmancy Chips - AI Reference
 
 ```js
-// Single Chip
+// Single Chip - now accepts ANY content!
 <schmancy-chip
   value="chip-value"
   selected?
-  icon="emoji-icon"
   readOnly?
   disabled?
-  @change=${handleChange}
-  @click=${handleClick}>
-  Chip Text
+  @change=${handleChange}>
+  Any content here
+</schmancy-chip>
+
+// Simple text chip
+<schmancy-chip value="javascript">
+  JavaScript
 </schmancy-chip>
 
 // Chip with icon
-<schmancy-chip icon="📝" value="javascript">
-  JavaScript
+<schmancy-chip value="edit">
+  <schmancy-icon>edit</schmancy-icon>
+  Edit
+</schmancy-chip>
+
+// Chip with avatar and text
+<schmancy-chip value="user1" class="flex items-center gap-2">
+  <schmancy-avatar size="sm">JD</schmancy-avatar>
+  <schmancy-typography type="body" token="sm">john.doe@example.com</schmancy-typography>
+</schmancy-chip>
+
+// Chip with badge
+<schmancy-chip value="notifications" class="flex items-center gap-2">
+  <schmancy-icon>notifications</schmancy-icon>
+  <span>Notifications</span>
+  <schmancy-badge>5</schmancy-badge>
 </schmancy-chip>
 
 // Chips Container - Single Selection
@@ -49,9 +66,8 @@
 // Chip Properties
 value: string           // Value for selection purposes
 selected: boolean       // Whether the chip is selected
-icon: string            // Emoji icon to display
-readOnly: boolean       // Makes chip non-interactive
-disabled: boolean       // Disable the chip
+readOnly: boolean       // Makes chip non-interactive (no selection change)
+disabled: boolean       // Disable the chip (no interaction at all)
 
 // Chips Container Properties
 multi: boolean          // Enable multiple selection mode
@@ -67,13 +83,26 @@ wrap: boolean           // Whether chips wrap to new lines (default: true)
 @change  // Fires when selection changes, with detail being string (single) or string[] (multi)
 
 // Examples
-// Basic chips
+// Basic chips with emoji and Material icons
 <div>
   <schmancy-chip value="basic">Basic</schmancy-chip>
   <schmancy-chip value="javascript" icon="📝">JavaScript</schmancy-chip>
-  <schmancy-chip value="react" icon="⚛️">React</schmancy-chip>
-  <schmancy-chip value="vue" icon="💚">Vue</schmancy-chip>
-  <schmancy-chip value="angular" icon="🅰️">Angular</schmancy-chip>
+  <schmancy-chip value="settings" icon="settings">Settings</schmancy-chip>
+  <schmancy-chip value="star" icon="star">Starred</schmancy-chip>
+  <schmancy-chip value="delete" icon="delete">Delete</schmancy-chip>
+</div>
+
+// User chips with avatars - now fully supported!
+<div class="flex flex-wrap gap-2">
+  <schmancy-chip value="user1" class="flex items-center gap-2">
+    <schmancy-avatar size="sm">JD</schmancy-avatar>
+    <schmancy-typography type="body" token="sm">john.doe@example.com</schmancy-typography>
+  </schmancy-chip>
+  
+  <schmancy-chip value="user2" selected class="flex items-center gap-2">
+    <schmancy-avatar size="sm">AS</schmancy-avatar>
+    <schmancy-typography type="body" token="sm">alice.smith@example.com</schmancy-typography>
+  </schmancy-chip>
 </div>
 
 // Single selection chips

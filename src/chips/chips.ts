@@ -5,6 +5,7 @@ import { $LitElement } from '@mixins/index'
 import { css, html, PropertyValues } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import SchmancyChip, { SchmancyChipChangeEvent } from './chip'
+
 @customElement('schmancy-chips')
 export default class SchmancyChips extends $LitElement(css``) {
 	@query('md-chip-set') chipSet!: ChipSet
@@ -34,10 +35,10 @@ export default class SchmancyChips extends $LitElement(css``) {
 	chips!: SchmancyChip[]
 
 	@property({
-		type: String,
+		type: Boolean,
 		reflect: true,
 	})
-	wrap: 'wrap' | 'nowrap' = 'wrap'
+	wrap: boolean = true
 	async change(e: CustomEvent<SchmancyChipChangeEvent>) {
 		e.preventDefault()
 		e.stopPropagation()
@@ -108,9 +109,9 @@ export default class SchmancyChips extends $LitElement(css``) {
 
 	protected render(): unknown {
 		const styles = {
-			'flex-wrap': this.wrap,
+			'flex-wrap': this.wrap ? 'wrap' : 'nowrap',
 		}
-		return html` <md-chip-set style=${this.styleMap(styles)} @change=${this.change}>
+		return html`<md-chip-set style=${this.styleMap(styles)} @change=${this.change}>
 			<slot @slotchange=${() => this.hydrateTabs()}></slot>
 		</md-chip-set>`
 	}

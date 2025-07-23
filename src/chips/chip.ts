@@ -1,11 +1,16 @@
 import '@material/web/chips/chip-set.js'
 import '@material/web/chips/filter-chip.js'
-import { $LitElement } from '@mixins/index'
-import { html, LitElement } from 'lit'
+import { TailwindElement } from '@mixins/tailwind.mixin'
+import { css, html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('schmancy-chip')
-export default class SchmancyChip extends $LitElement() {
+export default class SchmancyChip extends TailwindElement(css`
+	/* Allow content to be styled with Tailwind classes */
+	:host {
+		display: inline-block;
+	}
+`) {
 	@property({ type: String, reflect: true })
 	value: string = ''
 
@@ -60,7 +65,6 @@ export default class SchmancyChip extends $LitElement() {
 				?selected=${this.selected}
 				?disabled=${this.disabled}
 			>
-				${this.icon ? html`<span>${this.icon}</span>` : ''}
 				<slot></slot>
 			</md-filter-chip>
 		`
