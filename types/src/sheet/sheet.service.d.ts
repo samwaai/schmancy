@@ -1,12 +1,11 @@
 import { Subject } from 'rxjs';
-import { TemplateResult } from 'lit';
 import SchmancySheet from './sheet';
 export declare enum SchmancySheetPosition {
     Side = "side",
     Bottom = "bottom"
 }
 type BottomSheeetTarget = {
-    component: HTMLElement | TemplateResult;
+    component: HTMLElement;
     uid?: string;
     position?: SchmancySheetPosition;
     persist?: boolean;
@@ -61,5 +60,4 @@ declare class BottomSheetService {
     closeAll(): void;
 }
 export declare const sheet: BottomSheetService;
-export declare const $sheet: BottomSheetService;
 export {};

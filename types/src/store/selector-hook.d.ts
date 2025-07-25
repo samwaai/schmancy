@@ -14,7 +14,7 @@ type PropertyDescriptor<T> = {
  * Options for selecting from a store
  */
 interface SelectOptions {
-    /** If true, will wait for selector to emit a non-null value before calling connectedCallback. Default is true. */
+    /** If true, will wait for selector to emit a value (including null) before calling connectedCallback. Only undefined is considered "not ready". Default is true. */
     required?: boolean;
     /** If true, will only update the component and not set the property value */
     updateOnly?: boolean;

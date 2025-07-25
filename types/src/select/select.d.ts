@@ -15,6 +15,7 @@ export declare class SchmancySelect extends SchmancySelect_base {
     label: string;
     hint: string;
     validateOn: 'always' | 'touched' | 'dirty' | 'submitted';
+    size: 'sm' | 'md' | 'lg';
     private isOpen;
     private valueLabel;
     private isValid;
@@ -57,6 +58,7 @@ export declare class SchmancySelect extends SchmancySelect_base {
     reset(): void;
     render(): TemplateResult;
 }
+export declare const select: typeof SchmancySelect;
 declare global {
     interface HTMLElementTagNameMap {
         'schmancy-select': SchmancySelect;
