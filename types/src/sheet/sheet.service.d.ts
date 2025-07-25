@@ -60,4 +60,5 @@ declare class BottomSheetService {
     closeAll(): void;
 }
 export declare const sheet: BottomSheetService;
+export declare const $sheet: BottomSheetService;
 export {};

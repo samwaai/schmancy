@@ -651,6 +651,8 @@ export class SchmancySelect extends $LitElement(css`
 	}
 }
 
+export const select = SchmancySelect
+
 declare global {
 	interface HTMLElementTagNameMap {
 		'schmancy-select': SchmancySelect

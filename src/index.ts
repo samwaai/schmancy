@@ -51,3 +51,7 @@ export * from './typewriter';
 export * from './typography';
 export * from './utils';
 export * from './avatar';
+
+// Named exports for convenience
+export { select } from './select';
+export { sheet, $sheet } from './sheet';

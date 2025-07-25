@@ -39,14 +39,15 @@ export class SchmancyDrawerAppbar extends TailwindElement(css`
 			'block left-3  z-50': this.sidebarMode === 'overlay',
 			hidden: this.sidebarMode === 'push',
 		}
+		const gridClasses = {
+			...appbarClasses,
+			'grid gap-2 items-center': true,
+			'grid-cols-[auto_1fr]': this.sidebarMode === 'overlay' && this.toggler,
+			'grid-cols-1': !(this.sidebarMode === 'overlay' && this.toggler),
+		}
+
 		return html`
-			<schmancy-grid
-				cols=${this.sidebarMode === 'overlay' && this.toggler ? 'auto 1fr' : '1fr'}
-				flow="col"
-				class=${this.classMap(appbarClasses)}
-				gap="sm"
-				align="center"
-			>
+			<div class=${this.classMap(gridClasses)}>
 				${when(
 					this.sidebarMode === 'overlay' && this.toggler,
 					() =>
@@ -74,7 +75,7 @@ export class SchmancyDrawerAppbar extends TailwindElement(css`
 				)}
 
 				<slot> </slot>
-			</schmancy-grid>
+			</div>
 		`
 	}
 }

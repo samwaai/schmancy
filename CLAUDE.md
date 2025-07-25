@@ -346,7 +346,8 @@ When creating demos for Schmancy components, follow this structure:
 - Never create test*.html files
 - Always use the demo project to setup demos
 - Always update ai/*.md upon code changes
-- Never import schmancy components in demo 
+- Never import schmancy components in demo
+- **Package Manager**: This project uses Yarn, not npm 
 
 ## Component Demo Navigation
 
