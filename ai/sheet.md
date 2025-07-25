@@ -2,6 +2,11 @@
 
 The sheet component provides a sliding panel overlay that can be used for forms, details views, or any content that needs to be displayed in a drawer-style interface.
 
+**Important Note about Templates**: The sheet service now only accepts HTMLElement components. If you're using Lit's `html` template literals, you need to either:
+1. Create a wrapper element and use innerHTML (for simple content)
+2. Create a custom element class (for complex interactions)
+3. Use the `render` function from Lit to render into a container element
+
 ```js
 // Import Options
 import { sheet } from '@mhmo91/schmancy';  // Legacy import
@@ -9,7 +14,7 @@ import { $sheet } from '@mhmo91/schmancy'; // New recommended import
 
 // Sheet Service API
 $sheet.open({
-  component: HTMLElement | TemplateResult,  // Content to display
+  component: HTMLElement,                  // Content to display (must be an HTMLElement)
   uid?: string,                            // Unique identifier for the sheet
   position?: 'side' | 'bottom',           // Position (default: responsive based on screen size)
   persist?: boolean,                       // Keep sheet in DOM after closing (default: false)
@@ -54,20 +59,22 @@ SchmancySheetPosition.Bottom   // Bottom sheet (mobile)
 
 // Examples
 
-// 1. Basic Sheet with Form
+// 1. Basic Sheet with Form - Using a wrapper element for template content
+const formContent = document.createElement('div');
+formContent.className = 'p-6';
+formContent.innerHTML = `
+  <schmancy-typography type="headline" token="md" class="mb-4">
+    User Details
+  </schmancy-typography>
+  <schmancy-form>
+    <schmancy-input label="Name" value="John Doe"></schmancy-input>
+    <schmancy-input label="Email" value="john@example.com"></schmancy-input>
+    <schmancy-button type="submit">Save</schmancy-button>
+  </schmancy-form>
+`;
+
 $sheet.open({
-  component: html`
-    <div class="p-6">
-      <schmancy-typography type="headline" token="md" class="mb-4">
-        User Details
-      </schmancy-typography>
-      <schmancy-form>
-        <schmancy-input label="Name" value="John Doe"></schmancy-input>
-        <schmancy-input label="Email" value="john@example.com"></schmancy-input>
-        <schmancy-button type="submit">Save</schmancy-button>
-      </schmancy-form>
-    </div>
-  `,
+  component: formContent,
   title: "Edit User"
 });
 
@@ -80,18 +87,23 @@ $sheet.open({
   title: "Custom Component"
 });
 
-// 3. Sheet with Lock (cannot be dismissed by ESC or clicking outside)
+// 3. Sheet with Lock (using Lit render for interactive content)
+import { render, html } from 'lit';
+
+const lockContent = document.createElement('div');
+render(html`
+  <div class="p-6">
+    <schmancy-typography type="body" token="lg">
+      This action requires confirmation. Please complete the form.
+    </schmancy-typography>
+    <schmancy-button @click=${() => $sheet.dismiss()}>
+      Complete Action
+    </schmancy-button>
+  </div>
+`, lockContent);
+
 $sheet.open({
-  component: html`
-    <div class="p-6">
-      <schmancy-typography type="body" token="lg">
-        This action requires confirmation. Please complete the form.
-      </schmancy-typography>
-      <schmancy-button @click=${() => $sheet.dismiss()}>
-        Complete Action
-      </schmancy-button>
-    </div>
-  `,
+  component: lockContent,
   lock: true,
   title: "Required Action"
 });
@@ -351,6 +363,56 @@ class WizardSheet extends LitElement {
     `;
   }
 }
+
+// Template Handling Patterns
+
+// Pattern 1: Simple content with innerHTML
+function openSimpleSheet(content) {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = content;
+  $sheet.open({ component: wrapper, title: "Simple Sheet" });
+}
+
+// Pattern 2: Using Lit's render for reactive content
+function openReactiveSheet() {
+  const container = document.createElement('div');
+  const state = { count: 0 };
+  
+  const updateContent = () => {
+    render(html`
+      <div class="p-6">
+        <p>Count: ${state.count}</p>
+        <schmancy-button @click=${() => {
+          state.count++;
+          updateContent(); // Re-render with new state
+        }}>
+          Increment
+        </schmancy-button>
+      </div>
+    `, container);
+  };
+  
+  updateContent();
+  $sheet.open({ component: container, title: "Reactive Sheet" });
+}
+
+// Pattern 3: Custom Element (Recommended for complex components)
+@customElement('my-sheet-content')
+class MySheetContent extends LitElement {
+  @property() data = {};
+  
+  render() {
+    return html`
+      <div class="p-6">
+        <!-- Your complex component logic here -->
+      </div>
+    `;
+  }
+}
+
+const myContent = document.createElement('my-sheet-content');
+myContent.data = { /* your data */ };
+$sheet.open({ component: myContent, title: "Complex Sheet" });
 
 // Best Practices
 

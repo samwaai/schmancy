@@ -13,7 +13,6 @@ import {
 	tap,
 	timer
 } from 'rxjs'
-import { TemplateResult, render } from 'lit'
 import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.component'
 import SchmancySheet from './sheet'
 
@@ -23,7 +22,7 @@ export enum SchmancySheetPosition {
 }
 
 type BottomSheeetTarget = {
-	component: HTMLElement | TemplateResult
+	component: HTMLElement
 	uid?: string
 	position?: SchmancySheetPosition
 	persist?: boolean
@@ -87,9 +86,8 @@ class BottomSheetService {
 						),
 						of(target).pipe(
 							tap(() => {
-								// Determine uid - for TemplateResult use provided uid or generate one
-								const uid = target.uid ?? 
-									(target.component instanceof HTMLElement ? target.component.tagName : `sheet-${Date.now()}`)
+								// Determine uid - use provided uid or component tagName
+								const uid = target.uid ?? target.component.tagName
 								
 								// First ask for existing sheet
 								window.dispatchEvent(
@@ -121,8 +119,7 @@ class BottomSheetService {
 						                 document.body
 						
 						// Create new sheet
-						const uid = target.uid ?? 
-							(target.component instanceof HTMLElement ? target.component.tagName : `sheet-${Date.now()}`)
+						const uid = target.uid ?? target.component.tagName
 						console.log('Creating new sheet for uid:', uid)
 						sheet = document.createElement('schmancy-sheet')
 						sheet.setAttribute('uid', uid)
@@ -149,37 +146,21 @@ class BottomSheetService {
 				}),
 				delay(20),
 				tap(({ target, sheet }) => {
-					if (target.component instanceof HTMLElement) {
-						// Handle HTMLElement components
-						const assignedElements = sheet?.shadowRoot
-							?.querySelector('slot')
-							?.assignedElements() || []
-						
-						console.log('Assigned elements in sheet:', assignedElements.map(e => e.tagName))
-						
-						const existingComponent = assignedElements.find(e => e.tagName === target.component.tagName)
-						
-						if (!existingComponent) {
-							// Need to append the component
-							console.log('Component not found, will append:', target.component.tagName)
-							sheet?.appendChild(target.component)
-						} else {
-							console.log('Component already exists, reusing:', target.component.tagName)
-						}
+					// Handle HTMLElement components
+					const assignedElements = sheet?.shadowRoot
+						?.querySelector('slot')
+						?.assignedElements() || []
+					
+					console.log('Assigned elements in sheet:', assignedElements.map(e => (e as HTMLElement).tagName))
+					
+					const existingComponent = assignedElements.find(e => (e as HTMLElement).tagName === target.component.tagName)
+					
+					if (!existingComponent) {
+						// Need to append the component
+						console.log('Component not found, will append:', target.component.tagName)
+						sheet?.appendChild(target.component)
 					} else {
-						// Handle TemplateResult - render it into a container
-						const container = document.createElement('div')
-						container.setAttribute('slot', 'default')
-						render(target.component, container)
-						
-						// Clear existing content if any
-						const existingContent = sheet?.querySelector('[slot="default"]')
-						if (existingContent) {
-							existingContent.remove()
-						}
-						
-						sheet?.appendChild(container)
-						console.log('Rendered template literal into sheet')
+						console.log('Component already exists, reusing:', target.component.tagName)
 					}
 				}),
 				delay(1),
