@@ -151,21 +151,20 @@ class BottomSheetService {
 				tap(({ target, sheet }) => {
 					if (target.component instanceof HTMLElement) {
 						// Handle HTMLElement components
-						const htmlComponent = target.component // TypeScript now knows this is HTMLElement
 						const assignedElements = sheet?.shadowRoot
 							?.querySelector('slot')
 							?.assignedElements() || []
 						
 						console.log('Assigned elements in sheet:', assignedElements.map(e => e.tagName))
 						
-						const existingComponent = assignedElements.find(e => e.tagName === htmlComponent.tagName)
+						const existingComponent = assignedElements.find(e => e.tagName === target.component.tagName)
 						
 						if (!existingComponent) {
 							// Need to append the component
-							console.log('Component not found, will append:', htmlComponent.tagName)
-							sheet?.appendChild(htmlComponent)
+							console.log('Component not found, will append:', target.component.tagName)
+							sheet?.appendChild(target.component)
 						} else {
-							console.log('Component already exists, reusing:', htmlComponent.tagName)
+							console.log('Component already exists, reusing:', target.component.tagName)
 						}
 					} else {
 						// Handle TemplateResult - render it into a container
@@ -340,4 +339,3 @@ class BottomSheetService {
 	}
 }
 export const sheet = new BottomSheetService()
-export const $sheet = sheet
