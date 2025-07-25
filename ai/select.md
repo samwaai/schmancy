@@ -61,6 +61,40 @@
   <!-- Many options -->
 </schmancy-select>
 
+// Different sizes
+<schmancy-select size="sm" label="Small Select">
+  <schmancy-option value="1">Option 1</schmancy-option>
+  <schmancy-option value="2">Option 2</schmancy-option>
+</schmancy-select>
+
+<schmancy-select size="md" label="Medium Select (default)">
+  <schmancy-option value="1">Option 1</schmancy-option>
+  <schmancy-option value="2">Option 2</schmancy-option>
+</schmancy-select>
+
+<schmancy-select size="lg" label="Large Select">
+  <schmancy-option value="1">Option 1</schmancy-option>
+  <schmancy-option value="2">Option 2</schmancy-option>
+</schmancy-select>
+
+// Aligned with input (same size)
+<div style="display: flex; gap: 16px;">
+  <schmancy-input 
+    size="md" 
+    label="First Name" 
+    placeholder="Enter first name">
+  </schmancy-input>
+  
+  <schmancy-select 
+    size="md" 
+    label="Country"
+    placeholder="Select country">
+    <schmancy-option value="us">United States</schmancy-option>
+    <schmancy-option value="uk">United Kingdom</schmancy-option>
+    <schmancy-option value="ca">Canada</schmancy-option>
+  </schmancy-select>
+</div>
+
 // Select Methods
 select.focus() -> void          // Focus the select
 select.blur() -> void           // Remove focus
@@ -80,6 +114,7 @@ required: boolean          // Whether a selection is required
 error: string              // Error message to display
 searchable: boolean        // Whether to allow searching within options
 open: boolean              // Whether the dropdown is open
+size: 'sm' | 'md' | 'lg'   // Size of the select (default: 'md')
 
 // Option Properties
 value: string              // Value of this option

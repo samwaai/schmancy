@@ -39,6 +39,7 @@ export class SchmancySelect extends $LitElement(css`
 	@property({ type: String }) label = ''
 	@property({ type: String }) hint = ''
 	@property({ type: String }) validateOn: 'always' | 'touched' | 'dirty' | 'submitted' = 'touched'
+	@property({ type: String }) size: 'sm' | 'md' | 'lg' = 'md'
 
 	// Internal states
 	@state() private isOpen = false
@@ -597,6 +598,7 @@ export class SchmancySelect extends $LitElement(css`
 					.hint=${showErrors ? this.validationMessage : this.hint}
 					.error=${showErrors}
 					.validateOn=${this.validateOn}
+					.size=${this.size}
 					readonly
 					clickable
 					@click=${(e: MouseEvent) => {
