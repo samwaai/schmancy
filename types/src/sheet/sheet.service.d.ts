@@ -1,11 +1,12 @@
 import { Subject } from 'rxjs';
+import { TemplateResult } from 'lit';
 import SchmancySheet from './sheet';
 export declare enum SchmancySheetPosition {
     Side = "side",
     Bottom = "bottom"
 }
 type BottomSheeetTarget = {
-    component: HTMLElement;
+    component: HTMLElement | TemplateResult;
     uid?: string;
     position?: SchmancySheetPosition;
     persist?: boolean;
