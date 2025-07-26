@@ -1,4 +1,4 @@
-import { PropertyValueMap } from 'lit';
+import { LitElement, PropertyValueMap } from 'lit';
 import { ButtonVariant } from './button';
 declare const SchmnacyIconButton_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
@@ -7,7 +7,12 @@ declare const SchmnacyIconButton_base: CustomElementConstructor & import("@mixin
  * @slot - The default slot.
  */
 export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
-    protected static shadowRootOptions: any;
+    protected static shadowRootOptions: {
+        mode: string;
+        delegatesFocus: boolean;
+        serializable?: boolean;
+        slotAssignment?: SlotAssignmentMode;
+    };
     private nativeElement;
     private _ariaLabel;
     /**
@@ -55,7 +60,7 @@ export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
     click(): void;
     private _preventDefault;
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

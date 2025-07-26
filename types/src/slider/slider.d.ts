@@ -1,4 +1,4 @@
-declare const SchmancySlider_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancySlider_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancySlider extends SchmancySlider_base {
     /**
      * Currently centered slide index
@@ -15,7 +15,7 @@ export declare class SchmancySlider extends SchmancySlider_base {
     private goToSlide;
     private onPrevClick;
     private onNextClick;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

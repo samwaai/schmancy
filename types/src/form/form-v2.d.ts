@@ -1,3 +1,4 @@
+import { LitElement } from 'lit';
 export interface FormElement extends HTMLElement {
     name?: string;
     value?: string;
@@ -37,8 +38,13 @@ export default class SchmancyFormV2 extends SchmancyFormV2_base {
     private static hasValue;
     private static hasChecked;
     private static canSubmit;
-    protected static shadowRootOptions: any;
-    static styles: any;
+    protected static shadowRootOptions: {
+        mode: string;
+        delegatesFocus: boolean;
+        serializable?: boolean;
+        slotAssignment?: SlotAssignmentMode;
+    };
+    static styles: import("lit").CSSResult;
     /** Specifies if form data validation should be skipped on submit.
      * @attr novalidate
      * @type {boolean}
@@ -56,7 +62,7 @@ export default class SchmancyFormV2 extends SchmancyFormV2_base {
     /** Checks for validity of the form. */
     reportValidity(): boolean;
     private handleSubmitRequest;
-    protected render(): any;
+    protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

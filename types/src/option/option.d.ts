@@ -1,4 +1,4 @@
-declare const SchmancyOption_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyOption_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * `schmancy-option` is an option element for schmancy-select and schmancy-autocomplete components.
  *
@@ -33,7 +33,7 @@ export default class SchmancyOption extends SchmancyOption_base {
     disconnectedCallback(): void;
     private handleClick;
     private handleKeyDown;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

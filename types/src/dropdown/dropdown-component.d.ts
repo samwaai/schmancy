@@ -1,4 +1,4 @@
-declare const SchmancyDropdown_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyDropdown_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A dropdown component that displays content when triggered.
  *
@@ -52,7 +52,7 @@ export declare class SchmancyDropdown extends SchmancyDropdown_base {
      * Handle trigger click to toggle dropdown
      */
     private handleTriggerClick;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

@@ -2,7 +2,7 @@ import { PropertyValues, TemplateResult } from 'lit';
 export type SchmancySelectChangeEvent = CustomEvent<{
     value: string | string[];
 }>;
-declare const SchmancySelect_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancySelect_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancySelect extends SchmancySelect_base {
     static formAssociated: boolean;
     private internals?;

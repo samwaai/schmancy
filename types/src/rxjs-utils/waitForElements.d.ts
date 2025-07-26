@@ -17,4 +17,4 @@ selectors: string[],
  * @type { number | undefined }
  * @description If you don't want to wait for the elements to appear, pass `undefined` as the second argument
  */
-timeoutAfter?: number): any;
+timeoutAfter?: number): import("rxjs").Observable<Element[]>;

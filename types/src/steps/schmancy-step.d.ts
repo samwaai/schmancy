@@ -1,4 +1,4 @@
-declare const SchmancyStep_base: CustomElementConstructor & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyStep_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyStep extends SchmancyStep_base {
     /**
      * The step's position (1-based). This is used to compare against
@@ -42,7 +42,7 @@ export declare class SchmancyStep extends SchmancyStep_base {
      * With lockBack enabled, clicking on a previous step is ignored.
      */
     private _onStepClick;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

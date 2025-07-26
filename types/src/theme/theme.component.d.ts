@@ -5,8 +5,8 @@ export type ThemeHereIAmEvent = CustomEvent<{
     theme: HTMLElement;
 }>;
 export declare const ThemeHereIAm = "theme-here-i-am";
-export declare const tailwindStyles: any;
-declare const SchmancyThemeComponent_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+export declare const tailwindStyles: import("lit").CSSResult;
+declare const SchmancyThemeComponent_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyThemeComponent extends SchmancyThemeComponent_base {
     color: string;
     scheme: 'dark' | 'light' | 'auto';

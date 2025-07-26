@@ -1,6 +1,6 @@
 import SchmancyForm from '@schmancy/form/form';
 import SchmancyInput from '@schmancy/input/input';
-declare const SchmancyPaymentCardForm_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyPaymentCardForm_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element schmancy-payment-card-form
  * A mobile-friendly payment card form component that provides real-time validation
@@ -68,7 +68,7 @@ export declare class SchmancyPaymentCardForm extends SchmancyPaymentCardForm_bas
     /**
      * Render the payment card form with a responsive grid layout
      */
-    protected render(): any;
+    protected render(): import("lit-html").TemplateResult<1>;
     /**
      * Helper method to render card type icon based on detected card type
      */

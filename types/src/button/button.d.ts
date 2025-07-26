@@ -1,3 +1,4 @@
+import { LitElement } from 'lit';
 export interface SchmancyButtonEventMap {
     SchmancyFocus: CustomEvent<void>;
     SchmancyBlur: CustomEvent<void>;
@@ -12,7 +13,12 @@ declare const SchmancyButton_base: CustomElementConstructor & import("@mixins/in
  * @slot suffix - The suffix slot.
  */
 export declare class SchmancyButton extends SchmancyButton_base {
-    protected static shadowRootOptions: any;
+    protected static shadowRootOptions: {
+        mode: string;
+        delegatesFocus: boolean;
+        serializable?: boolean;
+        slotAssignment?: SlotAssignmentMode;
+    };
     private nativeElement;
     private _ariaLabel;
     /**
@@ -59,7 +65,7 @@ export declare class SchmancyButton extends SchmancyButton_base {
     firstUpdated(): void;
     click(): void;
     private _preventDefault;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

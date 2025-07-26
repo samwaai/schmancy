@@ -42,7 +42,7 @@ export declare class SchmancyGridV2 extends Layout {
     responsive: {
         [key: string]: string;
     };
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

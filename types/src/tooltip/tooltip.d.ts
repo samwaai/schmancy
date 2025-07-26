@@ -1,4 +1,4 @@
-declare const SchmancyTooltip_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyTooltip_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 /**
  * A tooltip component that displays a text tooltip when hovering over content.
  * Addresses shadow DOM limitations by teleporting the tooltip to document.body.
@@ -23,7 +23,7 @@ export declare class SchmancyTooltip extends SchmancyTooltip_base {
     private showTooltip;
     private hideTooltip;
     private initializePositioning;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

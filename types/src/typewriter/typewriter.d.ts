@@ -1,5 +1,5 @@
 import { TemplateResult } from 'lit';
-declare const TypewriterElement_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const TypewriterElement_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class TypewriterElement extends TypewriterElement_base {
     /**
      * Typing speed in milliseconds per character.

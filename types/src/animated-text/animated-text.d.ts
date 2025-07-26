@@ -1,4 +1,4 @@
-declare const SchmancyAnimatedText_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyAnimatedText_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element schmancy-animated-text
  * Inspired by https://tobiasahlin.com/moving-letters/#1
@@ -20,7 +20,7 @@ export default class SchmancyAnimatedText extends SchmancyAnimatedText_base {
     ml7: HTMLElement;
     isInViewport(element: HTMLElement): boolean;
     firstUpdated(): Promise<void>;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

@@ -1,5 +1,6 @@
+import { nothing } from 'lit';
 import { TSchmancyDrawerNavbarMode, TSchmancyDrawerNavbarState } from './context';
-declare const SchmancyNavigationDrawer_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyNavigationDrawer_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element schmancy-nav-drawer
  * @slot appbar - The appbar slot
@@ -46,7 +47,7 @@ export declare class SchmancyNavigationDrawer extends SchmancyNavigationDrawer_b
      * Helper method to update state based on a given width.
      */
     private updateState;
-    protected render(): any;
+    protected render(): typeof nothing | import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

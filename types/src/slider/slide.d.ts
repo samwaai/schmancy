@@ -10,7 +10,7 @@ type SlideType = 'image' | 'video' | 'content';
  * which maps to CSS object-fit.
  */
 type ObjectFit = 'cover' | 'contain' | 'fill' | 'scale-down' | 'none';
-declare const SchmancySlide_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancySlide_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancySlide extends SchmancySlide_base {
     /**
      * Determines how this slide should be rendered.
@@ -45,7 +45,7 @@ export declare class SchmancySlide extends SchmancySlide_base {
      * CSS `object-fit` property, applied to images/videos.
      */
     fit: ObjectFit;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
     private renderSlide;
 }
 declare global {

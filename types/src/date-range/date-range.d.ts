@@ -4,7 +4,7 @@ export type SchmancyDateRangeChangeEvent = CustomEvent<{
     dateFrom: string;
     dateTo: string;
 }>;
-declare const SchmancyDateRange_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyDateRange_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A date range selector that supports presets and manual date input.
  *
@@ -76,6 +76,6 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
      * Announce messages to screen readers
      */
     private announceToScreenReader;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 export {};

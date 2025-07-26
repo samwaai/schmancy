@@ -1,4 +1,4 @@
-declare const ConfirmDialog_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const ConfirmDialog_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A confirm dialog web component with custom content support
  *
@@ -94,7 +94,7 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
      * Get the CSS class for the confirm button based on color
      */
     private getConfirmButtonClass;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
     /**
      * Static helper for even simpler API
      */

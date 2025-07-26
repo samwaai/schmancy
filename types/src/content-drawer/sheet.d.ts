@@ -1,5 +1,6 @@
+import { Observable } from 'rxjs';
 import { SchmancyContentDrawerMinWidth, TSchmancyContentDrawerSheetMode, TSchmancyContentDrawerSheetState } from './context';
-declare const SchmancyContentDrawerSheet_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyContentDrawerSheet_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyContentDrawerSheet extends SchmancyContentDrawerSheet_base {
     minWidth: any;
     mode: TSchmancyContentDrawerSheetMode;
@@ -23,13 +24,13 @@ export declare class SchmancyContentDrawerSheet extends SchmancyContentDrawerShe
      * Dismiss the "modal sheet."
      * This just returns an Observable that completes immediately.
      */
-    closeModalSheet(): any;
+    closeModalSheet(): Observable<boolean>;
     /**
      * Slide the sheet out of view + hide it.
      * Return an Observable so we can merge it with other close operations.
      */
-    closeSheet(): any;
-    protected render(): any;
+    closeSheet(): Observable<void>;
+    protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

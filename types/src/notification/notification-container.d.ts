@@ -17,7 +17,7 @@ export interface NotificationOptions {
     closable?: boolean;
     playSound?: boolean;
 }
-declare const SchmancyNotificationContainer_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyNotificationContainer_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * Container component for displaying stacked notifications.
  *
@@ -34,7 +34,7 @@ export default class SchmancyNotificationContainer extends SchmancyNotificationC
     addNotification(options: NotificationOptions): string;
     removeNotification(id: string): void;
     private _handleClose;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

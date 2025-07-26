@@ -1,4 +1,4 @@
-declare const SchmancyTeleportation_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyTeleportation_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyTeleportation extends SchmancyTeleportation_base {
     /**
      * @attr {string} uuid - The component tag to teleport
@@ -12,10 +12,10 @@ export declare class SchmancyTeleportation extends SchmancyTeleportation_base {
     id: string;
     delay: number;
     debugging: boolean;
-    get _slottedChildren(): any;
+    get _slottedChildren(): Element[];
     connectedCallback(): void;
     firstUpdated(): Promise<void>;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

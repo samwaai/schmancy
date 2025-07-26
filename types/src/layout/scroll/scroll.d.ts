@@ -39,7 +39,7 @@ declare global {
         'schmancy-scroll-command': SchmancyScrollCommandEvent;
     }
 }
-declare const SchmancyScroll_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyScroll_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A custom scrollable container with enhanced features.
  *
@@ -129,7 +129,7 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
      * @returns {TemplateResult} The template to render
      * @protected
      */
-    protected render(): any;
+    protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

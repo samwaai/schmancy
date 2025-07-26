@@ -1,9 +1,15 @@
+import { LitElement } from 'lit';
 declare const SchmancyTextarea_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyTextarea extends SchmancyTextarea_base {
-    protected static shadowRootOptions: any;
+    protected static shadowRootOptions: {
+        delegatesFocus: boolean;
+        mode: ShadowRootMode;
+        serializable?: boolean;
+        slotAssignment?: SlotAssignmentMode;
+    };
     static formAssociated: boolean;
     internals: ElementInternals | undefined;
-    textareaRef: any;
+    textareaRef: import("lit-html/directives/ref").Ref<HTMLTextAreaElement>;
     /**
      * The label of the control.
      * @attr
@@ -99,13 +105,13 @@ export default class SchmancyTextarea extends SchmancyTextarea_base {
     firstUpdated(): void;
     get form(): HTMLFormElement;
     /** Checks for validity of the control and shows the browser message if it's invalid. */
-    reportValidity(): any;
+    reportValidity(): boolean;
     /** Checks for validity of the control and emits the invalid event if it invalid. */
-    checkValidity(): any;
+    checkValidity(): boolean;
     /** Sets a custom validity message. */
-    setCustomValidity(message: string): any;
+    setCustomValidity(message: string): void;
     /** Selects all text within the textarea. */
-    select(): any;
+    select(): void;
     /** Sets the selection range. */
     setSelectionRange(start: number, end: number, direction?: 'forward' | 'backward' | 'none'): void;
     /** Returns the selected text within the textarea. */

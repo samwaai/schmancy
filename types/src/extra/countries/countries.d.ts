@@ -1,4 +1,4 @@
-declare const SchmancyCountriesSelect_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyCountriesSelect_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyCountriesSelect extends SchmancyCountriesSelect_base {
     static formAssociated: boolean;
     private internals?;
@@ -16,7 +16,7 @@ export declare class SchmancyCountriesSelect extends SchmancyCountriesSelect_bas
     reportValidity(): boolean;
     updated(changedProps: Map<string, unknown>): void;
     private handleChange;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

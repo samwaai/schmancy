@@ -1,7 +1,9 @@
 import { TSurfaceColor } from '@schmancy/types';
-export declare const SchmancySurfaceTypeContext: any;
+export declare const SchmancySurfaceTypeContext: {
+    __context__: TSurfaceColor;
+};
 export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto';
-declare const SchmancySurface_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancySurface_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 /**
  * `<schmancy-surface>` component
  *

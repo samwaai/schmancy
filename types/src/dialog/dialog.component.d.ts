@@ -1,4 +1,4 @@
-declare const SchmancyDialog_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyDialog_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A basic dialog web component without title or actions
  *
@@ -67,7 +67,7 @@ export declare class SchmancyDialog extends SchmancyDialog_base {
      * Handle close action
      */
     private handleClose;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

@@ -4,7 +4,7 @@ export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string | string[];
     values?: string[];
 }>;
-declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     required: boolean;
     placeholder: string;
@@ -48,7 +48,7 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     checkValidity(): boolean;
     reportValidity(): boolean;
     firstUpdated(): void;
-    render(): any;
+    render(): import("lit-html").TemplateResult<1>;
     private _handleKeyDown;
 }
 declare global {
