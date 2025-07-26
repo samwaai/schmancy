@@ -30,7 +30,7 @@ import {
 } from 'rxjs/operators'
 import style from './autocomplete.scss?inline'
 
-// Import the similarity function (or include it inline)
+// Import the similarity function
 import { similarity } from '../utils/search'
 
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
@@ -194,6 +194,28 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                     
                     // Sort by score (highest first)
                     scoredOptions.sort((a, b) => b.score - a.score)
+                    
+                    // Check for exact match with the input
+                    const exactMatch = scoredOptions.find(item => {
+                        const optionLabel = (item.option.label || item.option.textContent || '').toLowerCase().trim()
+                        return optionLabel === term.toLowerCase()
+                    })
+                    
+                    // Auto-select exact match for single select mode when:
+                    // 1. The input exactly matches an option's label
+                    // 2. Not in multi-select mode
+                    // 3. Either no value is selected OR the current selection doesn't match the input
+                    if (exactMatch && !this.multi) {
+                        const currentSelectedOption = this._options.find(opt => opt.value === this._selectedValue$.value)
+                        const currentSelectedLabel = (currentSelectedOption?.label || currentSelectedOption?.textContent || '').toLowerCase().trim()
+                        
+                        // Only auto-select if the input doesn't match the current selection
+                        if (term.toLowerCase() !== currentSelectedLabel) {
+                            // Auto-select the exact match
+                            this._optionSelect$.next(exactMatch.option)
+                            return // Exit early since we've made a selection
+                        }
+                    }
                     
                     // Apply visibility and ordering
                     let visibleCount = 0
@@ -370,35 +392,46 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                     }
                 })
 
-                if (bestMatch) {
-                    console.log('Found matching option:', bestMatch.value, 'with score:', bestScore)
+                // Only accept autofill if:
+                // 1. The score is very high (>= 0.95)
+                // 2. The autofilled value is at least 3 characters (to avoid single character matches)
+                // 3. It's an exact match (case-insensitive)
+                if (bestMatch && bestScore >= 0.95 && autofilledValue.length >= 3) {
+                    // Additional check for exact match
+                    const optionLabel = bestMatch.label || bestMatch.textContent || ''
+                    const isExactMatch = optionLabel.toLowerCase() === autofilledValue.toLowerCase() ||
+                                       bestMatch.value.toLowerCase() === autofilledValue.toLowerCase()
                     
-                    // Select the option
-                    if (this.multi) {
-                        this._selectedValues$.next([bestMatch.value])
-                    } else {
-                        this._selectedValue$.next(bestMatch.value)
+                    if (isExactMatch) {
+                        console.log('Found matching option:', bestMatch.value, 'with score:', bestScore)
+                        
+                        // Select the option
+                        if (this.multi) {
+                            this._selectedValues$.next([bestMatch.value])
+                        } else {
+                            this._selectedValue$.next(bestMatch.value)
+                        }
+                        
+                        // Update input to show the label
+                        const displayValue = bestMatch.label || bestMatch.textContent || ''
+                        this._inputValue = displayValue
+                        this._inputValue$.next(displayValue)
+                        
+                        // Update the actual input element
+                        const input = this._inputElementRef.value
+                        if (input) {
+                            input.value = displayValue
+                        }
+                        
+                        // Close dropdown if open
+                        this._open$.next(false)
+                        
+                        // Fire change event
+                        this._fireChangeEvent()
+                        
+                        // Announce to screen reader
+                        this._announceToScreenReader(`Autofilled: ${displayValue}`)
                     }
-                    
-                    // Update input to show the label
-                    const displayValue = bestMatch.label || bestMatch.textContent || ''
-                    this._inputValue = displayValue
-                    this._inputValue$.next(displayValue)
-                    
-                    // Update the actual input element
-                    const input = this._inputElementRef.value
-                    if (input) {
-                        input.value = displayValue
-                    }
-                    
-                    // Close dropdown if open
-                    this._open$.next(false)
-                    
-                    // Fire change event
-                    this._fireChangeEvent()
-                    
-                    // Announce to screen reader
-                    this._announceToScreenReader(`Autofilled: ${displayValue}`)
                 }
             }),
             takeUntil(this.disconnecting)
@@ -557,6 +590,12 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                             const value = (e.target as HTMLInputElement).value
                             this._inputValue = value
                             this._inputValue$.next(value)
+                            
+                            // If the input is cleared, also clear the selected value
+                            if (!value.trim() && !this.multi && this._selectedValue$.value) {
+                                this._selectedValue$.next('')
+                                this._fireChangeEvent()
+                            }
                         }}
                         @focus=${(e: FocusEvent) => {
                             e.stopPropagation()
@@ -574,6 +613,65 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                             }
                             
                             this._open$.next(true)
+                        }}
+                        @blur=${(e: FocusEvent) => {
+                            e.stopPropagation()
+                            // Delay to allow click events on options to fire first
+                            of(this._inputValue.trim()).pipe(
+                                withLatestFrom(this._open$),
+                                filter(([, isOpen]) => isOpen),
+                                tap(([inputValue]) => {
+                                    // Only auto-select if there's input and no current selection (for single select)
+                                    const shouldAutoSelect = inputValue && (
+                                        this.multi 
+                                            ? true  // Always try to match for multi-select
+                                            : !this._selectedValue$.value  // Only if no value for single select
+                                    )
+                                    
+                                    if (shouldAutoSelect) {
+                                        // Find best matching option
+                                        let bestMatch: SchmancyOption | null = null
+                                        let bestScore = 0
+                                        
+                                        this._options.forEach(option => {
+                                            // Skip already selected options in multi mode
+                                            if (this.multi && this._selectedValues$.value.includes(option.value)) {
+                                                return
+                                            }
+                                            
+                                            const optionLabel = option.label || option.textContent || ''
+                                            const optionValue = option.value
+                                            
+                                            // Calculate similarity scores
+                                            const labelScore = similarity(inputValue, optionLabel)
+                                            const valueScore = similarity(inputValue, optionValue)
+                                            
+                                            // Use the higher score (prioritizing label matches)
+                                            const score = Math.max(labelScore * 1.1, valueScore)
+                                            
+                                            // Keep track of best match
+                                            if (score > bestScore && score >= this.similarityThreshold) {
+                                                bestScore = score
+                                                bestMatch = option
+                                            }
+                                        })
+                                        
+                                        // If we found a good match, select it
+                                        if (bestMatch) {
+                                            this._optionSelect$.next(bestMatch)
+                                        } else {
+                                            // Close dropdown without selection
+                                            this._open$.next(false)
+                                            this._updateInputDisplay()
+                                        }
+                                    } else {
+                                        // Close dropdown
+                                        this._open$.next(false)
+                                        this._updateInputDisplay()
+                                    }
+                                }),
+                                take(1)
+                            ).subscribe()
                         }}
                         @click=${(e: MouseEvent) => {
                             e.stopPropagation()
