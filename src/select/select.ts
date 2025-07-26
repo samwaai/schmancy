@@ -653,7 +653,8 @@ export class SchmancySelect extends $LitElement(css`
 	}
 }
 
-export const select = SchmancySelect
+// Don't export 'select' here as it conflicts with the store's select decorator
+// export const select = SchmancySelect
 
 declare global {
 	interface HTMLElementTagNameMap {

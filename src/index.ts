@@ -53,5 +53,4 @@ export * from './utils';
 export * from './avatar';
 
 // Named exports for convenience
-export { select } from './select';
 export { sheet } from './sheet';

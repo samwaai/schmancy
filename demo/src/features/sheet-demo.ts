@@ -477,6 +477,76 @@ sheet.dismiss()
 						</schmancy-code-preview>
 					</schmancy-grid>
 				</div>
+
+				<!-- Dismiss Testing Example -->
+				<div class="mb-12">
+					<schmancy-typography type="title" token="lg" class="mb-6 block">Dismiss Testing</schmancy-typography>
+					<schmancy-grid gap="lg" class="w-full">
+						<schmancy-code-preview>
+							<schmancy-button
+								variant="filled"
+								@click=${() => {
+									// Test dismiss functionality
+									const testContent = document.createElement('div')
+									testContent.className = 'p-6'
+									testContent.innerHTML = `
+										<schmancy-grid gap="md">
+											<schmancy-typography type="headline" token="sm" class="block">
+												Test Dismiss Functionality
+											</schmancy-typography>
+											<schmancy-typography type="body" token="md" class="text-surface-onVariant block">
+												Try these ways to close the sheet:
+											</schmancy-typography>
+											<ul class="list-disc pl-6 space-y-2">
+												<li>Click outside the sheet (on the overlay)</li>
+												<li>Press the ESC key</li>
+												<li>Click the X button in the header</li>
+												<li>Click the button below</li>
+											</ul>
+											<schmancy-button id="dismissBtn" variant="filled">
+												Dismiss Programmatically
+											</schmancy-button>
+										</schmancy-grid>
+									`
+
+									// Add dismiss button handler
+									setTimeout(() => {
+										const dismissBtn = testContent.querySelector('#dismissBtn')
+										dismissBtn?.addEventListener('click', () => {
+											console.log('Dismissing sheet programmatically...')
+											sheet.dismiss('dismiss-test')
+										})
+									}, 100)
+
+									sheet.open({
+										component: testContent,
+										title: 'Dismiss Test',
+										uid: 'dismiss-test',
+										onBeforeOpen: (component) => {
+											console.log('Sheet opened, component:', component)
+										},
+										onAfterOpen: (component) => {
+											console.log('Sheet fully open')
+											
+											// Log sheet state
+											console.log('Is sheet open?', sheet.isOpen('dismiss-test'))
+											
+											// Test auto-dismiss after 10 seconds
+											setTimeout(() => {
+												if (sheet.isOpen('dismiss-test')) {
+													console.log('Auto-dismissing after 10 seconds...')
+													sheet.dismiss('dismiss-test')
+												}
+											}, 10000)
+										}
+									})
+								}}
+							>
+								Test Dismiss Functionality
+							</schmancy-button>
+						</schmancy-code-preview>
+					</schmancy-grid>
+				</div>
 			</schmancy-surface>
 		`
 	}
