@@ -1,6 +1,6 @@
 import { TemplateResult } from 'lit';
 import { HISTORY_STRATEGY, RouteAction } from './router.types';
-declare const SchmancyArea_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyArea_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyArea extends SchmancyArea_base {
     /**
      * The name of the router outlet
@@ -14,7 +14,7 @@ export declare class SchmancyArea extends SchmancyArea_base {
     /**
      * Get component from pathname with better error handling
      */
-    getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY): import("rxjs").Observable<RouteAction>;
+    getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY): any;
     /**
      * Get component from browser state with fallback to URL
      */
@@ -40,7 +40,7 @@ export declare class SchmancyArea extends SchmancyArea_base {
      * Clear query parameters
      */
     queryParamClear(params?: string[] | boolean): string;
-    render(): TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

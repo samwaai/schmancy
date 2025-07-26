@@ -1,5 +1,5 @@
 import { PresetCategory } from './date-range-presets';
-declare const SchmancyDateRangeDialog_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyDateRangeDialog_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * Dialog content component for date range selection
  *
@@ -23,6 +23,6 @@ export declare class SchmancyDateRangeDialog extends SchmancyDateRangeDialog_bas
     private handleToDateChange;
     private handlePresetSelection;
     private applyManualDateSelection;
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 export {};

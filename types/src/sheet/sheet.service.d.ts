@@ -1,11 +1,8 @@
-import { Subject } from 'rxjs';
 import SchmancySheet from './sheet';
-
 export declare enum SchmancySheetPosition {
     Side = "side",
     Bottom = "bottom"
 }
-
 /**
  * Configuration options for opening a sheet
  */
@@ -33,7 +30,6 @@ export interface SheetConfig<T extends HTMLElement = HTMLElement> {
     /** Callback invoked after the sheet opens and becomes visible */
     onAfterOpen?: (component: T) => void;
 }
-
 interface SheetDiscoveryDetail {
     uid: string;
 }
@@ -41,16 +37,14 @@ interface SheetResponseDetail {
     sheet?: SchmancySheet;
     theme?: HTMLElement;
 }
-
 export type SheetWhereAreYouRickyEvent = CustomEvent<SheetDiscoveryDetail>;
 export declare const SheetWhereAreYouRicky = "are-you-there-sheet";
 export type SheetHereMortyEvent = CustomEvent<SheetResponseDetail>;
 export declare const SheetHereMorty = "yes-here";
-
 /**
  * Service for managing sheet components throughout the application.
  * Handles sheet lifecycle, history integration, and component reuse.
- * 
+ *
  * @example
  * ```typescript
  * // Simple usage
@@ -58,7 +52,7 @@ export declare const SheetHereMorty = "yes-here";
  *   component: document.createElement('my-form'),
  *   title: 'My Form'
  * });
- * 
+ *
  * // With callbacks
  * sheet.open({
  *   component: () => {
@@ -161,6 +155,5 @@ declare class SheetService {
      */
     getSheetElement(uid: string): SchmancySheet | undefined;
 }
-
 export declare const sheet: SheetService;
 export {};

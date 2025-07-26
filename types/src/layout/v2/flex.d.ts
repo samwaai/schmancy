@@ -56,7 +56,7 @@ export declare class SchmancyFlexV2 extends Layout {
      *  - 'none', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '16', '20', '24', '32', '40', '48', '56', or '64'
      */
     gap: 'none' | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '12' | '16' | '20' | '24' | '32' | '40' | '48' | '56' | '64';
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

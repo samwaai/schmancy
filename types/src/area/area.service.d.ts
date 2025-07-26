@@ -1,7 +1,7 @@
-import { Observable, ReplaySubject, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { SchmancyTeleportation } from '../teleport';
 import { ActiveRoute, AreaSubscription, RouteAction } from './router.types';
-export declare const routerHistory: Subject<RouteAction>;
+export declare const routerHistory: any;
 export declare const FINDING_MORTIES = "FINDING_MORTIES";
 export declare const HERE_RICKY = "HERE_RICKY";
 export type HERE_RICKY_EVENT = CustomEvent<{
@@ -14,9 +14,9 @@ declare class AreaService implements AreaSubscription {
     private static instance;
     prettyURL: boolean;
     mode: 'SILENT' | 'HISTORY';
-    request: ReplaySubject<RouteAction>;
+    request: any;
     current: Map<string, ActiveRoute>;
-    $current: ReplaySubject<Map<string, ActiveRoute>>;
+    $current: any;
     private get areaSubjects();
     enableHistoryMode: boolean;
     private findingMortiesEvent;
@@ -62,9 +62,7 @@ declare class AreaService implements AreaSubscription {
     /**
      * Find teleportation components
      */
-    find(): Observable<{
-        component: SchmancyTeleportation;
-    }[]>;
+    find(): any;
     /**
      * Push a new route action with validation
      */

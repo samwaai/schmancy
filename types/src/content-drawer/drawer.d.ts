@@ -1,6 +1,5 @@
-import { nothing } from 'lit';
 import { SchmancyContentDrawerMinWidth, TSchmancyContentDrawerSheetMode, TSchmancyContentDrawerSheetState } from './context';
-declare const SchmancyContentDrawer_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyContentDrawer_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element schmancy-content-drawer
  * @slot appbar - The appbar slot
@@ -32,7 +31,7 @@ export declare class SchmancyContentDrawer extends SchmancyContentDrawer_base {
     assignedElements: HTMLElement[];
     firstUpdated(): void;
     getOffsetTop(element: any): number;
-    protected render(): typeof nothing | import("lit-html").TemplateResult<1>;
+    protected render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

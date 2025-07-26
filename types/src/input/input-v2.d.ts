@@ -1,4 +1,4 @@
-import { LitElement, PropertyValueMap } from 'lit';
+import { PropertyValueMap } from 'lit';
 declare global {
     interface HTMLElementTagNameMap {
         'sch-input': SchmancyInputV2;
@@ -132,12 +132,7 @@ export default class SchmancyInputV2 extends SchmancyInputV2_base {
      */
     private defaultValue;
     static formAssociated: boolean;
-    protected static shadowRootOptions: {
-        delegatesFocus: boolean;
-        mode: ShadowRootMode;
-        serializable?: boolean;
-        slotAssignment?: SlotAssignmentMode;
-    };
+    protected static shadowRootOptions: any;
     private internals?;
     private formResetObserver?;
     constructor();
@@ -183,11 +178,11 @@ export default class SchmancyInputV2 extends SchmancyInputV2_base {
     /**
      * Check validity without showing validation UI
      */
-    checkValidity(): boolean;
+    checkValidity(): any;
     /**
      * Show validation UI and check validity
      */
-    reportValidity(): boolean;
+    reportValidity(): any;
     /**
      * Set a custom validation error message
      */
@@ -210,7 +205,7 @@ export default class SchmancyInputV2 extends SchmancyInputV2_base {
      */
     private setupEnterKeyEvents;
     /** Selects all text within the input. */
-    select(): void;
+    select(): any;
     /** Returns the native validity state of the inner <input>. */
     getValidity(): ValidityState | undefined;
     /**
@@ -245,6 +240,6 @@ export default class SchmancyInputV2 extends SchmancyInputV2_base {
     click(): void;
     /** Forward blur to the internal <input>. */
     blur(): void;
-    protected render(): import("lit-html").TemplateResult<1>;
+    protected render(): any;
 }
 export {};

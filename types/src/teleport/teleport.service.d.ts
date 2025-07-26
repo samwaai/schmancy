@@ -1,4 +1,3 @@
-import { Subject } from 'rxjs';
 import { SchmancyTeleportation } from './teleport.component';
 export type WhereAreYouRickyEvent = CustomEvent<{
     id: string;
@@ -23,9 +22,9 @@ export type FLIP_REQUEST = {
 export declare const HereMorty = "hereMorty";
 declare class Teleportation {
     activeTeleportations: Map<string, DOMRect>;
-    flipRequests: Subject<FLIP_REQUEST>;
+    flipRequests: any;
     constructor();
-    find: (component: SchmancyTeleportation) => import("rxjs").Observable<SchmancyTeleportation>;
+    find: (component: SchmancyTeleportation) => any;
     flip: (request: {
         from: {
             rect: DOMRect;

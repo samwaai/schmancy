@@ -1,4 +1,4 @@
-declare const SchmancyCodePreview_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyCodePreview_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element schmancy-code-preview
  * A component that shows code and its rendered preview side by side
@@ -20,7 +20,7 @@ export declare class SchmancyCodePreview extends SchmancyCodePreview_base {
     preview: boolean;
     private slotContent;
     connectedCallback(): void;
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

@@ -1,4 +1,4 @@
-declare const SchmancyMenu_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyMenu_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyMenu extends SchmancyMenu_base {
     buttonElement: Array<HTMLElement>;
     menuElement: HTMLElement;
@@ -8,7 +8,7 @@ export default class SchmancyMenu extends SchmancyMenu_base {
     private showMenu;
     private hideMenu;
     firstUpdated(): void;
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

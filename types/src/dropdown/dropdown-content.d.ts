@@ -1,4 +1,4 @@
-declare const SchmancyDropdownContent_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyDropdownContent_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * Content container for the schmancy-dropdown component.
  *
@@ -22,7 +22,7 @@ export declare class SchmancyDropdownContent extends SchmancyDropdownContent_bas
      * Border radius style
      */
     radius: 'none' | 'sm' | 'md' | 'lg' | 'full';
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

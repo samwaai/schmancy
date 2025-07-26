@@ -15,7 +15,7 @@ export interface RowEventDetail<T> {
     index: number;
 }
 export type SortDirection = 'asc' | 'desc' | null;
-declare const SchmancyDataTable_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyDataTable_base: CustomElementConstructor & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 /**
  * SchmancyDataTable is a generic data table component.
  * It supports sorting, filtering, and custom rendering of rows.

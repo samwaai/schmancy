@@ -1,5 +1,5 @@
 import { SchmancySheetPosition } from './sheet.service';
-declare const SchmancySheet_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancySheet_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancySheet extends SchmancySheet_base {
     uid: string;
     open: boolean;
@@ -9,7 +9,7 @@ export default class SchmancySheet extends SchmancySheet_base {
     lock: boolean;
     handleHistory: boolean;
     title: string;
-    private sheet;
+    private sheetRef;
     private assignedElements;
     focusAttribute: string;
     private lastFocusedElement;
@@ -17,16 +17,15 @@ export default class SchmancySheet extends SchmancySheet_base {
     connectedCallback(): void;
     disconnectedCallback(): void;
     private setupEventListeners;
-    private sheetContainsFocus;
     private announcePresence;
-    private addFocusTrap;
-    private removeFocusTrap;
-    private handleFocusIn;
+    private setBackgroundInert;
     setIsSheetShown(isShown: boolean): void;
     closeSheet(): void;
     private getFocusElement;
     focus(): void;
-    render(): import("lit-html").TemplateResult<1>;
+    private handleOverlayClick;
+    private handleHeaderDismiss;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

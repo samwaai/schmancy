@@ -2,7 +2,7 @@ export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type AvatarColor = 'primary' | 'secondary' | 'tertiary' | 'success' | 'error' | 'neutral';
 export type AvatarShape = 'circle' | 'square';
 export type AvatarStatus = 'online' | 'offline' | 'busy' | 'away' | 'none';
-declare const SchmancyAvatar_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyAvatar_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A customizable avatar component that displays initials or an icon
  * Designed to match the Schmancy design system
@@ -34,7 +34,7 @@ export declare class SchmancyAvatar extends SchmancyAvatar_base {
     shape: AvatarShape;
     bordered: boolean;
     status: AvatarStatus;
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
     private getColorAttributes;
     private renderStatusIndicator;
 }

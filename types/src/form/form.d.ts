@@ -1,4 +1,3 @@
-import { LitElement } from 'lit';
 export interface FormEventMap {
     submit: CustomEvent<FormData>;
     reset: CustomEvent;
@@ -18,13 +17,8 @@ declare const SchmancyForm_base: import("@mixins/index").Constructor<CustomEleme
 export default class SchmancyForm extends SchmancyForm_base {
     private $disconnecting;
     static readonly tagName = "schmancy-form";
-    protected static shadowRootOptions: {
-        mode: string;
-        delegatesFocus: boolean;
-        serializable?: boolean;
-        slotAssignment?: SlotAssignmentMode;
-    };
-    static styles: import("lit").CSSResult;
+    protected static shadowRootOptions: any;
+    static styles: any;
     private _controlsWithChecked;
     private _controlsWithValue;
     private _controlsThatSubmit;
@@ -44,7 +38,7 @@ export default class SchmancyForm extends SchmancyForm_base {
     /** Checks for validity of the form. */
     reportValidity(): boolean;
     private handleSubmitRequest;
-    protected render(): import("lit-html").TemplateResult<1>;
+    protected render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

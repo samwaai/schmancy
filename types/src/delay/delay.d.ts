@@ -1,7 +1,5 @@
-export declare const delayContext: {
-    __context__: number;
-};
-declare const SchmancyDelay_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+export declare const delayContext: any;
+declare const SchmancyDelay_base: CustomElementConstructor & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyDelay extends SchmancyDelay_base {
     delay: number;
     motion: string;
@@ -19,7 +17,7 @@ export declare class SchmancyDelay extends SchmancyDelay_base {
     private updateRenderState;
     private generateSessionKey;
     private get motionLit();
-    render(): import("lit-html/directive").DirectiveResult<typeof import("lit-html/directives/cache").CacheDirective>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

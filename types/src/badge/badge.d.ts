@@ -10,7 +10,7 @@ export type BadgeSize = 'xs' | 'sm' | 'md' | 'lg';
  * Badge shape variants
  */
 export type BadgeShape = 'rounded' | 'pill' | 'square';
-declare const SchmancyBadgeV2_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyBadgeV2_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element sch-badge
  * A versatile badge component for status indicators, labels, and counts
@@ -77,7 +77,7 @@ export declare class SchmancyBadgeV2 extends SchmancyBadgeV2_base {
      * Enhanced for more elegant color combinations with refined contrasts
      */
     private getColorStyles;
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

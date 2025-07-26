@@ -1,4 +1,4 @@
-declare const SchmancyTimezonesSelect_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyTimezonesSelect_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyTimezonesSelect extends SchmancyTimezonesSelect_base {
     static formAssociated: boolean;
     private internals?;
@@ -16,7 +16,7 @@ export declare class SchmancyTimezonesSelect extends SchmancyTimezonesSelect_bas
     reportValidity(): boolean;
     updated(changedProps: Map<string, unknown>): void;
     private handleChange;
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

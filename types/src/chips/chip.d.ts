@@ -1,6 +1,5 @@
 import '@material/web/chips/chip-set.js';
 import '@material/web/chips/filter-chip.js';
-import { LitElement } from 'lit';
 declare const SchmancyChip_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export default class SchmancyChip extends SchmancyChip_base {
     value: string;
@@ -9,12 +8,7 @@ export default class SchmancyChip extends SchmancyChip_base {
     readOnly: boolean;
     disabled: boolean;
     constructor();
-    protected static shadowRootOptions: {
-        delegatesFocus: boolean;
-        mode: ShadowRootMode;
-        serializable?: boolean;
-        slotAssignment?: SlotAssignmentMode;
-    };
+    protected static shadowRootOptions: any;
     static formAssociated: boolean;
     internals: ElementInternals | undefined;
     get form(): HTMLFormElement;

@@ -1,6 +1,11 @@
 import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
+import { cache } from 'lit/directives/cache.js'
+import { classMap } from 'lit/directives/class-map.js'
+import { ifDefined } from 'lit/directives/if-defined.js'
+import { live } from 'lit/directives/live.js'
+import { ref, createRef } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
 import { fromEvent, merge, of, take, takeUntil, tap } from 'rxjs'
 import { on } from './hook'
@@ -24,7 +29,8 @@ export default class SchmancySheet extends $LitElement(style) {
 	@property({ type: Boolean, reflect: true }) handleHistory = true
 	@property({ type: String, reflect: true }) title = ''
 
-	@query('.sheet') private sheet!: HTMLElement
+	// Use ref directive instead of @query
+	private sheetRef = createRef<HTMLDivElement>()
 	@queryAssignedElements({ flatten: true }) private assignedElements!: HTMLElement[]
 
 	@property() focusAttribute = 'autofocus'
@@ -34,10 +40,11 @@ export default class SchmancySheet extends $LitElement(style) {
 	onOpenChange(_oldValue: boolean, newValue: boolean) {
 		if (newValue) {
 			this.lastFocusedElement = document.activeElement as HTMLElement
-			this.addFocusTrap()
+			// Use native inert attribute to prevent focus outside sheet
+			this.setBackgroundInert(true)
 			this.focus()
 		} else {
-			this.removeFocusTrap()
+			this.setBackgroundInert(false)
 			this.lastFocusedElement?.focus()
 			this.lastFocusedElement = null
 		}
@@ -64,11 +71,12 @@ export default class SchmancySheet extends $LitElement(style) {
 				)
 			: of(null).pipe(take(0)) // Empty observable if handleHistory is false
 
-		// Handle ESC key - respect allowOverlayDismiss
-		const keyUp$ = fromEvent<KeyboardEvent>(window, 'keyup').pipe(
+		// Handle ESC key - listen on the sheet element for better event capture
+		const keyUp$ = fromEvent<KeyboardEvent>(this, 'keydown').pipe(
 			tap(event => {
-				// Only handle ESC key dismissal if allowOverlayDismiss is true
-				if (event.key === 'Escape' && !this.sheetContainsFocus() && !this.lock) {
+				if (event.key === 'Escape' && !this.lock && this.open) {
+					event.preventDefault()
+					event.stopPropagation()
 					sheet.dismiss(this.uid)
 				}
 			}),
@@ -84,9 +92,6 @@ export default class SchmancySheet extends $LitElement(style) {
 		merge(popState$, keyUp$, rickyComm$).pipe(takeUntil(this.disconnecting)).subscribe()
 	}
 
-	private sheetContainsFocus(): boolean {
-		return this.sheet?.contains(document.activeElement) ?? false
-	}
 
 	private announcePresence() {
 		this.dispatchEvent(
@@ -98,23 +103,38 @@ export default class SchmancySheet extends $LitElement(style) {
 		)
 	}
 
-	private addFocusTrap() {
-		document.addEventListener('focusin', this.handleFocusIn)
-	}
-
-	private removeFocusTrap() {
-		document.removeEventListener('focusin', this.handleFocusIn)
-	}
-
-	private handleFocusIn = (e: Event) => {
-		if (!this.sheet?.contains(e.target as Node)) {
-			this.focus()
+	private setBackgroundInert(inert: boolean) {
+		// Get all sibling elements and make them inert
+		const parent = this.parentElement
+		if (parent) {
+			Array.from(parent.children).forEach(child => {
+				if (child !== this && child instanceof HTMLElement) {
+					if (inert) {
+						child.setAttribute('inert', '')
+					} else {
+						child.removeAttribute('inert')
+					}
+				}
+			})
+		}
+		
+		// Also handle body's direct children if sheet is attached to body
+		if (this.parentElement === document.body) {
+			Array.from(document.body.children).forEach(child => {
+				if (child !== this && child !== parent && child instanceof HTMLElement) {
+					if (inert) {
+						child.setAttribute('inert', '')
+					} else {
+						child.removeAttribute('inert')
+					}
+				}
+			})
 		}
 	}
 
 	setIsSheetShown(isShown: boolean) {
-		this.sheet?.setAttribute('aria-hidden', String(!isShown))
-		this.sheet?.setAttribute('aria-modal', String(isShown))
+		this.sheetRef.value?.setAttribute('aria-hidden', String(!isShown))
+		this.sheetRef.value?.setAttribute('aria-modal', String(isShown))
 	}
 
 	closeSheet() {
@@ -128,38 +148,68 @@ export default class SchmancySheet extends $LitElement(style) {
 	}
 
 	override focus() {
+		// First try native autofocus attribute
+		const autofocusElement = this.querySelector('[autofocus]') as HTMLElement
+		if (autofocusElement) {
+			autofocusElement.focus()
+			return
+		}
+		
+		// Fallback to custom focus attribute
 		this.getFocusElement()?.focus()
 	}
 
+	private handleOverlayClick = (e: Event) => {
+		e.stopPropagation()
+		if (!this.lock) {
+			sheet.dismiss(this.uid)
+		}
+	}
+
+	private handleHeaderDismiss = (e: CustomEvent) => {
+		e.stopPropagation()
+		sheet.dismiss(this.uid)
+	}
+
 	render() {
+		const sheetClasses = {
+			'sheet': true,
+			'sheet--open': this.open,
+			'sheet--locked': this.lock,
+		}
+
+		const overlayClasses = {
+			'overlay': true,
+			'overlay--interactive': !this.lock,
+		}
+
 		return html`
-			<div class="sheet" role="dialog" aria-labelledby="sheet-title" aria-hidden=${!this.open} aria-modal=${this.open}>
+			<div 
+				class=${classMap(sheetClasses)}
+				role="dialog" 
+				aria-labelledby=${ifDefined(this.header !== 'hidden' ? 'sheet-title' : undefined)}
+				aria-hidden=${!this.open} 
+				aria-modal=${this.open}
+				tabindex="0"
+				${ref(this.sheetRef)}>
 				<div
-					class="overlay"
-					@click=${(e: Event) => {
-						e.stopPropagation()
-						if (!this.lock) {
-							sheet.dismiss(this.uid)
-						}
-					}}
+					class=${classMap(overlayClasses)}
+					@click=${this.lock ? undefined : this.handleOverlayClick}
 				></div>
 				<schmancy-grid
 					rows=${this.header === 'hidden' ? '1fr' : 'auto 1fr'}
 					class="content w-full"
 					data-position=${this.position}
 				>
-					${when(
-						this.header !== 'hidden',
-						() =>
-							html`<schmancy-sheet-header
+					${cache(
+						this.header !== 'hidden'
+							? html`<schmancy-sheet-header
 								class="sticky top-0 z-50 w-full"
-								@dismiss=${(e: CustomEvent) => {
-									e.stopPropagation()
-									sheet.dismiss(this.uid)
-								}}
+								@dismiss=${this.handleHeaderDismiss}
 								id="sheet-title"
-								title=${this.title}
-							></schmancy-sheet-header>`,
+								title=${ifDefined(this.title || undefined)}
+							></schmancy-sheet-header>`
+							: ''
 					)}
 
 					<schmancy-surface rounded="left" fill="all" id="body" class="overflow-auto" type="surface">

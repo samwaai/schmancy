@@ -3,7 +3,7 @@ import '@material/web/chips/filter-chip.js';
 import { ChipSet } from '@material/web/chips/internal/chip-set';
 import { PropertyValues } from 'lit';
 import SchmancyChip, { SchmancyChipChangeEvent } from './chip';
-declare const SchmancyChips_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyChips_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyChips extends SchmancyChips_base {
     chipSet: ChipSet;
     multi: boolean;

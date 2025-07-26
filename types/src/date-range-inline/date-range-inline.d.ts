@@ -8,7 +8,7 @@ export type SchmancyDateRangeInlineChangeEvent = CustomEvent<{
     dateTo: string;
     isValid: boolean;
 }>;
-declare const SchmancyDateRangeInline_base: import("@mixins/index").Constructor<import("@mixins/index").IFormFieldMixin> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyDateRangeInline_base: import("@mixins/index").Constructor<import("@mixins/index").IFormFieldMixin> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * Smart inline date range picker that handles all the heavy lifting.
  * Auto-corrects invalid ranges, provides smart defaults, and validates dates.
@@ -106,6 +106,6 @@ export default class SchmancyDateRangeInline extends SchmancyDateRangeInline_bas
      */
     private getComputedMaxDateFrom;
     emitChange(): void;
-    protected render(): import("lit-html").TemplateResult<1>;
+    protected render(): any;
 }
 export {};

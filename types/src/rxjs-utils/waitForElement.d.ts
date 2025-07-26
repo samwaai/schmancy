@@ -17,4 +17,4 @@ selector: string,
  * @type { number | undefined }
  * @description If you don't want to wait for the element to appear, pass `undefined` as the second argument
  */
-timeoutAfter?: number): import("rxjs").Observable<import("rxjs").TruthyTypesOf<T>>;
+timeoutAfter?: number): any;

@@ -1,5 +1,5 @@
 import { TSchmancyDrawerNavbarMode, TSchmancyDrawerNavbarState } from './context';
-declare const SchmancyNavigationDrawerSidebar_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyNavigationDrawerSidebar_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyNavigationDrawerSidebar extends SchmancyNavigationDrawerSidebar_base {
     mode: TSchmancyDrawerNavbarMode;
     drawerState: TSchmancyDrawerNavbarState;
@@ -32,7 +32,7 @@ export declare class SchmancyNavigationDrawerSidebar extends SchmancyNavigationD
      * to close the navigation drawer.
      */
     private handleOverlayClick;
-    protected render(): import("lit-html").TemplateResult<1>;
+    protected render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

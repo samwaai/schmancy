@@ -1,5 +1,4 @@
 import '@material/web/checkbox/checkbox.js';
-import { LitElement } from 'lit';
 export type schmancyCheckBoxChangeEvent = CustomEvent<{
     value: boolean;
 }>;
@@ -10,12 +9,7 @@ declare const SchmancyCheckbox_base: import("@mixins/index").Constructor<CustomE
  * @fires valueChange - Event fired when the checkbox value changes.
  **/
 export declare class SchmancyCheckbox extends SchmancyCheckbox_base {
-    protected static shadowRootOptions: {
-        delegatesFocus: boolean;
-        mode: ShadowRootMode;
-        serializable?: boolean;
-        slotAssignment?: SlotAssignmentMode;
-    };
+    protected static shadowRootOptions: any;
     static formAssociated: boolean;
     internals: ElementInternals | undefined;
     get form(): HTMLFormElement;
@@ -52,7 +46,7 @@ export declare class SchmancyCheckbox extends SchmancyCheckbox_base {
      * @attr {sm | md | lg } size - The size of the checkbox.
      */
     size: 'sm' | 'md' | 'lg';
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

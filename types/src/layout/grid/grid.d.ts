@@ -30,7 +30,7 @@ export declare class SchmancyGrid extends Layout {
     wrap: boolean;
     assignedElements: HTMLElement[];
     firstUpdated(): void;
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {

@@ -1,1 +1,1 @@
-export * from './select';
+export { SchmancySelect, type SchmancySelectChangeEvent } from './select';

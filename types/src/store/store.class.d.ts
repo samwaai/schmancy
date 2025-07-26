@@ -1,18 +1,18 @@
 import { immerable } from 'immer';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { IStorageManager, StorageType, StoreError } from './types';
+import { BehaviorSubject } from 'rxjs';
+import { IStorageManager, StorageType } from './types';
 /**
  * Base store class to handle common functionality between store types
  * Now with Immer integration for immutability
  */
 export declare abstract class BaseStore<T> {
+    [immerable]: boolean;
     protected storageType: StorageType;
     protected key: string;
-    [immerable]: boolean;
     protected _ready: boolean;
-    protected _destroy$: Subject<void>;
+    protected _destroy$: any;
     $: BehaviorSubject<T>;
-    error$: BehaviorSubject<StoreError<unknown>>;
+    error$: any;
     readonly defaultValue: T;
     protected storage: IStorageManager<T>;
     /**

@@ -1,8 +1,4 @@
 export type TSchmancyDrawerNavbarMode = 'push' | 'overlay' | undefined;
-export declare const SchmancyDrawerNavbarMode: {
-    __context__: TSchmancyDrawerNavbarMode;
-};
+export declare const SchmancyDrawerNavbarMode: any;
 export type TSchmancyDrawerNavbarState = 'open' | 'close' | undefined;
-export declare const SchmancyDrawerNavbarState: {
-    __context__: TSchmancyDrawerNavbarState;
-};
+export declare const SchmancyDrawerNavbarState: any;

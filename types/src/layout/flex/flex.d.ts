@@ -17,7 +17,7 @@ export declare class SchmancyFlex extends Layout {
     align: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
     justify: 'start' | 'center' | 'end' | 'stretch' | 'between';
     gap: 'none' | 'sm' | 'md' | 'lg';
-    render(): import("lit-html").TemplateResult<1>;
+    render(): any;
 }
 declare global {
     interface HTMLElementTagNameMap {
