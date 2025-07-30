@@ -15,11 +15,9 @@ export default class SchmancyBusy extends TailwindElement(css`
 	protected render(): unknown {
 		return html`
 			<!-- Clean overlay with subtle backdrop -->
-			<div class="absolute inset-0 flex items-center justify-center bg-surface-container/60 backdrop-blur-sm rounded-[inherit]">
+			<div class="absolute inset-0 flex items-center justify-center bg-surface-container/10 backdrop-blur-xs rounded-[inherit]">
 				<!-- Content container with clean surface -->
 				<div class="relative flex items-center justify-center p-4">
-					<!-- Optional background card for content -->
-					<div class="absolute inset-0 bg-surface rounded-2xl shadow-sm"></div>
 					
 					<!-- Content slot -->
 					<div class="relative z-10">
