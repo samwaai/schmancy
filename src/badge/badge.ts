@@ -30,7 +30,7 @@ export type BadgeShape = 'rounded' | 'pill' | 'square'
  * @csspart content - The content container
  * @csspart icon - The icon container
  */
-@customElement('sch-badge')
+@customElement('schmancy-badge')
 export class SchmancyBadgeV2 extends TailwindElement(css`
 	:host {
 		display: inline-flex;
@@ -320,6 +320,12 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'sch-badge': SchmancyBadgeV2
+		'sch-badge': SchmancyBadgeV2,
+		'schmancy-badge': SchmancyBadgeV2
 	}
 }
+
+
+// Register the component with the legacy tag name for backward compatibility
+@customElement('sch-badge')
+export class ScBadgeV2 extends SchmancyBadgeV2 {}

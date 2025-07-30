@@ -76,14 +76,14 @@ input.selectionDirection -> 'forward' | 'backward' | 'none' | null
 </schmancy-input>
 
 // 2. Input with currency formatting
-<schmancy-input-v2
+<schmancy-input
   name="amount"
   label="Amount"
   type="number"
   .format=${(value) => `$${value.toFixed(2)}`}
   .parse=${(value) => parseFloat(value.replace('$', ''))}
   .validate=${(value) => value < 0 ? 'Amount must be positive' : ''}>
-</schmancy-input-v2>
+</schmancy-input>
 
 // 3. Password input with visibility toggle
 <schmancy-input 
@@ -190,7 +190,7 @@ interface InputParser {
 
 2. **Validating email format**
    ```html
-   <schmancy-input-v2
+   <schmancy-input
      type="email"
      label="Email"
      name="email"
@@ -198,7 +198,7 @@ interface InputParser {
        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
        return emailRegex.test(value) ? '' : 'Please enter a valid email';
      }}>
-   </schmancy-input-v2>
+   </schmancy-input>
    ```
 
 3. **Input with character count**

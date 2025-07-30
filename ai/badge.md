@@ -2,38 +2,40 @@
 
 ```js
 // Basic Badge
-<sch-badge>
+<schmancy-badge>
   42
-</sch-badge>
+</schmancy-badge>
+
+// Also supports <schmancy-badge> for backward compatibility
 
 // Badge with color variants
-<sch-badge
+<schmancy-badge
   color="primary|secondary|tertiary|success|warning|error|neutral"
   size="xs|sm|md|lg"
   shape="square|rounded|pill">
   New
-</sch-badge>
+</schmancy-badge>
 
 // Badge with icon slot
-<sch-badge color="warning">
+<schmancy-badge color="warning">
   <schmancy-icon slot="icon" icon="warning"></schmancy-icon>
   Caution
-</sch-badge>
+</schmancy-badge>
 
 // Badge with icon property
-<sch-badge color="success" icon="check">
+<schmancy-badge color="success" icon="check">
   Complete
-</sch-badge>
+</schmancy-badge>
 
 // Outlined badge
-<sch-badge color="primary" outlined>
+<schmancy-badge color="primary" outlined>
   Outlined
-</sch-badge>
+</schmancy-badge>
 
 // Pulsing badge
-<sch-badge color="error" pulse>
+<schmancy-badge color="error" pulse>
   Alert
-</sch-badge>
+</schmancy-badge>
 
 // Badge Properties
 color: BadgeColor     // Color variant: "primary", "secondary", "tertiary", "success", "warning", "error", "neutral"
@@ -49,58 +51,58 @@ icon: Optional icon to display before the content
 
 // Examples
 // Simple numeric badge
-<sch-badge>10</sch-badge>
+<schmancy-badge>10</schmancy-badge>
 
 // Styled text badge
-<sch-badge color="success" shape="pill">
+<schmancy-badge color="success" shape="pill">
   Completed
-</sch-badge>
+</schmancy-badge>
 
 // Status badges
 <div>
-  <sch-badge color="success">Active</sch-badge>
-  <sch-badge color="warning">Pending</sch-badge>
-  <sch-badge color="error">Failed</sch-badge>
-  <sch-badge color="primary">Draft</sch-badge>
+  <schmancy-badge color="success">Active</schmancy-badge>
+  <schmancy-badge color="warning">Pending</schmancy-badge>
+  <schmancy-badge color="error">Failed</schmancy-badge>
+  <schmancy-badge color="primary">Draft</schmancy-badge>
 </div>
 
 // Badge sizes
-<sch-badge size="xs">XS</sch-badge>
-<sch-badge size="sm">Small</sch-badge>
-<sch-badge size="md">Medium</sch-badge>
-<sch-badge size="lg">Large</sch-badge>
+<schmancy-badge size="xs">XS</schmancy-badge>
+<schmancy-badge size="sm">Small</schmancy-badge>
+<schmancy-badge size="md">Medium</schmancy-badge>
+<schmancy-badge size="lg">Large</schmancy-badge>
 
 // Badge shapes
-<sch-badge shape="square">Square</sch-badge>
-<sch-badge shape="rounded">Rounded</sch-badge>
-<sch-badge shape="pill">Pill</sch-badge>
+<schmancy-badge shape="square">Square</schmancy-badge>
+<schmancy-badge shape="rounded">Rounded</schmancy-badge>
+<schmancy-badge shape="pill">Pill</schmancy-badge>
 
 // Outlined badges
-<sch-badge color="primary" outlined>Primary</sch-badge>
-<sch-badge color="secondary" outlined>Secondary</sch-badge>
-<sch-badge color="error" outlined>Error</sch-badge>
+<schmancy-badge color="primary" outlined>Primary</schmancy-badge>
+<schmancy-badge color="secondary" outlined>Secondary</schmancy-badge>
+<schmancy-badge color="error" outlined>Error</schmancy-badge>
 
 // Badge with icon
-<sch-badge color="success" icon="check_circle">
+<schmancy-badge color="success" icon="check_circle">
   Verified
-</sch-badge>
+</schmancy-badge>
 
 // Badge with custom icon slot
-<sch-badge color="warning">
+<schmancy-badge color="warning">
   <schmancy-icon slot="icon" icon="warning"></schmancy-icon>
   Warning
-</sch-badge>
+</schmancy-badge>
 
 // Pulsing badges for attention
-<sch-badge color="error" pulse>
+<schmancy-badge color="error" pulse>
   New
-</sch-badge>
+</schmancy-badge>
 
 // Badge with dynamic properties
-<sch-badge
+<schmancy-badge
   color=${status === 'active' ? 'success' : 'neutral'}
   outlined=${isOutlined}
   pulse=${needsAttention}>
   ${statusText}
-</sch-badge>
+</schmancy-badge>
 ```

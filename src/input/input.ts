@@ -14,6 +14,7 @@ import style from './input.scss?inline'
 declare global {
 	interface HTMLElementTagNameMap {
 		'schmancy-input': SchmancyInput
+		'sch-input': SchmancyInput
 	}
 }
 
@@ -891,3 +892,7 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 		`
 	}
 }
+
+// Register the component with the legacy tag name for backward compatibility
+@customElement('sch-input')
+export class SchmancyInputCompat extends SchmancyInput {}

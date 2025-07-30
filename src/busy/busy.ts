@@ -8,27 +8,25 @@ export default class SchmancyBusy extends TailwindElement(css`
 		display: inline;
 		position: absolute;
 		inset: 0;
-		--tw-gradient-from-position:  ;
-		--tw-gradient-via-position:  ;
-		--tw-gradient-to-position:  ;
+		pointer-events: all;
+		z-index: 50;
 	}
 `) {
 	protected render(): unknown {
 		return html`
-			<div class="absolute inset-0 flex justify-center items-center z-[9999999]">
-				<!-- Apple visionOS-style glass effect with multiple layers -->
-				<div
-					class="absolute transform-gpu inset-0 rounded-[inherit] flex align-middle justify-center items-center 
-						   backdrop-blur-2xl backdrop-saturate-150 bg-white/10 dark:bg-black/10
-						   shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)] 
-						   border border-white/20 dark:border-white/10"
-				>
-					<!-- Additional subtle inner glow for depth -->
-					<div class="absolute inset-0 rounded-[inherit] bg-gradient-to-b from-white/5 to-transparent"></div>
+			<!-- Clean overlay with subtle backdrop -->
+			<div class="absolute inset-0 flex items-center justify-center bg-surface-container/60 backdrop-blur-sm rounded-[inherit]">
+				<!-- Content container with clean surface -->
+				<div class="relative flex items-center justify-center p-4">
+					<!-- Optional background card for content -->
+					<div class="absolute inset-0 bg-surface rounded-2xl shadow-sm"></div>
 					
-					<!-- Content slot with subtle animation -->
-					<div class="relative animate-pulse">
-						<slot></slot>
+					<!-- Content slot -->
+					<div class="relative z-10">
+						<slot>
+							<!-- Default spinner if no content provided -->
+							<schmancy-spinner size="32px"></schmancy-spinner>
+						</slot>
 					</div>
 				</div>
 			</div>
