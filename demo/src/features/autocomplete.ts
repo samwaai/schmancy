@@ -1,10 +1,34 @@
 import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
+import { repeat } from 'lit/directives/repeat.js'
 import '../shared/installation-section'
+
+interface Employee {
+	id: string
+	employee_name: string
+	employee_code: string
+}
 
 @customElement('demo-autocomplete')
 export class DemoAutocomplete extends $LitElement() {
+	@state() selectedEmployeeId: string | null = null
+
+	employeesState = {
+		employees: [
+			{ id: '1', employee_name: 'John Doe', employee_code: 'EMP001' },
+			{ id: '2', employee_name: 'Jane Smith', employee_code: 'EMP002' },
+			{ id: '3', employee_name: 'Mike Johnson', employee_code: 'EMP003' },
+			{ id: '4', employee_name: 'Sarah Williams', employee_code: 'EMP004' },
+			{ id: '5', employee_name: 'David Brown', employee_code: 'EMP005' },
+			{ id: '6', employee_name: 'Lisa Garcia', employee_code: 'EMP006' },
+			{ id: '7', employee_name: 'Robert Martinez', employee_code: 'EMP007' },
+			{ id: '8', employee_name: 'Maria Rodriguez', employee_code: 'EMP008' },
+			{ id: '9', employee_name: 'James Lee', employee_code: 'EMP009' },
+			{ id: '10', employee_name: 'Patricia Chen', employee_code: 'EMP010' }
+		]
+	}
+
 	render() {
 		return html`
 			<schmancy-surface class="p-8">
@@ -307,6 +331,32 @@ export class DemoAutocomplete extends $LitElement() {
 									<schmancy-option value="in-stock">In Stock</schmancy-option>
 								</schmancy-autocomplete>
 							</div>
+						</schmancy-code-preview>
+
+						<!-- Employee Select Example -->
+						<schmancy-code-preview language="html">
+							<schmancy-autocomplete
+								label="Select Employee"
+								placeholder="Search by name or code..."
+								.value=${this.selectedEmployeeId ?? ''}
+								@change=${(e: any) => {
+									console.log(e.detail)
+									this.selectedEmployeeId = e.detail.value as string;
+								}}
+								required
+							>
+								${repeat(
+									this.employeesState.employees,
+									(emp) => emp.id,
+									(emp) => html`
+										<schmancy-option 
+											.value=${emp.id!} 
+										>
+											${emp.employee_name} (${emp.employee_code})
+										</schmancy-option>
+									`
+								)}
+							</schmancy-autocomplete>
 						</schmancy-code-preview>
 
 						<!-- Large Dataset Example -->
