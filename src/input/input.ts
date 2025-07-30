@@ -46,6 +46,14 @@ export type InputSize = 'sm' | 'md' | 'lg'
  *
  * This component uses the native form association API and maintains parity with
  * native input behaviors while providing a stylish, accessible interface.
+ * 
+ * @prop {string} label - Label text for the form field (inherited from FormFieldMixin)
+ * @prop {boolean} required - Whether the field is required (inherited from FormFieldMixin)
+ * @prop {boolean} disabled - Whether the field is disabled (inherited from FormFieldMixin)
+ * @prop {boolean} readonly - Whether the field is read-only (inherited from FormFieldMixin)
+ * @prop {boolean} error - Whether the field is in an error state (inherited from FormFieldMixin)
+ * @prop {string} validationMessage - The validation message to display (inherited from FormFieldMixin)
+ * @prop {string} hint - Optional hint text to display below the field (inherited from FormFieldMixin)
  */
 @customElement('schmancy-input')
 export default class SchmancyInput extends SchmancyFormField(style) {
@@ -893,6 +901,15 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 	}
 }
 
-// Register the component with the legacy tag name for backward compatibility
+/**
+ * Register the component with the legacy tag name for backward compatibility
+ * @prop {string} label - Label text for the form field (inherited from FormFieldMixin)
+ * @prop {boolean} required - Whether the field is required (inherited from FormFieldMixin)
+ * @prop {boolean} disabled - Whether the field is disabled (inherited from FormFieldMixin)
+ * @prop {boolean} readonly - Whether the field is read-only (inherited from FormFieldMixin)
+ * @prop {boolean} error - Whether the field is in an error state (inherited from FormFieldMixin)
+ * @prop {string} validationMessage - The validation message to display (inherited from FormFieldMixin)
+ * @prop {string} hint - Optional hint text to display below the field (inherited from FormFieldMixin)
+ */
 @customElement('sch-input')
 export class SchmancyInputCompat extends SchmancyInput {}
