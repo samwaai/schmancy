@@ -60,6 +60,8 @@ class BottomSheetService {
 	$dismiss = new Subject<string>()
 	// Track currently open sheets
 	private activeSheets = new Set<string>()
+	// Track sheet components for retrieval
+	private sheetComponents = new Map<string, HTMLElement>()
 	// To track if we've set up the popstate listener
 	private popStateListenerActive = false
 
@@ -181,6 +183,7 @@ class BottomSheetService {
 					const uid = target.uid ?? 
 						(target.component instanceof HTMLElement ? target.component.tagName : `sheet-${Date.now()}`)
 					this.activeSheets.add(uid)
+					this.sheetComponents.set(uid, target.component)
 
 					// Handle history integration - default to true if not specified
 					const shouldHandleHistory = target.handleHistory !== false
@@ -216,6 +219,7 @@ class BottomSheetService {
 								const uid = sheetElement.getAttribute('uid')
 								if (uid) {
 									this.activeSheets.delete(uid)
+									this.sheetComponents.delete(uid)
 								}
 								
 								// Only keep sheet if persist is explicitly set to a truthy value
@@ -332,6 +336,15 @@ class BottomSheetService {
 		Array.from(this.activeSheets).forEach(uid => {
 			this.dismiss(uid)
 		})
+	}
+
+	/**
+	 * Gets the component instance for a given sheet
+	 * @param uid - The unique identifier of the sheet
+	 * @returns The component instance, or undefined if not found
+	 */
+	getComponent<T extends HTMLElement = HTMLElement>(uid: string): T | undefined {
+		return this.sheetComponents.get(uid) as T | undefined
 	}
 }
 export const sheet = new BottomSheetService()
