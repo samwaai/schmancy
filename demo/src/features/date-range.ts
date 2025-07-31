@@ -1,4 +1,5 @@
 import { $LitElement } from '@mixins/index'
+import dayjs from 'dayjs'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import '../shared/installation-section'
@@ -8,16 +9,15 @@ export class DemoDateRange extends $LitElement() {
 	@state() selectedRange = { from: '', to: '' }
 	@state() eventDateRange = { from: '', to: '' }
 	@state() reportRange = { from: '', to: '' }
-	
+
 	render() {
 		return html`
 			<schmancy-surface class="p-8">
 				<!-- Component Title -->
-				<schmancy-typography type="display" token="lg" class="mb-4 block">
-					Date Range
-				</schmancy-typography>
+				<schmancy-typography type="display" token="lg" class="mb-4 block"> Date Range </schmancy-typography>
 				<schmancy-typography type="body" token="lg" class="mb-8 text-surface-onVariant block">
-					Advanced date range picker with keyboard navigation, mobile optimization, direct text input, and smart presets. Fully accessible with ARIA support.
+					Advanced date range picker with keyboard navigation, mobile optimization, direct text input, and smart
+					presets. Fully accessible with ARIA support.
 				</schmancy-typography>
 
 				<!-- Installation -->
@@ -26,15 +26,13 @@ export class DemoDateRange extends $LitElement() {
 				<!-- Import -->
 				<div class="mb-8">
 					<schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
-					<schmancy-code-preview language="javascript">
-						import '@mhmo91/schmancy/date-range'
-					</schmancy-code-preview>
+					<schmancy-code-preview language="javascript"> import '@mhmo91/schmancy/date-range' </schmancy-code-preview>
 				</div>
 
 				<!-- API Reference -->
 				<div class="mb-12">
 					<schmancy-typography type="title" token="lg" class="mb-4 block">API Reference</schmancy-typography>
-					
+
 					<schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden">
 						<table class="w-full">
 							<thead class="bg-surface-container">
@@ -70,7 +68,9 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">dateFrom</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>dateFrom</code
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">{label: string, value: string}</schmancy-typography>
@@ -126,10 +126,14 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">customPresets</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>customPresets</code
+										>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">Array&lt;{label, dateFrom, dateTo}&gt;</schmancy-typography>
+										<schmancy-typography type="body" token="sm"
+											>Array&lt;{label, dateFrom, dateTo}&gt;</schmancy-typography
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">[]</schmancy-typography>
@@ -140,7 +144,9 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">disabled</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>disabled</code
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
@@ -154,7 +160,9 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">required</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>required</code
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
@@ -168,7 +176,9 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">placeholder</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>placeholder</code
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">string</schmancy-typography>
@@ -182,7 +192,9 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">clearable</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>clearable</code
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
@@ -199,18 +211,25 @@ export class DemoDateRange extends $LitElement() {
 										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">step</code>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">'day' | 'week' | 'month' | 'year' | number</schmancy-typography>
+										<schmancy-typography type="body" token="sm"
+											>'day' | 'week' | 'month' | 'year' | number</schmancy-typography
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">undefined</schmancy-typography>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">Navigation step for arrow buttons. Auto-detects if not set. Number = days to shift</schmancy-typography>
+										<schmancy-typography type="body" token="sm"
+											>Navigation step for arrow buttons. Auto-detects if not set. Number = days to
+											shift</schmancy-typography
+										>
 									</td>
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">allowDirectInput</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>allowDirectInput</code
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">boolean</schmancy-typography>
@@ -247,7 +266,9 @@ export class DemoDateRange extends $LitElement() {
 										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">change</code>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">{ dateFrom: string, dateTo: string }</schmancy-typography>
+										<schmancy-typography type="body" token="sm"
+											>{ dateFrom: string, dateTo: string }</schmancy-typography
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">Fired when date range changes</schmancy-typography>
@@ -281,7 +302,9 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">PageDown</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>PageDown</code
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">Navigate to next date range</schmancy-typography>
@@ -289,7 +312,9 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">Ctrl+Home</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>Ctrl+Home</code
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">Jump to start of current month</schmancy-typography>
@@ -297,7 +322,9 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
-										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">Ctrl+End</code>
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"
+											>Ctrl+End</code
+										>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">Jump to end of current month</schmancy-typography>
@@ -316,7 +343,9 @@ export class DemoDateRange extends $LitElement() {
 										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">Tab</code>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">Navigate between elements (focus trapped in dropdown)</schmancy-typography>
+										<schmancy-typography type="body" token="sm"
+											>Navigate between elements (focus trapped in dropdown)</schmancy-typography
+										>
 									</td>
 								</tr>
 							</tbody>
@@ -327,12 +356,12 @@ export class DemoDateRange extends $LitElement() {
 				<!-- Examples -->
 				<div>
 					<schmancy-typography type="title" token="lg" class="mb-6 block">Examples</schmancy-typography>
-					
+
 					<div class="grid gap-6 w-full">
 						<!-- Basic Date Range -->
 						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-date-range
-								@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+								@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 									console.log('Date range changed:', e.detail)
 								}}"
 							></schmancy-date-range>
@@ -347,7 +376,7 @@ export class DemoDateRange extends $LitElement() {
 								<schmancy-date-range
 									.dateFrom="${{ label: 'From', value: new Date().toISOString().split('T')[0] }}"
 									.dateTo="${{ label: 'To', value: new Date().toISOString().split('T')[0] }}"
-									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 										console.log('Date range changed:', e.detail)
 									}}"
 								></schmancy-date-range>
@@ -361,9 +390,19 @@ export class DemoDateRange extends $LitElement() {
 									Full week range auto-detects week step
 								</schmancy-typography>
 								<schmancy-date-range
-									.dateFrom="${{ label: 'From', value: new Date(new Date().setDate(new Date().getDate() - new Date().getDay())).toISOString().split('T')[0] }}"
-									.dateTo="${{ label: 'To', value: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 6)).toISOString().split('T')[0] }}"
-									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									.dateFrom="${{
+										label: 'From',
+										value: new Date(new Date().setDate(new Date().getDate() - new Date().getDay()))
+											.toISOString()
+											.split('T')[0],
+									}}"
+									.dateTo="${{
+										label: 'To',
+										value: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 6))
+											.toISOString()
+											.split('T')[0],
+									}}"
+									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 										console.log('Week range changed:', e.detail)
 									}}"
 								></schmancy-date-range>
@@ -377,9 +416,15 @@ export class DemoDateRange extends $LitElement() {
 									Full month range auto-detects month step
 								</schmancy-typography>
 								<schmancy-date-range
-									.dateFrom="${{ label: 'From', value: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0] }}"
-									.dateTo="${{ label: 'To', value: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0] }}"
-									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									.dateFrom="${{
+										label: 'From',
+										value: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+									}}"
+									.dateTo="${{
+										label: 'To',
+										value: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
+									}}"
+									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 										console.log('Month range changed:', e.detail)
 									}}"
 								></schmancy-date-range>
@@ -395,7 +440,7 @@ export class DemoDateRange extends $LitElement() {
 								<schmancy-date-range
 									allowDirectInput
 									placeholder="Type or select date range"
-									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 										console.log('Typed date range:', e.detail)
 									}}"
 								></schmancy-date-range>
@@ -410,7 +455,10 @@ export class DemoDateRange extends $LitElement() {
 								</schmancy-typography>
 								<schmancy-date-range
 									.dateFrom="${{ label: 'Start', value: new Date().toISOString().split('T')[0] }}"
-									.dateTo="${{ label: 'End', value: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}"
+									.dateTo="${{
+										label: 'End',
+										value: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+									}}"
 								></schmancy-date-range>
 							</div>
 						</schmancy-code-preview>
@@ -440,7 +488,7 @@ export class DemoDateRange extends $LitElement() {
 								minDate="${new Date().toISOString().split('T')[0]}"
 								maxDate="${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}"
 								placeholder="Select dates within next 30 days"
-								@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+								@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 									console.log('Selected range:', e.detail)
 								}}"
 							></schmancy-date-range>
@@ -454,11 +502,11 @@ export class DemoDateRange extends $LitElement() {
 								</schmancy-typography>
 								<schmancy-date-range
 									step="day"
-									minDate="2024-07-31"
-									maxDate="2026-07-31"
+									.minDate="${dayjs().subtract(7, 'D').format('YYYY-MM-DD')}"
+									.maxDate="${dayjs().format('YYYY-MM-DD')}"
 									.dateFrom="${{ label: 'From', value: '2025-01-01' }}"
 									.dateTo="${{ label: 'To', value: '2025-01-07' }}"
-									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 										console.log('Navigated within bounds:', e.detail)
 									}}"
 								></schmancy-date-range>
@@ -474,10 +522,13 @@ export class DemoDateRange extends $LitElement() {
 								<schmancy-date-range
 									step="week"
 									.dateFrom="${{ label: 'Start', value: new Date().toISOString().split('T')[0] }}"
-									.dateTo="${{ label: 'End', value: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}"
+									.dateTo="${{
+										label: 'End',
+										value: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+									}}"
 									minDate="${new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}"
 									maxDate="${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}"
-									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 										console.log('Week navigation:', e.detail)
 									}}"
 								></schmancy-date-range>
@@ -492,9 +543,15 @@ export class DemoDateRange extends $LitElement() {
 								</schmancy-typography>
 								<schmancy-date-range
 									step="month"
-									.dateFrom="${{ label: 'Start', value: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0] }}"
-									.dateTo="${{ label: 'End', value: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0] }}"
-									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									.dateFrom="${{
+										label: 'Start',
+										value: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+									}}"
+									.dateTo="${{
+										label: 'End',
+										value: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
+									}}"
+									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 										console.log('Month navigation:', e.detail)
 									}}"
 								></schmancy-date-range>
@@ -510,8 +567,11 @@ export class DemoDateRange extends $LitElement() {
 								<schmancy-date-range
 									.step="${3}"
 									.dateFrom="${{ label: 'Start', value: new Date().toISOString().split('T')[0] }}"
-									.dateTo="${{ label: 'End', value: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}"
-									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									.dateTo="${{
+										label: 'End',
+										value: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+									}}"
+									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 										console.log('3-day step navigation:', e.detail)
 									}}"
 								></schmancy-date-range>
@@ -525,23 +585,27 @@ export class DemoDateRange extends $LitElement() {
 									{
 										label: 'Last 7 Days',
 										dateFrom: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-										dateTo: new Date().toISOString().split('T')[0]
+										dateTo: new Date().toISOString().split('T')[0],
 									},
 									{
 										label: 'Last 30 Days',
 										dateFrom: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-										dateTo: new Date().toISOString().split('T')[0]
+										dateTo: new Date().toISOString().split('T')[0],
 									},
 									{
 										label: 'This Month',
 										dateFrom: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
-										dateTo: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0]
+										dateTo: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+											.toISOString()
+											.split('T')[0],
 									},
 									{
 										label: 'Last Month',
-										dateFrom: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toISOString().split('T')[0],
-										dateTo: new Date(new Date().getFullYear(), new Date().getMonth(), 0).toISOString().split('T')[0]
-									}
+										dateFrom: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)
+											.toISOString()
+											.split('T')[0],
+										dateTo: new Date(new Date().getFullYear(), new Date().getMonth(), 0).toISOString().split('T')[0],
+									},
 								]}"
 								placeholder="Select reporting period"
 							></schmancy-date-range>
@@ -554,15 +618,17 @@ export class DemoDateRange extends $LitElement() {
 									.dateFrom="${{ label: 'Event Start', value: this.eventDateRange.from }}"
 									.dateTo="${{ label: 'Event End', value: this.eventDateRange.to }}"
 									placeholder="Select event duration"
-									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 										this.eventDateRange = { from: e.detail.dateFrom, to: e.detail.dateTo }
 									}}"
 								></schmancy-date-range>
-								
+
 								<schmancy-surface type="containerLow" class="p-4 rounded-lg">
 									<schmancy-typography type="body" token="md">
 										${this.eventDateRange.from && this.eventDateRange.to
-											? html`Event scheduled from <span class="font-medium text-primary-default">${this.eventDateRange.from}</span> to <span class="font-medium text-primary-default">${this.eventDateRange.to}</span>`
+											? html`Event scheduled from
+													<span class="font-medium text-primary-default">${this.eventDateRange.from}</span> to
+													<span class="font-medium text-primary-default">${this.eventDateRange.to}</span>`
 											: html`No event dates selected`}
 									</schmancy-typography>
 								</schmancy-surface>
@@ -573,22 +639,20 @@ export class DemoDateRange extends $LitElement() {
 						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-form
 								@submit="${(e: CustomEvent) => {
-									console.log('Form data:', e.detail.data);
-									alert('Booking submitted! Check console for details.');
+									console.log('Form data:', e.detail.data)
+									alert('Booking submitted! Check console for details.')
 								}}"
 								class="space-y-4 max-w-md"
 							>
-								<schmancy-typography type="headline" token="sm" class="block mb-4">
-									Hotel Booking
-								</schmancy-typography>
-								
+								<schmancy-typography type="headline" token="sm" class="block mb-4"> Hotel Booking </schmancy-typography>
+
 								<schmancy-input
 									label="Guest Name"
 									name="guestName"
 									placeholder="Enter your full name"
 									required
 								></schmancy-input>
-								
+
 								<schmancy-date-range
 									name="stayDates"
 									.dateFrom="${{ label: 'Check-in Date', value: '' }}"
@@ -597,21 +661,14 @@ export class DemoDateRange extends $LitElement() {
 									required
 									placeholder="Select your stay dates"
 								></schmancy-date-range>
-								
-								<schmancy-select
-									label="Room Type"
-									name="roomType"
-									required
-									placeholder="Select a room type"
-								>
+
+								<schmancy-select label="Room Type" name="roomType" required placeholder="Select a room type">
 									<schmancy-option value="standard">Standard Room</schmancy-option>
 									<schmancy-option value="deluxe">Deluxe Room</schmancy-option>
 									<schmancy-option value="suite">Suite</schmancy-option>
 								</schmancy-select>
-								
-								<schmancy-button type="submit" variant="filled">
-									Book Now
-								</schmancy-button>
+
+								<schmancy-button type="submit" variant="filled"> Book Now </schmancy-button>
 							</schmancy-form>
 						</schmancy-code-preview>
 
@@ -623,7 +680,7 @@ export class DemoDateRange extends $LitElement() {
 										<schmancy-typography type="headline" token="sm" class="block">
 											Analytics Dashboard
 										</schmancy-typography>
-										
+
 										<schmancy-date-range
 											.dateFrom="${{ label: 'Period Start', value: this.reportRange.from }}"
 											.dateTo="${{ label: 'Period End', value: this.reportRange.to }}"
@@ -631,61 +688,69 @@ export class DemoDateRange extends $LitElement() {
 												{
 													label: 'Today',
 													dateFrom: new Date().toISOString().split('T')[0],
-													dateTo: new Date().toISOString().split('T')[0]
+													dateTo: new Date().toISOString().split('T')[0],
 												},
 												{
 													label: 'Yesterday',
 													dateFrom: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-													dateTo: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+													dateTo: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
 												},
 												{
 													label: 'Last 7 Days',
 													dateFrom: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-													dateTo: new Date().toISOString().split('T')[0]
+													dateTo: new Date().toISOString().split('T')[0],
 												},
 												{
 													label: 'Last 30 Days',
 													dateFrom: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-													dateTo: new Date().toISOString().split('T')[0]
+													dateTo: new Date().toISOString().split('T')[0],
 												},
 												{
 													label: 'This Quarter',
-													dateFrom: new Date(new Date().getFullYear(), Math.floor(new Date().getMonth() / 3) * 3, 1).toISOString().split('T')[0],
-													dateTo: new Date().toISOString().split('T')[0]
-												}
+													dateFrom: new Date(new Date().getFullYear(), Math.floor(new Date().getMonth() / 3) * 3, 1)
+														.toISOString()
+														.split('T')[0],
+													dateTo: new Date().toISOString().split('T')[0],
+												},
 											]}"
 											placeholder="Select reporting period"
-											@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+											@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 												this.reportRange = { from: e.detail.dateFrom, to: e.detail.dateTo }
 												console.log('Updating dashboard for:', e.detail)
 											}}"
 										></schmancy-date-range>
-										
-										${this.reportRange.from && this.reportRange.to ? html`
-											<div class="grid grid-cols-2 gap-3">
-												<schmancy-surface type="containerLow" class="p-3 rounded">
-													<schmancy-typography type="label" token="sm" class="text-surface-onVariant block">
-														Total Revenue
+
+										${this.reportRange.from && this.reportRange.to
+											? html`
+													<div class="grid grid-cols-2 gap-3">
+														<schmancy-surface type="containerLow" class="p-3 rounded">
+															<schmancy-typography type="label" token="sm" class="text-surface-onVariant block">
+																Total Revenue
+															</schmancy-typography>
+															<schmancy-typography type="headline" token="md" class="text-primary-default block">
+																$24,567
+															</schmancy-typography>
+														</schmancy-surface>
+
+														<schmancy-surface type="containerLow" class="p-3 rounded">
+															<schmancy-typography type="label" token="sm" class="text-surface-onVariant block">
+																Active Users
+															</schmancy-typography>
+															<schmancy-typography type="headline" token="md" class="text-primary-default block">
+																1,234
+															</schmancy-typography>
+														</schmancy-surface>
+													</div>
+												`
+											: html`
+													<schmancy-typography
+														type="body"
+														token="md"
+														class="text-surface-onVariant text-center py-8 block"
+													>
+														Select a date range to view analytics
 													</schmancy-typography>
-													<schmancy-typography type="headline" token="md" class="text-primary-default block">
-														$24,567
-													</schmancy-typography>
-												</schmancy-surface>
-												
-												<schmancy-surface type="containerLow" class="p-3 rounded">
-													<schmancy-typography type="label" token="sm" class="text-surface-onVariant block">
-														Active Users
-													</schmancy-typography>
-													<schmancy-typography type="headline" token="md" class="text-primary-default block">
-														1,234
-													</schmancy-typography>
-												</schmancy-surface>
-											</div>
-										` : html`
-											<schmancy-typography type="body" token="md" class="text-surface-onVariant text-center py-8 block">
-												Select a date range to view analytics
-											</schmancy-typography>
-										`}
+												`}
 									</div>
 								</schmancy-card>
 							</div>
@@ -706,7 +771,7 @@ export class DemoDateRange extends $LitElement() {
 							<schmancy-date-range
 								.allowDirectInput="${false}"
 								placeholder="Click to select dates"
-								@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+								@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 									console.log('Selected:', e.detail)
 								}}"
 							></schmancy-date-range>
@@ -720,7 +785,10 @@ export class DemoDateRange extends $LitElement() {
 								</schmancy-typography>
 								<schmancy-date-range
 									.dateFrom="${{ label: 'From', value: new Date().toISOString().split('T')[0] }}"
-									.dateTo="${{ label: 'To', value: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}"
+									.dateTo="${{
+										label: 'To',
+										value: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+									}}"
 								></schmancy-date-range>
 							</div>
 						</schmancy-code-preview>

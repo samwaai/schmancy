@@ -452,6 +452,32 @@ export class SchmancyDateRange extends $LitElement() {
 		this.isMobile = window.innerWidth < 768
 	}
 
+	/**
+	 * Check if we can navigate backward
+	 */
+	private canNavigateBackward(): boolean {
+		if (!this.dateFrom.value || !this.minDate) return true
+		
+		const fromDate = dayjs(this.dateFrom.value)
+		const minDate = dayjs(this.minDate)
+		
+		// If current start date is already at or before min date, can't go back
+		return fromDate.isAfter(minDate)
+	}
+
+	/**
+	 * Check if we can navigate forward
+	 */
+	private canNavigateForward(): boolean {
+		if (!this.dateTo.value || !this.maxDate) return true
+		
+		const toDate = dayjs(this.dateTo.value)
+		const maxDate = dayjs(this.maxDate)
+		
+		// If current end date is already at or after max date, can't go forward
+		return toDate.isBefore(maxDate)
+	}
+
 
 
 
@@ -483,7 +509,7 @@ export class SchmancyDateRange extends $LitElement() {
 							type="button"
 							aria-label="Previous ${this.activePreset ? this.activePreset.toLowerCase() : 'date range'}"
 							@click=${(e: Event) => this.shiftDateRange(-1, e)}
-							?disabled=${this.disabled || !this.dateFrom.value || !this.dateTo.value}
+							?disabled=${this.disabled || !this.dateFrom.value || !this.dateTo.value || !this.canNavigateBackward()}
 						>
 							arrow_left
 						</schmancy-icon-button>
@@ -507,7 +533,7 @@ export class SchmancyDateRange extends $LitElement() {
 							type="button"
 							aria-label="Next ${this.activePreset ? this.activePreset.toLowerCase() : 'date range'}"
 							@click=${(e: Event) => this.shiftDateRange(1, e)}
-							?disabled=${this.disabled || !this.dateFrom.value || !this.dateTo.value}
+							?disabled=${this.disabled || !this.dateFrom.value || !this.dateTo.value || !this.canNavigateForward()}
 						>
 							arrow_right
 						</schmancy-icon-button>
