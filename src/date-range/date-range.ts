@@ -216,7 +216,7 @@ export class SchmancyDateRange extends $LitElement() {
 
 	private toggleDropdown(e: Event) {
 		e.stopPropagation()
-		if (this.disabled) return
+		if (this.disabled || this.step !== undefined) return
 
 		if (this.isOpen) {
 			this.closeDropdown()
@@ -489,7 +489,7 @@ export class SchmancyDateRange extends $LitElement() {
 						</schmancy-icon-button>
 
 						<schmancy-button
-							class="w-max ${this.step !== undefined ? 'pointer-events-none' : ''}"
+							class="w-max"
 							variant="outlined"
 							type="button"
 							aria-haspopup="menu"
@@ -498,6 +498,7 @@ export class SchmancyDateRange extends $LitElement() {
 							aria-readonly="${this.step !== undefined}"
 							@click=${(e: Event) => this.toggleDropdown(e)}
 							?disabled=${this.disabled}
+							style="${this.step !== undefined ? 'cursor: default;' : ''}"
 						>
 							${this.selectedDateRange || this.placeholder}
 						</schmancy-button>
