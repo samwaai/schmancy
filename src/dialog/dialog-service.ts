@@ -1,7 +1,8 @@
 import { render, TemplateResult } from 'lit'
-import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, switchMap, takeUntil, tap, timer } from 'rxjs'
+import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, switchMap, takeUntil, tap, timer, take } from 'rxjs'
 import { ConfirmDialog } from './dailog'
 import { DialogHereMorty, DialogHereMortyEvent, DialogWhereAreYouRicky } from './dialog-events'
+import { ThemeWhereAreYou, ThemeHereIAm, ThemeHereIAmEvent } from '../theme/theme.component'
 
 /**
  * Dialog service options interface with component support
@@ -111,7 +112,7 @@ export class DialogService {
 						),
 					]),
 				),
-				map(([response, target]) => {
+				switchMap(([response, target]) => {
 					let dialog: ConfirmDialog | any
 					let targetContainer: HTMLElement
 					
@@ -119,16 +120,34 @@ export class DialogService {
 						// Use existing dialog
 						dialog = response.dialog
 						targetContainer = dialog.parentElement as HTMLElement
+						return of({ dialog, target, targetContainer })
 					} else {
 						// Determine container - use responding theme or fallback
 						if (response?.theme) {
 							targetContainer = response.theme as HTMLElement
+							return of({ dialog: null, target, targetContainer })
+						} else if (target.options.targetContainer) {
+							targetContainer = target.options.targetContainer
+							return of({ dialog: null, target, targetContainer })
 						} else {
-							targetContainer = target.options.targetContainer || 
-							                 document.querySelector('schmancy-theme') as HTMLElement || 
-							                 document.body
+							// Use the same theme discovery pattern as sheet service
+							window.dispatchEvent(new CustomEvent(ThemeWhereAreYou))
+							return fromEvent<ThemeHereIAmEvent>(window, ThemeHereIAm).pipe(
+								takeUntil(timer(100)),
+								map(e => e.detail.theme),
+								defaultIfEmpty(undefined),
+								take(1),
+								map(theme => ({
+									dialog: null,
+									target,
+									targetContainer: theme || document.body
+								}))
+							)
 						}
-						
+					}
+				}),
+				tap(({ dialog, target, targetContainer }) => {
+					if (!dialog) {
 						// Create appropriate dialog type
 						if (target.type === 'confirm') {
 							dialog = document.createElement('confirm-dialog') as ConfirmDialog
@@ -139,7 +158,12 @@ export class DialogService {
 						dialog.setAttribute('uid', (target as any).uid)
 						targetContainer.appendChild(dialog)
 					}
-					
+				}),
+				map(({ dialog, target, targetContainer }) => {
+					// Return the actual dialog element that was created
+					if (!dialog) {
+						dialog = targetContainer.querySelector(`[uid="${(target as any).uid}"]`)
+					}
 					return { dialog, target, targetContainer }
 				}),
 				tap(({ dialog, target }) => {

@@ -555,6 +555,7 @@ sheet.dismiss()
 									const content = document.createElement('div')
 									content.className = 'p-6'
 									content.innerHTML = `
+									<schmancy-theme>
 										<schmancy-grid gap="md">
 											<schmancy-typography type="headline" token="sm" class="block">
 												Sheet with Dialog Test
@@ -569,6 +570,7 @@ sheet.dismiss()
 												The dialog should appear above this sheet.
 											</schmancy-typography>
 										</schmancy-grid>
+									</schmancy-theme>
 									`
 
 									// Add event listener to open dialog

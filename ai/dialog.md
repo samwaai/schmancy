@@ -50,7 +50,7 @@ $dialog.confirm({
   content?: TemplateResult|HTMLElement|Function,
   onConfirm?: Function,
   onCancel?: Function,
-  targetContainer?: HTMLElement              // Container to append dialog to (defaults to document.body)
+  targetContainer?: HTMLElement              // Container to append dialog to (uses theme discovery pattern)
 }) -> Promise<boolean>
 
 $dialog.ask(message, event?) -> Promise<boolean>
