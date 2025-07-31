@@ -74,6 +74,14 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
      */
     private checkMobileView;
     /**
+     * Check if we can navigate backward
+     */
+    private canNavigateBackward;
+    /**
+     * Check if we can navigate forward
+     */
+    private canNavigateForward;
+    /**
      * Announce messages to screen readers
      */
     private announceToScreenReader;
