@@ -4,7 +4,7 @@ export declare enum SchmancySheetPosition {
     Side = "side",
     Bottom = "bottom"
 }
-type BottomSheeetTarget = {
+export type SheetConfig = {
     component: HTMLElement;
     uid?: string;
     position?: SchmancySheetPosition;
@@ -14,7 +14,10 @@ type BottomSheeetTarget = {
     handleHistory?: boolean;
     title?: string;
     header?: 'hidden' | 'visible';
+    onBeforeOpen?: (component: HTMLElement) => void;
+    onAfterOpen?: (component: HTMLElement) => void;
 };
+type BottomSheeetTarget = SheetConfig;
 export type SheetWhereAreYouRickyEvent = CustomEvent<{
     uid: string;
 }>;
@@ -25,9 +28,10 @@ export type SheetHereMortyEvent = CustomEvent<{
 }>;
 export declare const SheetHereMorty = "yes-here";
 declare class BottomSheetService {
-    bottomSheet: Subject<BottomSheeetTarget>;
+    bottomSheet: Subject<SheetConfig>;
     $dismiss: Subject<string>;
     private activeSheets;
+    private sheetComponents;
     private popStateListenerActive;
     constructor();
     /**
@@ -58,6 +62,12 @@ declare class BottomSheetService {
      * Close all open sheets
      */
     closeAll(): void;
+    /**
+     * Gets the component instance for a given sheet
+     * @param uid - The unique identifier of the sheet
+     * @returns The component instance, or undefined if not found
+     */
+    getComponent<T extends HTMLElement = HTMLElement>(uid: string): T | undefined;
 }
 export declare const sheet: BottomSheetService;
 export {};
