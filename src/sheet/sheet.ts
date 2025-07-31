@@ -83,22 +83,18 @@ export default class SchmancySheet extends $LitElement(style) {
 		// Handle inter-component communication
 		const rickyComm$ = fromEvent<SheetWhereAreYouRickyEvent>(window, SheetWhereAreYouRicky).pipe(
 			tap(e => {
-				if (e.detail.uid === this.uid) this.announcePresence()
+				if (e.detail.uid === this.uid)
+					this.dispatchEvent(
+						new CustomEvent(SheetHereMorty, {
+							detail: { sheet: this },
+							bubbles: true,
+							composed: true,
+						}),
+					)
 			}),
 		)
 
 		merge(popState$, keyUp$, rickyComm$).pipe(takeUntil(this.disconnecting)).subscribe()
-	}
-
-
-	private announcePresence() {
-		this.dispatchEvent(
-			new CustomEvent(SheetHereMorty, {
-				detail: { sheet: this },
-				bubbles: true,
-				composed: true,
-			}),
-		)
 	}
 
 	private setBackgroundInert(inert: boolean) {
@@ -115,7 +111,7 @@ export default class SchmancySheet extends $LitElement(style) {
 				}
 			})
 		}
-		
+
 		// Also handle body's direct children if sheet is attached to body
 		if (this.parentElement === document.body) {
 			Array.from(document.body.children).forEach(child => {
@@ -152,7 +148,7 @@ export default class SchmancySheet extends $LitElement(style) {
 			autofocusElement.focus()
 			return
 		}
-		
+
 		// Fallback to custom focus attribute
 		this.getFocusElement()?.focus()
 	}
@@ -171,29 +167,27 @@ export default class SchmancySheet extends $LitElement(style) {
 
 	render() {
 		const sheetClasses = {
-			'sheet': true,
+			sheet: true,
 			'sheet--open': this.open,
 			'sheet--locked': this.lock,
 		}
 
 		const overlayClasses = {
-			'overlay': true,
+			overlay: true,
 			'overlay--interactive': !this.lock,
 		}
 
 		return html`
-			<div 
+			<div
 				class=${classMap(sheetClasses)}
-				role="dialog" 
+				role="dialog"
 				aria-labelledby=${ifDefined(this.header !== 'hidden' ? 'sheet-title' : undefined)}
-				aria-hidden=${!this.open} 
+				aria-hidden=${!this.open}
 				aria-modal=${this.open}
 				tabindex="0"
-				${ref(this.sheetRef)}>
-				<div
-					class=${classMap(overlayClasses)}
-					@click=${this.lock ? undefined : this.handleOverlayClick}
-				></div>
+				${ref(this.sheetRef)}
+			>
+				<div class=${classMap(overlayClasses)} @click=${this.lock ? undefined : this.handleOverlayClick}></div>
 				<schmancy-grid
 					rows=${this.header === 'hidden' ? '1fr' : 'auto 1fr'}
 					class="content w-full"
@@ -202,12 +196,12 @@ export default class SchmancySheet extends $LitElement(style) {
 					${cache(
 						this.header !== 'hidden'
 							? html`<schmancy-sheet-header
-								class="sticky top-0 z-50 w-full"
-								@dismiss=${this.handleHeaderDismiss}
-								id="sheet-title"
-								title=${ifDefined(this.title || undefined)}
-							></schmancy-sheet-header>`
-							: ''
+									class="sticky top-0 z-50 w-full"
+									@dismiss=${this.handleHeaderDismiss}
+									id="sheet-title"
+									title=${ifDefined(this.title || undefined)}
+								></schmancy-sheet-header>`
+							: '',
 					)}
 
 					<schmancy-surface rounded="left" fill="all" id="body" class="overflow-auto" type="surface">

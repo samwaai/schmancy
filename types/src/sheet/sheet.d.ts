@@ -17,7 +17,6 @@ export default class SchmancySheet extends SchmancySheet_base {
     connectedCallback(): void;
     disconnectedCallback(): void;
     private setupEventListeners;
-    private announcePresence;
     private setBackgroundInert;
     setIsSheetShown(isShown: boolean): void;
     closeSheet(): void;

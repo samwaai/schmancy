@@ -8,8 +8,6 @@ import { themeContext } from './context'
 import { formateTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
 import style from './theme.style.css?inline'
-import { DialogWhereAreYouRicky, DialogWhereAreYouRickyEvent, DialogHereMorty } from '../dialog/dialog-events'
-import { SheetWhereAreYouRicky, SheetWhereAreYouRickyEvent, SheetHereMorty } from '../sheet/sheet.service'
 
 // Theme discovery events
 export type ThemeWhereAreYouEvent = CustomEvent<void>
@@ -79,56 +77,6 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 			)
 		})
 
-		// Listen for dialog discovery events (for existing dialog checks)
-		fromEvent<DialogWhereAreYouRickyEvent>(window, DialogWhereAreYouRicky).subscribe(event => {
-			const existingDialog = this.querySelector(`schmancy-dialog[uid="${event.detail.uid}"]`) || 
-			                      this.querySelector(`confirm-dialog[uid="${event.detail.uid}"]`)
-			
-			if (existingDialog) {
-				// Announce that we have an existing dialog here
-				window.dispatchEvent(
-					new CustomEvent(DialogHereMorty, {
-						detail: { dialog: existingDialog },
-						bubbles: true,
-						composed: true,
-					})
-				)
-			} else {
-				// This theme will claim the dialog by responding
-				window.dispatchEvent(
-					new CustomEvent(DialogHereMorty, {
-						detail: { dialog: null, theme: this },
-						bubbles: true,
-						composed: true,
-					})
-				)
-			}
-		})
-
-		// Listen for sheet discovery events (for existing sheet checks)
-		fromEvent<SheetWhereAreYouRickyEvent>(window, SheetWhereAreYouRicky).subscribe(event => {
-			const existingSheet = this.querySelector(`schmancy-sheet[uid="${event.detail.uid}"]`)
-			
-			if (existingSheet) {
-				// Announce that we have an existing sheet here
-				window.dispatchEvent(
-					new CustomEvent(SheetHereMorty, {
-						detail: { sheet: existingSheet },
-						bubbles: true,
-						composed: true,
-					})
-				)
-			} else {
-				// This theme will claim the sheet by responding
-				window.dispatchEvent(
-					new CustomEvent(SheetHereMorty, {
-						detail: { sheet: null, theme: this },
-						bubbles: true,
-						composed: true,
-					})
-				)
-			}
-		})
 	}
 	registerTheme() {
 		let theme = formateTheme(

@@ -133,10 +133,10 @@ export class DialogService {
 							// Use the same theme discovery pattern as sheet service
 							window.dispatchEvent(new CustomEvent(ThemeWhereAreYou))
 							return fromEvent<ThemeHereIAmEvent>(window, ThemeHereIAm).pipe(
+								take(1),
 								takeUntil(timer(100)),
 								map(e => e.detail.theme),
 								defaultIfEmpty(undefined),
-								take(1),
 								map(theme => ({
 									dialog: null,
 									target,
