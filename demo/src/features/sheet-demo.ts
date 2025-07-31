@@ -4,6 +4,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import '../shared/installation-section'
 import '@schmancy/date-range'
+import { ConfirmDialog } from '@schmancy/dialog/dailog'
 
 @customElement('demo-sheet')
 export class DemoSheet extends $LitElement() {
@@ -543,6 +544,55 @@ sheet.dismiss()
 								}}
 							>
 								Test Dismiss Functionality
+							</schmancy-button>
+						</schmancy-code-preview>
+
+						<!-- Dialog from Sheet Example -->
+						<schmancy-code-preview>
+							<schmancy-button
+								variant="filled"
+								@click=${() => {
+									const content = document.createElement('div')
+									content.className = 'p-6'
+									content.innerHTML = `
+										<schmancy-grid gap="md">
+											<schmancy-typography type="headline" token="sm" class="block">
+												Sheet with Dialog Test
+											</schmancy-typography>
+											<schmancy-typography type="body" token="md" class="text-surface-onVariant block">
+												Click the button below to open a dialog from within this sheet.
+											</schmancy-typography>
+											<schmancy-button id="openDialogBtn" variant="filled">
+												Open Dialog
+											</schmancy-button>
+											<schmancy-typography type="body" token="sm" class="text-surface-onVariant block">
+												The dialog should appear above this sheet.
+											</schmancy-typography>
+										</schmancy-grid>
+									`
+
+									// Add event listener to open dialog
+									setTimeout(() => {
+										const btn = content.querySelector('#openDialogBtn')
+										btn?.addEventListener('click', async () => {
+											const confirmed = await ConfirmDialog.confirm({
+												title: 'Dialog Above Sheet',
+												message: 'This dialog should appear above the sheet. Can you see it properly?',
+												confirmText: 'Yes, it works!',
+												cancelText: 'No, it\'s behind'
+											})
+											console.log('Dialog result:', confirmed)
+										})
+									}, 100)
+
+									sheet.open({
+										component: content,
+										title: 'Dialog Z-Index Test',
+										uid: 'dialog-test-sheet'
+									})
+								}}
+							>
+								Test Dialog Above Sheet
 							</schmancy-button>
 						</schmancy-code-preview>
 					</schmancy-grid>
