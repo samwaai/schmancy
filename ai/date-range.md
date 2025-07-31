@@ -14,6 +14,7 @@
   required?                                             // Mark as required field
   placeholder?="string"                                 // Placeholder text (default: "Select date range")
   clearable?                                            // Show clear button (default: true)
+  step?="day|week|month|year|number"                    // Navigation step (auto-detects if not set)
   @change=${handler}>                                   // Fires when range changes
 </schmancy-date-range>
 
@@ -87,6 +88,23 @@ interface DateRangeChangeEvent {
   .dateTo="${{ label: 'Period End', value: endDate }}"
   @change="${(e) => updateDashboard(e.detail)}"
 ></schmancy-date-range>
+
+// 7. Fixed step navigation (calendar dialog disabled)
+<schmancy-date-range
+  step="week"
+  .dateFrom="${{ label: 'Week Start', value: weekStart }}"
+  .dateTo="${{ label: 'Week End', value: weekEnd }}"
+  minDate="2024-01-01"
+  maxDate="2024-12-31"
+  @change="${(e) => console.log('Week changed:', e.detail)}"
+></schmancy-date-range>
+
+// 8. Custom day step navigation
+<schmancy-date-range
+  .step="${7}"  // Navigate by 7 days
+  .dateFrom="${{ label: 'From', value: startDate }}"
+  .dateTo="${{ label: 'To', value: endDate }}"
+></schmancy-date-range>
 ```
 
 ## Related Components
@@ -110,9 +128,17 @@ The component includes intelligent presets organized by time period:
 **Hours** (datetime-local only): Last 12/24 Hours
 
 ### Smart Navigation Features
-- Arrow buttons intelligently shift ranges based on detected period type
+- Arrow buttons intelligently shift ranges based on detected period type or step property
+- Auto-detects appropriate step when not specified:
+  - Full year range → shifts by year
+  - Full month range → shifts by month  
+  - Full week range → shifts by week
+  - Single day → shifts by 1 day
+  - Custom range → shifts by range duration
+- When step is provided, calendar dialog becomes read-only (not disabled)
 - Preserves full period boundaries (weeks start on Monday, months on 1st)
 - Automatically detects and maintains preset selections
+- Respects min/max date boundaries during navigation
 - Keyboard shortcuts for power users
 
 ### Keyboard Shortcuts

@@ -196,6 +196,20 @@ export class DemoDateRange extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline">
 									<td class="p-4">
+										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">step</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">'day' | 'week' | 'month' | 'year' | number</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">undefined</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Navigation step for arrow buttons. Auto-detects if not set. Number = days to shift</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
 										<code class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded">allowDirectInput</code>
 									</td>
 									<td class="p-4">
@@ -324,6 +338,54 @@ export class DemoDateRange extends $LitElement() {
 							></schmancy-date-range>
 						</schmancy-code-preview>
 
+						<!-- Auto-detection Example -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									Auto-detects step based on range type (single day = 1 day step)
+								</schmancy-typography>
+								<schmancy-date-range
+									.dateFrom="${{ label: 'From', value: new Date().toISOString().split('T')[0] }}"
+									.dateTo="${{ label: 'To', value: new Date().toISOString().split('T')[0] }}"
+									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+										console.log('Date range changed:', e.detail)
+									}}"
+								></schmancy-date-range>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Auto-detection Week Example -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									Full week range auto-detects week step
+								</schmancy-typography>
+								<schmancy-date-range
+									.dateFrom="${{ label: 'From', value: new Date(new Date().setDate(new Date().getDate() - new Date().getDay())).toISOString().split('T')[0] }}"
+									.dateTo="${{ label: 'To', value: new Date(new Date().setDate(new Date().getDate() - new Date().getDay() + 6)).toISOString().split('T')[0] }}"
+									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+										console.log('Week range changed:', e.detail)
+									}}"
+								></schmancy-date-range>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Auto-detection Month Example -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									Full month range auto-detects month step
+								</schmancy-typography>
+								<schmancy-date-range
+									.dateFrom="${{ label: 'From', value: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0] }}"
+									.dateTo="${{ label: 'To', value: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0] }}"
+									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+										console.log('Month range changed:', e.detail)
+									}}"
+								></schmancy-date-range>
+							</div>
+						</schmancy-code-preview>
+
 						<!-- Direct Text Input -->
 						<schmancy-code-preview .preview=${true} language="html">
 							<div class="space-y-4">
@@ -382,6 +444,78 @@ export class DemoDateRange extends $LitElement() {
 									console.log('Selected range:', e.detail)
 								}}"
 							></schmancy-date-range>
+						</schmancy-code-preview>
+
+						<!-- Step with Min/Max - Read Only Navigation -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									When step is provided, calendar dialog is disabled. Navigation respects min/max dates.
+								</schmancy-typography>
+								<schmancy-date-range
+									step="day"
+									minDate="2024-07-31"
+									maxDate="2026-07-31"
+									.dateFrom="${{ label: 'From', value: '2025-01-01' }}"
+									.dateTo="${{ label: 'To', value: '2025-01-07' }}"
+									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+										console.log('Navigated within bounds:', e.detail)
+									}}"
+								></schmancy-date-range>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Navigation Step Examples -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									Week navigation - shifts by one week
+								</schmancy-typography>
+								<schmancy-date-range
+									step="week"
+									.dateFrom="${{ label: 'Start', value: new Date().toISOString().split('T')[0] }}"
+									.dateTo="${{ label: 'End', value: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}"
+									minDate="${new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}"
+									maxDate="${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}"
+									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+										console.log('Week navigation:', e.detail)
+									}}"
+								></schmancy-date-range>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Month Step Navigation -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									Month navigation - shifts by one month
+								</schmancy-typography>
+								<schmancy-date-range
+									step="month"
+									.dateFrom="${{ label: 'Start', value: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0] }}"
+									.dateTo="${{ label: 'End', value: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0] }}"
+									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+										console.log('Month navigation:', e.detail)
+									}}"
+								></schmancy-date-range>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Custom Days Step Navigation -->
+						<schmancy-code-preview .preview=${true} language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="body" token="md" class="block">
+									Custom step - shifts by 3 days
+								</schmancy-typography>
+								<schmancy-date-range
+									.step="${3}"
+									.dateFrom="${{ label: 'Start', value: new Date().toISOString().split('T')[0] }}"
+									.dateTo="${{ label: 'End', value: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }}"
+									@change="${(e: CustomEvent<{dateFrom: string, dateTo: string}>) => {
+										console.log('3-day step navigation:', e.detail)
+									}}"
+								></schmancy-date-range>
+							</div>
 						</schmancy-code-preview>
 
 						<!-- Custom Presets -->

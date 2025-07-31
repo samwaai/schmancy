@@ -12,6 +12,7 @@ import { ICollectionStore, IStore } from './types'
 const CLEANUP_SUBJECT = Symbol('selectorCleanup')
 const SUBSCRIPTIONS = Symbol('selectorSubscriptions')
 const INITIALIZED = Symbol('selectorInitialized')
+const CONNECTED_CALLED = Symbol('connectedCallbackCalled')
 
 /**
  * Component lifecycle interface
@@ -27,6 +28,7 @@ interface ComponentWithLifecycle {
 	[CLEANUP_SUBJECT]?: Subject<void>
 	[SUBSCRIPTIONS]?: Map<string, Subscription>
 	[INITIALIZED]?: Set<string>
+	[CONNECTED_CALLED]?: boolean
 
 	// Value storage
 	[key: string]: any
@@ -108,6 +110,9 @@ function cleanupSelectorResources(component: ComponentWithLifecycle): void {
 		component[INITIALIZED].clear()
 		component[INITIALIZED] = undefined
 	}
+
+	// Reset the connected flag when cleaning up
+	component[CONNECTED_CALLED] = undefined
 }
 
 /**
@@ -142,9 +147,9 @@ export function select<T, R>(
 				: createSelector(store as IStore<T>, selectorFn)
 
 			// Call original connectedCallback immediately if not waiting for data
-			if (!options.required && !this[INITIALIZED]!.has(propName)) {
+			if (!options.required && !this[CONNECTED_CALLED]) {
 				originalConnectedCallback?.call(this)
-				this[INITIALIZED]!.add(propName)
+				this[CONNECTED_CALLED] = true
 			}
 
 			// Clean up any existing subscription
@@ -177,12 +182,17 @@ export function select<T, R>(
 					// If required and not initialized, call connectedCallback when we get a value
 					// Allow null values but not undefined (undefined means the selector hasn't emitted yet)
 					if (options.required && !this[INITIALIZED]!.has(propName) && newValue !== undefined) {
-						if (options.debug) {
-							console.debug(`[select] Calling delayed connectedCallback for ${propName}`)
-						}
-
-						originalConnectedCallback?.call(this)
 						this[INITIALIZED]!.add(propName)
+						
+						// Only call original connectedCallback once, regardless of how many selectors
+						if (!this[CONNECTED_CALLED]) {
+							if (options.debug) {
+								console.debug(`[select] Calling delayed connectedCallback for ${propName}`)
+							}
+
+							originalConnectedCallback?.call(this)
+							this[CONNECTED_CALLED] = true
+						}
 					}
 				},
 				error: (err: Error) => {

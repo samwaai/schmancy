@@ -5,7 +5,7 @@ import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { debounceTime, fromEvent, takeUntil, timer } from 'rxjs'
 import { $dialog } from '../dialog/dialog-service'
-import { adjustQuarter, calculateShiftParams, detectDateRangeType, formatDateRange } from './date-range-helpers'
+import { detectDateRangeType, formatDateRange } from './date-range-helpers'
 import { DateRangePreset, generatePresetCategories, PresetCategory } from './date-range-presets'
 import { validateInitialDateRange } from './date-utils'
 import './date-range-dialog'
@@ -44,6 +44,7 @@ export class SchmancyDateRange extends $LitElement() {
 	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = 'Select date range'
 	@property({ type: Boolean }) clearable = true
+	@property() step?: 'day' | 'week' | 'month' | 'year' | number
 
 	// Internal states
 	@state() private isOpen = false
@@ -225,7 +226,7 @@ export class SchmancyDateRange extends $LitElement() {
 	}
 
 	private openDropdown() {
-		if (this.disabled) return
+		if (this.disabled || this.step !== undefined) return
 		
 		this.isOpen = true
 		
@@ -273,7 +274,7 @@ export class SchmancyDateRange extends $LitElement() {
 
 
 	/**
-	 * Shifts the date range based on its type (preset or custom)
+	 * Shifts the date range based on the step property
 	 */
 	private shiftDateRange(direction: number, e: Event) {
 		e.stopPropagation()
@@ -288,49 +289,81 @@ export class SchmancyDateRange extends $LitElement() {
 		const format = this.getDateFormat()
 		const dir = direction > 0 ? 1 : -1
 
-		// Get active preset and calculate shift parameters
-		const activePreset = this.presetRanges.find(p => p.label === this.activePreset)
-		const { unit, amount } = calculateShiftParams(fromDate, toDate, activePreset?.step)
-
-		// Detect date range type
-		const rangeType = detectDateRangeType(fromDate, toDate)
-
 		let newFromDate: dayjs.Dayjs
 		let newToDate: dayjs.Dayjs
 
-		// Handle shifting based on unit
-		if (unit === 'quarter') {
-			newFromDate = adjustQuarter(fromDate, amount, dir)
-			newToDate = adjustQuarter(toDate, amount, dir)
-			
-			if (rangeType.isFullQuarter) {
-				newFromDate = newFromDate.startOf('quarter')
-				newToDate = newFromDate.endOf('quarter')
-			}
-		} else if (unit === 'hour') {
-			const rangeDurationInHours = toDate.diff(fromDate, 'hour')
-			newFromDate = dir > 0 ? fromDate.add(rangeDurationInHours, 'hour') : fromDate.subtract(rangeDurationInHours, 'hour')
-			newToDate = dir > 0 ? toDate.add(rangeDurationInHours, 'hour') : toDate.subtract(rangeDurationInHours, 'hour')
-		} else {
-			// Handle all other units (day, week, month, year)
-			if (dir > 0) {
-				newFromDate = fromDate.add(amount, unit as dayjs.ManipulateType)
-				newToDate = toDate.add(amount, unit as dayjs.ManipulateType)
+		// If step is explicitly provided, use it
+		if (this.step !== undefined) {
+			if (typeof this.step === 'number') {
+				// Numeric step means shift by that many days
+				newFromDate = dir > 0 ? fromDate.add(this.step, 'day') : fromDate.subtract(this.step, 'day')
+				newToDate = dir > 0 ? toDate.add(this.step, 'day') : toDate.subtract(this.step, 'day')
 			} else {
-				newFromDate = fromDate.subtract(amount, unit as dayjs.ManipulateType)
-				newToDate = toDate.subtract(amount, unit as dayjs.ManipulateType)
+				// String step means shift by the specified unit
+				switch (this.step) {
+					case 'day': {
+						const daysDiff = toDate.diff(fromDate, 'day') + 1
+						newFromDate = dir > 0 ? fromDate.add(daysDiff, 'day') : fromDate.subtract(daysDiff, 'day')
+						newToDate = dir > 0 ? toDate.add(daysDiff, 'day') : toDate.subtract(daysDiff, 'day')
+						break
+					}
+					case 'week': {
+						newFromDate = dir > 0 ? fromDate.add(1, 'week') : fromDate.subtract(1, 'week')
+						newToDate = dir > 0 ? toDate.add(1, 'week') : toDate.subtract(1, 'week')
+						break
+					}
+					case 'month': {
+						newFromDate = dir > 0 ? fromDate.add(1, 'month') : fromDate.subtract(1, 'month')
+						newToDate = dir > 0 ? toDate.add(1, 'month') : toDate.subtract(1, 'month')
+						break
+					}
+					case 'year': {
+						newFromDate = dir > 0 ? fromDate.add(1, 'year') : fromDate.subtract(1, 'year')
+						newToDate = dir > 0 ? toDate.add(1, 'year') : toDate.subtract(1, 'year')
+						break
+					}
+				}
 			}
+		} else {
+			// Auto-detect the appropriate step based on the date range
+			const rangeType = detectDateRangeType(fromDate, toDate)
+			const daysDiff = toDate.diff(fromDate, 'day') + 1
 
-			// Preserve full period ranges
-			if (unit === 'year' && rangeType.isFullYear) {
-				newFromDate = newFromDate.startOf('year')
-				newToDate = newFromDate.endOf('year')
-			} else if (unit === 'month' && rangeType.isFullMonth) {
-				newFromDate = newFromDate.startOf('month')
-				newToDate = newFromDate.endOf('month')
-			} else if (unit === 'week' && rangeType.isFullWeek) {
-				newFromDate = newFromDate.startOf('week')
-				newToDate = newFromDate.endOf('week')
+			if (rangeType.isFullYear) {
+				// Full year range - shift by year
+				newFromDate = dir > 0 ? fromDate.add(1, 'year') : fromDate.subtract(1, 'year')
+				newToDate = dir > 0 ? toDate.add(1, 'year') : toDate.subtract(1, 'year')
+			} else if (rangeType.isFullMonth) {
+				// Full month range - shift by month
+				newFromDate = dir > 0 ? fromDate.add(1, 'month') : fromDate.subtract(1, 'month')
+				newToDate = dir > 0 ? toDate.add(1, 'month') : toDate.subtract(1, 'month')
+			} else if (rangeType.isFullWeek) {
+				// Full week range - shift by week
+				newFromDate = dir > 0 ? fromDate.add(1, 'week') : fromDate.subtract(1, 'week')
+				newToDate = dir > 0 ? toDate.add(1, 'week') : toDate.subtract(1, 'week')
+			} else if (daysDiff === 1) {
+				// Single day - shift by 1 day
+				newFromDate = dir > 0 ? fromDate.add(1, 'day') : fromDate.subtract(1, 'day')
+				newToDate = dir > 0 ? toDate.add(1, 'day') : toDate.subtract(1, 'day')
+			} else {
+				// Custom range - shift by the range duration
+				newFromDate = dir > 0 ? fromDate.add(daysDiff, 'day') : fromDate.subtract(daysDiff, 'day')
+				newToDate = dir > 0 ? toDate.add(daysDiff, 'day') : toDate.subtract(daysDiff, 'day')
+			}
+		}
+
+		// Validate against min/max dates
+		if (this.minDate) {
+			const minDate = dayjs(this.minDate)
+			if (newFromDate.isBefore(minDate)) {
+				return // Don't shift if it would go before min date
+			}
+		}
+
+		if (this.maxDate) {
+			const maxDate = dayjs(this.maxDate)
+			if (newToDate.isAfter(maxDate)) {
+				return // Don't shift if it would go after max date
 			}
 		}
 
@@ -456,13 +489,15 @@ export class SchmancyDateRange extends $LitElement() {
 						</schmancy-icon-button>
 
 						<schmancy-button
-							class="w-max"
+							class="w-max ${this.step !== undefined ? 'pointer-events-none' : ''}"
 							variant="outlined"
 							type="button"
 							aria-haspopup="menu"
 							aria-expanded=${this.isOpen}
 							aria-label="Select date range. Current: ${this.selectedDateRange || 'No date selected'}"
+							aria-readonly="${this.step !== undefined}"
 							@click=${(e: Event) => this.toggleDropdown(e)}
+							?disabled=${this.disabled}
 						>
 							${this.selectedDateRange || this.placeholder}
 						</schmancy-button>

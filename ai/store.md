@@ -120,6 +120,21 @@ const getFilteredTodos = createSelector(
     }
   }
 );
+// 4. Using @select decorator in components
+import { select } from '@mhmo91/schmancy';
+
+@customElement('my-component')
+class MyComponent extends LitElement {
+  // Auto-subscribes to store state
+  @select(store, state => state.count)
+  count!: number;
+  
+  // With options
+  @select(store, state => state.user, { required: false })
+  user?: User;
+  
+  // The component will automatically update when these values change
+}
 ```
 
 ## Related Components
@@ -170,6 +185,22 @@ store.update(state => {
   state.deep.nested.value = true; // Modifying a nested property
 });
 ```
+
+### @select Decorator
+The `@select` decorator connects component properties to store state with automatic subscription management:
+
+```typescript
+@select(store, selectorFn, options?)
+```
+
+Options:
+- `required: boolean` (default: true) - Wait for non-undefined value before calling connectedCallback
+- `updateOnly: boolean` - Only trigger updates, don't set property value
+- `deepClone: boolean` - Use structuredClone for deep cloning values
+- `equals: (a, b) => boolean` - Custom equality function
+- `debug: boolean` - Enable debug logging
+
+The decorator ensures `connectedCallback` is called only once, even with multiple @select decorators.
 
 ### Common Use Cases
 
