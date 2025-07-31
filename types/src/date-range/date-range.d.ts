@@ -33,6 +33,7 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
     required: boolean;
     placeholder: string;
     clearable: boolean;
+    step?: 'day' | 'week' | 'month' | 'year' | number;
     private isOpen;
     private selectedDateRange;
     private activePreset;
@@ -56,7 +57,7 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
     private openDropdown;
     private closeDropdown;
     /**
-     * Shifts the date range based on its type (preset or custom)
+     * Shifts the date range based on the step property
      */
     private shiftDateRange;
     /**

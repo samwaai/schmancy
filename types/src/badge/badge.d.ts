@@ -82,6 +82,9 @@ export declare class SchmancyBadgeV2 extends SchmancyBadgeV2_base {
 declare global {
     interface HTMLElementTagNameMap {
         'sch-badge': SchmancyBadgeV2;
+        'schmancy-badge': SchmancyBadgeV2;
     }
+}
+export declare class ScBadgeV2 extends SchmancyBadgeV2 {
 }
 export {};

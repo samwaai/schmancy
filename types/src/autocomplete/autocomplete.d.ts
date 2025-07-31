@@ -1,5 +1,4 @@
-import { InputSize } from '@schmancy/input';
-import SchmancyInputV2 from '@schmancy/input/input-v2';
+import { InputSize, SchmancyInput } from '@schmancy/input';
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string | string[];
     values?: string[];
@@ -26,7 +25,7 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     private _visibleOptionsCount;
     private _hasResults;
     _listbox: HTMLUListElement;
-    _input: SchmancyInputV2;
+    _input: SchmancyInput;
     private _options;
     private _inputElementRef;
     private _selectedValue$;

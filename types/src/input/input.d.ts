@@ -2,6 +2,7 @@ import { LitElement, PropertyValueMap } from 'lit';
 declare global {
     interface HTMLElementTagNameMap {
         'schmancy-input': SchmancyInput;
+        'sch-input': SchmancyInput;
     }
 }
 type EventDetails = {
@@ -30,6 +31,14 @@ declare const SchmancyInput_base: import("@mixins/index").Constructor<import("@m
  *
  * This component uses the native form association API and maintains parity with
  * native input behaviors while providing a stylish, accessible interface.
+ *
+ * @prop {string} label - Label text for the form field (inherited from FormFieldMixin)
+ * @prop {boolean} required - Whether the field is required (inherited from FormFieldMixin)
+ * @prop {boolean} disabled - Whether the field is disabled (inherited from FormFieldMixin)
+ * @prop {boolean} readonly - Whether the field is read-only (inherited from FormFieldMixin)
+ * @prop {boolean} error - Whether the field is in an error state (inherited from FormFieldMixin)
+ * @prop {string} validationMessage - The validation message to display (inherited from FormFieldMixin)
+ * @prop {string} hint - Optional hint text to display below the field (inherited from FormFieldMixin)
  */
 export default class SchmancyInput extends SchmancyInput_base {
     /** Auto-incrementing counter for generating unique IDs */
@@ -208,5 +217,17 @@ export default class SchmancyInput extends SchmancyInput_base {
     /** Forward blur to the internal <input>. */
     blur(): void;
     protected render(): import("lit-html").TemplateResult<1>;
+}
+/**
+ * Register the component with the legacy tag name for backward compatibility
+ * @prop {string} label - Label text for the form field (inherited from FormFieldMixin)
+ * @prop {boolean} required - Whether the field is required (inherited from FormFieldMixin)
+ * @prop {boolean} disabled - Whether the field is disabled (inherited from FormFieldMixin)
+ * @prop {boolean} readonly - Whether the field is read-only (inherited from FormFieldMixin)
+ * @prop {boolean} error - Whether the field is in an error state (inherited from FormFieldMixin)
+ * @prop {string} validationMessage - The validation message to display (inherited from FormFieldMixin)
+ * @prop {string} hint - Optional hint text to display below the field (inherited from FormFieldMixin)
+ */
+export declare class SchmancyInputCompat extends SchmancyInput {
 }
 export {};
