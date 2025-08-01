@@ -3,7 +3,7 @@ import { argbFromHex, themeFromSourceColor } from '@material/material-color-util
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Observable, of, switchMap, fromEvent } from 'rxjs'
+import { Observable, of, switchMap, fromEvent, takeUntil } from 'rxjs'
 import { themeContext } from './context'
 import { formateTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
@@ -66,7 +66,11 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 			})
 
 		// Listen for generic theme discovery events
-		fromEvent<ThemeWhereAreYouEvent>(window, ThemeWhereAreYou).subscribe(() => {
+		fromEvent<ThemeWhereAreYouEvent>(this, ThemeWhereAreYou)
+		.pipe(
+			takeUntil(this.disconnecting)
+		)
+		.subscribe(() => {
 			// Respond immediately with this theme container
 			window.dispatchEvent(
 				new CustomEvent(ThemeHereIAm, {

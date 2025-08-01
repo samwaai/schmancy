@@ -11,7 +11,7 @@ import {
 	take,
 	takeUntil,
 	tap,
-	timer
+	timer,
 } from 'rxjs'
 import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.component'
 import SchmancySheet from './sheet'
@@ -87,7 +87,7 @@ class BottomSheetService {
 						),
 						// Then find theme container
 						fromEvent<ThemeHereIAmEvent>(window, ThemeHereIAm).pipe(
-							takeUntil(timer(100)),
+							takeUntil(timer(50)),
 							map(e => e.detail.theme),
 							defaultIfEmpty(undefined),
 						),
@@ -95,16 +95,21 @@ class BottomSheetService {
 							tap(() => {
 								// Determine uid - use provided uid or component tagName
 								const uid = target.uid ?? target.component.tagName
-								
+
 								// First ask for existing sheet
 								window.dispatchEvent(
 									new CustomEvent(SheetWhereAreYouRicky, {
 										detail: { uid },
+										bubbles: true,
+										composed: true,
 									}),
 								)
 								// Then ask for theme container
 								window.dispatchEvent(
-									new CustomEvent(ThemeWhereAreYou),
+									new CustomEvent(ThemeWhereAreYou, {
+										bubbles: true,
+										composed: true,
+									}),
 								)
 							}),
 						),
@@ -114,17 +119,15 @@ class BottomSheetService {
 				map(([existingSheet, theme, target]) => {
 					let sheet = existingSheet?.sheet
 					let targetContainer: HTMLElement
-					
+
 					if (sheet) {
 						// Use existing sheet
 						console.log('Found existing sheet:', sheet)
 						targetContainer = sheet.parentElement as HTMLElement
 					} else {
 						// Determine container - use theme from discovery or fallback
-						targetContainer = theme || 
-						                 document.querySelector('schmancy-theme') as HTMLElement || 
-						                 document.body
-						
+						targetContainer = theme || (document.querySelector('schmancy-theme') as HTMLElement) || document.body
+
 						// Create new sheet
 						const uid = target.uid ?? target.component.tagName
 						console.log('Creating new sheet for uid:', uid)
@@ -157,16 +160,17 @@ class BottomSheetService {
 					if (target.onBeforeOpen) {
 						target.onBeforeOpen(target.component)
 					}
-					
+
 					// Handle HTMLElement components
-					const assignedElements = sheet?.shadowRoot
-						?.querySelector('slot')
-						?.assignedElements() || []
-					
-					console.log('Assigned elements in sheet:', assignedElements.map(e => (e as HTMLElement).tagName))
-					
+					const assignedElements = sheet?.shadowRoot?.querySelector('slot')?.assignedElements() || []
+
+					console.log(
+						'Assigned elements in sheet:',
+						assignedElements.map(e => (e as HTMLElement).tagName),
+					)
+
 					const existingComponent = assignedElements.find(e => (e as HTMLElement).tagName === target.component.tagName)
-					
+
 					if (!existingComponent) {
 						// Need to append the component
 						console.log('Component not found, will append:', target.component.tagName)
@@ -180,8 +184,8 @@ class BottomSheetService {
 					sheet?.setAttribute('open', 'true')
 
 					// Add to active sheets tracking
-					const uid = target.uid ?? 
-						(target.component instanceof HTMLElement ? target.component.tagName : `sheet-${Date.now()}`)
+					const uid =
+						target.uid ?? (target.component instanceof HTMLElement ? target.component.tagName : `sheet-${Date.now()}`)
 					this.activeSheets.add(uid)
 					this.sheetComponents.set(uid, target.component)
 
@@ -199,7 +203,7 @@ class BottomSheetService {
 						// Push a new history state
 						history.pushState(historyState, '', window.location.href)
 					}
-					
+
 					// Call onAfterOpen callback if provided
 					if (target.onAfterOpen) {
 						target.onAfterOpen(target.component)
@@ -221,18 +225,18 @@ class BottomSheetService {
 									this.activeSheets.delete(uid)
 									this.sheetComponents.delete(uid)
 								}
-								
+
 								// Only keep sheet if persist is explicitly set to a truthy value
 								const persistAttr = sheetElement.getAttribute('persist')
 								const shouldRemove = !persistAttr || persistAttr === 'false'
 								console.log('Sheet close - persist:', persistAttr, 'shouldRemove:', shouldRemove)
-								
+
 								if (shouldRemove) {
 									console.log('Removing sheet from DOM:', uid)
 									sheetElement.remove()
 								}
 							}
-							
+
 							document.body.style.overflow = 'auto' // unlock the scroll of the host
 						})
 				}),
@@ -308,7 +312,7 @@ class BottomSheetService {
 			const sheetsArray = Array.from(this.activeSheets)
 			uid = sheetsArray[sheetsArray.length - 1]
 		}
-		
+
 		if (uid) {
 			this.$dismiss.next(uid)
 		}
