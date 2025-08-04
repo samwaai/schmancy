@@ -1,138 +1,174 @@
 # Schmancy Dialog - AI Reference
 
+## Quick Start
+
+### Service API (Recommended)
 ```js
-// Basic Dialog Component
-<schmancy-dialog
-  uid?="string">                             // Unique identifier for dialog instance
-  <!-- Dialog content goes here -->
-  <div>Dialog content</div>
-</schmancy-dialog>
+import { $dialog } from '@mhmo91/schmancy'
 
-// Dialog Component Methods
-dialog.show(position?) -> Promise<boolean>   // Show dialog, optionally at a specific position
-dialog.hide(result?) -> void                 // Hide dialog with optional result (true/false)
-
-// Position can be:
-// - Undefined: Centers dialog in viewport
-// - Coordinates: { x: number, y: number }
-// - MouseEvent: Uses click coordinates
-// - TouchEvent: Uses touch coordinates
-
-// Dialog Events
-@close   // Fires when dialog is closed
-
-// CSS Variables
---dialog-width: 360px                        // Controls dialog width
-
-// Confirm Dialog Component (used internally by service)
-<confirm-dialog
-  title?="string"                            // Dialog title
-  subtitle?="string"                         // Dialog subtitle  
-  message?="string"                          // Dialog message
-  confirm-text?="string"                     // Confirm button text (default: "Confirm")
-  cancel-text?="string"                      // Cancel button text (default: "Cancel")
-  variant?="default|danger"                  // Dialog variant (default: "default")
-  confirm-color?="primary|error|warning|success">  // Confirm button color
-  <div slot="content">Custom content</div>
-</confirm-dialog>
-
-// Service API (higher-level abstraction)
-$dialog.confirm({
-  title?,
-  subtitle?,
-  message?,
-  confirmText?,
-  cancelText?,
-  variant?: "default"|"danger",
-  confirmColor?: "primary"|"error"|"warning"|"success",  // Button color for confirm action
-  position?: {x,y}|MouseEvent|TouchEvent,
-  width?: string,
-  content?: TemplateResult|HTMLElement|Function,
-  onConfirm?: Function,
-  onCancel?: Function,
-  targetContainer?: HTMLElement              // Container to append dialog to (uses theme discovery pattern)
-}) -> Promise<boolean>
-
-$dialog.ask(message, event?) -> Promise<boolean>
-$dialog.danger({...options}) -> Promise<boolean>
-$dialog.component(content, options?) -> Promise<boolean>
-$dialog.dismiss() -> boolean                 // Dismiss most recently opened dialog
-
-// Examples
-// Basic dialog usage
-const dialog = document.querySelector('schmancy-dialog');
-// Show dialog centered
-const result = await dialog.show();
-// Show dialog at specific coordinates
-const result = await dialog.show({ x: 100, y: 200 });
-// Show dialog at click position
-button.addEventListener('click', async (e) => {
-  const result = await dialog.show(e);
-  console.log('Dialog result:', result);
-});
-
-// Manually hiding dialog
-dialog.hide(true);  // Hide with positive result
-dialog.hide(false); // Hide with negative result
-
-// Dialog with confirm/cancel buttons
-<schmancy-dialog id="confirmDialog">
-  <div style="padding: 16px;">
-    <h3>Confirm Action</h3>
-    <p>Are you sure you want to proceed?</p>
-    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
-      <schmancy-button variant="text" @click=${() => dialog.hide(false)}>
-        Cancel
-      </schmancy-button>
-      <schmancy-button variant="filled" @click=${() => dialog.hide(true)}>
-        Confirm
-      </schmancy-button>
-    </div>
-  </div>
-</schmancy-dialog>
-
-// Using the dialog service
 // Simple confirmation
-const confirmed = await $dialog.ask("Save changes?", event);
+const confirmed = await $dialog.ask("Save changes?")
 
-// Confirmation with custom options
+// Confirmation with options
 const confirmed = await $dialog.confirm({
-  title: "Confirm Deletion",
-  message: "Are you sure you want to delete this item? This action cannot be undone.",
+  title: "Delete Item",
+  message: "This action cannot be undone.",
   confirmText: "Delete",
-  cancelText: "Cancel",
-  variant: "danger",
-  position: event
-});
+  confirmColor: "error"  // Makes button red
+})
 
-// Confirmation with colored button
+// Custom component dialog
+const result = await $dialog.component(html`
+  <div class="p-4">
+    <schmancy-input label="Name"></schmancy-input>
+  </div>
+`)
+
+// Dismiss active dialog
+$dialog.dismiss()
+```
+
+### Component API (Low-level)
+```js
+// In Lit component template
+html`<schmancy-dialog id="myDialog">
+  <div class="p-4">Content here</div>
+</schmancy-dialog>`
+
+// In Lit component class
+@query('#myDialog') dialog!: SchmancyDialog
+
+// Show dialog (returns promise)
+const result = await this.dialog.show()        // Centered
+const result = await this.dialog.show(event)   // At click position
+const result = await this.dialog.show({x, y})  // At coordinates
+
+// Hide dialog
+this.dialog.hide(true)   // Resolve with true
+this.dialog.hide(false)  // Resolve with false
+```
+
+## Service Methods
+
+### $dialog.confirm(options)
+Shows a confirmation dialog with title, message, and buttons.
+
+```js
+options = {
+  title?: string,              // Dialog title
+  subtitle?: string,           // Subtitle below title
+  message?: string,            // Main message
+  confirmText?: string,        // Confirm button text (default: "Confirm")
+  cancelText?: string,         // Cancel button text (default: "Cancel")
+  variant?: "default"|"danger",// Style variant
+  confirmColor?: "primary"|"error"|"warning"|"success", // Button color
+  position?: {x,y}|Event,      // Position (default: centered)
+  width?: string,              // Dialog width (default: "360px")
+  content?: TemplateResult,    // Custom content (replaces message)
+  onConfirm?: Function,        // Confirm callback
+  onCancel?: Function,         // Cancel callback
+  targetContainer?: HTMLElement // Where to append dialog
+}
+```
+
+### $dialog.ask(message, event?)
+Simple confirmation with just a message.
+
+### $dialog.danger(options)
+Confirmation dialog with danger styling (same options as confirm, variant forced to "danger").
+
+### $dialog.component(content, options?)
+Shows dialog with custom content, no built-in buttons or title.
+
+```js
+content = TemplateResult | HTMLElement | (() => TemplateResult|HTMLElement)
+options = {
+  position?: {x,y}|Event,
+  width?: string,
+  targetContainer?: HTMLElement
+}
+```
+
+### $dialog.dismiss()
+Dismisses the most recently opened dialog. Returns true if a dialog was dismissed.
+
+## Component Structure
+
+### schmancy-dialog
+Basic dialog container without built-in UI.
+- Shows overlay and positioned container
+- Handles positioning (centered or at coordinates)
+- Emits `close` event
+- CSS variable: `--dialog-width`
+
+### confirm-dialog
+Extended dialog with title, message, and action buttons.
+- All features of schmancy-dialog
+- Built-in form with confirm/cancel buttons
+- Supports custom content via slot
+- Button colors based on `confirmColor` property
+
+## Positioning
+
+Dialogs can be positioned:
+1. **Centered** (default) - Centers in viewport with slight upward shift
+2. **At event** - Opens at click/touch position
+3. **At coordinates** - Opens at specific {x, y}
+
+Positioning automatically adjusts to stay within viewport using Floating UI.
+
+## Examples
+
+### Delete confirmation with red button
+```js
 const confirmed = await $dialog.confirm({
   title: "Delete Transaction",
-  message: `Are you sure you want to delete this transaction of ${amount} units?`,
+  message: "Are you sure you want to delete this transaction?",
   confirmText: "Delete",
-  cancelText: "Cancel",
-  confirmColor: "error",  // Makes confirm button red
-});
-
-// Dialog with custom content
-const result = await $dialog.component(html`
-  <div>
-    <schmancy-input id="nameInput" label="Your Name"></schmancy-input>
-  </div>
-`, {
-  title: "Enter Name",
-  confirmText: "Submit",
-  onConfirm: () => {
-    const value = document.getElementById("nameInput").value;
-    return value ? true : false;
-  }
-});
-
-// Dialog for dangerous actions
-const confirmed = await $dialog.danger({
-  title: "Warning",
-  message: "You are about to delete your account. This action is permanent.",
-  confirmText: "Delete Account",
-  position: event
-});
+  confirmColor: "error"
+})
 ```
+
+### Form in dialog
+```js
+const result = await $dialog.component(html`
+  <schmancy-form class="p-4">
+    <schmancy-input label="Email" type="email" required></schmancy-input>
+    <schmancy-input label="Password" type="password" required></schmancy-input>
+    <div class="flex gap-2 mt-4">
+      <schmancy-button @click=${() => $dialog.dismiss()}>Cancel</schmancy-button>
+      <schmancy-button type="submit">Login</schmancy-button>
+    </div>
+  </schmancy-form>
+`)
+```
+
+### Context menu at click position
+```js
+// In Lit component
+async handleContextMenu(e: MouseEvent) {
+  const action = await $dialog.component(html`
+    <schmancy-list>
+      <schmancy-list-item @click=${() => $dialog.dismiss()}>Edit</schmancy-list-item>
+      <schmancy-list-item @click=${() => $dialog.dismiss()}>Delete</schmancy-list-item>
+    </schmancy-list>
+  `, { position: e, width: '200px' })
+  
+  console.log('Selected:', action)
+}
+
+render() {
+  return html`
+    <schmancy-button @click=${this.handleContextMenu}>Options</schmancy-button>
+  `
+}
+```
+
+## Important Notes
+
+1. **Service is singleton** - All dialogs managed centrally
+2. **Auto-cleanup** - Dialogs removed from DOM after closing
+3. **Theme-aware** - Dialogs attach to nearest `<schmancy-theme>` element
+4. **Stacking** - Multiple dialogs stack with proper z-index
+5. **Responsive** - Dialogs resize and reposition on viewport changes
+6. **Keyboard** - ESC key triggers cancel (via overlay click)
