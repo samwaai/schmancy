@@ -24,8 +24,8 @@ const result = await $dialog.component(html`
   </div>
 `)
 
-// Dismiss active dialog
-$dialog.dismiss()
+// Dismiss/close active dialog
+$dialog.dismiss()  // or $dialog.close()
 ```
 
 ### Component API (Low-level)
@@ -92,6 +92,9 @@ options = {
 ### $dialog.dismiss()
 Dismisses the most recently opened dialog. Returns true if a dialog was dismissed.
 
+### $dialog.close()
+Alias for `$dialog.dismiss()`. Closes the most recently opened dialog. Returns true if a dialog was closed.
+
 ## Component Structure
 
 ### schmancy-dialog
@@ -136,7 +139,7 @@ const result = await $dialog.component(html`
     <schmancy-input label="Email" type="email" required></schmancy-input>
     <schmancy-input label="Password" type="password" required></schmancy-input>
     <div class="flex gap-2 mt-4">
-      <schmancy-button @click=${() => $dialog.dismiss()}>Cancel</schmancy-button>
+      <schmancy-button @click=${() => $dialog.close()}>Cancel</schmancy-button>
       <schmancy-button type="submit">Login</schmancy-button>
     </div>
   </schmancy-form>

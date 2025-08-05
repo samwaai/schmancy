@@ -446,6 +446,14 @@ export class DialogService {
 	}
 
 	/**
+	 * Close the most recently opened dialog (alias for dismiss)
+	 * @returns true if a dialog was closed, false if no dialogs were open
+	 */
+	public close(): boolean {
+		return this.dismiss()
+	}
+
+	/**
 	 * Show a simple confirmation dialog with just a message
 	 * @returns Promise that resolves to true (confirm) or false (cancel)
 	 */
@@ -536,6 +544,14 @@ export const $dialog = {
 	 */
 	dismiss: (): boolean => {
 		return DialogService.getInstance().dismiss()
+	},
+
+	/**
+	 * Close the most recently opened dialog (alias for dismiss)
+	 * @returns true if a dialog was closed, false if no dialogs were open
+	 */
+	close: (): boolean => {
+		return DialogService.getInstance().close()
 	},
 }
 
