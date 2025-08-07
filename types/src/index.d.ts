@@ -51,4 +51,3 @@ export * from './typewriter';
 export * from './typography';
 export * from './utils';
 export * from './avatar';
-export { sheet } from './sheet';
