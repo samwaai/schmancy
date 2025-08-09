@@ -1,7 +1,9 @@
 import { $LitElement } from '@mixins/index'
-import { $notify } from '@schmancy/notification'
+import { $notify, notify } from '@schmancy/notification'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
+import { of, delay, throwError, from } from 'rxjs'
+import { concatMap } from 'rxjs/operators'
 
 /**
  * Demo component for the notification system.
@@ -79,6 +81,75 @@ export default class NotificationDemo extends $LitElement() {
 		})
 	}
 
+	private showApiProgress() {
+		// Basic usage - minimal configuration
+		of({ data: 'Success' }).pipe(
+			delay(2000),
+			notify({
+				loadingMessage: 'Fetching data...',
+				successMessage: 'Data loaded successfully!',
+				errorMessage: 'Failed to load data'
+			})
+		).subscribe()
+	}
+
+	private showApiError() {
+		// Error example with custom duration
+		throwError(() => new Error('Network timeout')).pipe(
+			notify({
+				loadingMessage: 'Processing request...',
+				successMessage: 'Success!',
+				errorMessage: (err) => `Error: ${err.message}`,
+				errorDuration: 0 // Persistent error - user must dismiss
+			})
+		).subscribe({
+			error: () => {} // Handle error to prevent uncaught error
+		})
+	}
+
+	private showFileUpload() {
+		// Simulate file upload with progress
+		const uploadSteps = [
+			{ loaded: 25, total: 100 },
+			{ loaded: 50, total: 100 },
+			{ loaded: 75, total: 100 },
+			{ loaded: 100, total: 100 },
+			{ url: 'https://example.com/file.pdf' } // Final result
+		]
+		
+		from(uploadSteps).pipe(
+			concatMap(step => of(step).pipe(delay(500))),
+			notify({
+				loadingMessage: 'Uploading file...',
+				loadingType: 'info',
+				successMessage: 'Upload complete!',
+				successType: 'success',
+				successDuration: 3000,
+				errorMessage: (err) => `Upload failed: ${err.message}`,
+				errorType: 'error',
+				errorDuration: 10000
+			})
+		).subscribe()
+	}
+
+	private showCustomDurations() {
+		// Example with custom durations for all states
+		of({ saved: true }).pipe(
+			delay(1000),
+			notify({
+				loadingMessage: 'Saving changes...',
+				successMessage: 'Changes saved!',
+				successDuration: 5000, // Success stays for 5 seconds
+				errorMessage: 'Failed to save',
+				errorDuration: 0 // Error is persistent
+			})
+		).subscribe()
+	}
+
+	private dismissLatest() {
+		$notify.dismiss()
+	}
+
 	private handlePositionChange(e: Event) {
 		const select = e.target as HTMLSelectElement
 		this.position = select.value as any
@@ -126,7 +197,7 @@ export default class NotificationDemo extends $LitElement() {
 					<button @click=${this.showError} class="p-2 bg-red-500 text-white rounded">Error</button>
 				</div>
 
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 					<button @click=${this.showPersistent} class="p-2 bg-purple-500 text-white rounded">
 						Persistent Notification
 					</button>
@@ -137,6 +208,31 @@ export default class NotificationDemo extends $LitElement() {
 
 					<button @click=${this.showCustomDuration} class="p-2 bg-pink-500 text-white rounded">
 						Custom Duration (10s)
+					</button>
+				</div>
+
+				<h2 class="text-xl font-bold mb-4">API Integration with notify()</h2>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+					<button @click=${this.showApiProgress} class="p-2 bg-blue-600 text-white rounded">
+						Basic API Call (2s delay)
+					</button>
+
+					<button @click=${this.showApiError} class="p-2 bg-red-600 text-white rounded">
+						API Error (persistent)
+					</button>
+
+					<button @click=${this.showFileUpload} class="p-2 bg-green-600 text-white rounded">
+						File Upload with Progress
+					</button>
+
+					<button @click=${this.showCustomDurations} class="p-2 bg-purple-600 text-white rounded">
+						Custom Durations
+					</button>
+				</div>
+
+				<div class="grid grid-cols-1">
+					<button @click=${this.dismissLatest} class="p-2 bg-gray-600 text-white rounded">
+						Dismiss Latest Notification
 					</button>
 				</div>
 			</div>

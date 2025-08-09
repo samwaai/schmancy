@@ -6,6 +6,7 @@ import { NotificationOptions } from './notification-container'
  */
 export class NotificationService {
 	private static instance: NotificationService
+	private notificationStack: string[] = []
 
 	// Default notification options
 	private static DEFAULT_OPTIONS: Partial<NotificationOptions> = {
@@ -42,6 +43,9 @@ export class NotificationService {
 
 		const id = completeOptions.id || `notification-${Date.now()}-${Math.floor(Math.random() * 10000)}`
 
+		// Add to stack for tracking
+		this.notificationStack.push(id)
+
 		// Create and dispatch event
 		const event = new CustomEvent('schmancy-notification', {
 			bubbles: true,
@@ -54,6 +58,48 @@ export class NotificationService {
 
 		window.dispatchEvent(event)
 		return id
+	}
+
+	/**
+	 * Dismiss a notification
+	 * @param id Optional notification ID. If not provided, dismisses the most recent notification
+	 */
+	public dismiss(id?: string): void {
+		let targetId: string | undefined
+
+		if (id) {
+			// Remove specific notification from stack
+			const index = this.notificationStack.indexOf(id)
+			if (index > -1) {
+				this.notificationStack.splice(index, 1)
+				targetId = id
+			}
+		} else {
+			// Remove most recent notification (last in stack)
+			targetId = this.notificationStack.pop()
+		}
+
+		if (targetId) {
+			// Dispatch dismiss event
+			const event = new CustomEvent('schmancy-notification-dismiss', {
+				bubbles: true,
+				composed: true,
+				detail: { id: targetId },
+			})
+			window.dispatchEvent(event)
+		}
+	}
+
+	/**
+	 * Update a notification's content
+	 */
+	public update(id: string, options: Partial<NotificationOptions>): void {
+		const event = new CustomEvent('schmancy-notification-update', {
+			bubbles: true,
+			composed: true,
+			detail: { id, ...options },
+		})
+		window.dispatchEvent(event)
 	}
 
 	/**
@@ -129,6 +175,7 @@ export class NotificationService {
 			...options,
 		})
 	}
+
 }
 
 /**
@@ -189,6 +236,21 @@ export const $notify = {
 	 */
 	persistent: (message: string, options: Partial<Omit<NotificationOptions, 'message' | 'duration'>> = {}): string => {
 		return NotificationService.getInstance().persistent(message, options)
+	},
+
+	/**
+	 * Dismiss a notification
+	 * @param id Optional notification ID. If not provided, dismisses the most recent notification (queue-like behavior)
+	 */
+	dismiss: (id?: string): void => {
+		return NotificationService.getInstance().dismiss(id)
+	},
+
+	/**
+	 * Update a notification's content
+	 */
+	update: (id: string, options: Partial<NotificationOptions>): void => {
+		return NotificationService.getInstance().update(id, options)
 	},
 }
 

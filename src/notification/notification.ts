@@ -5,6 +5,7 @@ import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
+import '@schmancy/progress'
 import style from './notification.scss?inline'
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error'
@@ -21,6 +22,7 @@ export default class SchmancyNotification extends $LitElement(style) {
 	@property({ type: Number }) duration = 5000 // 0 means no auto-close
 	@property({ type: String }) id = `notification-${Date.now()}-${Math.floor(Math.random() * 10000)}`
 	@property({ type: Boolean }) playSound = true
+	@property({ type: Boolean }) showProgress = false // Show indeterminate progress bar
 
 	@state() private _visible = true
 	@state() private _progress = 100
@@ -258,15 +260,16 @@ export default class SchmancyNotification extends $LitElement(style) {
 						: ''}
 				</div>
 
-				${this.duration > 0
+				${this.showProgress || this.duration > 0
 					? html`
-							<div class="progress-bar-container">
-								<div
-									class="progress-bar"
-									style="width: ${this._progress}%"
-									${color({ color: typeStyles.progressColor })}
-								></div>
-							</div>
+							<schmancy-progress
+								style="position: absolute; bottom: 0; left: 0; right: 0; width: 100%;"
+								size="sm"
+								.color=${this.type === 'error' ? 'error' : this.type === 'success' ? 'success' : 'primary'}
+								?indeterminate=${this.showProgress}
+								.value=${this.showProgress ? 0 : this._progress}
+								.max=${100}
+							></schmancy-progress>
 						`
 					: ''}
 			</div>

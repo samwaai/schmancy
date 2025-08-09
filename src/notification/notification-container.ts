@@ -16,6 +16,7 @@ export interface NotificationItem {
 	duration: number
 	closable: boolean
 	playSound: boolean
+	showProgress?: boolean
 }
 
 export interface NotificationOptions {
@@ -26,6 +27,7 @@ export interface NotificationOptions {
 	duration?: number
 	closable?: boolean
 	playSound?: boolean
+	showProgress?: boolean
 }
 
 /**
@@ -64,6 +66,20 @@ export default class SchmancyNotificationContainer extends $LitElement(style) {
 				this.addNotification(event.detail)
 			})
 
+		// Listen for dismiss events
+		fromEvent<CustomEvent<{ id: string }>>(window, 'schmancy-notification-dismiss')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(event => {
+				this.removeNotification(event.detail.id)
+			})
+
+		// Listen for update events
+		fromEvent<CustomEvent<{ id: string } & Partial<NotificationOptions>>>(window, 'schmancy-notification-update')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(event => {
+				this.updateNotification(event.detail.id, event.detail)
+			})
+
 		// Listen for play sound events from child notifications
 		this.addEventListener('playsound', ((event: CustomEvent) => {
 			if (this.playSound) {
@@ -84,6 +100,7 @@ export default class SchmancyNotificationContainer extends $LitElement(style) {
 			duration: options.duration !== undefined ? options.duration : 750,
 			closable: options.closable !== undefined ? options.closable : true,
 			playSound: options.playSound !== undefined ? options.playSound : this.playSound,
+			showProgress: options.showProgress !== undefined ? options.showProgress : false,
 		}
 
 		// Add new notification (top for top-* positions, bottom for bottom-* positions)
@@ -110,6 +127,17 @@ export default class SchmancyNotificationContainer extends $LitElement(style) {
 		this._notifications = this._notifications.filter(n => n.id !== id)
 	}
 
+	public updateNotification(id: string, options: Partial<NotificationOptions>) {
+		const index = this._notifications.findIndex(n => n.id === id)
+		if (index !== -1) {
+			this._notifications[index] = {
+				...this._notifications[index],
+				...options,
+			}
+			this.requestUpdate()
+		}
+	}
+
 	private _handleClose(e: CustomEvent) {
 		const id = e.detail.id
 		this.removeNotification(id)
@@ -134,7 +162,8 @@ export default class SchmancyNotificationContainer extends $LitElement(style) {
               .type=${notification.type}
               .duration=${notification.duration}
               ?closable=${notification.closable}
-              ?playSound=${false} /* We already played the sound on add */
+              ?playSound=${false}
+              ?showProgress=${notification.showProgress}
               @close=${this._handleClose}
             ></sch-notification>
           `,

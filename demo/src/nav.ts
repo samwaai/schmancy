@@ -25,6 +25,7 @@ import { DemoIcons } from './features/icons'
 import { DemoInput } from './features/input'
 import { DemoSurface } from './features/surface'
 import DemoTypography from './features/typography'
+import NotificationDemo from './features/notifications'
 
 // Layout & Navigation
 import { DemoBoat } from './features/boat'
@@ -83,6 +84,7 @@ export class DemoNav extends TailwindElement() {
         { name: 'Icons', component: DemoIcons },
         { name: 'Progress', component: DemoProgress },
         { name: 'Spinner', component: DemoBusy },
+        { name: 'Notifications', component: NotificationDemo },
       ]
     },
     {

@@ -137,25 +137,4 @@
 		}
 	}
 
-	.progress-bar-container {
-		height: 4px;
-		width: 100%;
-		background-color: color-mix(in srgb, currentColor 8%, transparent);
-		overflow: hidden;
-		position: relative;
-		z-index: 2;
-	}
-
-	.progress-bar {
-		height: 100%;
-		width: 100%;
-		transition: width 0.1s linear;
-		border-radius: 0 0 0 4px;
-		background-image: linear-gradient(
-			to right,
-			currentColor 70%,
-			color-mix(in srgb, currentColor 80%, white) 100%
-		);
-		opacity: 0.9;
-	}
 }

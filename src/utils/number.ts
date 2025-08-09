@@ -494,3 +494,8 @@ export class Numbers {
   }
 }
 
+
+
+const numbers = new Numbers()
+
+export default numbers
