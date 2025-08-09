@@ -7,6 +7,7 @@ export interface NotificationItem {
     duration: number;
     closable: boolean;
     playSound: boolean;
+    showProgress?: boolean;
 }
 export interface NotificationOptions {
     id?: string;
@@ -16,6 +17,7 @@ export interface NotificationOptions {
     duration?: number;
     closable?: boolean;
     playSound?: boolean;
+    showProgress?: boolean;
 }
 declare const SchmancyNotificationContainer_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
@@ -33,6 +35,7 @@ export default class SchmancyNotificationContainer extends SchmancyNotificationC
     connectedCallback(): void;
     addNotification(options: NotificationOptions): string;
     removeNotification(id: string): void;
+    updateNotification(id: string, options: Partial<NotificationOptions>): void;
     private _handleClose;
     render(): import("lit-html").TemplateResult<1>;
 }

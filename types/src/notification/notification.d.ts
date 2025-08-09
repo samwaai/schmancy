@@ -1,4 +1,5 @@
 import { PropertyValues } from 'lit';
+import '@schmancy/progress';
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 declare const SchmancyNotification_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
@@ -12,6 +13,7 @@ export default class SchmancyNotification extends SchmancyNotification_base {
     duration: number;
     id: string;
     playSound: boolean;
+    showProgress: boolean;
     private _visible;
     private _progress;
     private _hovered;

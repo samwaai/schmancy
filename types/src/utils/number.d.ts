@@ -103,3 +103,5 @@ export declare class Numbers {
      */
     private toSubscript;
 }
+declare const numbers: Numbers;
+export default numbers;

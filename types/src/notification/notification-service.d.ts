@@ -5,6 +5,7 @@ import { NotificationOptions } from './notification-container';
  */
 export declare class NotificationService {
     private static instance;
+    private notificationStack;
     private static DEFAULT_OPTIONS;
     private constructor();
     /**
@@ -16,6 +17,15 @@ export declare class NotificationService {
      * @returns The ID of the created notification
      */
     notify(options: NotificationOptions): string;
+    /**
+     * Dismiss a notification
+     * @param id Optional notification ID. If not provided, dismisses the most recent notification
+     */
+    dismiss(id?: string): void;
+    /**
+     * Update a notification's content
+     */
+    update(id: string, options: Partial<NotificationOptions>): void;
     /**
      * Show an info notification
      */
@@ -76,5 +86,14 @@ export declare const $notify: {
      * Show a persistent notification that won't auto-dismiss
      */
     persistent: (message: string, options?: Partial<Omit<NotificationOptions, "message" | "duration">>) => string;
+    /**
+     * Dismiss a notification
+     * @param id Optional notification ID. If not provided, dismisses the most recent notification (queue-like behavior)
+     */
+    dismiss: (id?: string) => void;
+    /**
+     * Update a notification's content
+     */
+    update: (id: string, options: Partial<NotificationOptions>) => void;
 };
 export default NotificationService;
