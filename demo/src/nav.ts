@@ -26,6 +26,7 @@ import { DemoInput } from './features/input'
 import { DemoSurface } from './features/surface'
 import DemoTypography from './features/typography'
 import NotificationDemo from './features/notifications'
+import { DemoMap } from './features/map'
 
 // Layout & Navigation
 import { DemoBoat } from './features/boat'
@@ -40,6 +41,7 @@ import { DemoSelect } from './features/select'
 import { DemoSheet } from './features/sheet-demo'
 import { DemoSlider } from './features/slider'
 import { DemoDateRangeInline } from './features/date-range-inline'
+import DetailsShowcase from './features/details-showcase'
 
 interface DemoSection {
   title: string
@@ -85,6 +87,8 @@ export class DemoNav extends TailwindElement() {
         { name: 'Progress', component: DemoProgress },
         { name: 'Spinner', component: DemoBusy },
         { name: 'Notifications', component: NotificationDemo },
+        { name: 'Details', component: DetailsShowcase },
+        { name: 'Map', component: DemoMap },
       ]
     },
     {

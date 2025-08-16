@@ -1,5 +1,89 @@
 # Schmancy Development Guidelines
 
+## 🚨 MANDATORY: ALWAYS USE AGENTS FOR COMPLEX TASKS 🚨
+
+**FOR COMPLEX MULTI-STEP TASKS, YOU MUST USE THE APPROPRIATE AGENT.**
+
+### QUICK REFERENCE:
+- **UI/Component Development** → Use `ui-developer` agent  
+- **Schmancy Demo Creation** → Use `schmancy-demo` agent
+- **Complex Research/Multi-file Analysis** → Use `general-purpose` agent
+- **Simple Edits** (config, types, small fixes) → Direct editing is OK
+
+### When to Use Agents:
+
+#### 1. **UI/Component Tasks** → **USE `ui-developer` AGENT**
+   - Creating new Schmancy components in `/src/`
+   - Complex UI features with state management
+   - Component refactoring (wrapper div to host styling)
+   - Theme system integration
+   - Complex Tailwind styling implementations
+   - **IMPORTANT**: Use `import.meta.env.VITE_*` for environment variables, NEVER `process.env`
+   
+#### 2. **Demo Creation** → **USE `schmancy-demo` AGENT**
+   - Creating new demo showcases in `/demo/src/features/`
+   - Following the Component Demo Guidelines structure
+   - Integrating with nav system
+   - Creating comprehensive examples with API documentation
+   
+#### 3. **Complex Research** → **USE `general-purpose` AGENT**
+   - Multi-file analysis and refactoring
+   - Searching for patterns across codebase
+   - Complex architectural changes
+   - Features requiring extensive codebase knowledge
+
+#### 4. **Direct Editing is OK for:**
+   - Type definitions in `/types/`
+   - Simple bug fixes
+   - Small styling adjustments
+   - Adding properties to existing components
+   - Updating documentation
+
+## 🚨 CRITICAL PROJECT RULES 🚨
+
+### 1. **NEVER MODIFY WORKING CODE WITHOUT VERIFICATION**
+   - **ALWAYS** verify current implementation before changes
+   - **ALWAYS** check similar components for patterns
+   - **ALWAYS** preserve working patterns and conventions
+
+### 2. **Type Safety**
+   - **NEVER use `any` type** - use proper types or `unknown`
+   - **ONE definition per type** - no duplicate interfaces
+   - **ALWAYS** use proper generic types with DOM queries
+
+### 3. **Component Patterns**
+   - **Host Styling**: Use `:host` selectors, not wrapper divs
+   - **Property Reflection**: Add `reflect: true` for CSS targeting
+   - **CSS Custom Properties**: Use design system tokens
+   - **No Runtime Styling**: Pure CSS rules, no JavaScript logic
+   - **Environment Variables**: Use `import.meta.env.VITE_*` for Vite, NEVER use `process.env`
+
+### 4. **Demo Requirements**
+   - **ALWAYS** create demos as Lit components in `/demo/src/features/`
+   - **ALWAYS** add to nav system
+   - **ALWAYS** follow Component Demo Guidelines structure
+   - **NEVER** create test*.html files
+
+### Agent: schmancy-demo
+
+**Purpose**: Specialized agent for creating comprehensive Schmancy component demos following strict established patterns
+
+**Use this agent when:**
+- Creating new demo showcases in `/demo/src/features/`
+- Adding components to the demo navigation system
+- Building API reference documentation tables
+- Creating progressive example sets
+- Updating existing demos with new examples
+
+**Agent capabilities:**
+- Follows exact demo structure patterns from existing demos
+- Creates proper nav.ts integration
+- Builds consistent API reference tables
+- Generates progressive examples (basic → advanced)
+- Uses proper Schmancy components and theme tokens
+- Maintains consistent spacing (mb-4, mb-8, mb-12)
+- Creates TypeScript demo components with proper decorators
+
 ## Theme System
 
 Schmancy uses a Material Design 3-based theme system with Tailwind CSS integration. The theme provides semantic design tokens for colors, elevations, typography, and spacing.
@@ -352,3 +436,201 @@ When creating demos for Schmancy components, follow this structure:
 ## Component Demo Navigation
 
 - Demo should always be demo as lit component added to nav
+
+## Agent Configuration: schmancy-demo
+
+### Description
+Specialized agent for creating Schmancy component demos following strict established patterns from existing demos.
+
+### Primary Responsibilities
+1. **Demo File Creation**: Build demos in `/demo/src/features/[component].ts`
+2. **Navigation Integration**: Update `/demo/src/nav.ts` with proper section placement
+3. **API Documentation**: Create consistent API reference tables
+4. **Example Generation**: Progressive examples from basic to advanced
+5. **Pattern Compliance**: Follow exact patterns from existing demos
+
+### Required Knowledge Base
+
+#### File Structure
+```typescript
+// Standard imports
+import { $LitElement } from '@mixins/index'
+import { html } from 'lit'
+import { customElement } from 'lit/decorators.js'
+import '../shared/installation-section'
+
+@customElement('demo-[component-name]')
+export class Demo[ComponentName] extends $LitElement() {
+  render() {
+    return html`<!-- Demo content -->`
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'demo-[component-name]': Demo[ComponentName]
+  }
+}
+```
+
+#### Demo Content Structure
+1. **Title & Description**
+   ```html
+   <schmancy-typography type="display" token="lg" class="mb-4 block">
+     Component Name
+   </schmancy-typography>
+   <schmancy-typography type="body" token="lg" class="mb-8 text-surface-onVariant block">
+     Description of component purpose and features
+   </schmancy-typography>
+   ```
+
+2. **Installation Section**
+   ```html
+   <installation-section></installation-section>
+   ```
+
+3. **Import Instructions**
+   ```html
+   <div class="mb-8">
+     <schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
+     <schmancy-code-preview language="javascript">
+       import '@mhmo91/schmancy/component-name'
+     </schmancy-code-preview>
+   </div>
+   ```
+
+4. **API Reference Table**
+   ```html
+   <div class="mb-12">
+     <schmancy-typography type="title" token="lg" class="mb-4 block">API Reference</schmancy-typography>
+     <schmancy-surface type="surfaceDim" class="rounded-lg overflow-hidden">
+       <table class="w-full">
+         <thead class="bg-surface-container">
+           <tr>
+             <th class="text-left p-4">
+               <schmancy-typography type="label" token="md">Property</schmancy-typography>
+             </th>
+             <th class="text-left p-4">
+               <schmancy-typography type="label" token="md">Type</schmancy-typography>
+             </th>
+             <th class="text-left p-4">
+               <schmancy-typography type="label" token="md">Default</schmancy-typography>
+             </th>
+             <th class="text-left p-4">
+               <schmancy-typography type="label" token="md">Description</schmancy-typography>
+             </th>
+           </tr>
+         </thead>
+         <tbody>
+           <!-- Property rows -->
+         </tbody>
+       </table>
+     </schmancy-surface>
+   </div>
+   ```
+
+5. **Examples Section**
+   ```html
+   <div>
+     <schmancy-typography type="title" token="lg" class="mb-6 block">Examples</schmancy-typography>
+     <schmancy-grid gap="lg" class="w-full">
+       <!-- Example blocks with schmancy-code-preview -->
+     </schmancy-grid>
+   </div>
+   ```
+
+#### Navigation Integration
+In `/demo/src/nav.ts`, add to appropriate section:
+```typescript
+import { DemoComponentName } from './features/component-name'
+
+// In sections array
+{
+  title: 'Section Name',
+  demos: [
+    { name: 'Display Name', component: DemoComponentName },
+  ]
+}
+```
+
+### Styling Guidelines
+
+#### Spacing Rules
+- `mb-4`: Small gaps between related elements
+- `mb-8`: Medium sections (after description, import)
+- `mb-12`: Major sections (after API reference)
+- `mb-6`: Before example grids
+- `p-4`: Table cell padding
+- `p-8`: Main surface padding
+
+#### Typography Tokens
+- Display title: `type="display" token="lg"`
+- Body description: `type="body" token="lg"`
+- Section headers: `type="title" token="lg"`
+- Table headers: `type="label" token="md"`
+- Table content: `type="body" token="sm"`
+- Code in tables: `class="text-sm bg-primary-container text-primary-onContainer px-2 py-1 rounded"`
+
+#### Color Classes
+- Description text: `text-surface-onVariant`
+- Table header bg: `bg-surface-container`
+- Surface containers: `type="surfaceDim"`
+- Code containers: `bg-primary-container text-primary-onContainer`
+
+### Example Organization
+
+#### Progressive Complexity Pattern
+1. **Basic Usage** - Simplest possible example
+2. **Variants** - Different types/styles
+3. **Properties** - Key property demonstrations
+4. **States** - Disabled, error, loading, etc.
+5. **Interactive** - Event handlers, state changes
+6. **Real-world** - Practical use cases
+7. **Advanced** - Complex integrations
+
+#### Code Preview Usage
+```html
+<!-- HTML examples (displayed and rendered) -->
+<schmancy-code-preview language="html">
+  <schmancy-component property="value">
+    Content
+  </schmancy-component>
+</schmancy-code-preview>
+
+<!-- JavaScript/Import examples (displayed only) -->
+<schmancy-code-preview language="javascript">
+  import '@mhmo91/schmancy/component'
+</schmancy-code-preview>
+```
+
+### Workflow Steps
+1. **Analyze Component** - Read component source, understand all properties
+2. **Create Demo File** - Use exact file structure template
+3. **Write Title/Description** - Clear, concise component overview
+4. **Add Installation** - Always use `<installation-section>`
+5. **Document Import** - Exact import path
+6. **Build API Table** - All properties with types, defaults, descriptions
+7. **Create Examples** - Progressive complexity, real-world focus
+8. **Update Navigation** - Add to correct section in nav.ts
+9. **Test Demo** - Verify all examples render correctly
+
+### Quality Checklist
+- ✅ Follows exact file structure from existing demos
+- ✅ Uses consistent spacing (mb-4, mb-8, mb-12)
+- ✅ All typography uses proper type/token combinations
+- ✅ API table has all properties documented
+- ✅ Examples progress from basic to advanced
+- ✅ Code previews are self-contained and copyable
+- ✅ Navigation entry added to correct section
+- ✅ No hardcoded colors - only theme tokens
+- ✅ Installation section included
+- ✅ Import path is correct
+- ✅ TypeScript decorators properly used
+- ✅ Global interface declaration included
+
+### Common Patterns to Follow
+- Study existing demos in `/demo/src/features/` for patterns
+- Match the exact structure of similar components
+- Use same table styling as other demos
+- Follow established example organization
+- Maintain consistency with spacing and typography

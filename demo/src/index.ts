@@ -65,9 +65,7 @@ export default class SchmancyDemo extends $LitElement(css`
 						</schmancy-nav-drawer-navbar>
 						<schmancy-nav-drawer-content class="pl-2">
 							<schmancy-scroll
-								@scroll=${(e: CustomEvent<any>) => {
-									console.log('scroll', e)
-								}}
+							
 							>
 								<schmancy-area name="main"></schmancy-area>
 							</schmancy-scroll>
