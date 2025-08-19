@@ -184,3 +184,54 @@ input[type="week"]::-webkit-calendar-picker-indicator {
 		margin: 0 !important;
 	}
 }
+
+/* Hint/Error container styling to prevent layout shift */
+.hint-container {
+	/* Reserve space to prevent layout shift */
+	display: block;
+	transition: color 0.2s ease-in-out;
+	/* Ensure consistent height even when empty */
+	min-height: 1.25rem; /* This matches the line-height of text-sm */
+	
+	/* Smooth transition for error/hint changes */
+	.error-message,
+	.hint-message {
+		display: block;
+		animation: fadeIn 0.2s ease-in-out;
+	}
+}
+
+/* Fade in animation for messages */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-2px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Enhanced ring styles for better error indication */
+input {
+	/* Ensure smooth transitions for ring changes */
+	transition: box-shadow 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+/* Ring styles using CSS custom properties for consistency */
+input.ring-primary-default {
+	box-shadow: 0 0 0 1px var(--schmancy-sys-color-outline);
+}
+
+input:focus.ring-primary-default {
+	box-shadow: 0 0 0 1px var(--schmancy-sys-color-primary-default);
+}
+
+input.ring-error-default {
+	box-shadow: 0 0 0 1px var(--schmancy-sys-color-error-default);
+}
+
+input:focus.ring-error-default {
+	box-shadow: 0 0 0 1px var(--schmancy-sys-color-error-default);
+}
