@@ -802,10 +802,10 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			// Placeholder
 			'placeholder:text-muted': true,
-			// Ring styles - consistent approach
+			// Ring styles
 			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
-			// Ring colors based on error state (consistent with textarea)
-			'ring-primary-default ring-outline focus:ring-primary-default': !this.error,
+			// Ring colors based on error state
+			'ring-secondary-default ring-outline focus:ring-secondary-default': !this.error,
 			'ring-error-default focus:ring-error-default': this.error,
 			// Readonly styles
 			'caret-transparent focus:outline-hidden cursor-pointer select-none': this.readonly,
@@ -881,21 +881,21 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 					aria-invalid=${this.error ? 'true' : 'false'}
 					aria-required=${this.required ? 'true' : 'false'}
 					aria-labelledby=${this.label ? `label-${this.id}` : nothing}
-					aria-describedby="hint-${this.id}"
+					aria-describedby=${this.hint || this.validationMessage ? `hint-${this.id}` : nothing}
 					aria-label=${ifDefined(!this.label ? this.placeholder || 'Input' : undefined)}
 				/>
 
-				<!-- Always render the hint/error container to prevent layout shift -->
-				<div
-					id="hint-${this.id}"
-					class="hint-container mt-1 text-sm min-h-[1.25rem] ${this.error ? 'text-error-default' : 'text-surface-onVariant'}"
-				>
-					${this.error && this.validationMessage
-						? html`<span class="error-message">${this.validationMessage}</span>`
-						: this.hint
-						? html`<span class="hint-message">${this.hint}</span>`
-						: nothing}
-				</div>
+				${when(
+					this.hint || (this.error && this.validationMessage),
+					() => html`
+						<div
+							id="hint-${this.id}"
+							class="mt-1 text-sm ${this.error ? 'text-error-default' : 'text-surface-onVariant'}"
+						>
+							${this.error && this.validationMessage ? this.validationMessage : this.hint}
+						</div>
+					`,
+				)}
 			</div>
 		`
 	}
