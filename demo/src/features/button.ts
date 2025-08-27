@@ -344,12 +344,12 @@ export class DemoButton extends $LitElement() {
 						<schmancy-code-preview language="html">
 							<div class="flex gap-4">
 								<schmancy-button variant="filled" disabled>
-									<schmancy-circular-progress slot="prefix" size="sm"></schmancy-circular-progress>
+									<schmancy-spinner slot="prefix" size="4" color="surface"></schmancy-spinner>
 									Processing...
 								</schmancy-button>
 								<schmancy-button variant="outlined" disabled>
 									Saving
-									<schmancy-circular-progress slot="suffix" size="sm"></schmancy-circular-progress>
+									<schmancy-spinner slot="suffix" size="4" color="surface"></schmancy-spinner>
 								</schmancy-button>
 							</div>
 						</schmancy-code-preview>

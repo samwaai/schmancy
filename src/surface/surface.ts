@@ -27,8 +27,6 @@ export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto'
 export class SchmancySurface extends TailwindElement(css`
 	:host {
 		display: block;
-		position: relative;
-		inset: 0;
 		box-sizing: border-box;
 	}
 	

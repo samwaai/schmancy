@@ -4,6 +4,39 @@ import { customElement, property } from 'lit/decorators.js'
 
 @customElement('schmancy-spinner')
 export default class SchmnacySpinner extends TailwindElement(css`
+	:host {
+		display: inline-block;
+		color: var(--schmancy-sys-color-primary-default);
+	}
+
+	:host([color="primary"]) {
+		color: var(--schmancy-sys-color-primary-default);
+	}
+
+	:host([color="secondary"]) {
+		color: var(--schmancy-sys-color-secondary-default);
+	}
+
+	:host([color="tertiary"]) {
+		color: var(--schmancy-sys-color-tertiary-default);
+	}
+
+	:host([color="error"]) {
+		color: var(--schmancy-sys-color-error-default);
+	}
+
+	:host([color="success"]) {
+		color: var(--schmancy-sys-color-success-default);
+	}
+
+	:host([color="surface"]) {
+		color: var(--schmancy-sys-color-surface-on);
+	}
+
+	:host([color="surface-variant"]) {
+		color: var(--schmancy-sys-color-surface-onVariant);
+	}
+
 	.spinner {
 		animation: spin 1s linear infinite;
 		animation-direction: reverse;
@@ -18,14 +51,19 @@ export default class SchmnacySpinner extends TailwindElement(css`
 		}
 	}
 `) {
-	@property({ type: String }) color: string = 'gray'
-	@property({ type: String }) size: string = '24px'
+	@property({ type: String, reflect: true }) color: 'primary' | 'secondary' | 'tertiary' | 'error' | 'success' | 'surface' | 'surface-variant' = 'primary'
+	@property({ type: Number }) size: number = 6
 	@property({ type: Boolean }) glass: boolean = false
 
 	protected render(): unknown {
+		// Use Tailwind sizing system: size-4 = 1rem = 16px
+		// Each unit is 0.25rem, so size 4 = 1rem, size 6 = 1.5rem, etc.
+		// Fallback to size 6 (24px) if value is invalid
+		const validSize = typeof this.size === 'number' && !isNaN(this.size) ? this.size : 6
+		const sizeInRem = `${validSize * 0.25}rem`
 		const style = {
-			width: this.size,
-			height: this.size,
+			width: sizeInRem,
+			height: sizeInRem,
 		}
 		
 		return this.glass ? html`
@@ -42,11 +80,11 @@ export default class SchmnacySpinner extends TailwindElement(css`
 					<path
 						opacity=".7"
 						d="M8 15A7 7 0 108 1a7 7 0 000 14v0z"
-						stroke="var(--schmancy-sys-color-secondary-default)"
+						stroke="currentColor"
 						stroke-width="2"
 					></path>
-					<path d="M15 8a7 7 0 01-7 7" stroke="var(--schmancy-sys-color-secondary-default)" stroke-width="2"></path>
-					<path d="M8 12a4 4 0 100-8 4 4 0 000 8z" fill="var(--schmancy-sys-color-secondary-default)" opacity="0.8"></path>
+					<path d="M15 8a7 7 0 01-7 7" stroke="currentColor" stroke-width="2"></path>
+					<path d="M8 12a4 4 0 100-8 4 4 0 000 8z" fill="currentColor" opacity="0.8"></path>
 				</svg>
 			</div>
 		` : html`
@@ -55,11 +93,11 @@ export default class SchmnacySpinner extends TailwindElement(css`
 					<path
 						opacity=".5"
 						d="M8 15A7 7 0 108 1a7 7 0 000 14v0z"
-						stroke="var(--schmancy-sys-color-secondary-default)"
+						stroke="currentColor"
 						stroke-width="2"
 					></path>
-					<path d="M15 8a7 7 0 01-7 7" stroke="var(--schmancy-sys-color-secondary-default)" stroke-width="2"></path>
-					<path d="M8 12a4 4 0 100-8 4 4 0 000 8z" fill="var(--schmancy-sys-color-secondary-default)"></path>
+					<path d="M15 8a7 7 0 01-7 7" stroke="currentColor" stroke-width="2"></path>
+					<path d="M8 12a4 4 0 100-8 4 4 0 000 8z" fill="currentColor"></path>
 				</svg>
 			</div>
 		`
