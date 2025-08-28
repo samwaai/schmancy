@@ -10,7 +10,6 @@ import {
     combineLatest,
     EMPTY,
     fromEvent,
-    merge,
     of,
     Subject,
     timer
@@ -19,8 +18,6 @@ import {
     debounceTime,
     distinctUntilChanged,
     filter,
-    map,
-    startWith,
     switchMap,
     take,
     takeUntil,
@@ -103,7 +100,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     private _options$ = new BehaviorSubject<SchmancyOption[]>([])
     private _optionSelect$ = new Subject<SchmancyOption>()
     private _documentClick$ = new Subject<MouseEvent>()
-    private _checkAutofill$ = new Subject<void>()
 
     connectedCallback() {
         super.connectedCallback()
@@ -114,7 +110,8 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
         this._setupAutocompleteLogic()
         this._setupDocumentClickHandler()
-        this._setupAutofillDetection()
+        // Complex autofill detection disabled - using simple auto-select on blur instead
+        // this._setupAutofillDetection()
     }
 
     private _setupAutocompleteLogic() {
@@ -321,113 +318,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         ).subscribe()
     }
 
-    private _setupAutofillDetection() {
-        // Enhanced autofill detection with fuzzy matching
-        merge(
-            timer(100, 500).pipe(take(10)),
-            this._checkAutofill$,
-            timer(100).pipe(
-                switchMap(() => 
-                    fromEvent(window, 'load').pipe(startWith(null))
-                )
-            )
-        ).pipe(
-            map(() => {
-                const schInput = this._inputElementRef.value
-                if (!schInput) return null
-                return schInput.shadowRoot?.querySelector('input') || 
-                       schInput.querySelector('input') ||
-                       (schInput as any)._inputRef?.value
-            }),
-            filter(input => !!input),
-            map(input => (input as HTMLInputElement).value),
-            filter(value => !!value && value.trim().length > 0),
-            distinctUntilChanged(),
-            withLatestFrom(this._options$),
-            tap(([autofilledValue, options]) => {
-                console.log('Autofill detected:', autofilledValue)
-                
-                // Use fuzzy matching to find best matching option
-                let bestMatch: SchmancyOption | null = null
-                let bestScore = 0
-                
-                options.forEach(option => {
-                    const optionLabel = option.label || option.textContent || ''
-                    const optionValue = option.value
-                    
-                    // Calculate similarity scores
-                    const labelScore = similarity(autofilledValue, optionLabel)
-                    const valueScore = similarity(autofilledValue, optionValue)
-                    
-                    // Use the higher score
-                    const score = Math.max(labelScore, valueScore)
-                    
-                    // Keep track of best match
-                    if (score > bestScore && score >= this.similarityThreshold) {
-                        bestScore = score
-                        bestMatch = option
-                    }
-                })
-
-                if (bestMatch) {
-                    console.log('Found matching option:', bestMatch.value, 'with score:', bestScore)
-                    
-                    // Select the option
-                    if (this.multi) {
-                        this._selectedValues$.next([bestMatch.value])
-                    } else {
-                        this._selectedValue$.next(bestMatch.value)
-                    }
-                    
-                    // Update input to show the label
-                    const displayValue = bestMatch.label || bestMatch.textContent || ''
-                    this._inputValue = displayValue
-                    this._inputValue$.next(displayValue)
-                    
-                    // Update the actual input element
-                    const input = this._inputElementRef.value
-                    if (input) {
-                        input.value = displayValue
-                    }
-                    
-                    // Close dropdown if open
-                    this._open$.next(false)
-                    
-                    // Fire change event
-                    this._fireChangeEvent()
-                    
-                    // Announce to screen reader
-                    this._announceToScreenReader(`Autofilled: ${displayValue}`)
-                }
-            }),
-            takeUntil(this.disconnecting)
-        ).subscribe()
-
-        // Chrome autofill animation detection
-        timer(100).pipe(
-            map(() => {
-                const schInput = this._inputElementRef.value
-                if (!schInput) return null
-                return schInput.shadowRoot?.querySelector('input') || 
-                       schInput.querySelector('input') ||
-                       (schInput as any)._inputRef?.value
-            }),
-            filter(input => !!input),
-            switchMap(input => {
-                return fromEvent<AnimationEvent>(input!, 'animationstart').pipe(
-                    filter(e => e.animationName === 'onAutoFillStart'),
-                    tap(() => {
-                        console.log('Chrome autofill animation detected')
-                        timer(100).pipe(
-                            tap(() => this._checkAutofill$.next()),
-                            take(1)
-                        ).subscribe()
-                    })
-                )
-            }),
-            takeUntil(this.disconnecting)
-        ).subscribe()
-    }
 
     private _updateInputDisplay() {
         of(null).pipe(
@@ -508,16 +398,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     }
 
     firstUpdated() {
-        timer(200).pipe(
-            tap(() => this._checkAutofill$.next()),
-            take(1)
-        ).subscribe()
-        
-        this._options$.pipe(
-            filter(options => options.length > 0),
-            tap(() => this._checkAutofill$.next()),
-            takeUntil(this.disconnecting)
-        ).subscribe()
+        // Auto-selection now happens on blur, no need for autofill detection
     }
 
     render() {
@@ -581,6 +462,9 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                         @keydown=${(e: KeyboardEvent) => {
                             this._handleKeyDown(e)
                         }}
+                        @blur=${() => {
+                            this._handleAutoSelectOnBlur()
+                        }}
                     >
                     </schmancy-input>
                 </slot>
@@ -608,10 +492,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                     style="max-height: ${this.maxHeight}; display: ${this._open ? 'flex' : 'none'};"
                     @slotchange=${() => {
                         this._options$.next(this._options)
-                        timer(100).pipe(
-                            tap(() => this._checkAutofill$.next()),
-                            take(1)
-                        ).subscribe()
                     }}
                 >
                     <slot></slot>
@@ -638,6 +518,53 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                 }
             </style>
         `
+    }
+
+    private _handleAutoSelectOnBlur() {
+        // Only auto-select in single-select mode and when dropdown is open with a search term
+        if (this.multi || !this._open || !this._inputValue.trim()) {
+            return
+        }
+        
+        const searchTerm = this._inputValue.trim()
+        
+        // Find the best matching option using the same similarity logic as filtering
+        let bestMatch: SchmancyOption | null = null
+        let bestScore = 0
+        
+        this._options.forEach(option => {
+            // Skip hidden options
+            if (option.hidden) return
+            
+            // Get text to search in (prioritize label, then textContent, then value)
+            const optionLabel = option.label || option.textContent || ''
+            const optionValue = option.value
+            
+            // Calculate similarity scores for both label and value
+            const labelScore = similarity(searchTerm, optionLabel)
+            const valueScore = similarity(searchTerm, optionValue)
+            
+            // Use the higher score (prioritizing label matches)
+            const score = Math.max(labelScore * 1.1, valueScore) // Slight boost for label matches
+            
+            // Keep track of best match that meets threshold
+            if (score > bestScore && score >= this.similarityThreshold) {
+                bestScore = score
+                bestMatch = option
+            }
+        })
+        
+        // Auto-select the best match if found
+        if (bestMatch) {
+            // Select the option using the existing pipeline
+            this._optionSelect$.next(bestMatch)
+            
+            // Close the dropdown
+            this._open$.next(false)
+            this._open = false
+            
+            console.log('Auto-selected on blur:', bestMatch.value, 'with score:', bestScore)
+        }
     }
 
     private _handleKeyDown(_e: KeyboardEvent) {
