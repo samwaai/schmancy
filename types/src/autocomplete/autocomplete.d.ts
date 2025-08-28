@@ -35,11 +35,9 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     private _options$;
     private _optionSelect$;
     private _documentClick$;
-    private _checkAutofill$;
     connectedCallback(): void;
     private _setupAutocompleteLogic;
     private _setupDocumentClickHandler;
-    private _setupAutofillDetection;
     private _updateInputDisplay;
     private _getSelectedLabels;
     private _announceToScreenReader;
@@ -48,6 +46,7 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     reportValidity(): boolean;
     firstUpdated(): void;
     render(): import("lit-html").TemplateResult<1>;
+    private _handleAutoSelectOnBlur;
     private _handleKeyDown;
 }
 declare global {
