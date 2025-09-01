@@ -1,5 +1,5 @@
 import { $LitElement } from '@mixins/index'
-import { css, html, LitElement } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
@@ -19,11 +19,7 @@ export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' 
  * @slot suffix - The suffix slot.
  */
 @customElement('schmancy-button')
-export class SchmancyButton extends $LitElement(css`
-	:host {
-		display: block;
-	}
-`) {
+export class SchmancyButton extends $LitElement() {
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		mode: 'open',
