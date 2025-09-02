@@ -47,7 +47,7 @@ export class RadioButton extends FormFieldMixin(TailwindElement()) {
 				<div class="flex items-center h-6">
 					<input
 						type="radio"
-						class="h-4 w-4 text-primary focus:ring-primary-light border-gray-300"
+						class="h-4 w-4 text-primary-default focus:ring-primary-container border-outline"
 						.value=${this.value}
 						.checked=${this.checked}
 						.disabled=${this.disabled}

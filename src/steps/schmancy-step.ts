@@ -116,19 +116,19 @@ export class SchmancyStep extends $LitElement(css`
 		// Tailwind (or similar) classes for styling.
 		const connectorClasses = {
 			'bg-tertiary-default': isComplete,
-			'bg-gray-300': !isComplete,
+			'bg-surface-container': !isComplete,
 		}
 
 		const iconContainerClasses = {
 			'relative border-solid z-10 flex size-5 items-center justify-center rounded-full': true,
 			'bg-tertiary-default group-hover:bg-tertiary-onContainer': isComplete,
-			'border-2 border-tertiary-default bg-white': !isComplete && isActive,
-			'border-2 border-gray-300 bg-white group-hover:border-gray-400': isUpcoming,
+			'border-2 border-tertiary-default bg-surface': !isComplete && isActive,
+			'border-2 border-outline bg-surface group-hover:border-outlineVariant': isUpcoming,
 		}
 
 		const textClasses = {
 			'text-tertiary-default': isActive,
-			'text-gray-500': !isActive,
+			'text-surface-onVariant': !isActive,
 		}
 
 		// If the step is clickable (active or complete), add a pointer cursor.
@@ -160,7 +160,7 @@ export class SchmancyStep extends $LitElement(css`
 										<span
 											class="size-2.5 rounded-full ${isActive
 												? 'bg-tertiary-default'
-												: 'bg-transparent group-hover:bg-gray-300'}"
+												: 'bg-transparent group-hover:bg-surface-container'}"
 										></span>
 									`}
 						</span>
@@ -174,7 +174,7 @@ export class SchmancyStep extends $LitElement(css`
 							this.description,
 							() => html`
 								<schmancy-typography type="label">
-									<span class="text-gray-500">${this.description}</span>
+									<span class="text-surface-onVariant">${this.description}</span>
 								</schmancy-typography>
 							`,
 						)}

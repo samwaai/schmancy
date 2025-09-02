@@ -356,7 +356,7 @@ export class SchmancyDialog extends $LitElement(css`
 		}
 		
 		return html`
-			<div class="fixed inset-0 bg-black/40" @click=${this.handleClose}></div>
+			<div class="fixed inset-0 bg-scrim/40" @click=${this.handleClose}></div>
 
 			<div 
 				class=${this.classMap(dialogClasses)} 

@@ -70,9 +70,9 @@ export default class SchmnacySpinner extends TailwindElement(css`
 			<div class="spinner relative" style=${this.styleMap(style)}>
 				<!-- Glass container with Apple-style effect -->
 				<div class="absolute inset-0 rounded-full backdrop-blur-xl backdrop-saturate-150 
-							bg-white/20 dark:bg-black/20 
+							bg-surface-container/20 
 							shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.2)]
-							border border-white/30 dark:border-white/20"></div>
+							border border-outline/30"></div>
 				
 				<!-- Spinner SVG -->
 				<svg fill="none" viewBox="0 0 16 16" aria-hidden="true" role="img" 

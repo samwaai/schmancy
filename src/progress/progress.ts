@@ -58,13 +58,11 @@ export default class SchmancyProgress extends TailwindElement(css`
       // Glass effect background
       'backdrop-blur-xl': this.glass,
       'backdrop-saturate-150': this.glass,
-      'bg-white/20': this.glass && !this.indeterminate,
-      'dark:bg-black/20': this.glass && !this.indeterminate,
+      'bg-surface-container/20': this.glass && !this.indeterminate,
       'bg-surface-container': !this.glass,
       'shadow-[inset_0_1px_2px_0_rgba(0,0,0,0.1)]': this.glass,
       'border': this.glass,
-      'border-white/20': this.glass,
-      'dark:border-white/10': this.glass
+      'border-outline/20': this.glass
     }
 
     const barClasses = {
@@ -112,7 +110,7 @@ export default class SchmancyProgress extends TailwindElement(css`
         >
           ${this.glass ? html`
             <!-- Glass shine effect -->
-            <div class="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-full"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-surface-on/20 to-transparent rounded-full"></div>
           ` : ''}
         </div>
       </div>

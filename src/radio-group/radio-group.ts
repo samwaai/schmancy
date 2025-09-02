@@ -73,7 +73,7 @@ export class RadioGroup extends FormFieldMixin(TailwindElement(style)) {
 		
 		return html`
 			<div class="grid gap-4">
-				${when(this.label, () => html` <label class="text-base font-semibold text-gray-900">${this.label}</label> `)}
+				${when(this.label, () => html` <label class="text-base font-semibold text-surface-on">${this.label}</label> `)}
 				
 				${hasSlottedContent ? 
 					html`<slot></slot>` :
@@ -82,14 +82,14 @@ export class RadioGroup extends FormFieldMixin(TailwindElement(style)) {
 							<input
 								.required=${this.required}
 								id=${option.value}
-								class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+								class="h-4 w-4 border-outline text-primary-default focus:ring-primary-default"
 								type="radio"
 								name=${this.name}
 								.value=${option.value}
 								.checked=${option.value === this.value}
 								@change=${() => this.handleSelection(option.value)}
 							/>
-							<label for=${option.value} class="ml-3 block text-sm font-medium leading-6 text-gray-900">
+							<label for=${option.value} class="ml-3 block text-sm font-medium leading-6 text-surface-on">
 								${option.label || option.value}
 							</label>
 						</div>

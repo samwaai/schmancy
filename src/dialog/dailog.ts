@@ -29,7 +29,8 @@ export class ConfirmDialog extends $LitElement(css`
 	.overlay {
 		position: fixed;
 		inset: 0;
-		background: rgba(0, 0, 0, 0.4);
+		background: var(--schmancy-sys-color-scrim);
+		opacity: 0.4;
 	}
 
 	.dialog {
@@ -397,9 +398,9 @@ export class ConfirmDialog extends $LitElement(css`
 	private getConfirmButtonClass(): string {
 		// Map confirmColor to appropriate CSS classes
 		const colorMap = {
-			error: 'bg-red-600 hover:bg-red-700 text-white',
-			warning: 'bg-orange-600 hover:bg-orange-700 text-white',
-			success: 'bg-green-600 hover:bg-green-700 text-white',
+			error: 'bg-error-default hover:bg-error-container text-error-on',
+			warning: 'bg-tertiary-default hover:bg-tertiary-container text-tertiary-on',
+			success: 'bg-success-default hover:bg-success-container text-success-on',
 			primary: ''
 		}
 

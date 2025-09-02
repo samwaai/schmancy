@@ -131,9 +131,9 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 
 		const inactiveTab = {
 			'border-transparent': true,
-			'hover:text-gray-700': true,
-			'hover:border-gray-300': true,
-			'text-gray-500': true,
+			'hover:text-surface-on': true,
+			'hover:border-outlineVariant': true,
+			'text-surface-onVariant': true,
 		}
 
 		return html`
