@@ -6,6 +6,12 @@ export declare class SchmancyStepsContainer extends SchmancyStepsContainer_base 
     set currentStep(value: number);
     get currentStep(): number;
     private _currentStep;
+    /**
+     * Gap between steps. Maps to Tailwind gap classes.
+     * Options: 0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24
+     * @default 4
+     */
+    gap: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | 16 | 20 | 24;
     connectedCallback(): void;
     render(): import("lit-html").TemplateResult<1>;
 }
