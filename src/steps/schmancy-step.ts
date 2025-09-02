@@ -52,7 +52,11 @@ export class SchmancyStep extends $LitElement(css`
 
 	connectedCallback() {
 		super.connectedCallback()
+	}
+
+	firstUpdated() {
 		// Subscribe to updates from the container's StepsController.
+		// Context is guaranteed to be available after first render
 		this.subscription = this.steps.currentStep$.subscribe(step => {
 			this.currentStep = step
 			// When the current step changes, update the flex properties
