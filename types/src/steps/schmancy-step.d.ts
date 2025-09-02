@@ -27,6 +27,7 @@ export declare class SchmancyStep extends SchmancyStep_base {
      */
     private subscription?;
     connectedCallback(): void;
+    firstUpdated(): void;
     disconnectedCallback(): void;
     /**
      * Update the host element's flex properties based on active state
