@@ -11,3 +11,14 @@
 :host:focus {
 	box-shadow: unset !important;
 }
+
+@keyframes onAutoFillStart {
+	from {/**/}
+	to {/**/}
+}
+
+sch-input::part(input):-webkit-autofill,
+sch-input input:-webkit-autofill {
+	animation-name: onAutoFillStart;
+	animation-duration: 1ms;
+}

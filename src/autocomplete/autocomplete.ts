@@ -125,8 +125,11 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                         option.id = `${this.id}-option-${index}`
                     }
                     if (!option.hasAttribute('data-event-bound')) {
-                        fromEvent(option, 'click').pipe(
-                            tap(e => e.stopPropagation()),
+                        fromEvent(option, 'pointerdown').pipe(
+                            tap(e => {
+                                e.preventDefault() // Prevent blur from firing
+                                e.stopPropagation()
+                            }),
                             takeUntil(this.disconnecting)
                         ).subscribe(() => this._optionSelect$.next(option))
                         option.setAttribute('data-event-bound', 'true')
@@ -500,23 +503,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                     ` : ''}
                 </ul>
             </div>
-
-            <style>
-                :host {
-                    display: block;
-                }
-
-                @keyframes onAutoFillStart {
-                    from {/**/}
-                    to {/**/}
-                }
-
-                sch-input::part(input):-webkit-autofill,
-                sch-input input:-webkit-autofill {
-                    animation-name: onAutoFillStart;
-                    animation-duration: 1ms;
-                }
-            </style>
         `
     }
 

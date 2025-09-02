@@ -1,5 +1,8 @@
 # Schmancy Autocomplete - AI Reference
 
+## Overview
+A searchable dropdown component with fuzzy search, keyboard navigation, and multi-select support. Uses similarity scoring for intelligent option filtering.
+
 ```js
 // Basic Autocomplete (Single-Select)
 <schmancy-autocomplete
@@ -38,17 +41,19 @@
 </schmancy-autocomplete>
 
 // Autocomplete Properties
-value: string         // Selected value for single-select, comma-separated string for multi-select (legacy API)
-values: string[]      // Array of selected values for multi-select (preferred API for multi-select)
-multi: boolean        // Enable multi-select mode
-label: string         // Input label
-placeholder: string   // Input placeholder
-required: boolean     // Mark as required for validation
-size: string          // Input size: "sm", "md", "lg"
-maxHeight: string     // Maximum height of dropdown
-debounceMs: number    // Debounce delay in milliseconds for filtering
-autocomplete: string  // Value for input's autocomplete attribute
-description: string   // Description for screen readers
+value: string              // Selected value for single-select, comma-separated string for multi-select (legacy API)
+values: string[]           // Array of selected values for multi-select (preferred API for multi-select)
+multi: boolean             // Enable multi-select mode
+label: string              // Input label
+placeholder: string        // Input placeholder
+required: boolean          // Mark as required for validation
+size: string               // Input size: "sm", "md", "lg"
+maxHeight: string          // Maximum height of dropdown (default: "300px")
+debounceMs: number         // Debounce delay in milliseconds for filtering (default: 200)
+similarityThreshold: number // Minimum similarity score to show option (0-1, default: 0.3)
+autocomplete: string       // Value for input's autocomplete attribute
+description: string        // Description for screen readers
+name: string               // Form field name for form submission
 
 // Autocomplete Events
 @change   // Fires when selection changes with { detail: { value, values? } }
@@ -133,3 +138,35 @@ handleChange(e) {
   <schmancy-button type="submit">Submit</schmancy-button>
 </schmancy-form>
 ```
+
+## Key Features
+
+### Fuzzy Search
+- Uses similarity scoring algorithm to find best matches
+- Searches both option labels and values
+- Configurable similarity threshold (0-1)
+- Options are sorted by relevance score
+
+### Keyboard Navigation
+- `ArrowDown/ArrowUp` - Navigate through options
+- `Enter/Space` - Select focused option
+- `Escape` - Close dropdown
+- `Tab` - Move to next field and close dropdown
+- `Home/End` - Jump to first/last option
+
+### Auto-Select on Blur
+- In single-select mode, automatically selects the best matching option when input loses focus
+- Only triggers if there's a search term and a good match
+- Helps with quick data entry
+
+### Accessibility
+- Full ARIA support with proper roles and attributes
+- Screen reader announcements for option counts and selections
+- Keyboard-only navigation support
+- Focus management
+
+### Performance
+- Debounced search input (configurable delay)
+- Efficient RxJS-based state management
+- Virtual scrolling for large option lists
+- Options are only filtered when dropdown is open
