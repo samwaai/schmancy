@@ -31,6 +31,7 @@ import { DemoMap } from './features/map'
 // Layout & Navigation
 import { DemoBoat } from './features/boat'
 import { DemoLayout } from './features/layout'
+import { DemoSteps } from './features/steps'
 
 // Form Controls
 import { DemoAutocomplete } from './features/autocomplete'
@@ -108,6 +109,7 @@ export class DemoNav extends TailwindElement() {
       demos: [
         { name: 'Layout', component: DemoLayout },
         { name: 'Boat', component: DemoBoat },
+        { name: 'Steps', component: DemoSteps },
         { 
           name : 'Sheet' , component:DemoSheet
         }

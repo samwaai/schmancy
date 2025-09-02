@@ -11,6 +11,7 @@ export class SchmancyStep extends $LitElement(css`
 	:host {
 		display: grid;
 		/* Base display is just grid, flex properties will be applied dynamically */
+		transition: all 0.2s ease-in-out;
 	}
 `) {
 	/**
@@ -113,22 +114,23 @@ export class SchmancyStep extends $LitElement(css`
 		const isComplete = this.status === 'complete'
 		const isUpcoming = this.status === 'upcoming'
 
-		// Tailwind (or similar) classes for styling.
+		// Enhanced styling classes with better visual hierarchy
 		const connectorClasses = {
 			'bg-tertiary-default': isComplete,
-			'bg-surface-container': !isComplete,
+			'bg-outline-variant': !isComplete,
 		}
 
 		const iconContainerClasses = {
-			'relative border-solid z-10 flex size-5 items-center justify-center rounded-full': true,
-			'bg-tertiary-default group-hover:bg-tertiary-onContainer': isComplete,
-			'border-2 border-tertiary-default bg-surface': !isComplete && isActive,
-			'border-2 border-outline bg-surface group-hover:border-outlineVariant': isUpcoming,
+			'relative border-solid z-10 flex size-8 items-center justify-center rounded-full transition-all duration-200': true,
+			'bg-tertiary-default text-tertiary-on shadow-md group-hover:shadow-lg': isComplete,
+			'border-2 border-primary-default bg-primary-container text-primary-onContainer shadow-sm': !isComplete && isActive,
+			'border-2 border-outline bg-surface text-surface-onVariant group-hover:border-primary-default group-hover:bg-primary-container': isUpcoming,
 		}
 
 		const textClasses = {
-			'text-tertiary-default': isActive,
-			'text-surface-onVariant': !isActive,
+			'text-primary-default font-medium': isActive,
+			'text-tertiary-default': isComplete,
+			'text-surface-onVariant': isUpcoming,
 		}
 
 		// If the step is clickable (active or complete), add a pointer cursor.
@@ -138,17 +140,21 @@ export class SchmancyStep extends $LitElement(css`
 			<li class="relative">
 				<!-- Connector line -->
 				<div
-					class="absolute top-6 left-2.5 mt-0.5 -ml-px h-full w-0.5 ${this.classMap(connectorClasses)}"
+					class="absolute top-8 left-4 -ml-px h-full w-0.5 transition-colors duration-200 ${this.classMap(connectorClasses)}"
 					aria-hidden="true"
 				></div>
 
 				<!-- Step Button/Label -->
-				<button type="button" @click=${this._onStepClick} class="relative flex items-center group ${clickableClass}">
-					<span class="flex items-center h-10">
+				<button 
+					type="button" 
+					@click=${this._onStepClick} 
+					class="relative flex items-start group transition-all duration-200 hover:scale-[1.02] ${clickableClass} ${isActive ? 'bg-primary-container/20 -mx-2 px-2 py-3 rounded-lg' : 'py-2'}"
+				>
+					<span class="flex items-center h-12">
 						<span class=${this.classMap(iconContainerClasses)}>
 							${isComplete
 								? html`
-										<svg class="text-white size-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+										<svg class="size-5 transition-transform duration-200 group-hover:scale-110" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
 											<path
 												fill-rule="evenodd"
 												d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
@@ -158,35 +164,37 @@ export class SchmancyStep extends $LitElement(css`
 									`
 								: html`
 										<span
-											class="size-2.5 rounded-full ${isActive
-												? 'bg-tertiary-default'
-												: 'bg-transparent group-hover:bg-surface-container'}"
+											class="size-3 rounded-full transition-all duration-200 ${isActive
+												? 'bg-primary-onContainer'
+												: 'bg-transparent group-hover:bg-primary-default group-hover:scale-125'}"
 										></span>
 									`}
 						</span>
 					</span>
 
-					<span class="flex flex-col items-start min-w-0 ml-4">
-						<schmancy-typography type="title">
-							<span class=${this.classMap(textClasses)}>${this.title}</span>
+					<span class="flex flex-col items-start min-w-0 ml-6">
+						<schmancy-typography type="title" token="md">
+							<span class="transition-colors duration-200 ${this.classMap(textClasses)}">${this.title}</span>
 						</schmancy-typography>
 						${when(
 							this.description,
 							() => html`
-								<schmancy-typography type="label">
-									<span class="text-surface-onVariant">${this.description}</span>
+								<schmancy-typography type="body" token="sm" class="mt-1">
+									<span class="text-surface-onVariant transition-colors duration-200 ${isActive ? 'text-primary-onContainer' : ''}">${this.description}</span>
 								</schmancy-typography>
 							`,
 						)}
 					</span>
 				</button>
 
-				<!-- Render step content if the step is active, regardless of completion -->
+				<!-- Render step content if the step is active, with enhanced spacing -->
 				${when(
 					isActive,
 					() => html`
-						<div class="pl-2 ml-2 block h-full pb-12">
-							<slot></slot>
+						<div class="ml-10 mt-4 pb-8 transition-all duration-300 ease-out">
+							<div class="pl-4 border-l-2 border-primary-default/20">
+								<slot></slot>
+							</div>
 						</div>
 					`,
 				)}
