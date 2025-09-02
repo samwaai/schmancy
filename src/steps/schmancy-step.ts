@@ -128,7 +128,7 @@ export class SchmancyStep extends $LitElement(css`
 			'relative border-solid z-10 flex size-8 items-center justify-center rounded-full transition-all duration-200': true,
 			'bg-tertiary-default text-tertiary-on shadow-md group-hover:shadow-lg': isComplete,
 			'border-2 border-primary-default bg-primary-container text-primary-onContainer shadow-sm': !isComplete && isActive,
-			'border-2 border-outline bg-surface text-surface-onVariant group-hover:border-primary-default group-hover:bg-primary-container': isUpcoming,
+			'border-2 border-outline bg-surface-default text-surface-onVariant group-hover:border-primary-default group-hover:bg-primary-container': isUpcoming,
 		}
 
 		const textClasses = {
@@ -144,7 +144,8 @@ export class SchmancyStep extends $LitElement(css`
 			<li class="relative">
 				<!-- Connector line -->
 				<div
-					class="absolute top-8 left-4 -ml-px h-full w-0.5 transition-colors duration-200 ${this.classMap(connectorClasses)}"
+					class="absolute top-8 left-4 -ml-px w-0.5 transition-colors duration-200 ${this.classMap(connectorClasses)}"
+					style="height: calc(100% + var(--steps-gap, 0px))"
 					aria-hidden="true"
 				></div>
 
@@ -152,7 +153,7 @@ export class SchmancyStep extends $LitElement(css`
 				<button 
 					type="button" 
 					@click=${this._onStepClick} 
-					class="relative flex items-start group transition-all duration-200 hover:scale-[1.02] ${clickableClass} ${isActive ? 'bg-primary-container/20 -mx-2 px-2 py-3 rounded-lg' : 'py-2'}"
+					class="relative flex items-center group transition-all duration-200 hover:scale-[1.02] ${clickableClass} ${isActive ? 'bg-primary-container/20 -mx-2 px-2 py-3 rounded-lg' : 'py-2'}"
 				>
 					<span class="flex items-center h-12">
 						<span class=${this.classMap(iconContainerClasses)}>
@@ -176,7 +177,7 @@ export class SchmancyStep extends $LitElement(css`
 						</span>
 					</span>
 
-					<span class="flex flex-col items-start min-w-0 ml-6">
+					<span class="flex flex-col items-start justify-center min-w-0 ml-6">
 						<schmancy-typography type="title" token="md">
 							<span class="transition-colors duration-200 ${this.classMap(textClasses)}">${this.title}</span>
 						</schmancy-typography>
