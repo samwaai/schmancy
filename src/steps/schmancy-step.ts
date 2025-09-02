@@ -197,9 +197,7 @@ export class SchmancyStep extends $LitElement(css`
 					isActive,
 					() => html`
 						<div class="ml-10 mt-4 pb-8 transition-all duration-300 ease-out">
-							<div class="pl-4 border-l-2 border-primary-default/20">
-								<slot></slot>
-							</div>
+						<slot></slot>
 						</div>
 					`,
 				)}
