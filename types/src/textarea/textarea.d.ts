@@ -69,6 +69,30 @@ export default class SchmancyTextarea extends SchmancyTextarea_base {
      */
     rows: number;
     /**
+     * Makes the textarea fill the height of its container.
+     * @attr fillHeight
+     * @type {boolean}
+     * @default false
+     * @public
+     */
+    fillHeight: boolean;
+    /**
+     * Automatically adjusts height based on content.
+     * @attr autoHeight
+     * @type {boolean}
+     * @default false
+     * @public
+     */
+    autoHeight: boolean;
+    /**
+     * Controls whether the textarea can be resized by the user.
+     * @attr resize
+     * @type {'none' | 'vertical' | 'horizontal' | 'both'}
+     * @default 'none'
+     * @public
+     */
+    resize: 'none' | 'vertical' | 'horizontal' | 'both';
+    /**
      * Specifies how the text in a text area is to be wrapped when submitted in a form.
      * @attr wrap
      * @type {'hard' | 'soft'}

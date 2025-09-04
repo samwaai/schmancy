@@ -6,6 +6,13 @@
 	font-size: unset !important;
 	box-shadow: unset !important;
 	width: -webkit-fill-available;
+	display: block;
+}
+
+:host([fillHeight]) {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
 :host:focus {
@@ -32,7 +39,6 @@ textarea {
 	text-rendering: inherit;
 	text-size-adjust: inherit;
 	text-align-last: inherit;
-	resize: none; /* Prevent resizing for a more controlled layout, adjust based on needs */
 	overflow-y: auto; /* Ensure content is scrollable if it exceeds the visible area */
 }
 

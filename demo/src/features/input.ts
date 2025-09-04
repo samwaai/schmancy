@@ -419,6 +419,75 @@ export class DemoInput extends $LitElement() {
 							</div>
 						</schmancy-code-preview>
 					</schmancy-grid>
+					
+					<!-- Textarea Height Options Demo -->
+					<div class="mt-8">
+						<schmancy-typography type="title" token="md" class="mb-4 block">
+							Textarea Height Options
+						</schmancy-typography>
+						<schmancy-code-preview language="html">
+							<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; height: 400px;">
+								<!-- Fill Height Example -->
+								<div style="display: flex; flex-direction: column;">
+									<schmancy-typography type="label" token="md" class="mb-2 block">
+										Fill Container Height
+									</schmancy-typography>
+									<schmancy-textarea
+										fillHeight
+										label="Fill Height"
+										placeholder="This textarea fills the container height..."
+										value="This textarea fills its container height. Try adding more content to see it scroll."
+									></schmancy-textarea>
+								</div>
+								
+								<!-- Auto Height Example -->
+								<div>
+									<schmancy-typography type="label" token="md" class="mb-2 block">
+										Auto Height (grows with content)
+									</schmancy-typography>
+									<schmancy-textarea
+										autoHeight
+										label="Auto Height"
+										placeholder="This textarea auto-adjusts height..."
+										value="This textarea automatically adjusts its height based on content. Try typing more lines to see it grow!"
+									></schmancy-textarea>
+								</div>
+								
+								<!-- Resizable Example -->
+								<div>
+									<schmancy-typography type="label" token="md" class="mb-2 block">
+										User Resizable
+									</schmancy-typography>
+									<schmancy-textarea
+										resize="vertical"
+										rows="6"
+										label="Resizable"
+										placeholder="Drag the corner to resize..."
+										value="This textarea can be resized vertically by the user. Look for the resize handle in the bottom-right corner."
+									></schmancy-textarea>
+								</div>
+								
+								<!-- Combined Example - All Features -->
+								<div style="display: flex; flex-direction: column;">
+									<schmancy-typography type="label" token="md" class="mb-2 block">
+										Combined: Fill + Auto + Resizable
+									</schmancy-typography>
+									<schmancy-textarea
+										fillHeight
+										autoHeight
+										resize="both"
+										label="All Features"
+										placeholder="This textarea combines all features..."
+										value="This textarea combines all features:
+• Fills the container height initially
+• Auto-grows as you type more content
+• Can be manually resized both horizontally and vertically
+• Try typing multiple lines or dragging the resize handle!"
+									></schmancy-textarea>
+								</div>
+							</div>
+						</schmancy-code-preview>
+					</div>
 				</div>
 			</schmancy-surface>
 		`

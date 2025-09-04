@@ -88,6 +88,33 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 	@property({ type: Number }) rows = 2
 
 	/**
+	 * Makes the textarea fill the height of its container.
+	 * @attr fillHeight
+	 * @type {boolean}
+	 * @default false
+	 * @public
+	 */
+	@property({ type: Boolean, reflect: true }) fillHeight = false
+
+	/**
+	 * Automatically adjusts height based on content.
+	 * @attr autoHeight
+	 * @type {boolean}
+	 * @default false
+	 * @public
+	 */
+	@property({ type: Boolean }) autoHeight = false
+
+	/**
+	 * Controls whether the textarea can be resized by the user.
+	 * @attr resize
+	 * @type {'none' | 'vertical' | 'horizontal' | 'both'}
+	 * @default 'none'
+	 * @public
+	 */
+	@property({ type: String, reflect: true }) resize: 'none' | 'vertical' | 'horizontal' | 'both' = 'none'
+
+	/**
 	 * Specifies how the text in a text area is to be wrapped when submitted in a form.
 	 * @attr wrap
 	 * @type {'hard' | 'soft'}
@@ -144,6 +171,10 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 		if (this.autofocus) {
 			this.focus()
 		}
+		if (this.autoHeight) {
+			// Initial adjustment for pre-filled content
+			setTimeout(() => this.adjustHeight(), 0)
+		}
 		fromEvent(this.textareaElement, 'input')
 			.pipe(
 				map(event => (event.target as HTMLTextAreaElement).value),
@@ -151,6 +182,9 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 			)
 			.subscribe(value => {
 				this.value = value
+				if (this.autoHeight) {
+					this.adjustHeight()
+				}
 				this.dispatchEvent(
 					new CustomEvent<EventDetails>('change', {
 						detail: { value },
@@ -166,6 +200,9 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 			)
 			.subscribe(value => {
 				this.value = value
+				if (this.autoHeight) {
+					this.adjustHeight()
+				}
 				this.dispatchEvent(
 					new CustomEvent<EventDetails>('change', {
 						detail: { value },
@@ -289,12 +326,21 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 			'ring-error-default focus:ring-error-default': this.error,
 			'text-center': this.align === 'center',
 			'text-right': this.align === 'right',
+			'h-full': this.fillHeight,
+			'resize-none': this.resize === 'none',
+			'resize-y': this.resize === 'vertical',
+			'resize-x': this.resize === 'horizontal',
+			'resize': this.resize === 'both',
 		}
 		const labelClasses = {
 			'opacity-40': this.disabled,
 			'block mb-[4px]': true,
 		}
+		const containerClasses = {
+			'flex flex-col h-full': this.fillHeight,
+		}
 		return html`
+		<div class="${this.classMap(containerClasses)}">
 			${when(
 				this.label,
 				() =>
@@ -309,7 +355,7 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 					</label>`,
 			)}
 
-			<schmancy-typography type="body" token="lg">
+			<schmancy-typography type="body" token="lg" class="${this.fillHeight ? 'flex-grow flex flex-col' : ''}">
 				<textarea
 					${color({
 						bgColor: SchmancyTheme.sys.color.surface.highest,
@@ -348,6 +394,7 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 					</schmancy-typography>
 				`,
 			)}
+		</div>
 		`
 	}
 }
