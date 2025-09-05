@@ -25,6 +25,7 @@ export * from './icons';
 export * from './input';
 export * from './layout';
 export * from './list';
+export * from './mailbox';
 export * from './map';
 export * from './menu';
 export * from './nav-drawer';

@@ -1,8 +1,8 @@
 import { render, TemplateResult } from 'lit'
-import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, switchMap, takeUntil, tap, timer, take } from 'rxjs'
+import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, switchMap, takeUntil, tap, timer } from 'rxjs'
+import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.component'
 import { ConfirmDialog } from './dailog'
 import { DialogHereMorty, DialogHereMortyEvent, DialogWhereAreYouRicky } from './dialog-events'
-import { ThemeWhereAreYou, ThemeHereIAm, ThemeHereIAmEvent } from '../theme/theme.component'
 
 /**
  * Dialog service options interface with component support
@@ -87,9 +87,16 @@ export class DialogService {
 			.pipe(
 				switchMap(target =>
 					forkJoin([
+						// First ask for existing dialog
 						fromEvent<DialogHereMortyEvent>(window, DialogHereMorty).pipe(
-							takeUntil(timer(100)),
+							takeUntil(timer(50)),
 							map(e => e.detail),
+							defaultIfEmpty(undefined),
+						),
+						// Then find theme container
+						fromEvent<ThemeHereIAmEvent>(window, ThemeHereIAm).pipe(
+							takeUntil(timer(50)),
+							map(e => e.detail.theme),
 							defaultIfEmpty(undefined),
 						),
 						of(target).pipe(
@@ -98,9 +105,17 @@ export class DialogService {
 									? `confirm-dialog-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 									: `dialog-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 								
+								// First ask for existing dialog
 								window.dispatchEvent(
 									new CustomEvent(DialogWhereAreYouRicky, {
 										detail: { uid },
+										bubbles: true,
+										composed: true,
+									}),
+								)
+								// Then ask for theme container
+								window.dispatchEvent(
+									new CustomEvent(ThemeWhereAreYou, {
 										bubbles: true,
 										composed: true,
 									}),
@@ -112,39 +127,33 @@ export class DialogService {
 						),
 					]),
 				),
-				switchMap(([response, target]) => {
-					let dialog: ConfirmDialog | any
+				map(([existingDialog, theme, target]) => {
+					let dialog = existingDialog?.dialog
 					let targetContainer: HTMLElement
 					
-					if (response?.dialog) {
+					if (dialog) {
 						// Use existing dialog
-						dialog = response.dialog
+						console.log('Found existing dialog:', dialog)
 						targetContainer = dialog.parentElement as HTMLElement
-						return of({ dialog, target, targetContainer })
 					} else {
-						// Determine container - use responding theme or fallback
-						if (response?.theme) {
-							targetContainer = response.theme as HTMLElement
-							return of({ dialog: null, target, targetContainer })
-						} else if (target.options.targetContainer) {
-							targetContainer = target.options.targetContainer
-							return of({ dialog: null, target, targetContainer })
+						// Determine container - use theme from discovery or fallback
+						targetContainer = theme || target.options.targetContainer || (document.querySelector('schmancy-theme') as HTMLElement) || document.body
+						
+						// Create appropriate dialog type
+						const uid = (target as any).uid
+						console.log('Creating new dialog for uid:', uid)
+						
+						if (target.type === 'confirm') {
+							dialog = document.createElement('confirm-dialog') as ConfirmDialog
 						} else {
-							// Use the same theme discovery pattern as sheet service
-							window.dispatchEvent(new CustomEvent(ThemeWhereAreYou))
-							return fromEvent<ThemeHereIAmEvent>(window, ThemeHereIAm).pipe(
-								take(1),
-								takeUntil(timer(100)),
-								map(e => e.detail.theme),
-								defaultIfEmpty(undefined),
-								map(theme => ({
-									dialog: null,
-									target,
-									targetContainer: theme || document.body
-								}))
-							)
+							dialog = document.createElement('schmancy-dialog')
 						}
+						
+						dialog.setAttribute('uid', uid)
+						targetContainer.appendChild(dialog)
 					}
+					
+					return { dialog, target, targetContainer }
 				}),
 				tap(({ dialog, target, targetContainer }) => {
 					if (!dialog) {

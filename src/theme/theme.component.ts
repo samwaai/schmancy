@@ -70,7 +70,10 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 		.pipe(
 			takeUntil(this.disconnecting)
 		)
-		.subscribe(() => {
+		.subscribe((e) => {
+			e.stopPropagation()
+			e.preventDefault()
+			console.log('Theme discovered, responding with', this)
 			// Respond immediately with this theme container
 			window.dispatchEvent(
 				new CustomEvent(ThemeHereIAm, {

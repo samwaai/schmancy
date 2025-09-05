@@ -100,19 +100,19 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 	 * Automatically adjusts height based on content.
 	 * @attr autoHeight
 	 * @type {boolean}
-	 * @default false
+	 * @default true
 	 * @public
 	 */
-	@property({ type: Boolean }) autoHeight = false
+	@property({ type: Boolean }) autoHeight = true
 
 	/**
 	 * Controls whether the textarea can be resized by the user.
 	 * @attr resize
 	 * @type {'none' | 'vertical' | 'horizontal' | 'both'}
-	 * @default 'none'
+	 * @default 'vertical'
 	 * @public
 	 */
-	@property({ type: String, reflect: true }) resize: 'none' | 'vertical' | 'horizontal' | 'both' = 'none'
+	@property({ type: String, reflect: true }) resize: 'none' | 'vertical' | 'horizontal' | 'both' = 'vertical'
 
 	/**
 	 * Specifies how the text in a text area is to be wrapped when submitted in a form.
@@ -288,8 +288,12 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 	public adjustHeight() {
 		const textarea = this.textareaRef.value
 		if (textarea) {
-			textarea.style.height = 'auto'
-			textarea.style.height = textarea.scrollHeight + 'px'
+			// Only grow, never shrink
+			const currentHeight = textarea.offsetHeight
+			const scrollHeight = textarea.scrollHeight
+			if (scrollHeight > currentHeight) {
+				textarea.style.height = scrollHeight + 'px'
+			}
 		}
 	}
 

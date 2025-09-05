@@ -43,6 +43,7 @@ import { DemoSheet } from './features/sheet-demo'
 import { DemoSlider } from './features/slider'
 import { DemoDateRangeInline } from './features/date-range-inline'
 import DetailsShowcase from './features/details-showcase'
+import { DemoMailbox } from './features/mailbox'
 
 interface DemoSection {
   title: string
@@ -90,6 +91,7 @@ export class DemoNav extends TailwindElement() {
         { name: 'Notifications', component: NotificationDemo },
         { name: 'Details', component: DetailsShowcase },
         { name: 'Map', component: DemoMap },
+        { name: 'Mailbox', component: DemoMailbox },
       ]
     },
     {
