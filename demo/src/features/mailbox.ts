@@ -503,13 +503,73 @@ export class DemoMailbox extends $LitElement() {
 								<script>
 									const mailbox = document.querySelector('schmancy-mailbox');
 									
-									// Configure templates
+									// Configure templates - Professional, minimal, no-spam designs
 									mailbox.templates = [
+										// Text-first templates
 										{
-											id: 'welcome',
-											name: 'Welcome Email',
-											subject: 'Welcome to {{company}}!',
-											body: '# Welcome!\n\nThank you for joining us...'
+											id: 'quick-update',
+											name: 'Quick Update',
+											category: 'Updates',
+											description: 'Brief bullet-point update',
+											subject: 'Quick update from {{company}}',
+											body: '**What\'s new:**\n\n• Feature X is now available\n• Performance improved by 40%\n• New documentation at docs.example.com\n\n**Action needed:** Update your API keys by Friday\n\n---\n\nQuestions? Reply to this email.'
+										},
+										{
+											id: 'weekly-brief',
+											name: 'Weekly Brief',
+											category: 'Newsletter',
+											description: 'Headlines with one-line summaries',
+											subject: 'Week of {{date}} - 3 things to know',
+											body: '**This week:**\n\n**1. System maintenance complete**\nAll services running 2x faster\n\n**2. New feature: Export to CSV**\nAvailable in Settings > Export\n\n**3. Office hours Thursday 2pm**\nBring your questions\n\n[View full details →](https://example.com/weekly)'
+										},
+										{
+											id: 'product-update',
+											name: 'Product Update',
+											category: 'Updates',
+											description: 'What changed and why it matters',
+											subject: '{{product}} v{{version}} released',
+											body: '**What changed:** Dark mode is here.\n\n**Why it matters:** Easier on your eyes during late-night work.\n\n**How to enable:** Settings > Appearance > Dark\n\n[Release notes](https://example.com/releases)'
+										},
+										{
+											id: 'newsletter',
+											name: 'Newsletter',
+											category: 'Newsletter',
+											description: 'Single topic, focused content',
+											subject: '{{topic}} - What you need to know',
+											body: '**The situation:** API rate limits are changing next month.\n\n**What this means:** Current limit of 1000 requests/hour increases to 5000 for all plans. No action needed on your part.\n\n**Timeline:** Changes take effect {{date}}.\n\n[Documentation](https://example.com/api-limits) | [Contact support](mailto:support@example.com)'
+										},
+										// Minimal visual templates
+										{
+											id: 'announcement',
+											name: 'Announcement',
+											category: 'Announcements',
+											description: 'One image, one headline, one CTA',
+											subject: 'Announcing {{feature}}',
+											body: '![{{feature}}](https://via.placeholder.com/600x300)\n\n## {{feature}} is now available\n\nStart using it today. No setup required.\n\n[Get started →](https://example.com/start)'
+										},
+										{
+											id: 'feature-launch',
+											name: 'Feature Launch',
+											category: 'Announcements',
+											description: 'Screenshot with key benefits',
+											subject: 'New: {{feature}}',
+											body: '![Screenshot](https://via.placeholder.com/600x400)\n\n**{{feature}}**\n\n✓ 50% faster processing\n✓ Works with existing setup\n✓ No additional cost\n\n[Try it now](https://example.com/feature) • [Learn more](https://example.com/docs)'
+										},
+										{
+											id: 'monthly-recap',
+											name: 'Monthly Recap',
+											category: 'Newsletter',
+											description: 'Numbers and stats in clean grid',
+											subject: '{{month}} by the numbers',
+											body: '## {{month}} Summary\n\n**99.9%** Uptime\n**2.3M** API calls processed\n**18ms** Average response time\n**4** New features shipped\n\n---\n\n**Top feature:** CSV export (used by 8,420 customers)\n\n**Coming next:** Webhook support\n\n[View detailed metrics](https://example.com/metrics)'
+										},
+										{
+											id: 'event-notice',
+											name: 'Event Notice',
+											category: 'Events',
+											description: 'Essential event information only',
+											subject: '{{event}} - {{date}}',
+											body: '## {{event}}\n\n**When:** {{date}} at {{time}} {{timezone}}\n**Where:** {{location}}\n**Duration:** {{duration}}\n\n{{description}}\n\n[Add to calendar](https://example.com/calendar) • [Register](https://example.com/register)\n\nCan\'t make it? Recording will be available.'
 										}
 									];
 									
@@ -550,13 +610,73 @@ export class DemoMailbox extends $LitElement() {
 							// Configure the mailbox
 							const mailbox = document.querySelector('schmancy-mailbox');
 							
-							// Define templates
+							// Define templates - Professional, minimal, no-spam designs
 							mailbox.templates = [
+								// Text-first templates
 								{
-									id: 'welcome',
-									name: 'Welcome Email',
-									subject: 'Welcome to {{company}}!',
-									body: '# Welcome!\n\nThank you for joining us...'
+									id: 'quick-update',
+									name: 'Quick Update',
+									category: 'Updates',
+									description: 'Brief bullet-point update',
+									subject: 'Quick update from {{company}}',
+									body: '**What\'s new:**\n\n• Feature X is now available\n• Performance improved by 40%\n• New documentation at docs.example.com\n\n**Action needed:** Update your API keys by Friday\n\n---\n\nQuestions? Reply to this email.'
+								},
+								{
+									id: 'weekly-brief',
+									name: 'Weekly Brief',
+									category: 'Newsletter',
+									description: 'Headlines with one-line summaries',
+									subject: 'Week of {{date}} - 3 things to know',
+									body: '**This week:**\n\n**1. System maintenance complete**\nAll services running 2x faster\n\n**2. New feature: Export to CSV**\nAvailable in Settings > Export\n\n**3. Office hours Thursday 2pm**\nBring your questions\n\n[View full details →](https://example.com/weekly)'
+								},
+								{
+									id: 'product-update',
+									name: 'Product Update',
+									category: 'Updates',
+									description: 'What changed and why it matters',
+									subject: '{{product}} v{{version}} released',
+									body: '**What changed:** Dark mode is here.\n\n**Why it matters:** Easier on your eyes during late-night work.\n\n**How to enable:** Settings > Appearance > Dark\n\n[Release notes](https://example.com/releases)'
+								},
+								{
+									id: 'newsletter',
+									name: 'Newsletter',
+									category: 'Newsletter',
+									description: 'Single topic, focused content',
+									subject: '{{topic}} - What you need to know',
+									body: '**The situation:** API rate limits are changing next month.\n\n**What this means:** Current limit of 1000 requests/hour increases to 5000 for all plans. No action needed on your part.\n\n**Timeline:** Changes take effect {{date}}.\n\n[Documentation](https://example.com/api-limits) | [Contact support](mailto:support@example.com)'
+								},
+								// Minimal visual templates
+								{
+									id: 'announcement',
+									name: 'Announcement',
+									category: 'Announcements',
+									description: 'One image, one headline, one CTA',
+									subject: 'Announcing {{feature}}',
+									body: '![{{feature}}](https://via.placeholder.com/600x300)\n\n## {{feature}} is now available\n\nStart using it today. No setup required.\n\n[Get started →](https://example.com/start)'
+								},
+								{
+									id: 'feature-launch',
+									name: 'Feature Launch',
+									category: 'Announcements',
+									description: 'Screenshot with key benefits',
+									subject: 'New: {{feature}}',
+									body: '![Screenshot](https://via.placeholder.com/600x400)\n\n**{{feature}}**\n\n✓ 50% faster processing\n✓ Works with existing setup\n✓ No additional cost\n\n[Try it now](https://example.com/feature) • [Learn more](https://example.com/docs)'
+								},
+								{
+									id: 'monthly-recap',
+									name: 'Monthly Recap',
+									category: 'Newsletter',
+									description: 'Numbers and stats in clean grid',
+									subject: '{{month}} by the numbers',
+									body: '## {{month}} Summary\n\n**99.9%** Uptime\n**2.3M** API calls processed\n**18ms** Average response time\n**4** New features shipped\n\n---\n\n**Top feature:** CSV export (used by 8,420 customers)\n\n**Coming next:** Webhook support\n\n[View detailed metrics](https://example.com/metrics)'
+								},
+								{
+									id: 'event-notice',
+									name: 'Event Notice',
+									category: 'Events',
+									description: 'Essential event information only',
+									subject: '{{event}} - {{date}}',
+									body: '## {{event}}\n\n**When:** {{date}} at {{time}} {{timezone}}\n**Where:** {{location}}\n**Duration:** {{duration}}\n\n{{description}}\n\n[Add to calendar](https://example.com/calendar) • [Register](https://example.com/register)\n\nCan\'t make it? Recording will be available.'
 								}
 							];
 							

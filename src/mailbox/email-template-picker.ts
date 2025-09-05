@@ -13,8 +13,8 @@ import type { EmailTemplate } from './types'
  * - Grid layout for template preview
  * - Search/filter templates
  * - Category filtering
- * - Preview before selection
- * - Confirm selection
+ * - Inline preview with direct selection
+ * - Single-click template selection
  * 
  * @example
  * ```typescript
@@ -37,14 +37,8 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 	/** Search query */
 	@state() private searchQuery = ''
 	
-	/** Selected template for preview */
-	@state() private selectedTemplate: EmailTemplate | null = null
-	
 	/** Filtered templates based on search */
 	@state() private filteredTemplates: EmailTemplate[] = []
-	
-	/** Show template preview */
-	@state() private showPreview = false
 	
 	/** Selected category filter */
 	@state() private selectedCategory = 'all'
@@ -105,33 +99,19 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 		this.updateFilteredTemplates()
 	}
 
-	/** Select template for preview */
+	/** Select template directly */
 	private selectTemplate = (template: EmailTemplate) => {
-		this.selectedTemplate = template
-		this.showPreview = true
-	}
-
-	/** Confirm template selection */
-	private confirmSelection = () => {
-		if (this.selectedTemplate) {
-			this.dispatchEvent(new CustomEvent('template-selected', {
-				detail: this.selectedTemplate,
-				bubbles: true,
-				composed: true
-			}))
-			sheet.dismiss()
-		}
+		this.dispatchEvent(new CustomEvent('template-selected', {
+			detail: template,
+			bubbles: true,
+			composed: true
+		}))
+		sheet.dismiss()
 	}
 
 	/** Close the picker */
 	private close = () => {
 		sheet.dismiss()
-	}
-
-	/** Go back from preview */
-	private backToList = () => {
-		this.showPreview = false
-		this.selectedTemplate = null
 	}
 
 	render() {
@@ -140,11 +120,9 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 				<!-- Header -->
 				<div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant">
 					<div class="flex items-center gap-3">
-						<schmancy-icon size="24px" class="text-primary">
-							${this.showPreview ? 'preview' : 'mail'}
-						</schmancy-icon>
+						<schmancy-icon size="24px" class="text-primary">mail</schmancy-icon>
 						<schmancy-typography type="headline" token="md">
-							${this.showPreview ? 'Template Preview' : 'Choose Email Template'}
+							Choose Email Template
 						</schmancy-typography>
 					</div>
 					<schmancy-button
@@ -158,53 +136,13 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 
 				<!-- Body -->
 				<div class="flex-1 flex flex-col overflow-hidden">
-					${when(
-						this.showPreview && this.selectedTemplate,
-						() => this.renderPreview(),
-						() => this.renderTemplateList()
-					)}
-				</div>
-
-				<!-- Footer -->
-				<div class="flex justify-between px-6 py-4 border-t border-outline-variant bg-surface-containerLow">
-					${when(
-						this.showPreview,
-						() => html`
-							<schmancy-button
-								variant="outlined"
-								@click=${this.backToList}
-								class="px-6 py-3"
-							>
-								<schmancy-icon slot="prefix">arrow_back</schmancy-icon>
-								Back to Templates
-							</schmancy-button>
-							<schmancy-button
-								variant="filled"
-								@click=${this.confirmSelection}
-								class="px-8 py-3 bg-primary text-primary-on shadow-md hover:shadow-lg transition-shadow"
-							>
-								<schmancy-icon slot="prefix">check_circle</schmancy-icon>
-								Use This Template
-							</schmancy-button>
-						`,
-						() => html`
-							<div class="flex gap-3">
-								<schmancy-button
-									variant="text"
-									@click=${this.close}
-									class="px-6 py-3"
-								>
-									Cancel
-								</schmancy-button>
-							</div>
-						`
-					)}
+					${this.renderTemplateList()}
 				</div>
 			</div>
 		`
 	}
 
-	/** Render template list */
+	/** Render template list with inline previews */
 	private renderTemplateList() {
 		return html`
 			<!-- Search and Filter Bar -->
@@ -213,7 +151,7 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 					<!-- Search Input -->
 					<schmancy-input
 						type="search"
-						placeholder="Search templates by name, category, or description..."
+						placeholder="Search templates..."
 						.value=${this.searchQuery}
 						@input=${this.handleSearch}
 						class="w-full"
@@ -251,12 +189,12 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 				</div>
 			</div>
 
-			<!-- Template List -->
+			<!-- Template List with Previews -->
 			<div class="flex-1 overflow-y-auto px-6 py-6">
 				${when(
 					this.filteredTemplates.length > 0,
 					() => html`
-						<div class="space-y-4">
+						<div class="space-y-6">
 							${repeat(
 								this.filteredTemplates,
 								template => template.id,
@@ -265,56 +203,40 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 										type="containerLow"
 										elevation="1"
 										rounded="all"
-										class="group cursor-pointer hover:elevation-3 transition-all duration-200 p-4"
+										class="group cursor-pointer hover:elevation-3 transition-all duration-200 overflow-hidden"
 										@click=${() => this.selectTemplate(template)}
 									>
-										<div class="flex items-start justify-between gap-4">
-											<div class="flex-1">
-												<!-- Template Header -->
-												<div class="flex items-start justify-between mb-2">
-													<schmancy-typography type="title" token="md" class="font-semibold leading-tight">
+										<!-- Template Header -->
+										<div class="p-4 border-b border-outline-variant">
+											<div class="flex items-start justify-between">
+												<div class="flex-1">
+													<schmancy-typography type="title" token="md" class="font-semibold leading-tight mb-1">
 														${template.name}
 													</schmancy-typography>
-													${when(template.isDefault, () => html`
-														<schmancy-chip class="bg-primary text-primary-on text-xs">
-															<schmancy-icon slot="prefix" size="12px">star</schmancy-icon>
-															Default
-														</schmancy-chip>
-													`)}
-												</div>
-												
-												<!-- Category Badge -->
-												${when(template.category, () => html`
-													<div class="mb-2">
+													${when(template.category, () => html`
 														<schmancy-chip class="text-xs border border-outline">
 															${template.category}
 														</schmancy-chip>
-													</div>
-												`)}
-												
-												<!-- Description -->
-												${when(
-													template.description,
-													() => html`
-														<schmancy-typography type="body" token="sm" class="text-surface-onVariant leading-relaxed">
-															${template.description}
-														</schmancy-typography>
-													`,
-													() => html`
-														<schmancy-typography type="body" token="sm" class="text-surface-onVariant opacity-60 italic">
-															No description available
-														</schmancy-typography>
-													`
-												)}
-											</div>
-											
-											<!-- Preview Button -->
-											<div class="flex-shrink-0">
-												<schmancy-button variant="outlined" size="sm">
-													<schmancy-icon slot="prefix">preview</schmancy-icon>
-													Preview
+													`)}
+												</div>
+												<schmancy-button 
+													variant="filled" 
+													size="sm"
+													class="opacity-0 group-hover:opacity-100 transition-opacity"
+												>
+													Use This
 												</schmancy-button>
 											</div>
+										</div>
+										
+										<!-- Email Preview -->
+										<div class="p-4 bg-surface">
+											<schmancy-email-viewer
+												subject=${template.subject}
+												body=${template.body}
+												mode="desktop"
+												class="max-h-96 overflow-y-auto"
+											></schmancy-email-viewer>
 										</div>
 									</schmancy-surface>
 								`
@@ -362,115 +284,6 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 						</div>
 					`
 				)}
-			</div>
-		`
-	}
-
-	/** Render template preview */
-	private renderPreview() {
-		if (!this.selectedTemplate) return null
-		
-		return html`
-			<div class="flex-1 overflow-y-auto">
-				<!-- Template Header Section -->
-				<div class="px-6 py-6 border-b border-outline-variant bg-surface-containerLow">
-					<div class="flex items-start gap-6">
-						<!-- Template Thumbnail -->
-						${when(
-							this.selectedTemplate.thumbnail,
-							() => html`
-								<div class="flex-shrink-0">
-									<schmancy-surface elevation="2" rounded="all" class="overflow-hidden w-32 h-24">
-										<img 
-											src=${this.selectedTemplate.thumbnail} 
-											alt=${this.selectedTemplate.name}
-											class="w-full h-full object-cover"
-										/>
-									</schmancy-surface>
-								</div>
-							`,
-							() => html`
-								<div class="flex-shrink-0">
-									<schmancy-surface elevation="1" rounded="all" class="w-32 h-24 bg-gradient-to-br from-surface-container to-surface-containerLow flex items-center justify-center">
-										<schmancy-icon size="32px" class="text-surface-onVariant opacity-40">mail</schmancy-icon>
-									</schmancy-surface>
-								</div>
-							`
-						)}
-
-						<!-- Template Info -->
-						<div class="flex-1">
-							<div class="flex items-start justify-between mb-3">
-								<schmancy-typography type="headline" token="lg" class="font-semibold">
-									${this.selectedTemplate.name}
-								</schmancy-typography>
-								${when(this.selectedTemplate.isDefault, () => html`
-									<schmancy-chip class="bg-primary text-primary-on">
-										<schmancy-icon slot="prefix" size="12px">star</schmancy-icon>
-										Default
-									</schmancy-chip>
-								`)}
-							</div>
-
-							<div class="flex flex-wrap gap-2 mb-3">
-								${when(this.selectedTemplate.category, () => html`
-									<schmancy-chip class="border border-outline">
-										<schmancy-icon slot="prefix" size="12px">category</schmancy-icon>
-										${this.selectedTemplate.category}
-									</schmancy-chip>
-								`)}
-								${when(this.selectedTemplate.createdAt, () => html`
-									<schmancy-chip class="border border-outline">
-										<schmancy-icon slot="prefix" size="12px">schedule</schmancy-icon>
-										Created ${new Date(this.selectedTemplate.createdAt!).toLocaleDateString()}
-									</schmancy-chip>
-								`)}
-							</div>
-
-							${when(
-								this.selectedTemplate.description,
-								() => html`
-									<schmancy-typography type="body" token="md" class="text-surface-onVariant leading-relaxed">
-										${this.selectedTemplate.description}
-									</schmancy-typography>
-								`
-							)}
-						</div>
-					</div>
-				</div>
-
-				<!-- Template Content -->
-				<div class="px-6 py-6 space-y-8">
-					<!-- Subject Preview -->
-					<div>
-						<div class="flex items-center gap-2 mb-4">
-							<schmancy-icon size="20px" class="text-primary">subject</schmancy-icon>
-							<schmancy-typography type="title" token="md" class="text-primary">
-								Subject Line
-							</schmancy-typography>
-						</div>
-						<schmancy-surface elevation="1" type="surface" class="p-4 border-l-4 border-primary">
-							<schmancy-typography type="body" token="md" class="font-medium">
-								${this.selectedTemplate.subject}
-							</schmancy-typography>
-						</schmancy-surface>
-					</div>
-
-					<!-- Body Preview -->
-					<div>
-						<div class="flex items-center gap-2 mb-4">
-							<schmancy-icon size="20px" class="text-primary">article</schmancy-icon>
-							<schmancy-typography type="title" token="md" class="text-primary">
-								Email Preview
-							</schmancy-typography>
-						</div>
-						<schmancy-email-viewer
-							subject=${this.selectedTemplate.subject}
-							body=${this.selectedTemplate.body}
-							mode="desktop"
-						></schmancy-email-viewer>
-					</div>
-				</div>
 			</div>
 		`
 	}
