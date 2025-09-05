@@ -7,8 +7,8 @@ declare const SchmancyEmailTemplatePicker_base: CustomElementConstructor & impor
  * - Grid layout for template preview
  * - Search/filter templates
  * - Category filtering
- * - Preview before selection
- * - Confirm selection
+ * - Inline preview with direct selection
+ * - Single-click template selection
  *
  * @example
  * ```typescript
@@ -24,12 +24,8 @@ export declare class SchmancyEmailTemplatePicker extends SchmancyEmailTemplatePi
     templates: EmailTemplate[];
     /** Search query */
     private searchQuery;
-    /** Selected template for preview */
-    private selectedTemplate;
     /** Filtered templates based on search */
     private filteredTemplates;
-    /** Show template preview */
-    private showPreview;
     /** Selected category filter */
     private selectedCategory;
     connectedCallback(): void;
@@ -42,19 +38,13 @@ export declare class SchmancyEmailTemplatePicker extends SchmancyEmailTemplatePi
     private handleSearch;
     /** Handle category selection */
     private handleCategorySelect;
-    /** Select template for preview */
+    /** Select template directly */
     private selectTemplate;
-    /** Confirm template selection */
-    private confirmSelection;
     /** Close the picker */
     private close;
-    /** Go back from preview */
-    private backToList;
     render(): import("lit-html").TemplateResult<1>;
-    /** Render template list */
+    /** Render template list with inline previews */
     private renderTemplateList;
-    /** Render template preview */
-    private renderPreview;
 }
 declare global {
     interface HTMLElementTagNameMap {
