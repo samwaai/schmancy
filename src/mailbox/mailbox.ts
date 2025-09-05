@@ -6,8 +6,7 @@ import type {
 	EmailTemplate, 
 	EmailAttachment, 
 	EmailComposeConfig, 
-	SendEmailRequest, 
-	SendEmailResponse,
+	SendEmailRequest,
 	ImportSource 
 } from './types'
 
@@ -359,6 +358,6 @@ export class SchmancyMailbox extends $LitElement(css`
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-email-compose': SchmancyEmailCompose
+		'schmancy-mailbox': SchmancyMailbox
 	}
 }

@@ -1,4 +1,3 @@
-import type { ImportSource } from './types';
 /**
  * CSV parser interface (optional dependency)
  * Can be provided via global window object or imported
@@ -27,12 +26,6 @@ declare const SchmancyEmailRecipients_base: CustomElementConstructor & import("@
  * ```html
  * <schmancy-email-recipients
  *   .recipients=${['user1@example.com', 'user2@example.com']}
- *   .importSources=${[{
- *     id: 'contacts',
- *     label: 'Import from Contacts',
- *     icon: 'contacts',
- *     handler: () => importContacts()
- *   }]}
  *   @emails-imported=${handleEmailsImported}
  * ></schmancy-email-recipients>
  * ```
@@ -44,8 +37,6 @@ export declare class SchmancyEmailRecipients extends SchmancyEmailRecipients_bas
     recipients: string[];
     /** Currently selected recipients */
     selectedRecipients: string[];
-    /** Available import sources */
-    importSources: ImportSource[];
     /** Enable CSV import functionality */
     enableCsvImport: boolean;
     /** Enable drag and drop for files */
@@ -121,7 +112,7 @@ export declare class SchmancyEmailRecipients extends SchmancyEmailRecipients_bas
 }
 declare global {
     interface HTMLElementTagNameMap {
-        'schmancy-recipients-panel': SchmancyRecipientsPanel;
+        'schmancy-email-recipients': SchmancyEmailRecipients;
     }
 }
 export {};

@@ -80,7 +80,7 @@ export declare class SchmancyEmailViewer extends SchmancyEmailViewer_base {
 }
 declare global {
     interface HTMLElementTagNameMap {
-        'schmancy-email-preview': SchmancyEmailPreview;
+        'schmancy-email-viewer': SchmancyEmailViewer;
     }
 }
 export {};

@@ -80,7 +80,7 @@ export default class SchmancyTextarea extends SchmancyTextarea_base {
      * Automatically adjusts height based on content.
      * @attr autoHeight
      * @type {boolean}
-     * @default false
+     * @default true
      * @public
      */
     autoHeight: boolean;
@@ -88,7 +88,7 @@ export default class SchmancyTextarea extends SchmancyTextarea_base {
      * Controls whether the textarea can be resized by the user.
      * @attr resize
      * @type {'none' | 'vertical' | 'horizontal' | 'both'}
-     * @default 'none'
+     * @default 'vertical'
      * @public
      */
     resize: 'none' | 'vertical' | 'horizontal' | 'both';

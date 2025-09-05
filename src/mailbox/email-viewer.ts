@@ -710,6 +710,6 @@ export class SchmancyEmailViewer extends $LitElement(css`
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-email-preview': SchmancyEmailPreview
+		'schmancy-email-viewer': SchmancyEmailViewer
 	}
 }

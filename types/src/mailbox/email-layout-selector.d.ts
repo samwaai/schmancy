@@ -2,22 +2,12 @@ declare const SchmancyEmailLayoutSelector_base: import("@mixins/index").Construc
 /**
  * Email layout selector component for choosing email templates
  *
- * Features:
- * - Grid-based layout selection
- * - Visual icons for each layout type
- * - Clean, compact interface
+ * Simple horizontal row of 5 layout options using Schmancy components only.
  *
- * @example
- * ```html
- * <schmancy-email-layout-selector
- *   @layout-select=${(e) => applyLayout(e.detail.layout)}
- * ></schmancy-email-layout-selector>
- * ```
- *
- * @fires layout-select - When a layout is selected
+ * @fires layout-select - When a layout is selected with {detail: {layout: string}}
  */
 export declare class SchmancyEmailLayoutSelector extends SchmancyEmailLayoutSelector_base {
-    /** Emit layout selection event */
+    private layouts;
     private selectLayout;
     render(): import("lit-html").TemplateResult<1>;
 }

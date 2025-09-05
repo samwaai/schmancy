@@ -76,7 +76,7 @@ export declare class SchmancyMailbox extends SchmancyMailbox_base {
 }
 declare global {
     interface HTMLElementTagNameMap {
-        'schmancy-email-compose': SchmancyEmailCompose;
+        'schmancy-mailbox': SchmancyMailbox;
     }
 }
 export {};

@@ -4,8 +4,8 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { when } from 'lit/directives/when.js'
-import type { ImportSource, BoatState, CsvParseResult } from './types'
 import { $notify } from '../notification'
+import type { BoatState } from './types'
 
 /**
  * CSV parser interface (optional dependency)
@@ -33,12 +33,6 @@ interface CSVParser {
  * ```html
  * <schmancy-email-recipients
  *   .recipients=${['user1@example.com', 'user2@example.com']}
- *   .importSources=${[{
- *     id: 'contacts',
- *     label: 'Import from Contacts',
- *     icon: 'contacts',
- *     handler: () => importContacts()
- *   }]}
  *   @emails-imported=${handleEmailsImported}
  * ></schmancy-email-recipients>
  * ```
@@ -59,8 +53,6 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 	/** Currently selected recipients */
 	@property({ type: Array }) selectedRecipients: string[] = []
 	
-	/** Available import sources */
-	@property({ type: Array }) importSources: ImportSource[] = []
 	
 	/** Enable CSV import functionality */
 	@property({ type: Boolean }) enableCsvImport = true
@@ -317,11 +309,14 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 
 	/** Update filtered recipients based on search */
 	private updateFilteredRecipients = () => {
+		// Ensure recipients is an array
+		const recipientsList = Array.isArray(this.recipients) ? this.recipients : []
+		
 		if (!this.searchQuery.trim()) {
-			this.filteredRecipients = [...this.recipients]
+			this.filteredRecipients = [...recipientsList]
 		} else {
 			const query = this.searchQuery.toLowerCase()
-			this.filteredRecipients = this.recipients.filter(email => 
+			this.filteredRecipients = recipientsList.filter(email => 
 				email.toLowerCase().includes(query)
 			)
 		}
@@ -394,15 +389,11 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 	}
 
 	render() {
-		const selectionPercentage = this.recipients.length > 0 
-			? Math.round((this.localSelectedRecipients.size / this.recipients.length) * 100)
-			: 0
-
-		return this.renderBoatLayout(selectionPercentage)
+		return this.renderBoatLayout()
 	}
 
 	/** Render floating boat layout */
-	private renderBoatLayout(selectionPercentage: number) {
+	private renderBoatLayout() {
 		return html`
 			<!-- Hidden file input for CSV import -->
 			${when(this.enableCsvImport, () => html`
@@ -436,78 +427,51 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 
 				<!-- Boat Content -->
 				<div class="h-full flex flex-col max-h-[70vh]">
-					${this.renderBoatContent(selectionPercentage)}
+					${this.renderBoatContent()}
 				</div>
 			</schmancy-boat>
 		`
 	}
 
 	/** Render boat content */
-	private renderBoatContent(selectionPercentage: number) {
+	private renderBoatContent() {
 		return html`
-			<!-- Import Actions -->
-			<schmancy-surface type="containerLow" rounded="all" class="m-4 p-4">
-				<div class="flex flex-wrap gap-2">
-					${repeat(this.importSources, source => source.id, (source) => html`
+			<!-- Search Bar and CSV Import on one line -->
+			<div class="p-4 flex gap-3">
+				<schmancy-input
+					type="text"
+					placeholder="Search recipients"
+					.value=${this.searchQuery}
+					@input=${this.handleSearchInput}
+					class="flex-1"
+				>
+					${when(this.searchQuery, () => html`
 						<schmancy-button
-							variant="outlined"
-							@click=${source.handler}
-							?disabled=${this.disabled}
+							slot="suffix" 
+							variant="text"
+							@click=${this.clearSearch}
 						>
-							<schmancy-icon slot="prefix" size="16px">${source.icon}</schmancy-icon>
-							${source.label}
+							<schmancy-icon size="16px">close</schmancy-icon>
 						</schmancy-button>
 					`)}
-
-					${when(this.enableCsvImport, () => html`
-						<schmancy-button
-							variant="outlined"
-							@click=${this.handleImportFromCSV}
-							?disabled=${this.disabled}
-						>
-							<schmancy-icon slot="prefix" size="16px">upload_file</schmancy-icon>
-							CSV Import
-						</schmancy-button>
-					`)}
-				</div>
-			</schmancy-surface>
+				</schmancy-input>
+				
+				${when(this.enableCsvImport, () => html`
+					<schmancy-button
+						variant="outlined"
+						@click=${this.handleImportFromCSV}
+						?disabled=${this.disabled}
+					>
+						<schmancy-icon slot="prefix" size="16px">upload_file</schmancy-icon>
+						Import
+					</schmancy-button>
+				`)}
+			</div>
 
 			${when(this.recipients.length > 0, () => html`
-				<!-- Search and Controls -->
-				<div class="mx-4 space-y-4">
-					<!-- Search Bar -->
-					<schmancy-input
-						type="text"
-						label="Search recipients"
-						.value=${this.searchQuery}
-						@input=${this.handleSearchInput}
-						class="w-full"
-					>
-						${when(this.searchQuery, () => html`
-							<schmancy-button
-								slot="suffix" 
-								variant="text"
-								@click=${this.clearSearch}
-							>
-								<schmancy-icon size="16px">close</schmancy-icon>
-							</schmancy-button>
-						`)}
-					</schmancy-input>
-
-					<!-- Selection Stats -->
-					<schmancy-surface type="containerLow" rounded="all" class="p-3">
-						<div class="flex items-center justify-between">
-							<schmancy-typography type="body" token="sm">
-								${this.localSelectedRecipients.size} of ${this.filteredRecipients.length} selected
-							</schmancy-typography>
-							<schmancy-typography type="body" token="sm" class="font-medium">
-								${selectionPercentage}%
-							</schmancy-typography>
-						</div>
-					</schmancy-surface>
-
-					<!-- Bulk Actions -->
-					<div class="flex items-center gap-2">
+				<!-- Bulk Actions -->
+				<div class="px-4 pb-4">
+					<div class="flex items-center gap-3">
 						<schmancy-button 
 							variant="outlined"
 							@click=${this.selectAll}
@@ -540,7 +504,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 					${when(
 						this.filteredRecipients.length > 0,
 						() => html`
-							<div class="flex flex-wrap gap-2">
+							<div class="flex flex-wrap gap-3">
 								${repeat(
 									this.filteredRecipients,
 									email => email,
@@ -608,7 +572,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 						@dragleave=${() => (this.dragOver = false)}
 						@drop=${this.handleDrop}
 					>
-						<schmancy-surface type="primaryContainer" rounded="all" class="p-6 text-center">
+						<schmancy-surface type="surfaceDim" rounded="all" class="p-6 text-center">
 							<schmancy-icon size="48px" class="mb-2">upload</schmancy-icon>
 							<schmancy-typography type="body" token="md">
 								Drop CSV file here
@@ -623,6 +587,6 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-recipients-panel': SchmancyRecipientsPanel
+		'schmancy-email-recipients': SchmancyEmailRecipients
 	}
 }
