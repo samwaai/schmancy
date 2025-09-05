@@ -13,6 +13,9 @@ export interface EmailTemplate {
 	body: string
 	isDefault?: boolean
 	createdAt?: Date | string
+	category?: string
+	description?: string
+	thumbnail?: string
 }
 
 /**

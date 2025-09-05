@@ -1,11 +1,10 @@
-import type { EmailTemplate, EmailAttachment, EmailComposeConfig } from './types';
+import type { EmailAttachment, EmailComposeConfig, EmailTemplate } from './types';
 import './email-layout-selector';
 declare const SchmancyEmailEditor_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * Email editor component with rich text formatting and file attachments
  *
  * Features:
- * - Template selection
  * - Markdown formatting toolbar
  * - Image upload and insertion
  * - File attachments with drag & drop
@@ -17,7 +16,6 @@ declare const SchmancyEmailEditor_base: CustomElementConstructor & import("@mixi
  * <schmancy-email-editor
  *   .subject="Welcome to our service"
  *   .body="Email content..."
- *   .templates=${emailTemplates}
  *   @editor-change=${handleChange}
  * ></schmancy-email-editor>
  * ```
@@ -27,16 +25,15 @@ export declare class SchmancyEmailEditor extends SchmancyEmailEditor_base {
     subject: string;
     /** Email body content (markdown) */
     body: string;
-    /** Available email templates */
-    templates: EmailTemplate[];
     /** Disable all interactions */
     disabled: boolean;
     /** Email attachments */
     attachments: EmailAttachment[];
     /** Configuration for upload handlers */
     config: EmailComposeConfig;
+    /** Available email templates */
+    templates: EmailTemplate[];
     /** Internal state */
-    private selectedTemplate;
     private dragOver;
     private isUploading;
     /** Element references */
@@ -46,6 +43,8 @@ export declare class SchmancyEmailEditor extends SchmancyEmailEditor_base {
     private imageInputRef;
     connectedCallback(): void;
     disconnectedCallback(): void;
+    /** Get default email templates */
+    private getDefaultTemplates;
     private addKeyboardListeners;
     private addDragListeners;
     /** Handle keyboard shortcuts and tab indentation */
@@ -56,10 +55,6 @@ export declare class SchmancyEmailEditor extends SchmancyEmailEditor_base {
     private handleSubjectChange;
     /** Handle body textarea changes */
     private handleBodyChange;
-    /** Select and apply a template */
-    private selectTemplate;
-    /** Clear template selection */
-    private clearTemplate;
     /** Dispatch composer change event */
     private dispatchChange;
     /** Insert text at cursor position */
@@ -68,6 +63,10 @@ export declare class SchmancyEmailEditor extends SchmancyEmailEditor_base {
     private wrapSelection;
     /** Open layout selection dialog */
     private openLayoutDialog;
+    /** Open template picker */
+    private openTemplatePicker;
+    /** Handle template selection */
+    private handleTemplateSelected;
     /** Apply layout template to content */
     private applyLayout;
     /** Upload image with configurable handler */

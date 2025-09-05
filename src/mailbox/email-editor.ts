@@ -4,16 +4,17 @@ import { customElement, state, property } from 'lit/decorators.js'
 import { ref, createRef } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
 import { repeat } from 'lit/directives/repeat.js'
-import type { EmailTemplate, EmailAttachment, EmailComposeConfig } from './types'
+import type { EmailAttachment, EmailComposeConfig, EmailTemplate } from './types'
 import { $notify } from '../notification'
 import { $dialog } from '../dialog'
+import { sheet } from '../sheet/sheet.service'
 import './email-layout-selector'
+import { SchmancyEmailTemplatePicker } from './email-template-picker'
 
 /**
  * Email editor component with rich text formatting and file attachments
  * 
  * Features:
- * - Template selection
  * - Markdown formatting toolbar
  * - Image upload and insertion
  * - File attachments with drag & drop
@@ -25,7 +26,6 @@ import './email-layout-selector'
  * <schmancy-email-editor
  *   .subject="Welcome to our service"
  *   .body="Email content..."
- *   .templates=${emailTemplates}
  *   @editor-change=${handleChange}
  * ></schmancy-email-editor>
  * ```
@@ -43,8 +43,6 @@ export class SchmancyEmailEditor extends $LitElement(css`
 	/** Email body content (markdown) */
 	@property({ type: String }) body = ''
 	
-	/** Available email templates */
-	@property({ type: Array }) templates: EmailTemplate[] = []
 	
 	/** Disable all interactions */
 	@property({ type: Boolean }) disabled = false
@@ -54,9 +52,11 @@ export class SchmancyEmailEditor extends $LitElement(css`
 	
 	/** Configuration for upload handlers */
 	@property({ type: Object }) config: EmailComposeConfig = {}
+	
+	/** Available email templates */
+	@property({ type: Array }) templates: EmailTemplate[] = this.getDefaultTemplates()
 
 	/** Internal state */
-	@state() private selectedTemplate: string | null = null
 	@state() private dragOver = false
 	@state() private isUploading = false
 
@@ -78,6 +78,265 @@ export class SchmancyEmailEditor extends $LitElement(css`
 		document.removeEventListener('dragenter', this.handleDragEnter)
 		document.removeEventListener('dragleave', this.handleDocumentDragLeave)
 		document.removeEventListener('drop', this.handleDocumentDrop)
+	}
+
+	/** Get default email templates */
+	private getDefaultTemplates(): EmailTemplate[] {
+		return [
+			{
+				id: 'welcome',
+				name: 'Welcome Email',
+				subject: 'Welcome to Our Community! 🌟',
+				description: 'A warm welcome message for new users',
+				category: 'onboarding',
+				body: `# Welcome to Our Community!
+
+We're thrilled to have you on board. Thank you for joining us on this journey.
+
+## What's Next?
+
+* **Explore** your dashboard and discover all the features
+* **Connect** with other community members
+* **Get support** whenever you need it - we're here to help
+
+---
+
+*Need assistance? Simply reply to this email and we'll get back to you within 24 hours.*
+
+Best regards,  
+The Team`
+			},
+			{
+				id: 'newsletter',
+				name: 'Newsletter',
+				subject: 'Weekly Insights & Updates',
+				description: 'Regular newsletter template with updates and insights',
+				category: 'communication',
+				body: `# This Week's Highlights
+
+## Featured Story
+
+**[Article Title]**  
+Brief description of the main story or update that you want to highlight this week.
+
+[Read More](https://example.com)
+
+## Quick Updates
+
+* **Update 1**: Brief description of an important update
+* **Update 2**: Another noteworthy development
+* **Update 3**: Additional news worth sharing
+
+## Upcoming Events
+
+**[Event Name]** - *Date*  
+Short description of the upcoming event.
+
+---
+
+*Thanks for reading! Forward this to a friend who might enjoy it.*
+
+Until next week,  
+The Team`
+			},
+			{
+				id: 'product-launch',
+				name: 'Product Launch',
+				subject: 'Introducing Our Latest Innovation 🚀',
+				description: 'Announce new products or features',
+				category: 'marketing',
+				body: `# Something Amazing is Here
+
+We've been working hard behind the scenes, and today we're excited to introduce our latest creation.
+
+## Key Features
+
+* **Feature 1**: Benefit that matters to your users
+* **Feature 2**: Another compelling capability
+* **Feature 3**: The feature that sets you apart
+
+## Early Access
+
+As a valued member, you get **exclusive early access** starting today.
+
+[Get Started Now](https://example.com)
+
+---
+
+*Questions? We'd love to hear from you. Just hit reply!*
+
+Best,  
+The Product Team`
+			},
+			{
+				id: 'event-invitation',
+				name: 'Event Invitation',
+				subject: 'You\'re Invited: [Event Name]',
+				description: 'Professional event invitation template',
+				category: 'events',
+				body: `# You're Invited!
+
+## [Event Name]
+
+**When**: [Date & Time]  
+**Where**: [Location or Virtual Link]  
+**Duration**: [Duration]
+
+Join us for an exclusive gathering where we'll explore [brief event description].
+
+## What to Expect
+
+* **Networking** with industry professionals
+* **Insights** from leading experts
+* **Interactive** sessions and discussions
+
+## RSVP Required
+
+Space is limited, so please confirm your attendance by [RSVP Date].
+
+[Confirm Attendance](https://example.com)
+
+---
+
+*Can't make it? Let us know and we'll share the key highlights with you.*
+
+Looking forward to seeing you there,  
+The Events Team`
+			},
+			{
+				id: 'thank-you',
+				name: 'Thank You',
+				subject: 'Thank You - It Means Everything',
+				description: 'Express gratitude to customers or supporters',
+				category: 'appreciation',
+				body: `# Thank You
+
+Your support means the world to us.
+
+Whether you've been with us from the beginning or just joined our community, we want you to know how much we appreciate you.
+
+## Because of You
+
+* We've been able to improve our service
+* Our community has grown stronger
+* We've achieved milestones we never thought possible
+
+## What's Next
+
+We're committed to continuing to earn your trust and providing even more value in the coming months.
+
+---
+
+*Your feedback shapes everything we do. Reply anytime with thoughts or suggestions.*
+
+With genuine gratitude,  
+The Team`
+			},
+			{
+				id: 'feedback-request',
+				name: 'Feedback Request',
+				subject: 'Your Opinion Matters - 2 Minutes?',
+				description: 'Request feedback or reviews from users',
+				category: 'feedback',
+				body: `# We'd Love Your Feedback
+
+Your experience matters to us, and we're always looking for ways to improve.
+
+## Quick Favor?
+
+Could you spare **2 minutes** to share your thoughts? Your honest feedback helps us serve you better.
+
+[Share Your Feedback](https://example.com)
+
+## What We're Asking
+
+* How has your experience been so far?
+* What's working well for you?
+* What could we improve?
+
+## Thank You Gift
+
+As a small token of appreciation, everyone who completes our feedback form receives [incentive].
+
+---
+
+*Every response is read personally by our team. We take your input seriously.*
+
+Thanks in advance,  
+The Team`
+			},
+			{
+				id: 'password-reset',
+				name: 'Password Reset',
+				subject: 'Reset Your Password - Action Required',
+				description: 'Secure password reset instructions',
+				category: 'security',
+				body: `# Password Reset Request
+
+We received a request to reset the password for your account.
+
+## Reset Your Password
+
+Click the button below to create a new password. This link will expire in **24 hours** for your security.
+
+[Reset Password](https://example.com/reset)
+
+## Didn't Request This?
+
+If you didn't request a password reset, please ignore this email. Your account remains secure.
+
+## Need Help?
+
+If you're having trouble with the reset process, contact our support team and we'll assist you right away.
+
+---
+
+*For security reasons, this link can only be used once and expires in 24 hours.*
+
+Best regards,  
+Security Team`
+			},
+			{
+				id: 'order-confirmation',
+				name: 'Order Confirmation',
+				subject: 'Order Confirmed - #[ORDER-NUMBER]',
+				description: 'Professional order confirmation template',
+				category: 'commerce',
+				body: `# Order Confirmation
+
+Thanks for your order! We've received your payment and are preparing your items for shipment.
+
+## Order Details
+
+**Order Number**: #[ORDER-NUMBER]  
+**Order Date**: [DATE]  
+**Total**: $[AMOUNT]
+
+## Items Ordered
+
+* **[Item 1]** - Quantity: [QTY] - $[PRICE]
+* **[Item 2]** - Quantity: [QTY] - $[PRICE]
+
+## Shipping Information
+
+**Address**: [SHIPPING ADDRESS]  
+**Method**: [SHIPPING METHOD]  
+**Estimated Delivery**: [DELIVERY DATE]
+
+## Next Steps
+
+You'll receive a tracking number via email once your order ships (usually within 1-2 business days).
+
+[Track Your Order](https://example.com/track)
+
+---
+
+*Questions about your order? Reply to this email or contact our support team.*
+
+Thank you for your business,  
+The Fulfillment Team`
+			}
+		]
 	}
 
 	private addKeyboardListeners() {
@@ -137,32 +396,12 @@ export class SchmancyEmailEditor extends $LitElement(css`
 		this.dispatchChange()
 	}
 
-	/** Select and apply a template */
-	private selectTemplate = (templateId: string) => {
-		const template = this.templates.find(t => t.id === templateId)
-		if (template) {
-			this.subject = template.subject
-			this.body = template.body
-			this.selectedTemplate = templateId
-			this.dispatchChange()
-		}
-	}
-
-	/** Clear template selection */
-	private clearTemplate = () => {
-		this.subject = ''
-		this.body = ''
-		this.selectedTemplate = null
-		this.dispatchChange()
-	}
-
 	/** Dispatch composer change event */
 	private dispatchChange = () => {
 		this.dispatchEvent(new CustomEvent('editor-change', {
 			detail: {
 				subject: this.subject,
 				body: this.body,
-				templateId: this.selectedTemplate,
 				attachments: this.attachments
 			},
 			bubbles: true,
@@ -252,6 +491,27 @@ export class SchmancyEmailEditor extends $LitElement(css`
 				}}
 			></schmancy-email-layout-selector>
 		`)
+	}
+
+	/** Open template picker */
+	private openTemplatePicker = () => {
+		const picker = new SchmancyEmailTemplatePicker()
+		picker.templates = this.templates
+		picker.addEventListener('template-selected', this.handleTemplateSelected)
+		
+		sheet.open({
+			component: picker,
+			title: 'Choose Email Template'
+		})
+	}
+
+	/** Handle template selection */
+	private handleTemplateSelected = (e: CustomEvent) => {
+		const template: EmailTemplate = e.detail
+		this.subject = template.subject
+		this.body = template.body
+		this.dispatchChange()
+		$notify.success(`Template "${template.name}" applied successfully`)
 	}
 
 	/** Apply layout template to content */
@@ -583,37 +843,8 @@ Your primary content goes here. This area takes up most of the width while the s
 			>
 				<div class="flex flex-col h-full gap-4">
 
-					<!-- Header Section with Templates and Subject -->
+					<!-- Header Section with Subject -->
 					<div class="flex-shrink-0 p-4 pb-0 space-y-4">
-						<!-- Template Selector -->
-						${when(this.templates.length > 0, () => html`
-							<div class="space-y-3">
-								<schmancy-typography type="label" token="md">
-									Email Templates
-								</schmancy-typography>
-								<div class="flex flex-wrap gap-2">
-									${repeat(this.templates, template => template.id, (template) => html`
-										<schmancy-chip
-											?selected=${this.selectedTemplate === template.id}
-											@click=${() => this.selectTemplate(template.id)}
-											class="text-sm"
-										>
-											${template.name}
-										</schmancy-chip>
-									`)}
-									${when(this.selectedTemplate, () => html`
-										<schmancy-button
-											variant="text"
-											@click=${this.clearTemplate}
-										>
-											<schmancy-icon slot="prefix" size="16px">clear</schmancy-icon>
-											Clear
-										</schmancy-button>
-									`)}
-								</div>
-							</div>
-						`)}
-
 						<!-- Subject Field -->
 						<div class="space-y-2">
 							<schmancy-typography type="label" token="md">
@@ -714,7 +945,16 @@ Your primary content goes here. This area takes up most of the width while the s
 										?disabled=${this.disabled}
 										@click=${this.openLayoutDialog}
 									>
-										<schmancy-icon>view_column</schmancy-icon>
+										<schmancy-icon>mobile_layout</schmancy-icon>
+									</schmancy-icon-button>
+									<schmancy-icon-button 
+										size="sm" 
+										variant="text" 
+										title="Use Template" 
+										?disabled=${this.disabled || this.templates.length === 0}
+										@click=${this.openTemplatePicker}
+									>
+										<schmancy-icon>description</schmancy-icon>
 									</schmancy-icon-button>
 								</div>
 							</div>
@@ -805,6 +1045,7 @@ Tab key inserts 2 spaces for better formatting."
 
 				</div>
 			</schmancy-surface>
+
 		`
 	}
 }
