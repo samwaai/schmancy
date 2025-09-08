@@ -3,7 +3,7 @@
 ## Quick Start
 
 ```typescript
-import { ripple, color, height, visibility } from '@mhmo91/schmancy/directives'
+import { ripple, color, height, visibility } from '@mhmo91/schmancy'
 ```
 
 ## Directives Overview
