@@ -444,7 +444,6 @@ sheet.dismiss()
 									const cancelBtn = dateFilterContent.querySelector('#cancelBtn')
 
 									dateRange?.addEventListener('change', (e: CustomEvent) => {
-										console.log('Date range selected:', e.detail)
 									})
 
 									applyBtn?.addEventListener('click', () => {
@@ -514,7 +513,6 @@ sheet.dismiss()
 									setTimeout(() => {
 										const dismissBtn = testContent.querySelector('#dismissBtn')
 										dismissBtn?.addEventListener('click', () => {
-											console.log('Dismissing sheet programmatically...')
 											sheet.dismiss('dismiss-test')
 										})
 									}, 100)
@@ -524,18 +522,14 @@ sheet.dismiss()
 										title: 'Dismiss Test',
 										uid: 'dismiss-test',
 										onBeforeOpen: (component) => {
-											console.log('Sheet opened, component:', component)
 										},
 										onAfterOpen: (component) => {
-											console.log('Sheet fully open')
 											
 											// Log sheet state
-											console.log('Is sheet open?', sheet.isOpen('dismiss-test'))
 											
 											// Test auto-dismiss after 10 seconds
 											setTimeout(() => {
 												if (sheet.isOpen('dismiss-test')) {
-													console.log('Auto-dismissing after 10 seconds...')
 													sheet.dismiss('dismiss-test')
 												}
 											}, 10000)
@@ -582,7 +576,6 @@ sheet.dismiss()
 												confirmText: 'Yes, it works!',
 												cancelText: 'No, it\'s behind'
 											})
-											console.log('Dialog result:', confirmed)
 										})
 									}, 100)
 

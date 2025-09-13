@@ -362,7 +362,6 @@ export class DemoDateRange extends $LitElement() {
 						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-date-range
 								@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-									console.log('Date range changed:', e.detail)
 								}}"
 							></schmancy-date-range>
 						</schmancy-code-preview>
@@ -377,7 +376,6 @@ export class DemoDateRange extends $LitElement() {
 									.dateFrom="${{ label: 'From', value: new Date().toISOString().split('T')[0] }}"
 									.dateTo="${{ label: 'To', value: new Date().toISOString().split('T')[0] }}"
 									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-										console.log('Date range changed:', e.detail)
 									}}"
 								></schmancy-date-range>
 							</div>
@@ -403,7 +401,6 @@ export class DemoDateRange extends $LitElement() {
 											.split('T')[0],
 									}}"
 									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-										console.log('Week range changed:', e.detail)
 									}}"
 								></schmancy-date-range>
 							</div>
@@ -425,7 +422,6 @@ export class DemoDateRange extends $LitElement() {
 										value: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
 									}}"
 									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-										console.log('Month range changed:', e.detail)
 									}}"
 								></schmancy-date-range>
 							</div>
@@ -441,7 +437,6 @@ export class DemoDateRange extends $LitElement() {
 									allowDirectInput
 									placeholder="Type or select date range"
 									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-										console.log('Typed date range:', e.detail)
 									}}"
 								></schmancy-date-range>
 							</div>
@@ -489,7 +484,6 @@ export class DemoDateRange extends $LitElement() {
 								maxDate="${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}"
 								placeholder="Select dates within next 30 days"
 								@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-									console.log('Selected range:', e.detail)
 								}}"
 							></schmancy-date-range>
 						</schmancy-code-preview>
@@ -507,7 +501,6 @@ export class DemoDateRange extends $LitElement() {
 									.dateFrom="${{ label: 'From', value: '2025-01-01' }}"
 									.dateTo="${{ label: 'To', value: '2025-01-07' }}"
 									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-										console.log('Navigated within bounds:', e.detail)
 									}}"
 								></schmancy-date-range>
 							</div>
@@ -529,7 +522,6 @@ export class DemoDateRange extends $LitElement() {
 									minDate="${new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}"
 									maxDate="${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}"
 									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-										console.log('Week navigation:', e.detail)
 									}}"
 								></schmancy-date-range>
 							</div>
@@ -552,7 +544,6 @@ export class DemoDateRange extends $LitElement() {
 										value: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
 									}}"
 									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-										console.log('Month navigation:', e.detail)
 									}}"
 								></schmancy-date-range>
 							</div>
@@ -572,7 +563,6 @@ export class DemoDateRange extends $LitElement() {
 										value: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
 									}}"
 									@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-										console.log('3-day step navigation:', e.detail)
 									}}"
 								></schmancy-date-range>
 							</div>
@@ -639,7 +629,6 @@ export class DemoDateRange extends $LitElement() {
 						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-form
 								@submit="${(e: CustomEvent) => {
-									console.log('Form data:', e.detail.data)
 									alert('Booking submitted! Check console for details.')
 								}}"
 								class="space-y-4 max-w-md"
@@ -716,7 +705,6 @@ export class DemoDateRange extends $LitElement() {
 											placeholder="Select reporting period"
 											@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
 												this.reportRange = { from: e.detail.dateFrom, to: e.detail.dateTo }
-												console.log('Updating dashboard for:', e.detail)
 											}}"
 										></schmancy-date-range>
 
@@ -772,7 +760,6 @@ export class DemoDateRange extends $LitElement() {
 								.allowDirectInput="${false}"
 								placeholder="Click to select dates"
 								@change="${(e: CustomEvent<{ dateFrom: string; dateTo: string }>) => {
-									console.log('Selected:', e.detail)
 								}}"
 							></schmancy-date-range>
 						</schmancy-code-preview>

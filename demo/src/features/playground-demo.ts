@@ -518,7 +518,6 @@ export class DemoPlayground extends $LitElement(css`
         <base href="${window.location.origin}/">
         <script type="module">
           // This helps debug where resources are loading from
-          console.log('Loading Schmancy components from: ${baseUrl}');
         </script>`,
 			)
 

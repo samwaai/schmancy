@@ -1,4 +1,10 @@
 import { StepsController } from './steps.context';
+/**
+ * Custom event emitted when the current step changes
+ */
+export type SchmancyStepsChangeEvent = CustomEvent<{
+    value: number;
+}>;
 declare const SchmancyStepsContainer_base: CustomElementConstructor & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyStepsContainer extends SchmancyStepsContainer_base {
     private controller;
@@ -18,6 +24,9 @@ export declare class SchmancyStepsContainer extends SchmancyStepsContainer_base 
 declare global {
     interface HTMLElementTagNameMap {
         'schmancy-steps-container': SchmancyStepsContainer;
+    }
+    interface HTMLElementEventMap {
+        'schmancy-steps:change': SchmancyStepsChangeEvent;
     }
 }
 export {};

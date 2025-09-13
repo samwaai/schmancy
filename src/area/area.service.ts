@@ -523,23 +523,49 @@ class AreaService implements AreaSubscription {
 		if (!name) {
 			throw new Error('Area name is required')
 		}
-		
+
+		// Before removing from current map, emit a clearing signal to the area's subject
+		// This notifies the area component to clear itself
+		const areaSubject = this.areaSubjects.get(name)
+		if (areaSubject && !areaSubject.closed) {
+			// Send a route with null component to signal clearing
+			areaSubject.next({
+				component: null as any,
+				state: {},
+				area: name,
+				params: {},
+				props: {}
+			})
+		}
+
+		// Send a clearing signal through the request pipeline
+		// This ensures the area component receives the signal to clear
+		this.request.next({
+			area: name,
+			component: null as any,
+			state: {},
+			params: {},
+			props: {},
+			historyStrategy: 'silent' as any,
+			_source: 'programmatic' as NavigationSource
+		})
+
 		// Remove from current map
 		this.current.delete(name)
 		this.$current.next(this.current)
-		
+
 		// Update browser history
 		if (this.enableHistoryMode) {
 			try {
 				const currentState = history.state || {}
 				const schmancyAreas = { ...(currentState.schmancyAreas || {}) }
 				delete schmancyAreas[name]
-				
+
 				const newState = {
 					...currentState,
 					schmancyAreas
 				}
-				
+
 				const url = this.createCleanURL(schmancyAreas)
 				history.replaceState(newState, '', url)
 			} catch (error) {

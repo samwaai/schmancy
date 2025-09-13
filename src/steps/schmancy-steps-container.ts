@@ -4,6 +4,11 @@ import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { StepsController, stepsContext } from './steps.context'
 
+/**
+ * Custom event emitted when the current step changes
+ */
+export type SchmancyStepsChangeEvent = CustomEvent<{ value: number }>
+
 @customElement('schmancy-steps-container')
 export class SchmancyStepsContainer extends $LitElement(css`
 	:host {
@@ -21,6 +26,15 @@ export class SchmancyStepsContainer extends $LitElement(css`
 		this._currentStep = value
 		this.controller.setStep(value)
 		this.requestUpdate('currentStep', oldValue)
+		
+		// Dispatch change event when step changes
+		if (oldValue !== value) {
+			this.dispatchEvent(new CustomEvent('change', {
+				detail: { value },
+				bubbles: true,
+				composed: true
+			}))
+		}
 	}
 
 	get currentStep(): number {
@@ -77,5 +91,9 @@ export class SchmancyStepsContainer extends $LitElement(css`
 declare global {
 	interface HTMLElementTagNameMap {
 		'schmancy-steps-container': SchmancyStepsContainer
+	}
+	
+	interface HTMLElementEventMap {
+		'schmancy-steps:change': SchmancyStepsChangeEvent
 	}
 }

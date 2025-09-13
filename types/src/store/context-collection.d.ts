@@ -13,9 +13,33 @@ export default class SchmancyCollectionStore<V = any> extends BaseStore<Map<stri
      */
     static getInstance<V = any>(storage: StorageType, key: string, defaultValue: Map<string, V>): SchmancyCollectionStore<V>;
     /**
-     * Set a value in the collection with proper typing and immutability
+     * Set values in the collection with proper typing and immutability.
+     * Supports multiple input types to prevent common developer mistakes.
+     *
+     * @example
+     * // Single key-value pair
+     * store.set('key1', value1)
+     *
+     * @example
+     * // Merge from a Map
+     * const dataMap = new Map([['key1', value1], ['key2', value2]])
+     * store.set(dataMap)
+     *
+     * @example
+     * // Merge from an object
+     * store.set({ key1: value1, key2: value2 })
      */
-    set<T = V>(key: string, value: T): void;
+    set<T = V>(keyOrData: string | Map<string, T> | Record<string, T>, value?: T): void;
+    /**
+     * Merge a Map into the collection. This is a helper method that provides
+     * explicit semantics for merging operations.
+     *
+     * @param map The Map to merge into the collection
+     * @example
+     * const dataMap = new Map([['key1', value1], ['key2', value2]])
+     * store.merge(dataMap)
+     */
+    merge<T = V>(map: Map<string, T>): void;
     /**
      * Delete a value from the collection immutably
      */

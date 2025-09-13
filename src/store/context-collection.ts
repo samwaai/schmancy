@@ -30,24 +30,68 @@ export default class SchmancyCollectionStore<V = any> extends BaseStore<Map<stri
 	}
 
 	/**
-	 * Set a value in the collection with proper typing and immutability
+	 * Set values in the collection with proper typing and immutability.
+	 * Supports multiple input types to prevent common developer mistakes.
+	 * 
+	 * @example
+	 * // Single key-value pair
+	 * store.set('key1', value1)
+	 * 
+	 * @example
+	 * // Merge from a Map
+	 * const dataMap = new Map([['key1', value1], ['key2', value2]])
+	 * store.set(dataMap)
+	 * 
+	 * @example
+	 * // Merge from an object
+	 * store.set({ key1: value1, key2: value2 })
 	 */
-	public set<T = V>(key: string, value: T): void {
+	public set<T = V>(keyOrData: string | Map<string, T> | Record<string, T>, value?: T): void {
 		try {
-			// Use Immer to create a new immutable Map
 			const nextState = produce(this.value, draft => {
-				// Use castDraft to properly type the value for the draft context
-				draft.set(key, castDraft(value) as unknown as Draft<V>)
+				// Handle different input types
+				if (typeof keyOrData === 'string') {
+					// Traditional key-value pair
+					if (value === undefined) {
+						throw new Error('Value is required when setting a single key')
+					}
+					draft.set(keyOrData, castDraft(value) as unknown as Draft<V>)
+				} else if (keyOrData instanceof Map) {
+					// Merge all entries from the Map
+					Array.from(keyOrData.entries()).forEach(([key, val]) => {
+						draft.set(key, castDraft(val) as unknown as Draft<V>)
+					})
+				} else if (typeof keyOrData === 'object' && keyOrData !== null) {
+					// Merge all properties from the object
+					Object.entries(keyOrData).forEach(([key, val]) => {
+						draft.set(key, castDraft(val) as unknown as Draft<V>)
+					})
+				} else {
+					throw new Error('Invalid input: expected string key with value, Map, or object')
+				}
 			})
 
 			// Update the state with the new immutable Map
 			this.updateState(nextState)
 			this.error$.next(null) // Clear any previous errors
 		} catch (err) {
-			const error = new StoreError<unknown>(`Error setting value for key ${key} in ${this.key}`, err)
+			const error = new StoreError<unknown>(`Error setting values in ${this.key}`, err)
 			this.error$.next(error)
 			console.error(error)
 		}
+	}
+
+	/**
+	 * Merge a Map into the collection. This is a helper method that provides
+	 * explicit semantics for merging operations.
+	 * 
+	 * @param map The Map to merge into the collection
+	 * @example
+	 * const dataMap = new Map([['key1', value1], ['key2', value2]])
+	 * store.merge(dataMap)
+	 */
+	public merge<T = V>(map: Map<string, T>): void {
+		this.set(map)
 	}
 
 	/**
@@ -159,6 +203,7 @@ export default class SchmancyCollectionStore<V = any> extends BaseStore<Map<stri
 			;(window as any).__STORES__[this.key] = {
 				getState: () => this.value,
 				set: this.set.bind(this),
+				merge: this.merge.bind(this),
 				delete: this.delete.bind(this),
 				clear: this.clear.bind(this),
 				batchUpdate: this.batchUpdate.bind(this),

@@ -133,7 +133,6 @@ export class DialogService {
 					
 					if (dialog) {
 						// Use existing dialog
-						console.log('Found existing dialog:', dialog)
 						targetContainer = dialog.parentElement as HTMLElement
 					} else {
 						// Determine container - use theme from discovery or fallback
@@ -141,7 +140,6 @@ export class DialogService {
 						
 						// Create appropriate dialog type
 						const uid = (target as any).uid
-						console.log('Creating new dialog for uid:', uid)
 						
 						if (target.type === 'confirm') {
 							dialog = document.createElement('confirm-dialog') as ConfirmDialog

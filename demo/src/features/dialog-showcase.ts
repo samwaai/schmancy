@@ -27,7 +27,6 @@ $dialog.confirm({
   confirmText: 'Confirm',
   cancelText: 'Cancel'
 }).then(result => {
-  console.log('Dialog result:', result);
 });`,
 
 		custom: `import { html } from 'lit';
@@ -200,7 +199,6 @@ $dialog.confirm({
 				cancelText: 'Cancel',
 			})
 			.then(result => {
-				console.log('Dialog result:', result)
 			})
 	}
 

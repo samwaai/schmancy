@@ -103,17 +103,14 @@ export class TableDemo extends $LitElement() {
 	]
 
 	private handleRowClick(e: CustomEvent) {
-		console.log('Row clicked:', e.detail)
 		// Handle row click
 	}
 
 	private handleSortChange(e: CustomEvent) {
-		console.log('Sort changed:', e.detail)
 		// Handle sort change (if you want to do server-side sorting)
 	}
 
 	private handleSearchChange(e: CustomEvent) {
-		console.log('Search changed:', e.detail)
 		// Handle search change (if you want to do server-side searching)
 	}
 

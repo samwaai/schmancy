@@ -72,7 +72,6 @@ export class SchmancyContentDrawer extends $LitElement(css`
 		merge(fromEvent<CustomEvent>(window, 'resize'), fromEvent<CustomEvent>(window, SchmancyEvents.ContentDrawerResize))
 			.pipe(
 				startWith(true),
-				tap(() => console.log(this.minWidth)),
 				map(() => (this.clientWidth ? this.clientWidth : window.innerWidth)),
 				map(width => width >= this.minWidth.main + this.minWidth.sheet),
 				debounceTime(100),

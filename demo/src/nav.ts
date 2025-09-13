@@ -7,13 +7,7 @@ import { repeat } from 'lit/directives/repeat.js'
 import { filter, map } from 'rxjs'
 
 // Key Features
-import { DemoArea } from './features/area'
-import { DemoAreaBasic } from './features/area-basic'
-import { DemoAreaDefault } from './features/area-default'
-import { DemoAreaHistory } from './features/area-history'
-import { DemoAreaMulti } from './features/area-multi'
-import { DemoAreaParams } from './features/area-params'
-import { DemoAreaState } from './features/area-state'
+import { DemoAreaDemos } from './features/area/area-demos'
 import { DemoContext } from './features/context'
 
 // Core Components
@@ -63,18 +57,7 @@ export class DemoNav extends TailwindElement() {
       title: 'Key Features',
       demos: [
         { name: 'Context', component: DemoContext },
-      ]
-    },
-    {
-      title: 'Area',
-      demos: [
-        { name: 'Overview', component: DemoArea },
-        { name: 'Basic Navigation', component: DemoAreaBasic },
-        { name: 'With Parameters', component: DemoAreaParams },
-        { name: 'State Management', component: DemoAreaState },
-        { name: 'Default Component', component: DemoAreaDefault },
-        { name: 'History Strategies', component: DemoAreaHistory },
-        { name: 'Multiple Areas', component: DemoAreaMulti },
+        { name: 'Area', component: DemoAreaDemos as any },
       ]
     },
     {
@@ -112,7 +95,7 @@ export class DemoNav extends TailwindElement() {
         { name: 'Layout', component: DemoLayout },
         { name: 'Boat', component: DemoBoat },
         { name: 'Steps', component: DemoSteps },
-        { 
+        {
           name : 'Sheet' , component:DemoSheet
         }
       ]
@@ -121,7 +104,7 @@ export class DemoNav extends TailwindElement() {
 
   connectedCallback(): void {
     super.connectedCallback()
-    
+
     // Subscribe to route changes
     area.$current
       .pipe(
@@ -136,12 +119,13 @@ export class DemoNav extends TailwindElement() {
       })
   }
 
-  private navigate(component: CustomElementConstructor) {
+  private navigate(demo: { name: string; component: CustomElementConstructor }) {
     schmancyNavDrawer.close(this)
+
+    // Simple navigation - just use area.push with the component
     area.push({
       area: 'main',
-      component
-      // Remove explicit historyStrategy - let it use default behavior
+      component: demo.component
     })
   }
 
@@ -207,7 +191,7 @@ export class DemoNav extends TailwindElement() {
                           rounded
                           class="my-1 cursor-pointer text-sm rounded-lg transition-colors hover:bg-surface-container"
                           .selected=${this.activeComponent === demo.component.name?.toLowerCase().replace(/-/g, '')}
-                          @click=${() => this.navigate(demo.component)}
+                          @click=${() => this.navigate(demo)}
                         >
                           ${demo.name}
                         </schmancy-list-item>

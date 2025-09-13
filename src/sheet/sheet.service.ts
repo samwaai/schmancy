@@ -122,7 +122,6 @@ class BottomSheetService {
 
 					if (sheet) {
 						// Use existing sheet
-						console.log('Found existing sheet:', sheet)
 						targetContainer = sheet.parentElement as HTMLElement
 					} else {
 						// Determine container - use theme from discovery or fallback
@@ -130,7 +129,6 @@ class BottomSheetService {
 
 						// Create new sheet
 						const uid = target.uid ?? target.component.tagName
-						console.log('Creating new sheet for uid:', uid)
 						sheet = document.createElement('schmancy-sheet')
 						sheet.setAttribute('uid', uid)
 						targetContainer.appendChild(sheet)
@@ -164,19 +162,12 @@ class BottomSheetService {
 					// Handle HTMLElement components
 					const assignedElements = sheet?.shadowRoot?.querySelector('slot')?.assignedElements() || []
 
-					console.log(
-						'Assigned elements in sheet:',
-						assignedElements.map(e => (e as HTMLElement).tagName),
-					)
-
 					const existingComponent = assignedElements.find(e => (e as HTMLElement).tagName === target.component.tagName)
 
 					if (!existingComponent) {
 						// Need to append the component
-						console.log('Component not found, will append:', target.component.tagName)
 						sheet?.appendChild(target.component)
 					} else {
-						console.log('Component already exists, reusing:', target.component.tagName)
 					}
 				}),
 				delay(1),
@@ -216,7 +207,6 @@ class BottomSheetService {
 						.subscribe(_ => {
 							// Use the sheet reference directly, not e.target
 							const sheetElement = sheet as SchmancySheet
-							console.log('Close event fired for sheet:', sheetElement)
 
 							// Remove from active sheets tracking
 							if (sheetElement) {
@@ -229,10 +219,8 @@ class BottomSheetService {
 								// Only keep sheet if persist is explicitly set to a truthy value
 								const persistAttr = sheetElement.getAttribute('persist')
 								const shouldRemove = !persistAttr || persistAttr === 'false'
-								console.log('Sheet close - persist:', persistAttr, 'shouldRemove:', shouldRemove)
 
 								if (shouldRemove) {
-									console.log('Removing sheet from DOM:', uid)
 									sheetElement.remove()
 								}
 							}
@@ -265,12 +253,10 @@ class BottomSheetService {
 					]),
 				),
 				tap(([response, uid]) => {
-					console.log('Dismiss called for uid:', uid, 'Found sheet:', !!response?.sheet)
 					if (response?.sheet) {
 						response.sheet.closeSheet()
 						this.activeSheets.delete(uid)
 					} else {
-						console.log('No sheet found to dismiss for uid:', uid)
 					}
 				}),
 			)

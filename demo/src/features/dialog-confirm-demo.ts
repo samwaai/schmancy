@@ -242,10 +242,8 @@ const confirmed = await $dialog.confirm({
 
 if (confirmed) {
   // Proceed with deletion
-  console.log('Transaction deleted')
 } else {
   // User cancelled
-  console.log('Deletion cancelled')
 }
 
 // Other color options

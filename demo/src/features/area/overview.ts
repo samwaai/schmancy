@@ -2,7 +2,6 @@ import { $LitElement } from '@mixins/index'
 import { area } from '@schmancy/area'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import '../shared/installation-section'
 
 // Simple demo components
 @customElement('area-demo-home-page')
@@ -178,7 +177,6 @@ area.push({
   props: {
     title: 'Hello World',
     data: { id: 123, name: 'Test' },
-    onClick: () => console.log('Button clicked!')
   }
 })
 
@@ -208,7 +206,6 @@ area.push({
 
 // Subscribe to state changes
 area.getState('main').subscribe(state => {
-  console.log('State updated:', state)
 })`,
 
 		multipleAreas: `<!-- Create a layout with multiple areas -->
@@ -253,20 +250,14 @@ area.push({
 
 		observableSubscriptions: `// Subscribe to route changes
 area.on('main').subscribe(route => {
-  console.log('Active component:', route.component)
-  console.log('Parameters:', route.params)
-  console.log('Props:', route.props)
-  console.log('State:', route.state)
 })
 
 // Get specific parameter (query string)
 area.param('main', 'userId').subscribe(userId => {
-  console.log('User ID changed:', userId)
 })
 
 // Get specific prop (component property)
 area.prop('main', 'orderId').subscribe(orderId => {
-  console.log('Order ID changed:', orderId)
 })`,
 
 		historyStrategy: `// Different history strategies
@@ -450,7 +441,6 @@ ${this.codeExamples.passingParams}
 									props: { 
 										title: 'Component with Props',
 										data: { message: 'This is complex data', timestamp: Date.now() },
-										onClick: () => console.log('Props callback triggered!')
 									}
 								})}
 							>

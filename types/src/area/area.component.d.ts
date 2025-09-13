@@ -1,5 +1,5 @@
 import { TemplateResult } from 'lit';
-import { HISTORY_STRATEGY, RouteAction } from './router.types';
+import { RouteAction } from './router.types';
 declare const SchmancyArea_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyArea extends SchmancyArea_base {
     /**
@@ -12,14 +12,32 @@ export declare class SchmancyArea extends SchmancyArea_base {
     name: string;
     default: string | CustomElementConstructor | TemplateResult<1>;
     /**
-     * Get component from pathname with better error handling
+     * Subscription to the routing pipeline
      */
-    getComponentFromPathname(pathname: string, historyStrategy: HISTORY_STRATEGY): import("rxjs").Observable<RouteAction>;
+    private routingSubscription?;
     /**
-     * Get component from browser state with fallback to URL
+     * Unified route resolver that handles all routing scenarios
+     * This is the single source of truth for resolving routes
      */
-    getComponentFromBrowserState(event: PopStateEvent): RouteAction | null;
+    private resolveRoute;
+    /**
+     * Parse pathname to route action
+     */
+    private parsePathnameToRoute;
+    /**
+     * Map path strings to component names for demo navigation
+     */
+    private pathToComponent;
+    /**
+     * Resolve component input to HTMLElement
+     * Handles strings, constructors, promises, lazy loading, etc.
+     */
+    private resolveComponent;
     protected firstUpdated(): void;
+    /**
+     * Check if two routes are the same (for duplicate prevention)
+     */
+    private isSameRoute;
     /**
      * Update the DOM with the new component
      */
@@ -40,6 +58,7 @@ export declare class SchmancyArea extends SchmancyArea_base {
      * Clear query parameters
      */
     queryParamClear(params?: string[] | boolean): string;
+    disconnectedCallback(): void;
     render(): TemplateResult<1>;
 }
 declare global {

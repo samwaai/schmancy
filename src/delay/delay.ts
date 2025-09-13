@@ -102,7 +102,6 @@ export class SchmancyDelay extends $LitElement() {
 
 	private generateSessionKey(): string {
 		const slotContent = this.assignedElements.map(el => el.outerHTML).join('')
-		console.log(slotContent)
 		return this.once ? hashContent(slotContent) : ''
 	}
 

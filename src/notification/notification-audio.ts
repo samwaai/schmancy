@@ -33,7 +33,6 @@ export class NotificationAudioService {
 			// Try to load from default URLs
 			await this.preloadSounds()
 		} catch (err) {
-			console.log('Generating programmatic notification sounds')
 
 			// If loading fails, generate programmatically
 			try {

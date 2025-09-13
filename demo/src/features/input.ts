@@ -286,7 +286,6 @@ export class DemoInput extends $LitElement() {
 							<schmancy-form 
 								@submit="${(e) => {
 									alert('about to sumbit')
-									console.log('Form data:', e.detail.data);
 									alert('Form submitted! Check console.');
 								}}"
 								class="space-y-4 max-w-md"
@@ -378,7 +377,6 @@ export class DemoInput extends $LitElement() {
 									type="date"
 									.value=${new Date().toISOString().split('T')[0]}
 									.min=${new Date().toISOString().split('T')[0]}
-									@change=${(e) => console.log('Check-in:', e.detail.value)}
 								></schmancy-input>
 								
 								<schmancy-input
@@ -386,7 +384,6 @@ export class DemoInput extends $LitElement() {
 									type="date"
 									.value=${new Date(Date.now() + 86400000).toISOString().split('T')[0]}
 									.min=${new Date().toISOString().split('T')[0]}
-									@change=${(e) => console.log('Check-out:', e.detail.value)}
 								></schmancy-input>
 								
 								<schmancy-input

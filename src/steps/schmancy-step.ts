@@ -91,8 +91,8 @@ export class SchmancyStep extends $LitElement(css`
 	 * marked as completed, it always appears as complete even if it's active.
 	 */
 	get status(): 'complete' | 'current' | 'upcoming' {
-		if (this.completed || this.position < this.steps.currentStep) return 'complete'
-		if (this.position === this.steps.currentStep) return 'current'
+		if (this.completed || this.position < this.currentStep) return 'complete'
+		if (this.position === this.currentStep) return 'current'
 		return 'upcoming'
 	}
 
@@ -102,7 +102,7 @@ export class SchmancyStep extends $LitElement(css`
 	 */
 	private _onStepClick(_e: Event) {
 		// If lockBack is enabled and the user attempts to go back, do nothing.
-		if (this.lockBack && this.position < this.steps.currentStep) {
+		if (this.lockBack && this.position < this.currentStep) {
 			return
 		}
 		if (this.status !== 'upcoming') {

@@ -60,11 +60,9 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 	 * Trigger animations when either the consumed mode or state changes.
 	 */
 	updated(changedProperties: Map<string, any>) {
-		console.log(this._initialized, changedProperties)
 		if (!this._initialized) return
 
 		if (changedProperties.has('drawerState') || changedProperties.has('mode')) {
-			console.log('State updated:', this.drawerState, this.mode)
 			if (this.mode === 'overlay') {
 				if (this.drawerState === 'open') {
 					// Animate only if the nav isn’t already open.
@@ -73,7 +71,6 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 						this.showNavDrawer()
 					}
 				} else if (this.drawerState === 'close') {
-					console.log(this.nav.style.transform)
 					if (this.nav.style.transform !== 'translateX(-100%)') {
 						this.hideNavDrawer()
 						this.closeOverlay()

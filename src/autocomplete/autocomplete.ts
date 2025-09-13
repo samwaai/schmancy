@@ -549,7 +549,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
             this._open$.next(false)
             this._open = false
             
-            console.log('Auto-selected on blur:', bestMatch.value, 'with score:', bestScore)
         }
     }
 

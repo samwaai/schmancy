@@ -192,19 +192,197 @@ schmancy-step[position="2"] {
 }
 ```
 
-## Programmatic Control
+## Programmatic Control with Lit
 
+Use reactive state properties and property binding for declarative step control:
+
+```typescript
+import { LitElement, html } from 'lit';
+import { customElement, state } from 'lit/decorators.js';
+
+@customElement('my-wizard')
+export class MyWizard extends LitElement {
+  // Reactive state for current step
+  @state() private currentStep = 1;
+  
+  // Navigation methods
+  goNext() {
+    this.currentStep++;
+  }
+  
+  goPrevious() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+  
+  goToStep(step: number) {
+    this.currentStep = step;
+  }
+  
+  render() {
+    return html`
+      <!-- Use dot syntax for reactive property binding -->
+      <schmancy-steps-container .currentStep=${this.currentStep}>
+        <schmancy-step position="1" title="First Step">
+          <p>Content for step 1</p>
+        </schmancy-step>
+        
+        <schmancy-step position="2" title="Second Step">
+          <p>Content for step 2</p>
+        </schmancy-step>
+        
+        <schmancy-step position="3" title="Final Step">
+          <p>Content for step 3</p>
+        </schmancy-step>
+      </schmancy-steps-container>
+      
+      <!-- Navigation buttons -->
+      <div class="flex gap-4 mt-4">
+        <schmancy-button 
+          @click=${() => this.goPrevious()}
+          ?disabled=${this.currentStep === 1}>
+          Previous
+        </schmancy-button>
+        
+        <schmancy-button 
+          @click=${() => this.goNext()}
+          ?disabled=${this.currentStep === 3}>
+          Next
+        </schmancy-button>
+      </div>
+    `;
+  }
+}
+```
+
+## Navigation Patterns
+
+### Reactive State Binding
+
+The steps component uses reactive property binding to manage navigation. Always use the `.currentStep` property binding with the dot syntax for proper reactivity:
+
+```typescript
+// ✅ CORRECT - Reactive property binding
+<schmancy-steps-container .currentStep=${this.currentStep}>
+
+// ❌ WRONG - Attribute binding (won't update reactively)
+<schmancy-steps-container currentStep="${this.currentStep}">
+```
+
+### Button-Based Navigation
+
+Navigation should be controlled through external buttons or logic, NOT by adding click handlers to step components:
+
+```typescript
+@customElement('checkout-flow')
+export class CheckoutFlow extends LitElement {
+  @state() private currentStep = 1;
+  @state() private maxSteps = 4;
+  
+  // Validation before navigation
+  async validateAndProceed() {
+    const isValid = await this.validateCurrentStep();
+    if (isValid && this.currentStep < this.maxSteps) {
+      this.currentStep++;
+    }
+  }
+  
+  render() {
+    return html`
+      <schmancy-steps-container .currentStep=${this.currentStep}>
+        <schmancy-step position="1" title="Cart">
+          <!-- Cart content -->
+        </schmancy-step>
+        
+        <schmancy-step position="2" title="Shipping">
+          <!-- Shipping form -->
+        </schmancy-step>
+        
+        <schmancy-step position="3" title="Payment">
+          <!-- Payment form -->
+        </schmancy-step>
+        
+        <schmancy-step position="4" title="Confirm">
+          <!-- Order summary -->
+        </schmancy-step>
+      </schmancy-steps-container>
+      
+      <!-- Navigation controls -->
+      <div class="flex justify-between mt-6">
+        <schmancy-button 
+          variant="text"
+          @click=${() => this.currentStep--}
+          ?disabled=${this.currentStep === 1}>
+          Back
+        </schmancy-button>
+        
+        <schmancy-button 
+          variant="filled"
+          @click=${() => this.validateAndProceed()}>
+          ${this.currentStep === this.maxSteps ? 'Complete' : 'Continue'}
+        </schmancy-button>
+      </div>
+    `;
+  }
+}
+```
+
+### Programmatic Navigation Examples
+
+```typescript
+// Jump to specific step
+handleSkipToReview() {
+  this.currentStep = 4;
+}
+
+// Reset to beginning
+handleReset() {
+  this.currentStep = 1;
+}
+
+// Navigate based on condition
+handleConditionalNav() {
+  if (this.userType === 'premium') {
+    this.currentStep = 3; // Skip step 2 for premium users
+  } else {
+    this.currentStep = 2;
+  }
+}
+```
+
+## Common Mistakes to Avoid
+
+### ❌ Using querySelector
 ```javascript
-// Get container reference
-const stepsContainer = document.querySelector('schmancy-steps-container');
+// WRONG - Avoid imperative DOM queries
+const container = this.shadowRoot.querySelector('schmancy-steps-container');
+container.currentStep = 2;
+```
 
-// Change current step
-stepsContainer.currentStep = 3;
+### ❌ Adding Click Handlers to Steps
+```html
+<!-- WRONG - Steps handle their own click behavior internally -->
+<schmancy-step @click=${() => this.goToStep(2)} position="2" title="Step 2">
+```
 
-// Listen for step changes
-stepsContainer.addEventListener('step-change', (e) => {
-  console.log('Step changed to:', e.detail.step);
-});
+### ❌ Using Attribute Binding Instead of Property Binding
+```html
+<!-- WRONG - Won't update reactively -->
+<schmancy-steps-container currentStep="${this.currentStep}">
+
+<!-- CORRECT - Use dot syntax for properties -->
+<schmancy-steps-container .currentStep=${this.currentStep}>
+```
+
+### ❌ Directly Manipulating Step State
+```javascript
+// WRONG - Don't directly modify step properties
+const step = this.shadowRoot.querySelector('schmancy-step[position="2"]');
+step.completed = true;
+
+// CORRECT - Let the container manage step states
+this.currentStep = 3; // This automatically marks step 2 as complete
 ```
 
 ## Best Practices

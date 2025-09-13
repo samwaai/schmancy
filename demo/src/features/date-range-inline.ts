@@ -225,7 +225,6 @@ export class DemoDateRangeInline extends $LitElement() {
 							<schmancy-date-range-inline
 								@change=${(e: SchmancyDateRangeInlineChangeEvent) => {
 									this.lastEvent = `From: ${e.detail.dateFrom}, To: ${e.detail.dateTo}, Valid: ${e.detail.isValid}`
-									console.log('Date range changed:', e.detail);
 								}}
 							></schmancy-date-range-inline>
 							<div class="mt-2 text-sm text-surface-onVariant">${this.lastEvent || 'Try selecting an end date before the start date!'}</div>
@@ -245,7 +244,6 @@ export class DemoDateRangeInline extends $LitElement() {
 								@change=${(e: SchmancyDateRangeInlineChangeEvent) => {
 									if (e.detail.isValid) {
 										const days = this.calculateDays(e.detail.dateFrom, e.detail.dateTo)
-										console.log(`${days} nights selected`)
 									}
 								}}
 							></schmancy-date-range-inline>
@@ -262,7 +260,6 @@ export class DemoDateRangeInline extends $LitElement() {
 								allowSameDate
 								type="datetime-local"
 								@change=${(e: SchmancyDateRangeInlineChangeEvent) => {
-									console.log('Rental period:', e.detail);
 								}}
 							></schmancy-date-range-inline>
 						</schmancy-code-preview>
@@ -279,7 +276,6 @@ export class DemoDateRangeInline extends $LitElement() {
 								maxGap="4"
 								defaultGap="2"
 								@change=${(e: SchmancyDateRangeInlineChangeEvent) => {
-									console.log('Weekend trip:', e.detail);
 								}}
 							></schmancy-date-range-inline>
 						</schmancy-code-preview>
@@ -293,7 +289,6 @@ export class DemoDateRangeInline extends $LitElement() {
 								autoCorrect=${false}
 								required
 								@change=${(e: SchmancyDateRangeInlineChangeEvent) => {
-									console.log('Validation state:', e.detail.isValid);
 								}}
 							></schmancy-date-range-inline>
 						</schmancy-code-preview>
@@ -311,7 +306,6 @@ export class DemoDateRangeInline extends $LitElement() {
 								minGap="1"
 								maxGap="7"
 								@change=${(e: SchmancyDateRangeInlineChangeEvent) => {
-									console.log('Conference dates:', e.detail);
 								}}
 							></schmancy-date-range-inline>
 						</schmancy-code-preview>
@@ -324,7 +318,6 @@ export class DemoDateRangeInline extends $LitElement() {
 							<schmancy-date-range-inline
 								compact
 								@change=${(e: SchmancyDateRangeInlineChangeEvent) => {
-									console.log('Compact mode:', e.detail);
 								}}
 							></schmancy-date-range-inline>
 						</schmancy-code-preview>

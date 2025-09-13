@@ -70,7 +70,6 @@ function openBasicDialog() {
     confirmText: 'Confirm',
     cancelText: 'Cancel'
   }).then(result => {
-    console.log('Dialog result:', result);
   });
 }
 
@@ -373,7 +372,6 @@ document.body.appendChild(button);`,
 					cancelText: 'Cancel',
 				})
 				.then(result => {
-					console.log('Dialog result:', result)
 				})
 		})
 	}

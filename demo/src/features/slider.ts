@@ -166,7 +166,6 @@ export class DemoSlider extends $LitElement() {
 									value="50"
 									min="0"
 									max="100"
-									@change="${(e) => console.log('Volume:', e.detail.value)}"
 								></schmancy-slider>
 								
 								<schmancy-slider
@@ -225,7 +224,6 @@ export class DemoSlider extends $LitElement() {
 						<schmancy-code-preview language="html">
 							<schmancy-form
 								@submit="${(e) => {
-									console.log('Form data:', e.detail.data);
 									alert('Settings saved!');
 								}}"
 								class="space-y-4 max-w-md"

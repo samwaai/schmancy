@@ -33,7 +33,6 @@ export class DemoTabs extends $LitElement(css`
 					mode="tabs"
 					.activeTab=${'inputs'}
 					@tab-changed=${v => {
-						console.log('tab change', v)
 					}}
 				>
 					${this.tabs.map(

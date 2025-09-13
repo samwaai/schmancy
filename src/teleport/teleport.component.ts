@@ -92,7 +92,6 @@ export class SchmancyTeleportation extends $LitElement(css``) {
 						.pipe(takeUntil(this.disconnecting))
 						.subscribe({
 							next: e => {
-								// console.log(e)
 								teleportationService.activeTeleportations.set(this.id, e)
 								teleport.flipRequests.next({
 									from: {
@@ -113,7 +112,6 @@ export class SchmancyTeleportation extends $LitElement(css``) {
 						.pipe(takeUntil(this.disconnecting))
 						.subscribe({
 							next: e => {
-								console.log(e)
 								teleportationService.activeTeleportations.set(this.id, e)
 							},
 						})

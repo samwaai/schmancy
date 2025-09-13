@@ -255,7 +255,6 @@ export default class DetailsShowcase extends $LitElement() {
               <schmancy-details 
                 summary="Track open/close events" 
                 variant="elevated"
-                @toggle="\${(e) => console.log('Details toggled:', e.detail)}"
               >
                 <schmancy-typography type="body" token="md">
                   Check the console to see toggle events when you expand/collapse this section.

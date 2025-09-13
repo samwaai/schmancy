@@ -188,7 +188,6 @@ export class DemoAutocomplete extends $LitElement() {
 							<schmancy-autocomplete
 								placeholder="Select a fruit"
 								label="Favorite Fruit"
-								@change="${(e) => console.log('Selected:', e.detail.value)}"
 							>
 								<schmancy-option value="apple">Apple</schmancy-option>
 								<schmancy-option value="banana">Banana</schmancy-option>
@@ -208,7 +207,6 @@ export class DemoAutocomplete extends $LitElement() {
 								placeholder="Select languages"
 								label="Programming Languages"
 								value="js,python"
-								@change="${(e) => console.log('Selected:', e.detail.values)}"
 							>
 								<schmancy-option value="js">JavaScript</schmancy-option>
 								<schmancy-option value="ts">TypeScript</schmancy-option>
@@ -248,7 +246,6 @@ export class DemoAutocomplete extends $LitElement() {
 
 						<!-- Country Select with Autofill -->
 						<schmancy-code-preview language="html">
-							<schmancy-form @submit="${(e) => console.log('Form data:', e.detail)}">
 								<div class="space-y-4 max-w-md">
 									<schmancy-autocomplete
 										name="country"
@@ -340,7 +337,6 @@ export class DemoAutocomplete extends $LitElement() {
 								placeholder="Search by name or code..."
 								.value=${this.selectedEmployeeId ?? ''}
 								@change=${(e: any) => {
-									console.log(e.detail)
 									this.selectedEmployeeId = e.detail.value as string;
 								}}
 								required

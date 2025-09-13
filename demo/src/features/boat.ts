@@ -92,7 +92,6 @@ export class DemoBoat extends $LitElement() {
                 <schmancy-code-preview language="html">
 &lt;schmancy-boat 
   state="minimized"
-  @change="${(e: CustomEvent) => console.log('State changed to:', e.detail)}"&gt;
   &lt;schmancy-flex slot="header" gap="sm" content="center"&gt;
     &lt;schmancy-icon&gt;chat&lt;/schmancy-icon&gt;
     &lt;schmancy-typography type="title" token="md"&gt;Chat Support&lt;/schmancy-typography&gt;

@@ -132,7 +132,6 @@ export class DemoRadio extends $LitElement() {
 								label="Select your preferred contact method"
 								name="contact"
 								value="email"
-								@change="${(e: CustomEvent<{value: string}>) => console.log('Selected:', e.detail.value)}"
 							>
 								<schmancy-radio-button value="email">
 									<div slot="label">Email</div>
@@ -156,7 +155,6 @@ export class DemoRadio extends $LitElement() {
 									{ label: 'Pro - $19/month', value: 'pro' },
 									{ label: 'Enterprise - $49/month', value: 'enterprise' }
 								]}"
-								@change="${(e: CustomEvent<{value: string}>) => console.log('Plan selected:', e.detail.value)}"
 							></schmancy-radio-group>
 						</schmancy-code-preview>
 
@@ -166,7 +164,6 @@ export class DemoRadio extends $LitElement() {
 								label="Select event type"
 								name="eventType"
 								value="single"
-								@change="${(e: CustomEvent<{value: string}>) => console.log('Event type:', e.detail.value)}"
 							>
 								<schmancy-radio-button value="single">
 									<schmancy-grid gap="xs" slot="label">
@@ -238,7 +235,6 @@ export class DemoRadio extends $LitElement() {
 						<schmancy-code-preview .preview=${true} language="html">
 							<schmancy-form
 								@submit="${(e: CustomEvent) => {
-									console.log('Form data:', e.detail.data);
 									alert('Form submitted! Check console.');
 								}}"
 								class="space-y-4 max-w-md"

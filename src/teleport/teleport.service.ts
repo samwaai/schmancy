@@ -99,7 +99,6 @@ class Teleportation {
 
 		// "onBegin" logic goes here (since Web Animations doesn't have onBegin).
 		// If you had more logic, place it here:
-		// e.g., console.log('Starting FLIP animation...');
 
 		// Calculate starting and ending transforms
 		const startX = from.rect.left - to.rect.left
@@ -132,7 +131,6 @@ class Teleportation {
 			to.element.style.zIndex = originalZIndex
 			to.element.style.transformOrigin = ''
 			// If you have additional cleanup, place it here
-			// e.g., console.log('FLIP animation completed!');
 		}
 	}
 }

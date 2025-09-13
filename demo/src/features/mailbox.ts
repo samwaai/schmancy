@@ -462,7 +462,6 @@ export class DemoMailbox extends $LitElement() {
 									];
 									
 									recipients.addEventListener('recipients-change', (e) => {
-										console.log('Selected:', e.detail);
 									});
 								</script>
 							</div>
@@ -485,7 +484,6 @@ export class DemoMailbox extends $LitElement() {
 								},
 								fileUploadHandler: async (file) => {
 									// Handle file uploads
-									console.log('Uploading file:', file.name);
 									return {
 										name: file.name,
 										size: file.size,
@@ -593,11 +591,9 @@ export class DemoMailbox extends $LitElement() {
 									
 									// Handle events
 									mailbox.addEventListener('send-email', (e) => {
-										console.log('Send:', e.detail.request);
 									});
 									
 									mailbox.addEventListener('send-error', (e) => {
-										console.log('Error:', e.detail.error);
 									});
 								</script>
 							</div>
@@ -719,7 +715,6 @@ export class DemoMailbox extends $LitElement() {
 										body: JSON.stringify(request)
 									});
 									
-									console.log('Email sent successfully!');
 									mailbox.clearCompose();
 								} catch (error) {
 									console.error('Failed to send email:', error);
