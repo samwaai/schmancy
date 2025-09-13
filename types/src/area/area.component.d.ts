@@ -21,6 +21,10 @@ export declare class SchmancyArea extends SchmancyArea_base {
      */
     private routingSubscription?;
     /**
+     * Track the current component to prevent circular default application
+     */
+    private currentComponent;
+    /**
      * Unified route resolver that handles all routing scenarios
      * This is the single source of truth for resolving routes
      */
@@ -35,6 +39,10 @@ export declare class SchmancyArea extends SchmancyArea_base {
      */
     private resolveComponent;
     protected firstUpdated(): void;
+    /**
+     * Normalize component name for comparison
+     */
+    private normalizeComponentName;
     /**
      * Check if two routes are the same (for duplicate prevention)
      */

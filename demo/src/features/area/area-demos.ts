@@ -48,13 +48,13 @@ export class DemoAreaDemos extends $LitElement(css`
       }
     });
 
-    // Push default component only if area is empty on initial load
-    if (!area.current.get('area')?.component) {
-      area.push({
-        area: 'area',
-        component: DemoArea
-      });
-    }
+    // // Push default component only if area is empty on initial load
+    // if (!area.current.get('area')?.component) {
+    //   area.push({
+    //     area: 'area',
+    //     component: DemoArea
+    //   });
+    // }
   }
 
   render() {
@@ -185,7 +185,7 @@ export class DemoAreaDemos extends $LitElement(css`
         </schmancy-nav-drawer-navbar>
         <schmancy-nav-drawer-content class="pl-2">
           <schmancy-scroll>
-            <schmancy-area name="area">
+            <schmancy-area name="area" .default=${DemoAreaBasic}>
               <schmancy-route when="basic" .component=${DemoAreaBasic}></schmancy-route>
             </schmancy-area>
           </schmancy-scroll>

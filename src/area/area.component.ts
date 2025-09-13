@@ -7,6 +7,7 @@ import {
 	Subscription,
 	catchError,
 	combineLatest,
+	debounceTime,
 	distinctUntilChanged,
 	filter,
 	from,
@@ -72,6 +73,11 @@ export class SchmancyArea extends $LitElement(css`
 	 * Subscription to the routing pipeline
 	 */
 	private routingSubscription?: Subscription
+
+	/**
+	 * Track the current component to prevent circular default application
+	 */
+	private currentComponent: string | null = null
 
 	/**
 	 * Unified route resolver that handles all routing scenarios
@@ -147,10 +153,6 @@ export class SchmancyArea extends $LitElement(css`
 					} as RouteAction)
 				}
 
-				// JSON exists but doesn't have a component for this area
-				// Don't apply default - this area should remain empty
-				return EMPTY
-
 			} catch (e) {
 				// Not valid JSON, continue to segment matching
 			}
@@ -216,31 +218,9 @@ export class SchmancyArea extends $LitElement(css`
 					} as RouteAction)
 				}
 			}
-		} else {
 		}
 
-		// 3. FALLBACK: Use default component if available
-		// Apply default when:
-		// - No segment routes matched
-		// - No JSON state for this specific area (handled by returning EMPTY when JSON exists but lacks component for this area)
-		// - A default is defined
-		if (this.default) {
-			// Check if the area is currently empty
-			const currentElement = this.shadowRoot?.children[0]
-			const isAreaEmpty = !currentElement
-
-			// Only apply default if area is empty or it's the initial load
-			if (isAreaEmpty || pathname === '/' || pathname === '') {
-				return of({
-					area: this.name,
-					component: this.default as ComponentInput,
-					state: {},
-					params: {},
-					historyStrategy
-				} as RouteAction)
-			}
-		}
-
+		// No routes matched, return EMPTY
 		return EMPTY
 	}
 
@@ -356,9 +336,26 @@ export class SchmancyArea extends $LitElement(css`
 			switchMap(([event, routes]) => this.resolveRoute('popstate', event, HISTORY_STRATEGY.silent, routes)),
 		)
 
+		// Create the base routing stream
+		const baseRouting$ = merge(initialLoad$, navigation$, popstate$)
+
+		// Apply default if defined and on initial load
+		const routingWithDefault$ = this.default
+			? baseRouting$.pipe(
+				startWith({
+					area: this.name,
+					component: this.default,
+					state: {},
+					params: {},
+					historyStrategy: HISTORY_STRATEGY.silent
+				} as RouteAction)
+			)
+			: baseRouting$
+
 		// Merge the streams and create the routing pipeline
-		this.routingSubscription = merge(initialLoad$, navigation$, popstate$).pipe(
-			// Log the route we got
+		this.routingSubscription = routingWithDefault$.pipe(
+			// Add debounceTime to coalesce rapid emissions (especially during initialization)
+			debounceTime(0),
 
 			// Filter out invalid routes (but allow null for clearing)
 			filter(route => {
@@ -367,8 +364,7 @@ export class SchmancyArea extends $LitElement(css`
 				return valid
 			}),
 
-
-			// Prevent duplicate navigations
+			// Prevent duplicate navigations using deep comparison
 			distinctUntilChanged((a, b) => {
 				const same = this.isSameRoute(a, b)
 				return same
@@ -409,6 +405,18 @@ export class SchmancyArea extends $LitElement(css`
 
 			// Update DOM and handle side effects
 			tap(({ element, route }) => {
+				// Update current component tracking only if not already set
+				// (default component pre-sets this to prevent race condition)
+				if (element) {
+					const elementName = element.tagName.toLowerCase()
+					// Only update if different from what's already tracked
+					if (this.currentComponent !== elementName) {
+						this.currentComponent = elementName
+					}
+				} else {
+					this.currentComponent = null
+				}
+
 				// Update DOM
 				this.updateDOM(element)
 
@@ -434,6 +442,7 @@ export class SchmancyArea extends $LitElement(css`
 			}
 		})
 	}
+
 
 	/**
 	 * Check if two routes are the same (for duplicate prevention)
@@ -617,6 +626,8 @@ export class SchmancyArea extends $LitElement(css`
 			this.routingSubscription.unsubscribe()
 			this.routingSubscription = undefined
 		}
+		// Reset current component tracking
+		this.currentComponent = null
 	}
 
 	render() {
