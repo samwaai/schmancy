@@ -126,7 +126,8 @@ The teleport system uses a central service for state management:
 
 ```typescript
 // Access active teleportations
-import { teleportationService } from '@schmancy/teleport';
+import { teleportationService } from '@schmancy/index';
+// Or specific import: import { teleportationService } from '@schmancy/teleport';
 
 // Get current positions
 const positions = teleportationService.activeTeleportations;

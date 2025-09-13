@@ -203,9 +203,9 @@ class DemoRouteProfileSettings extends $LitElement(css`
       <div>
         <schmancy-typography type="title" token="md" class="mb-4">Profile Settings</schmancy-typography>
         <div class="space-y-4">
-          <schmancy-input label="Display Name" value="John Doe"></schmancy-input>
-          <schmancy-input label="Email" value="john@example.com"></schmancy-input>
-          <schmancy-input label="Bio" type="textarea"></schmancy-input>
+          <schmancy-input .label=${'Display Name'} value="John Doe"></schmancy-input>
+          <schmancy-input .label=${'Email'} value="john@example.com"></schmancy-input>
+          <schmancy-input .label=${'Bio'} type="textarea"></schmancy-input>
         </div>
       </div>
     `
@@ -221,8 +221,8 @@ class DemoRouteSecuritySettings extends $LitElement(css`
       <div>
         <schmancy-typography type="title" token="md" class="mb-4">Security Settings</schmancy-typography>
         <div class="space-y-4">
-          <schmancy-input label="Current Password" type="password"></schmancy-input>
-          <schmancy-input label="New Password" type="password"></schmancy-input>
+          <schmancy-input .label=${'Current Password'} type="password"></schmancy-input>
+          <schmancy-input .label=${'New Password'} type="password"></schmancy-input>
           <schmancy-checkbox label="Enable two-factor authentication"></schmancy-checkbox>
         </div>
       </div>
@@ -496,12 +496,6 @@ export class DemoAreaRouting extends $LitElement(css`
     border: 1px solid var(--schmancy-sys-color-outline-variant);
   }
   
-  .code-block {
-    background: var(--schmancy-sys-color-surface-containerLow);
-    border-radius: 8px;
-    padding: 1rem;
-    overflow-x: auto;
-  }
 `) {
   render() {
     return html`
@@ -531,11 +525,11 @@ export class DemoAreaRouting extends $LitElement(css`
         <!-- Import Section -->
         <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
-          <div class="code-block">
-            <pre><code class="language-javascript">import '@mhmo91/schmancy/area'
+          <schmancy-code-preview language="javascript">
+import '@mhmo91/schmancy/area'
 import { area } from '@mhmo91/schmancy/area'
-import { SchmancyRoute } from '@mhmo91/schmancy/area/route.component'</code></pre>
-          </div>
+import { SchmancyRoute } from '@mhmo91/schmancy/area/route.component'
+          </schmancy-code-preview>
         </div>
 
         <!-- Examples Section -->
@@ -578,8 +572,8 @@ import { SchmancyRoute } from '@mhmo91/schmancy/area/route.component'</code></pr
           </div>
 
           <!-- Code -->
-          <div class="code-block">
-            <pre><code class="language-html">&lt;schmancy-area name="main"&gt;
+          <schmancy-code-preview language="html">
+&lt;schmancy-area name="main"&gt;
   &lt;schmancy-route
     when="home"
     .component=${'${HomeComponent}'}
@@ -595,8 +589,8 @@ import { SchmancyRoute } from '@mhmo91/schmancy/area/route.component'</code></pr
     when="contact"
     .component=${'${ContactComponent}'}
   &gt;&lt;/schmancy-route&gt;
-&lt;/schmancy-area&gt;</code></pre>
-          </div>
+&lt;/schmancy-area&gt;
+          </schmancy-code-preview>
         </schmancy-surface>
 
         <!-- Example 2: URL Parameters -->
@@ -641,8 +635,8 @@ import { SchmancyRoute } from '@mhmo91/schmancy/area/route.component'</code></pr
           </div>
 
           <!-- Code -->
-          <div class="code-block">
-            <pre><code class="language-html">&lt;!-- Route definition --&gt;
+          <schmancy-code-preview language="html">
+&lt;!-- Route definition --&gt;
 &lt;schmancy-route
   when="users"
   .component=${'${UserComponent}'}
@@ -659,8 +653,8 @@ area.push({
   area: 'main',
   component: UserComponent,
   params: { userId: '123' }
-})</code></pre>
-          </div>
+})
+          </schmancy-code-preview>
         </schmancy-surface>
 
         <!-- Example 3: Nested Routing -->
@@ -680,8 +674,8 @@ area.push({
           </div>
 
           <!-- Code -->
-          <div class="code-block">
-            <pre><code class="language-html">&lt;!-- Parent area --&gt;
+          <schmancy-code-preview language="html">
+&lt;!-- Parent area --&gt;
 &lt;schmancy-area name="app"&gt;
   &lt;schmancy-route
     when="settings"
@@ -705,8 +699,8 @@ area.push({
     when="notifications"
     .component=${'${NotificationSettings}'}
   &gt;&lt;/schmancy-route&gt;
-&lt;/schmancy-area&gt;</code></pre>
-          </div>
+&lt;/schmancy-area&gt;
+          </schmancy-code-preview>
         </schmancy-surface>
 
         <!-- Example 4: Route Guards and Redirects -->
@@ -737,9 +731,8 @@ area.push({
 
           <!-- Controls -->
           <div class="flex gap-3 mb-6">
-            <schmancy-button 
-              variant="filled" 
-              color="error"
+            <schmancy-button
+              variant="filled"
               @click=${() => this.navigateGuarded('/admin')}
             >
               <schmancy-icon>admin_panel_settings</schmancy-icon>
@@ -761,8 +754,8 @@ area.push({
           </div>
 
           <!-- Code -->
-          <div class="code-block">
-            <pre><code class="language-html">&lt;schmancy-route
+          <schmancy-code-preview language="html">
+&lt;schmancy-route
   when="admin"
   .component=${'${AdminComponent}'}
   .guard=${'${() => isAuthenticated() ? true : "/login"}'}
@@ -776,8 +769,8 @@ area.push({
     ${'const user = await fetchUser()'}
     ${'return user.isPremium ? true : { redirect: "/upgrade" }'}
   ${'}}'}
-&gt;&lt;/schmancy-route&gt;</code></pre>
-          </div>
+&gt;&lt;/schmancy-route&gt;
+          </schmancy-code-preview>
         </schmancy-surface>
 
         <!-- Example 5: Integration with Imperative Navigation -->
@@ -793,8 +786,8 @@ area.push({
 
           <!-- Code Examples -->
           <div class="grid gap-4">
-            <div class="code-block">
-              <pre><code class="language-javascript">// Imperative navigation still works
+            <schmancy-code-preview language="javascript">
+// Imperative navigation still works
 area.push({
   area: 'main',
   component: 'user-profile',
@@ -805,15 +798,15 @@ area.push({
 area.push({
   area: 'main',
   component: ProductDetails,
-  state: { 
+  state: {
     product: productData,
     returnUrl: '/products'
   }
-})</code></pre>
-            </div>
+})
+            </schmancy-code-preview>
 
-            <div class="code-block">
-              <pre><code class="language-javascript">// Clear an area
+            <schmancy-code-preview language="javascript">
+// Clear an area
 area.pop('main')
 
 // Subscribe to area changes
@@ -821,8 +814,8 @@ area.on('main').subscribe(({ component, params }) => {
 })
 
 // Get current state
-const state = area.getState('main')</code></pre>
-            </div>
+const state = area.getState('main')
+            </schmancy-code-preview>
           </div>
         </schmancy-surface>
 
@@ -842,8 +835,8 @@ const state = area.getState('main')</code></pre>
 
           <!-- Code -->
           <div class="mt-6">
-            <div class="code-block">
-              <pre><code class="language-html">&lt;!-- Main app layout --&gt;
+            <schmancy-code-preview language="html">
+&lt;!-- Main app layout --&gt;
 &lt;schmancy-area name="app-content" default="posts-list"&gt;
   &lt;!-- Blog routes --&gt;
   &lt;schmancy-route
@@ -873,8 +866,8 @@ const state = area.getState('main')</code></pre>
     .component=${'${AdminDashboard}'}
     .guard=${'${() => checkAdminAuth() ? true : "/login"}'}
   &gt;&lt;/schmancy-route&gt;
-&lt;/schmancy-area&gt;</code></pre>
-            </div>
+&lt;/schmancy-area&gt;
+            </schmancy-code-preview>
           </div>
         </schmancy-surface>
 

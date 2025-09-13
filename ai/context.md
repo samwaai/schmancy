@@ -28,7 +28,8 @@ A context is a reactive container that:
 ### Basic Syntax
 
 ```typescript
-import { createContext } from '@mhmo91/schmancy'
+import { createContext } from '@schmancy/index'
+// Or specific import: import { createContext } from '@schmancy/store'
 
 export const contextName = createContext<Type>(
   initialValue,    // Default value
@@ -131,7 +132,11 @@ user: AuthUser | null | undefined
 ### Basic Component Integration
 
 ```typescript
-import { $LitElement, select } from '@mhmo91/schmancy'
+import { select } from '@schmancy/index'
+import { $LitElement } from '@mixins/index'
+// Or specific imports:
+// import { select } from '@schmancy/store'
+// import { $LitElement } from '@mixins/litElement'
 import { userContext, productsContext } from './contexts'
 
 @customElement('my-component')

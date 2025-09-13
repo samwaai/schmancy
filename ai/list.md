@@ -28,7 +28,7 @@
   @click=${handleClick}>
   
   <!-- Content structure -->
-  <div slot="start">
+  <div slot="leading">
     <schmancy-icon icon="home"></schmancy-icon>
   </div>
   
@@ -37,7 +37,7 @@
     <div>Secondary Text</div>
   </div>
   
-  <div slot="end">
+  <div slot="trailing">
     <schmancy-badge>42</schmancy-badge>
   </div>
 </schmancy-list-item>
@@ -48,7 +48,8 @@
 
 // List Context
 // For creating controlled lists and handling selection
-import { ListContext } from 'schmancy/list';
+import { ListContext } from '@schmancy/index';
+// Or specific import: import { ListContext } from '@schmancy/list';
 
 const listContext = new ListContext({
   selectable: true,           // Enable selection
@@ -61,15 +62,15 @@ const listContext = new ListContext({
 // Simple navigation list
 <schmancy-list interactive>
   <schmancy-list-item>
-    <schmancy-icon slot="start" icon="home"></schmancy-icon>
+    <schmancy-icon slot="leading" icon="home"></schmancy-icon>
     Dashboard
   </schmancy-list-item>
   <schmancy-list-item>
-    <schmancy-icon slot="start" icon="settings"></schmancy-icon>
+    <schmancy-icon slot="leading" icon="settings"></schmancy-icon>
     Settings
   </schmancy-list-item>
   <schmancy-list-item>
-    <schmancy-icon slot="start" icon="person"></schmancy-icon>
+    <schmancy-icon slot="leading" icon="person"></schmancy-icon>
     Profile
   </schmancy-list-item>
 </schmancy-list>
@@ -91,7 +92,7 @@ const listContext = new ListContext({
       <div>Item Two</div>
       <div>Description for item two</div>
     </div>
-    <div slot="end">
+    <div slot="trailing">
       <schmancy-badge>New</schmancy-badge>
     </div>
   </schmancy-list-item>
@@ -109,7 +110,7 @@ const listContext = new ListContext({
   ${items.map(item => html`
     <schmancy-list-item value=${item.id}>
       ${item.icon ? html`
-        <schmancy-icon slot="start" icon=${item.icon}></schmancy-icon>
+        <schmancy-icon slot="leading" icon=${item.icon}></schmancy-icon>
       ` : ''}
       
       <div slot="main">
@@ -118,7 +119,7 @@ const listContext = new ListContext({
       </div>
       
       ${item.badge ? html`
-        <div slot="end">
+        <div slot="trailing">
           <schmancy-badge>${item.badge}</schmancy-badge>
         </div>
       ` : ''}

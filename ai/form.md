@@ -2,12 +2,12 @@
 
 ```js
 // Form Container
-<sch-form
+<schmancy-form
   novalidate?                              // Skip form validation on submit
   @submit=${handleSubmit}                  // Form submission event
   @reset=${handleReset}>                   // Form reset event
   <!-- Form fields go here -->
-</sch-form>
+</schmancy-form>
 
 // Form Methods
 form.submit() -> boolean                   // Submit the form programmatically
@@ -22,7 +22,7 @@ form.checkValidity() -> boolean           // Check validity without showing mess
 
 // Examples
 // 1. Basic form with validation
-<sch-form @submit=${(e) => {
+<schmancy-form @submit=${(e) => {
   const formData = e.detail;
   console.log('Form submitted:', formData);
   // Convert FormData to object if needed
@@ -37,10 +37,10 @@ form.checkValidity() -> boolean           // Check validity without showing mess
   </schmancy-input>
   
   <schmancy-button type="submit">Submit</schmancy-button>
-</sch-form>
+</schmancy-form>
 
 // 2. Form with multiple fields and validation
-<sch-form 
+<schmancy-form 
   @submit=${async (e) => {
     const formData = e.detail;
     // Send to server
@@ -55,7 +55,7 @@ form.checkValidity() -> boolean           // Check validity without showing mess
   <schmancy-checkbox name="remember" label="Remember me"></schmancy-checkbox>
   
   <schmancy-button type="submit">Login</schmancy-button>
-</sch-form>
+</schmancy-form>
 ```
 
 ## Related Components
@@ -93,13 +93,13 @@ placeholder="Text"      // Placeholder text (where applicable)
 
 1. **Multi-step forms**: Create wizard-like experiences
    ```html
-   <sch-form id="step1" @submit=${nextStep}>
+   <schmancy-form id="step1" @submit=${nextStep}>
      <!-- Step 1 fields -->
-   </sch-form>
+   </schmancy-form>
    
-   <sch-form id="step2" @submit=${submitAll} style="display: none;">
+   <schmancy-form id="step2" @submit=${submitAll} style="display: none;">
      <!-- Step 2 fields -->
-   </sch-form>
+   </schmancy-form>
    ```
 
 2. **Programmatic form submission**

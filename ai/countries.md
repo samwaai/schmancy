@@ -3,7 +3,8 @@
 ## Quick Start
 
 ```typescript
-import '@mhmo91/schmancy/extra/countries'
+import '@schmancy/index'  // For all Schmancy components
+// Or specific import: import '@schmancy/extra' // Countries are part of extra
 ```
 
 ## Component Overview

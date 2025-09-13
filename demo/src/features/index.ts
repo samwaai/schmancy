@@ -13,6 +13,7 @@ export * from './select'
 export * from './slider'
 export * from './surface'
 export * from './typography'
+export * from './theme-service-demo'
 
 // Navigation
 export * from '../nav'

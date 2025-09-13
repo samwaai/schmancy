@@ -224,11 +224,11 @@ export class SchmancyArea extends $LitElement(css`
 		}
 
 		// 3. FALLBACK: Use default component if available
-		// ONLY apply default when:
-		// - No JSON state exists for ANY area (not just this one)
+		// Apply default when:
 		// - No segment routes matched
-		// - The area would otherwise be empty
-		if (this.default && !hasJsonState) {
+		// - No JSON state for this specific area (hasJsonState handles preventing default when JSON exists for this area)
+		// - A default is defined
+		if (this.default) {
 			// Check if the area is currently empty
 			const currentElement = this.shadowRoot?.children[0]
 			const isAreaEmpty = !currentElement

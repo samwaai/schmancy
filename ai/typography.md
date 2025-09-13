@@ -15,7 +15,8 @@
 </schmancy-typography>
 
 // Import
-import '@mhmo91/schmancy/typography'
+import '@schmancy/index'  // For all Schmancy components
+// Or specific import: import '@schmancy/typography'
 
 // Typography Scale Reference (size/line-height)
 // Display: xl (72/80), lg (57/64), md (45/52), sm (36/44), xs (28/36)

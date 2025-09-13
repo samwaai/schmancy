@@ -3,7 +3,8 @@
 ## Quick Start
 
 ```typescript
-import '@mhmo91/schmancy/code-highlight'
+import '@schmancy/index'  // For all Schmancy components
+// Or specific import: import '@schmancy/code-highlight'
 ```
 
 ## Component Overview

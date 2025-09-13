@@ -170,7 +170,8 @@ color: string           // Currently not used - spinner always uses secondary co
 </schmancy-busy>
 
 // Programmatic usage (service API)
-import { $busy } from 'schmancy';
+import { $busy } from '@schmancy/index';
+// Or specific import: import { $busy } from '@schmancy/busy';
 
 // Show busy indicator
 $busy.show({

@@ -3,7 +3,8 @@
 ## Quick Start
 
 ```typescript
-import '@mhmo91/schmancy/components/form-elements'
+import '@schmancy/index'  // For all Schmancy components
+// Payment card form is included in the main components
 ```
 
 ## Component Overview

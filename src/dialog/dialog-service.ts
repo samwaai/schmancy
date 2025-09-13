@@ -1,6 +1,6 @@
 import { render, TemplateResult } from 'lit'
 import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, switchMap, takeUntil, tap, timer } from 'rxjs'
-import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.component'
+import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.events'
 import { ConfirmDialog } from './dailog'
 import { DialogHereMorty, DialogHereMortyEvent, DialogWhereAreYouRicky } from './dialog-events'
 

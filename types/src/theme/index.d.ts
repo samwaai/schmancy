@@ -1,3 +1,5 @@
 export * from './theme.component';
+export * from './theme.events';
 export * from './theme.format';
 export * from './theme.interface';
+export * from './theme.service';

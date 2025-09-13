@@ -3,7 +3,8 @@
 ## Quick Start
 
 ```typescript
-import '@mhmo91/schmancy/extra/timezone'
+import '@schmancy/index'  // For all Schmancy components
+// Or specific import: import '@schmancy/extra' // Timezone is part of extra
 ```
 
 ## Component Overview

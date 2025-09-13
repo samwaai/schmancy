@@ -1,6 +1,10 @@
 # Schmancy Button - AI Reference
 
 ```js
+// Import
+import '@schmancy/index'  // For all Schmancy components
+// Or specific import: import '@schmancy/button'
+
 // Component Tags
 <schmancy-button
   variant="elevated|filled|filled tonal|outlined|text"  // Visual style (default: "text")

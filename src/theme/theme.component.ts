@@ -7,16 +7,9 @@ import { Observable, of, switchMap, fromEvent, takeUntil } from 'rxjs'
 import { themeContext } from './context'
 import { formateTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
+import { theme as themeService } from './theme.service'
+import { ThemeHereIAm, ThemeWhereAreYou, ThemeWhereAreYouEvent } from './theme.events'
 import style from './theme.style.css?inline'
-
-// Theme discovery events
-export type ThemeWhereAreYouEvent = CustomEvent<void>
-export const ThemeWhereAreYou = 'theme-where-are-you'
-
-export type ThemeHereIAmEvent = CustomEvent<{
-	theme: HTMLElement
-}>
-export const ThemeHereIAm = 'theme-here-i-am'
 export const tailwindStyles = unsafeCSS(style)
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 const $colorScheme = new Observable<string>(subscriber => {
@@ -35,13 +28,63 @@ const $colorScheme = new Observable<string>(subscriber => {
 	return () => mediaQuery.removeEventListener('change', handler)
 })
 
+/**
+ * SchmancyThemeComponent - Provides theming capabilities for Schmancy components.
+ *
+ * This component manages color schemes, primary colors, and theme distribution
+ * throughout the component tree. It can be used at the root level or nested
+ * to provide different themes to different parts of the application.
+ *
+ * @element schmancy-theme
+ *
+ * @example
+ * ```html
+ * <!-- Root theme provider -->
+ * <schmancy-theme color="#6200ee" scheme="auto" root>
+ *   <your-app></your-app>
+ * </schmancy-theme>
+ *
+ * <!-- Nested theme for specific section -->
+ * <schmancy-theme color="#2196f3" scheme="dark">
+ *   <div class="dark-section">
+ *     <!-- Components here will use blue dark theme -->
+ *   </div>
+ * </schmancy-theme>
+ * ```
+ */
 @customElement('schmancy-theme')
 export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
+	/**
+	 * Primary color for the theme in hex format.
+	 * @attr color
+	 * @type {string}
+	 * @default Random generated color
+	 * @example "#6200ee"
+	 */
 	@property({ type: String, reflect: true })
 	color: string
+
+	/**
+	 * Color scheme for the theme.
+	 * @attr scheme
+	 * @type {'dark' | 'light' | 'auto'}
+	 * @default 'auto'
+	 */
 	@property({ type: String }) scheme: 'dark' | 'light' | 'auto' = 'auto'
+
+	/**
+	 * Whether this theme should be applied at the root level (document.body).
+	 * @attr root
+	 * @type {boolean}
+	 * @default false
+	 */
 	@property({ type: Boolean }) root = false
 
+	/**
+	 * Theme configuration object containing all theme variables.
+	 * @property {Partial<TSchmancyTheme>} theme
+	 * @internal
+	 */
 	@provide({
 		context: themeContext,
 	})
@@ -51,7 +94,9 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 	connectedCallback(): void {
 		super.connectedCallback()
 		if (!this.color) this.color = this.generateRandomColor()
-		// Trigger any other effects you have
+
+		// Register with theme service
+		themeService.registerThemeComponent(this)
 
 		of(this.scheme)
 			.pipe(
@@ -63,6 +108,12 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 			.subscribe(scheme => {
 				this.scheme = scheme as 'dark' | 'light'
 				this.registerTheme()
+				// Update theme service when scheme changes
+				themeService.updateTheme({
+					scheme: this.scheme,
+					color: this.color,
+					theme: this.theme
+				})
 			})
 
 		// Listen for generic theme discovery events
@@ -83,6 +134,19 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 			)
 		})
 
+	}
+
+	updated(changedProperties: Map<string | number | symbol, unknown>): void {
+		super.updated(changedProperties)
+
+		// Update theme service when properties change
+		if (changedProperties.has('color') || changedProperties.has('scheme') || changedProperties.has('theme')) {
+			themeService.updateTheme({
+				scheme: this.scheme,
+				color: this.color,
+				theme: this.theme
+			})
+		}
 	}
 	registerTheme() {
 		let theme = formateTheme(

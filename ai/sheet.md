@@ -9,8 +9,8 @@ The sheet component provides a sliding panel overlay that can be used for forms,
 
 ```js
 // Import Options
-import { sheet } from '@mhmo91/schmancy';  // Legacy import
-import { $sheet } from '@mhmo91/schmancy'; // New recommended import
+import { sheet, $sheet } from '@schmancy/index';
+// Or specific import: import { sheet, $sheet } from '@schmancy/sheet';
 
 // Sheet Service API
 $sheet.open({
@@ -488,7 +488,8 @@ $sheet.open({ component: newContent });
 // Integration with Other Components
 
 // With Dialog Service
-import { dialog } from '@mhmo91/schmancy';
+import { dialog } from '@schmancy/index';
+// Or specific import: import { dialog } from '@schmancy/dialog';
 
 async function deleteItem(id) {
   const confirmed = await dialog.confirm({
@@ -503,7 +504,8 @@ async function deleteItem(id) {
 }
 
 // With Notification Service  
-import { notification } from '@mhmo91/schmancy';
+import { notification } from '@schmancy/index';
+// Or specific import: import { notification } from '@schmancy/notification';
 
 $sheet.open({
   component: html`

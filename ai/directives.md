@@ -3,7 +3,8 @@
 ## Quick Start
 
 ```typescript
-import { ripple, color, height, visibility } from '@mhmo91/schmancy'
+import { ripple, color, height, visibility } from '@schmancy/index'
+// Or specific import: import { ripple, color, height, visibility } from '@schmancy/directives'
 ```
 
 ## Directives Overview

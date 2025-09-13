@@ -2,7 +2,8 @@
 
 ```js
 // Store Creation
-import { createStore } from '@mhmo91/schmancy';
+import { createStore } from '@schmancy/index';
+// Or specific import: import { createStore } from '@schmancy/store';
 
 // Basic store creation
 const store = createStore({
@@ -24,7 +25,8 @@ const counterStore = createStore({
 });
 
 // Store Context Creation
-import { createContext, createCollectionContext } from '@mhmo91/schmancy';
+import { createContext, createCollectionContext } from '@schmancy/index';
+// Or specific import: import { createContext, createCollectionContext } from '@schmancy/store';
 
 // Object/array/collection contexts
 const settingsContext = createContext(store, 'settings');           // Object
@@ -46,7 +48,8 @@ todoCollection.update('1', item => { item.completed = true; });     // Collectio
 todoCollection.remove('1');                                         // Collection remove
 
 // Selectors
-import { createSelector, useSelector } from '@mhmo91/schmancy';
+import { createSelector, useSelector } from '@schmancy/index';
+// Or specific import: import { createSelector, useSelector } from '@schmancy/store';
 
 // Basic and computed selectors
 const getCount = state => state.count;
@@ -121,7 +124,8 @@ const getFilteredTodos = createSelector(
   }
 );
 // 4. Using @select decorator in components
-import { select } from '@mhmo91/schmancy';
+import { select } from '@schmancy/index';
+// Or specific import: import { select } from '@schmancy/store';
 
 @customElement('my-component')
 class MyComponent extends LitElement {

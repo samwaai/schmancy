@@ -9,6 +9,7 @@ import { filter, map } from 'rxjs'
 // Key Features
 import { DemoAreaDemos } from './features/area/area-demos'
 import { DemoContext } from './features/context'
+import { ThemeServiceDemo } from './features/theme-service-demo'
 
 // Core Components
 import { DemoButton } from './features/button'
@@ -58,6 +59,7 @@ export class DemoNav extends TailwindElement() {
       demos: [
         { name: 'Context', component: DemoContext },
         { name: 'Area', component: DemoAreaDemos as any },
+        { name: 'Theme Service', component: ThemeServiceDemo },
       ]
     },
     {

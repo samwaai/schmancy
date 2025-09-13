@@ -19,7 +19,8 @@
 </schmancy-date-range>
 
 // Import
-import '@mhmo91/schmancy/date-range'
+import '@schmancy/index'  // For all Schmancy components
+// Or specific import: import '@schmancy/date-range'
 
 // Types
 interface Preset {

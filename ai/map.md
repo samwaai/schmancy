@@ -13,7 +13,8 @@ yarn add @mhmo91/schmancy
 ## Import
 
 ```javascript
-import '@mhmo91/schmancy/map'
+import '@schmancy/index'  // For all Schmancy components
+// Or specific import: import '@schmancy/map'
 ```
 
 ## API Reference

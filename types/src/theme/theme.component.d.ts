@@ -1,10 +1,4 @@
 import { TSchmancyTheme } from './theme.interface';
-export type ThemeWhereAreYouEvent = CustomEvent<void>;
-export declare const ThemeWhereAreYou = "theme-where-are-you";
-export type ThemeHereIAmEvent = CustomEvent<{
-    theme: HTMLElement;
-}>;
-export declare const ThemeHereIAm = "theme-here-i-am";
 export declare const tailwindStyles: import("lit").CSSResult;
 declare const SchmancyThemeComponent_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 export declare class SchmancyThemeComponent extends SchmancyThemeComponent_base {
@@ -13,6 +7,7 @@ export declare class SchmancyThemeComponent extends SchmancyThemeComponent_base 
     root: boolean;
     theme: Partial<TSchmancyTheme>;
     connectedCallback(): void;
+    updated(changedProperties: Map<string | number | symbol, unknown>): void;
     registerTheme(): void;
     registerThemeValues(prefix: string, path: string, value: Partial<TSchmancyTheme>): string | undefined;
     generateRandomColor(): string;

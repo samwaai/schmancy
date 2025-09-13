@@ -13,7 +13,7 @@ import {
 	tap,
 	timer,
 } from 'rxjs'
-import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.component'
+import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.events'
 import SchmancySheet from './sheet'
 
 export enum SchmancySheetPosition {

@@ -97,7 +97,8 @@ The component uses `:host` selectors for all styling:
 ### Context Provider
 Surface provides its type to descendant components via Lit Context:
 ```js
-import { SchmancySurfaceTypeContext } from '@schmancy/surface'
+import { SchmancySurfaceTypeContext } from '@schmancy/index'
+// Or specific import: import { SchmancySurfaceTypeContext } from '@schmancy/surface'
 ```
 
 ## Common Use Cases

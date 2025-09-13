@@ -33,6 +33,12 @@ The parent container managing step state and navigation.
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `currentStep` | `number` | `1` | Currently active step (1-based) |
+| `gap` | `number` | `4` | Gap between steps (Tailwind gap scale: 0-24) |
+
+**Events:**
+| Event | Detail | Description |
+|-------|---------|-------------|
+| `@change` | `{ value: number }` | Fires when currentStep changes |
 
 ### schmancy-step
 Individual step component with content and metadata.

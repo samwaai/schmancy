@@ -4,7 +4,8 @@
 
 ### Service API (Recommended)
 ```js
-import { $dialog } from '@mhmo91/schmancy'
+import { $dialog } from '@schmancy/index'
+// Or specific import: import { $dialog } from '@schmancy/dialog'
 
 // Simple confirmation
 const confirmed = await $dialog.ask("Save changes?")

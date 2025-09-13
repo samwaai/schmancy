@@ -30,7 +30,8 @@ Sliding panel system for navigation, overlays, and responsive layouts.
 ## Context API
 
 ```js
-import { contentDrawerContext } from '@schmancy/content-drawer'
+import { contentDrawerContext } from '@schmancy/index'
+// Or specific import: import { contentDrawerContext } from '@schmancy/content-drawer'
 
 // Create drawer controller
 const drawer = contentDrawerContext.create('drawer-id')

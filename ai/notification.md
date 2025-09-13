@@ -3,7 +3,8 @@
 ## Core Notification Service
 
 ```js
-import { $notify } from '@mhmo91/schmancy'
+import { $notify } from '@schmancy/index'
+// Or specific import: import { $notify } from '@schmancy/notification'
 
 // Display notification methods
 $notify.info(message?, options?) -> string    // Returns notification ID
@@ -41,7 +42,8 @@ $notify.customDuration(message, duration, options)
 The `notify()` operator wraps observables with automatic notification lifecycle management.
 
 ```js
-import { notify } from '@mhmo91/schmancy'
+import { notify } from '@schmancy/index'
+// Or specific import: import { notify } from '@schmancy/notification'
 
 // Basic usage - minimal configuration
 someApiCall().pipe(
@@ -115,27 +117,27 @@ fileUpload().pipe(
 ### Notification Container
 
 ```html
-<sch-notification-container
+<schmancy-notification-container
   position="top-right|top-left|bottom-right|bottom-left|top-center|bottom-center"
-  max-visible-notifications="2"     
-  play-sound="true|false"          
+  max-visible-notifications="2"
+  play-sound="true|false"
   audio-volume="0.1">
-</sch-notification-container>
+</schmancy-notification-container>
 ```
 
 ### Individual Notification (used internally)
 
 ```html
-<sch-notification
+<schmancy-notification
   title="Title"
   message="Message text"
   type="info|success|warning|error"
-  duration="5000"         
+  duration="5000"
   closable="true"
   play-sound="true"
-  show-progress="false"   
+  show-progress="false"
   @close>
-</sch-notification>
+</schmancy-notification>
 ```
 
 ## Examples
@@ -176,11 +178,11 @@ upload(file).pipe(
 Add the notification container once in your app layout:
 
 ```html
-<sch-notification-container 
+<schmancy-notification-container
   position="top-right"
   max-visible-notifications="3"
   play-sound="true">
-</sch-notification-container>
+</schmancy-notification-container>
 ```
 
 ## Progress Indication
