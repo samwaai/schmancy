@@ -21,16 +21,13 @@ export declare class SchmancyArea extends SchmancyArea_base {
      */
     private routingSubscription?;
     /**
-     * Track the current component to prevent circular default application
-     */
-    private currentComponent;
-    /**
      * Unified route resolver that handles all routing scenarios
      * This is the single source of truth for resolving routes
      */
     private resolveRoute;
     /**
      * Match URL to route using both JSON-based (core) and segment-based (enhancement) routing
+     * This method is pure and reactive - it ALWAYS emits something (matched route, default, or EMPTY)
      */
     private matchSegmentToRoute;
     /**
