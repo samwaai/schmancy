@@ -40,10 +40,6 @@ export declare class SchmancyArea extends SchmancyArea_base {
     private resolveComponent;
     protected firstUpdated(): void;
     /**
-     * Normalize component name for comparison
-     */
-    private normalizeComponentName;
-    /**
      * Check if two routes are the same (for duplicate prevention)
      */
     private isSameRoute;
