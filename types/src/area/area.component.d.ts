@@ -12,6 +12,11 @@ export declare class SchmancyArea extends SchmancyArea_base {
     name: string;
     default: string | CustomElementConstructor | TemplateResult<1>;
     /**
+     * Query for assigned route elements in the slot
+     * This will automatically update when slot content changes
+     */
+    private routes;
+    /**
      * Subscription to the routing pipeline
      */
     private routingSubscription?;
@@ -21,13 +26,9 @@ export declare class SchmancyArea extends SchmancyArea_base {
      */
     private resolveRoute;
     /**
-     * Parse pathname to route action
+     * Match URL to route using both JSON-based (core) and segment-based (enhancement) routing
      */
-    private parsePathnameToRoute;
-    /**
-     * Map path strings to component names for demo navigation
-     */
-    private pathToComponent;
+    private matchSegmentToRoute;
     /**
      * Resolve component input to HTMLElement
      * Handles strings, constructors, promises, lazy loading, etc.

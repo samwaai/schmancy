@@ -1,4 +1,6 @@
-export type GuardResult = boolean | string | { redirect: string };
+export type GuardResult = boolean | string | {
+    redirect: string;
+};
 export interface RouteConfig {
     when: string;
     component: any;
