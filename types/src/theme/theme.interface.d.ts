@@ -62,6 +62,42 @@ declare const theme: {
         };
     };
 };
+/**
+ * Type definition for the Schmancy theme configuration.
+ * Contains all available theme variables including colors, elevations, and outlines.
+ *
+ * @typedef {Object} TSchmancyTheme
+ *
+ * @example
+ * ```typescript
+ * import type { TSchmancyTheme } from '@schmancy/theme'
+ *
+ * const myTheme: Partial<TSchmancyTheme> = {
+ *   sys: {
+ *     color: {
+ *       primary: {
+ *         default: '#6200ee'
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
+ */
 export type TSchmancyTheme = (typeof theme)[keyof typeof theme];
+/**
+ * Default Schmancy theme configuration object.
+ * Provides access to all theme CSS variables through JavaScript.
+ *
+ * @constant {TSchmancyTheme}
+ *
+ * @example
+ * ```typescript
+ * import { SchmancyTheme } from '@schmancy/theme'
+ *
+ * // Access primary color variable
+ * const primaryColor = SchmancyTheme.sys.color.primary.default
+ * // Returns: 'var(--schmancy-sys-color-primary-default)'
+ * ```
+ */
 declare const SchmancyTheme: TSchmancyTheme;
 export { SchmancyTheme };

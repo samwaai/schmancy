@@ -129,7 +129,6 @@ export class SchmancyArea extends $LitElement(css`
 		// 1. CORE LOGIC: Try JSON-based routing first (this is the primary routing mechanism)
 		// JSON routing allows for complete state and component configuration via URL
 		const lastSegment = pathname.split('/').pop() || ''
-		let hasJsonState = false
 
 		if (lastSegment && (lastSegment.includes('{') || lastSegment.includes('%7B'))) {
 			try {
@@ -137,8 +136,6 @@ export class SchmancyArea extends $LitElement(css`
 				const parsed = JSON.parse(decoded)
 
 				// JSON was successfully parsed
-				hasJsonState = true
-
 				// Check if this specific area has a component in the JSON state
 				if (parsed[this.name]) {
 					return of({
@@ -156,7 +153,6 @@ export class SchmancyArea extends $LitElement(css`
 
 			} catch (e) {
 				// Not valid JSON, continue to segment matching
-				hasJsonState = false
 			}
 		}
 
@@ -226,7 +222,7 @@ export class SchmancyArea extends $LitElement(css`
 		// 3. FALLBACK: Use default component if available
 		// Apply default when:
 		// - No segment routes matched
-		// - No JSON state for this specific area (hasJsonState handles preventing default when JSON exists for this area)
+		// - No JSON state for this specific area (handled by returning EMPTY when JSON exists but lacks component for this area)
 		// - A default is defined
 		if (this.default) {
 			// Check if the area is currently empty
