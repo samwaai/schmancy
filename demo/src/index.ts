@@ -16,6 +16,7 @@ import { DemoAreaDemos } from './features/area/area-demos'
 
 // Key Features
 import { DemoContext } from './features/context'
+import { ThemeServiceDemo } from './features/theme-service-demo'
 
 // Core Components
 import { DemoButton } from './features/button'
@@ -97,6 +98,7 @@ export default class SchmancyDemo extends $LitElement(css`
 			demos: [
 				{ name: 'Context', component: DemoContext },
 				{ name: 'Area', component: DemoAreaDemos as any },
+				{ name: 'Theme Service', component: ThemeServiceDemo },
 			]
 		},
 		{
@@ -187,13 +189,14 @@ export default class SchmancyDemo extends $LitElement(css`
 									</schmancy-typography>
 								</div>
 
-								<div class="px-4 overflow-y-auto flex-1 min-h-0">
+								<div class="px-4 overflow-y-auto space-y-4 flex-1 min-h-0">
 									${repeat(
 										this.sections,
 										section => section.title,
 										section => {
 											return html`
-												<div>
+											<schmancy-divider></schmancy-divider>
+												<div class="pt-4">
 													<div class="text-xs font-semibold text-primary-default mb-3 mt-6 first:mt-0">${section.title}</div>
 													<schmancy-list>
 														${repeat(
