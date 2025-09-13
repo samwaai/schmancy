@@ -432,25 +432,30 @@ class AreaService implements AreaSubscription {
 			const cleanedAreas: Record<string, any> = {}
 			Object.entries(areas).forEach(([areaName, route]) => {
 				const cleanRoute: any = { component: route.component }
-				
+
 				// Only include state if it has content
 				if (route.state && Object.keys(route.state).length > 0) {
 					cleanRoute.state = route.state
 				}
-				
+
 				// Only include params if it has content
 				if (route.params && Object.keys(route.params).length > 0) {
 					cleanRoute.params = route.params
 				}
-				
+
 				// Only include props if it has content
 				if (route.props && Object.keys(route.props).length > 0) {
 					cleanRoute.props = route.props
 				}
-				
+
 				cleanedAreas[areaName] = cleanRoute
 			})
-			
+
+			// If cleanedAreas is empty, return a clean URL without encoded empty object
+			if (Object.keys(cleanedAreas).length === 0) {
+				return queryString ? `/${queryString}` : '/'
+			}
+
 			const encoded = encodeURIComponent(JSON.stringify(cleanedAreas))
 			return `/${encoded}${queryString}`
 		} catch (error) {

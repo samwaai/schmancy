@@ -47,14 +47,6 @@ import { DemoDateRangeInline } from './features/date-range-inline'
 import DetailsShowcase from './features/details-showcase'
 import { DemoMailbox } from './features/mailbox'
 
-interface DemoSection {
-	title: string
-	demos: Array<{
-		name: string
-		component: CustomElementConstructor
-	}>
-}
-
 type Theme = {
 	color: string
 	scheme: 'dark' | 'light' | 'auto'
@@ -91,55 +83,6 @@ export default class SchmancyDemo extends $LitElement(css`
 	}
 
 	@state() activeComponent: string = ''
-
-	private sections: DemoSection[] = [
-		{
-			title: 'Key Features',
-			demos: [
-				{ name: 'Context', component: DemoContext },
-				{ name: 'Area', component: DemoAreaDemos as any },
-				{ name: 'Theme Service', component: ThemeServiceDemo },
-			]
-		},
-		{
-			title: 'Core',
-			demos: [
-				{ name: 'Typography', component: DemoTypography },
-				{ name: 'Button', component: DemoButton },
-				{ name: 'Card', component: DemoCard },
-				{ name: 'Chips', component: DemoChips },
-				{ name: 'Surface', component: DemoSurface },
-				{ name: 'Icons', component: DemoIcons },
-				{ name: 'Progress', component: DemoProgress },
-				{ name: 'Spinner', component: DemoBusy },
-				{ name: 'Notifications', component: NotificationDemo },
-				{ name: 'Details', component: DetailsShowcase },
-				{ name: 'Map', component: DemoMap },
-				{ name: 'Mailbox', component: DemoMailbox },
-			]
-		},
-		{
-			title: 'Forms',
-			demos: [
-				{ name: 'Input', component: DemoInput },
-				{ name: 'Autocomplete', component: DemoAutocomplete },
-				{ name: 'Date Range', component: DemoDateRange },
-				{ name: 'Date Range inline', component: DemoDateRangeInline },
-				{ name: 'Radio', component: DemoRadio },
-				{ name: 'Select', component: DemoSelect },
-				{ name: 'Slider', component: DemoSlider },
-			]
-		},
-		{
-			title: 'Layout',
-			demos: [
-				{ name: 'Layout', component: DemoLayout },
-				{ name: 'Boat', component: DemoBoat },
-				{ name: 'Steps', component: DemoSteps },
-				{ name: 'Sheet', component: DemoSheet }
-			]
-		},
-	]
 	connectedCallback(): void {
 		super.connectedCallback()
 
@@ -174,6 +117,55 @@ export default class SchmancyDemo extends $LitElement(css`
 	}
 
 	render() {
+		const sections = [
+			{
+				title: 'Key Features',
+				demos: [
+					{ name: 'Context', component: DemoContext },
+					{ name: 'Area', component: DemoAreaDemos as any },
+					{ name: 'Theme Service', component: ThemeServiceDemo },
+				]
+			},
+			{
+				title: 'Core',
+				demos: [
+					{ name: 'Typography', component: DemoTypography },
+					{ name: 'Button', component: DemoButton },
+					{ name: 'Card', component: DemoCard },
+					{ name: 'Chips', component: DemoChips },
+					{ name: 'Surface', component: DemoSurface },
+					{ name: 'Icons', component: DemoIcons },
+					{ name: 'Progress', component: DemoProgress },
+					{ name: 'Spinner', component: DemoBusy },
+					{ name: 'Notifications', component: NotificationDemo },
+					{ name: 'Details', component: DetailsShowcase },
+					{ name: 'Map', component: DemoMap },
+					{ name: 'Mailbox', component: DemoMailbox },
+				]
+			},
+			{
+				title: 'Forms',
+				demos: [
+					{ name: 'Input', component: DemoInput },
+					{ name: 'Autocomplete', component: DemoAutocomplete },
+					{ name: 'Date Range', component: DemoDateRange },
+					{ name: 'Date Range inline', component: DemoDateRangeInline },
+					{ name: 'Radio', component: DemoRadio },
+					{ name: 'Select', component: DemoSelect },
+					{ name: 'Slider', component: DemoSlider },
+				]
+			},
+			{
+				title: 'Layout',
+				demos: [
+					{ name: 'Layout', component: DemoLayout },
+					{ name: 'Boat', component: DemoBoat },
+					{ name: 'Steps', component: DemoSteps },
+					{ name: 'Sheet', component: DemoSheet }
+				]
+			},
+		]
+
 		return html`
 			<schmancy-theme root .color=${this.theme.color} .scheme=${this.theme.scheme}>
 				<schmancy-surface ${fullHeight()} type="container">
@@ -191,7 +183,7 @@ export default class SchmancyDemo extends $LitElement(css`
 
 								<div class="px-4 overflow-y-auto space-y-4 flex-1 min-h-0">
 									${repeat(
-										this.sections,
+										sections,
 										section => section.title,
 										section => {
 											return html`
@@ -223,7 +215,7 @@ export default class SchmancyDemo extends $LitElement(css`
 						</schmancy-nav-drawer-navbar>
 						<schmancy-nav-drawer-content class="pl-2">
 							<schmancy-scroll>
-								<schmancy-area name="main">
+								<schmancy-area name="main" .default=${DemoAreaDemos}>
 									<schmancy-route when="area" .component=${DemoAreaDemos}></schmancy-route>
 								</schmancy-area>
 							</schmancy-scroll>

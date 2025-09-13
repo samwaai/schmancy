@@ -15,6 +15,7 @@ import {
 	map,
 	merge,
 	of,
+	shareReplay,
 	startWith,
 	switchMap,
 	take,
@@ -74,10 +75,6 @@ export class SchmancyArea extends $LitElement(css`
 	 */
 	private routingSubscription?: Subscription
 
-	/**
-	 * Track the current component to prevent circular default application
-	 */
-	private currentComponent: string | null = null
 
 	/**
 	 * Unified route resolver that handles all routing scenarios
@@ -129,6 +126,7 @@ export class SchmancyArea extends $LitElement(css`
 
 	/**
 	 * Match URL to route using both JSON-based (core) and segment-based (enhancement) routing
+	 * This method is pure and reactive - it ALWAYS emits something (matched route, default, or EMPTY)
 	 */
 	private matchSegmentToRoute(pathname: string, historyStrategy: HISTORY_STRATEGY, routes: SchmancyRoute[]): Observable<RouteAction> {
 
@@ -141,8 +139,7 @@ export class SchmancyArea extends $LitElement(css`
 				const decoded = decodeURIComponent(lastSegment)
 				const parsed = JSON.parse(decoded)
 
-				// JSON was successfully parsed
-				// Check if this specific area has a component in the JSON state
+				// If JSON has an entry for this area, use it
 				if (parsed[this.name]) {
 					return of({
 						area: this.name,
@@ -152,7 +149,7 @@ export class SchmancyArea extends $LitElement(css`
 						historyStrategy
 					} as RouteAction)
 				}
-
+				// Otherwise continue to segment matching and defaults
 			} catch (e) {
 				// Not valid JSON, continue to segment matching
 			}
@@ -187,7 +184,16 @@ export class SchmancyArea extends $LitElement(css`
 										historyStrategy
 									} as RouteAction)
 								} else if (guardResult === false) {
-									// Guard failed, stop navigation
+									// Guard failed, check for default
+									if (this.default) {
+										return of({
+											area: this.name,
+											component: this.default,
+											state: {},
+											params: {},
+											historyStrategy
+										} as RouteAction)
+									}
 									return EMPTY
 								} else if (typeof guardResult === 'string') {
 									// Redirect to string path
@@ -198,11 +204,31 @@ export class SchmancyArea extends $LitElement(css`
 								} else {
 									// Invalid guard result
 									console.error(`[${this.name}] Invalid guard result:`, guardResult)
+									// Fall back to default if available
+									if (this.default) {
+										return of({
+											area: this.name,
+											component: this.default,
+											state: {},
+											params: {},
+											historyStrategy
+										} as RouteAction)
+									}
 									return EMPTY
 								}
 							}),
 							catchError(err => {
 								console.error(`[${this.name}] Guard error:`, err)
+								// On guard error, fall back to default if available
+								if (this.default) {
+									return of({
+										area: this.name,
+										component: this.default,
+										state: {},
+										params: {},
+										historyStrategy
+									} as RouteAction)
+								}
 								return EMPTY
 							})
 						)
@@ -220,7 +246,18 @@ export class SchmancyArea extends $LitElement(css`
 			}
 		}
 
-		// No routes matched, return EMPTY
+		// 3. Nothing matched - emit default if defined, otherwise EMPTY
+		if (this.default) {
+			return of({
+				area: this.name,
+				component: this.default,
+				state: {},
+				params: {},
+				historyStrategy
+			} as RouteAction)
+		}
+
+		// No routes matched and no default defined
 		return EMPTY
 	}
 
@@ -336,24 +373,11 @@ export class SchmancyArea extends $LitElement(css`
 			switchMap(([event, routes]) => this.resolveRoute('popstate', event, HISTORY_STRATEGY.silent, routes)),
 		)
 
-		// Create the base routing stream
+		// Create the base routing stream - matchSegmentToRoute now handles defaults
 		const baseRouting$ = merge(initialLoad$, navigation$, popstate$)
 
-		// Apply default if defined and on initial load
-		const routingWithDefault$ = this.default
-			? baseRouting$.pipe(
-				startWith({
-					area: this.name,
-					component: this.default,
-					state: {},
-					params: {},
-					historyStrategy: HISTORY_STRATEGY.silent
-				} as RouteAction)
-			)
-			: baseRouting$
-
-		// Merge the streams and create the routing pipeline
-		this.routingSubscription = routingWithDefault$.pipe(
+		// Create the routing pipeline directly from baseRouting$
+		this.routingSubscription = baseRouting$.pipe(
 			// Add debounceTime to coalesce rapid emissions (especially during initialization)
 			debounceTime(0),
 
@@ -369,6 +393,9 @@ export class SchmancyArea extends $LitElement(css`
 				const same = this.isSameRoute(a, b)
 				return same
 			}),
+
+			// Share the resolved route state across subscribers
+			shareReplay(1),
 
 			// Resolve component to HTMLElement
 			switchMap(route => {
@@ -405,18 +432,6 @@ export class SchmancyArea extends $LitElement(css`
 
 			// Update DOM and handle side effects
 			tap(({ element, route }) => {
-				// Update current component tracking only if not already set
-				// (default component pre-sets this to prevent race condition)
-				if (element) {
-					const elementName = element.tagName.toLowerCase()
-					// Only update if different from what's already tracked
-					if (this.currentComponent !== elementName) {
-						this.currentComponent = elementName
-					}
-				} else {
-					this.currentComponent = null
-				}
-
 				// Update DOM
 				this.updateDOM(element)
 
@@ -626,8 +641,6 @@ export class SchmancyArea extends $LitElement(css`
 			this.routingSubscription.unsubscribe()
 			this.routingSubscription = undefined
 		}
-		// Reset current component tracking
-		this.currentComponent = null
 	}
 
 	render() {
