@@ -1,9 +1,15 @@
+import { TemplateResult } from 'lit';
 export type GuardResult = boolean | string | {
     redirect: string;
 };
+export type RouteComponent = string | CustomElementConstructor | HTMLElement | TemplateResult<1> | (() => Promise<{
+    default: CustomElementConstructor;
+}>) | Promise<{
+    default: CustomElementConstructor;
+}>;
 export interface RouteConfig {
     when: string;
-    component: any;
+    component: RouteComponent;
     exact?: boolean;
     guard?: () => GuardResult | Promise<GuardResult>;
 }
@@ -26,14 +32,14 @@ declare const SchmancyRoute_base: CustomElementConstructor & import("@mixins/ind
  */
 export declare class SchmancyRoute extends SchmancyRoute_base {
     when: string;
-    component: any;
+    component: RouteComponent;
     exact?: boolean;
     guard?: () => GuardResult | Promise<GuardResult>;
     /**
      * Returns the route configuration object
      */
     getConfig(): RouteConfig;
-    render(): import("lit-html").TemplateResult<1>;
+    render(): TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {

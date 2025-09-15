@@ -1,20 +1,35 @@
-import '@material/web/chips/chip-set.js';
-import '@material/web/chips/filter-chip.js';
-import { ChipSet } from '@material/web/chips/internal/chip-set';
 import { PropertyValues } from 'lit';
-import SchmancyChip, { SchmancyChipChangeEvent } from './chip';
+import { SchmancyFilterChip as SchmancyChip } from './filter-chip';
+import type { FilterChipChangeEvent as SchmancyChipChangeEvent } from './filter-chip';
 declare const SchmancyChips_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyChips extends SchmancyChips_base {
-    chipSet: ChipSet;
-    multi: boolean;
-    values: string[];
-    value: string;
-    chips: SchmancyChip[];
+    private value$;
+    private values$;
+    private _value;
+    private _values;
+    private _multi;
+    private _valueSet;
+    private _valuesSet;
+    /**
+     * @deprecated Use .values for multi-selection or .value for single-selection instead.
+     * The mode is now automatically determined based on which property is used.
+     */
+    get multi(): boolean;
+    set multi(value: boolean);
+    /**
+     * Automatically determines the selection mode based on which properties are in use
+     */
+    private get mode();
+    get values(): string[];
+    set values(value: string[]);
+    get value(): string;
+    set value(value: string);
+    chips: (SchmancyChip | HTMLElement)[];
     wrap: boolean;
+    connectedCallback(): void;
+    private updateChipStates;
     change(e: CustomEvent<SchmancyChipChangeEvent>): Promise<void>;
     protected firstUpdated(_changedProperties: PropertyValues): void;
-    attributeChangedCallback(name: string, old: string, value: string): void;
-    hydrateTabs(): void;
     protected render(): unknown;
 }
 declare global {
