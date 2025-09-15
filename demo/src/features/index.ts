@@ -30,11 +30,13 @@ export * from './area/routing'
 export * from './area/area-demos'
 
 
+// Content Drawer
+export * from './drawer-content'
+
 // TODO: These components need to be rewritten
 // export * from './area-showcase'
 // export * from './boat'
 // export * from './dialog-showcase'
-// export * from './drawer-content'
 // export * from './list'
 // export * from './tabs'
 // export * from './tree'

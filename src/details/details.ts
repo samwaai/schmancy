@@ -50,12 +50,16 @@ export default class SchmancyDetails extends TailwindElement(css`
   @property({ reflect: true }) variant: 'default' | 'outlined' | 'filled' | 'elevated' = 'default';
   
   render() {
+    const hoverClass = this.variant === 'filled' || this.variant === 'elevated'
+      ? 'hover:bg-surface-highest active:bg-surface-high'
+      : 'hover:bg-surface-container active:bg-surface-low';
+
     return html`
-      <details 
-        ?open=${this.open} 
+      <details
+        ?open=${this.open}
         @toggle=${this._handleToggle}
         class="w-full rounded-lg">
-        <summary class="cursor-pointer select-none p-3 px-4 list-none flex items-center gap-3 transition-all duration-200 rounded-lg text-surface-on hover:bg-surface-container focus-visible:outline-2 focus-visible:outline-primary-default focus-visible:outline-offset-2">
+        <summary class="cursor-pointer select-none p-3 px-4 list-none flex items-center gap-3 transition-all duration-200 rounded-lg text-surface-on ${hoverClass} focus-visible:outline-2 focus-visible:outline-primary-default focus-visible:outline-offset-2">
           <span class="inline-flex items-center justify-center w-5 h-5 transition-transform duration-200 flex-shrink-0 ${this.open ? 'rotate-90' : ''}">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

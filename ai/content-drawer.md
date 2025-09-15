@@ -27,38 +27,71 @@ Sliding panel system for navigation, overlays, and responsive layouts.
 </schmancy-content-drawer>
 ```
 
-## Context API
+## Service API
 
 ```js
-import { contentDrawerContext } from '@schmancy/index'
-// Or specific import: import { contentDrawerContext } from '@schmancy/content-drawer'
+import { schmancyContentDrawer } from '@schmancy/content-drawer'
 
-// Create drawer controller
-const drawer = contentDrawerContext.create('drawer-id')
+// NEW: Push API - Renders component with automatic re-rendering support
+schmancyContentDrawer.push(component)
+// component can be:
+// - string: 'demo-button' (tag name)
+// - HTMLElement: new DemoButton()
+// - Factory: () => new DemoButton()
+// - Async: () => import('./button').then(m => new m.default())
 
-// Control methods
-drawer.open()
-drawer.close() 
-drawer.toggle()
-drawer.lock()      // Prevent closing
-drawer.unlock()
-drawer.setPersistent(boolean)
+// Legacy render API (backward compatible)
+schmancyContentDrawer.render(ref, component, title?)
 
-// State access
-drawer.isOpen -> boolean
-drawer.state$ -> Observable<DrawerState>
+// Dismiss drawer
+schmancyContentDrawer.dimiss(ref)
+```
 
-// Events
-@drawer-opened
-@drawer-closed
-@drawer-toggled -> { open: boolean }
-@before-open
-@before-close
+### Push API Features
+
+The `push` API solves the re-rendering issue when the same component instance is pushed with updated properties:
+
+```js
+// Create a component instance
+const myComponent = new MyComponent()
+myComponent.variant = 'filled'
+
+// Push it to drawer
+schmancyContentDrawer.push(myComponent)
+
+// Later, update properties and push again
+myComponent.variant = 'outlined'
+schmancyContentDrawer.push(myComponent) // Automatically detects same instance and forces re-render
 ```
 
 ## Examples
 
-### 1. Basic Navigation Drawer
+### 1. Using Push API for Dynamic Content
+
+```js
+// Simple string component
+schmancyContentDrawer.push('demo-typography')
+
+// Component instance with properties
+const button = new DemoButton()
+button.variant = 'filled'
+schmancyContentDrawer.push(button)
+
+// Factory function for custom setup
+schmancyContentDrawer.push(() => {
+  const comp = new MyComponent()
+  comp.setAttribute('theme', 'dark')
+  return comp
+})
+
+// Async module loading
+schmancyContentDrawer.push(async () => {
+  const module = await import('./lazy-component')
+  return new module.default()
+})
+```
+
+### 2. Basic Navigation Drawer
 ```html
 <schmancy-content-drawer ?open="${drawerOpen}">
   <schmancy-content-drawer-main>

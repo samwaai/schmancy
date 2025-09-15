@@ -134,11 +134,11 @@ export class SchmancyContentDrawer extends $LitElement(css`
 			})
 	}
 
-	getOffsetTop(element) {
+	getOffsetTop(element: HTMLElement | null) {
 		let offsetTop = 0
 		while (element) {
 			offsetTop += element.offsetTop
-			element = element.offsetParent
+			element = element.offsetParent as HTMLElement | null
 		}
 		return offsetTop
 	}

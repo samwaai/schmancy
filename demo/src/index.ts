@@ -32,6 +32,7 @@ import { DemoMap } from './features/map'
 
 // Layout & Navigation
 import { DemoBoat } from './features/boat'
+import { DemoContentDrawer } from './features/drawer-content'
 import { DemoLayout } from './features/layout'
 import { DemoSteps } from './features/steps'
 
@@ -159,6 +160,7 @@ export default class SchmancyDemo extends $LitElement(css`
 				title: 'Layout',
 				demos: [
 					{ name: 'Layout', component: DemoLayout },
+					{ name: 'Content Drawer', component: DemoContentDrawer },
 					{ name: 'Boat', component: DemoBoat },
 					{ name: 'Steps', component: DemoSteps },
 					{ name: 'Sheet', component: DemoSheet }
