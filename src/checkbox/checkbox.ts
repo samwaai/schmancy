@@ -15,7 +15,7 @@ export type schmancyCheckBoxChangeEvent = CustomEvent<{
  **/
 
 @customElement('schmancy-checkbox')
-export class SchmancyCheckbox extends TailwindElement() {
+class SchmancyCheckboxElement extends TailwindElement() {
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		delegatesFocus: true,
@@ -74,6 +74,10 @@ export class SchmancyCheckbox extends TailwindElement() {
 	@property({ type: String })
 	label?: string
 
+	connectedCallback() {
+		super.connectedCallback()
+	}
+
 	/**
 	 * @attr {sm | md | lg } size - The size of the checkbox.
 	 */
@@ -108,8 +112,10 @@ export class SchmancyCheckbox extends TailwindElement() {
 	}
 }
 
+export { SchmancyCheckboxElement as SchmancyCheckbox }
+
 declare global {
 	interface HTMLElementTagNameMap {
-		'schmancy-checkbox': SchmancyCheckbox
+		'schmancy-checkbox': SchmancyCheckboxElement
 	}
 }

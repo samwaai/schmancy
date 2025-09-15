@@ -53,8 +53,8 @@ import '@schmancy/index'  // For all Schmancy components
 </schmancy-typography>
 
 // 6. With additional styling
-<schmancy-typography type="headline" token="sm" class="mb-4 text-primary">
-  Highlighted Section
+<schmancy-typography type="headline" token="sm" class="mb-4">
+  Section Title
 </schmancy-typography>
 
 // 7. Centered uppercase title
@@ -77,7 +77,7 @@ import '@schmancy/index'  // For all Schmancy components
   <schmancy-typography type="headline" token="sm" class="block mb-2">
     Card Title
   </schmancy-typography>
-  <schmancy-typography type="body" token="md" class="block mb-4 text-surface-onVariant">
+  <schmancy-typography type="body" token="md" class="block mb-4">
     This is a description that provides more context about the card content.
   </schmancy-typography>
   <schmancy-typography type="label" token="lg" class="text-primary">
@@ -167,8 +167,66 @@ Material Design 3 typography scale with 6 types, each with 5 sizes:
 ### Theme Integration
 Typography automatically inherits colors from the theme:
 - Uses `color: var(--schmancy-sys-color-surface-on)` by default
-- Respects surface container colors
-- Can be overridden with Tailwind classes
+- Automatically inherits the correct text color from parent surfaces
+- WARNING: Avoid overriding with Tailwind color classes when inside surfaces
+
+### Color Inheritance
+
+**CRITICAL: Typography components automatically inherit the correct color from their parent surface.**
+
+#### ✅ CORRECT - Let Surface Handle Colors
+```html
+<!-- Typography inherits the correct on-color from the surface -->
+<schmancy-surface type="containerLow" class="p-4">
+  <schmancy-typography type="headline" token="md">
+    This text automatically uses the correct contrast color
+  </schmancy-typography>
+</schmancy-surface>
+
+<!-- Different surface types provide different text colors automatically -->
+<schmancy-surface type="primary" class="p-4">
+  <schmancy-typography type="body" token="md">
+    White text on primary background (automatic)
+  </schmancy-typography>
+</schmancy-surface>
+```
+
+#### ❌ WRONG - Explicit Color Classes Inside Surfaces
+```html
+<!-- BAD: Overriding the surface's automatic color selection -->
+<schmancy-surface type="containerLow" class="p-4">
+  <schmancy-typography type="headline" token="md" class="text-surface-onVariant">
+    Don't add color classes - the surface already provides the right color!
+  </schmancy-typography>
+</schmancy-surface>
+```
+
+#### When to Use Color Classes
+
+**ONLY add explicit color classes when:**
+1. Typography is used standalone (not inside a surface)
+2. You need a specific semantic color (e.g., `text-error` for errors)
+3. Creating interactive elements that change color on hover
+
+```html
+<!-- Standalone typography (not in a surface) - color class is appropriate -->
+<div class="p-4">
+  <schmancy-typography type="label" token="md" class="text-error">
+    Error: Invalid input
+  </schmancy-typography>
+</div>
+
+<!-- Interactive element with hover state -->
+<schmancy-typography type="body" token="md" class="cursor-pointer hover:text-primary">
+  Click for more info
+</schmancy-typography>
+```
+
+**Key Rules:**
+- NEVER add `text-surface-onVariant` or similar classes inside surfaces
+- Surfaces automatically provide the correct contrast color
+- Each surface type (primary, secondary, tertiary, containerLow, etc.) knows its appropriate text color
+- Trust the component system - it handles accessibility and contrast automatically
 
 ### Implementation Details
 - Uses Shadow DOM with encapsulated styles
@@ -184,7 +242,7 @@ Typography automatically inherits colors from the theme:
    <schmancy-typography type="display" token="md" class="block mb-4">
      Dashboard
    </schmancy-typography>
-   <schmancy-typography type="body" token="lg" class="block text-surface-onVariant">
+   <schmancy-typography type="body" token="lg" class="block">
      Welcome back! Here's your activity summary.
    </schmancy-typography>
    ```
@@ -202,7 +260,7 @@ Typography automatically inherits colors from the theme:
    <schmancy-typography type="headline" token="md" class="block text-primary">
      $1,234.56
    </schmancy-typography>
-   <schmancy-typography type="label" token="sm" class="text-surface-onVariant">
+   <schmancy-typography type="label" token="sm">
      Total Revenue
    </schmancy-typography>
    ```
@@ -214,7 +272,7 @@ Typography automatically inherits colors from the theme:
        <schmancy-typography type="title" token="md" class="block">
          Feature One
        </schmancy-typography>
-       <schmancy-typography type="body" token="sm" class="block text-surface-onVariant">
+       <schmancy-typography type="body" token="sm" class="block">
          Description of the first feature
        </schmancy-typography>
      </div>

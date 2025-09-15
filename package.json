@@ -3,6 +3,257 @@
 	"version": "0.4.76",
 	"description": "UI library build with web components",
 	"main": "./dist/index.js",
+	"exports": {
+		".": {
+			"types": "./types/src/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./mixins": {
+			"types": "./types/mixins/index.d.ts",
+			"default": "./dist/mixins/index.js"
+		},
+		"./mixins/*": {
+			"types": "./types/mixins/*.d.ts",
+			"default": "./dist/mixins/*.js"
+		},
+		"./ai/*": "./ai/*",
+		"./animated-text": {
+			"types": "./types/src/animated-text/index.d.ts",
+			"default": "./dist/animated-text.js"
+		},
+		"./area": {
+			"types": "./types/src/area/index.d.ts",
+			"default": "./dist/area.js"
+		},
+		"./autocomplete": {
+			"types": "./types/src/autocomplete/index.d.ts",
+			"default": "./dist/autocomplete.js"
+		},
+		"./badge": {
+			"types": "./types/src/badge/index.d.ts",
+			"default": "./dist/badge.js"
+		},
+		"./boat": {
+			"types": "./types/src/boat/index.d.ts",
+			"default": "./dist/boat.js"
+		},
+		"./busy": {
+			"types": "./types/src/busy/index.d.ts",
+			"default": "./dist/busy.js"
+		},
+		"./button": {
+			"types": "./types/src/button/index.d.ts",
+			"default": "./dist/button.js"
+		},
+		"./card": {
+			"types": "./types/src/card/index.d.ts",
+			"default": "./dist/card.js"
+		},
+		"./checkbox": {
+			"types": "./types/src/checkbox/index.d.ts",
+			"default": "./dist/checkbox.js"
+		},
+		"./chips": {
+			"types": "./types/src/chips/index.d.ts",
+			"default": "./dist/chips.js"
+		},
+		"./chips/assist-chip": {
+			"types": "./types/src/chips/assist-chip.d.ts",
+			"default": "./dist/chips.js"
+		},
+		"./chips/filter-chip": {
+			"types": "./types/src/chips/filter-chip.d.ts",
+			"default": "./dist/chips.js"
+		},
+		"./chips/input-chip": {
+			"types": "./types/src/chips/input-chip.d.ts",
+			"default": "./dist/chips.js"
+		},
+		"./chips/suggestion-chip": {
+			"types": "./types/src/chips/suggestion-chip.d.ts",
+			"default": "./dist/chips.js"
+		},
+		"./chips/chip": {
+			"types": "./types/src/chips/chip.d.ts",
+			"default": "./dist/chips.js"
+		},
+		"./chips/chips": {
+			"types": "./types/src/chips/chips.d.ts",
+			"default": "./dist/chips.js"
+		},
+		"./chips/base-chip": {
+			"types": "./types/src/chips/base-chip.d.ts",
+			"default": "./dist/chips.js"
+		},
+		"./code-highlight": {
+			"types": "./types/src/code-highlight/index.d.ts",
+			"default": "./dist/code-highlight.js"
+		},
+		"./components": {
+			"types": "./types/src/components/index.d.ts",
+			"default": "./dist/components.js"
+		},
+		"./content-drawer": {
+			"types": "./types/src/content-drawer/index.d.ts",
+			"default": "./dist/content-drawer.js"
+		},
+		"./date-range": {
+			"types": "./types/src/date-range/index.d.ts",
+			"default": "./dist/date-range.js"
+		},
+		"./date-range-inline": {
+			"types": "./types/src/date-range-inline/index.d.ts",
+			"default": "./dist/date-range-inline.js"
+		},
+		"./delay": {
+			"types": "./types/src/delay/index.d.ts",
+			"default": "./dist/delay.js"
+		},
+		"./details": {
+			"types": "./types/src/details/index.d.ts",
+			"default": "./dist/details.js"
+		},
+		"./dialog": {
+			"types": "./types/src/dialog/index.d.ts",
+			"default": "./dist/dialog.js"
+		},
+		"./directives": {
+			"types": "./types/src/directives/index.d.ts",
+			"default": "./dist/directives.js"
+		},
+		"./divider": {
+			"types": "./types/src/divider/index.d.ts",
+			"default": "./dist/divider.js"
+		},
+		"./dropdown": {
+			"types": "./types/src/dropdown/index.d.ts",
+			"default": "./dist/dropdown.js"
+		},
+		"./extra": {
+			"types": "./types/src/extra/index.d.ts",
+			"default": "./dist/extra.js"
+		},
+		"./form": {
+			"types": "./types/src/form/index.d.ts",
+			"default": "./dist/form.js"
+		},
+		"./icons": {
+			"types": "./types/src/icons/index.d.ts",
+			"default": "./dist/icons.js"
+		},
+		"./input": {
+			"types": "./types/src/input/index.d.ts",
+			"default": "./dist/input.js"
+		},
+		"./layout": {
+			"types": "./types/src/layout/index.d.ts",
+			"default": "./dist/layout.js"
+		},
+		"./list": {
+			"types": "./types/src/list/index.d.ts",
+			"default": "./dist/list.js"
+		},
+		"./mailbox": {
+			"types": "./types/src/mailbox/index.d.ts",
+			"default": "./dist/mailbox.js"
+		},
+		"./map": {
+			"types": "./types/src/map/index.d.ts",
+			"default": "./dist/map.js"
+		},
+		"./menu": {
+			"types": "./types/src/menu/index.d.ts",
+			"default": "./dist/menu.js"
+		},
+		"./nav-drawer": {
+			"types": "./types/src/nav-drawer/index.d.ts",
+			"default": "./dist/nav-drawer.js"
+		},
+		"./notification": {
+			"types": "./types/src/notification/index.d.ts",
+			"default": "./dist/notification.js"
+		},
+		"./option": {
+			"types": "./types/src/option/index.d.ts",
+			"default": "./dist/option.js"
+		},
+		"./progress": {
+			"types": "./types/src/progress/index.d.ts",
+			"default": "./dist/progress.js"
+		},
+		"./radio-group": {
+			"types": "./types/src/radio-group/index.d.ts",
+			"default": "./dist/radio-group.js"
+		},
+		"./rxjs-utils": {
+			"types": "./types/src/rxjs-utils/index.d.ts",
+			"default": "./dist/rxjs-utils.js"
+		},
+		"./select": {
+			"types": "./types/src/select/index.d.ts",
+			"default": "./dist/select.js"
+		},
+		"./sheet": {
+			"types": "./types/src/sheet/index.d.ts",
+			"default": "./dist/sheet.js"
+		},
+		"./slider": {
+			"types": "./types/src/slider/index.d.ts",
+			"default": "./dist/slider.js"
+		},
+		"./steps": {
+			"types": "./types/src/steps/index.d.ts",
+			"default": "./dist/steps.js"
+		},
+		"./store": {
+			"types": "./types/src/store/index.d.ts",
+			"default": "./dist/store.js"
+		},
+		"./surface": {
+			"types": "./types/src/surface/index.d.ts",
+			"default": "./dist/surface.js"
+		},
+		"./table": {
+			"types": "./types/src/table/index.d.ts",
+			"default": "./dist/table.js"
+		},
+		"./tabs": {
+			"types": "./types/src/tabs/index.d.ts",
+			"default": "./dist/tabs.js"
+		},
+		"./teleport": {
+			"types": "./types/src/teleport/index.d.ts",
+			"default": "./dist/teleport.js"
+		},
+		"./textarea": {
+			"types": "./types/src/textarea/index.d.ts",
+			"default": "./dist/textarea.js"
+		},
+		"./theme": {
+			"types": "./types/src/theme/index.d.ts",
+			"default": "./dist/theme.js"
+		},
+		"./theme-button": {
+			"types": "./types/src/theme-button/index.d.ts",
+			"default": "./dist/theme-button.js"
+		},
+		"./tooltip": {
+			"types": "./types/src/tooltip/index.d.ts",
+			"default": "./dist/tooltip.js"
+		},
+		"./tree": {
+			"types": "./types/src/tree/index.d.ts",
+			"default": "./dist/tree.js"
+		},
+		"./types": {
+			"types": "./types/src/types/index.d.ts",
+			"default": "./dist/types.js"
+		},
+		"./typography": {
+			"types": "./types/src/typography/index.d.ts",
+			"default": "./dist/typography.js"
+		}
+	},
 	"packageManager": "yarn@4.9.2",
 	"repository": {
 		"type": "git",

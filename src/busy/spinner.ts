@@ -6,34 +6,63 @@ import { customElement, property } from 'lit/decorators.js'
 export default class SchmnacySpinner extends TailwindElement(css`
 	:host {
 		display: inline-block;
+		color: inherit; /* Inherit from parent by default */
+	}
+
+	/* Explicit color options when needed */
+	:host([color="primary"]) {
 		color: var(--schmancy-sys-color-primary-default);
 	}
 
-	:host([color="primary"]) {
-		color: var(--schmancy-sys-color-primary-default);
+	:host([color="on-primary"]) {
+		color: var(--schmancy-sys-color-primary-on);
 	}
 
 	:host([color="secondary"]) {
 		color: var(--schmancy-sys-color-secondary-default);
 	}
 
+	:host([color="on-secondary"]) {
+		color: var(--schmancy-sys-color-secondary-on);
+	}
+
 	:host([color="tertiary"]) {
 		color: var(--schmancy-sys-color-tertiary-default);
+	}
+
+	:host([color="on-tertiary"]) {
+		color: var(--schmancy-sys-color-tertiary-on);
 	}
 
 	:host([color="error"]) {
 		color: var(--schmancy-sys-color-error-default);
 	}
 
+	:host([color="on-error"]) {
+		color: var(--schmancy-sys-color-error-on);
+	}
+
 	:host([color="success"]) {
 		color: var(--schmancy-sys-color-success-default);
 	}
 
+	:host([color="on-success"]) {
+		color: var(--schmancy-sys-color-success-on);
+	}
+
 	:host([color="surface"]) {
+		color: var(--schmancy-sys-color-surface-default);
+	}
+
+	:host([color="on-surface"]) {
 		color: var(--schmancy-sys-color-surface-on);
 	}
 
 	:host([color="surface-variant"]) {
+		color: var(--schmancy-sys-color-surface-variant-default);
+	}
+
+	:host([color="on-surface-variant"]) {
 		color: var(--schmancy-sys-color-surface-onVariant);
 	}
 
@@ -51,7 +80,11 @@ export default class SchmnacySpinner extends TailwindElement(css`
 		}
 	}
 `) {
-	@property({ type: String, reflect: true }) color: 'primary' | 'secondary' | 'tertiary' | 'error' | 'success' | 'surface' | 'surface-variant' = 'primary'
+	@property({ type: String, reflect: true })
+	color?: 'primary' | 'on-primary' | 'secondary' | 'on-secondary' |
+	        'tertiary' | 'on-tertiary' | 'error' | 'on-error' |
+	        'success' | 'on-success' | 'surface' | 'on-surface' |
+	        'surface-variant' | 'on-surface-variant'
 	@property({ type: Number }) size: number = 6
 	@property({ type: Boolean }) glass: boolean = false
 
@@ -69,10 +102,10 @@ export default class SchmnacySpinner extends TailwindElement(css`
 		return this.glass ? html`
 			<div class="spinner relative" style=${this.styleMap(style)}>
 				<!-- Glass container with Apple-style effect -->
-				<div class="absolute inset-0 rounded-full backdrop-blur-xl backdrop-saturate-150 
-							bg-surface-container/20 
+				<div class="absolute inset-0 rounded-full backdrop-blur-xl backdrop-saturate-150
+							bg-surface-container/20
 							shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.2)]
-							border border-outline/30"></div>
+							border border-outline-variant/30"></div>
 				
 				<!-- Spinner SVG -->
 				<svg fill="none" viewBox="0 0 16 16" aria-hidden="true" role="img" 

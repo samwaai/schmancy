@@ -3,13 +3,13 @@ import { LitElement } from 'lit';
 export type schmancyCheckBoxChangeEvent = CustomEvent<{
     value: boolean;
 }>;
-declare const SchmancyCheckbox_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyCheckboxElement_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element schmancy-checkbox
  * @slot - The label for the checkbox.
  * @fires valueChange - Event fired when the checkbox value changes.
  **/
-export declare class SchmancyCheckbox extends SchmancyCheckbox_base {
+declare class SchmancyCheckboxElement extends SchmancyCheckboxElement_base {
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
         mode: ShadowRootMode;
@@ -48,15 +48,16 @@ export declare class SchmancyCheckbox extends SchmancyCheckbox_base {
      * @attr {string} label - The label text for the checkbox.
      */
     label?: string;
+    connectedCallback(): void;
     /**
      * @attr {sm | md | lg } size - The size of the checkbox.
      */
     size: 'sm' | 'md' | 'lg';
     render(): import("lit-html").TemplateResult<1>;
 }
+export { SchmancyCheckboxElement as SchmancyCheckbox };
 declare global {
     interface HTMLElementTagNameMap {
-        'schmancy-checkbox': SchmancyCheckbox;
+        'schmancy-checkbox': SchmancyCheckboxElement;
     }
 }
-export {};

@@ -1,12 +1,21 @@
-import { html, css } from 'lit';
+import { html, css, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 
 export type GuardResult = boolean | string | { redirect: string };
 
+// Component types that can be passed to routes
+export type RouteComponent =
+  | string // Tag name
+  | CustomElementConstructor // Constructor function
+  | HTMLElement // Existing element
+  | TemplateResult<1> // Lit template
+  | (() => Promise<{ default: CustomElementConstructor }>) // Lazy loader
+  | Promise<{ default: CustomElementConstructor }>; // Dynamic import
+
 export interface RouteConfig {
   when: string;
-  component: any;
+  component: RouteComponent;
   exact?: boolean;
   guard?: () => GuardResult | Promise<GuardResult>;
 }
@@ -37,7 +46,7 @@ export class SchmancyRoute extends $LitElement(css`
   when!: string;
 
   @property({ type: Object })
-  component!: any;
+  component!: RouteComponent;
 
   @property({ type: Boolean })
   exact?: boolean = false;

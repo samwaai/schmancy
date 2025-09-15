@@ -54,7 +54,7 @@ type Theme = {
 const ThemeContext = createContext<Theme>(
 	{
 		color: '#4479e1',
-		scheme: 'auto',
+		scheme: 'dark',
 	},
 	'memory',
 	'theme',
