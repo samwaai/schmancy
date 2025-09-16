@@ -1,13 +1,9 @@
 import { $LitElement } from '@mixins/index'
-import { TemplateResult, css, html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import {
 	EMPTY,
-	Observable,
-	Subscription,
 	catchError,
-	combineLatest,
-	debounceTime,
 	distinctUntilChanged,
 	filter,
 	from,
@@ -16,33 +12,14 @@ import {
 	merge,
 	of,
 	shareReplay,
-	startWith,
 	switchMap,
 	take,
 	takeUntil,
-	tap
+	tap,
 } from 'rxjs'
 import area from './area.service'
 import { SchmancyRoute } from './route.component'
 import { ActiveRoute, HISTORY_STRATEGY, RouteAction } from './router.types'
-
-// Component types that can be passed to area
-type ComponentInput =
-	| string // Tag name or path
-	| CustomElementConstructor // Constructor function
-	| HTMLElement // Existing element
-	| TemplateResult<1> // Lit template
-	| (() => Promise<{ default: CustomElementConstructor }>) // Lazy loader
-	| Promise<{ default: CustomElementConstructor }> // Dynamic import
-
-// Resolved component after processing
-type ResolvedComponent = {
-	element: HTMLElement | null
-}
-
-// Route source for debugging
-type RouteSource = 'initial' | 'navigation' | 'popstate'
-
 
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
@@ -61,7 +38,11 @@ export class SchmancyArea extends $LitElement(css`
 	 */
 	@property() name!: string
 
-	@property() default!: string | CustomElementConstructor | TemplateResult<1>
+	@property() default!:
+		| CustomElementConstructor
+		| string
+		| HTMLElement
+		| (() => Promise<{ default: CustomElementConstructor }>)
 
 	/**
 	 * Query for assigned route elements in the slot
@@ -70,525 +51,308 @@ export class SchmancyArea extends $LitElement(css`
 	@queryAssignedElements({ selector: 'schmancy-route' })
 	private routes!: SchmancyRoute[]
 
-	/**
-	 * Subscription to the routing pipeline
-	 */
-	private routingSubscription?: Subscription
+	protected firstUpdated(): void {
+		if (!this.name) throw new Error('Area name is required')
 
+		// Single unified routing pipeline - all logic inline
+		merge(
+			// Programmatic navigation
+			area.request.pipe(filter(({ area }) => area === this.name)),
 
-	/**
-	 * Unified route resolver that handles all routing scenarios
-	 * This is the single source of truth for resolving routes
-	 */
-	private resolveRoute(
-		source: RouteSource,
-		data?: string | PopStateEvent | RouteAction | null,
-		historyStrategy: HISTORY_STRATEGY = HISTORY_STRATEGY.silent,
-		routes: SchmancyRoute[] = []
-	): Observable<RouteAction> {
+			// Initial load - simplified to use this.routes directly
+			of(location.pathname).pipe(
+				take(1),
+				switchMap(() => {
+					const path = location.pathname
+					const lastSegment = path.split('/').pop() || ''
+					let route: SchmancyRoute
 
-		switch (source) {
-			case 'initial':
-			case 'popstate': {
-				// Handle initial load or popstate event
-				if (source === 'popstate' && data && typeof data === 'object' && 'state' in data) {
-					// Try to get from browser state first
-					const event = data as PopStateEvent
-					const state = event.state?.schmancyAreas?.[this.name]
-					if (state) {
-						return of({
-							area: this.name,
-							component: state.component,
-							state: state.state || {},
-							params: state.params || {},
-							historyStrategy: HISTORY_STRATEGY.silent
-						} as RouteAction)
+					// Check for JSON encoded route
+					if (lastSegment && (lastSegment.includes('{') || lastSegment.includes('%7B'))) {
+						try {
+							const parsed = JSON.parse(decodeURIComponent(lastSegment)) as Record<string, ActiveRoute>
+							console.log(parsed)
+							if (parsed[this.name]) {
+								const componentTag = parsed[this.name]
+								console.log(componentTag)
+								route = this.routes?.find(r => r.when === componentTag.component)
+								// if the route.component is a lazy loaded module we need to load it
+								if (route)
+									return of({
+										area: this.name,
+										component: route.component,
+										state: parsed[this.name].state || {},
+										params: parsed[this.name].params || {},
+										historyStrategy: HISTORY_STRATEGY.silent,
+									} as RouteAction)
+
+								return of({
+									area: this.name,
+									component: parsed[this.name].component,
+									state: parsed[this.name].state || {},
+									params: parsed[this.name].params || {},
+									historyStrategy: HISTORY_STRATEGY.silent,
+								} as RouteAction)
+							}
+						} catch {}
 					}
-				}
 
-				// Fall back to segment matching
-				const pathname = typeof data === 'string' ? data : location.pathname
-				return this.matchSegmentToRoute(pathname, historyStrategy, routes)
-			}
+					// Segment-based routing - use this.routes directly
+					const segments = path.split('/').filter(Boolean)
+					route = this.routes?.find(r => segments.includes(r.when))
+					// if the route.component is a lazy loaded module we need to load it
 
-			case 'navigation': {
-				// Direct navigation request
-				if (!data || typeof data !== 'object' || !('component' in data)) {
-					return EMPTY
-				}
-				return of(data as RouteAction)
-			}
+					if (!route) {
+						return this.default
+							? of({
+									area: this.name,
+									component: this.default,
+									state: {},
+									params: {},
+									historyStrategy: HISTORY_STRATEGY.silent,
+								} as RouteAction)
+							: EMPTY
+					}
 
-			default:
-				return EMPTY
-		}
-	}
-
-	/**
-	 * Match URL to route using both JSON-based (core) and segment-based (enhancement) routing
-	 * This method is pure and reactive - it ALWAYS emits something (matched route, default, or EMPTY)
-	 */
-	private matchSegmentToRoute(pathname: string, historyStrategy: HISTORY_STRATEGY, routes: SchmancyRoute[]): Observable<RouteAction> {
-
-		// 1. CORE LOGIC: Try JSON-based routing first (this is the primary routing mechanism)
-		// JSON routing allows for complete state and component configuration via URL
-		const lastSegment = pathname.split('/').pop() || ''
-
-		if (lastSegment && (lastSegment.includes('{') || lastSegment.includes('%7B'))) {
-			try {
-				const decoded = decodeURIComponent(lastSegment)
-				const parsed = JSON.parse(decoded)
-
-				// If JSON has an entry for this area, use it
-				if (parsed[this.name]) {
-					return of({
-						area: this.name,
-						component: parsed[this.name].component,
-						state: parsed[this.name].state || {},
-						params: parsed[this.name].params || {},
-						historyStrategy
-					} as RouteAction)
-				}
-				// Otherwise continue to segment matching and defaults
-			} catch (e) {
-				// Not valid JSON, continue to segment matching
-			}
-		}
-
-		// 2. ENHANCEMENT: Try segment-based routing (new feature - only if routes are configured)
-		// Segment routing provides clean URLs for defined routes
-		if (routes && routes.length > 0) {
-			// Extract the first segment from the pathname
-			const segments = pathname.split('/').filter(Boolean)
-			const currentSegment = segments[0] || ''
-
-			// Find matching route by when attribute
-			for (const route of routes) {
-				const routeWhen = route.when
-
-				if (routeWhen === currentSegment) {
-
-					// Check guard if present
+					// Handle guard inline
 					if (route.guard) {
 						return from(Promise.resolve(route.guard())).pipe(
-							switchMap(guardResult => {
-
-								// Handle guard result
-								if (guardResult === true) {
-									// Guard passed, proceed with the route
+							switchMap(result => {
+								if (result === true) {
 									return of({
 										area: this.name,
 										component: route.component,
 										state: {},
 										params: {},
-										historyStrategy
+										historyStrategy: HISTORY_STRATEGY.silent,
 									} as RouteAction)
-								} else if (guardResult === false) {
-									// Guard failed, check for default
-									if (this.default) {
-										return of({
-											area: this.name,
-											component: this.default,
-											state: {},
-											params: {},
-											historyStrategy
-										} as RouteAction)
-									}
-									return EMPTY
-								} else if (typeof guardResult === 'string') {
-									// Redirect to string path
-									return this.matchSegmentToRoute(guardResult, historyStrategy, routes)
-								} else if (typeof guardResult === 'object' && guardResult.redirect) {
-									// Redirect to path in object
-									return this.matchSegmentToRoute(guardResult.redirect, historyStrategy, routes)
-								} else {
-									// Invalid guard result
-									console.error(`[${this.name}] Invalid guard result:`, guardResult)
-									// Fall back to default if available
-									if (this.default) {
-										return of({
-											area: this.name,
-											component: this.default,
-											state: {},
-											params: {},
-											historyStrategy
-										} as RouteAction)
-									}
-									return EMPTY
 								}
+								// Handle redirects recursively inline
+								const redirect =
+									typeof result === 'string'
+										? result
+										: typeof result === 'object' && result?.redirect
+											? result.redirect
+											: null
+								if (redirect) {
+									const newSegment = redirect.split('/').filter(Boolean)[0] || ''
+									const newRoute = this.routes?.find(r => r.when === newSegment)
+									if (newRoute) {
+										return of({
+											area: this.name,
+											component: newRoute.component,
+											state: {},
+											params: {},
+											historyStrategy: HISTORY_STRATEGY.silent,
+										} as RouteAction)
+									}
+								}
+								return this.default
+									? of({
+											area: this.name,
+											component: this.default,
+											state: {},
+											params: {},
+											historyStrategy: HISTORY_STRATEGY.silent,
+										} as RouteAction)
+									: EMPTY
 							}),
-							catchError(err => {
-								console.error(`[${this.name}] Guard error:`, err)
-								// On guard error, fall back to default if available
-								if (this.default) {
-									return of({
-										area: this.name,
-										component: this.default,
-										state: {},
-										params: {},
-										historyStrategy
-									} as RouteAction)
-								}
-								return EMPTY
-							})
+							catchError(() =>
+								this.default
+									? of({
+											area: this.name,
+											component: this.default,
+											state: {},
+											params: {},
+											historyStrategy: HISTORY_STRATEGY.silent,
+										} as RouteAction)
+									: EMPTY,
+							),
 						)
 					}
 
-					// No guard, proceed with the route
 					return of({
 						area: this.name,
 						component: route.component,
 						state: {},
 						params: {},
-						historyStrategy
+						historyStrategy: HISTORY_STRATEGY.silent,
 					} as RouteAction)
-				}
+				}),
+			),
+
+			// Browser back/forward - simplified to directly use popstate
+			fromEvent<PopStateEvent>(window, 'popstate').pipe(
+				map(event =>
+					event.state?.schmancyAreas?.[this.name]
+						? ({
+								area: this.name,
+								component: event.state.schmancyAreas[this.name].component,
+								state: event.state.schmancyAreas[this.name].state || {},
+								params: event.state.schmancyAreas[this.name].params || {},
+								historyStrategy: HISTORY_STRATEGY.silent,
+							} as RouteAction)
+						: null,
+				),
+				filter(route => route !== null),
+			),
+		)
+			.pipe(
+				filter(route => route?.component !== undefined),
+
+				// Step 1: Resolve ONLY lazy components to constructors (no element creation)
+				switchMap(async route => {
+					console.log(this.name, route)
+					let component = route.component
+
+					// Resolve lazy components first
+					if (
+						typeof component === 'function' &&
+						('preload' in component || '_promise' in component || '_module' in component)
+					) {
+						try {
+							const module = await (component as () => Promise<{ default: CustomElementConstructor }>)()
+							component = module.default
+						} catch (e) {
+							console.error(`[${this.name}] Lazy load failed:`, e)
+							return { component: null, route }
+						}
+					}
+
+					return { component, route }
+				}),
+
+				// Step 2: Extract component identifier for comparison (without creating elements)
+				map(({ component, route }) => {
+					let identifier = ''
+
+					if (!component || component === '') {
+						identifier = 'null'
+					} else if (typeof component === 'string') {
+						identifier = component
+					} else if (component instanceof HTMLElement) {
+						identifier = component.tagName
+					} else if (typeof component === 'function') {
+						identifier = component.name || 'CustomElement'
+					}
+
+					const key = `${identifier}${JSON.stringify(route.params)}${JSON.stringify(route.state)}`
+
+					return { component, route, key }
+				}),
+
+				// Step 3: Deduplicate using the identifier (before creating expensive elements)
+				distinctUntilChanged((a, b) => a.key === b.key),
+
+				// Step 4: Create the HTMLElement and apply properties
+				map(({ component, route }) => {
+					let element: HTMLElement | null = null
+
+					// Now resolve to HTMLElement
+					if (!component || component === '') {
+						element = null
+					} else if (typeof component === 'string') {
+						try {
+							element = document.createElement(component)
+						} catch {
+							console.error(`[${this.name}] Failed to create element:`, component)
+						}
+					} else if (component instanceof HTMLElement) {
+						element = component
+					} else if (typeof component === 'function') {
+						try {
+							element = new (component as CustomElementConstructor)()
+						} catch (e) {
+							console.error(`[${this.name}] Failed to instantiate:`, e)
+						}
+					}
+
+					// Apply properties inline
+					if (element) {
+						if (route.params) Object.assign(element, route.params)
+						if (route.props) Object.assign(element, route.props)
+						if (route.state) (element as any).state = route.state
+					}
+
+					return { element, route }
+				}),
+
+				shareReplay(1),
+
+				// Swap components
+				tap(({ element, route }) => this.swapComponents(element, route)),
+
+				catchError(error => {
+					console.error(`[${this.name}] Navigation error:`, error)
+					return EMPTY
+				}),
+
+				takeUntil(this.disconnecting),
+			)
+			.subscribe()
+	}
+
+	/**
+	 * Swap components with animation following the original pattern
+	 */
+	private swapComponents(newComponent: HTMLElement | null, routeAction: RouteAction) {
+		const oldComponent = this.shadowRoot?.children[0] as HTMLElement | undefined
+
+		// If no new component, just clear
+		if (!newComponent) {
+			if (oldComponent) {
+				oldComponent.remove()
 			}
+			return
 		}
 
-		// 3. Nothing matched - emit default if defined, otherwise EMPTY
-		if (this.default) {
-			return of({
+		// Animate transition
+		if (oldComponent) {
+			// Fade out old component
+			const fadeOut = oldComponent.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: 'ease-out' })
+
+			fadeOut.onfinish = () => {
+				oldComponent.remove()
+				// Add and fade in new component
+				this.shadowRoot?.append(newComponent)
+				newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-in' })
+			}
+		} else {
+			// No old component, just add and fade in
+			this.shadowRoot?.append(newComponent)
+			newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-in' })
+		}
+
+		// Update internal state
+		if (newComponent) {
+			const activeRoute: ActiveRoute = {
+				component: newComponent.tagName.toLowerCase(),
+				state: routeAction.state || {},
 				area: this.name,
-				component: this.default,
-				state: {},
-				params: {},
-				historyStrategy
-			} as RouteAction)
-		}
-
-		// No routes matched and no default defined
-		return EMPTY
-	}
-
-
-	/**
-	 * Resolve component input to HTMLElement
-	 * Handles strings, constructors, promises, lazy loading, etc.
-	 */
-	private async resolveComponent(component: ComponentInput): Promise<ResolvedComponent> {
-
-		// Handle empty/null cases
-		if (!component || component === '') {
-			return { element: null }
-		}
-
-		// Handle string (tag name)
-		if (typeof component === 'string') {
-			try {
-				const element = document.createElement(component)
-				return { element }
-			} catch (error) {
-				console.error(`[${this.name}] Failed to create element:`, component, error)
-				if (this.default && typeof this.default === 'string') {
-					const element = document.createElement(this.default)
-					return { element }
-				}
-				return { element: null }
+				params: routeAction.params || {},
 			}
+
+			area.current.set(this.name, activeRoute)
+			area.$current.next(area.current)
 		}
 
-		// Handle HTMLElement
-		if (component instanceof HTMLElement) {
-			return { element: component }
-		}
-
-		// Handle constructor function
-		if (typeof component === 'function' && !('then' in component)) {
-			try {
-				const element = new (component as CustomElementConstructor)()
-				return { element }
-			} catch (error) {
-				console.error(`[${this.name}] Failed to instantiate component:`, error)
-				return { element: null }
+		// Update browser history
+		if (area.enableHistoryMode && newComponent) {
+			const activeRoute: ActiveRoute = {
+				component: newComponent.tagName.toLowerCase(),
+				state: routeAction.state || {},
+				area: this.name,
+				params: routeAction.params || {},
 			}
-		}
 
-		// Handle lazy loading function
-		if (typeof component === 'function') {
-			try {
-				const module = await (component as () => Promise<{ default: CustomElementConstructor }>)()
-				const Constructor = module.default
-				const element = new Constructor()
-				return { element }
-			} catch (error) {
-				console.error(`[${this.name}] Failed to load dynamic component:`, error)
-				return { element: null }
-			}
-		}
-
-		// Handle Promise (dynamic import)
-		if (component instanceof Promise) {
-			try {
-				const module = await component
-				const Constructor = module.default
-				const element = new Constructor()
-				return { element }
-			} catch (error) {
-				console.error(`[${this.name}] Failed to load promise component:`, error)
-				return { element: null }
-			}
-		}
-
-		// Fallback for unknown types
-		console.warn(`[${this.name}] Unknown component type:`, typeof component, component)
-		return { element: null }
-	}
-
-	protected firstUpdated(): void {
-		if (!this.name) {
-			throw new Error('Area name is required')
-		}
-
-		// Clean up any existing subscription before creating a new one
-		this.routingSubscription?.unsubscribe()
-
-		// Create a reactive stream from slot changes
-		const slot = this.shadowRoot?.querySelector('slot') as HTMLSlotElement
-		const slotChanges$ = slot ? fromEvent(slot, 'slotchange').pipe(
-			startWith(null), // Emit immediately to capture initial state
-			map(() => this.routes || []), // Use queryAssignedElements result
-		) : of([])
-
-		// Create navigation event streams that will be combined with routes
-		const initialLoad$ = combineLatest([
-			of(location.pathname),
-			slotChanges$
-		]).pipe(
-			take(1),
-			switchMap(([pathname, routes]) => this.resolveRoute('initial', pathname, HISTORY_STRATEGY.silent, routes)),
-		)
-
-		const navigation$ = combineLatest([
-			area.request.pipe(filter(({ area }) => area === this.name)),
-			slotChanges$
-		]).pipe(
-			switchMap(([route, routes]) => this.resolveRoute('navigation', route, HISTORY_STRATEGY.silent, routes)),
-		)
-
-		const popstate$ = combineLatest([
-			fromEvent<PopStateEvent>(window, 'popstate'),
-			slotChanges$
-		]).pipe(
-			switchMap(([event, routes]) => this.resolveRoute('popstate', event, HISTORY_STRATEGY.silent, routes)),
-		)
-
-		// Create the base routing stream - matchSegmentToRoute now handles defaults
-		const baseRouting$ = merge(initialLoad$, navigation$, popstate$)
-
-		// Create the routing pipeline directly from baseRouting$
-		this.routingSubscription = baseRouting$.pipe(
-			// Add debounceTime to coalesce rapid emissions (especially during initialization)
-			debounceTime(0),
-
-			// Filter out invalid routes (but allow null for clearing)
-			filter(route => {
-				// Allow null component as a signal to clear the area
-				const valid = route.component !== undefined
-				return valid
-			}),
-
-			// Prevent duplicate navigations using deep comparison
-			distinctUntilChanged((a, b) => {
-				const same = this.isSameRoute(a, b)
-				return same
-			}),
-
-			// Share the resolved route state across subscribers
-			shareReplay(1),
-
-			// Resolve component to HTMLElement
-			switchMap(route => {
-				return from(this.resolveComponent(route.component as ComponentInput)).pipe(
-					map(resolved => ({ ...resolved, route }))
-				)
-			}),
-
-			// Apply props, params, and state to element
-			map(({ element, route }) => {
-				if (element) {
-					// Apply params
-					if (route.params) {
-						Object.entries(route.params).forEach(([key, value]) => {
-							(element as any)[key] = value
-						})
-					}
-
-					// Apply props
-					if (route.props) {
-						Object.entries(route.props).forEach(([key, value]) => {
-							(element as any)[key] = value
-						})
-					}
-
-					// Apply state
-					if (route.state) {
-						(element as any).state = route.state
-					}
-				}
-
-				return { element, route }
-			}),
-
-			// Update DOM and handle side effects
-			tap(({ element, route }) => {
-				// Update DOM
-				this.updateDOM(element)
-
-				// Update internal state
-				if (element) {
-					this.updateInternalState(route, element)
-				}
-
-				// Handle browser history
-				this.updateBrowserHistory(route, element)
-			}),
-
-			// Error handling
-			catchError(error => {
-				console.error(`[${this.name}] Navigation error:`, error)
-				return EMPTY
-			}),
-
-			takeUntil(this.disconnecting)
-		).subscribe({
-			error: (error) => {
-				console.error(`[${this.name}] Subscription error:`, error)
-			}
-		})
-	}
-
-
-	/**
-	 * Check if two routes are the same (for duplicate prevention)
-	 */
-	private isSameRoute(a: RouteAction, b: RouteAction): boolean {
-		// Handle null components (clearing signals)
-		if (a.component === null && b.component === null) {
-			return true // Both are clearing signals
-		}
-		if (a.component === null || b.component === null) {
-			return false // One is clearing, one is not
-		}
-
-		let aComponent = '', bComponent = ''
-
-		// Extract component identifiers
-		if (typeof a.component === 'function') {
-			aComponent = (a.component as any).name || a.component.toString()
-		} else if (typeof a.component === 'string') {
-			aComponent = a.component
-		} else if (a.component instanceof HTMLElement) {
-			aComponent = a.component.tagName.toLowerCase()
-		}
-
-		if (typeof b.component === 'function') {
-			bComponent = (b.component as any).name || b.component.toString()
-		} else if (typeof b.component === 'string') {
-			bComponent = b.component
-		} else if (b.component instanceof HTMLElement) {
-			bComponent = b.component.tagName.toLowerCase()
-		}
-
-		// Normalize and compare
-		const normalizeComponent = (c: string) => c?.replaceAll('-', '').toLowerCase()
-		const sameComponent = normalizeComponent(aComponent) === normalizeComponent(bComponent)
-		const sameParams = JSON.stringify(a.params || {}) === JSON.stringify(b.params || {})
-		const sameState = JSON.stringify(a.state || {}) === JSON.stringify(b.state || {})
-
-		const result = sameComponent && sameParams && sameState
-
-		return result
-	}
-
-	/**
-	 * Update the DOM with the new component
-	 */
-	private updateDOM(component: HTMLElement | null) {
-
-		const oldView = this.shadowRoot?.children[0]
-		const oldViewExists = !!oldView
-
-		// Remove the old view (if any)
-		if (oldView) {
-			oldView.remove()
-		}
-
-		// If component is null, we're clearing the area
-		if (!component) {
-			return
-		}
-
-		// Add new component with animation
-
-		// Append the component first
-		this.shadowRoot?.append(component)
-
-
-		// Check if component was actually appended
-		if (!this.shadowRoot?.contains(component)) {
-			console.error(`[${this.name}] CRITICAL: Component was not appended to shadowRoot!`)
-			console.error(`[${this.name}] ShadowRoot:`, this.shadowRoot)
-			console.error(`[${this.name}] Component:`, component)
-			return
-		}
-
-		// Animate in without opacity class - use Web Animations API directly
-		const animation = component.animate([{ opacity: 0 }, { opacity: 1 }], {
-			duration: oldViewExists ? 150 : 100,
-			easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
-			fill: 'forwards',
-		})
-
-		animation.onfinish = () => {
-			// Ensure opacity is set to 1 after animation
-			component.style.opacity = '1'
+			area._updateBrowserHistory(
+				this.name,
+				activeRoute,
+				routeAction.historyStrategy || HISTORY_STRATEGY.push,
+				routeAction.clearQueryParams,
+			)
 		}
 	}
-
-	/**
-	 * Update internal router state
-	 */
-	private updateInternalState(route: RouteAction, component: HTMLElement | null) {
-		// If component is null, we're clearing
-		if (!component) {
-			// Don't update state - it's already been cleared by the service
-			return
-		}
-		
-		const activeRoute: ActiveRoute = {
-			component: component.tagName.toLowerCase(),
-			state: route.state || {},
-			area: this.name,
-			params: route.params || {},
-		}
-
-		area.current.set(this.name, activeRoute)
-		area.$current.next(area.current)
-	}
-
-	/**
-	 * Update browser history (only for programmatic navigation)
-	 */
-	private updateBrowserHistory(route: RouteAction, component: HTMLElement | null) {
-		if (!area.enableHistoryMode) return
-
-		// If clearing, don't update history (already handled by service)
-		if (!component) {
-			return
-		}
-
-		const activeRoute: ActiveRoute = {
-			component: component.tagName.toLowerCase(),
-			state: route.state || {},
-			area: this.name,
-			params: route.params || {},
-		}
-
-		// Use the service method to update browser history
-		area._updateBrowserHistory(this.name, activeRoute, route.historyStrategy, route.clearQueryParams)
-	}
-
 
 	/**
 	 * Create URL path for the route (legacy method, now handled by service)
@@ -621,7 +385,7 @@ export class SchmancyArea extends $LitElement(css`
 		}
 		// get query params from url
 		const urlParams = new URLSearchParams(location.search)
-		
+
 		if (params === true) {
 			// Clear all query params
 			return ''
@@ -636,11 +400,6 @@ export class SchmancyArea extends $LitElement(css`
 
 	disconnectedCallback() {
 		super.disconnectedCallback()
-		// Clean up the routing subscription
-		if (this.routingSubscription) {
-			this.routingSubscription.unsubscribe()
-			this.routingSubscription = undefined
-		}
 	}
 
 	render() {

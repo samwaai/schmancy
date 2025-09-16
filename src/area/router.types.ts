@@ -1,5 +1,5 @@
 export type RouteAction = {
-	component: CustomElementConstructor | string | HTMLElement | Promise<any>
+	component: CustomElementConstructor | string | HTMLElement | (() => Promise<{ default: CustomElementConstructor }>)
 	area: string
 	state?: Record<string, unknown>
 	params?: Record<string, unknown>

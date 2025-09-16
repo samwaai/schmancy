@@ -429,10 +429,206 @@ class AppLayout extends LitElement {
 }
 ```
 
-### 4. Dynamic Route Loading
+### 4. Dynamic Route Loading & Lazy Components
+
+#### Using the `lazy()` helper function
+
+Schmancy Area provides a powerful `lazy()` function similar to React.lazy() for optimal code splitting:
 
 ```typescript
-// Lazy load heavy components
+import { lazy } from '@schmancy/area';
+
+// Create lazy-loaded components
+const LazyDashboard = lazy(() => import('./components/dashboard'));
+const LazyAnalytics = lazy(() => import('./components/analytics'));
+const LazyReports = lazy(() => import('./components/reports'));
+
+// Use with area.push()
+area.push({
+  component: LazyDashboard,
+  area: 'main'
+});
+
+// Use with declarative routes
+<schmancy-route
+  when="/analytics"
+  .component=${LazyAnalytics}
+  .guard=${() => hasFeature('analytics') || '/upgrade'}>
+</schmancy-route>
+
+// Set as default for an area
+<schmancy-area name="main" .default=${LazyDashboard}></schmancy-area>
+```
+
+#### Preloading Components
+
+Lazy components support preloading for better perceived performance:
+
+```typescript
+const LazyProfile = lazy(() => import('./profile'));
+
+// Preload on hover for instant navigation
+button.addEventListener('mouseenter', () => {
+  LazyProfile.preload();
+});
+
+// Preload after initial page load
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    LazyProfile.preload();
+    LazySettings.preload();
+  }, 2000);
+});
+```
+
+#### Complete Example: Lazy-Loaded Navigation
+
+```typescript
+import { $LitElement } from '@mixins/index';
+import { area, lazy } from '@schmancy/area';
+import { html } from 'lit';
+import { customElement, state } from 'lit/decorators.js';
+
+// Define lazy components with default exports
+const routes = {
+  dashboard: lazy(() => import('./lazy-components/dashboard')),
+  users: lazy(() => import('./lazy-components/users')),
+  products: lazy(() => import('./lazy-components/products')),
+  reports: lazy(() => import('./lazy-components/reports')),
+  settings: lazy(() => import('./lazy-components/settings'))
+};
+
+@customElement('app-shell')
+export class AppShell extends $LitElement() {
+  @state() private currentRoute = 'dashboard';
+
+  private navigate(route: string, component: any) {
+    this.currentRoute = route;
+    area.push({
+      area: 'main',
+      component: component
+    });
+  }
+
+  render() {
+    return html`
+      <div class="grid grid-cols-[auto_1fr]">
+        <!-- Sidebar Navigation -->
+        <schmancy-list>
+          <schmancy-list-item
+            ?selected=${this.currentRoute === 'dashboard'}
+            @click=${() => this.navigate('dashboard', routes.dashboard)}
+            @mouseenter=${() => routes.dashboard.preload()}>
+            <schmancy-icon slot="start">dashboard</schmancy-icon>
+            Dashboard
+          </schmancy-list-item>
+
+          <schmancy-list-item
+            ?selected=${this.currentRoute === 'users'}
+            @click=${() => this.navigate('users', routes.users)}
+            @mouseenter=${() => routes.users.preload()}>
+            <schmancy-icon slot="start">group</schmancy-icon>
+            Users
+          </schmancy-list-item>
+
+          <schmancy-list-item
+            ?selected=${this.currentRoute === 'products'}
+            @click=${() => this.navigate('products', routes.products)}
+            @mouseenter=${() => routes.products.preload()}>
+            <schmancy-icon slot="start">inventory_2</schmancy-icon>
+            Products
+          </schmancy-list-item>
+        </schmancy-list>
+
+        <!-- Main Content Area -->
+        <schmancy-area
+          name="main"
+          .default=${routes.dashboard}>
+        </schmancy-area>
+      </div>
+    `;
+  }
+}
+```
+
+#### Lazy Component Structure
+
+Each lazy-loaded component should use default export:
+
+```typescript
+// lazy-components/dashboard.ts
+import { html, css } from 'lit';
+import { customElement } from 'lit/decorators.js';
+import { $LitElement } from '@mixins/index';
+
+@customElement('lazy-dashboard')
+export default class LazyDashboard extends $LitElement(css`
+  :host {
+    display: block;
+    padding: 24px;
+  }
+`) {
+  render() {
+    return html`
+      <schmancy-surface type="container" rounded="all">
+        <schmancy-typography type="headline">Dashboard</schmancy-typography>
+        <!-- Dashboard content -->
+      </schmancy-surface>
+    `;
+  }
+}
+```
+
+#### Benefits of Lazy Loading
+
+1. **Reduced Initial Bundle Size**: Components are loaded only when needed
+2. **Faster Initial Page Load**: Critical path includes only essential code
+3. **Automatic Code Splitting**: Each lazy import creates a separate chunk
+4. **Memory Efficiency**: Components not in use aren't loaded in memory
+5. **Better Perceived Performance**: Preloading on hover makes navigation feel instant
+
+#### Performance Best Practices
+
+```typescript
+// 1. Group related components in the same chunk
+const LazyAdminComponents = lazy(() => import('./admin/index'));
+
+// 2. Preload critical routes after initial render
+connectedCallback() {
+  super.connectedCallback();
+
+  // Preload common routes after a delay
+  setTimeout(() => {
+    routes.dashboard.preload();
+    routes.users.preload();
+  }, 3000);
+}
+
+// 3. Use intersection observer for preloading visible links
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const route = entry.target.dataset.route;
+      routes[route]?.preload();
+    }
+  });
+});
+
+// 4. Handle loading errors gracefully
+const LazyFeature = lazy(() =>
+  import('./feature').catch(() =>
+    // Fallback to simpler version on error
+    import('./feature-lite')
+  )
+);
+```
+
+#### Legacy Method (Still Supported)
+
+The traditional dynamic import method is still supported:
+
+```typescript
+// Direct dynamic import (without lazy helper)
 <schmancy-route
   when="/analytics"
   .component=${() => import('./analytics-dashboard.js').then(m => m.AnalyticsDashboard)}
@@ -613,7 +809,7 @@ area.on('protected-area').pipe(
 ```typescript
 // Route Action - used for navigation
 interface RouteAction {
-  component: CustomElementConstructor | string | HTMLElement | Promise<NodeModule>;
+  component: CustomElementConstructor | string | HTMLElement | Promise<NodeModule> | LazyComponent;
   area: string;
   state?: Record<string, unknown>;
   params?: Record<string, unknown>;  // Query parameters
@@ -638,10 +834,22 @@ type GuardFunction = () => GuardResult | Promise<GuardResult>;
 // Route component props
 interface RouteProps {
   when: string;                    // URL segment pattern
-  component?: string | CustomElementConstructor | HTMLElement;
-  default?: string | CustomElementConstructor | HTMLElement;
+  component?: string | CustomElementConstructor | HTMLElement | LazyComponent;
+  default?: string | CustomElementConstructor | HTMLElement | LazyComponent;
   guard?: GuardFunction;
 }
+
+// Lazy Loading Types (from lazy.ts)
+type CustomElementConstructor = typeof HTMLElement;
+
+// LazyComponent interface with preload capability
+interface LazyComponent<T extends CustomElementConstructor = CustomElementConstructor> {
+  (): Promise<{ default: T }>;
+  preload(): Promise<void>;
+  _promise?: Promise<{ default: T }>;
+  _module?: { default: T };
+}
+
 ```
 
 ## Related Components
@@ -653,12 +861,16 @@ interface RouteProps {
 
 ## Performance Tips
 
-1. **Use lazy loading** for heavy components
-2. **Implement route-level code splitting** with dynamic imports
-3. **Cache guard results** when checking expensive operations
-4. **Use `historyStrategy: 'silent'`** for non-navigational updates
-5. **Debounce rapid navigation** in user-triggered events
-6. **Preload critical routes** during idle time
+1. **Use the `lazy()` function** for automatic code splitting and optimal loading
+2. **Implement preloading on hover** for instant perceived navigation
+3. **Handle loading errors** with catch blocks in import statements
+4. **Group related components** in the same lazy chunk when appropriate
+5. **Cache guard results** when checking expensive operations
+6. **Use `historyStrategy: 'silent'`** for non-navigational updates
+7. **Debounce rapid navigation** in user-triggered events
+8. **Preload critical routes** after initial render using `component.preload()`
+9. **Leverage default exports** in lazy-loaded components for cleaner imports
+10. **Monitor bundle sizes** to ensure effective code splitting
 
 ## Summary
 

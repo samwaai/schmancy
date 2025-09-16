@@ -235,10 +235,14 @@ area.push({
   clearQueryParams: ['filter', 'sort']
 })`,
 
-		dynamicImports: `// Load components dynamically
+		dynamicImports: `// Load components dynamically using lazy()
+import { lazy } from '@mhmo91/schmancy'
+
+const HeavyComponent = lazy(() => import('./components/heavy-component.js'))
+
 area.push({
   area: 'main',
-  component: import('./components/heavy-component.js')
+  component: HeavyComponent
 })
 
 // Or with a constructor
