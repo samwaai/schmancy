@@ -24,7 +24,7 @@ export class SchmancyFilterChip extends TailwindElement(css`
 	:host {
 		display: inline-block;
 		outline: none;
-		min-width:'fit'
+		min-width:'fit-content'
 	}
 
 	:host([disabled]) {

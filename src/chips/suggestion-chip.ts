@@ -19,7 +19,7 @@ export class SchmancySuggestionChip extends TailwindElement(css`
 	:host {
 		display: inline-block;
 		outline: none;
-		min-width:'fit'
+		min-width:'fit-content'
 	}
 
 	:host([disabled]) {
