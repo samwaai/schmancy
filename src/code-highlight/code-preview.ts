@@ -100,7 +100,7 @@ export class SchmancyCodePreview extends TailwindElement(
 					<!-- Preview section (only visible for HTML and when preview is enabled) -->
 					${showPreview ? html`
 						<div class="min-w-0 overflow-auto">
-							<schmancy-surface type="surfaceBright" class="p-6 h-full">
+							<schmancy-surface type="surfaceBright" class="p-2 h-full">
 								<slot></slot>
 							</schmancy-surface>
 						</div>

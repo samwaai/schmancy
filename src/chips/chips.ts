@@ -11,6 +11,13 @@ export default class SchmancyChips extends $LitElement(css`
 	:host {
 		display: block;
 	}
+	.scrollbar-hide {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none; /* Chrome, Safari, and Opera */
+	}
 `) {
 	// RxJS state streams - initialized with undefined to detect if properties were set
 	private value$ = new BehaviorSubject<string>('')
@@ -77,7 +84,7 @@ export default class SchmancyChips extends $LitElement(css`
 	}
 	set values(value: string[]) {
 		this._values = value || []
-		this._valuesSet = true  // Mark that values has been explicitly set
+		this._valuesSet = true // Mark that values has been explicitly set
 		this.values$.next(this._values)
 	}
 
@@ -90,12 +97,13 @@ export default class SchmancyChips extends $LitElement(css`
 	}
 	set value(value: string) {
 		this._value = value || ''
-		this._valueSet = true  // Mark that value has been explicitly set
+		this._valueSet = true // Mark that value has been explicitly set
 		this.value$.next(this._value)
 	}
 
 	@queryAssignedElements({
-		selector: 'schmancy-chip, schmancy-filter-chip, schmancy-assist-chip, schmancy-input-chip, schmancy-suggestion-chip',
+		selector:
+			'schmancy-chip, schmancy-filter-chip, schmancy-assist-chip, schmancy-input-chip, schmancy-suggestion-chip',
 		flatten: true,
 	})
 	chips!: (SchmancyChip | HTMLElement)[]
@@ -104,7 +112,7 @@ export default class SchmancyChips extends $LitElement(css`
 		type: Boolean,
 		reflect: true,
 	})
-	wrap: boolean = true
+	wrap: boolean = false
 
 	connectedCallback() {
 		super.connectedCallback()
@@ -117,16 +125,18 @@ export default class SchmancyChips extends $LitElement(css`
 		// Set up reactive pipeline for state synchronization
 		combineLatest([
 			this.value$.pipe(distinctUntilChanged()),
-			this.values$.pipe(distinctUntilChanged((prev, curr) =>
-				prev.length === curr.length && prev.every((v, i) => v === curr[i])
-			))
-		]).pipe(
-			debounceTime(0), // Ensure DOM is ready
-			takeUntil(this.disconnecting)
-		).subscribe(([value, values]) => {
-			// Reactively update chip states based on container state and auto-detected mode
-			this.updateChipStates(this.mode, value, values)
-		})
+			this.values$.pipe(
+				distinctUntilChanged((prev, curr) => prev.length === curr.length && prev.every((v, i) => v === curr[i])),
+			),
+		])
+			.pipe(
+				debounceTime(0), // Ensure DOM is ready
+				takeUntil(this.disconnecting),
+			)
+			.subscribe(([value, values]) => {
+				// Reactively update chip states based on container state and auto-detected mode
+				this.updateChipStates(this.mode, value, values)
+			})
 	}
 
 	private updateChipStates(mode: 'multi' | 'single' | 'none', value: string, values: string[]) {
@@ -199,20 +209,23 @@ export default class SchmancyChips extends $LitElement(css`
 
 	protected render(): unknown {
 		const containerClasses = this.classMap({
-			'flex': true,
+			'inset-2': true,
+			flex: true,
 			'gap-2': true,
 			'items-center': true,
 			'flex-wrap': this.wrap,
 			'overflow-x-auto': !this.wrap,
-			'scrollbar-thin': !this.wrap
+			'scrollbar-hide': !this.wrap,
 		})
 
 		return html`
 			<div class=${containerClasses} @change=${this.change}>
-				<slot @slotchange=${() => {
-					// When slot changes, trigger state update through reactive pipeline
-					this.updateChipStates(this.mode, this._value, this._values)
-				}}></slot>
+				<slot
+					@slotchange=${() => {
+						// When slot changes, trigger state update through reactive pipeline
+						this.updateChipStates(this.mode, this._value, this._values)
+					}}
+				></slot>
 			</div>
 		`
 	}

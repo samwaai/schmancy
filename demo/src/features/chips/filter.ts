@@ -115,7 +115,7 @@ export class DemoChipsFilter extends $LitElement() {
                 Basic Filter Selection
               </schmancy-typography>
               <!-- Note: Container manages selection state -->
-              <schmancy-chips .values=${['selected1', 'selected2']}>
+              <schmancy-chips .wrap=${true} .values=${['selected1', 'selected2']}>
                 <schmancy-filter-chip value="selected1">Selected</schmancy-filter-chip>
                 <schmancy-filter-chip value="unselected">Unselected</schmancy-filter-chip>
                 <schmancy-filter-chip value="selected2" elevated>Elevated Selected</schmancy-filter-chip>
@@ -165,7 +165,7 @@ export class DemoChipsFilter extends $LitElement() {
                 Price Range (Single Selection)
               </schmancy-typography>
               <schmancy-chips
-                .value=${this.selectedPrice}
+                  .value=${this.selectedPrice}
                 @change=${(e: CustomEvent) => this.selectedPrice = e.detail}
               >
                 <schmancy-filter-chip value="low">
