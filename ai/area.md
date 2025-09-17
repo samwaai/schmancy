@@ -27,27 +27,27 @@ Define routes declaratively with segment matching and guards.
 ```html
 <!-- Simple route -->
 <schmancy-route
-  when="/products"
+  when="products"  <!-- Matches 'products' segment in URL -->
   component="product-list"
   exact>
 </schmancy-route>
 
-<!-- Route with dynamic segments -->
+<!-- Component tag name matching -->
 <schmancy-route
-  when="/products/:id"
+  when="product-detail"  <!-- Matches when component is 'product-detail' -->
   component="product-detail">
 </schmancy-route>
 
 <!-- Route with guard -->
 <schmancy-route
-  when="/admin/*"
+  when="admin"  <!-- Matches 'admin' segment anywhere in URL -->
   component="admin-panel"
   .guard=${() => isAuthenticated()}>
 </schmancy-route>
 
 <!-- Route with default component -->
 <schmancy-route
-  when="/dashboard"
+  when="dashboard"
   component="dashboard-main"
   default="dashboard-overview">
 </schmancy-route>
@@ -66,7 +66,7 @@ Define routes declaratively with segment matching and guards.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `when` | `string` | **Required**. URL segment pattern to match (supports wildcards and parameters). |
+| `when` | `string` | **Required**. URL segment name OR component tag name to match. NOT a full path! |
 | `component` | `any` | Component to render when route matches (string, constructor, element). |
 | `exact` | `boolean` | Whether route should match exactly (default: false). |
 | `guard` | `() => GuardResult \| Promise<GuardResult>` | Navigation guard function returning boolean, string, or redirect object. |
@@ -76,21 +76,25 @@ Define routes declaratively with segment matching and guards.
 The `when` attribute supports powerful segment-based routing:
 
 ```html
-<!-- Exact match -->
-<schmancy-route when="/home" component="home-page"></schmancy-route>
+<!-- Segment name matching -->
+<schmancy-route when="home" component="home-page"></schmancy-route>
+<!-- Matches: /home, /app/home, any URL containing 'home' segment -->
 
-<!-- Dynamic segments with :param syntax -->
-<schmancy-route when="/user/:id" component="user-profile"></schmancy-route>
+<!-- Component name matching -->
+<schmancy-route when="user-profile" component="user-profile"></schmancy-route>
+<!-- Matches when routing to 'user-profile' component -->
 
-<!-- Wildcard for nested routing -->
-<schmancy-route when="/admin/*" component="admin-layout"></schmancy-route>
+<!-- Admin section matching -->
+<schmancy-route when="admin" component="admin-layout"></schmancy-route>
+<!-- Matches: /admin, /admin/users, /app/admin, etc. -->
 
-<!-- Multiple segments -->
-<schmancy-route when="/products/:category/:id" component="product-detail"></schmancy-route>
+<!-- Product section matching -->
+<schmancy-route when="products" component="product-list"></schmancy-route>
+<!-- Matches: /products, /store/products, /products/123, etc. -->
 
-<!-- Optional trailing slash handled automatically -->
-<schmancy-route when="/about" component="about-page"></schmancy-route>
-<!-- Matches both /about and /about/ -->
+<!-- About page matching -->
+<schmancy-route when="about" component="about-page"></schmancy-route>
+<!-- Matches: /about, /info/about, /about/team, etc. -->
 ```
 
 ### Segment Matching Rules
@@ -107,21 +111,21 @@ Guards protect routes and can redirect navigation:
 ```typescript
 // Boolean guard - simple allow/deny
 <schmancy-route
-  when="/admin"
+  when="admin"
   component="admin-panel"
   .guard=${() => user.isAdmin}>
 </schmancy-route>
 
 // String guard - redirect to path
 <schmancy-route
-  when="/profile"
+  when="profile"
   component="user-profile"
   .guard=${() => isAuthenticated() || '/login'}>
 </schmancy-route>
 
 // Object guard - redirect with explicit syntax
 <schmancy-route
-  when="/settings"
+  when="settings"
   component="settings-page"
   .guard=${() => {
     if (!isAuthenticated()) {
@@ -136,7 +140,7 @@ Guards protect routes and can redirect navigation:
 
 // Async guard - check with backend
 <schmancy-route
-  when="/premium"
+  when="premium"
   component="premium-content"
   .guard=${async () => {
     const subscription = await checkSubscription();
@@ -162,7 +166,7 @@ Create complex nested routing structures:
 ```html
 <!-- Parent component with nested routes -->
 <schmancy-route
-  when="/app/*"
+  when="app"  <!-- Matches 'app' segment in URL -->
   component="app-layout"
   default="app-dashboard">
 
@@ -170,11 +174,11 @@ Create complex nested routing structures:
   <div class="app-container">
     <nav>...</nav>
     <schmancy-area name="app-content">
-      <!-- Nested routes -->
-      <schmancy-route when="/app/dashboard" component="app-dashboard"></schmancy-route>
-      <schmancy-route when="/app/users" component="user-list"></schmancy-route>
-      <schmancy-route when="/app/users/:id" component="user-detail"></schmancy-route>
-      <schmancy-route when="/app/settings/*" component="settings-layout">
+      <!-- Nested routes also use segment matching -->
+      <schmancy-route when="dashboard" component="app-dashboard"></schmancy-route>
+      <schmancy-route when="users" component="user-list"></schmancy-route>
+      <schmancy-route when="user-detail" component="user-detail"></schmancy-route>
+      <schmancy-route when="settings" component="settings-layout">
         <!-- Even deeper nesting in settings-layout -->
       </schmancy-route>
     </schmancy-area>
@@ -187,17 +191,17 @@ Create complex nested routing structures:
 ```html
 <!-- Root level -->
 <schmancy-area name="root">
-  <schmancy-route when="/*" component="app-shell" default="home-page">
+  <schmancy-route when="" component="app-shell" default="home-page">  <!-- Empty when = catch-all -->
 
     <!-- Inside app-shell -->
     <schmancy-area name="main">
-      <schmancy-route when="/products/*" component="product-layout">
+      <schmancy-route when="products" component="product-layout">
 
         <!-- Inside product-layout -->
         <schmancy-area name="product-content">
-          <schmancy-route when="/products" component="product-list"></schmancy-route>
-          <schmancy-route when="/products/:id" component="product-detail"></schmancy-route>
-          <schmancy-route when="/products/:id/reviews" component="product-reviews"></schmancy-route>
+          <schmancy-route when="product-list" component="product-list"></schmancy-route>
+          <schmancy-route when="product-detail" component="product-detail"></schmancy-route>
+          <schmancy-route when="reviews" component="product-reviews"></schmancy-route>
         </schmancy-area>
 
       </schmancy-route>
@@ -275,25 +279,26 @@ area.push({
 ```html
 <schmancy-area name="main">
   <!-- Public routes -->
-  <schmancy-route when="/home" component="home-page"></schmancy-route>
-  <schmancy-route when="/about" component="about-page"></schmancy-route>
+  <schmancy-route when="home" component="home-page"></schmancy-route>
+  <schmancy-route when="about" component="about-page"></schmancy-route>
 
   <!-- Protected routes -->
   <schmancy-route
-    when="/dashboard/*"
+    when="dashboard"
     component="dashboard-layout"
     .guard=${() => isAuthenticated() || '/login'}>
   </schmancy-route>
 
   <!-- Admin only -->
   <schmancy-route
-    when="/admin/*"
+    when="admin"
     component="admin-panel"
     .guard=${() => hasRole('admin') || { redirect: '/unauthorized' }}>
   </schmancy-route>
 
   <!-- Catch-all route (should be last) -->
-  <schmancy-route when="/*" component="not-found-page"></schmancy-route>
+  <!-- Note: Empty 'when' will match any route not matched above -->
+  <schmancy-route when="" component="not-found-page"></schmancy-route>
 </schmancy-area>
 ```
 
@@ -345,16 +350,16 @@ Default components provide fallback UI when no route matches:
 ```html
 <!-- Area-level default -->
 <schmancy-area name="main" default="welcome-page">
-  <schmancy-route when="/products" component="product-list"></schmancy-route>
-  <!-- Shows welcome-page when path is not /products -->
+  <schmancy-route when="products" component="product-list"></schmancy-route>
+  <!-- Shows welcome-page when no route matches -->
 </schmancy-area>
 
 <!-- Route-level default for nested routing -->
 <schmancy-route
-  when="/app/*"
+  when="app"
   component="app-layout"
   default="app-dashboard">
-  <!-- Shows app-dashboard when path is /app or /app/ -->
+  <!-- Shows app-dashboard as default content inside app-layout -->
 </schmancy-route>
 ```
 
@@ -365,16 +370,16 @@ Default components provide fallback UI when no route matches:
 ```html
 <!-- Order routes from most specific to least specific -->
 <schmancy-area name="main">
-  <!-- Specific routes first -->
-  <schmancy-route when="/products/new" component="product-create"></schmancy-route>
-  <schmancy-route when="/products/:id/edit" component="product-edit"></schmancy-route>
-  <schmancy-route when="/products/:id" component="product-detail"></schmancy-route>
+  <!-- More specific component names first -->
+  <schmancy-route when="product-create" component="product-create"></schmancy-route>
+  <schmancy-route when="product-edit" component="product-edit"></schmancy-route>
+  <schmancy-route when="product-detail" component="product-detail"></schmancy-route>
 
-  <!-- General routes -->
-  <schmancy-route when="/products" component="product-list"></schmancy-route>
+  <!-- General segment names -->
+  <schmancy-route when="products" component="product-list"></schmancy-route>
 
-  <!-- Wildcard routes last -->
-  <schmancy-route when="/*" component="not-found"></schmancy-route>
+  <!-- Catch-all (empty when) last -->
+  <schmancy-route when="" component="not-found"></schmancy-route>
 </schmancy-area>
 ```
 
@@ -395,7 +400,7 @@ const premiumAdminGuard = () => {
 };
 
 <schmancy-route
-  when="/premium-admin"
+  when="premium-admin"
   component="premium-admin-panel"
   .guard=${premiumAdminGuard}>
 </schmancy-route>
@@ -415,8 +420,8 @@ class AppLayout extends LitElement {
         </nav>
 
         <schmancy-area name="app-content">
-          <schmancy-route when="/app/dashboard" component="dashboard"></schmancy-route>
-          <schmancy-route when="/app/users/*" component="users-module"></schmancy-route>
+          <schmancy-route when="dashboard" component="dashboard"></schmancy-route>
+          <schmancy-route when="users" component="users-module"></schmancy-route>
         </schmancy-area>
       </div>
     `;
@@ -451,7 +456,7 @@ area.push({
 
 // Use with declarative routes
 <schmancy-route
-  when="/analytics"
+  when="analytics"
   .component=${LazyAnalytics}
   .guard=${() => hasFeature('analytics') || '/upgrade'}>
 </schmancy-route>
@@ -630,7 +635,7 @@ The traditional dynamic import method is still supported:
 ```typescript
 // Direct dynamic import (without lazy helper)
 <schmancy-route
-  when="/analytics"
+  when="analytics"
   .component=${() => import('./analytics-dashboard.js').then(m => m.AnalyticsDashboard)}
   .guard=${() => hasFeature('analytics') || '/upgrade'}>
 </schmancy-route>
@@ -691,8 +696,8 @@ if (path === '/products') {
 ```html
 <!-- New declarative approach -->
 <schmancy-area name="main">
-  <schmancy-route when="/products" component="product-list"></schmancy-route>
-  <schmancy-route when="/products/:id" component="product-detail"></schmancy-route>
+  <schmancy-route when="products" component="product-list"></schmancy-route>
+  <schmancy-route when="product-detail" component="product-detail"></schmancy-route>
 </schmancy-area>
 ```
 
@@ -716,7 +721,7 @@ area.on('protected-area').pipe(
 ```html
 <!-- Built-in guard support -->
 <schmancy-route
-  when="/protected"
+  when="protected"
   component="protected-content"
   .guard=${() => isAuthenticated() || '/login'}>
 </schmancy-route>
@@ -730,18 +735,19 @@ area.on('protected-area').pipe(
 <schmancy-area name="root">
   <!-- Tenant detection route -->
   <schmancy-route
-    when="/:tenant/*"
+    when="tenant-app"  <!-- Matches based on component tag name -->
     component="tenant-app"
-    .guard=${async ({ tenant }) => {
+    .guard=${async (params) => {
+      const tenant = params.tenant;
       const isValid = await validateTenant(tenant);
       return isValid || { redirect: '/invalid-tenant' };
     }}>
 
     <!-- Inside tenant-app -->
     <schmancy-area name="tenant-content">
-      <schmancy-route when="/:tenant/dashboard" component="tenant-dashboard"></schmancy-route>
-      <schmancy-route when="/:tenant/users" component="tenant-users"></schmancy-route>
-      <schmancy-route when="/:tenant/settings" component="tenant-settings"></schmancy-route>
+      <schmancy-route when="dashboard" component="tenant-dashboard"></schmancy-route>
+      <schmancy-route when="users" component="tenant-users"></schmancy-route>
+      <schmancy-route when="settings" component="tenant-settings"></schmancy-route>
     </schmancy-area>
 
   </schmancy-route>
@@ -751,23 +757,23 @@ area.on('protected-area').pipe(
 ### Wizard/Step Navigation
 
 ```html
-<schmancy-route when="/onboarding/*" component="onboarding-wizard">
+<schmancy-route when="onboarding" component="onboarding-wizard">
   <!-- Inside onboarding-wizard -->
   <schmancy-area name="wizard-step">
     <schmancy-route
-      when="/onboarding/profile"
+      when="profile"
       component="step-profile"
       .guard=${() => hasCompletedStep(0) || '/onboarding/welcome'}>
     </schmancy-route>
 
     <schmancy-route
-      when="/onboarding/preferences"
+      when="preferences"
       component="step-preferences"
       .guard=${() => hasCompletedStep(1) || '/onboarding/profile'}>
     </schmancy-route>
 
     <schmancy-route
-      when="/onboarding/complete"
+      when="complete"
       component="step-complete"
       .guard=${() => hasCompletedStep(2) || '/onboarding/preferences'}>
     </schmancy-route>
