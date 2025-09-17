@@ -1,6 +1,7 @@
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { css, html, LitElement } from 'lit'
-import { property } from 'lit/decorators.js'
+import { property, queryAssignedElements } from 'lit/decorators.js'
+import { when } from 'lit/directives/when.js'
 import { BehaviorSubject, combineLatest } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
@@ -93,6 +94,9 @@ export class SchmancyFilterChip extends TailwindElement(css`
 	private hover$ = new BehaviorSubject<boolean>(false)
 	private pressed$ = new BehaviorSubject<boolean>(false)
 	private focused$ = new BehaviorSubject<boolean>(false)
+
+	// Query assigned elements in the icon slot
+	@queryAssignedElements({ slot: 'icon' }) iconSlotElements!: Element[]
 
 	constructor() {
 		super()
@@ -262,20 +266,25 @@ export class SchmancyFilterChip extends TailwindElement(css`
 				role="checkbox"
 				tabindex="0"
 			>
-				<!-- Icon container - always reserve space -->
-				<span class="inline-flex w-[18px] h-[18px] items-center justify-center shrink-0">
-					${this._selected ? html`
-						<span class="material-symbols-outlined text-base sm:text-[18px]">
-							check
+				<!-- Icon container - conditionally shown using when directive -->
+				${when(
+					this._selected || this.icon || this.iconSlotElements?.length > 0,
+					() => html`
+						<span class="inline-flex w-[18px] h-[18px] items-center justify-center shrink-0">
+							${this._selected ? html`
+								<span class="material-symbols-outlined text-base sm:text-[18px]">
+									check
+								</span>
+							` : this.icon ? html`
+								<span class="material-symbols-outlined text-base sm:text-[18px]">
+									${this.icon}
+								</span>
+							` : html`
+								<slot name="icon"></slot>
+							`}
 						</span>
-					` : this.icon ? html`
-						<span class="material-symbols-outlined text-base sm:text-[18px]">
-							${this.icon}
-						</span>
-					` : html`
-						<slot name="icon"></slot>
-					`}
-				</span>
+					`
+				)}
 
 				<!-- Chip content -->
 				<slot></slot>
