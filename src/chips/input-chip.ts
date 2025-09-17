@@ -33,7 +33,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 	:host {
 		display: inline-block;
 		outline: none;
-		min-width:'fit-content'
+		min-width:fit-content
 
 	}
 
@@ -46,8 +46,8 @@ export class SchmancyInputChip extends TailwindElement(css`
 	}
 
 	.avatar-img {
-		width: 24px;
-		height: 24px;
+		width: 20px;
+		height: 20px;
 		object-fit: cover;
 	}
 
@@ -76,7 +76,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 		border-radius: 50%;
 		transform: scale(0);
 		animation: ripple 600ms linear;
-		background-color: rgba(var(--md-sys-color-on-surface-rgb), 0.08);
+		background-color: rgba(0, 0, 0, 0.08);
 		pointer-events: none;
 	}
 
@@ -250,18 +250,18 @@ export class SchmancyInputChip extends TailwindElement(css`
 			'chip-container': true,
 			'inline-flex': true,
 			'items-center': true,
-			'gap-2': true,
+			'gap-1 sm:gap-1.5 md:gap-2': true,
 			'pl-3': !this.avatar, // Less padding if avatar present
 			'pl-1': this.avatar, // Tight padding for avatar
 			'pr-2': this.removable,
 			'pr-3': !this.removable,
-			'py-2': true,
+			'py-1 sm:py-1.5 md:py-2': true,
 			'rounded-full': true,
 			'cursor-default': true,
 			'transition-all': true,
 			'duration-200': true,
 			'select-none': true,
-			'text-sm': true,
+			'text-xs sm:text-sm': true,
 			'font-medium': true,
 			'relative': true,
 			'overflow-hidden': true,
@@ -289,7 +289,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 		}
 
 		const removeButtonClasses = {
-			"size-[24px]":true,
+			"size-5 sm:size-6":true,
 			'rounded-full': true,
 			'transition-all': true,
 			'duration-200': true,
@@ -326,13 +326,13 @@ export class SchmancyInputChip extends TailwindElement(css`
 					<img
 						src=${this.avatar}
 						alt=""
-						class="avatar-img rounded-full"
+						class="avatar-img rounded-full sm:size-6"
 					/>
 				` : ''}
 
 				<!-- Icon (if provided and no avatar) -->
 				${this.icon && !this.avatar ? html`
-					<span class="material-symbols-outlined rounded-full text-[18px]">
+					<span class="material-symbols-outlined rounded-full text-base sm:text-[18px]">
 						${this.icon}
 					</span>
 				` : ''}
@@ -353,7 +353,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 						tabindex="-1"
 						?disabled=${this.disabled}
 					>
-						<span class="material-symbols-outlined text-[16px]">
+						<span class="material-symbols-outlined text-sm sm:text-[16px]">
 							close
 						</span>
 					</button>

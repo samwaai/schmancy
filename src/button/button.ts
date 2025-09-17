@@ -1,5 +1,5 @@
 import { $LitElement } from '@mixins/index'
-import { html, LitElement } from 'lit'
+import { css, html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
@@ -19,7 +19,12 @@ export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' 
  * @slot suffix - The suffix slot.
  */
 @customElement('schmancy-button')
-export class SchmancyButton extends $LitElement() {
+export class SchmancyButton extends $LitElement(
+	css`:host{
+		display:block;
+		min-width:fit-content;
+	}`
+) {
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		mode: 'open',
@@ -113,7 +118,7 @@ export class SchmancyButton extends $LitElement() {
 	}
 
 	protected get imgClasses(): string[] {
-		return ['max-h-[24px]', 'max-w-[24px]', 'object-contain']
+		return ['max-h-5', 'max-w-5', 'sm:max-h-6', 'sm:max-w-6', 'object-contain']
 	}
 
 	firstUpdated() {
@@ -145,7 +150,7 @@ export class SchmancyButton extends $LitElement() {
 	render() {
 		// Compute classes for the interactive element.
 		const classes = {
-			'z-0 py-[8px] px-[16px] transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden':
+			'z-0 py-2 px-3 sm:py-1.5 sm:px-3 md:py-2 md:px-4 text-sm sm:text-base transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-1 sm:gap-1.5 md:gap-2 outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden':
 				true,
 			'cursor-pointer': !this.disabled,
 			'opacity-[0.38]': this.disabled,

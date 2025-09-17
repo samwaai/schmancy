@@ -14,7 +14,7 @@ export class SchmancyAssistChip extends TailwindElement(css`
 	:host {
 		display: inline-block;
 		outline: none;
-		min-width:'fit-content'
+		min-width:fit-content
 	}
 
 	:host([disabled]) {
@@ -26,7 +26,7 @@ export class SchmancyAssistChip extends TailwindElement(css`
 		border-radius: 50%;
 		transform: scale(0);
 		animation: ripple 600ms linear;
-		background-color: rgba(var(--md-sys-color-on-surface-rgb), 0.08);
+		background-color: rgba(0, 0, 0, 0.08);
 		pointer-events: none;
 	}
 
@@ -153,9 +153,8 @@ export class SchmancyAssistChip extends TailwindElement(css`
 			'relative': true,
 			'inline-flex': true,
 			'items-center': true,
-			'gap-2': true,
-			'px-4': true,
-			'py-2': true,
+			'gap-1 sm:gap-1.5 md:gap-2': true,
+			'px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2': true,
 			'rounded-full': true,
 			'cursor-pointer': !this.disabled,
 			'transition-all': true,
@@ -204,9 +203,9 @@ export class SchmancyAssistChip extends TailwindElement(css`
 				aria-label=${this.value}
 			>
 				${this.icon ? html`
-					<schmancy-icon class="text-base">${this.icon}</schmancy-icon>
+					<schmancy-icon class="text-sm sm:text-base">${this.icon}</schmancy-icon>
 				` : ''}
-				<span class="text-sm font-medium">
+				<span class="text-xs sm:text-sm font-medium">
 					<slot></slot>
 				</span>
 

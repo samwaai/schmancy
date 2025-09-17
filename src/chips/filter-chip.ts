@@ -24,7 +24,7 @@ export class SchmancyFilterChip extends TailwindElement(css`
 	:host {
 		display: inline-block;
 		outline: none;
-		min-width:'fit-content'
+		min-width:fit-content
 	}
 
 	:host([disabled]) {
@@ -204,15 +204,14 @@ export class SchmancyFilterChip extends TailwindElement(css`
 		const chipClasses = {
 			'inline-flex': true,
 			'items-center': true,
-			'gap-2': true,
+			'gap-1 sm:gap-1.5 md:gap-2': true,
 			'rounded-full': true,
-			'px-2 md:px-4': true,
-			'py-1 md:py-2': true,
+			'px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2': true,
 			'cursor-pointer': !this.disabled,
 			'transition-all': true,
 			'duration-200': true,
 			'select-none': true,
-			'text-sm': true,
+			'text-xs sm:text-sm': true,
 			'font-medium': true,
 			'border': true,
 			'relative': true,
@@ -265,14 +264,14 @@ export class SchmancyFilterChip extends TailwindElement(css`
 			>
 				<!-- Checkmark icon (only when selected) -->
 				${this._selected ? html`
-					<span class="material-symbols-outlined text-[18px]">
+					<span class="material-symbols-outlined text-base sm:text-[18px]">
 						check
 					</span>
 				` : ''}
 
 				<!-- Optional custom icon -->
 				${this.icon && !this._selected ? html`
-					<span class="material-symbols-outlined text-[18px]">
+					<span class="material-symbols-outlined text-base sm:text-[18px]">
 						${this.icon}
 					</span>
 				` : ''}
@@ -288,7 +287,7 @@ export class SchmancyFilterChip extends TailwindElement(css`
 						aria-label="Remove filter"
 						tabindex="-1"
 					>
-						<span class="material-symbols-outlined text-[16px]">
+						<span class="material-symbols-outlined text-sm sm:text-[16px]">
 							close
 						</span>
 					</button>
