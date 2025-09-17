@@ -262,19 +262,20 @@ export class SchmancyFilterChip extends TailwindElement(css`
 				role="checkbox"
 				tabindex="0"
 			>
-				<!-- Checkmark icon (only when selected) -->
-				${this._selected ? html`
-					<span class="material-symbols-outlined text-base sm:text-[18px]">
-						check
-					</span>
-				` : ''}
-
-				<!-- Optional custom icon -->
-				${this.icon && !this._selected ? html`
-					<span class="material-symbols-outlined text-base sm:text-[18px]">
-						${this.icon}
-					</span>
-				` : ''}
+				<!-- Icon container - always reserve space -->
+				<span class="inline-flex w-[18px] h-[18px] items-center justify-center shrink-0">
+					${this._selected ? html`
+						<span class="material-symbols-outlined text-base sm:text-[18px]">
+							check
+						</span>
+					` : this.icon ? html`
+						<span class="material-symbols-outlined text-base sm:text-[18px]">
+							${this.icon}
+						</span>
+					` : html`
+						<slot name="icon"></slot>
+					`}
+				</span>
 
 				<!-- Chip content -->
 				<slot></slot>
