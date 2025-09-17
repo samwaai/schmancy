@@ -208,17 +208,18 @@ export class SchmancyFilterChip extends TailwindElement(css`
 		const chipClasses = {
 			'inline-flex': true,
 			'items-center': true,
-			'gap-1 sm:gap-1.5 md:gap-2': true,
+			'gap-2': true,
 			'rounded-full': true,
-			'px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2': true,
+			'h-8 px-4': true,
 			'cursor-pointer': !this.disabled,
 			'transition-all': true,
 			'duration-200': true,
 			'select-none': true,
-			'text-xs sm:text-sm': true,
+			'text-sm': true,
 			'font-medium': true,
 			'border': true,
 			'relative': true,
+			'min-h-[32px]': true,
 
 			// Background and text colors based on selection state
 			'bg-secondary-container': this._selected,
