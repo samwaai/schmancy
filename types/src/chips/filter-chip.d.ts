@@ -34,6 +34,7 @@ export declare class SchmancyFilterChip extends SchmancyFilterChip_base {
     private hover$;
     private pressed$;
     private focused$;
+    iconSlotElements: Element[];
     constructor();
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
