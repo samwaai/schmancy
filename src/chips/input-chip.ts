@@ -33,6 +33,8 @@ export class SchmancyInputChip extends TailwindElement(css`
 	:host {
 		display: inline-block;
 		outline: none;
+		min-width:'fit'
+
 	}
 
 	:host([disabled]) {

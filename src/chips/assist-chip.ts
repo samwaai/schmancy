@@ -14,6 +14,7 @@ export class SchmancyAssistChip extends TailwindElement(css`
 	:host {
 		display: inline-block;
 		outline: none;
+		min-width:'fit'
 	}
 
 	:host([disabled]) {
