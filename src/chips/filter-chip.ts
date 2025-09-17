@@ -1,7 +1,6 @@
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { css, html, LitElement } from 'lit'
 import { property } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { BehaviorSubject, combineLatest } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
@@ -207,8 +206,8 @@ export class SchmancyFilterChip extends TailwindElement(css`
 			'items-center': true,
 			'gap-2': true,
 			'rounded-full': true,
-			'px-4': true,
-			'py-2': true,
+			'px-2 md:px-4': true,
+			'py-1 md:py-2': true,
 			'cursor-pointer': !this.disabled,
 			'transition-all': true,
 			'duration-200': true,
@@ -250,7 +249,7 @@ export class SchmancyFilterChip extends TailwindElement(css`
 
 		return html`
 			<button
-				class=${classMap(chipClasses)}
+				class=${this.classMap(chipClasses)}
 				@click=${this.handleClick}
 				@keydown=${this.handleKeyDown}
 				@mouseenter=${this.handleMouseEnter}

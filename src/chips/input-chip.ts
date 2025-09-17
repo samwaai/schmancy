@@ -289,9 +289,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 		}
 
 		const removeButtonClasses = {
-			'ml-1': true,
-			'-mr-0.5': true,
-			'p-1': true,
+			"size-[24px]":true,
 			'rounded-full': true,
 			'transition-all': true,
 			'duration-200': true,
@@ -334,7 +332,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 
 				<!-- Icon (if provided and no avatar) -->
 				${this.icon && !this.avatar ? html`
-					<span class="material-symbols-outlined text-[18px]">
+					<span class="material-symbols-outlined rounded-full text-[18px]">
 						${this.icon}
 					</span>
 				` : ''}
