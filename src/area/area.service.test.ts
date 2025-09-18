@@ -1,7 +1,7 @@
 // src/area/area.service.test.ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { area } from './area.service'
-import type { ActiveRoute, RouteAction } from './router.types'
+import type { ActiveRoute } from './router.types'
 
 // Create a test-specific area service class for testing private methods
 class TestAreaService {

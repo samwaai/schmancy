@@ -1,93 +1,230 @@
 # Demo Components TODO
 
-## Components that need demo rewrite
+> **New Grouped Structure**: Instead of individual component demos, we now group related components together for better discovery and understanding. Each group follows the successful navigation pattern established by area-demos and chip-demos, allowing users to explore related functionality in context.
 
-These components have existing demo files but need to be rewritten following the new navigation-based structure with separate demo components:
+## 🎯 Benefits of Grouped Structure
 
-### Layout & Navigation
-- [ ] Tabs (`demo/src/features/tabs.ts`)
-- [ ] Drawer (`demo/src/features/drawer-content.ts`)
-- [ ] Sheet (`demo/src/features/sheet/sheet.ts`)
+1. **Better User Experience** - Navigate related components together
+2. **Contextual Learning** - See how components work together
+3. **Shared Examples** - Complex forms/layouts using multiple components
+4. **Reduced Navigation** - One entry point per feature group
+5. **Maintainable** - Related code stays together
 
-### Data Display
-- [ ] Table (`demo/src/features/table.ts`)
-- [ ] List (`demo/src/features/list.ts`)
-- [ ] Tree (`demo/src/features/tree.ts`)
-- [ ] Avatar (`demo/src/features/avatar.ts`)
-- [ ] Badges (`demo/src/features/badges.ts`)
+## 📁 New Grouped Demo Structure
 
-### Feedback & Overlays
-- [ ] Dialog (`demo/src/features/dialog-showcase.ts`)
-- [ ] Notifications (`demo/src/features/notifications.ts`)
-- [ ] Loading/Busy (`demo/src/features/busy.ts`)
-
-### Navigation
-- [x] Area Router (`demo/src/features/area/`) - ✅ Completed with new structure
-- [ ] Router (`demo/src/features/router.ts`)
-- [ ] Boat (`demo/src/features/boat.ts`)
-
-### Animation & Effects
-- [ ] Animated Text (`demo/src/features/animated-text.ts`)
-- [ ] Typewriter (`demo/src/features/typewriter.ts`)
-
-## Components that need new demos
-
-These components exist in the library but don't have demo files yet:
-
-### Forms
-- [ ] Checkbox
-- [ ] Switch
-- [ ] Select
-
-### Layout
-- [ ] Divider
-
-### Data Display
-- [x] Chip - ✅ Completed with new structure
-- [ ] Progress
-
-### Navigation
-- [ ] Menu
-- [ ] Navigation Drawer
-- [ ] Navigation Rail
-- [ ] Bottom Navigation
-
-### Feedback
-- [ ] Tooltip
-- [ ] Snackbar
-
-### Actions
-- [ ] Fab (Floating Action Button)
-
-## New Demo Structure (Navigation-based)
-
-### File Structure
 ```
 demo/src/features/
-└── component-name/
-    ├── index.ts           # Main demos component with navigation
-    ├── overview.ts        # Overview demo
-    ├── basic.ts           # Basic usage demo
-    ├── params.ts          # Parameters demo
-    └── examples.ts        # Additional examples
+├── forms-demos/           # All form components together
+├── navigation-demos/      # All navigation patterns
+├── data-display-demos/    # Tables, lists, trees, etc.
+├── feedback-demos/        # Progress, loading, notifications
+├── overlays-demos/        # Dialogs, sheets, modals
+├── layout-demos/          # Layout components
+├── actions-demos/         # Buttons, FABs
+├── effects-demos/         # Animations, transitions
+├── routing-demos/         # Area router, standard router
+└── chip-demos/           # ✅ Already completed
 ```
 
-### Main Demos Component Template
+## 🔴 Priority 1: Forms & Inputs Group
+**Path:** `demo/src/features/forms-demos/`
 
-The main component (`index.ts`) manages navigation between different demo sections:
+### Components to Include:
+- **Select** - Dropdown selection
+- **Checkbox** - Binary choices
+- **Switch** - Toggle states
+- **Input** - Text input fields
+- **Textarea** - Multi-line input
+- **Radio** - Single choice from multiple
+
+### Demo Structure:
+```
+forms-demos/
+├── index.ts           # Main navigation (demo-forms-demos)
+├── overview.ts        # Forms introduction & principles
+├── text-inputs.ts     # Input, textarea demos
+├── selection.ts       # Select, radio, checkbox, switch
+├── validation.ts      # Form validation patterns
+└── examples.ts        # Complete form examples
+```
+
+**Why Priority 1:** Forms are fundamental to most applications
+
+## 🔴 Priority 2: Navigation Components Group
+**Path:** `demo/src/features/navigation-demos/`
+
+### Components to Include:
+- **Tabs** - Tab navigation
+- **Navigation Drawer** - Side panel navigation
+- **Navigation Rail** - Compact navigation
+- **Bottom Navigation** - Mobile navigation
+- **Menu** - Contextual menus
+- **Breadcrumb** - Path navigation
+
+### Demo Structure:
+```
+navigation-demos/
+├── index.ts           # Main navigation (demo-navigation-demos)
+├── overview.ts        # Navigation patterns overview
+├── tabs.ts            # Tab component variations
+├── drawer.ts          # Drawer navigation patterns
+├── rail.ts            # Rail navigation for desktop
+├── mobile.ts          # Bottom navigation for mobile
+├── menu.ts            # Dropdown and context menus
+└── examples.ts        # Complete app navigation examples
+```
+
+## 🔴 Priority 3: Data Display Group
+**Path:** `demo/src/features/data-display-demos/`
+
+### Components to Include:
+- **Table** - Tabular data
+- **List** - Item lists
+- **Tree** - Hierarchical data
+- **Avatar** - User images
+- **Badge** - Status indicators
+- **Tooltip** - Contextual information
+
+### Demo Structure:
+```
+data-display-demos/
+├── index.ts           # Main navigation (demo-data-display-demos)
+├── overview.ts        # Data presentation principles
+├── tables.ts          # Table component & variations
+├── lists.ts           # List patterns & virtualisation
+├── trees.ts           # Tree view & hierarchies
+├── indicators.ts      # Avatars, badges, chips
+└── examples.ts        # Complex data views
+```
+
+## 🟡 Priority 4: Feedback & Status Group
+**Path:** `demo/src/features/feedback-demos/`
+
+### Components to Include:
+- **Progress** - Linear & circular progress
+- **Loading/Busy** - Loading states
+- **Snackbar** - Temporary messages
+- **Tooltip** - Help text
+- **Skeleton** - Loading placeholders
+
+### Demo Structure:
+```
+feedback-demos/
+├── index.ts           # Main navigation (demo-feedback-demos)
+├── overview.ts        # Feedback principles
+├── progress.ts        # Progress indicators
+├── loading.ts         # Loading & skeleton states
+├── messages.ts        # Snackbar & toast patterns
+└── examples.ts        # Complete feedback flows
+```
+
+## 🟡 Priority 5: Overlays & Modals Group
+**Path:** `demo/src/features/overlays-demos/`
+
+### Components to Include:
+- **Dialog** - Modal dialogs
+- **Sheet** - Bottom/side sheets
+- **Notifications** - System notifications
+- **Popover** - Contextual overlays
+
+### Demo Structure:
+```
+overlays-demos/
+├── index.ts           # Main navigation (demo-overlays-demos)
+├── overview.ts        # Overlay patterns
+├── dialogs.ts         # Dialog variations
+├── sheets.ts          # Sheet components
+├── notifications.ts   # Notification patterns
+└── examples.ts        # Complex overlay interactions
+```
+
+## 🟢 Priority 6: Layout Components Group
+**Path:** `demo/src/features/layout-demos/`
+
+### Components to Include:
+- **Drawer** - Layout drawer
+- **Divider** - Content separators
+- **Grid** - Grid layouts
+- **Stack** - Stack layouts
+
+### Demo Structure:
+```
+layout-demos/
+├── index.ts           # Main navigation (demo-layout-demos)
+├── overview.ts        # Layout principles
+├── drawer.ts          # Drawer layouts
+├── dividers.ts        # Divider usage
+└── examples.ts        # Complete layouts
+```
+
+## 🟢 Priority 7: Actions Group
+**Path:** `demo/src/features/actions-demos/`
+
+### Components to Include:
+- **Button** - All button variations
+- **FAB** - Floating action buttons
+- **Icon Button** - Icon-only buttons
+- **Toggle Button** - Toggle state buttons
+
+### Demo Structure:
+```
+actions-demos/
+├── index.ts           # Main navigation (demo-actions-demos)
+├── overview.ts        # Action principles
+├── buttons.ts         # Button variations
+├── fab.ts             # FAB patterns
+└── examples.ts        # Action flows
+```
+
+## 🟢 Priority 8: Effects & Animations Group
+**Path:** `demo/src/features/effects-demos/`
+
+### Components to Include:
+- **Animated Text** - Text animations
+- **Typewriter** - Typewriter effect
+- **Transitions** - Page transitions
+- **Ripple** - Ripple effects
+
+### Demo Structure:
+```
+effects-demos/
+├── index.ts           # Main navigation (demo-effects-demos)
+├── overview.ts        # Animation principles
+├── text.ts            # Text animations
+├── transitions.ts     # Transition effects
+└── examples.ts        # Combined effects
+```
+
+## ✅ Completed Groups
+
+### Routing Group
+**Path:** `demo/src/features/routing-demos/`
+- **Area Router** (`area/`) - ✅ Completed with navigation structure
+- **Standard Router** - To be added
+- **Boat** - To be added
+
+### Chip Group
+**Path:** `demo/src/features/chip-demos/`
+- ✅ Fully completed with navigation structure
+
+## 📝 Main Group Component Template
+
+Each group's `index.ts` manages navigation between different demo sections:
 
 ```typescript
 import { area, SchmancyArea } from '@mhmo91/schmancy'
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { DemoComponentOverview } from './overview'
-import { DemoComponentBasic } from './basic'
-import { DemoComponentParams } from './params'
-import { DemoComponentExamples } from './examples'
+// Import all demo components
+import { DemoFormsOverview } from './overview'
+import { DemoFormsTextInputs } from './text-inputs'
+import { DemoFormsSelection } from './selection'
+import { DemoFormsValidation } from './validation'
+import { DemoFormsExamples } from './examples'
 
-@customElement('demo-component-demos')
-export class DemoComponentDemos extends $LitElement(css`
+@customElement('demo-forms-demos')
+export class DemoFormsDemos extends $LitElement(css`
   :host {
     display: block;
     height: 100%;
@@ -95,20 +232,20 @@ export class DemoComponentDemos extends $LitElement(css`
 `) {
   @state() activeDemo = 'overview'
 
-  // Map of demo components - IMPORTANT: Use actual class references, not strings
+  // Map of demo components for the group
   private demos = {
-    overview: DemoComponentOverview,
-    basic: DemoComponentBasic,
-    params: DemoComponentParams,
-    examples: DemoComponentExamples,
+    overview: DemoFormsOverview,
+    'text-inputs': DemoFormsTextInputs,
+    selection: DemoFormsSelection,
+    validation: DemoFormsValidation,
+    examples: DemoFormsExamples,
   }
 
   connectedCallback(): void {
     super.connectedCallback()
-    // Subscribe to area changes to track active demo
+    // Track active demo for navigation highlighting
     area.active$.subscribe(active => {
-      if (active?.area === 'component-demo') {
-        // Extract demo name from component class
+      if (active?.area === 'forms-demo') {
         const componentName = Object.entries(this.demos).find(
           ([_, component]) => active.component instanceof component
         )?.[0]
@@ -122,8 +259,8 @@ export class DemoComponentDemos extends $LitElement(css`
   private navigateToDemo(demoName: keyof typeof this.demos) {
     const DemoClass = this.demos[demoName]
     area.push({
-      component: new DemoClass(),  // Instantiate the class
-      area: 'component-demo'
+      component: new DemoClass(),
+      area: 'forms-demo'
     })
   }
 
@@ -140,19 +277,27 @@ export class DemoComponentDemos extends $LitElement(css`
           </schmancy-list-item>
 
           <schmancy-list-item
-            .selected=${this.activeDemo === 'basic'}
-            @click=${() => this.navigateToDemo('basic')}
+            .selected=${this.activeDemo === 'text-inputs'}
+            @click=${() => this.navigateToDemo('text-inputs')}
           >
-            <schmancy-icon slot="start">widgets</schmancy-icon>
-            Basic Usage
+            <schmancy-icon slot="start">edit</schmancy-icon>
+            Text Inputs
           </schmancy-list-item>
 
           <schmancy-list-item
-            .selected=${this.activeDemo === 'params'}
-            @click=${() => this.navigateToDemo('params')}
+            .selected=${this.activeDemo === 'selection'}
+            @click=${() => this.navigateToDemo('selection')}
           >
-            <schmancy-icon slot="start">tune</schmancy-icon>
-            Parameters
+            <schmancy-icon slot="start">check_box</schmancy-icon>
+            Selection Controls
+          </schmancy-list-item>
+
+          <schmancy-list-item
+            .selected=${this.activeDemo === 'validation'}
+            @click=${() => this.navigateToDemo('validation')}
+          >
+            <schmancy-icon slot="start">fact_check</schmancy-icon>
+            Validation
           </schmancy-list-item>
 
           <schmancy-list-item
@@ -160,15 +305,15 @@ export class DemoComponentDemos extends $LitElement(css`
             @click=${() => this.navigateToDemo('examples')}
           >
             <schmancy-icon slot="start">code</schmancy-icon>
-            Examples
+            Complete Examples
           </schmancy-list-item>
         </schmancy-list>
 
         <div slot="content" class="h-full overflow-auto">
           <schmancy-area
-            name="component-demo"
+            name="forms-demo"
             .routes=${[
-              { path: '', component: new DemoComponentOverview(), isDefault: true },
+              { path: '', component: new DemoFormsOverview(), isDefault: true },
             ]}
           ></schmancy-area>
         </div>
@@ -179,14 +324,14 @@ export class DemoComponentDemos extends $LitElement(css`
 
 declare global {
   interface HTMLElementTagNameMap {
-    'demo-component-demos': DemoComponentDemos
+    'demo-forms-demos': DemoFormsDemos
   }
 }
 ```
 
-### Individual Demo Component Template
+## 📝 Individual Demo Component Template
 
-Each individual demo (`overview.ts`, `basic.ts`, etc.) follows this structure:
+Each demo section follows this structure:
 
 ```typescript
 import { $LitElement } from '@mixins/index'
@@ -194,160 +339,332 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import '../../shared/installation-section'
 
-@customElement('demo-component-overview')
-export class DemoComponentOverview extends $LitElement() {
+@customElement('demo-forms-text-inputs')
+export class DemoFormsTextInputs extends $LitElement() {
   render() {
     return html`
       <schmancy-surface class="p-8">
-        <!-- Component Title -->
+        <!-- Section Title -->
         <schmancy-typography type="display" token="lg" class="mb-4 block">
-          Component Name
+          Text Input Components
         </schmancy-typography>
+
         <schmancy-typography type="body" token="lg" class="mb-8 text-surface-onVariant block">
-          Brief description of what the component does.
+          Text input fields for collecting user input, including standard inputs,
+          textareas, and specialized formats.
         </schmancy-typography>
 
-        <!-- Installation -->
-        <installation-section></installation-section>
-
-        <!-- Import -->
-        <div class="mb-8">
-          <schmancy-typography type="title" token="lg" class="mb-4 block">Import</schmancy-typography>
-          <schmancy-code-preview language="javascript">
-            ${`import '@mhmo91/schmancy/component-name'`}
-          </schmancy-code-preview>
-        </div>
-
-        <!-- API Reference -->
+        <!-- Basic Input Demo -->
         <div class="mb-12">
-          <schmancy-typography type="title" token="lg" class="mb-4 block">API Reference</schmancy-typography>
-          <!-- API table here -->
+          <schmancy-typography type="title" token="lg" class="mb-6 block">
+            Basic Input
+          </schmancy-typography>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Live Demo -->
+            <div>
+              <schmancy-input
+                label="Name"
+                placeholder="Enter your name"
+                helper="Full name as it appears on ID"
+              ></schmancy-input>
+            </div>
+
+            <!-- Code -->
+            <schmancy-code-preview language="html">
+              ${`<schmancy-input
+  label="Name"
+  placeholder="Enter your name"
+  helper="Full name as it appears on ID"
+></schmancy-input>`}
+            </schmancy-code-preview>
+          </div>
         </div>
 
-        <!-- Quick Example -->
+        <!-- Textarea Demo -->
+        <div class="mb-12">
+          <schmancy-typography type="title" token="lg" class="mb-6 block">
+            Textarea
+          </schmancy-typography>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Live Demo -->
+            <div>
+              <schmancy-textarea
+                label="Description"
+                placeholder="Enter description"
+                rows="4"
+              ></schmancy-textarea>
+            </div>
+
+            <!-- Code -->
+            <schmancy-code-preview language="html">
+              ${`<schmancy-textarea
+  label="Description"
+  placeholder="Enter description"
+  rows="4"
+></schmancy-textarea>`}
+            </schmancy-code-preview>
+          </div>
+        </div>
+
+        <!-- Multiple Components Working Together -->
         <div>
-          <schmancy-typography type="title" token="lg" class="mb-6 block">Quick Example</schmancy-typography>
-          <schmancy-code-preview language="html">
-            ${`<schmancy-component>Content</schmancy-component>`}
-          </schmancy-code-preview>
+          <schmancy-typography type="title" token="lg" class="mb-6 block">
+            Form Example with Multiple Inputs
+          </schmancy-typography>
+
+          <schmancy-surface type="filled" class="p-6">
+            <form class="space-y-4">
+              <schmancy-input label="Email" type="email" required></schmancy-input>
+              <schmancy-input label="Password" type="password" required></schmancy-input>
+              <schmancy-textarea label="Comments" rows="3"></schmancy-textarea>
+              <schmancy-button type="filled">Submit</schmancy-button>
+            </form>
+          </schmancy-surface>
         </div>
       </schmancy-surface>
     `
   }
 }
 
-// IMPORTANT: Export the class with a named export
-export { DemoComponentOverview }
+// IMPORTANT: Named export for import in index.ts
+export { DemoFormsTextInputs }
 ```
 
-## Key Differences from Old Structure
+## 🔄 Migration from Old to Grouped Structure
 
-### Old Structure (Single File)
-- All demos in one large component file
-- Linear scrolling through examples
-- No navigation between sections
+### Old Structure (Individual Components)
+- Each component had its own demo folder
+- Lots of navigation entries in the main menu
+- Hard to see relationships between components
+- Duplicated examples across related components
 
-### New Structure (Navigation-based)
-- **Separate files for each demo section** in a folder
-- **Navigation drawer** for switching between demos
-- **Area routing** for demo navigation
-- **Better organization** and maintainability
-- **Consistent user experience** across all component demos
+### New Grouped Structure (Feature Groups)
+- Related components grouped in one demo
+- Single navigation entry per feature group
+- Clear relationships and interactions shown
+- Shared examples demonstrating integration
 
-## Important Implementation Notes
+## 🛠️ Implementation Guidelines for Grouped Structure
 
-### 1. Class References vs Strings
+### 1. Naming Conventions for Groups
 ```typescript
-// ✅ CORRECT - Use actual class references
-import { DemoComponentOverview } from './overview'
-area.push({ component: new DemoComponentOverview(), area: 'demo' })
+// Group folder naming (kebab-case with -demos suffix)
+forms-demos/
+navigation-demos/
+data-display-demos/
 
-// ❌ WRONG - Don't use string imports or dynamic imports in navigation
-area.push({ component: './overview', area: 'demo' })
+// Main group component
+@customElement('demo-forms-demos')
+export class DemoFormsDemos { }
+
+// Individual demo components within group
+@customElement('demo-forms-text-inputs')
+export class DemoFormsTextInputs { }
 ```
 
-### 2. Named Exports
-Each demo component MUST have a named export:
+### 2. Navigation Area Names
+Each group uses its own area name for routing:
 ```typescript
-// ✅ CORRECT
-export class DemoComponentOverview extends $LitElement() { }
-export { DemoComponentOverview }
+// In group's index.ts
+<schmancy-area name="forms-demo">  // Note: singular for area name
 
-// ❌ WRONG - Default exports won't work with the import structure
-export default class DemoComponentOverview { }
-```
-
-### 3. Demo Component Naming Convention
-- Main component: `demo-[component]-demos` (e.g., `demo-chip-demos`)
-- Individual demos: `demo-[component]-[section]` (e.g., `demo-chip-overview`)
-- Class names: `Demo[Component][Section]` (e.g., `DemoChipOverview`)
-
-### 4. Navigation State Management
-The main demos component tracks the active demo by subscribing to area changes:
-```typescript
-area.active$.subscribe(active => {
-  if (active?.area === 'component-demo') {
-    // Update activeDemo state for navigation highlighting
-  }
+// In navigation
+area.push({
+  component: new DemoFormsTextInputs(),
+  area: 'forms-demo'  // Matches area name
 })
 ```
 
-### 5. File Organization
+### 3. Group Component Organization
 ```
-demo/src/features/
-├── chip/
-│   ├── index.ts          # DemoChipDemos
-│   ├── overview.ts       # DemoChipOverview
-│   ├── basic.ts          # DemoChipBasic
-│   ├── params.ts         # DemoChipParams
-│   └── examples.ts       # DemoChipExamples
-├── area/
-│   ├── index.ts          # DemoAreaDemos
-│   ├── overview.ts       # DemoAreaOverview
-│   ├── basic.ts          # DemoAreaBasic
-│   └── params.ts         # DemoAreaParams
+forms-demos/
+├── index.ts           # Navigation hub - imports all demos
+├── overview.ts        # Group introduction & principles
+├── [feature-1].ts     # Specific feature demos
+├── [feature-2].ts     # Another feature
+├── validation.ts      # Cross-cutting concerns
+└── examples.ts        # Complete, real-world examples
 ```
 
-## Migration Checklist
+### 4. Shared Examples Pattern
+Groups enable powerful shared examples:
+```typescript
+// In examples.ts - show multiple components working together
+@customElement('demo-forms-examples')
+export class DemoFormsExamples extends $LitElement() {
+  render() {
+    return html`
+      <!-- Complete Registration Form -->
+      <div class="example">
+        <schmancy-input label="Email" type="email"></schmancy-input>
+        <schmancy-input label="Password" type="password"></schmancy-input>
+        <schmancy-select label="Country">
+          <schmancy-option>USA</schmancy-option>
+          <schmancy-option>Canada</schmancy-option>
+        </schmancy-select>
+        <schmancy-checkbox>Accept terms</schmancy-checkbox>
+        <schmancy-button>Register</schmancy-button>
+      </div>
+    `
+  }
+}
+```
 
-When converting an existing demo to the new structure:
+### 5. Cross-References Between Groups
+Link to related groups when relevant:
+```typescript
+// In navigation-demos overview
+html`
+  <schmancy-typography>
+    See also: <a href="#" @click=${() => this.navigateToGroup('forms-demos')}>
+      Form Components
+    </a> for input controls used in navigation.
+  </schmancy-typography>
+`
+```
 
-1. [ ] Create a new folder for the component in `demo/src/features/`
-2. [ ] Split the existing demo into logical sections (overview, basic, params, examples)
-3. [ ] Create separate files for each section with proper class names and exports
-4. [ ] Create the main `index.ts` with navigation drawer and area routing
-5. [ ] Import all demo classes in the main component (not strings)
-6. [ ] Set up navigation items with appropriate icons
-7. [ ] Configure area routing with the overview as default
-8. [ ] Update the demo entry in the main app navigation
-9. [ ] Test navigation between all demo sections
-10. [ ] Verify all code examples render correctly
-11. [ ] Update this TODO list to mark the component as completed
+## 📋 Migration Checklist for Creating Grouped Demos
 
-## Best Practices
+When creating a new group demo:
+
+1. [ ] **Plan the Group Structure**
+   - Identify all related components to include
+   - Define logical sections (overview, features, validation, examples)
+   - Plan shared examples showing integration
+
+2. [ ] **Create Group Folder**
+   - Name with `-demos` suffix (e.g., `forms-demos/`)
+   - Create files for each section
+   - Ensure all files have named exports
+
+3. [ ] **Build Main Navigation Component**
+   - Create `index.ts` with navigation drawer
+   - Import all demo components (use classes, not strings)
+   - Set up area routing with unique area name
+   - Add navigation items with appropriate icons
+
+4. [ ] **Develop Individual Demos**
+   - Start with overview explaining the group's purpose
+   - Create focused demos for each component type
+   - Build shared examples showing components together
+   - Include validation/error handling patterns
+
+5. [ ] **Update Main App Navigation**
+   - Add single entry for the group
+   - Use appropriate icon for the feature group
+   - Update routing to load group's index component
+
+6. [ ] **Test & Verify**
+   - Test navigation between all sections
+   - Verify all components render correctly
+   - Check code examples are accurate
+   - Test responsive behavior
+
+7. [ ] **Documentation**
+   - Update this TODO list marking group as completed
+   - Add any special notes about the components
+   - Document any known issues or limitations
+
+## 🎨 Best Practices for Grouped Demos
+
+### Group Organization
+- **Overview First** - Always start with principles and introduction
+- **Progressive Complexity** - Simple → Advanced → Real-world
+- **Show Relationships** - Demonstrate how components work together
+- **Cross-cutting Concerns** - Include validation, accessibility, performance
+
+### Effective Demos
+- **Live + Code** - Show working component beside its code
+- **Interactive** - Let users modify properties and see results
+- **Real-world** - Include practical, production-ready examples
+- **Error States** - Show validation and error handling
 
 ### Code Examples
-- Use template literals with `${}` for code snippets to avoid escaping issues
-- Include both HTML and JavaScript examples where relevant
-- Show real-world usage patterns, not just basic syntax
+```typescript
+// Use side-by-side layout for demos
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <div>
+    <!-- Live component -->
+    <schmancy-input label="Name"></schmancy-input>
+  </div>
+  <schmancy-code-preview language="html">
+    ${`<schmancy-input label="Name"></schmancy-input>`}
+  </schmancy-code-preview>
+</div>
+```
 
-### API Documentation
-- Create comprehensive tables for all properties, methods, and events
-- Include type information and default values
-- Add descriptions that explain when and why to use each option
+### Navigation Icons for Groups
+- 📝 `edit` - Forms & Inputs
+- 🧭 `navigation` - Navigation Components
+- 📊 `table_chart` - Data Display
+- 💬 `feedback` - Feedback & Status
+- 🎭 `layers` - Overlays & Modals
+- 📐 `dashboard` - Layout Components
+- ⚡ `touch_app` - Actions & Buttons
+- ✨ `animation` - Effects & Animations
 
-### Demo Content
-- Start with the simplest possible example in the overview
-- Progress from basic to advanced usage
-- Include common patterns and best practices
-- Show edge cases and error handling where relevant
+### Shared Examples Template
+```typescript
+// In examples.ts - demonstrate real-world usage
+@customElement('demo-[group]-examples')
+export class Demo[Group]Examples extends $LitElement() {
+  render() {
+    return html`
+      <schmancy-surface class="p-8">
+        <!-- Complete User Registration Form -->
+        <schmancy-typography type="display" token="md" class="mb-6">
+          Complete Registration Flow
+        </schmancy-typography>
 
-### Navigation Icons
-Choose meaningful Material Icons for navigation items:
-- `info` - Overview/Introduction
-- `widgets` - Basic usage/Components
-- `tune` - Parameters/Configuration
-- `code` - Advanced examples
-- `settings` - Configuration/Options
-- `palette` - Styling/Theming
-- `build` - Composition/Building blocks
+        <!-- Show multiple components working together -->
+        <form class="space-y-6">
+          <!-- Personal Information Section -->
+          <div class="space-y-4">
+            <schmancy-input label="Full Name" required></schmancy-input>
+            <schmancy-input label="Email" type="email" required></schmancy-input>
+          </div>
+
+          <!-- Preferences Section -->
+          <div class="space-y-4">
+            <schmancy-select label="Country">
+              <schmancy-option>United States</schmancy-option>
+              <schmancy-option>Canada</schmancy-option>
+            </schmancy-select>
+            <schmancy-checkbox>Subscribe to newsletter</schmancy-checkbox>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-4">
+            <schmancy-button type="text">Cancel</schmancy-button>
+            <schmancy-button type="filled">Register</schmancy-button>
+          </div>
+        </form>
+
+        <!-- Explanation of the example -->
+        <schmancy-typography class="mt-8 text-surface-onVariant">
+          This example demonstrates form components working together with
+          proper spacing, validation, and user interaction patterns.
+        </schmancy-typography>
+      </schmancy-surface>
+    `
+  }
+}
+```
+
+## 🚀 Quick Start for New Group
+
+To create a new group demo, copy this starter structure:
+
+```bash
+# Create group folder
+mkdir demo/src/features/[group]-demos
+
+# Create files
+touch demo/src/features/[group]-demos/index.ts
+touch demo/src/features/[group]-demos/overview.ts
+touch demo/src/features/[group]-demos/examples.ts
+```
+
+Then use the templates above to build your grouped demo!
