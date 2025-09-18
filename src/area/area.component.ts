@@ -71,10 +71,8 @@ export class SchmancyArea extends $LitElement(css`
 					if (lastSegment && (lastSegment.includes('{') || lastSegment.includes('%7B'))) {
 						try {
 							const parsed = JSON.parse(decodeURIComponent(lastSegment)) as Record<string, ActiveRoute>
-							console.log(parsed)
 							if (parsed[this.name]) {
 								const componentTag = parsed[this.name]
-								console.log(componentTag)
 								route = this.routes?.find(r => r.when === componentTag.component)
 								// if the route.component is a lazy loaded module we need to load it
 								if (route)
@@ -83,7 +81,7 @@ export class SchmancyArea extends $LitElement(css`
 										component: route.component,
 										state: parsed[this.name].state || {},
 										params: parsed[this.name].params || {},
-										historyStrategy: HISTORY_STRATEGY.silent,
+										historyStrategy: HISTORY_STRATEGY.replace,
 									} as RouteAction)
 
 								return of({
@@ -91,7 +89,7 @@ export class SchmancyArea extends $LitElement(css`
 									component: parsed[this.name].component,
 									state: parsed[this.name].state || {},
 									params: parsed[this.name].params || {},
-									historyStrategy: HISTORY_STRATEGY.silent,
+									historyStrategy: HISTORY_STRATEGY.replace,
 								} as RouteAction)
 							}
 						} catch {}
@@ -190,7 +188,7 @@ export class SchmancyArea extends $LitElement(css`
 								component: event.state.schmancyAreas[this.name].component,
 								state: event.state.schmancyAreas[this.name].state || {},
 								params: event.state.schmancyAreas[this.name].params || {},
-								historyStrategy: HISTORY_STRATEGY.silent,
+								historyStrategy: HISTORY_STRATEGY.pop,
 							} as RouteAction)
 						: null,
 				),
