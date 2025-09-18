@@ -387,30 +387,51 @@ class AreaService implements AreaSubscription {
 	 * Create a clean URL from area states
 	 */
 	private createCleanURL(areas: Record<string, ActiveRoute>, clearQueryParams?: string[] | boolean | null): string {
+		// Get the current base path (everything except the last segment which might be encoded state)
+		const currentPath = location.pathname
+		const pathSegments = currentPath.split('/')
+		let basePath = '/'
+
+		// Check if the last segment is encoded state (contains { or %7B)
+		const lastSegment = pathSegments[pathSegments.length - 1]
+		if (lastSegment && (lastSegment.includes('{') || lastSegment.includes('%7B'))) {
+			// Remove the encoded state segment to get the base path
+			pathSegments.pop()
+			basePath = pathSegments.join('/') || '/'
+		} else {
+			// Keep the current path as base path
+			basePath = currentPath
+		}
+
+		// Ensure base path ends properly
+		if (basePath !== '/' && !basePath.endsWith('/')) {
+			basePath += '/'
+		}
+
 		// Handle query parameters
 		let queryString = ''
-		
+
 		if (clearQueryParams !== true) {
 			// Get current query params
 			const urlParams = new URLSearchParams(location.search)
-			
+
 			// Clear specific params if provided
 			if (Array.isArray(clearQueryParams)) {
 				clearQueryParams.forEach(param => urlParams.delete(param))
 			}
-			
+
 			// Convert back to string
 			queryString = urlParams.toString()
 			queryString = queryString ? `?${queryString}` : ''
 		}
 		// If clearQueryParams === true, queryString remains empty (all params cleared)
-		
+
 		if (this.prettyURL) {
 			// Create pretty URLs - customize this based on your routing needs
 			const mainArea = areas.main
 			if (mainArea) {
-				let path = `/${mainArea.component}`
-				
+				let path = basePath === '/' ? `/${mainArea.component}` : `${basePath}${mainArea.component}`
+
 				// Add simple params to URL
 				const searchParams = new URLSearchParams(queryString)
 				if (mainArea.params) {
@@ -420,12 +441,12 @@ class AreaService implements AreaSubscription {
 						}
 					})
 				}
-				
+
 				const query = searchParams.toString()
 				return path + (query ? `?${query}` : '')
 			}
 		}
-		
+
 		// Fallback to encoded state in URL (original behavior)
 		try {
 			// Clean up empty objects before encoding
@@ -451,13 +472,15 @@ class AreaService implements AreaSubscription {
 				cleanedAreas[areaName] = cleanRoute
 			})
 
-			// If cleanedAreas is empty, return a clean URL without encoded empty object
+			// If cleanedAreas is empty, preserve the base path
 			if (Object.keys(cleanedAreas).length === 0) {
-				return queryString ? `/${queryString}` : '/'
+				const cleanBasePath = basePath === '/' ? '' : basePath.replace(/\/$/, '')
+				return `${cleanBasePath}${queryString}`
 			}
 
 			const encoded = encodeURIComponent(JSON.stringify(cleanedAreas))
-			return `/${encoded}${queryString}`
+			const cleanBasePath = basePath === '/' ? '' : basePath.replace(/\/$/, '')
+			return `${cleanBasePath}/${encoded}${queryString}`
 		} catch (error) {
 			console.error('Failed to encode URL state:', error)
 			return location.pathname
@@ -586,14 +609,15 @@ class AreaService implements AreaSubscription {
 		// Complete all area subjects
 		this.areaSubjects.forEach(subject => subject.complete())
 		this.areaSubjects.clear()
-		
+
 		// Clear current state
 		this.current.clear()
 		this.$current.next(this.current)
-		
+
 		// Update URL
 		if (this.enableHistoryMode) {
-			history.replaceState({ schmancyAreas: {} }, '', `/${location.search}`)
+			const url = this.createCleanURL({})
+			history.replaceState({ schmancyAreas: {} }, '', url)
 		}
 	}
 	
