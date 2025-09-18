@@ -1,5 +1,5 @@
 import { TailwindElement } from '@mixins/index'
-import { area } from '@schmancy/area'
+import { area, lazy } from '@schmancy/area'
 import { schmancyNavDrawer } from '@schmancy/nav-drawer'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
@@ -11,34 +11,9 @@ import { DemoAreaDemos } from './features/area/area-demos'
 import { DemoContext } from './features/context'
 import { ThemeServiceDemo } from './features/theme-service-demo'
 
-// Core Components
-import { DemoButton } from './features/button'
-import { DemoBusy } from './features/busy'
-import { DemoCard } from './features/card'
+
+// Other Components (still using original files temporarily)
 import { DemoChips } from './features/chips'
-import { DemoIcons } from './features/icons'
-import { DemoInput } from './features/input'
-import { DemoSurface } from './features/surface'
-import DemoTypography from './features/typography'
-import NotificationDemo from './features/notifications'
-import { DemoMap } from './features/map'
-
-// Layout & Navigation
-import { DemoBoat } from './features/boat'
-import { DemoLayout } from './features/layout'
-import { DemoSteps } from './features/steps'
-
-// Form Controls
-import { DemoAutocomplete } from './features/autocomplete'
-import { DemoDateRange } from './features/date-range'
-import DemoProgress from './features/progress'
-import { DemoRadio } from './features/radio'
-import { DemoSelect } from './features/select'
-import { DemoSheet } from './features/sheet-demo'
-import { DemoSlider } from './features/slider'
-import { DemoDateRangeInline } from './features/date-range-inline'
-import DetailsShowcase from './features/details-showcase'
-import { DemoMailbox } from './features/mailbox'
 
 interface DemoSection {
   title: string
@@ -63,43 +38,22 @@ export class DemoNav extends TailwindElement() {
       ]
     },
     {
-      title: 'Core',
+      title: 'Components',
       demos: [
-        { name: 'Typography', component: DemoTypography },
-        { name: 'Button', component: DemoButton },
-        { name: 'Card', component: DemoCard },
+        { name: 'Core', component: lazy(() => import('./features/core-demos')) as any },
+        { name: 'Feedback', component: lazy(() => import('./features/feedback-demos')) as any },
+        { name: 'Forms', component: lazy(() => import('./features/forms-demos')) as any },
+        { name: 'Navigation', component: lazy(() => import('./features/navigation-demos')) as any },
+        { name: 'Data Display', component: lazy(() => import('./features/data-display-demos')) as any },
+        { name: 'Overlays', component: lazy(() => import('./features/overlays-demos')) as any },
+        { name: 'Layout', component: lazy(() => import('./features/layout-demos')) as any },
+      ]
+    },
+    {
+      title: 'Others',
+      demos: [
         { name: 'Chips', component: DemoChips },
-        { name: 'Surface', component: DemoSurface },
-        { name: 'Icons', component: DemoIcons },
-        { name: 'Progress', component: DemoProgress },
-        { name: 'Spinner', component: DemoBusy },
-        { name: 'Notifications', component: NotificationDemo },
-        { name: 'Details', component: DetailsShowcase },
-        { name: 'Map', component: DemoMap },
-        { name: 'Mailbox', component: DemoMailbox },
-      ]
-    },
-    {
-      title: 'Forms',
-      demos: [
-        { name: 'Input', component: DemoInput },
-        { name: 'Autocomplete', component: DemoAutocomplete },
-        { name: 'Date Range', component: DemoDateRange },
-        {name:'Date Range inline',component:DemoDateRangeInline},
-        { name: 'Radio', component: DemoRadio },
-        { name: 'Select', component: DemoSelect },
-        { name: 'Slider', component: DemoSlider },
-      ]
-    },
-    {
-      title: 'Layout',
-      demos: [
-        { name: 'Layout', component: DemoLayout },
-        { name: 'Boat', component: DemoBoat },
-        { name: 'Steps', component: DemoSteps },
-        {
-          name : 'Sheet' , component:DemoSheet
-        }
+        { name: 'Miscellaneous', component: lazy(() => import('./features/misc-demos')) as any },
       ]
     },
   ]

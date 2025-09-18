@@ -1,19 +1,24 @@
-// Rewritten components
-export * from './autocomplete'
-export * from './button'
-export * from './card'
+// Grouped Component Demos
+export * from './core-demos'
+export * from './feedback-demos'
+export * from './forms-demos'
+export * from './navigation-demos'
+export * from './data-display-demos'
+export * from './overlays-demos'
+export * from './layout-demos'
+export * from './misc-demos'
+
+// Individual components still at root level
 export * from './chips'
-export * from './date-range'
-export * from './icons'
-export * from './input'
-export * from './layout'
-export * from './progress'
-export * from './radio'
-export * from './select'
-export * from './slider'
-export * from './surface'
-export * from './typography'
+export * from './boat'
+export * from './steps'
+export * from './details-showcase'
+export * from './map'
+export * from './mailbox'
+
+// Key Features
 export * from './theme-service-demo'
+export * from './context'
 
 // Navigation
 export * from '../nav'
@@ -29,14 +34,17 @@ export * from './area/multi'
 export * from './area/routing'
 export * from './area/area-demos'
 
-
-// Content Drawer
-export * from './drawer-content'
-
-// TODO: These components need to be rewritten
-// export * from './area-showcase'
-// export * from './boat'
-// export * from './dialog-showcase'
-// export * from './list'
-// export * from './tabs'
-// export * from './tree'
+// Components now included in grouped demos (removed from individual exports):
+// - input (in forms-demos)
+// - select (in forms-demos)
+// - radio (in forms-demos)
+// - slider (in forms-demos)
+// - autocomplete (in forms-demos)
+// - date-range (in forms-demos)
+// - date-range-inline (in forms-demos)
+// - tabs (in navigation-demos)
+// - list (in data-display-demos)
+// - tree (in data-display-demos)
+// - table (in data-display-demos)
+// - avatar (in data-display-demos)
+// - badges (in data-display-demos)

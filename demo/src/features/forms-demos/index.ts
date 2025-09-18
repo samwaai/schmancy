@@ -13,7 +13,7 @@ import { DemoFormsExamples } from './examples';
 
 // Main Demo Forms Component
 @customElement('demo-forms-demos')
-export class DemoFormsDemos extends $LitElement(css`
+export default class DemoFormsDemos extends $LitElement(css`
   :host {
     display: block;
   }
@@ -135,6 +135,9 @@ export class DemoFormsDemos extends $LitElement(css`
     `;
   }
 }
+
+// Also export as named export for backward compatibility
+export { DemoFormsDemos }
 
 declare global {
   interface HTMLElementTagNameMap {

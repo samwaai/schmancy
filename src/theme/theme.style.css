@@ -492,4 +492,14 @@
 
 	/* Chips */
 	--md-filter-chip-label-text-color: var(--schmancy-sys-color-surface-on);
+
+	/* Checkbox */
+	--md-checkbox-focus-outline-color: var(--schmancy-sys-color-surface-on);
+	--md-checkbox-focus-outline-width: 2px;
+	--md-checkbox-hover-outline-color: var(--schmancy-sys-color-surface-on);
+	--md-checkbox-hover-outline-width: 2px;
+	--md-checkbox-pressed-outline-color: var(--schmancy-sys-color-surface-on);
+	--md-checkbox-pressed-outline-width: 2px;
+	--md-checkbox-disabled-outline-color: var(--schmancy-sys-color-surface-on);
+	--md-checkbox-disabled-outline-width: 2px;
 }

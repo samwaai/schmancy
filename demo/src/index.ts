@@ -7,7 +7,7 @@ import { filter, map } from 'rxjs'
 
 import '@lit-labs/virtualizer'
 import { createCompoundSelector, createContext, select } from '@schmancy/index'
-import { area } from '@schmancy/area'
+import { area, lazy } from '@schmancy/area'
 import { schmancyNavDrawer } from '@schmancy/nav-drawer'
 import { fullHeight } from '../../src/directives/height'
 import './features/index'
@@ -18,35 +18,18 @@ import { DemoAreaDemos } from './features/area/area-demos'
 import { DemoContext } from './features/context'
 import { ThemeServiceDemo } from './features/theme-service-demo'
 
-// Core Components
-import { DemoButton } from './features/button'
-import { DemoBusy } from './features/busy'
-import { DemoCard } from './features/card'
+// Core Components (these will be loaded via lazy loading now)
 import { DemoChips } from './features/chips'
-import { DemoIcons } from './features/icons'
-import { DemoInput } from './features/input'
-import { DemoSurface } from './features/surface'
-import DemoTypography from './features/typography'
-import NotificationDemo from './features/notifications'
 import { DemoMap } from './features/map'
 
 // Layout & Navigation
 import { DemoBoat } from './features/boat'
-import { DemoContentDrawer } from './features/drawer-content'
-import { DemoLayout } from './features/layout'
 import { DemoSteps } from './features/steps'
 
-// Form Controls
-import { DemoAutocomplete } from './features/autocomplete'
-import { DemoDateRange } from './features/date-range'
-import DemoProgress from './features/progress'
-import { DemoRadio } from './features/radio'
-import { DemoSelect } from './features/select'
-import { DemoSheet } from './features/sheet-demo'
-import { DemoSlider } from './features/slider'
-import { DemoDateRangeInline } from './features/date-range-inline'
+// Other Components
 import DetailsShowcase from './features/details-showcase'
 import { DemoMailbox } from './features/mailbox'
+
 
 type Theme = {
 	color: string
@@ -130,40 +113,38 @@ export default class SchmancyDemo extends $LitElement(css`
 			{
 				title: 'Core',
 				demos: [
-					{ name: 'Typography', component: DemoTypography },
-					{ name: 'Button', component: DemoButton },
-					{ name: 'Card', component: DemoCard },
+					// These components are now loaded through grouped demos
+					// { name: 'Typography', component: DemoTypography },
+					// { name: 'Button', component: DemoButton },
+					// { name: 'Card', component: DemoCard },
 					{ name: 'Chips', component: DemoChips },
-					{ name: 'Surface', component: DemoSurface },
-					{ name: 'Icons', component: DemoIcons },
-					{ name: 'Progress', component: DemoProgress },
-					{ name: 'Spinner', component: DemoBusy },
-					{ name: 'Notifications', component: NotificationDemo },
+					// { name: 'Surface', component: DemoSurface },
+					// { name: 'Icons', component: DemoIcons },
+					// { name: 'Progress', component: DemoProgress },
+					// { name: 'Spinner', component: DemoBusy },
+					// { name: 'Notifications', component: NotificationDemo },
 					{ name: 'Details', component: DetailsShowcase },
 					{ name: 'Map', component: DemoMap },
 					{ name: 'Mailbox', component: DemoMailbox },
 				]
 			},
 			{
-				title: 'Forms',
+				title: 'Components',
 				demos: [
-					{ name: 'Input', component: DemoInput },
-					{ name: 'Autocomplete', component: DemoAutocomplete },
-					{ name: 'Date Range', component: DemoDateRange },
-					{ name: 'Date Range inline', component: DemoDateRangeInline },
-					{ name: 'Radio', component: DemoRadio },
-					{ name: 'Select', component: DemoSelect },
-					{ name: 'Slider', component: DemoSlider },
+					{ name: 'Forms', component: lazy(() => import('./features/forms-demos')) as any },
+					{ name: 'Navigation', component: lazy(() => import('./features/navigation-demos')) as any },
+					{ name: 'Data Display', component: lazy(() => import('./features/data-display-demos')) as any },
 				]
 			},
 			{
 				title: 'Layout',
 				demos: [
-					{ name: 'Layout', component: DemoLayout },
-					{ name: 'Content Drawer', component: DemoContentDrawer },
+					// These are now in layout-demos group
+					// { name: 'Layout', component: DemoLayout },
+					// { name: 'Content Drawer', component: DemoContentDrawer },
 					{ name: 'Boat', component: DemoBoat },
 					{ name: 'Steps', component: DemoSteps },
-					{ name: 'Sheet', component: DemoSheet }
+					// { name: 'Sheet', component: DemoSheet }
 				]
 			},
 		]
