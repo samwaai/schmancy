@@ -36,6 +36,7 @@ export default class SchmancyNotificationContainer extends SchmancyNotificationC
     addNotification(options: NotificationOptions): string;
     removeNotification(id: string): void;
     updateNotification(id: string, options: Partial<NotificationOptions>): void;
+    private handlePlaySound;
     private _handleClose;
     render(): import("lit-html").TemplateResult<1>;
 }

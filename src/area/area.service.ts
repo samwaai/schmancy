@@ -1,22 +1,21 @@
 import {
-	Observable,
-	ReplaySubject,
-	Subject,
 	bufferTime,
+	catchError,
+	distinctUntilChanged,
+	EMPTY,
 	filter,
 	fromEvent,
 	map,
+	Observable,
 	of,
+	ReplaySubject,
+	shareReplay,
 	skip,
+	Subject,
+	Subscription,
 	tap,
 	timeout,
-	zip,
-	shareReplay,
-	distinctUntilChanged,
-	catchError,
-	EMPTY,
-	Subscription,
-	takeUntil
+	zip
 } from 'rxjs'
 import { SchmancyTeleportation } from '../teleport'
 import { ActiveRoute, AreaSubscription, RouteAction } from './router.types'

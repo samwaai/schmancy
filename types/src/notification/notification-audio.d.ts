@@ -9,6 +9,7 @@ export declare class NotificationAudioService {
     private volume;
     private muted;
     private soundGenerator;
+    private disconnecting;
     private soundUrls;
     constructor();
     /**
@@ -35,6 +36,10 @@ export declare class NotificationAudioService {
      * Play a directly generated sound when other methods fail
      */
     private playDirectGeneratedSound;
+    /**
+     * Handle audio ended event for cleanup
+     */
+    private handleAudioEnded;
     /**
      * Play sound using HTML5 Audio as a fallback
      */
@@ -67,4 +72,8 @@ export declare class NotificationAudioService {
      * Get the current sound URL for a notification type
      */
     getSoundUrl(type: NotificationType): string;
+    /**
+     * Cleanup all subscriptions and resources
+     */
+    dispose(): void;
 }

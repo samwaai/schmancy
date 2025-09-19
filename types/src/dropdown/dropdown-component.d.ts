@@ -25,6 +25,7 @@ export declare class SchmancyDropdown extends SchmancyDropdown_base {
     private portal;
     triggerElements: Array<HTMLElement>;
     private cleanupPositioner?;
+    private portalSubscriptions;
     connectedCallback(): void;
     /**
      * Set up the portal element for teleporting content

@@ -45,8 +45,7 @@ export declare class SchmancyEmailEditor extends SchmancyEmailEditor_base {
     disconnectedCallback(): void;
     /** Get default email templates */
     private getDefaultTemplates;
-    private addKeyboardListeners;
-    private addDragListeners;
+    private addEventListeners;
     /** Handle keyboard shortcuts and tab indentation */
     private handleKeyDown;
     /** Handle paste events for image pasting */

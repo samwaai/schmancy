@@ -1,9 +1,6 @@
 import { TemplateResult } from 'lit';
 import { Observable } from 'rxjs';
-export type GuardResult = boolean | string | {
-    redirect: string;
-};
-export type ObservableGuardResult = Observable<GuardResult>;
+export type ObservableGuardResult = Observable<boolean>;
 export type RouteComponent = string | CustomElementConstructor | HTMLElement | TemplateResult<1> | (() => Promise<{
     default: CustomElementConstructor;
 }>) | Promise<{
@@ -13,7 +10,7 @@ export interface RouteConfig {
     when: string;
     component: RouteComponent;
     exact?: boolean;
-    guard?: () => GuardResult | Promise<GuardResult> | ObservableGuardResult;
+    guard?: ObservableGuardResult;
 }
 declare const SchmancyRoute_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
@@ -36,7 +33,7 @@ export declare class SchmancyRoute extends SchmancyRoute_base {
     when: string;
     component: RouteComponent;
     exact?: boolean;
-    guard?: () => GuardResult | Promise<GuardResult> | ObservableGuardResult;
+    guard?: ObservableGuardResult;
     /**
      * Returns the route configuration object
      */

@@ -1,6 +1,6 @@
+import { fromEvent, takeUntil } from 'rxjs'
 import { NotificationType } from './notification'
 import { NotificationSoundGenerator } from './notification-audio-generator'
-import { fromEvent, takeUntil, EMPTY } from 'rxjs'
 
 /**
  * Audio service for playing notification sounds.

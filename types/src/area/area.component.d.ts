@@ -1,4 +1,7 @@
 import { RouteAction } from './router.types';
+export type ComponentType = CustomElementConstructor | string | HTMLElement | (() => Promise<{
+    default: CustomElementConstructor;
+}>);
 declare const SchmancyArea_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyArea extends SchmancyArea_base {
     /**
@@ -9,18 +12,16 @@ export declare class SchmancyArea extends SchmancyArea_base {
      * @required
      */
     name: string;
-    default: CustomElementConstructor | string | HTMLElement | (() => Promise<{
-        default: CustomElementConstructor;
-    }>);
+    default: ComponentType;
     /**
      * Query for assigned route elements in the slot
      * This will automatically update when slot content changes
      */
     private routes;
     /**
-     * Enhanced guard evaluation that handles synchronous, Promise, and Observable returns
+     * Cache routes to ensure they remain accessible throughout component lifecycle
      */
-    private evaluateGuard;
+    private _routeCache;
     protected firstUpdated(): void;
     /**
      * Swap components with animation following the original pattern

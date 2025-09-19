@@ -22,6 +22,7 @@ declare class AreaService implements AreaSubscription {
     private findingMortiesEvent;
     private disposed;
     isProcessingPopstate: boolean;
+    private unloadSubscription?;
     constructor();
     /**
      * Initialize router state from browser history state

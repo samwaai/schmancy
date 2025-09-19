@@ -15,17 +15,17 @@ export default class SchmancyCard extends TailwindElement(css`
 	}
 
 	/* Type-specific base styles */
-	:host([type="elevated"]) {
+	:host([type='elevated']) {
 		background-color: var(--schmancy-sys-color-surface-low);
 		box-shadow: var(--schmancy-sys-elevation-1);
 	}
 
-	:host([type="filled"]) {
+	:host([type='filled']) {
 		background-color: var(--schmancy-sys-color-surface-highest);
 		box-shadow: var(--schmancy-sys-elevation-0);
 	}
 
-	:host([type="outlined"]) {
+	:host([type='outlined']) {
 		background-color: var(--schmancy-sys-color-surface-default);
 		border: 1px solid var(--schmancy-sys-color-outline-variant);
 		box-shadow: var(--schmancy-sys-elevation-0);
@@ -50,29 +50,29 @@ export default class SchmancyCard extends TailwindElement(css`
 	}
 
 	/* Elevated interactive states */
-	:host([type="elevated"][interactive]:hover:not([disabled])) {
+	:host([type='elevated'][interactive]:hover:not([disabled])) {
 		box-shadow: var(--schmancy-sys-elevation-2);
 	}
 
-	:host([type="elevated"][dragged]) {
+	:host([type='elevated'][dragged]) {
 		box-shadow: var(--schmancy-sys-elevation-3);
 	}
 
 	/* Filled interactive states */
-	:host([type="filled"][interactive]:hover:not([disabled])) {
+	:host([type='filled'][interactive]:hover:not([disabled])) {
 		box-shadow: var(--schmancy-sys-elevation-1);
 	}
 
-	:host([type="filled"][dragged]) {
+	:host([type='filled'][dragged]) {
 		box-shadow: var(--schmancy-sys-elevation-3);
 	}
 
 	/* Outlined interactive states */
-	:host([type="outlined"][interactive]:hover:not([disabled])) {
+	:host([type='outlined'][interactive]:hover:not([disabled])) {
 		box-shadow: var(--schmancy-sys-elevation-1);
 	}
 
-	:host([type="outlined"][dragged]) {
+	:host([type='outlined'][dragged]) {
 		box-shadow: var(--schmancy-sys-elevation-3);
 	}
 
@@ -192,7 +192,7 @@ export default class SchmancyCard extends TailwindElement(css`
 	override ariaLabel: string = ''
 
 	// Internal state for interaction feedback
-	@state() private pressed = false
+	@state() pressed = false
 	@state() private ripples: Array<{ x: number; y: number; id: number }> = []
 
 	private nextRippleId = 0
@@ -259,7 +259,7 @@ export default class SchmancyCard extends TailwindElement(css`
 				detail: { value: this.type },
 				bubbles: true,
 				composed: true,
-			})
+			}),
 		)
 	}
 
@@ -297,7 +297,7 @@ export default class SchmancyCard extends TailwindElement(css`
 					detail: { value: this.type },
 					bubbles: true,
 					composed: true,
-				})
+				}),
 			)
 		}
 	}
@@ -328,7 +328,7 @@ export default class SchmancyCard extends TailwindElement(css`
 	protected render() {
 		const containerClasses = classMap({
 			'card-container': true,
-			'interactive': this.interactive && !this.disabled,
+			interactive: this.interactive && !this.disabled,
 		})
 
 		return html`
@@ -363,7 +363,7 @@ export default class SchmancyCard extends TailwindElement(css`
 												margin-top: -10px;
 											"
 										></span>
-									`
+									`,
 								)}
 							</div>
 						`
