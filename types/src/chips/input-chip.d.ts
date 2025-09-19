@@ -40,7 +40,12 @@ export declare class SchmancyInputChip extends SchmancyInputChip_base {
     private removeHover$;
     private focused$;
     private pressed$;
-    private uiState;
+    uiState: {
+        chipHover: boolean;
+        removeHover: boolean;
+        focused: boolean;
+        pressed: boolean;
+    };
     private ripples;
     private nextRippleId;
     constructor();

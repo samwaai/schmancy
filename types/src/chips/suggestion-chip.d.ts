@@ -20,7 +20,7 @@ export declare class SchmancySuggestionChip extends SchmancySuggestionChip_base 
     target: string;
     /** Disable the chip */
     disabled: boolean;
-    /** Elevated style variant */
+    /** Elevated style variant - flat by default per M3 spec */
     elevated: boolean;
     private hover$;
     private pressed$;

@@ -15,7 +15,7 @@ export declare class SchmancyAssistChip extends SchmancyAssistChip_base {
     target: string;
     /** Disable the chip */
     disabled: boolean;
-    /** Elevated style variant */
+    /** Elevated style variant - true by default per M3 spec for assist chips */
     elevated: boolean;
     private hover$;
     private pressed$;

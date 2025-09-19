@@ -141,7 +141,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 	private pressed$ = new BehaviorSubject<boolean>(false)
 
 	// UI state from combined streams
-	@state() private uiState = {
+	@state()  uiState = {
 		chipHover: false,
 		removeHover: false,
 		focused: false,
