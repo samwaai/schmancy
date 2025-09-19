@@ -18,10 +18,6 @@ export declare class SchmancyArea extends SchmancyArea_base {
      * This will automatically update when slot content changes
      */
     private routes;
-    /**
-     * Cache routes to ensure they remain accessible throughout component lifecycle
-     */
-    private _routeCache;
     protected firstUpdated(): void;
     /**
      * Swap components with animation following the original pattern

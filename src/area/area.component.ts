@@ -51,20 +51,8 @@ export class SchmancyArea extends $LitElement(css`
 	@queryAssignedElements({ selector: 'schmancy-route', flatten: true })
 	private routes!: SchmancyRoute[]
 
-	/**
-	 * Cache routes to ensure they remain accessible throughout component lifecycle
-	 */
-	private _routeCache: SchmancyRoute[] = []
-
 	protected firstUpdated(): void {
 		if (!this.name) throw new Error('Area name is required')
-
-		// Cache routes immediately after name check
-		this._routeCache = this.routes || []
-
-		if (this.name === 'guard-demo-area') {
-			console.log('guard-demo-area routes:', this._routeCache)
-		}
 		// Single unified routing pipeline - all logic inline
 		merge(
 			// Programmatic navigation
@@ -77,6 +65,7 @@ export class SchmancyArea extends $LitElement(css`
 					const path = location.pathname
 					const lastSegment = path.split('/').pop() || ''
 					let route: SchmancyRoute
+					let originalWhen: string | undefined
 
 					// Check for JSON encoded route
 					if (lastSegment && (lastSegment.includes('{') || lastSegment.includes('%7B'))) {
@@ -84,7 +73,8 @@ export class SchmancyArea extends $LitElement(css`
 							const parsed = JSON.parse(decodeURIComponent(lastSegment)) as Record<string, ActiveRoute>
 							if (parsed[this.name]) {
 								const componentTag = parsed[this.name]
-								route = this._routeCache?.find(r => r.when === componentTag.component)
+								route = this.routes?.find(r => r.when === componentTag.component)
+								originalWhen = componentTag.component // Track the original 'when' value
 								// if the route.component is a lazy loaded module we need to load it
 								if (route)
 									return of({
@@ -93,7 +83,8 @@ export class SchmancyArea extends $LitElement(css`
 										state: parsed[this.name].state || {},
 										params: parsed[this.name].params || {},
 										historyStrategy: HISTORY_STRATEGY.replace,
-									} as RouteAction)
+										originalWhen, // Pass along the original route identifier
+									} as RouteAction & { originalWhen?: string })
 
 								return of({
 									area: this.name,
@@ -101,14 +92,16 @@ export class SchmancyArea extends $LitElement(css`
 									state: parsed[this.name].state || {},
 									params: parsed[this.name].params || {},
 									historyStrategy: HISTORY_STRATEGY.replace,
-								} as RouteAction)
+									originalWhen: parsed[this.name].component, // Track even for direct component references
+								} as RouteAction & { originalWhen?: string })
 							}
 						} catch {}
 					}
 
-					// Segment-based routing - use cached routes
+					// Segment-based routing
 					const segments = path.split('/').filter(Boolean)
-					route = this._routeCache?.find(r => segments.includes(r.when))
+					route = this.routes?.find(r => segments.includes(r.when))
+					originalWhen = route?.when // Track the original 'when' value
 					// if the route.component is a lazy loaded module we need to load it
 
 					if (!route) {
@@ -129,7 +122,8 @@ export class SchmancyArea extends $LitElement(css`
 						state: {},
 						params: {},
 						historyStrategy: HISTORY_STRATEGY.silent,
-					} as RouteAction)
+						originalWhen, // Pass along the original route identifier
+					} as RouteAction & { originalWhen?: string })
 				}),
 			),
 
@@ -197,41 +191,44 @@ export class SchmancyArea extends $LitElement(css`
 				}),
 				// Step 0: Guard
 				switchMap(r => {
-					console.log(this._routeCache)
-					return of(r).pipe(
-						map(() => this._routeCache.find(route => route.when === r.component)),
-						switchMap(route => {
-							return route?.guard
-								? route.guard.pipe(
-										tap(v => {
-											console.log('just hit  route guard', v)
-										}),
-									)
-								: of(true)
-						}),
-						switchMap(guardResult => {
-							// Guard can return true, false, or an object with redirect info
-							if (guardResult === true) return of(r)
-							const route = this._routeCache.find(route => route.when === r.component)
-							// Emit redirect event with details about the blocked navigation
-							const redirectEvent = new CustomEvent('redirect', {
-								detail: {
-									blockedRoute: r.component,
-									area: this.name,
-									params: r.route?.params || {},
-									state: r.route?.state || {},
-									// If guard returns an object with redirect info, include it
-									redirectTarget: typeof guardResult === 'object' && guardResult !== false ? guardResult : undefined,
-								},
-								bubbles: true,
-								composed: true,
-							})
-							route.dispatchEvent(redirectEvent)
+					// Find the route by its 'when' property
+					// The component being navigated to should match a route's 'when' value
+					const routeWhen = typeof r.component === 'string'
+						? r.component
+						: (r.route as any)?.originalWhen || r.route?.component;
 
-							// Return EMPTY to gracefully handle the failed navigation
-							return EMPTY
-						}),
-					)
+					const route = this.routes.find(route => route.when === routeWhen);
+
+					// If route has a guard, evaluate it
+					if (route?.guard) {
+						return route.guard.pipe(
+							tap(guardResult => {
+								console.log(`[${this.name}] Guard evaluation for route '${route.when}':`, guardResult)
+							}),
+							switchMap(guardResult => {
+								if (guardResult === true) return of(r);
+
+								// Guard failed, dispatch redirect event
+								const redirectEvent = new CustomEvent('redirect', {
+									detail: {
+										blockedRoute: routeWhen,
+										area: this.name,
+										params: r.route?.params || {},
+										state: r.route?.state || {},
+										redirectTarget: typeof guardResult === 'object' ? guardResult : undefined,
+									},
+									bubbles: true,
+									composed: true,
+								});
+								route.dispatchEvent(redirectEvent);
+
+								return EMPTY;
+							})
+						);
+					}
+
+					// No guard, allow navigation
+					return of(r);
 				}),
 
 				// Step 4: Create the HTMLElement and apply properties
@@ -286,7 +283,14 @@ export class SchmancyArea extends $LitElement(css`
 	 * Swap components with animation following the original pattern
 	 */
 	private swapComponents(newComponent: HTMLElement | null, routeAction: RouteAction) {
-		const oldComponent = this.shadowRoot?.children[0] as HTMLElement | undefined
+		// Important: We need to work with the light DOM, not shadow DOM
+		// The slot should remain in shadow DOM, and we append content to light DOM
+
+		// Find the current routed component (not the route definitions)
+		// Route definitions have display:none, actual components don't
+		const oldComponent = Array.from(this.children).find(
+			child => !(child instanceof SchmancyRoute)
+		) as HTMLElement | undefined
 
 		// If no new component, just clear
 		if (!newComponent) {
@@ -303,13 +307,13 @@ export class SchmancyArea extends $LitElement(css`
 
 			fadeOut.onfinish = () => {
 				oldComponent.remove()
-				// Add and fade in new component
-				this.shadowRoot?.append(newComponent)
+				// Add new component to light DOM (not shadow DOM!)
+				this.appendChild(newComponent)
 				newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-in' })
 			}
 		} else {
-			// No old component, just add and fade in
-			this.shadowRoot?.append(newComponent)
+			// No old component, just add and fade in to light DOM
+			this.appendChild(newComponent)
 			newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-in' })
 		}
 
@@ -393,7 +397,7 @@ export class SchmancyArea extends $LitElement(css`
 	}
 
 	render() {
-		return html` <slot> </slot> `
+		return html`<slot></slot>`
 	}
 }
 
