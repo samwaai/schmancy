@@ -54,6 +54,7 @@ export default class SchmancyCard extends SchmancyCard_base {
     private handleMouseDown;
     private handleMouseUp;
     private handleMouseLeave;
+    private getStateLayerOpacity;
     protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
