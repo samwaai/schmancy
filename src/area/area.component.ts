@@ -173,11 +173,57 @@ export class SchmancyArea extends $LitElement(css`
 					return {
 						...action,
 						component,
+						matchedRoute,
 						originalWhen
-					} as RouteActionWithTracking
+					} as RouteActionWithTracking & { matchedRoute?: SchmancyRoute }
 				}),
 
-				// Step 2: Resolve lazy components
+				// Step 2: Check guards (moved from Step 5 - check BEFORE lazy loading)
+				switchMap((route) => {
+					// Use the matched route for guard check
+					const routeDef = route.matchedRoute ||
+						(route.originalWhen ? this.routes?.find(r => r.when === route.originalWhen) : undefined)
+
+					console.log(`[${this.name}] Guard check for route '${route.originalWhen}'`)
+
+					// If route has a guard, evaluate it
+					if (routeDef?.guard) {
+						return routeDef.guard.pipe(
+							tap(guardResult => {
+								console.log(`[${this.name}] Guard evaluation result:`, guardResult)
+							}),
+							switchMap(guardResult => {
+								if (guardResult === true) {
+									// Guard passed, continue with the route (remove matchedRoute as it's no longer needed)
+									const { matchedRoute, ...routeWithoutMatch } = route
+									return of(routeWithoutMatch)
+								}
+
+								// Guard failed, dispatch redirect event
+								const redirectEvent = new CustomEvent('redirect', {
+									detail: {
+										blockedRoute: route.originalWhen || 'unknown',
+										area: this.name,
+										params: route.params || {},
+										state: route.state || {},
+										redirectTarget: typeof guardResult === 'object' ? guardResult : undefined,
+									},
+									bubbles: true,
+									composed: true,
+								})
+								routeDef.dispatchEvent(redirectEvent)
+
+								return EMPTY
+							})
+						)
+					}
+
+					// No guard, allow navigation (remove matchedRoute as it's no longer needed)
+					const { matchedRoute, ...routeWithoutMatch } = route
+					return of(routeWithoutMatch)
+				}),
+
+				// Step 3: Resolve lazy components (was Step 2)
 				switchMap(async (route) => {
 					let component = route.component
 
@@ -200,7 +246,7 @@ export class SchmancyArea extends $LitElement(css`
 					return { ...route, component }
 				}),
 
-				// Step 3: Extract component identifier for deduplication
+				// Step 4: Extract component identifier for deduplication (was Step 3)
 				map((route) => {
 					let identifier = ''
 					const component = route.component
@@ -224,48 +270,8 @@ export class SchmancyArea extends $LitElement(css`
 					}
 				}),
 
-				// Step 4: Deduplicate navigation requests
+				// Step 5: Deduplicate navigation requests (was Step 4)
 				distinctUntilChanged((a, b) => a.key === b.key),
-
-				// Step 5: Check guards
-				switchMap((route) => {
-					// Use originalWhen to find the route definition for guard check
-					const routeWhen = route.originalWhen || route.tagName
-					const routeDef = this.routes?.find(r => r.when === routeWhen)
-
-					console.log(`[${this.name}] Guard check for route '${routeWhen}'`)
-
-					// If route has a guard, evaluate it
-					if (routeDef?.guard) {
-						return routeDef.guard.pipe(
-							tap(guardResult => {
-								console.log(`[${this.name}] Guard evaluation result:`, guardResult)
-							}),
-							switchMap(guardResult => {
-								if (guardResult === true) return of(route)
-
-								// Guard failed, dispatch redirect event
-								const redirectEvent = new CustomEvent('redirect', {
-									detail: {
-										blockedRoute: route.tagName,
-										area: this.name,
-										params: route.params || {},
-										state: route.state || {},
-										redirectTarget: typeof guardResult === 'object' ? guardResult : undefined,
-									},
-									bubbles: true,
-									composed: true,
-								})
-								routeDef.dispatchEvent(redirectEvent)
-
-								return EMPTY
-							})
-						)
-					}
-
-					// No guard, allow navigation
-					return of(route)
-				}),
 
 				// Step 6: Create HTML element
 				map((route) => {
