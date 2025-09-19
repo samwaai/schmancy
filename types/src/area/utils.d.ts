@@ -1,4 +1,4 @@
-import { ComponentType } from './area.component';
+import { RouteComponent } from './route.component';
 import { RouteAction, ActiveRoute } from './router.types';
 /**
  * Compare two custom element constructors for equality
@@ -18,7 +18,7 @@ export declare function normalizeTagName(tagName: string): string;
  * @param component Component to get tag name from
  * @returns Tag name or null if unable to determine
  */
-export declare function getTagName(component: ComponentType): string | null;
+export declare function getTagName(component: RouteComponent): string | null;
 /**
  * Deep merge two objects
  * @param target Target object

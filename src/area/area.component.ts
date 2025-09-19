@@ -17,14 +17,9 @@ import {
 	tap,
 } from 'rxjs'
 import area from './area.service'
-import { SchmancyRoute } from './route.component'
+import { RouteComponent, SchmancyRoute } from './route.component'
 import { ActiveRoute, HISTORY_STRATEGY, RouteAction } from './router.types'
 
-export type ComponentType =
-	| CustomElementConstructor
-	| string
-	| HTMLElement
-	| (() => Promise<{ default: CustomElementConstructor }>)
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
 	:host {
@@ -42,7 +37,7 @@ export class SchmancyArea extends $LitElement(css`
 	 */
 	@property() name!: string
 
-	@property() default!: ComponentType
+	@property() default!: RouteComponent
 
 	/**
 	 * Query for assigned route elements in the slot
@@ -56,7 +51,25 @@ export class SchmancyArea extends $LitElement(css`
 		// Single unified routing pipeline - all logic inline
 		merge(
 			// Programmatic navigation
-			area.request.pipe(filter(({ area }) => area === this.name)),
+			area.request.pipe(
+				filter(({ area }) => area === this.name),
+				map(action => {
+					// If component is a string, try to find the matching route to get the original 'when'
+					if (typeof action.component === 'string') {
+						const route = this.routes?.find(r => r.when === action.component);
+						if (route) {
+							// Use the route's actual component (which might be lazy) and track the 'when'
+							console.log(`[${this.name}] Found route for '${action.component}', using component:`, route.component);
+							return {
+								...action,
+								component: route.component,
+								originalWhen: route.when
+							};
+						}
+					}
+					return action;
+				})
+			),
 
 			// Initial load - simplified to use this.routes directly
 			of(location.pathname).pipe(
@@ -74,7 +87,7 @@ export class SchmancyArea extends $LitElement(css`
 							if (parsed[this.name]) {
 								const componentTag = parsed[this.name]
 								route = this.routes?.find(r => r.when === componentTag.component)
-								originalWhen = componentTag.component // Track the original 'when' value
+								originalWhen = route?.when || componentTag.component // Track the route's actual 'when' value
 								// if the route.component is a lazy loaded module we need to load it
 								if (route)
 									return of({
@@ -92,7 +105,7 @@ export class SchmancyArea extends $LitElement(css`
 									state: parsed[this.name].state || {},
 									params: parsed[this.name].params || {},
 									historyStrategy: HISTORY_STRATEGY.replace,
-									originalWhen: parsed[this.name].component, // Track even for direct component references
+									originalWhen: componentTag.component, // Track even for direct component references
 								} as RouteAction & { originalWhen?: string })
 							}
 						} catch {}
@@ -129,17 +142,23 @@ export class SchmancyArea extends $LitElement(css`
 
 			// Browser back/forward - simplified to directly use popstate
 			fromEvent<PopStateEvent>(window, 'popstate').pipe(
-				map(event =>
-					event.state?.schmancyAreas?.[this.name]
-						? ({
-								area: this.name,
-								component: event.state.schmancyAreas[this.name].component,
-								state: event.state.schmancyAreas[this.name].state || {},
-								params: event.state.schmancyAreas[this.name].params || {},
-								historyStrategy: HISTORY_STRATEGY.pop,
-							} as RouteAction)
-						: null,
-				),
+				map(event => {
+					if (event.state?.schmancyAreas?.[this.name]) {
+						const stateData = event.state.schmancyAreas[this.name];
+						const componentTag = stateData.component;
+						// Try to find the matching route to get the original 'when'
+						const route = this.routes?.find(r => r.when === componentTag);
+						return {
+							area: this.name,
+							component: route ? route.component : componentTag,
+							state: stateData.state || {},
+							params: stateData.params || {},
+							historyStrategy: HISTORY_STRATEGY.pop,
+							originalWhen: componentTag
+						} as RouteAction & { originalWhen?: string };
+					}
+					return null;
+				}),
 				filter(route => route !== null),
 			),
 		)
@@ -148,6 +167,7 @@ export class SchmancyArea extends $LitElement(css`
 				// Step 1: Resolve ONLY lazy components to constructors (no element creation)
 				switchMap(async route => {
 					let component = route.component
+					console.log(`[${this.name}] Processing route with originalWhen:`, (route as any).originalWhen);
 
 					// Resolve lazy components first
 					if (
@@ -155,15 +175,17 @@ export class SchmancyArea extends $LitElement(css`
 						('preload' in component || '_promise' in component || '_module' in component)
 					) {
 						try {
+							console.log(`[${this.name}] Lazy loading component...`);
 							const module = await (component as () => Promise<{ default: CustomElementConstructor }>)()
 							component = module.default
+							console.log(`[${this.name}] Lazy load succeeded, component:`, component);
 						} catch (e) {
 							console.error(`[${this.name}] Lazy load failed:`, e)
 							return { component: null, route }
 						}
 					}
 
-					return { component, route }
+					return { component, route: { ...route, originalWhen: (route as any).originalWhen } }
 				}),
 
 				// Step 2: Extract component identifier for comparison (without creating elements)
@@ -183,7 +205,13 @@ export class SchmancyArea extends $LitElement(css`
 
 					const key = `${identifier}${JSON.stringify(route.params)}${JSON.stringify(route.state)}`
 
-					return { component, route, key , tagName:identifier}
+					return {
+						component,
+						route,
+						key,
+						tagName: identifier,
+						originalWhen: (route as any)?.originalWhen || identifier
+					}
 				}),
 
 				// Step 3: Deduplicate using the identifier (before creating expensive elements)
@@ -192,9 +220,10 @@ export class SchmancyArea extends $LitElement(css`
 				}),
 				// Step 0: Guard
 				switchMap(r => {
-				
-					console.log(r.tagName)
-					const route = this.routes.find(route => route.when === r.tagName);
+					// Use originalWhen if available, otherwise fall back to tagName
+					const routeWhen = r.originalWhen || r.tagName;
+					console.log('Guard check - originalWhen:', r.originalWhen, 'tagName:', r.tagName, 'using:', routeWhen);
+					const route = this.routes.find(route => route.when === routeWhen);
 
 					// If route has a guard, evaluate it
 					if (route?.guard) {
@@ -231,6 +260,7 @@ export class SchmancyArea extends $LitElement(css`
 				// Step 4: Create the HTMLElement and apply properties
 				map(({ component, route }) => {
 					let element: HTMLElement | null = null
+					console.log(component,route)
 
 					// Now resolve to HTMLElement
 					if (!component || component === '') {

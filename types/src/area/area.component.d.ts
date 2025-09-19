@@ -1,7 +1,5 @@
+import { RouteComponent } from './route.component';
 import { RouteAction } from './router.types';
-export type ComponentType = CustomElementConstructor | string | HTMLElement | (() => Promise<{
-    default: CustomElementConstructor;
-}>);
 declare const SchmancyArea_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyArea extends SchmancyArea_base {
     /**
@@ -12,7 +10,7 @@ export declare class SchmancyArea extends SchmancyArea_base {
      * @required
      */
     name: string;
-    default: ComponentType;
+    default: RouteComponent;
     /**
      * Query for assigned route elements in the slot
      * This will automatically update when slot content changes

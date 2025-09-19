@@ -1,4 +1,4 @@
-import { ComponentType } from './area.component'
+import { RouteComponent } from './route.component'
 import { RouteAction, ActiveRoute } from './router.types'
 
 /**
@@ -71,7 +71,7 @@ export function normalizeTagName(tagName: string): string {
  * @param component Component to get tag name from
  * @returns Tag name or null if unable to determine
  */
-export function getTagName(component: ComponentType): string | null {
+export function getTagName(component: RouteComponent): string | null {
 	if (typeof component === 'string') {
 		return component.toLowerCase()
 	}

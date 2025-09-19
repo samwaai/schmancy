@@ -56,7 +56,6 @@ export class DemoAreaLazy extends $LitElement() {
               <schmancy-list-item
                 ?selected=${this.currentRoute === 'lazy-dashboard'}
                 @click=${() => {
-                  this.currentRoute = 'dashboard';
                   area.push({
                     area: 'lazy-main',
                     component: 'lazy-dashboard'
@@ -69,7 +68,6 @@ export class DemoAreaLazy extends $LitElement() {
               <schmancy-list-item
                 ?selected=${this.currentRoute === 'lazy-users'}
                 @click=${() => {
-                  this.currentRoute = 'users';
                   area.push({
                     area: 'lazy-main',
                     component: 'lazy-users'
@@ -82,7 +80,6 @@ export class DemoAreaLazy extends $LitElement() {
               <schmancy-list-item
                 ?selected=${this.currentRoute === 'lazy-products'}
                 @click=${() => {
-                  this.currentRoute = 'products';
                   area.push({
                     area: 'lazy-main',
                     component: 'lazy-products'
@@ -95,7 +92,6 @@ export class DemoAreaLazy extends $LitElement() {
               <schmancy-list-item
                 ?selected=${this.currentRoute === 'lazy-reports'}
                 @click=${() => {
-                  this.currentRoute = 'reports';
                   area.push({
                     area: 'lazy-main',
                     component: 'lazy-reports'
@@ -108,7 +104,6 @@ export class DemoAreaLazy extends $LitElement() {
               <schmancy-list-item
                 ?selected=${this.currentRoute === 'lazy-settings'}
                 @click=${() => {
-                  this.currentRoute = 'settings';
                   area.push({
                     area: 'lazy-main',
                     component: 'lazy-settings'

@@ -1,7 +1,8 @@
-import { html, css, TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
+import { css, html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { Observable } from 'rxjs';
+import { LazyComponent } from './lazy';
 
 export type ObservableGuardResult = Observable<boolean>;
 
@@ -10,9 +11,7 @@ export type RouteComponent =
   | string // Tag name
   | CustomElementConstructor // Constructor function
   | HTMLElement // Existing element
-  | TemplateResult<1> // Lit template
-  | (() => Promise<{ default: CustomElementConstructor }>) // Lazy loader
-  | Promise<{ default: CustomElementConstructor }>; // Dynamic import
+  | LazyComponent<any> 
 
 export interface RouteConfig {
   when: string;

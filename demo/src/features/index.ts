@@ -21,15 +21,6 @@ export * from './theme-service-demo'
 export * from './context'
 
 
-// Area and Routing
-export * from './area/overview'
-export * from './area/basic'
-export * from './area/params'
-export * from './area/state'
-export * from './area/default'
-export * from './area/history'
-export * from './area/multi'
-export * from './area/area-demos'
 
 // Components now included in grouped demos (removed from individual exports):
 // - input (in forms-demos)
