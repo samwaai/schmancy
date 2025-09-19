@@ -43,7 +43,7 @@ export default class SchmancyCard extends SchmancyCard_base {
      * ARIA label for accessibility.
      */
     ariaLabel: string;
-    private pressed;
+    pressed: boolean;
     private ripples;
     private nextRippleId;
     connectedCallback(): void;
