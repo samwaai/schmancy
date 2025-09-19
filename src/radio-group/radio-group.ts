@@ -1,6 +1,6 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Subject } from 'rxjs'
+import { Subject, fromEvent, takeUntil } from 'rxjs'
 import style from './radio-group.scss?inline'
 import { TailwindElement } from '@mixins/index'
 import { when } from 'lit/directives/when.js'
@@ -24,22 +24,25 @@ export class RadioGroup extends FormFieldMixin(TailwindElement(style)) {
 
 	connectedCallback() {
 		super.connectedCallback()
-		this.selection$.subscribe(value => {
+		this.selection$.pipe(takeUntil(this.disconnecting)).subscribe(value => {
 			this.value = value
 			this.emitChange({ value })
 			// Update all child radio buttons
 			this.updateChildRadioButtons()
 		})
-		
+
 		// Listen for radio button clicks from children
-		this.addEventListener('radio-button-click', ((e: CustomEvent) => {
-			this.selection$.next(e.detail.value)
-		}) as EventListener)
+		fromEvent<CustomEvent>(this, 'radio-button-click')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe((e: CustomEvent) => {
+				this.selection$.next(e.detail.value)
+			})
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback()
-		this.selection$?.unsubscribe()
+		// Subscriptions are automatically cleaned up via takeUntil(this.disconnecting)
+		this.selection$?.complete()
 	}
 	
 	private handleSelection(value: string) {

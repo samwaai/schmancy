@@ -1,5 +1,5 @@
 import { TailwindElement } from '@mixins/index'
-import { css, html, LitElement } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { fromEvent, merge, Subject, takeUntil, tap } from 'rxjs'
 
@@ -28,13 +28,6 @@ export default class SchmancyForm extends TailwindElement() {
 		mode: 'open',
 		delegatesFocus: false,
 	}
-	public static styles = css`
-		:host {
-			height: 100%;
-			width: 100%;
-			display: block;
-		}
-	`
 
 	private _controlsWithChecked = [
 		'input',

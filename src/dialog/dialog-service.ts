@@ -1,5 +1,5 @@
 import { render, TemplateResult } from 'lit'
-import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, switchMap, takeUntil, tap, timer } from 'rxjs'
+import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, switchMap, takeUntil, tap, timer, Subscription } from 'rxjs'
 import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.events'
 import { ConfirmDialog } from './dailog'
 import { DialogHereMorty, DialogHereMortyEvent, DialogWhereAreYouRicky } from './dialog-events'
@@ -260,7 +260,7 @@ export class DialogService {
 							if (index !== -1) {
 								this.activeDialogs.splice(index, 1)
 							}
-							
+
 							// Clean up content
 							const contentEl = dialog.querySelector('[slot="content"]')
 							if (contentEl) {
@@ -271,12 +271,18 @@ export class DialogService {
 							if (index !== -1) {
 								this.activeRawDialogs.splice(index, 1)
 							}
-							
+
 							// Clean up content
 							const contentContainer = dialog.querySelector('.schmancy-dialog-content-container')
 							if (contentContainer && contentContainer.parentNode) {
 								contentContainer.parentNode.removeChild(contentContainer)
 							}
+						}
+
+						// Clean up event subscriptions
+						const eventSubscriptions = (dialog as any)._eventSubscriptions
+						if (eventSubscriptions) {
+							eventSubscriptions.forEach((sub: Subscription) => sub.unsubscribe())
 						}
 						
 						// Remove dialog from DOM
@@ -289,22 +295,27 @@ export class DialogService {
 						}
 					})
 					
-					// Set up event listeners for callbacks
+					// Set up event listeners for callbacks using fromEvent
+					const eventSubscriptions: Subscription[] = []
+
 					if (target.options.onConfirm) {
-						const onConfirm = (_e: Event) => {
+						const confirmSub = fromEvent(dialog, 'confirm').subscribe((_e: Event) => {
 							target.options.onConfirm!()
-							dialog.removeEventListener('confirm', onConfirm)
-						}
-						dialog.addEventListener('confirm', onConfirm)
+							confirmSub.unsubscribe()
+						})
+						eventSubscriptions.push(confirmSub)
 					}
-					
+
 					if (target.options.onCancel) {
-						const onCancel = (_e: Event) => {
+						const cancelSub = fromEvent(dialog, 'cancel').subscribe((_e: Event) => {
 							target.options.onCancel!()
-							dialog.removeEventListener('cancel', onCancel)
-						}
-						dialog.addEventListener('cancel', onCancel)
+							cancelSub.unsubscribe()
+						})
+						eventSubscriptions.push(cancelSub)
 					}
+
+					// Store subscriptions on dialog for cleanup
+					;(dialog as any)._eventSubscriptions = eventSubscriptions
 				}),
 			)
 			.subscribe()
@@ -340,18 +351,24 @@ export class DialogService {
 					if (response?.dialog) {
 						// Hide the dialog
 						response.dialog.hide(false)
-						
+
+						// Clean up event subscriptions
+						const eventSubscriptions = (response.dialog as any)._eventSubscriptions
+						if (eventSubscriptions) {
+							eventSubscriptions.forEach((sub: Subscription) => sub.unsubscribe())
+						}
+
 						// Remove from tracking arrays
 						const confirmIndex = this.activeDialogs.indexOf(response.dialog)
 						if (confirmIndex !== -1) {
 							this.activeDialogs.splice(confirmIndex, 1)
 						}
-						
+
 						const rawIndex = this.activeRawDialogs.indexOf(response.dialog)
 						if (rawIndex !== -1) {
 							this.activeRawDialogs.splice(rawIndex, 1)
 						}
-						
+
 						// Remove dialog from DOM immediately
 						if (response.dialog.parentElement) {
 							response.dialog.parentElement.removeChild(response.dialog)

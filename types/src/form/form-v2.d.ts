@@ -44,7 +44,6 @@ export default class SchmancyFormV2 extends SchmancyFormV2_base {
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };
-    static styles: import("lit").CSSResult;
     /** Specifies if form data validation should be skipped on submit.
      * @attr novalidate
      * @type {boolean}

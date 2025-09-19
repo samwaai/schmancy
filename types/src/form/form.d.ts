@@ -24,7 +24,6 @@ export default class SchmancyForm extends SchmancyForm_base {
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };
-    static styles: import("lit").CSSResult;
     private _controlsWithChecked;
     private _controlsWithValue;
     private _controlsThatSubmit;

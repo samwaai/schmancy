@@ -21,8 +21,8 @@ export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' 
 @customElement('schmancy-button')
 export class SchmancyButton extends $LitElement(
 	css`:host{
-		display:block;
-		min-width:fit-content;
+		display: inline-block;
+		min-width: fit-content;
 	}`
 ) {
 	protected static shadowRootOptions = {

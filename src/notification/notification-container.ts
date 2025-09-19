@@ -81,11 +81,9 @@ export default class SchmancyNotificationContainer extends $LitElement(style) {
 			})
 
 		// Listen for play sound events from child notifications
-		this.addEventListener('playsound', ((event: CustomEvent) => {
-			if (this.playSound) {
-				this._audioService.playSound(event.detail.type)
-			}
-		}) as EventListener)
+		fromEvent<CustomEvent>(this, 'playsound')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(this.handlePlaySound)
 	}
 
 	// Public API to add notifications
@@ -135,6 +133,12 @@ export default class SchmancyNotificationContainer extends $LitElement(style) {
 				...options,
 			}
 			this.requestUpdate()
+		}
+	}
+
+	private handlePlaySound = (event: CustomEvent) => {
+		if (this.playSound) {
+			this._audioService.playSound(event.detail.type)
 		}
 	}
 

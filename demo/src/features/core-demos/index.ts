@@ -1,4 +1,4 @@
-import { html, css } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { $LitElement } from '@mixins/index'
 import { area } from '@schmancy/area'
@@ -13,11 +13,7 @@ import './cards'
 
 // Main Core Demos Component
 @customElement('demo-core-demos')
-export class DemoCoreDemo extends $LitElement(css`
-	:host {
-		display: block;
-	}
-`) {
+export class DemoCoreDemo extends $LitElement() {
 	@state() private activeDemo = 'buttons'
 
 	connectedCallback() {

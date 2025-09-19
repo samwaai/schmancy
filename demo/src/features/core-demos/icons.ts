@@ -136,7 +136,7 @@ export class DemoCoreIcons extends $LitElement() {
 						<!-- Icon Buttons -->
 						<schmancy-code-preview language="html">
 							<div class="flex items-center gap-4">
-								<schmancy-icon-button variant="standard">
+								<schmancy-icon-button >
 									<schmancy-icon>edit</schmancy-icon>
 								</schmancy-icon-button>
 								

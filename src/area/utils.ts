@@ -1,3 +1,4 @@
+import { ComponentType } from './area.component'
 import { RouteAction, ActiveRoute } from './router.types'
 
 /**
@@ -8,7 +9,7 @@ import { RouteAction, ActiveRoute } from './router.types'
  */
 export function compareCustomElementConstructors(
 	constructor1: CustomElementConstructor | Function,
-	constructor2: CustomElementConstructor | Function
+	constructor2: CustomElementConstructor | Function,
 ): boolean {
 	// Quick reference check
 	if (constructor1 === constructor2) {
@@ -28,7 +29,7 @@ export function compareCustomElementConstructors(
 	// Compare observed attributes if available
 	const obs1 = (constructor1 as any).observedAttributes
 	const obs2 = (constructor2 as any).observedAttributes
-	
+
 	if (obs1 && obs2) {
 		if (Array.isArray(obs1) && Array.isArray(obs2)) {
 			if (obs1.length !== obs2.length) return false
@@ -40,15 +41,14 @@ export function compareCustomElementConstructors(
 	try {
 		const proto1 = constructor1.prototype
 		const proto2 = constructor2.prototype
-		
+
 		// Check if they have the same prototype chain
 		if (Object.getPrototypeOf(proto1) === Object.getPrototypeOf(proto2)) {
 			// Check if they have the same property names
 			const keys1 = Object.getOwnPropertyNames(proto1).sort()
 			const keys2 = Object.getOwnPropertyNames(proto2).sort()
-			
-			return keys1.length === keys2.length && 
-				   keys1.every((key, i) => key === keys2[i])
+
+			return keys1.length === keys2.length && keys1.every((key, i) => key === keys2[i])
 		}
 	} catch {
 		// Ignore prototype access errors
@@ -63,9 +63,7 @@ export function compareCustomElementConstructors(
  * @returns Normalized tag name
  */
 export function normalizeTagName(tagName: string): string {
-	return tagName
-		.toLowerCase()
-		.replace(/[^a-z0-9]/g, '') // Remove all non-alphanumeric characters
+	return tagName.toLowerCase().replace(/[^a-z0-9]/g, '') // Remove all non-alphanumeric characters
 }
 
 /**
@@ -73,15 +71,15 @@ export function normalizeTagName(tagName: string): string {
  * @param component Component to get tag name from
  * @returns Tag name or null if unable to determine
  */
-export function getTagName(component: any): string | null {
+export function getTagName(component: ComponentType): string | null {
 	if (typeof component === 'string') {
 		return component.toLowerCase()
 	}
-	
+
 	if (component instanceof HTMLElement) {
 		return component.tagName.toLowerCase()
 	}
-	
+
 	if (typeof component === 'function') {
 		// Try to get custom element name from constructor
 		const name = component.name
@@ -93,7 +91,7 @@ export function getTagName(component: any): string | null {
 				.replace(/^-/, '')
 		}
 	}
-	
+
 	return null
 }
 
@@ -103,17 +101,14 @@ export function getTagName(component: any): string | null {
  * @param source Source object to merge
  * @returns Merged object
  */
-export function deepMerge<T extends Record<string, any>>(
-	target: T,
-	source: Partial<T>
-): T {
+export function deepMerge<T extends Record<string, any>>(target: T, source: Partial<T>): T {
 	const output = { ...target }
-	
+
 	for (const key in source) {
 		if (source.hasOwnProperty(key)) {
 			const sourceValue = source[key]
 			const targetValue = output[key]
-			
+
 			if (isObject(sourceValue) && isObject(targetValue)) {
 				output[key] = deepMerge(targetValue, sourceValue)
 			} else {
@@ -121,7 +116,7 @@ export function deepMerge<T extends Record<string, any>>(
 			}
 		}
 	}
-	
+
 	return output
 }
 
@@ -131,10 +126,12 @@ export function deepMerge<T extends Record<string, any>>(
  * @returns true if value is a plain object
  */
 export function isObject(obj: any): obj is Record<string, any> {
-	return obj !== null && 
-		   typeof obj === 'object' && 
-		   obj.constructor === Object &&
-		   Object.prototype.toString.call(obj) === '[object Object]'
+	return (
+		obj !== null &&
+		typeof obj === 'object' &&
+		obj.constructor === Object &&
+		Object.prototype.toString.call(obj) === '[object Object]'
+	)
 }
 
 /**
@@ -143,19 +140,16 @@ export function isObject(obj: any): obj is Record<string, any> {
  * @param wait Wait time in milliseconds
  * @returns Debounced function
  */
-export function debounce<T extends (...args: any[]) => any>(
-	func: T,
-	wait: number
-): (...args: Parameters<T>) => void {
+export function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
 	let timeout: ReturnType<typeof setTimeout> | null = null
-	
+
 	return function (this: any, ...args: Parameters<T>) {
 		const context = this
-		
+
 		if (timeout !== null) {
 			clearTimeout(timeout)
 		}
-		
+
 		timeout = setTimeout(() => {
 			func.apply(context, args)
 			timeout = null
@@ -185,18 +179,18 @@ export function encodeRouteState(state: Record<string, unknown>): string {
  */
 export function decodeRouteState(encoded: string): Record<string, unknown> {
 	if (!encoded) return {}
-	
+
 	try {
 		const decoded = decodeURIComponent(encoded)
 		const parsed = JSON.parse(decoded)
-		
+
 		if (isObject(parsed)) {
 			return parsed
 		}
 	} catch (error) {
 		console.error('Failed to decode route state:', error)
 	}
-	
+
 	return {}
 }
 
@@ -209,10 +203,10 @@ export function decodeRouteState(encoded: string): Record<string, unknown> {
 export function compareRouteActions(a: RouteAction, b: RouteAction): boolean {
 	// Compare areas
 	if (a.area !== b.area) return false
-	
+
 	// Compare components
 	if (typeof a.component !== typeof b.component) return false
-	
+
 	if (typeof a.component === 'string' && typeof b.component === 'string') {
 		if (normalizeTagName(a.component) !== normalizeTagName(b.component)) {
 			return false
@@ -224,17 +218,17 @@ export function compareRouteActions(a: RouteAction, b: RouteAction): boolean {
 	} else if (a.component !== b.component) {
 		return false
 	}
-	
+
 	// Compare state
 	if (JSON.stringify(a.state || {}) !== JSON.stringify(b.state || {})) {
 		return false
 	}
-	
+
 	// Compare params
 	if (JSON.stringify(a.params || {}) !== JSON.stringify(b.params || {})) {
 		return false
 	}
-	
+
 	return true
 }
 
@@ -245,10 +239,12 @@ export function compareRouteActions(a: RouteAction, b: RouteAction): boolean {
  * @returns true if active routes are equal
  */
 export function compareActiveRoutes(a: ActiveRoute, b: ActiveRoute): boolean {
-	return a.area === b.area &&
-		   a.component === b.component &&
-		   JSON.stringify(a.state || {}) === JSON.stringify(b.state || {}) &&
-		   JSON.stringify(a.params || {}) === JSON.stringify(b.params || {})
+	return (
+		a.area === b.area &&
+		a.component === b.component &&
+		JSON.stringify(a.state || {}) === JSON.stringify(b.state || {}) &&
+		JSON.stringify(a.params || {}) === JSON.stringify(b.params || {})
+	)
 }
 
 /**
@@ -260,7 +256,7 @@ export function createRouteCacheKey(route: RouteAction): string {
 	const tagName = getTagName(route.component) || 'unknown'
 	const stateHash = simpleHash(JSON.stringify(route.state || {}))
 	const paramsHash = simpleHash(JSON.stringify(route.params || {}))
-	
+
 	return `${route.area}:${tagName}:${stateHash}:${paramsHash}`
 }
 
@@ -271,13 +267,13 @@ export function createRouteCacheKey(route: RouteAction): string {
  */
 function simpleHash(str: string): string {
 	let hash = 0
-	
+
 	for (let i = 0; i < str.length; i++) {
 		const char = str.charCodeAt(i)
-		hash = ((hash << 5) - hash) + char
+		hash = (hash << 5) - hash + char
 		hash = hash & hash // Convert to 32-bit integer
 	}
-	
+
 	return Math.abs(hash).toString(36)
 }
 
@@ -289,26 +285,24 @@ function simpleHash(str: string): string {
  */
 export function sanitizeRouteState(
 	state: Record<string, unknown>,
-	keysToRemove: string[] = ['password', 'token', 'secret', 'apiKey']
+	keysToRemove: string[] = ['password', 'token', 'secret', 'apiKey'],
 ): Record<string, unknown> {
 	const sanitized: Record<string, unknown> = {}
-	
+
 	for (const key in state) {
 		if (state.hasOwnProperty(key) && !keysToRemove.includes(key)) {
 			const value = state[key]
-			
+
 			if (isObject(value)) {
 				sanitized[key] = sanitizeRouteState(value, keysToRemove)
 			} else if (Array.isArray(value)) {
-				sanitized[key] = value.map(item => 
-					isObject(item) ? sanitizeRouteState(item, keysToRemove) : item
-				)
+				sanitized[key] = value.map(item => (isObject(item) ? sanitizeRouteState(item, keysToRemove) : item))
 			} else {
 				sanitized[key] = value
 			}
 		}
 	}
-	
+
 	return sanitized
 }
 
@@ -319,9 +313,9 @@ export function sanitizeRouteState(
  */
 export function extractQueryParams(url?: string | URLSearchParams): Record<string, string> {
 	const params: Record<string, string> = {}
-	
+
 	let searchParams: URLSearchParams
-	
+
 	if (url instanceof URLSearchParams) {
 		searchParams = url
 	} else if (typeof url === 'string') {
@@ -330,11 +324,11 @@ export function extractQueryParams(url?: string | URLSearchParams): Record<strin
 	} else {
 		searchParams = new URLSearchParams(window.location.search)
 	}
-	
+
 	searchParams.forEach((value, key) => {
 		params[key] = value
 	})
-	
+
 	return params
 }
 
@@ -345,7 +339,7 @@ export function extractQueryParams(url?: string | URLSearchParams): Record<strin
  */
 export function buildQueryString(params: Record<string, string | number | boolean>): string {
 	const searchParams = new URLSearchParams()
-	
+
 	for (const key in params) {
 		if (params.hasOwnProperty(key)) {
 			const value = params[key]
@@ -354,7 +348,7 @@ export function buildQueryString(params: Record<string, string | number | boolea
 			}
 		}
 	}
-	
+
 	const queryString = searchParams.toString()
 	return queryString ? `?${queryString}` : ''
 }

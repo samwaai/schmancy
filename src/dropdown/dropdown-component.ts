@@ -1,8 +1,8 @@
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { $LitElement } from '@mixins/index'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
-import { filter, fromEvent, takeUntil } from 'rxjs'
+import { filter, fromEvent, takeUntil, Subscription } from 'rxjs'
 
 /**
  * A dropdown component that displays content when triggered.
@@ -12,12 +12,7 @@ import { filter, fromEvent, takeUntil } from 'rxjs'
  * @slot - Default slot for the dropdown content
  */
 @customElement('schmancy-dropdown')
-export class SchmancyDropdown extends $LitElement(css`
-	:host {
-		display: inline-block;
-		position: relative;
-	}
-`) {
+export class SchmancyDropdown extends $LitElement() {
 	/**
 	 * Whether the dropdown is currently open
 	 */
@@ -57,6 +52,7 @@ export class SchmancyDropdown extends $LitElement(css`
 	triggerElements!: Array<HTMLElement>
 
 	private cleanupPositioner?: () => void
+	private portalSubscriptions: Subscription[] = []
 
 	connectedCallback() {
 		super.connectedCallback()
@@ -125,6 +121,10 @@ export class SchmancyDropdown extends $LitElement(css`
 	disconnectedCallback() {
 		this.cleanupPositioner?.()
 
+		// Clean up portal subscriptions
+		this.portalSubscriptions.forEach(subscription => subscription.unsubscribe())
+		this.portalSubscriptions = []
+
 		// Remove portal when component is disconnected
 		if (this.portal) {
 			this.portal.remove()
@@ -154,6 +154,9 @@ export class SchmancyDropdown extends $LitElement(css`
 				if (this.portal) {
 					this.portal.style.display = 'none'
 					this.portal.innerHTML = ''
+					// Clean up subscriptions when content is cleared
+					this.portalSubscriptions.forEach(subscription => subscription.unsubscribe())
+					this.portalSubscriptions = []
 				}
 			}
 		}
@@ -198,6 +201,10 @@ export class SchmancyDropdown extends $LitElement(css`
 	private teleportContentToPortal() {
 		if (!this.portal) return
 
+		// Clean up existing subscriptions
+		this.portalSubscriptions.forEach(subscription => subscription.unsubscribe())
+		this.portalSubscriptions = []
+
 		// Clear existing content
 		this.portal.innerHTML = ''
 
@@ -208,13 +215,14 @@ export class SchmancyDropdown extends $LitElement(css`
 
 			// Ensure dropdown-content elements maintain their styles when teleported
 			if (element.tagName.toLowerCase() === 'schmancy-dropdown-content') {
-				clonedElement.addEventListener('slotchange', () => {
+				const subscription = fromEvent(clonedElement, 'slotchange').subscribe(() => {
 					// Propagate any slot changes to class changes on children
 					const contentDiv = clonedElement.shadowRoot?.querySelector('[part="content"]')
 					if (contentDiv) {
 						contentDiv.classList.add('schmancy-dropdown-content')
 					}
 				})
+				this.portalSubscriptions.push(subscription)
 			}
 
 			this.portal?.appendChild(clonedElement)

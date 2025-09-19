@@ -2,6 +2,7 @@ import { TailwindElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { FormFieldMixin } from '../../mixins/formField.mixin'
+import { fromEvent, takeUntil } from 'rxjs'
 
 @customElement('schmancy-radio-button')
 export class RadioButton extends FormFieldMixin(TailwindElement()) {
@@ -12,13 +13,15 @@ export class RadioButton extends FormFieldMixin(TailwindElement()) {
 
 	connectedCallback() {
 		super.connectedCallback()
-		// Find parent radio-group if exists
-		this.addEventListener('click', this.handleClick)
+		// Listen for click events
+		fromEvent<MouseEvent>(this, 'click')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(this.handleClick)
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback()
-		this.removeEventListener('click', this.handleClick)
+		// Event listeners are automatically cleaned up via takeUntil(this.disconnecting)
 	}
 
 	private handleClick() {

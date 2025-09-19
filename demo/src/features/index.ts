@@ -20,8 +20,6 @@ export * from './mailbox'
 export * from './theme-service-demo'
 export * from './context'
 
-// Navigation
-export * from '../nav'
 
 // Area and Routing
 export * from './area/overview'
@@ -31,7 +29,6 @@ export * from './area/state'
 export * from './area/default'
 export * from './area/history'
 export * from './area/multi'
-export * from './area/routing'
 export * from './area/area-demos'
 
 // Components now included in grouped demos (removed from individual exports):

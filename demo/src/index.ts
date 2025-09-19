@@ -1,6 +1,6 @@
 import { $LitElement } from '@mixins/index'
 import '@schmancy/index'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { filter, map } from 'rxjs'
@@ -13,7 +13,6 @@ import { fullHeight } from '../../src/directives/height'
 import './features/index'
 import '../../src/boat/boat'
 import { DemoAreaDemos } from './features/area/area-demos'
-
 // Key Features
 import { DemoContext } from './features/context'
 import { ThemeServiceDemo } from './features/theme-service-demo'
@@ -53,11 +52,7 @@ const compoundSelector = createCompoundSelector([ThemeContext, UserContext], [a 
 	name: user.name,
 }))
 @customElement('schmancy-demo')
-export default class SchmancyDemo extends $LitElement(css`
-	:root {
-		font-family: var(--schmancy-font-family);
-	}
-`) {
+export default class SchmancyDemo extends $LitElement() {
 	@select(ThemeContext)
 	theme!: Theme
 
@@ -205,7 +200,10 @@ export default class SchmancyDemo extends $LitElement(css`
 						</schmancy-nav-drawer-content>
 					</schmancy-nav-drawer>
 				</schmancy-surface>
+				<sch-notification-container></sch-notification-container>
 			</schmancy-theme>
+
+
 		`
 	}
 }

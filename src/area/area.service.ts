@@ -1,20 +1,22 @@
-import { 
-	Observable, 
-	ReplaySubject, 
-	Subject, 
-	bufferTime, 
-	filter, 
-	fromEvent, 
-	map, 
-	of, 
-	skip, 
-	tap, 
-	timeout, 
+import {
+	Observable,
+	ReplaySubject,
+	Subject,
+	bufferTime,
+	filter,
+	fromEvent,
+	map,
+	of,
+	skip,
+	tap,
+	timeout,
 	zip,
 	shareReplay,
 	distinctUntilChanged,
 	catchError,
-	EMPTY
+	EMPTY,
+	Subscription,
+	takeUntil
 } from 'rxjs'
 import { SchmancyTeleportation } from '../teleport'
 import { ActiveRoute, AreaSubscription, RouteAction } from './router.types'
@@ -58,6 +60,7 @@ class AreaService implements AreaSubscription {
 	private findingMortiesEvent = new CustomEvent<FINDING_MORTIES_EVENT['detail']>(FINDING_MORTIES)
 	private disposed = false
 	public isProcessingPopstate = false
+	private unloadSubscription?: Subscription
 
 	constructor() {
 		this.$current.next(this.current)
@@ -77,6 +80,13 @@ class AreaService implements AreaSubscription {
 
 		// Initialize from browser state if available
 		this.initializeFromBrowserState()
+
+		// Setup unload subscription using RxJS
+		if (typeof window !== 'undefined') {
+			this.unloadSubscription = fromEvent(window, 'unload').subscribe(() => {
+				this.dispose()
+			})
+		}
 	}
 
 	/**
@@ -626,17 +636,23 @@ class AreaService implements AreaSubscription {
 	 */
 	dispose() {
 		if (this.disposed) return
-		
+
 		this.disposed = true
-		
+
+		// Unsubscribe from unload event
+		if (this.unloadSubscription) {
+			this.unloadSubscription.unsubscribe()
+			this.unloadSubscription = undefined
+		}
+
 		// Complete all subjects
 		this.areaSubjects.forEach(subject => subject.complete())
 		this.areaSubjects.clear()
-		
+
 		this.request.complete()
 		this.$current.complete()
 		routerHistory.complete()
-		
+
 		// Clear references
 		this.current.clear()
 		areaSubjectsCache.delete(this)
@@ -694,10 +710,3 @@ class AreaService implements AreaSubscription {
 
 export const area = AreaService.getInstance()
 export default area
-
-// Cleanup on page unload
-if (typeof window !== 'undefined') {
-	window.addEventListener('unload', () => {
-		area.dispose()
-	})
-}

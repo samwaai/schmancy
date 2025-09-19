@@ -272,17 +272,21 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 				subtree: false,
 			})
 
-			// Also directly listen for the reset event
-			this.form.addEventListener('reset', () => {
-				this.resetToDefault()
-			})
+			// Use RxJS for form reset events
+			fromEvent(this.form, 'reset')
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe(() => {
+					this.resetToDefault()
+				})
 
-			// Listen for form submit events to mark field as submitted
-			this.form.addEventListener('submit', () => {
-				this.submitted = true
-				// Validate on form submission
-				this.validateInput(true)
-			})
+			// Use RxJS for form submit events to mark field as submitted
+			fromEvent(this.form, 'submit')
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe(() => {
+					this.submitted = true
+					// Validate on form submission
+					this.validateInput(true)
+				})
 		}
 	}
 
@@ -294,9 +298,12 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 			const setupLabelClickListener = () => {
 				const labels = document.querySelectorAll(`label[for="${this.id}"]`)
 				labels.forEach(label => {
-					label.addEventListener('click', () => {
-						this.focus()
-					})
+					// Use RxJS for label click events
+					fromEvent(label, 'click')
+						.pipe(takeUntil(this.disconnecting))
+						.subscribe(() => {
+							this.focus()
+						})
 				})
 			}
 
@@ -304,7 +311,10 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 			if (document.readyState === 'complete') {
 				setupLabelClickListener()
 			} else {
-				document.addEventListener('DOMContentLoaded', setupLabelClickListener)
+				// Use RxJS for DOMContentLoaded event
+				fromEvent(document, 'DOMContentLoaded')
+					.pipe(takeUntil(this.disconnecting))
+					.subscribe(setupLabelClickListener)
 			}
 		}
 	}
@@ -317,15 +327,8 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 			this.formResetObserver.disconnect()
 		}
 
-		// Clean up external label click listeners
-		if (this.id) {
-			const labels = document.querySelectorAll(`label[for="${this.id}"]`)
-			labels.forEach(label => {
-				label.removeEventListener('click', () => {
-					this.focus()
-				})
-			})
-		}
+		// Note: RxJS subscriptions are automatically cleaned up via takeUntil(this.disconnecting)
+		// No manual removeEventListener calls needed for RxJS-managed events
 	}
 
 	/**

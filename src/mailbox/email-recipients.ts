@@ -4,6 +4,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { when } from 'lit/directives/when.js'
+import { fromEvent, takeUntil } from 'rxjs'
 import { $notify } from '../notification'
 import type { BoatState } from './types'
 
@@ -88,9 +89,11 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 		this.localSelectedRecipients = new Set(this.selectedRecipients)
 		// Initialize filtered recipients
 		this.updateFilteredRecipients()
-		
-		// Listen for emails-imported events to ensure UI updates
-		this.addEventListener('emails-imported', this.handleEmailsImported as EventListener)
+
+		// Listen for emails-imported events to ensure UI updates using RxJS
+		fromEvent(this, 'emails-imported').pipe(
+			takeUntil(this.disconnecting)
+		).subscribe(this.handleEmailsImported as any)
 	}
 
 	private handleEmailsImported = () => {

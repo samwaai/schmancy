@@ -13,19 +13,19 @@ import style from './theme.style.css?inline'
 export const tailwindStyles = unsafeCSS(style)
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 const $colorScheme = new Observable<string>(subscriber => {
-	const handler = (e: MediaQueryListEvent) => {
-		const newColorScheme = e.matches ? 'dark' : 'light'
-		subscriber.next(newColorScheme)
-	}
-	mediaQuery.addEventListener('change', handler)
-
 	// Emit the initial value
 	const initialColorScheme = mediaQuery.matches ? 'dark' : 'light'
-
 	subscriber.next(initialColorScheme)
 
-	// On unsubscribe, remove the event listener
-	return () => mediaQuery.removeEventListener('change', handler)
+	// Subscribe to media query changes using RxJS
+	const subscription = fromEvent<MediaQueryListEvent>(mediaQuery, 'change')
+		.subscribe(e => {
+			const newColorScheme = e.matches ? 'dark' : 'light'
+			subscriber.next(newColorScheme)
+		})
+
+	// On unsubscribe, unsubscribe from the RxJS subscription
+	return () => subscription.unsubscribe()
 })
 
 /**

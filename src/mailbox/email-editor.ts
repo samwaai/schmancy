@@ -4,6 +4,7 @@ import { customElement, state, property } from 'lit/decorators.js'
 import { ref, createRef } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
 import { repeat } from 'lit/directives/repeat.js'
+import { fromEvent, takeUntil } from 'rxjs'
 import type { EmailAttachment, EmailComposeConfig, EmailTemplate } from './types'
 import { $notify } from '../notification'
 import { $dialog } from '../dialog'
@@ -68,16 +69,12 @@ export class SchmancyEmailEditor extends $LitElement(css`
 
 	connectedCallback() {
 		super.connectedCallback()
-		this.addKeyboardListeners()
-		this.addDragListeners()
+		this.addEventListeners()
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback()
-		document.removeEventListener('paste', this.handlePaste)
-		document.removeEventListener('dragenter', this.handleDragEnter)
-		document.removeEventListener('dragleave', this.handleDocumentDragLeave)
-		document.removeEventListener('drop', this.handleDocumentDrop)
+		// Event listeners are automatically cleaned up via takeUntil(this.disconnecting)
 	}
 
 	/** Get default email templates */
@@ -339,15 +336,29 @@ The Fulfillment Team`
 		]
 	}
 
-	private addKeyboardListeners() {
-		this.addEventListener('keydown', this.handleKeyDown)
-		document.addEventListener('paste', this.handlePaste)
-	}
+	private addEventListeners() {
+		// Keyboard events
+		fromEvent(this, 'keydown').pipe(
+			takeUntil(this.disconnecting)
+		).subscribe(this.handleKeyDown)
 
-	private addDragListeners() {
-		document.addEventListener('dragenter', this.handleDragEnter)
-		document.addEventListener('dragleave', this.handleDocumentDragLeave)
-		document.addEventListener('drop', this.handleDocumentDrop)
+		// Document paste events
+		fromEvent(document, 'paste').pipe(
+			takeUntil(this.disconnecting)
+		).subscribe(this.handlePaste)
+
+		// Document drag events
+		fromEvent(document, 'dragenter').pipe(
+			takeUntil(this.disconnecting)
+		).subscribe(this.handleDragEnter)
+
+		fromEvent(document, 'dragleave').pipe(
+			takeUntil(this.disconnecting)
+		).subscribe(this.handleDocumentDragLeave)
+
+		fromEvent(document, 'drop').pipe(
+			takeUntil(this.disconnecting)
+		).subscribe(this.handleDocumentDrop)
 	}
 
 	/** Handle keyboard shortcuts and tab indentation */
@@ -497,7 +508,11 @@ The Fulfillment Team`
 	private openTemplatePicker = () => {
 		const picker = new SchmancyEmailTemplatePicker()
 		picker.templates = this.templates
-		picker.addEventListener('template-selected', this.handleTemplateSelected)
+
+		// Listen for template selection using RxJS
+		fromEvent(picker, 'template-selected').pipe(
+			takeUntil(this.disconnecting)
+		).subscribe(this.handleTemplateSelected)
 		
 		sheet.open({
 			component: picker,

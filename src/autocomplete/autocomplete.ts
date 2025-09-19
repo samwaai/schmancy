@@ -307,15 +307,15 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
         this._open$.pipe(
             distinctUntilChanged(),
-            switchMap(open => 
-                open 
+            switchMap(open =>
+                open
                     ? timer(10).pipe(
-                        tap(() => document.addEventListener('click', e => this._documentClick$.next(e))),
-                        switchMap(() => EMPTY)
+                        switchMap(() => fromEvent<MouseEvent>(document, 'click').pipe(
+                            tap(e => this._documentClick$.next(e)),
+                            takeUntil(this._open$.pipe(filter(isOpen => !isOpen)))
+                        ))
                     )
-                    : of(null).pipe(
-                        tap(() => document.removeEventListener('click', e => this._documentClick$.next(e)))
-                    )
+                    : EMPTY
             ),
             takeUntil(this.disconnecting)
         ).subscribe()

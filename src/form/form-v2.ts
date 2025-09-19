@@ -1,5 +1,5 @@
 import { TailwindElement } from '@mixins/index'
-import { css, html, LitElement } from 'lit'
+import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { fromEvent, merge, Subject, takeUntil, tap } from 'rxjs'
 
@@ -105,13 +105,6 @@ export default class SchmancyFormV2 extends TailwindElement() {
 		delegatesFocus: false,
 	}
 
-	public static styles = css`
-		:host {
-			height: 100%;
-			width: 100%;
-			display: block;
-		}
-	`
 
 	/** Specifies if form data validation should be skipped on submit.
 	 * @attr novalidate

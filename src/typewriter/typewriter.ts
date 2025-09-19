@@ -3,24 +3,12 @@ import { $LitElement } from '@mixins/index'
 import { delayContext } from '@schmancy/delay'
 import hashContent from '@schmancy/utils/hashContent'
 import { intersection$ } from '@schmancy/utils/intersection'
-import { css, html, TemplateResult } from 'lit'
+import { html, TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements, queryAssignedNodes } from 'lit/decorators.js'
 import TypeIt, { Options as TypeItOptions } from 'typeit'
 
 @customElement('schmancy-typewriter')
-export class TypewriterElement extends $LitElement(css`
-	:host {
-		display: inherit;
-	}
-
-	#typewriter {
-		--ti-cursor-display: initial;
-	}
-
-	#typewriter .ti-cursor {
-		display: var(--ti-cursor-display);
-	}
-`) {
+export class TypewriterElement extends $LitElement() {
 	/**
 	 * Typing speed in milliseconds per character.
 	 */

@@ -1,5 +1,6 @@
 import { directive, PartType } from 'lit/directive.js'
 import { AsyncDirective } from 'lit/async-directive.js'
+import { fromEvent, Subscription } from 'rxjs'
 
 const rippleStyle = `.ripple {
     position: absolute;
@@ -18,12 +19,14 @@ const rippleStyle = `.ripple {
 `
 class RippleDirective extends AsyncDirective {
 	element: HTMLElement
+	private subscription?: Subscription
+
 	render() {
 		return
 	}
 
-	addRippleEffect(event) {
-		const element = event.target
+	addRippleEffect = (event: MouseEvent) => {
+		const element = event.target as HTMLElement
 		const circle = document.createElement('span')
 		const diameter = Math.max(element.clientWidth, element.clientHeight)
 		const radius = diameter / 2
@@ -40,7 +43,7 @@ class RippleDirective extends AsyncDirective {
 		element.appendChild(circle)
 	}
 
-	update(part) {
+	update(part: any) {
 		if (part.type !== PartType.ELEMENT) {
 			throw new Error('The `ripple` directive can only be used on elements')
 		}
@@ -49,13 +52,16 @@ class RippleDirective extends AsyncDirective {
 		const style = document.createElement('style')
 		style.append(rippleStyle)
 		this.element.append(style)
-		this.element.addEventListener('click', this.addRippleEffect)
+
+		// Clean up existing subscription
+		this.subscription?.unsubscribe()
+
+		// Create new subscription
+		this.subscription = fromEvent<MouseEvent>(this.element, 'click').subscribe(this.addRippleEffect)
 	}
 
 	disconnected() {
-		if (this.element) {
-			this.element.removeEventListener('click', this.addRippleEffect)
-		}
+		this.subscription?.unsubscribe()
 	}
 }
 

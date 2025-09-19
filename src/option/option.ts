@@ -1,6 +1,7 @@
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { fromEvent, takeUntil } from 'rxjs'
 
 /**
  * `schmancy-option` is an option element for schmancy-select and schmancy-autocomplete components.
@@ -85,14 +86,17 @@ export default class SchmancyOption extends TailwindElement(css`
 		}
 
 		// Make the option clickable
-		this.addEventListener('click', this.handleClick)
-		this.addEventListener('keydown', this.handleKeyDown)
+		fromEvent<MouseEvent>(this, 'click')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(this.handleClick)
+
+		fromEvent<KeyboardEvent>(this, 'keydown')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(this.handleKeyDown)
 	}
 
 	disconnectedCallback() {
-		// Clean up event listeners
-		this.removeEventListener('click', this.handleClick)
-		this.removeEventListener('keydown', this.handleKeyDown)
+		// Event listeners are automatically cleaned up via takeUntil(this.disconnecting)
 		super.disconnectedCallback()
 	}
 

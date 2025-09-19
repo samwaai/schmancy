@@ -1,5 +1,6 @@
 import { arrow, autoUpdate, computePosition, flip, offset, Placement, shift, Strategy } from '@floating-ui/dom'
 import { Directive, directive, ElementPart, ElementPartInfo, PartType } from 'lit/directive.js'
+import { fromEvent, Subscription } from 'rxjs'
 
 // Store tooltip data for elements
 const tooltipMap = new WeakMap<
@@ -9,6 +10,7 @@ const tooltipMap = new WeakMap<
 		arrowElement?: HTMLElement
 		cleanup?: () => void
 		showTimeout?: number
+		subscriptions?: Subscription[]
 	}
 >()
 
@@ -156,18 +158,21 @@ class TooltipDirective extends Directive {
 				}
 			}
 
-			// Add event listeners
-			element.addEventListener('mouseenter', showTooltip)
-			element.addEventListener('focus', showTooltip)
-			element.addEventListener('mouseleave', hideTooltip)
-			element.addEventListener('blur', hideTooltip)
+			// Add event listeners using fromEvent
+			const subscriptions = [
+				fromEvent(element, 'mouseenter').subscribe(showTooltip),
+				fromEvent(element, 'focus').subscribe(showTooltip),
+				fromEvent(element, 'mouseleave').subscribe(hideTooltip),
+				fromEvent(element, 'blur').subscribe(hideTooltip),
+				fromEvent<KeyboardEvent>(document, 'keydown').subscribe((e: KeyboardEvent) => {
+					if (e.key === 'Escape' && tooltipData?.tooltipElement.style.opacity === '1') {
+						hideTooltip()
+					}
+				})
+			]
 
-			// Add keyboard handler
-			document.addEventListener('keydown', (e: KeyboardEvent) => {
-				if (e.key === 'Escape' && tooltipData?.tooltipElement.style.opacity === '1') {
-					hideTooltip()
-				}
-			})
+			// Store subscriptions for cleanup
+			tooltipData.subscriptions = subscriptions
 		} else {
 			// Update content for existing tooltip
 			tooltipData.tooltipElement.textContent = text
@@ -186,7 +191,12 @@ class TooltipDirective extends Directive {
 		const tooltipData = tooltipMap.get(element)
 
 		if (tooltipData) {
-			// Clean up
+			// Clean up subscriptions
+			if (tooltipData.subscriptions) {
+				tooltipData.subscriptions.forEach(subscription => subscription.unsubscribe())
+			}
+
+			// Clean up timeouts and positioning
 			if (tooltipData.showTimeout) {
 				clearTimeout(tooltipData.showTimeout)
 			}

@@ -36,54 +36,6 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 		display: inline-flex;
 	}
 
-	.badge-content {
-		display: flex;
-		align-items: center;
-		line-height: 1;
-		letter-spacing: 0.01em;
-		font-kerning: normal;
-	}
-
-	/* Improved vertical alignment for icon and text */
-	::slotted(*) {
-		vertical-align: middle;
-	}
-
-	/* Add space between icon and text */
-	.icon-container {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		line-height: 1;
-	}
-
-	/* Icon spacing adjustments - based on golden ratio principles */
-	.icon-container + .badge-content {
-		margin-left: 0.38em; /* Approximately 1/1.618 of 0.618em */
-	}
-
-	/* Ensure the icon is properly centered */
-	schmancy-icon {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	/* Elegant hover effect for better interactivity */
-	:host([outlined]) div[part="badge"] {
-		transition: all 0.2s ease;
-	}
-
-	:host([outlined]) div[part="badge"]:hover {
-		filter: brightness(0.95);
-		transform: translateY(-1px);
-	}
-
-	/* Non-outlined badges get subtle hover effects */
-	:host(:not([outlined])) div[part="badge"]:hover {
-		filter: brightness(0.98);
-	}
-
 	/* Enhanced pulse animation for better attention-getting */
 	@keyframes elegant-pulse {
 		0%, 100% {
@@ -265,6 +217,7 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 
 		const badgeClasses = {
 			'inline-flex items-center justify-center font-medium': true,
+			'transition-all duration-200 ease-in-out': true,
 			[sizeClasses]: true,
 			[shapeClasses]: true,
 			'animate-pulse': this.pulse,
@@ -272,15 +225,15 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 			'shadow-sm': !this.outlined && this.size === 'sm',
 			'shadow': !this.outlined && this.size === 'md',
 			'shadow-md': !this.outlined && this.size === 'lg',
+			'hover:brightness-95 hover:-translate-y-px': this.outlined,
+			'hover:brightness-[0.98]': !this.outlined,
 		}
 
-		// Refined styles for a more elegant look
+		// Refined styles for a more elegant look (only CSS that can't be done with Tailwind)
 		const styles = {
 			borderColor: colorStyles.border,
-			transition: 'all 0.2s ease',
 			...(this.outlined ? {
 				backdropFilter: 'blur(4px)',
-				borderWidth: '1px',
 			} : {}),
 			...(this.size === 'lg' && !this.outlined ? {
 				boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1)'
@@ -302,15 +255,15 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 				<slot name="icon">
 					${this.icon
 						? html`
-								<div part="icon" class="icon-container flex-shrink-0 flex items-center justify-center">
-									<schmancy-icon .size=${iconSize} class="flex items-center">${this.icon}</schmancy-icon>
+								<div part="icon" class="flex-shrink-0 flex items-center justify-center leading-none">
+									<schmancy-icon .size=${iconSize} class="flex items-center justify-center">${this.icon}</schmancy-icon>
 								</div>
 							`
 						: ''}
 				</slot>
 
-				<!-- Content -->
-				<div part="content" class="badge-content">
+				<!-- Content with proper spacing from icon -->
+				<div part="content" class="flex items-center leading-none tracking-[0.01em] ${this.icon ? 'ml-[0.38em]' : ''}">
 					<slot></slot>
 				</div>
 			</div>

@@ -1,8 +1,9 @@
 import { html, css, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
+import { Observable } from 'rxjs';
 
-export type GuardResult = boolean | string | { redirect: string };
+export type ObservableGuardResult = Observable<boolean>;
 
 // Component types that can be passed to routes
 export type RouteComponent =
@@ -17,7 +18,7 @@ export interface RouteConfig {
   when: string;
   component: RouteComponent;
   exact?: boolean;
-  guard?: () => GuardResult | Promise<GuardResult>;
+  guard?:  ObservableGuardResult;
 }
 
 /**
@@ -52,7 +53,7 @@ export class SchmancyRoute extends $LitElement(css`
   exact?: boolean = false;
 
   @property({ type: Object })
-  guard?: () => GuardResult | Promise<GuardResult>;
+  guard?:ObservableGuardResult ;
 
   /**
    * Returns the route configuration object

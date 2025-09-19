@@ -17,6 +17,10 @@ export declare class SchmancyArea extends SchmancyArea_base {
      * This will automatically update when slot content changes
      */
     private routes;
+    /**
+     * Enhanced guard evaluation that handles synchronous, Promise, and Observable returns
+     */
+    private evaluateGuard;
     protected firstUpdated(): void;
     /**
      * Swap components with animation following the original pattern

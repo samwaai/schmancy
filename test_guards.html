@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guard Test</title>
+</head>
+<body>
+  <h1>Guard Test</h1>
+  <p>Navigate to <a href="http://localhost:5176/area/routing">http://localhost:5176/area/routing</a> to test the guards functionality.</p>
+
+  <h2>Test Steps:</h2>
+  <ol>
+    <li>Go to the routing demo page</li>
+    <li>Try navigating to "Profile" (should be blocked if not authenticated)</li>
+    <li>Try navigating to "Dashboard" (should redirect to login)</li>
+    <li>Try navigating to "Premium" (should test async guard)</li>
+    <li>Check console for guard execution logs</li>
+  </ol>
+
+  <p>The fix ensures that route guards are properly matched and evaluated by carrying the original route configuration through the pipeline instead of trying to reverse-engineer it from the resolved component name.</p>
+</body>
+</html>

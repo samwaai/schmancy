@@ -6,7 +6,6 @@ import {
 	catchError,
 	distinctUntilChanged,
 	filter,
-	from,
 	fromEvent,
 	map,
 	merge,
@@ -21,6 +20,11 @@ import area from './area.service'
 import { SchmancyRoute } from './route.component'
 import { ActiveRoute, HISTORY_STRATEGY, RouteAction } from './router.types'
 
+export type ComponentType =
+	| CustomElementConstructor
+	| string
+	| HTMLElement
+	| (() => Promise<{ default: CustomElementConstructor }>)
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
 	:host {
@@ -38,22 +42,29 @@ export class SchmancyArea extends $LitElement(css`
 	 */
 	@property() name!: string
 
-	@property() default!:
-		| CustomElementConstructor
-		| string
-		| HTMLElement
-		| (() => Promise<{ default: CustomElementConstructor }>)
+	@property() default!: ComponentType
 
 	/**
 	 * Query for assigned route elements in the slot
 	 * This will automatically update when slot content changes
 	 */
-	@queryAssignedElements({ selector: 'schmancy-route' })
+	@queryAssignedElements({ selector: 'schmancy-route', flatten: true })
 	private routes!: SchmancyRoute[]
+
+	/**
+	 * Cache routes to ensure they remain accessible throughout component lifecycle
+	 */
+	private _routeCache: SchmancyRoute[] = []
 
 	protected firstUpdated(): void {
 		if (!this.name) throw new Error('Area name is required')
 
+		// Cache routes immediately after name check
+		this._routeCache = this.routes || []
+
+		if (this.name === 'guard-demo-area') {
+			console.log('guard-demo-area routes:', this._routeCache)
+		}
 		// Single unified routing pipeline - all logic inline
 		merge(
 			// Programmatic navigation
@@ -73,7 +84,7 @@ export class SchmancyArea extends $LitElement(css`
 							const parsed = JSON.parse(decodeURIComponent(lastSegment)) as Record<string, ActiveRoute>
 							if (parsed[this.name]) {
 								const componentTag = parsed[this.name]
-								route = this.routes?.find(r => r.when === componentTag.component)
+								route = this._routeCache?.find(r => r.when === componentTag.component)
 								// if the route.component is a lazy loaded module we need to load it
 								if (route)
 									return of({
@@ -95,9 +106,9 @@ export class SchmancyArea extends $LitElement(css`
 						} catch {}
 					}
 
-					// Segment-based routing - use this.routes directly
+					// Segment-based routing - use cached routes
 					const segments = path.split('/').filter(Boolean)
-					route = this.routes?.find(r => segments.includes(r.when))
+					route = this._routeCache?.find(r => segments.includes(r.when))
 					// if the route.component is a lazy loaded module we need to load it
 
 					if (!route) {
@@ -110,63 +121,6 @@ export class SchmancyArea extends $LitElement(css`
 									historyStrategy: HISTORY_STRATEGY.silent,
 								} as RouteAction)
 							: EMPTY
-					}
-
-					// Handle guard inline
-					if (route.guard) {
-						return from(Promise.resolve(route.guard())).pipe(
-							switchMap(result => {
-								if (result === true) {
-									return of({
-										area: this.name,
-										component: route.component,
-										state: {},
-										params: {},
-										historyStrategy: HISTORY_STRATEGY.silent,
-									} as RouteAction)
-								}
-								// Handle redirects recursively inline
-								const redirect =
-									typeof result === 'string'
-										? result
-										: typeof result === 'object' && result?.redirect
-											? result.redirect
-											: null
-								if (redirect) {
-									const newSegment = redirect.split('/').filter(Boolean)[0] || ''
-									const newRoute = this.routes?.find(r => r.when === newSegment)
-									if (newRoute) {
-										return of({
-											area: this.name,
-											component: newRoute.component,
-											state: {},
-											params: {},
-											historyStrategy: HISTORY_STRATEGY.silent,
-										} as RouteAction)
-									}
-								}
-								return this.default
-									? of({
-											area: this.name,
-											component: this.default,
-											state: {},
-											params: {},
-											historyStrategy: HISTORY_STRATEGY.silent,
-										} as RouteAction)
-									: EMPTY
-							}),
-							catchError(() =>
-								this.default
-									? of({
-											area: this.name,
-											component: this.default,
-											state: {},
-											params: {},
-											historyStrategy: HISTORY_STRATEGY.silent,
-										} as RouteAction)
-									: EMPTY,
-							),
-						)
 					}
 
 					return of({
@@ -197,10 +151,8 @@ export class SchmancyArea extends $LitElement(css`
 		)
 			.pipe(
 				filter(route => route?.component !== undefined),
-
 				// Step 1: Resolve ONLY lazy components to constructors (no element creation)
 				switchMap(async route => {
-					console.log(this.name, route)
 					let component = route.component
 
 					// Resolve lazy components first
@@ -240,7 +192,49 @@ export class SchmancyArea extends $LitElement(css`
 				}),
 
 				// Step 3: Deduplicate using the identifier (before creating expensive elements)
-				distinctUntilChanged((a, b) => a.key === b.key),
+				distinctUntilChanged((a, b) => {
+					return a.key === b.key
+				}),
+				// Step 0: Guard
+				switchMap(r => {
+					console.log(this._routeCache)
+					return of(r).pipe(
+						map(() => this._routeCache.find(route => route.when === r.component)),
+						switchMap(route => {
+							return route?.guard
+								? route.guard.pipe(
+										tap(v => {
+											console.log('just hit  route guard', v)
+										}),
+									)
+								: of(true)
+						}),
+						switchMap(guardResult => {
+							// Guard can return true, false, or an object with redirect info
+							if (guardResult === true) return of(r)
+							const route = this._routeCache.find(route => route.when === r.component)
+							// Emit redirect event with details about the blocked navigation
+							const redirectEvent = new CustomEvent('redirect', {
+								detail: {
+									blockedRoute: r.component,
+									area: this.name,
+									params: r.route?.params || {},
+									state: r.route?.state || {},
+									// If guard returns an object with redirect info, include it
+									redirectTarget: typeof guardResult === 'object' && guardResult !== false ? guardResult : undefined,
+								},
+								bubbles: true,
+								composed: true,
+							})
+							console.clear()
+							console.log(route)
+							route.dispatchEvent(redirectEvent)
+
+							// Return EMPTY to gracefully handle the failed navigation
+							return EMPTY
+						}),
+					)
+				}),
 
 				// Step 4: Create the HTMLElement and apply properties
 				map(({ component, route }) => {

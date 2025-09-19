@@ -62,7 +62,7 @@ export class SchmancySelect extends $LitElement(css`
 	// Reference to current focused option (for keyboard navigation)
 	@state() private _focusedOptionId = ''
 
-	// Store form event handlers as class properties to properly remove them
+	// Form event handlers
 	private formSubmitHandler = () => {
 		this._submitted = true
 		this.checkValidity()
@@ -108,10 +108,14 @@ export class SchmancySelect extends $LitElement(css`
 
 		// Listen for form submission events to mark field as submitted
 		if (this.internals?.form) {
-			this.internals.form.addEventListener('submit', this.formSubmitHandler)
+			fromEvent(this.internals.form, 'submit')
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe(this.formSubmitHandler)
 
 			// Listen for form reset
-			this.internals.form.addEventListener('reset', this.formResetHandler)
+			fromEvent(this.internals.form, 'reset')
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe(this.formResetHandler)
 		}
 
 		// Initially hide any validation errors until user interacts
@@ -123,12 +127,7 @@ export class SchmancySelect extends $LitElement(css`
 	disconnectedCallback() {
 		super.disconnectedCallback()
 		this.cleanupPositioner?.()
-
-		// Remove form event listeners using stored handler references
-		if (this.internals?.form) {
-			this.internals.form.removeEventListener('submit', this.formSubmitHandler)
-			this.internals.form.removeEventListener('reset', this.formResetHandler)
-		}
+		// Form event listeners are automatically cleaned up via takeUntil(this.disconnecting)
 	}
 
 	firstUpdated() {

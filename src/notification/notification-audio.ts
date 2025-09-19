@@ -1,5 +1,6 @@
 import { NotificationType } from './notification'
 import { NotificationSoundGenerator } from './notification-audio-generator'
+import { fromEvent, takeUntil, EMPTY } from 'rxjs'
 
 /**
  * Audio service for playing notification sounds.
@@ -11,6 +12,7 @@ export class NotificationAudioService {
 	private volume: number = 0.5
 	private muted: boolean = false
 	private soundGenerator = new NotificationSoundGenerator()
+	private disconnecting = new EventTarget()
 
 	// Default sound URLs (will be generated programmatically as fallback)
 	private soundUrls: Record<NotificationType, string> = {
@@ -171,6 +173,13 @@ export class NotificationAudioService {
 	}
 
 	/**
+	 * Handle audio ended event for cleanup
+	 */
+	private handleAudioEnded = (audio: HTMLAudioElement) => () => {
+		audio.remove()
+	}
+
+	/**
 	 * Play sound using HTML5 Audio as a fallback
 	 */
 	private playFallbackSound(type: NotificationType): void {
@@ -180,10 +189,10 @@ export class NotificationAudioService {
 			const audio = new Audio(this.soundUrls[type])
 			audio.volume = this.volume
 
-			// Add event listener to clean up after playback
-			audio.addEventListener('ended', () => {
-				audio.remove()
-			})
+			// Add event listener to clean up after playback using RxJS
+			fromEvent(audio, 'ended').pipe(
+				takeUntil(fromEvent(this.disconnecting, 'disconnect'))
+			).subscribe(this.handleAudioEnded(audio))
 
 			audio.play().catch(err => {
 				console.error(`Failed to play fallback sound for ${type}:`, err)
@@ -245,5 +254,19 @@ export class NotificationAudioService {
 	 */
 	public getSoundUrl(type: NotificationType): string {
 		return this.soundUrls[type]
+	}
+
+	/**
+	 * Cleanup all subscriptions and resources
+	 */
+	public dispose(): void {
+		this.disconnecting.dispatchEvent(new Event('disconnect'))
+
+		// Close audio context if exists
+		if (this.audioContext && this.audioContext.state !== 'closed') {
+			this.audioContext.close().catch(err => {
+				console.warn('Failed to close audio context:', err)
+			})
+		}
 	}
 }

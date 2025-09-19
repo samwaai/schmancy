@@ -12,7 +12,8 @@ import './state'
 import './default'
 import './history'
 import './multi'
-import './routing'
+// import './routing' - removed as file was deleted
+import './guard-demo'
 import './lazy-demo'
 
 // Main Demo Area Component
@@ -40,7 +41,8 @@ export class DemoAreaDemos extends $LitElement(css`
 				'demo-area-default': 'default',
 				'demo-area-history': 'history',
 				'demo-area-multi': 'multi',
-				'demo-area-routing': 'routing',
+				// 'demo-area-routing': 'routing', - removed
+				'demo-area-guards': 'guards',
 				'demo-area-lazy': 'lazy',
 			}
 
@@ -170,19 +172,21 @@ export class DemoAreaDemos extends $LitElement(css`
 						</schmancy-list-item>
 
 						<schmancy-list-item
-							.selected=${this.activeDemo === 'routing'}
+							.selected=${this.activeDemo === 'guards'}
 							@click=${() => {
-								this.activeDemo = 'routing'
-								area.push({ component: 'demo-area-routing', area: 'area' })
+								this.activeDemo = 'guards'
+								area.push({ component: 'demo-area-guards', area: 'area' })
 							}}
 							rounded
 							variant="container"
 						>
 							<sch-flex flow="row" gap="2" align="center">
-								<schmancy-icon size="sm">route</schmancy-icon>
-								<span>Routing</span>
+								<schmancy-icon size="sm">security</schmancy-icon>
+								<span>Guards</span>
 							</sch-flex>
 						</schmancy-list-item>
+
+						<!-- Routing demo removed as file was deleted -->
 
 						<schmancy-list-item
 							.selected=${this.activeDemo === 'lazy'}
@@ -205,6 +209,7 @@ export class DemoAreaDemos extends $LitElement(css`
 						<schmancy-area name="area" .default=${'demo-area-basic'}>
 							<schmancy-route when="basic" .component=${'demo-area-basic'}></schmancy-route>
 							<schmancy-route when="demo-area" .component=${'demo-area'}></schmancy-route>
+							<schmancy-route when="guards" .component=${'demo-area-guards'}></schmancy-route>
 						</schmancy-area>
 					</schmancy-scroll>
 				</schmancy-nav-drawer-content>
