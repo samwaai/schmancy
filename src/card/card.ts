@@ -10,70 +10,58 @@ export default class SchmancyCard extends TailwindElement(css`
 		display: block;
 		position: relative;
 		border-radius: 12px; /* M3 spec: 12px for cards */
-		transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+		transition: box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
 		outline: none;
 	}
 
 	/* Type-specific base styles */
 	:host([type='elevated']) {
 		background-color: var(--schmancy-sys-color-surface-low);
-		box-shadow: var(--schmancy-sys-elevation-1);
+		box-shadow: var(--shadow-1);
 	}
 
 	:host([type='filled']) {
 		background-color: var(--schmancy-sys-color-surface-highest);
-		box-shadow: var(--schmancy-sys-elevation-0);
+		box-shadow: var(--shadow-0);
 	}
 
 	:host([type='outlined']) {
 		background-color: var(--schmancy-sys-color-surface-default);
-		border: 1px solid var(--schmancy-sys-color-outline-variant);
-		box-shadow: var(--schmancy-sys-elevation-0);
+		border: 1px solid var(--schmancy-sys-color-outlineVariant);
+		box-shadow: var(--shadow-0);
 	}
 
-	/* Interactive state layers */
+	/* Interactive state */
 	:host([interactive]) {
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	:host([interactive]:hover:not([disabled])) .state-layer {
-		opacity: 0.08;
-	}
-
-	:host([interactive]:focus-visible:not([disabled])) .state-layer {
-		opacity: 0.12;
-	}
-
-	:host([interactive][pressed]:not([disabled])) .state-layer {
-		opacity: 0.12;
-	}
-
 	/* Elevated interactive states */
 	:host([type='elevated'][interactive]:hover:not([disabled])) {
-		box-shadow: var(--schmancy-sys-elevation-2);
+		box-shadow: var(--shadow-2);
 	}
 
 	:host([type='elevated'][dragged]) {
-		box-shadow: var(--schmancy-sys-elevation-3);
+		box-shadow: var(--shadow-3);
 	}
 
 	/* Filled interactive states */
 	:host([type='filled'][interactive]:hover:not([disabled])) {
-		box-shadow: var(--schmancy-sys-elevation-1);
+		box-shadow: var(--shadow-1);
 	}
 
 	:host([type='filled'][dragged]) {
-		box-shadow: var(--schmancy-sys-elevation-3);
+		box-shadow: var(--shadow-3);
 	}
 
 	/* Outlined interactive states */
 	:host([type='outlined'][interactive]:hover:not([disabled])) {
-		box-shadow: var(--schmancy-sys-elevation-1);
+		box-shadow: var(--shadow-1);
 	}
 
 	:host([type='outlined'][dragged]) {
-		box-shadow: var(--schmancy-sys-elevation-3);
+		box-shadow: var(--shadow-3);
 	}
 
 	/* Disabled state */
@@ -82,55 +70,18 @@ export default class SchmancyCard extends TailwindElement(css`
 		opacity: 0.38;
 	}
 
-	/* State layer overlay */
-	.state-layer {
-		position: absolute;
-		inset: 0;
-		border-radius: inherit;
-		background-color: var(--schmancy-sys-color-surface-on);
-		opacity: 0;
-		pointer-events: none;
-		transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
-	}
-
 	/* Focus ring */
 	:host([interactive]:focus-visible:not([disabled])) {
-		outline: 2px solid var(--schmancy-sys-color-primary);
+		outline: 2px solid var(--schmancy-sys-color-primary-default);
 		outline-offset: 2px;
 	}
 
-	/* Ripple effect container */
-	.ripple-container {
-		position: absolute;
-		inset: 0;
-		border-radius: inherit;
-		overflow: hidden;
-		pointer-events: none;
-	}
-
-	.ripple {
-		position: absolute;
-		border-radius: 50%;
-		transform: scale(0);
-		animation: ripple 600ms linear;
-		background-color: var(--schmancy-sys-color-surface-on);
-		opacity: 0.12;
-		pointer-events: none;
-	}
-
+	/* Ripple effect animation */
 	@keyframes ripple {
 		to {
 			transform: scale(4);
 			opacity: 0;
 		}
-	}
-
-	/* Content container */
-	.content {
-		position: relative;
-		height: 100%;
-		width: 100%;
-		border-radius: inherit;
 	}
 `) {
 	protected static shadowRootOptions = {
@@ -325,10 +276,22 @@ export default class SchmancyCard extends TailwindElement(css`
 		this.removeAttribute('pressed')
 	}
 
+	// Get the classes for state layer based on current state
+	private getStateLayerOpacity(): string {
+		if (!this.interactive || this.disabled) return 'opacity-0'
+		if (this.pressed) return 'opacity-[0.1]' // M3 pressed: 0.1
+		return 'opacity-0 hover:opacity-[0.08] focus-visible:opacity-[0.1]' // M3 hover: 0.08, focus: 0.1
+	}
+
 	protected render() {
 		const containerClasses = classMap({
-			'card-container': true,
-			interactive: this.interactive && !this.disabled,
+			'relative w-full h-full rounded-xl': true,
+			'cursor-pointer': this.interactive && !this.disabled,
+		})
+
+		const stateLayerClasses = classMap({
+			'absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-200 bg-surface-on': true,
+			[this.getStateLayerOpacity()]: true,
 		})
 
 		return html`
@@ -344,16 +307,16 @@ export default class SchmancyCard extends TailwindElement(css`
 				aria-disabled=${this.disabled ? 'true' : 'false'}
 			>
 				<!-- State layer for hover/focus/pressed states -->
-				<div class="state-layer"></div>
+				<div class=${stateLayerClasses}></div>
 
 				<!-- Ripple container for click effects -->
 				${this.interactive
 					? html`
-							<div class="ripple-container">
+							<div class="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
 								${this.ripples.map(
 									ripple => html`
 										<span
-											class="ripple"
+											class="absolute rounded-full scale-0 animate-[ripple_600ms_linear] bg-surface-on opacity-[0.12] pointer-events-none"
 											style="
 												left: ${ripple.x}px;
 												top: ${ripple.y}px;
@@ -370,7 +333,7 @@ export default class SchmancyCard extends TailwindElement(css`
 					: ''}
 
 				<!-- Card content -->
-				<div class="content">
+				<div class="relative h-full w-full rounded-xl">
 					<slot></slot>
 				</div>
 			</div>
