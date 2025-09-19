@@ -226,8 +226,6 @@ export class SchmancyArea extends $LitElement(css`
 								bubbles: true,
 								composed: true,
 							})
-							console.clear()
-							console.log(route)
 							route.dispatchEvent(redirectEvent)
 
 							// Return EMPTY to gracefully handle the failed navigation

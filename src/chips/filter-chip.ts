@@ -273,11 +273,11 @@ export class SchmancyFilterChip extends TailwindElement(css`
 					() => html`
 						<span class="inline-flex w-[18px] h-[18px] items-center justify-center shrink-0">
 							${this._selected ? html`
-								<span class="material-symbols-outlined text-base sm:text-[18px]">
+								<span class="material-symbols-outlined text-[18px]">
 									check
 								</span>
 							` : this.icon ? html`
-								<span class="material-symbols-outlined text-base sm:text-[18px]">
+								<span class="material-symbols-outlined text-[18px]">
 									${this.icon}
 								</span>
 							` : html`

@@ -86,6 +86,29 @@ export class SchmancyInputChip extends TailwindElement(css`
 			opacity: 0;
 		}
 	}
+
+	/* State layer for M3 hover/focus/pressed states */
+	.state-layer {
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		pointer-events: none;
+		background-color: currentColor;
+		opacity: 0;
+		transition: opacity 200ms ease;
+	}
+
+	:host(:not([disabled])) .chip-container:hover .state-layer {
+		opacity: 0.08;
+	}
+
+	:host(:not([disabled])) .chip-container:focus-visible .state-layer {
+		opacity: 0.1;
+	}
+
+	:host(:not([disabled])) .chip-container:active .state-layer {
+		opacity: 0.1;
+	}
 `) {
 	/** Value identifier for the chip */
 	@property({ type: String, reflect: true })
@@ -246,62 +269,63 @@ export class SchmancyInputChip extends TailwindElement(css`
 	}
 
 	protected render(): unknown {
+		const hasLeadingIcon = this.avatar || this.icon;
+
 		const chipClasses = {
 			'chip-container': true,
 			'inline-flex': true,
 			'items-center': true,
-			'gap-1 sm:gap-1.5 md:gap-2': true,
-			'pl-3': !this.avatar, // Less padding if avatar present
-			'pl-1': this.avatar, // Tight padding for avatar
-			'pr-2': this.removable,
-			'pr-3': !this.removable,
-			'py-1 sm:py-1.5 md:py-2': true,
+			'gap-2': true,
+			'h-8': true, // M3: 32px height
+			'min-h-[32px]': true,
 			'rounded-full': true,
 			'cursor-default': true,
 			'transition-all': true,
 			'duration-200': true,
 			'select-none': true,
-			'text-xs sm:text-sm': true,
-			'font-medium': true,
+			'text-sm': true, // M3: 14px Label Large
+			'font-medium': true, // M3: 500 weight
 			'relative': true,
 			'overflow-hidden': true,
+			'border': true,
 
-			// Colors
-			'bg-surface-container': true,
-			'text-surface-on': true,
+			// M3 Padding: 8px with icon, 16px without (leading), 8px with trailing icon
+			'pl-2': hasLeadingIcon, // 8px with avatar/icon
+			'pl-4': !hasLeadingIcon, // 16px without
+			'pr-2': this.removable, // 8px with remove button
+			'pr-4': !this.removable, // 16px without
 
-			// Elevated variant
-			'shadow-md': this.elevated && !this.disabled,
+			// M3 Colors for input chips
+			'bg-surface-containerLow': true,
+			'text-surface-onVariant': true,
+			'border-outline': true,
 
-			// Hover state (subtle on chip body)
-			'hover:bg-surface-containerHigh': !this.disabled && !this.uiState.removeHover,
-			'hover:shadow-lg': this.elevated && !this.disabled,
+			// Input chips are flat (no elevation) per M3
 
-			// Focus-visible state for better UX
+			// Focus-visible state
 			'focus-visible:outline': !this.disabled,
 			'focus-visible:outline-2': !this.disabled,
-			'focus-visible:outline-primary-default': !this.disabled,
+			'focus-visible:outline-primary': !this.disabled,
 			'focus-visible:outline-offset-2': !this.disabled,
 
 			// Disabled state
-			'opacity-50': this.disabled,
+			'opacity-38': this.disabled, // M3 disabled opacity
 			'cursor-not-allowed': this.disabled
 		}
 
 		const removeButtonClasses = {
-			"size-5 sm:size-6":true,
+			'size-[18px]': true, // M3: 18px icon size
+			'flex': true,
+			'items-center': true,
+			'justify-center': true,
 			'rounded-full': true,
 			'transition-all': true,
 			'duration-200': true,
 			'cursor-pointer': !this.disabled,
+			'-mr-1': true, // Adjust for visual balance
 
 			// Hover state for remove button
-			'bg-error-container': this.uiState.removeHover && !this.disabled,
-			'text-error-onContainer': this.uiState.removeHover && !this.disabled,
-			'hover:scale-110': this.uiState.removeHover && !this.disabled,
-
-			// Default state
-			'hover:bg-surface-containerHighest': !this.uiState.removeHover && !this.disabled,
+			'hover:bg-surface-containerHighest': !this.disabled,
 			'opacity-50': this.disabled
 		}
 
@@ -326,19 +350,19 @@ export class SchmancyInputChip extends TailwindElement(css`
 					<img
 						src=${this.avatar}
 						alt=""
-						class="avatar-img rounded-full sm:size-6"
+						class="avatar-img rounded-full size-5"
 					/>
 				` : ''}
 
 				<!-- Icon (if provided and no avatar) -->
 				${this.icon && !this.avatar ? html`
-					<span class="material-symbols-outlined rounded-full text-base sm:text-[18px]">
+					<span class="material-symbols-outlined text-[18px] shrink-0">
 						${this.icon}
 					</span>
 				` : ''}
 
 				<!-- Chip content -->
-				<span>
+				<span class="text-sm font-medium leading-5">
 					<slot></slot>
 				</span>
 
@@ -353,7 +377,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 						tabindex="-1"
 						?disabled=${this.disabled}
 					>
-						<span class="material-symbols-outlined text-sm sm:text-[16px]">
+						<span class="material-symbols-outlined text-[18px]">
 							close
 						</span>
 					</button>
@@ -366,6 +390,9 @@ export class SchmancyInputChip extends TailwindElement(css`
 						style="left: ${ripple.x}px; top: ${ripple.y}px;"
 					></span>
 				`)}
+
+				<!-- State layer for M3 hover/focus/pressed states -->
+				<div class="state-layer"></div>
 			</div>
 		`
 	}

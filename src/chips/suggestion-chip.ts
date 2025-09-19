@@ -41,6 +41,29 @@ export class SchmancySuggestionChip extends TailwindElement(css`
 			opacity: 0;
 		}
 	}
+
+	/* State layer for M3 hover/focus/pressed states */
+	.state-layer {
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		pointer-events: none;
+		background-color: currentColor;
+		opacity: 0;
+		transition: opacity 200ms ease;
+	}
+
+	:host(:not([disabled])) button:hover .state-layer {
+		opacity: 0.08;
+	}
+
+	:host(:not([disabled])) button:focus-visible .state-layer {
+		opacity: 0.1;
+	}
+
+	:host(:not([disabled])) button:active .state-layer {
+		opacity: 0.1;
+	}
 `) {
 	/** Value identifier for the chip */
 	@property({ reflect: true }) value = ''
@@ -57,7 +80,7 @@ export class SchmancySuggestionChip extends TailwindElement(css`
 	/** Disable the chip */
 	@property({ type: Boolean, reflect: true }) disabled = false
 
-	/** Elevated style variant */
+	/** Elevated style variant - flat by default per M3 spec */
 	@property({ type: Boolean, reflect: true }) elevated = false
 
 	// RxJS state streams
@@ -154,38 +177,43 @@ export class SchmancySuggestionChip extends TailwindElement(css`
 	}
 
 	protected render(): unknown {
+		const hasIcon = !!this.icon;
+
 		const classes = {
 			'relative': true,
 			'inline-flex': true,
 			'items-center': true,
-			'gap-1 sm:gap-1.5 md:gap-2': true,
-			'px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2': true,
+			'gap-2': true,
+			'h-8': true, // M3: 32px height
+			'min-h-[32px]': true,
 			'rounded-full': true,
 			'cursor-pointer': !this.disabled,
 			'transition-all': true,
 			'duration-200': true,
 			'select-none': true,
 			'overflow-hidden': true,
+			'border': true,
 
-			// Colors - slightly different from assist chips
-			'bg-surface-containerLow': !this.elevated,
-			'text-surface-on': true,
+			// M3 Padding: 8px with icon, 16px without (leading), 16px trailing
+			'pl-2': hasIcon, // 8px with icon
+			'pl-4': !hasIcon, // 16px without icon
+			'pr-4': true, // 16px trailing
 
-			// Elevated variant
-			'bg-surface': this.elevated,
-			'shadow-md': this.elevated && !this.disabled,
+			// M3 Colors for suggestion chips
+			'bg-surface-containerLow': true,
+			'text-surface-onVariant': true,
+			'border-outline': true,
 
-			// States
-			'hover:bg-surface-containerHigh': !this.disabled,
-			'hover:shadow-lg': this.elevated && !this.disabled,
+			// Suggestion chips are flat by default (no elevation per M3)
+
+			// Focus state
 			'focus-visible:outline': !this.disabled,
 			'focus-visible:outline-2': !this.disabled,
-			'focus-visible:outline-primary-default': !this.disabled,
+			'focus-visible:outline-primary': !this.disabled,
 			'focus-visible:outline-offset-2': !this.disabled,
-			'active:scale-95': !this.disabled,
 
 			// Disabled
-			'opacity-50': this.disabled,
+			'opacity-38': this.disabled, // M3 disabled opacity
 			'cursor-not-allowed': this.disabled
 		}
 
@@ -208,9 +236,9 @@ export class SchmancySuggestionChip extends TailwindElement(css`
 				aria-label=${this.value}
 			>
 				${this.icon ? html`
-					<schmancy-icon class="text-sm sm:text-base">${this.icon}</schmancy-icon>
+					<schmancy-icon class="text-[18px] shrink-0">${this.icon}</schmancy-icon>
 				` : ''}
-				<span class="text-xs sm:text-sm font-medium">
+				<span class="text-sm font-medium leading-5">
 					<slot></slot>
 				</span>
 
@@ -221,6 +249,9 @@ export class SchmancySuggestionChip extends TailwindElement(css`
 						style="left: ${ripple.x}px; top: ${ripple.y}px;"
 					></span>
 				`)}
+
+				<!-- State layer for M3 hover/focus/pressed states -->
+				<div class="state-layer"></div>
 			</button>
 		`
 	}
