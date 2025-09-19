@@ -1,5 +1,7 @@
+import { LazyComponent } from './lazy'
+
 export type RouteAction = {
-	component: CustomElementConstructor | string | HTMLElement | (() => Promise<{ default: CustomElementConstructor }>)
+	component: CustomElementConstructor | string | HTMLElement | LazyComponent<any>
 	area: string
 	state?: Record<string, unknown>
 	params?: Record<string, unknown>

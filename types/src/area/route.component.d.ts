@@ -1,11 +1,7 @@
-import { TemplateResult } from 'lit';
 import { Observable } from 'rxjs';
+import { LazyComponent } from './lazy';
 export type ObservableGuardResult = Observable<boolean>;
-export type RouteComponent = string | CustomElementConstructor | HTMLElement | TemplateResult<1> | (() => Promise<{
-    default: CustomElementConstructor;
-}>) | Promise<{
-    default: CustomElementConstructor;
-}>;
+export type RouteComponent = string | CustomElementConstructor | HTMLElement | LazyComponent<any>;
 export interface RouteConfig {
     when: string;
     component: RouteComponent;
@@ -38,7 +34,7 @@ export declare class SchmancyRoute extends SchmancyRoute_base {
      * Returns the route configuration object
      */
     getConfig(): RouteConfig;
-    render(): TemplateResult<1>;
+    render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {
