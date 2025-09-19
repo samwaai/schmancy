@@ -182,7 +182,7 @@ export class DemoCoreCards extends $LitElement() {
 						<schmancy-code-preview language="html">
 							<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 								<!-- Interactive Elevated -->
-								<schmancy-card type="elevated" interactive="true" class="p-4">
+								<schmancy-card type="elevated" interactive class="p-4">
 									<schmancy-typography type="headline" token="md" class="mb-2">Clickable Card</schmancy-typography>
 									<schmancy-typography type="body" token="md">
 										This card is interactive. Click to see the ripple effect and hover for elevation change.
@@ -190,7 +190,7 @@ export class DemoCoreCards extends $LitElement() {
 								</schmancy-card>
 
 								<!-- Card with Link -->
-								<schmancy-card type="outlined" interactive="true" href="https://material.io" target="_blank" class="p-4">
+								<schmancy-card type="outlined" interactive href="https://material.io" target="_blank" class="p-4">
 									<schmancy-typography type="headline" token="md" class="mb-2">Link Card</schmancy-typography>
 									<schmancy-typography type="body" token="md">
 										This card navigates to Material Design website when clicked.
@@ -198,7 +198,7 @@ export class DemoCoreCards extends $LitElement() {
 								</schmancy-card>
 
 								<!-- Disabled Card -->
-								<schmancy-card type="filled" interactive="true" disabled="true" class="p-4">
+								<schmancy-card type="filled" interactive disabled class="p-4">
 									<schmancy-typography type="headline" token="md" class="mb-2">Disabled Card</schmancy-typography>
 									<schmancy-typography type="body" token="md">
 										This card is disabled and cannot be interacted with.
@@ -233,7 +233,7 @@ export class DemoCoreCards extends $LitElement() {
 						<schmancy-code-preview language="html">
 							<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 								<!-- Product Card 1 -->
-								<schmancy-card type="outlined" interactive="true" class="overflow-hidden">
+								<schmancy-card type="outlined" interactive class="overflow-hidden">
 									<img
 										src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400"
 										alt="Watch"
@@ -245,12 +245,12 @@ export class DemoCoreCards extends $LitElement() {
 										<schmancy-typography type="body" token="md" class="mb-4">
 											Elegant timepiece with leather strap and precision movement.
 										</schmancy-typography>
-										<schmancy-button variant="filled-tonal" width="full">View Details</schmancy-button>
+										<schmancy-button variant="filled tonal" width="full">View Details</schmancy-button>
 									</div>
 								</schmancy-card>
 
 								<!-- Product Card 2 -->
-								<schmancy-card type="outlined" interactive="true" class="overflow-hidden">
+								<schmancy-card type="outlined" interactive class="overflow-hidden">
 									<img
 										src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400"
 										alt="Sunglasses"
@@ -262,12 +262,12 @@ export class DemoCoreCards extends $LitElement() {
 										<schmancy-typography type="body" token="md" class="mb-4">
 											Stylish sunglasses with 100% UV protection and polarized lenses.
 										</schmancy-typography>
-										<schmancy-button variant="filled-tonal" width="full">View Details</schmancy-button>
+										<schmancy-button variant="filled tonal" width="full">View Details</schmancy-button>
 									</div>
 								</schmancy-card>
 
 								<!-- Product Card 3 -->
-								<schmancy-card type="outlined" interactive="true" class="overflow-hidden">
+								<schmancy-card type="outlined" interactive class="overflow-hidden">
 									<img
 										src="https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400"
 										alt="Headphones"
@@ -279,7 +279,7 @@ export class DemoCoreCards extends $LitElement() {
 										<schmancy-typography type="body" token="md" class="mb-4">
 											Premium sound quality with active noise cancellation technology.
 										</schmancy-typography>
-										<schmancy-button variant="filled-tonal" width="full">View Details</schmancy-button>
+										<schmancy-button variant="filled tonal" width="full">View Details</schmancy-button>
 									</div>
 								</schmancy-card>
 							</div>
@@ -325,7 +325,7 @@ export class DemoCoreCards extends $LitElement() {
 
 						<!-- Article Card -->
 						<schmancy-code-preview language="html">
-							<schmancy-card type="outlined" interactive="true" class="max-w-md p-4">
+							<schmancy-card type="outlined" interactive class="max-w-md p-4">
 								<schmancy-typography type="label" token="sm" class="text-primary-default mb-2">TECHNOLOGY</schmancy-typography>
 								<schmancy-typography type="headline" token="lg" class="mb-1">The Future of Web Development</schmancy-typography>
 								<schmancy-typography type="body" token="sm" class="text-surface-onVariant mb-3">5 min read • March 15, 2024</schmancy-typography>
@@ -349,7 +349,7 @@ export class DemoCoreCards extends $LitElement() {
 						<schmancy-code-preview language="html">
 							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<!-- Stats Card -->
-								<schmancy-card type="elevated" interactive="true" class="p-6">
+								<schmancy-card type="elevated" interactive class="p-6">
 									<div class="flex items-center justify-between mb-4">
 										<schmancy-icon class="text-primary-default">trending_up</schmancy-icon>
 										<schmancy-typography type="label" token="md" class="text-surface-onVariant">+12%</schmancy-typography>
@@ -359,7 +359,7 @@ export class DemoCoreCards extends $LitElement() {
 								</schmancy-card>
 
 								<!-- Info Card -->
-								<schmancy-card type="elevated" interactive="true" class="p-6">
+								<schmancy-card type="elevated" interactive class="p-6">
 									<div class="flex items-center justify-between mb-4">
 										<schmancy-icon class="text-secondary-default">analytics</schmancy-icon>
 										<schmancy-typography type="label" token="md" class="text-surface-onVariant">Live</schmancy-typography>

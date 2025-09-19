@@ -179,10 +179,11 @@ export class SchmancyArea extends $LitElement(css`
 					} else if (typeof component === 'function') {
 						identifier = component.name || 'CustomElement'
 					}
+					
 
 					const key = `${identifier}${JSON.stringify(route.params)}${JSON.stringify(route.state)}`
 
-					return { component, route, key }
+					return { component, route, key , tagName:identifier}
 				}),
 
 				// Step 3: Deduplicate using the identifier (before creating expensive elements)
@@ -191,13 +192,9 @@ export class SchmancyArea extends $LitElement(css`
 				}),
 				// Step 0: Guard
 				switchMap(r => {
-					// Find the route by its 'when' property
-					// The component being navigated to should match a route's 'when' value
-					const routeWhen = typeof r.component === 'string'
-						? r.component
-						: (r.route as any)?.originalWhen || r.route?.component;
-
-					const route = this.routes.find(route => route.when === routeWhen);
+				
+					console.log(r.tagName)
+					const route = this.routes.find(route => route.when === r.tagName);
 
 					// If route has a guard, evaluate it
 					if (route?.guard) {
@@ -211,7 +208,7 @@ export class SchmancyArea extends $LitElement(css`
 								// Guard failed, dispatch redirect event
 								const redirectEvent = new CustomEvent('redirect', {
 									detail: {
-										blockedRoute: routeWhen,
+										blockedRoute: r.tagName,
 										area: this.name,
 										params: r.route?.params || {},
 										state: r.route?.state || {},
