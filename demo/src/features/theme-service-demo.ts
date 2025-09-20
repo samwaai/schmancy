@@ -1,16 +1,11 @@
-import { html, css } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { theme } from '../../../src/theme'
 import { takeUntil } from 'rxjs'
 import { $LitElement } from '@mixins/litElement.mixin'
 
 @customElement('theme-service-demo')
-export class ThemeServiceDemo extends $LitElement(css`
-  :host {
-    display: block;
-    padding: 2rem;
-  }
-`) {
+export class ThemeServiceDemo extends $LitElement() {
   @state() private currentScheme: 'dark' | 'light' | 'auto' = 'auto'
   @state() private currentColor: string = '#6200ee'
   @state() private resolvedScheme: 'dark' | 'light' = 'light'
@@ -150,6 +145,7 @@ export class ThemeServiceDemo extends $LitElement(css`
                   @change="${this.handleColorChange}"
                   class="w-20 h-10 rounded cursor-pointer"
                 />
+                <schmancy-button
                   variant="tonal"
                   @click="${() => theme.setColor('#6200ee')}"
                 >

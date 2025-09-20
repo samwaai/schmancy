@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 import { area } from '@schmancy/area';
@@ -16,11 +16,7 @@ import { DemoChipsLegacy } from './legacy';
 
 // Main Demo Chips Component
 @customElement('demo-chip-demos')
-export class DemoChipDemos extends $LitElement(css`
-  :host {
-    display: block;
-  }
-`) {
+export class DemoChipDemos extends $LitElement() {
   @state() private activeDemo = 'overview';
 
   connectedCallback() {

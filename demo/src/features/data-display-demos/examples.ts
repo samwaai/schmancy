@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 import { repeat } from 'lit/directives/repeat.js';
@@ -36,26 +36,7 @@ interface Project {
 }
 
 @customElement('demo-data-display-examples')
-export class DataDisplayExamples extends $LitElement(css`
-  :host {
-    display: block;
-  }
-
-  .sparkline {
-    display: inline-block;
-    width: 60px;
-    height: 20px;
-  }
-
-  .team-avatars {
-    display: flex;
-    margin-left: 8px;
-  }
-
-  .team-avatars > * {
-    margin-left: -8px;
-  }
-`) {
+export class DataDisplayExamples extends $LitElement() {
   @state() private selectedExample: 'dashboard' | 'kanban' | 'timeline' = 'dashboard';
   @state() private selectedTimeRange = '7d';
 
@@ -243,7 +224,7 @@ export class DataDisplayExamples extends $LitElement(css`
     }).join(' ');
 
     return html`
-      <svg class="sparkline" viewBox="0 0 ${width} ${height}">
+      <svg class="inline-block w-15 h-5" viewBox="0 0 ${width} ${height}">
         <polyline
           fill="none"
           stroke="currentColor"
@@ -368,7 +349,7 @@ export class DataDisplayExamples extends $LitElement(css`
 
                     <div class="flex items-center justify-between">
                       <div class="flex items-center gap-3">
-                        <div class="team-avatars">
+                        <div class="flex ml-2 *:-ml-2">
                           ${project.team.slice(0, 3).map(member => html`
                             <img
                               src="${member.avatar}"

@@ -4,86 +4,12 @@ import '@schmancy/icons'
 import '@schmancy/surface'
 import '@schmancy/tabs'
 import '@schmancy/typography'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 // Use a simplified approach with a text editor and iframe
 @customElement('demo-playground')
-export class DemoPlayground extends $LitElement(css`
-	:host {
-		display: block;
-	}
-
-	.playground-container {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		grid-gap: 20px;
-		height: 600px;
-	}
-
-	.mobile-view .playground-container {
-		grid-template-columns: 1fr;
-		grid-template-rows: 1fr 1fr;
-	}
-
-	.editor-container {
-		height: 100%;
-		border-radius: 8px;
-		overflow: hidden;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		display: flex;
-		flex-direction: column;
-	}
-
-	.preview-container {
-		height: 100%;
-		border-radius: 8px;
-		overflow: hidden;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	}
-
-	.component-selector {
-		margin-bottom: 16px;
-	}
-
-	.editor {
-		width: 100%;
-		height: 100%;
-		font-family: monospace;
-		font-size: 14px;
-		border: none;
-		background-color: #f5f5f5;
-		padding: 12px;
-		resize: none;
-		line-height: 1.5;
-		flex: 1;
-	}
-
-	.editor-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 8px 12px;
-		background-color: #f0f0f0;
-		border-bottom: 1px solid #ddd;
-	}
-
-	.file-name {
-		font-family: monospace;
-		font-size: 14px;
-		color: #555;
-	}
-
-	.preview-frame {
-		width: 100%;
-		height: 100%;
-		border: none;
-	}
-
-	schmancy-button {
-		font-size: 12px;
-	}
-`) {
+export class DemoPlayground extends $LitElement() {
 	@state() private activeTab = 'button'
 	@state() private isMobile = window.innerWidth < 768
 	@state() private code: { [key: string]: string } = {}
@@ -538,7 +464,7 @@ export class DemoPlayground extends $LitElement(css`
 
 	render() {
 		return html`
-			<schmancy-surface type="container" rounded="left" class="p-6 ${this.isMobile ? 'mobile-view' : ''}">
+			<schmancy-surface type="container" rounded="left" class="p-6">
 				<schmancy-typography type="headline" token="md" class="mb-1">
 					Interactive Component Playground
 				</schmancy-typography>
@@ -546,7 +472,7 @@ export class DemoPlayground extends $LitElement(css`
 					Explore and modify Schmancy components in real-time
 				</schmancy-typography>
 
-				<div class="component-selector">
+				<div class="mb-4">
 					<schmancy-tabs-group activeTab=${this.activeTab} @tab-changed=${this.handleTabChange}>
 						<schmancy-tab value="button" label="Button" ?active=${this.activeTab === 'button'}> Button </schmancy-tab>
 						<schmancy-tab value="dialog" label="Dialog" ?active=${this.activeTab === 'dialog'}> Dialog </schmancy-tab>
@@ -563,22 +489,22 @@ export class DemoPlayground extends $LitElement(css`
 					${this.descriptions[this.activeTab]}
 				</schmancy-typography>
 
-				<div class="playground-container">
-					<div class="editor-container">
-						<div class="editor-header">
-							<div class="file-name">index.html</div>
+				<div class="${this.isMobile ? 'grid grid-cols-1 grid-rows-2 gap-5 h-[600px]' : 'grid grid-cols-2 gap-5 h-[600px]'}">
+					<div class="h-full rounded-lg overflow-hidden shadow-lg flex flex-col">
+						<div class="flex justify-between items-center p-3 bg-gray-100 border-b border-gray-300">
+							<div class="font-mono text-sm text-gray-600">index.html</div>
 							<schmancy-button variant="filled" size="sm" @click=${this.handleRunClick}>Run</schmancy-button>
 						</div>
 						<textarea
-							class="editor"
+							class="w-full h-full font-mono text-sm border-none bg-gray-50 p-3 resize-none leading-6 flex-1"
 							@input=${this.handleCodeChange}
 							spellcheck="false"
 							.value=${this.code[this.activeTab]}
 						></textarea>
 					</div>
 
-					<div class="preview-container">
-						<iframe class="preview-frame" allow="fullscreen"></iframe>
+					<div class="h-full rounded-lg overflow-hidden shadow-lg">
+						<iframe class="w-full h-full border-none" allow="fullscreen"></iframe>
 					</div>
 				</div>
 			</schmancy-surface>

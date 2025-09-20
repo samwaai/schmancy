@@ -1,4 +1,4 @@
-import { html, css } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { $LitElement } from '@mixins/index'
 import { area } from '@schmancy/area'
@@ -11,11 +11,7 @@ import './notifications'
 
 // Main Feedback Demos Component
 @customElement('demo-feedback-demos')
-export class DemoFeedbackDemos extends $LitElement(css`
-	:host {
-		display: block;
-	}
-`) {
+export class DemoFeedbackDemos extends $LitElement() {
 	@state() private activeDemo = 'progress'
 
 	connectedCallback() {

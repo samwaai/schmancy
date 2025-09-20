@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 import { repeat } from 'lit/directives/repeat.js';
@@ -17,16 +17,7 @@ interface ListItem {
 }
 
 @customElement('demo-data-display-lists')
-export class DataDisplayLists extends $LitElement(css`
-  :host {
-    display: block;
-  }
-
-  .virtual-scroller {
-    height: 400px;
-    overflow-y: auto;
-  }
-`) {
+export class DataDisplayLists extends $LitElement() {
   @state() private basicItems: ListItem[] = this.generateItems(20);
   @state() private virtualItems: ListItem[] = this.generateItems(1000);
   @state() private groupedItems: ListItem[] = this.generateItems(50);
@@ -136,7 +127,7 @@ export class DataDisplayLists extends $LitElement(css`
         </div>
 
         <lit-virtualizer
-          class="virtual-scroller"
+          class="h-96 overflow-y-auto"
           .items=${this.virtualItems}
           .renderItem=${(item: ListItem) => html`
             <div class="flex items-center gap-3 p-3 border-b border-outline-variant hover:bg-surface-containerLow cursor-pointer">

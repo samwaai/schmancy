@@ -1,19 +1,9 @@
 import { $LitElement } from '@mixins/index';
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 @customElement('demo-forms-selection')
-export class DemoFormsSelection extends $LitElement(css`
-  .demo-section {
-    margin-bottom: 3rem;
-  }
-
-  .selection-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-  }
-`) {
+export class DemoFormsSelection extends $LitElement() {
   @state() private selectValue = 'option2';
   @state() private multiSelectValue: string[] = ['option1', 'option3'];
   @state() private radioValue = 'medium';
@@ -40,12 +30,12 @@ export class DemoFormsSelection extends $LitElement(css`
         </schmancy-typography>
 
         <!-- Select Dropdowns -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Select Dropdowns</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
-              <div class="selection-grid">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Basic Select -->
                 <schmancy-select
                   label="Choose an option"
@@ -131,12 +121,12 @@ export class DemoFormsSelection extends $LitElement(css`
         </div>
 
         <!-- Radio Groups -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Radio Groups</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
-              <div class="selection-grid">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Basic Radio Group -->
                 <schmancy-radio-group
                   label="Size"
@@ -208,7 +198,7 @@ export class DemoFormsSelection extends $LitElement(css`
         </div>
 
         <!-- Checkboxes -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Checkboxes</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
@@ -290,7 +280,7 @@ export class DemoFormsSelection extends $LitElement(css`
         </div>
 
         <!-- Switches -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Switches</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">

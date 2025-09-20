@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 import { area } from '@schmancy/area';
@@ -13,11 +13,7 @@ import { DemoFormsExamples } from './examples';
 
 // Main Demo Forms Component
 @customElement('demo-forms-demos')
-export default class DemoFormsDemos extends $LitElement(css`
-  :host {
-    display: block;
-  }
-`) {
+export default class DemoFormsDemos extends $LitElement() {
   @state() private activeDemo = 'overview';
 
   connectedCallback() {

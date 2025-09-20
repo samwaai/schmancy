@@ -1,22 +1,10 @@
 import { $LitElement } from '@mixins/index'
-import { html, css } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import '../../shared/installation-section'
 
 @customElement('demo-chips-overview')
-export class DemoChipsOverview extends $LitElement(css`
-  .chip-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-  }
-
-  .chip-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-`) {
+export class DemoChipsOverview extends $LitElement() {
   @state() private filterSelected = ['running', 'walking'];
   @state() private assistClicked = '';
   @state() private inputChips = ['design', 'development', 'testing'];
@@ -72,10 +60,10 @@ export class DemoChipsOverview extends $LitElement(css`
         <!-- Chip Types Overview -->
         <schmancy-typography type="title" token="lg" class="mb-6 block">Chip Types</schmancy-typography>
 
-        <div class="chip-grid mb-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <!-- Filter Chips -->
           <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-            <div class="chip-section">
+            <div class="flex flex-col gap-4">
               <schmancy-typography type="headline" token="sm" class="block">
                 Filter Chips
               </schmancy-typography>
@@ -113,7 +101,7 @@ export class DemoChipsOverview extends $LitElement(css`
 
           <!-- Assist Chips -->
           <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-            <div class="chip-section">
+            <div class="flex flex-col gap-4">
               <schmancy-typography type="headline" token="sm" class="block">
                 Assist Chips
               </schmancy-typography>
@@ -144,7 +132,7 @@ export class DemoChipsOverview extends $LitElement(css`
 
           <!-- Input Chips -->
           <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-            <div class="chip-section">
+            <div class="flex flex-col gap-4">
               <schmancy-typography type="headline" token="sm" class="block">
                 Input Chips
               </schmancy-typography>
@@ -171,7 +159,7 @@ export class DemoChipsOverview extends $LitElement(css`
 
           <!-- Suggestion Chips -->
           <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-            <div class="chip-section">
+            <div class="flex flex-col gap-4">
               <schmancy-typography type="headline" token="sm" class="block">
                 Suggestion Chips
               </schmancy-typography>

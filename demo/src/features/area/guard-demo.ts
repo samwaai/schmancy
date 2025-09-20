@@ -1,17 +1,13 @@
 import { $LitElement } from '@mixins/index'
 import { area, lazy } from '@schmancy/area'
 import { $notify } from '@schmancy/notification'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { BehaviorSubject } from 'rxjs'
 
 // Simple page components
 @customElement('public-page')
-export class PublicPage extends $LitElement(css`
-	:host {
-		display: block;
-	}
-`) {
+export class PublicPage extends $LitElement() {
 	render() {
 		return html`
 			<div class="p-4 bg-surface-container rounded">
@@ -27,11 +23,7 @@ export class PublicPage extends $LitElement(css`
 }
 
 @customElement('protected-page')
-export class ProtectedPage extends $LitElement(css`
-	:host {
-		display: block;
-	}
-`) {
+export class ProtectedPage extends $LitElement() {
 	render() {
 		return html`
 			<div class="p-4 bg-surface-container rounded">
@@ -48,12 +40,7 @@ export class ProtectedPage extends $LitElement(css`
 
 // Main Guard Demo Component
 @customElement('demo-area-guards')
-export class DemoAreaGuards extends $LitElement(css`
-	:host {
-		display: block;
-		padding: 2rem;
-	}
-`) {
+export class DemoAreaGuards extends $LitElement() {
 	// Auth state
 	private authState$ = new BehaviorSubject(false)
 	@state() private isAuthenticated = false
@@ -71,7 +58,7 @@ export class DemoAreaGuards extends $LitElement(css`
 
 	render() {
 		return html`
-			<schmancy-surface class="max-w-4xl mx-auto">
+			<schmancy-surface class="max-w-4xl mx-auto p-8">
 				<schmancy-typography type="headline" token="lg" class="mb-4">
 					Route Guards Demo
 				</schmancy-typography>

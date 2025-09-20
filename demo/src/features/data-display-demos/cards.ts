@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 import { repeat } from 'lit/directives/repeat.js';
@@ -29,11 +29,7 @@ interface Stat {
 }
 
 @customElement('demo-data-display-cards')
-export class DataDisplayCards extends $LitElement(css`
-  :host {
-    display: block;
-  }
-`) {
+export class DataDisplayCards extends $LitElement() {
   @state() private viewMode: 'grid' | 'list' | 'masonry' = 'grid';
   @state() private cardStyle: 'product' | 'stat' | 'profile' | 'article' = 'product';
 

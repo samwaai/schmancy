@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 import { repeat } from 'lit/directives/repeat.js';
@@ -15,19 +15,7 @@ interface TreeNode {
 }
 
 @customElement('demo-data-display-trees')
-export class DataDisplayTrees extends $LitElement(css`
-  :host {
-    display: block;
-  }
-
-  .tree-node {
-    user-select: none;
-  }
-
-  .tree-children {
-    padding-left: 24px;
-  }
-`) {
+export class DataDisplayTrees extends $LitElement() {
   @state() private expandedNodes = new Set<string>(['root', 'src', 'components']);
   @state() private selectedNode: string | null = null;
   @state() private checkedNodes = new Set<string>();
@@ -242,7 +230,7 @@ export class DataDisplayTrees extends $LitElement(css`
     const hasChildren = node.children && node.children.length > 0;
 
     return html`
-      <div class="tree-node">
+      <div class="select-none">
         <div
           class="flex items-center gap-2 px-2 py-1.5 hover:bg-surface-containerLow cursor-pointer rounded
                  ${isSelected ? 'bg-primary-container' : ''}"
@@ -296,7 +284,7 @@ export class DataDisplayTrees extends $LitElement(css`
 
         <!-- Children -->
         ${hasChildren && isExpanded ? html`
-          <div class="tree-children">
+          <div class="pl-6">
             ${repeat(
               node.children!,
               child => child.id,

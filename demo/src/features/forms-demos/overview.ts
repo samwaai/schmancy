@@ -1,22 +1,10 @@
 import { $LitElement } from '@mixins/index';
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import '../../shared/installation-section';
 
 @customElement('demo-forms-overview')
-export class DemoFormsOverview extends $LitElement(css`
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-  }
-
-  .principle-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-`) {
+export class DemoFormsOverview extends $LitElement() {
   @state() private sampleEmail = '';
   @state() private samplePassword = '';
 
@@ -59,10 +47,10 @@ export class DemoFormsOverview extends $LitElement(css`
         <!-- Design Principles -->
         <schmancy-typography type="title" token="lg" class="mb-6 block">Design Principles</schmancy-typography>
 
-        <div class="form-grid mb-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <!-- Clarity -->
           <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-            <div class="principle-card">
+            <div class="flex flex-col gap-2">
               <schmancy-icon class="text-primary mb-2" size="lg">visibility</schmancy-icon>
               <schmancy-typography type="headline" token="sm" class="block">
                 Clear & Intuitive
@@ -75,7 +63,7 @@ export class DemoFormsOverview extends $LitElement(css`
 
           <!-- Validation -->
           <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-            <div class="principle-card">
+            <div class="flex flex-col gap-2">
               <schmancy-icon class="text-primary mb-2" size="lg">fact_check</schmancy-icon>
               <schmancy-typography type="headline" token="sm" class="block">
                 Real-time Validation
@@ -88,7 +76,7 @@ export class DemoFormsOverview extends $LitElement(css`
 
           <!-- Accessibility -->
           <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-            <div class="principle-card">
+            <div class="flex flex-col gap-2">
               <schmancy-icon class="text-primary mb-2" size="lg">accessibility</schmancy-icon>
               <schmancy-typography type="headline" token="sm" class="block">
                 Fully Accessible
@@ -101,7 +89,7 @@ export class DemoFormsOverview extends $LitElement(css`
 
           <!-- Responsive -->
           <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-            <div class="principle-card">
+            <div class="flex flex-col gap-2">
               <schmancy-icon class="text-primary mb-2" size="lg">devices</schmancy-icon>
               <schmancy-typography type="headline" token="sm" class="block">
                 Responsive Design

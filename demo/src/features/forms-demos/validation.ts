@@ -1,35 +1,9 @@
 import { $LitElement } from '@mixins/index';
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 @customElement('demo-forms-validation')
-export class DemoFormsValidation extends $LitElement(css`
-  .demo-section {
-    margin-bottom: 3rem;
-  }
-
-  .validation-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .error-list {
-    background: var(--md-sys-color-error-container);
-    color: var(--md-sys-color-on-error-container);
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-top: 1rem;
-  }
-
-  .success-message {
-    background: var(--md-sys-color-tertiary-container);
-    color: var(--md-sys-color-on-tertiary-container);
-    padding: 1rem;
-    border-radius: 0.5rem;
-    margin-top: 1rem;
-  }
-`) {
+export class DemoFormsValidation extends $LitElement() {
   // Real-time validation states
   @state() private emailValue = '';
   @state() private emailError = '';
@@ -132,12 +106,12 @@ export class DemoFormsValidation extends $LitElement(css`
         </schmancy-typography>
 
         <!-- Real-time Validation -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Real-time Validation</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
-              <div class="validation-grid">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Email Validation -->
                 <schmancy-input
                   label="Email Address"
@@ -259,13 +233,13 @@ export class DemoFormsValidation extends $LitElement(css`
         </div>
 
         <!-- Built-in HTML5 Validation -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">HTML5 Validation Attributes</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
               <form @submit=${(e: Event) => e.preventDefault()}>
-                <div class="validation-grid">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <!-- Required Field -->
                   <schmancy-input
                     label="Username"
@@ -347,7 +321,7 @@ export class DemoFormsValidation extends $LitElement(css`
         </div>
 
         <!-- Custom Validation Messages -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Custom Error Messages</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
@@ -403,7 +377,7 @@ export class DemoFormsValidation extends $LitElement(css`
         </div>
 
         <!-- Form-wide Validation -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Complete Form Validation</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
@@ -465,7 +439,7 @@ export class DemoFormsValidation extends $LitElement(css`
                   </schmancy-button>
 
                   ${this.formErrors.length > 0 ? html`
-                    <div class="error-list">
+                    <div class="bg-error-container text-on-error-container p-4 rounded-lg mt-4">
                       <schmancy-typography type="body" token="md" class="font-medium mb-2">
                         Please fix the following errors:
                       </schmancy-typography>
@@ -478,7 +452,7 @@ export class DemoFormsValidation extends $LitElement(css`
                   ` : ''}
 
                   ${this.formSubmitted && this.formValid ? html`
-                    <div class="success-message">
+                    <div class="bg-tertiary-container text-on-tertiary-container p-4 rounded-lg mt-4">
                       <schmancy-typography type="body" token="md" class="font-medium">
                         ✓ Form submitted successfully!
                       </schmancy-typography>

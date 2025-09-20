@@ -1,4 +1,4 @@
-import { html, css } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { $LitElement } from '@mixins/index'
 import { area } from '@schmancy/area'
@@ -15,11 +15,7 @@ import { NavigationExamples } from './examples'
 
 // Main Demo Navigation Component
 @customElement('demo-navigation-demos')
-export default class NavigationDemos extends $LitElement(css`
-  :host {
-    display: block;
-  }
-`) {
+export default class NavigationDemos extends $LitElement() {
   @state() private activeDemo = 'overview'
 
   connectedCallback() {

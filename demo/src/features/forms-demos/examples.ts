@@ -1,17 +1,9 @@
 import { $LitElement } from '@mixins/index';
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 @customElement('demo-forms-examples')
-export class DemoFormsExamples extends $LitElement(css`
-  .example-section {
-    margin-bottom: 3rem;
-  }
-
-  .form-container {
-    max-width: 600px;
-  }
-`) {
+export class DemoFormsExamples extends $LitElement() {
   // Registration Form States
   @state() private regForm = {
     firstName: '',
@@ -105,13 +97,13 @@ export class DemoFormsExamples extends $LitElement(css`
         </schmancy-typography>
 
         <!-- Registration Form -->
-        <div class="example-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">User Registration Form</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
               <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-                <form @submit=${this.handleRegistrationSubmit} class="form-container">
+                <form @submit=${this.handleRegistrationSubmit} class="max-w-2xl">
                   <schmancy-typography type="headline" token="md" class="mb-4 block">
                     Create Your Account
                   </schmancy-typography>
@@ -220,13 +212,13 @@ export class DemoFormsExamples extends $LitElement(css`
         </div>
 
         <!-- Contact Form -->
-        <div class="example-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Contact Form</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
               <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-                <form @submit=${this.handleContactSubmit} class="form-container">
+                <form @submit=${this.handleContactSubmit} class="max-w-2xl">
                   <schmancy-typography type="headline" token="md" class="mb-2 block">
                     Get in Touch
                   </schmancy-typography>
@@ -311,13 +303,13 @@ export class DemoFormsExamples extends $LitElement(css`
         </div>
 
         <!-- Payment Form -->
-        <div class="example-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Payment Form</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
               <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-                <form @submit=${this.handlePaymentSubmit} class="form-container">
+                <form @submit=${this.handlePaymentSubmit} class="max-w-2xl">
                   <schmancy-typography type="headline" token="md" class="mb-4 block">
                     Payment Details
                   </schmancy-typography>
@@ -457,13 +449,13 @@ export class DemoFormsExamples extends $LitElement(css`
         </div>
 
         <!-- Profile Settings Form -->
-        <div class="example-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Profile Settings</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
               <schmancy-surface type="surfaceDim" class="rounded-lg p-6">
-                <form @submit=${this.handleProfileSubmit} class="form-container">
+                <form @submit=${this.handleProfileSubmit} class="max-w-2xl">
                   <schmancy-typography type="headline" token="md" class="mb-4 block">
                     Edit Profile
                   </schmancy-typography>

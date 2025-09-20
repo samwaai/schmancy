@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 import { repeat } from 'lit/directives/repeat.js';
@@ -28,21 +28,7 @@ interface Task {
 }
 
 @customElement('demo-data-display-indicators')
-export class DataDisplayIndicators extends $LitElement(css`
-  :host {
-    display: block;
-  }
-
-  .avatar-group {
-    display: flex;
-    margin-left: 12px;
-  }
-
-  .avatar-group > * {
-    margin-left: -12px;
-    border: 2px solid var(--md-sys-color-surface);
-  }
-`) {
+export class DataDisplayIndicators extends $LitElement() {
   @state() private selectedSection: 'avatars' | 'badges' | 'status' | 'progress' = 'avatars';
 
   private users: User[] = [
@@ -238,7 +224,7 @@ export class DataDisplayIndicators extends $LitElement(css`
             Avatar Groups
           </schmancy-typography>
           <div class="flex items-center gap-6">
-            <div class="avatar-group">
+            <div class="flex ml-3 *:-ml-3 *:border-2 *:border-surface">
               ${this.users.slice(0, 3).map(user => html`
                 <schmancy-avatar
                   src="${user.avatar}"

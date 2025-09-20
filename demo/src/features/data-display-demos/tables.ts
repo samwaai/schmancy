@@ -1,4 +1,4 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 import { repeat } from 'lit/directives/repeat.js';
@@ -15,11 +15,7 @@ interface Product {
 }
 
 @customElement('demo-data-display-tables')
-export class DataDisplayTables extends $LitElement(css`
-  :host {
-    display: block;
-  }
-`) {
+export class DataDisplayTables extends $LitElement() {
   @state() private products: Product[] = this.generateProducts();
   @state() private filteredProducts: Product[] = this.products;
   @state() private sortField: keyof Product = 'name';

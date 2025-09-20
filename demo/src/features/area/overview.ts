@@ -1,6 +1,6 @@
 import { $LitElement } from '@mixins/index'
 import { area } from '@schmancy/area'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 // Simple demo components
@@ -104,22 +104,7 @@ class AreaDemoPropsExample extends $LitElement() {
 }
 
 @customElement('demo-area')
-export class DemoArea extends $LitElement(css`
-	.example-section {
-		margin-bottom: 3rem;
-	}
-	
-	.demo-area {
-		min-height: 300px;
-		background: var(--schmancy-sys-color-surface-container);
-		border-radius: 12px;
-		overflow: hidden;
-	}
-	
-	.code-section {
-		margin-top: 1rem;
-	}
-`) {
+export class DemoArea extends $LitElement() {
 	// Code examples as string literals to prevent execution
 	private readonly codeExamples = {
 		import: `import '@mhmo91/schmancy/area'
@@ -322,7 +307,7 @@ ${this.codeExamples.quickStart}
 				<schmancy-typography type="title" token="lg" class="mb-6 block">Live Examples</schmancy-typography>
 				
 				<!-- Example 1: Basic Navigation -->
-				<div class="example-section">
+				<div class="mb-12">
 					<schmancy-surface type="surfaceDim" class="rounded-lg p-6">
 						<schmancy-typography type="headline" token="md" class="mb-2 block">
 							1. Basic Navigation
@@ -364,12 +349,12 @@ ${this.codeExamples.quickStart}
 						</div>
 						
 						<!-- Demo area -->
-						<div class="demo-area">
+						<div class="min-h-[300px] bg-surface-container rounded-xl overflow-hidden">
 							<schmancy-area name="demo-basic"></schmancy-area>
 						</div>
 						
 						<!-- Code example -->
-						<div class="code-section">
+						<div class="mt-4">
 							<schmancy-code-preview language="javascript" .preview=${false}>
 ${this.codeExamples.basicNavigation}
 							</schmancy-code-preview>
@@ -378,7 +363,7 @@ ${this.codeExamples.basicNavigation}
 				</div>
 
 				<!-- Example 2: Passing Parameters -->
-				<div class="example-section">
+				<div class="mb-12">
 					<schmancy-surface type="surfaceDim" class="rounded-lg p-6">
 						<schmancy-typography type="headline" token="md" class="mb-2 block">
 							2. Passing Parameters
@@ -412,12 +397,12 @@ ${this.codeExamples.basicNavigation}
 						</div>
 						
 						<!-- Demo area -->
-						<div class="demo-area">
+						<div class="min-h-[300px] bg-surface-container rounded-xl overflow-hidden">
 							<schmancy-area name="demo-params"></schmancy-area>
 						</div>
 						
 						<!-- Code example -->
-						<div class="code-section">
+						<div class="mt-4">
 							<schmancy-code-preview language="javascript" .preview=${false}>
 ${this.codeExamples.passingParams}
 							</schmancy-code-preview>
@@ -426,7 +411,7 @@ ${this.codeExamples.passingParams}
 				</div>
 
 				<!-- Example 3: Passing Props -->
-				<div class="example-section">
+				<div class="mb-12">
 					<schmancy-surface type="surfaceDim" class="rounded-lg p-6">
 						<schmancy-typography type="headline" token="md" class="mb-2 block">
 							3. Passing Props (Component Properties)
@@ -472,12 +457,12 @@ ${this.codeExamples.passingParams}
 						</div>
 						
 						<!-- Demo area -->
-						<div class="demo-area">
+						<div class="min-h-[300px] bg-surface-container rounded-xl overflow-hidden">
 							<schmancy-area name="demo-props"></schmancy-area>
 						</div>
 						
 						<!-- Code example -->
-						<div class="code-section">
+						<div class="mt-4">
 							<schmancy-code-preview language="javascript" .preview=${false}>
 ${this.codeExamples.passingProps}
 							</schmancy-code-preview>
@@ -486,7 +471,7 @@ ${this.codeExamples.passingProps}
 				</div>
 
 				<!-- Example 4: Default Component -->
-				<div class="example-section">
+				<div class="mb-12">
 					<schmancy-surface type="surfaceDim" class="rounded-lg p-6">
 						<schmancy-typography type="headline" token="md" class="mb-2 block">
 							4. Default Component
@@ -496,7 +481,7 @@ ${this.codeExamples.passingProps}
 						</schmancy-typography>
 						
 						<!-- Demo area with default -->
-						<div class="demo-area mb-4">
+						<div class="min-h-[300px] bg-surface-container rounded-xl overflow-hidden mb-4">
 							<schmancy-area name="demo-default" default="area-demo-home-page"></schmancy-area>
 						</div>
 						
@@ -517,7 +502,7 @@ ${this.codeExamples.passingProps}
 						</div>
 						
 						<!-- Code example -->
-						<div class="code-section">
+						<div class="mt-4">
 							<schmancy-code-preview language="html" .preview=${false}>
 ${this.codeExamples.defaultComponent}
 							</schmancy-code-preview>

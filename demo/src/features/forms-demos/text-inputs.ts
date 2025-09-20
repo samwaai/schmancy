@@ -1,19 +1,9 @@
 import { $LitElement } from '@mixins/index';
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 @customElement('demo-forms-text-inputs')
-export class DemoFormsTextInputs extends $LitElement(css`
-  .demo-section {
-    margin-bottom: 3rem;
-  }
-
-  .input-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-  }
-`) {
+export class DemoFormsTextInputs extends $LitElement() {
   @state() private basicValue = '';
   @state() private filledValue = 'Pre-filled text';
   @state() private outlinedValue = '';
@@ -39,12 +29,12 @@ export class DemoFormsTextInputs extends $LitElement(css`
         </schmancy-typography>
 
         <!-- Basic Text Inputs -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Basic Text Fields</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
-              <div class="input-grid">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Outlined (Default) -->
                 <schmancy-input
                   label="Outlined"
@@ -103,12 +93,12 @@ export class DemoFormsTextInputs extends $LitElement(css`
         </div>
 
         <!-- Input Types -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Input Types</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
-              <div class="input-grid">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Email -->
                 <schmancy-input
                   label="Email"
@@ -188,7 +178,7 @@ export class DemoFormsTextInputs extends $LitElement(css`
         </div>
 
         <!-- Textarea -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Textarea</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
@@ -227,7 +217,7 @@ export class DemoFormsTextInputs extends $LitElement(css`
         </div>
 
         <!-- Validation States -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Validation & Error States</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
@@ -292,12 +282,12 @@ export class DemoFormsTextInputs extends $LitElement(css`
         </div>
 
         <!-- Advanced Features -->
-        <div class="demo-section">
+        <div class="mb-12">
           <schmancy-typography type="title" token="lg" class="mb-6 block">Advanced Features</schmancy-typography>
 
           <schmancy-grid gap="lg" class="w-full mb-8">
             <schmancy-code-preview language="html">
-              <div class="input-grid">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- With Prefix/Suffix -->
                 <schmancy-input
                   label="Price"

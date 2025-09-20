@@ -1,14 +1,10 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 import '@schmancy';
 
 @customElement('demo-data-display-overview')
-export class DataDisplayOverview extends $LitElement(css`
-  :host {
-    display: block;
-  }
-`) {
+export class DataDisplayOverview extends $LitElement() {
   @state() private selectedPrinciple = 0;
 
   private principles = [
