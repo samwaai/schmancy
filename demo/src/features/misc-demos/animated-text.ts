@@ -1,5 +1,5 @@
 import { $LitElement } from '@mixins/index'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 @customElement('misc-animated-text')

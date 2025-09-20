@@ -1,4 +1,4 @@
-import { html, css } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { $LitElement } from '@mixins/index'
 import '@schmancy/surface'
@@ -8,143 +8,7 @@ import '@schmancy/button'
 import { animate, fadeIn, fadeOut } from '@lit-labs/motion'
 
 @customElement('demo-navigation-tabs')
-export class NavigationTabs extends $LitElement(css`
-  :host {
-    display: block;
-    padding: 24px;
-  }
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .demo-section {
-    margin-bottom: 48px;
-  }
-
-  .demo-header {
-    margin-bottom: 24px;
-  }
-
-  .tabs-demo {
-    margin-bottom: 24px;
-  }
-
-  .tab-content {
-    padding: 24px;
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .code-block {
-    background: var(--md-sys-color-surface-container);
-    border-radius: 8px;
-    padding: 16px;
-    overflow-x: auto;
-  }
-
-  pre {
-    margin: 0;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .feature-card {
-    padding: 16px;
-  }
-
-  .icon-tabs {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .icon-tab {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 12px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 2px solid transparent;
-  }
-
-  .icon-tab:hover {
-    background: var(--md-sys-color-surface-container);
-  }
-
-  .icon-tab.active {
-    background: var(--md-sys-color-secondary-container);
-    border-color: var(--md-sys-color-secondary);
-  }
-
-  .scrollable-tabs {
-    overflow-x: auto;
-    scrollbar-width: thin;
-  }
-
-  .scrollable-tabs::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .scrollable-tabs::-webkit-scrollbar-track {
-    background: var(--md-sys-color-surface-container);
-  }
-
-  .scrollable-tabs::-webkit-scrollbar-thumb {
-    background: var(--md-sys-color-outline);
-    border-radius: 2px;
-  }
-
-  .content-card {
-    padding: 24px;
-    min-height: 300px;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 16px;
-    margin-top: 24px;
-  }
-
-  .stat-card {
-    text-align: center;
-    padding: 16px;
-    border-radius: 12px;
-    background: var(--md-sys-color-surface-container);
-  }
-
-  .stat-value {
-    font-size: 32px;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    background: var(--md-sys-color-error);
-    color: var(--md-sys-color-on-error);
-    margin-left: 8px;
-  }
-`) {
+export class NavigationTabs extends $LitElement() {
   @state() private basicTab = 'tab1'
   @state() private iconTab = 'overview'
   @state() private scrollableTab = 'item1'
@@ -152,285 +16,212 @@ export class NavigationTabs extends $LitElement(css`
   @state() private verticalTab = 'profile'
 
   private basicTabs = [
-    { id: 'tab1', label: 'First Tab' },
-    { id: 'tab2', label: 'Second Tab' },
-    { id: 'tab3', label: 'Third Tab' }
+    { value: 'tab1', label: 'Tab One' },
+    { value: 'tab2', label: 'Tab Two' },
+    { value: 'tab3', label: 'Tab Three' }
   ]
 
   private iconTabs = [
-    { id: 'overview', label: 'Overview', icon: 'dashboard' },
-    { id: 'analytics', label: 'Analytics', icon: 'analytics' },
-    { id: 'reports', label: 'Reports', icon: 'assessment' },
-    { id: 'settings', label: 'Settings', icon: 'settings' }
+    { value: 'overview', label: 'Overview', icon: 'dashboard' },
+    { value: 'analytics', label: 'Analytics', icon: 'analytics' },
+    { value: 'reports', label: 'Reports', icon: 'assessment' },
+    { value: 'settings', label: 'Settings', icon: 'settings' }
   ]
 
-  private scrollableTabs = Array.from({ length: 10 }, (_, i) => ({
-    id: `item${i + 1}`,
-    label: `Tab Item ${i + 1}`
+  private scrollableTabs = Array.from({ length: 8 }, (_, i) => ({
+    value: `item${i + 1}`,
+    label: `Item ${i + 1}`
   }))
 
   private secondaryTabs = [
-    { id: 'recent', label: 'Recent', badge: '3' },
-    { id: 'popular', label: 'Popular' },
-    { id: 'trending', label: 'Trending', badge: 'New' }
+    { value: 'recent', label: 'Recent' },
+    { value: 'popular', label: 'Popular' },
+    { value: 'trending', label: 'Trending' }
+  ]
+
+  private verticalTabs = [
+    { value: 'profile', label: 'Profile', icon: 'person' },
+    { value: 'security', label: 'Security', icon: 'security' },
+    { value: 'notifications', label: 'Notifications', icon: 'notifications' },
+    { value: 'privacy', label: 'Privacy', icon: 'privacy_tip' }
   ]
 
   render() {
     return html`
-      <div class="container" ${animate()}>
+      <div class="max-w-6xl mx-auto p-6" ${animate()}>
         <!-- Header -->
-        <div class="demo-header" ${animate({ in: fadeIn, out: fadeOut })}>
-          <schmancy-typography type="display" token="sm">
-            Tab Components
+        <div class="mb-12 text-center">
+          <schmancy-typography type="display" token="lg" class="mb-4">
+            Tab Navigation
           </schmancy-typography>
-          <schmancy-typography type="body" token="lg" style="margin-top: 8px; opacity: 0.8;">
-            Organize content and navigation with Material Design 3 tabs.
+          <schmancy-typography type="body" token="lg" class="text-on-surface-variant max-w-3xl mx-auto">
+            Organize content into distinct sections with tabs. Perfect for settings pages, data views, and multi-step processes.
           </schmancy-typography>
         </div>
 
-        <!-- Basic Tabs -->
-        <div class="demo-section">
-          <schmancy-typography type="headline" token="md" style="margin-bottom: 16px;">
+        <!-- Basic Tabs Demo -->
+        <div class="mb-12">
+          <schmancy-typography type="title" token="lg" class="mb-6">
             Basic Tabs
           </schmancy-typography>
-
-          <schmancy-surface type="filled" rounded="large">
-            <schmancy-tabs>
+          <schmancy-surface type="container" class="p-6 rounded-xl">
+            <schmancy-tabs-group .activeTab=${this.basicTab} @tab-changed=${(e: CustomEvent) => this.basicTab = e.detail}>
               ${this.basicTabs.map(tab => html`
-                <schmancy-tab
-                  ?active=${this.basicTab === tab.id}
-                  @click=${() => this.basicTab = tab.id}>
+                <schmancy-tab .value=${tab.value} .label=${tab.label} ?active=${this.basicTab === tab.value}>
                   ${tab.label}
                 </schmancy-tab>
               `)}
-            </schmancy-tabs>
-
-            <div class="tab-content">
-              ${this.basicTab === 'tab1' ? html`
-                <schmancy-typography type="body" token="lg">
-                  Content for the first tab
+            </schmancy-tabs-group>
+            <div class="min-h-48 flex items-center justify-center bg-surface rounded-lg mt-4 text-on-surface">
+              <div class="text-center p-10">
+                <schmancy-typography type="title" token="md">
+                  Content for ${this.basicTabs.find(t => t.value === this.basicTab)?.label}
                 </schmancy-typography>
-              ` : this.basicTab === 'tab2' ? html`
-                <schmancy-typography type="body" token="lg">
-                  Content for the second tab
+                <schmancy-typography type="body" token="md" class="mt-2 text-on-surface-variant">
+                  This is the content area for the selected tab.
                 </schmancy-typography>
-              ` : html`
-                <schmancy-typography type="body" token="lg">
-                  Content for the third tab
-                </schmancy-typography>
-              `}
+              </div>
             </div>
           </schmancy-surface>
-
-          <div class="code-block" style="margin-top: 16px;">
-            <pre>
-&lt;schmancy-tabs&gt;
-  &lt;schmancy-tab ?active=\${this.activeTab === 'tab1'}
-               @click=\${() => this.activeTab = 'tab1'}&gt;
-    First Tab
-  &lt;/schmancy-tab&gt;
-  &lt;schmancy-tab ?active=\${this.activeTab === 'tab2'}
-               @click=\${() => this.activeTab = 'tab2'}&gt;
-    Second Tab
-  &lt;/schmancy-tab&gt;
-&lt;/schmancy-tabs&gt;</pre>
-          </div>
         </div>
 
-        <!-- Icon Tabs -->
-        <div class="demo-section">
-          <schmancy-typography type="headline" token="md" style="margin-bottom: 16px;">
-            Tabs with Icons
+        <!-- Icon Tabs Demo -->
+        <div class="mb-12">
+          <schmancy-typography type="title" token="lg" class="mb-6">
+            Icon Tabs
           </schmancy-typography>
-
-          <schmancy-surface type="filled" rounded="large">
-            <schmancy-tabs>
+          <schmancy-surface type="container" class="p-6 rounded-xl">
+            <schmancy-tabs-group .activeTab=${this.iconTab} @tab-changed=${(e: CustomEvent) => this.iconTab = e.detail}>
               ${this.iconTabs.map(tab => html`
-                <schmancy-tab
-                  ?active=${this.iconTab === tab.id}
-                  @click=${() => this.iconTab = tab.id}>
-                  <schmancy-icon name=${tab.icon} style="margin-right: 8px;"></schmancy-icon>
+                <schmancy-tab .value=${tab.value} .label=${tab.label} ?active=${this.iconTab === tab.value}>
+                  <schmancy-icon slot="icon">${tab.icon}</schmancy-icon>
                   ${tab.label}
                 </schmancy-tab>
               `)}
-            </schmancy-tabs>
-
-            <div class="content-card">
-              ${this.iconTab === 'overview' ? html`
-                <schmancy-typography type="headline" token="sm">Dashboard Overview</schmancy-typography>
-                <div class="stats-grid">
-                  <div class="stat-card">
-                    <div class="stat-value">1,234</div>
-                    <schmancy-typography type="body" token="sm">Total Users</schmancy-typography>
-                  </div>
-                  <div class="stat-card">
-                    <div class="stat-value">567</div>
-                    <schmancy-typography type="body" token="sm">Active Now</schmancy-typography>
-                  </div>
-                  <div class="stat-card">
-                    <div class="stat-value">89%</div>
-                    <schmancy-typography type="body" token="sm">Engagement</schmancy-typography>
-                  </div>
-                </div>
-              ` : this.iconTab === 'analytics' ? html`
-                <schmancy-typography type="headline" token="sm">Analytics Dashboard</schmancy-typography>
-                <schmancy-typography type="body" token="md" style="margin-top: 16px;">
-                  View detailed analytics and performance metrics for your application.
+            </schmancy-tabs-group>
+            <div class="min-h-48 flex items-center justify-center bg-surface rounded-lg mt-4 text-on-surface">
+              <div class="text-center p-10">
+                <schmancy-icon size="xl" class="mb-4">${this.iconTabs.find(t => t.value === this.iconTab)?.icon}</schmancy-icon>
+                <schmancy-typography type="title" token="md">
+                  ${this.iconTabs.find(t => t.value === this.iconTab)?.label} Section
                 </schmancy-typography>
-              ` : this.iconTab === 'reports' ? html`
-                <schmancy-typography type="headline" token="sm">Reports Section</schmancy-typography>
-                <schmancy-typography type="body" token="md" style="margin-top: 16px;">
-                  Generate and download comprehensive reports.
+                <schmancy-typography type="body" token="md" class="mt-2 text-on-surface-variant">
+                  Content and controls for ${this.iconTabs.find(t => t.value === this.iconTab)?.label.toLowerCase()}.
                 </schmancy-typography>
-              ` : html`
-                <schmancy-typography type="headline" token="sm">Settings</schmancy-typography>
-                <schmancy-typography type="body" token="md" style="margin-top: 16px;">
-                  Configure your application preferences.
-                </schmancy-typography>
-              `}
+              </div>
             </div>
           </schmancy-surface>
         </div>
 
-        <!-- Scrollable Tabs -->
-        <div class="demo-section">
-          <schmancy-typography type="headline" token="md" style="margin-bottom: 16px;">
+        <!-- Scrollable Tabs Demo -->
+        <div class="mb-12">
+          <schmancy-typography type="title" token="lg" class="mb-6">
             Scrollable Tabs
           </schmancy-typography>
-          <schmancy-typography type="body" token="md" style="margin-bottom: 16px; opacity: 0.8;">
-            For many navigation items, tabs automatically become scrollable.
-          </schmancy-typography>
-
-          <schmancy-surface type="filled" rounded="large">
-            <div class="scrollable-tabs">
-              <schmancy-tabs style="min-width: max-content;">
+          <schmancy-surface type="container" class="p-6 rounded-xl">
+            <div class="max-w-md overflow-hidden">
+              <schmancy-tabs-group .activeTab=${this.scrollableTab} @tab-changed=${(e: CustomEvent) => this.scrollableTab = e.detail}>
                 ${this.scrollableTabs.map(tab => html`
-                  <schmancy-tab
-                    ?active=${this.scrollableTab === tab.id}
-                    @click=${() => this.scrollableTab = tab.id}>
+                  <schmancy-tab .value=${tab.value} .label=${tab.label} ?active=${this.scrollableTab === tab.value}>
                     ${tab.label}
                   </schmancy-tab>
                 `)}
-              </schmancy-tabs>
+              </schmancy-tabs-group>
             </div>
-
-            <div class="tab-content">
-              <schmancy-typography type="body" token="lg">
-                Selected: ${this.scrollableTab}
+            <div class="min-h-32 flex items-center justify-center bg-surface rounded-lg mt-4 text-on-surface">
+              <schmancy-typography type="body" token="md">
+                Selected: ${this.scrollableTabs.find(t => t.value === this.scrollableTab)?.label}
               </schmancy-typography>
             </div>
           </schmancy-surface>
         </div>
 
-        <!-- Secondary Tabs -->
-        <div class="demo-section">
-          <schmancy-typography type="headline" token="md" style="margin-bottom: 16px;">
-            Secondary Tabs with Badges
+        <!-- Secondary Tabs Demo -->
+        <div class="mb-12">
+          <schmancy-typography type="title" token="lg" class="mb-6">
+            Secondary Tabs
           </schmancy-typography>
-
-          <schmancy-surface type="filled" rounded="large">
-            <schmancy-tabs variant="secondary">
+          <schmancy-surface type="container" class="p-6 rounded-xl">
+            <schmancy-tabs-group variant="secondary" .activeTab=${this.secondaryTab} @tab-changed=${(e: CustomEvent) => this.secondaryTab = e.detail}>
               ${this.secondaryTabs.map(tab => html`
-                <schmancy-tab
-                  ?active=${this.secondaryTab === tab.id}
-                  @click=${() => this.secondaryTab = tab.id}>
+                <schmancy-tab .value=${tab.value} .label=${tab.label} ?active=${this.secondaryTab === tab.value}>
                   ${tab.label}
-                  ${tab.badge ? html`<span class="badge">${tab.badge}</span>` : ''}
                 </schmancy-tab>
               `)}
-            </schmancy-tabs>
-
-            <div class="tab-content">
-              ${this.secondaryTab === 'recent' ? html`
-                <div>
-                  <schmancy-typography type="headline" token="sm">Recent Items</schmancy-typography>
-                  <schmancy-typography type="body" token="md" style="margin-top: 8px;">
-                    You have 3 new items to review
-                  </schmancy-typography>
-                </div>
-              ` : this.secondaryTab === 'popular' ? html`
-                <schmancy-typography type="headline" token="sm">Popular Content</schmancy-typography>
-              ` : html`
-                <div>
-                  <schmancy-typography type="headline" token="sm">Trending Now</schmancy-typography>
-                  <schmancy-chip type="assist" style="margin-top: 12px;">
-                    <schmancy-icon slot="icon" name="trending_up"></schmancy-icon>
-                    New Feature
-                  </schmancy-chip>
-                </div>
-              `}
+            </schmancy-tabs-group>
+            <div class="min-h-32 flex items-center justify-center bg-surface rounded-lg mt-4 text-on-surface">
+              <schmancy-typography type="body" token="md">
+                Showing ${this.secondaryTabs.find(t => t.value === this.secondaryTab)?.label.toLowerCase()} content
+              </schmancy-typography>
             </div>
           </schmancy-surface>
         </div>
 
-        <!-- Tab Features -->
-        <schmancy-typography type="headline" token="md" style="margin-bottom: 16px;">
-          Tab Features
-        </schmancy-typography>
-
-        <div class="feature-grid">
-          <schmancy-surface type="outlined" rounded="medium" class="feature-card">
-            <schmancy-icon name="swipe" style="font-size: 32px; margin-bottom: 12px;"></schmancy-icon>
-            <schmancy-typography type="title" token="md">Swipeable</schmancy-typography>
-            <schmancy-typography type="body" token="sm" style="margin-top: 8px; opacity: 0.8;">
-              Support for touch gestures on mobile devices
-            </schmancy-typography>
-          </schmancy-surface>
-
-          <schmancy-surface type="outlined" rounded="medium" class="feature-card">
-            <schmancy-icon name="animation" style="font-size: 32px; margin-bottom: 12px;"></schmancy-icon>
-            <schmancy-typography type="title" token="md">Animated</schmancy-typography>
-            <schmancy-typography type="body" token="sm" style="margin-top: 8px; opacity: 0.8;">
-              Smooth transitions between tab selections
-            </schmancy-typography>
-          </schmancy-surface>
-
-          <schmancy-surface type="outlined" rounded="medium" class="feature-card">
-            <schmancy-icon name="keyboard" style="font-size: 32px; margin-bottom: 12px;"></schmancy-icon>
-            <schmancy-typography type="title" token="md">Keyboard Nav</schmancy-typography>
-            <schmancy-typography type="body" token="sm" style="margin-top: 8px; opacity: 0.8;">
-              Full keyboard navigation with arrow keys
-            </schmancy-typography>
-          </schmancy-surface>
-
-          <schmancy-surface type="outlined" rounded="medium" class="feature-card">
-            <schmancy-icon name="responsive" style="font-size: 32px; margin-bottom: 12px;"></schmancy-icon>
-            <schmancy-typography type="title" token="md">Responsive</schmancy-typography>
-            <schmancy-typography type="body" token="sm" style="margin-top: 8px; opacity: 0.8;">
-              Adapts to different screen sizes automatically
-            </schmancy-typography>
+        <!-- Vertical Tabs Demo -->
+        <div class="mb-12">
+          <schmancy-typography type="title" token="lg" class="mb-6">
+            Vertical Tabs
+          </schmancy-typography>
+          <schmancy-surface type="container" class="p-6 rounded-xl">
+            <div class="flex h-72 gap-0 bg-surface-container rounded-xl overflow-hidden">
+              <div class="min-w-48 bg-surface-container-high border-r border-outline">
+                <schmancy-tabs-group variant="vertical" .activeTab=${this.verticalTab} @tab-changed=${(e: CustomEvent) => this.verticalTab = e.detail}>
+                  ${this.verticalTabs.map(tab => html`
+                    <schmancy-tab .value=${tab.value} .label=${tab.label} ?active=${this.verticalTab === tab.value}>
+                      <schmancy-icon slot="icon">${tab.icon}</schmancy-icon>
+                      ${tab.label}
+                    </schmancy-tab>
+                  `)}
+                </schmancy-tabs-group>
+              </div>
+              <div class="flex-1 p-10 flex items-center justify-center bg-surface text-on-surface">
+                <div class="text-center">
+                  <schmancy-icon size="xl" class="mb-4">${this.verticalTabs.find(t => t.value === this.verticalTab)?.icon}</schmancy-icon>
+                  <schmancy-typography type="title" token="md">
+                    ${this.verticalTabs.find(t => t.value === this.verticalTab)?.label} Settings
+                  </schmancy-typography>
+                  <schmancy-typography type="body" token="md" class="mt-2 text-on-surface-variant">
+                    Configure your ${this.verticalTabs.find(t => t.value === this.verticalTab)?.label.toLowerCase()} preferences here.
+                  </schmancy-typography>
+                </div>
+              </div>
+            </div>
           </schmancy-surface>
         </div>
 
         <!-- Best Practices -->
-        <schmancy-surface type="filled" rounded="large" style="padding: 24px;">
-          <schmancy-typography type="headline" token="sm" style="margin-bottom: 16px;">
-            Best Practices
+        <div class="mt-12">
+          <schmancy-typography type="title" token="lg" class="mb-6">
+            Tab Best Practices
           </schmancy-typography>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <schmancy-surface type="container-low" class="p-6 rounded-lg border-l-4 border-tertiary">
+              <schmancy-typography type="title" token="md" class="mb-3 text-tertiary">
+                ✓ Do
+              </schmancy-typography>
+              <ul class="space-y-2 text-on-surface-variant list-none">
+                <li class="border-b border-outline-variant pb-2">✓ Use clear, concise tab labels</li>
+                <li class="border-b border-outline-variant pb-2">✓ Keep tab count between 2-7 for best UX</li>
+                <li class="border-b border-outline-variant pb-2">✓ Use icons to enhance recognition</li>
+                <li class="border-b border-outline-variant pb-2">✓ Implement keyboard navigation</li>
+                <li>✓ Consider vertical tabs for narrow layouts</li>
+              </ul>
+            </schmancy-surface>
 
-          <schmancy-list>
-            <schmancy-list-item>
-              <schmancy-icon slot="start" name="check_circle"></schmancy-icon>
-              <span slot="headline">Use 2-5 tabs for optimal usability</span>
-            </schmancy-list-item>
-            <schmancy-list-item>
-              <schmancy-icon slot="start" name="check_circle"></schmancy-icon>
-              <span slot="headline">Keep tab labels short and descriptive</span>
-            </schmancy-list-item>
-            <schmancy-list-item>
-              <schmancy-icon slot="start" name="check_circle"></schmancy-icon>
-              <span slot="headline">Use icons to enhance recognition</span>
-            </schmancy-list-item>
-            <schmancy-list-item>
-              <schmancy-icon slot="start" name="check_circle"></schmancy-icon>
-              <span slot="headline">Provide visual feedback for active state</span>
-            </schmancy-list-item>
-            <schmancy-list-item>
-              <schmancy-icon slot="start" name="check_circle"></schmancy-icon>
-              <span slot="headline">Consider scrollable tabs for many items</span>
-            </schmancy-list-item>
-          </schmancy-list>
-        </schmancy-surface>
+            <schmancy-surface type="container-low" class="p-6 rounded-lg border-l-4 border-error">
+              <schmancy-typography type="title" token="md" class="mb-3 text-error">
+                ✗ Don't
+              </schmancy-typography>
+              <ul class="space-y-2 text-on-surface-variant list-none">
+                <li class="border-b border-outline-variant pb-2">✗ Use more than 7 tabs in one group</li>
+                <li class="border-b border-outline-variant pb-2">✗ Hide important content behind tabs</li>
+                <li class="border-b border-outline-variant pb-2">✗ Use tabs for sequential steps</li>
+                <li class="border-b border-outline-variant pb-2">✗ Mix different tab styles randomly</li>
+                <li>✗ Forget to indicate the active tab clearly</li>
+              </ul>
+            </schmancy-surface>
+          </div>
+        </div>
       </div>
     `
   }

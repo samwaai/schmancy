@@ -1,6 +1,6 @@
 import { $LitElement } from '@mixins/index'
 import { schmancyContentDrawer } from '@schmancy/content-drawer'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 // Temporary imports from core-demos until we refactor
 // For now, create instances directly
@@ -17,11 +17,7 @@ const DemoTypography = class extends $LitElement() {
 }
 
 @customElement('layout-drawer')
-export default class LayoutDrawer extends $LitElement(css`
-	:host {
-		display: block;
-	}
-`) {
+export default class LayoutDrawer extends $LitElement() {
 	@state() private buttonDemo = new DemoButton()
 	@state() private typographyDemo = new DemoTypography()
 	@state() private demoCounter = 0

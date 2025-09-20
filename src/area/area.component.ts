@@ -20,11 +20,6 @@ import area from './area.service'
 import { RouteComponent, SchmancyRoute } from './route.component'
 import { ActiveRoute, HISTORY_STRATEGY, RouteAction } from './router.types'
 
-// Extended RouteAction type with originalWhen for tracking route identity
-type RouteActionWithTracking = RouteAction & {
-	originalWhen?: string
-}
-
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
 	:host {
@@ -54,17 +49,18 @@ export class SchmancyArea extends $LitElement(css`
 	protected firstUpdated(): void {
 		if (!this.name) throw new Error('Area name is required')
 
-		// Single unified routing pipeline
+		// Single unified routing pipeline with all logic inline
 		merge(
-			// Programmatic navigation
+			// Source 1: Programmatic navigation from area.request
 			area.request.pipe(
 				filter(({ area }) => area === this.name)
 			),
 
-			// Initial load - parse URL and determine route
-			of(location.pathname).pipe(
+			// Source 2: Initial page load - parse route from URL
+			of(null).pipe(
 				take(1),
 				map(() => {
+					// Parse route from URL on initial load
 					const path = location.pathname
 					const lastSegment = path.split('/').pop() || ''
 
@@ -75,7 +71,7 @@ export class SchmancyArea extends $LitElement(css`
 							if (parsed[this.name]) {
 								return {
 									area: this.name,
-									component: parsed[this.name].component, // Keep as string initially
+									component: parsed[this.name].component,
 									state: parsed[this.name].state || {},
 									params: parsed[this.name].params || {},
 									historyStrategy: HISTORY_STRATEGY.replace,
@@ -84,7 +80,7 @@ export class SchmancyArea extends $LitElement(css`
 						} catch {}
 					}
 
-					// Segment-based routing - find route by URL segment
+					// Segment-based routing
 					const segments = path.split('/').filter(Boolean)
 					const matchingSegment = segments.find(seg =>
 						this.routes?.some(r => r.when === seg)
@@ -93,14 +89,14 @@ export class SchmancyArea extends $LitElement(css`
 					if (matchingSegment) {
 						return {
 							area: this.name,
-							component: matchingSegment, // Keep as string initially
+							component: matchingSegment,
 							state: {},
 							params: {},
 							historyStrategy: HISTORY_STRATEGY.silent,
 						} as RouteAction
 					}
 
-					// Use default if no route matches
+					// Use default route if available
 					return this.default
 						? {
 								area: this.name,
@@ -110,329 +106,272 @@ export class SchmancyArea extends $LitElement(css`
 								historyStrategy: HISTORY_STRATEGY.silent,
 							} as RouteAction
 						: null
-				}),
-				filter(route => route !== null)
+				})
 			),
 
-			// Browser back/forward navigation
+			// Source 3: Browser navigation (back/forward) - parse from browser state
 			fromEvent<PopStateEvent>(window, 'popstate').pipe(
-				map(event => {
-					if (event.state?.schmancyAreas?.[this.name]) {
-						const stateData = event.state.schmancyAreas[this.name]
+				map(() => {
+					// Parse route from browser state during popstate
+					// First check history state
+					if (history.state?.schmancyAreas?.[this.name]) {
+						const stateData = history.state.schmancyAreas[this.name]
 						return {
 							area: this.name,
-							component: stateData.component, // Keep as string initially
+							component: stateData.component,
 							state: stateData.state || {},
 							params: stateData.params || {},
 							historyStrategy: HISTORY_STRATEGY.pop,
 						} as RouteAction
 					}
-					return null
-				}),
-				filter(route => route !== null)
-			),
-		)
-			.pipe(
-				filter(route => route?.component !== undefined),
 
-				// Step 1: Match route and resolve component (SINGLE place for matching logic)
-				map(action => {
-					let matchedRoute: SchmancyRoute | undefined
-					let component = action.component
-					let originalWhen: string | undefined
+					// Fallback to URL parsing if no state (e.g., navigating to root)
+					const path = location.pathname
+					const lastSegment = path.split('/').pop() || ''
 
-					// If component is a string, find the matching route
-					if (typeof component === 'string' && this.routes) {
-						matchedRoute = this.routes.find(r => r.when === component)
-						if (matchedRoute) {
-							component = matchedRoute.component
-							originalWhen = matchedRoute.when
-							console.log(`[${this.name}] Matched route '${originalWhen}' with component:`, component)
-						} else {
-							// No matching route, keep string component as-is
-							originalWhen = component
-						}
-					}
-					// If component is already a constructor/element, find matching route by reference
-					else if (typeof component === 'function' && this.routes) {
-						matchedRoute = this.routes.find(r => r.component === component)
-						if (matchedRoute) {
-							originalWhen = matchedRoute.when
-							console.log(`[${this.name}] Found route '${originalWhen}' for constructor`)
-						}
-					}
-					// Component is HTMLElement
-					else if (component instanceof HTMLElement && this.routes) {
-						const tagName = component.tagName.toLowerCase()
-						matchedRoute = this.routes.find(r => r.when === tagName)
-						if (matchedRoute) {
-							originalWhen = matchedRoute.when
-						}
-					}
-
-					return {
-						...action,
-						component,
-						matchedRoute,
-						originalWhen
-					} as RouteActionWithTracking & { matchedRoute?: SchmancyRoute }
-				}),
-
-				// Step 2: Check guards (moved from Step 5 - check BEFORE lazy loading)
-				switchMap((route) => {
-					// Use the matched route for guard check
-					const routeDef = route.matchedRoute ||
-						(route.originalWhen ? this.routes?.find(r => r.when === route.originalWhen) : undefined)
-
-					console.log(`[${this.name}] Guard check for route '${route.originalWhen}'`)
-
-					// If route has a guard, evaluate it
-					if (routeDef?.guard) {
-						return routeDef.guard.pipe(
-							tap(guardResult => {
-								console.log(`[${this.name}] Guard evaluation result:`, guardResult)
-							}),
-							switchMap(guardResult => {
-								if (guardResult === true) {
-									// Guard passed, continue with the route (remove matchedRoute as it's no longer needed)
-									const { matchedRoute, ...routeWithoutMatch } = route
-									return of(routeWithoutMatch)
-								}
-
-								// Guard failed, dispatch redirect event
-								const redirectEvent = new CustomEvent('redirect', {
-									detail: {
-										blockedRoute: route.originalWhen || 'unknown',
-										area: this.name,
-										params: route.params || {},
-										state: route.state || {},
-										redirectTarget: typeof guardResult === 'object' ? guardResult : undefined,
-									},
-									bubbles: true,
-									composed: true,
-								})
-								routeDef.dispatchEvent(redirectEvent)
-
-								return EMPTY
-							})
-						)
-					}
-
-					// No guard, allow navigation (remove matchedRoute as it's no longer needed)
-					const { matchedRoute, ...routeWithoutMatch } = route
-					return of(routeWithoutMatch)
-				}),
-
-				// Step 3: Resolve lazy components (was Step 2)
-				switchMap(async (route) => {
-					let component = route.component
-
-					// Check if component is a lazy-loadable function
-					if (
-						typeof component === 'function' &&
-						('preload' in component || '_promise' in component || '_module' in component)
-					) {
+					// Check for JSON encoded route in URL
+					if (lastSegment && (lastSegment.includes('{') || lastSegment.includes('%7B'))) {
 						try {
-							console.log(`[${this.name}] Lazy loading component for route '${route.originalWhen}'...`)
-							const module = await (component as () => Promise<{ default: CustomElementConstructor }>)()
-							component = module.default
-							console.log(`[${this.name}] Lazy load succeeded`)
-						} catch (e) {
-							console.error(`[${this.name}] Lazy load failed:`, e)
-							return { ...route, component: null }
-						}
+							const parsed = JSON.parse(decodeURIComponent(lastSegment)) as Record<string, ActiveRoute>
+							if (parsed[this.name]) {
+								return {
+									area: this.name,
+									component: parsed[this.name].component,
+									state: parsed[this.name].state || {},
+									params: parsed[this.name].params || {},
+									historyStrategy: HISTORY_STRATEGY.replace,
+								} as RouteAction
+							}
+						} catch {}
 					}
 
-					return { ...route, component }
-				}),
+					// Segment-based routing
+					const segments = path.split('/').filter(Boolean)
+					const matchingSegment = segments.find(seg =>
+						this.routes?.some(r => r.when === seg)
+					)
 
-				// Step 4: Extract component identifier for deduplication (was Step 3)
-				map((route) => {
-					let identifier = ''
-					const component = route.component
-
-					if (!component || component === '') {
-						identifier = 'null'
-					} else if (typeof component === 'string') {
-						identifier = component
-					} else if (component instanceof HTMLElement) {
-						identifier = component.tagName.toLowerCase()
-					} else if (typeof component === 'function') {
-						identifier = component.name || 'CustomElement'
+					if (matchingSegment) {
+						return {
+							area: this.name,
+							component: matchingSegment,
+							state: {},
+							params: {},
+							historyStrategy: HISTORY_STRATEGY.silent,
+						} as RouteAction
 					}
 
-					const key = `${identifier}${JSON.stringify(route.params)}${JSON.stringify(route.state)}`
-
-					return {
-						...route,
-						key,
-						tagName: identifier
-					}
-				}),
-
-				// Step 5: Deduplicate navigation requests (was Step 4)
-				distinctUntilChanged((a, b) => a.key === b.key),
-
-				// Step 6: Create HTML element
-				map((route) => {
-					let element: HTMLElement | null = null
-					const component = route.component
-
-					console.log(`[${this.name}] Creating element for:`, component)
-
-					if (!component || component === '') {
-						element = null
-					} else if (typeof component === 'string') {
-						try {
-							element = document.createElement(component)
-						} catch {
-							console.error(`[${this.name}] Failed to create element:`, component)
-						}
-					} else if (component instanceof HTMLElement) {
-						element = component
-					} else if (typeof component === 'function') {
-						try {
-							element = new (component as CustomElementConstructor)()
-						} catch (e) {
-							console.error(`[${this.name}] Failed to instantiate:`, e)
-						}
-					}
-
-					// Apply properties
-					if (element) {
-						if (route.params) Object.assign(element, route.params)
-						if (route.props) Object.assign(element, route.props)
-						if (route.state) (element as any).state = route.state
-					}
-
-					return { element, route }
-				}),
-
-				shareReplay(1),
-
-				// Step 7: Swap components in DOM
-				tap(({ element, route }) => this.swapComponents(element, route)),
-
-				catchError(error => {
-					console.error(`[${this.name}] Navigation error:`, error)
-					return EMPTY
-				}),
-
-				takeUntil(this.disconnecting),
+					// Use default route if available
+					return this.default
+						? {
+								area: this.name,
+								component: this.default,
+								state: {},
+								params: {},
+								historyStrategy: HISTORY_STRATEGY.silent,
+							} as RouteAction
+						: null
+				})
 			)
-			.subscribe()
+		).pipe(
+			// Filter out null routes
+			filter((route): route is RouteAction => route !== null),
+
+			// Step 1: Resolve route definition from component
+			map(action => {
+				let matchedRoute: SchmancyRoute | undefined
+				let component = action.component
+
+				// If component is a string, find the matching route
+				if (typeof component === 'string' && this.routes) {
+					matchedRoute = this.routes.find(r => r.when === component)
+					if (matchedRoute) {
+						component = matchedRoute.component
+					}
+				}
+				// If component is a function, find matching route
+				else if (typeof component === 'function' && this.routes) {
+					matchedRoute = this.routes.find(r => r.component === component)
+				}
+				// If component is HTMLElement, find by tag name
+				else if (component instanceof HTMLElement && this.routes) {
+					const tagName = component.tagName.toLowerCase()
+					matchedRoute = this.routes.find(r => r.when === tagName)
+				}
+
+				return { ...action, component, matchedRoute }
+			}),
+
+			// Step 2: Check route guards
+			switchMap(route => {
+				if (!route.matchedRoute?.guard) {
+					return of(route)
+				}
+
+				return route.matchedRoute.guard.pipe(
+					switchMap(guardResult => {
+						if (guardResult === true) {
+							return of(route)
+						}
+
+						// Guard failed, dispatch redirect event
+						const redirectEvent = new CustomEvent('redirect', {
+							detail: {
+								blockedRoute: route.matchedRoute?.when || 'unknown',
+								area: this.name,
+								params: route.params || {},
+								state: route.state || {},
+								redirectTarget: typeof guardResult === 'object' ? guardResult : undefined,
+							},
+							bubbles: true,
+							composed: true,
+						})
+						route.matchedRoute.dispatchEvent(redirectEvent)
+
+						return EMPTY
+					})
+				)
+			}),
+
+			// Step 3: Load lazy components if needed
+			switchMap(async route => {
+				let component = route.component
+
+				if (
+					typeof component === 'function' &&
+					('preload' in component || '_promise' in component || '_module' in component)
+				) {
+					try {
+						const module = await (component as () => Promise<{ default: CustomElementConstructor }>)()
+						component = module.default
+					} catch (e) {
+						console.error(`[${this.name}] Lazy load failed:`, e)
+						return { ...route, component: null }
+					}
+				}
+
+				return { ...route, component }
+			}),
+
+			// Step 4: Create unique key for deduplication
+			map(route => {
+				let identifier = ''
+				const component = route.component
+
+				if (!component || component === '') {
+					identifier = 'null'
+				} else if (typeof component === 'string') {
+					identifier = component
+				} else if (component instanceof HTMLElement) {
+					identifier = component.tagName.toLowerCase()
+				} else if (typeof component === 'function') {
+					identifier = component.name || 'CustomElement'
+				}
+
+				const key = `${identifier}${JSON.stringify(route.params)}${JSON.stringify(route.state)}`
+
+				return { ...route, key, tagName: identifier }
+			}),
+
+			// Step 5: Deduplicate navigation requests
+			distinctUntilChanged((a, b) => a.key === b.key),
+
+			// Step 6: Create DOM element from component
+			map(route => {
+				let element: HTMLElement | null = null
+				const component = route.component
+
+				if (!component || component === '') {
+					element = null
+				} else if (typeof component === 'string') {
+					try {
+						element = document.createElement(component)
+					} catch {
+						console.error(`[${this.name}] Failed to create element:`, component)
+					}
+				} else if (component instanceof HTMLElement) {
+					element = component
+				} else if (typeof component === 'function') {
+					try {
+						element = new (component as CustomElementConstructor)()
+					} catch (e) {
+						console.error(`[${this.name}] Failed to instantiate:`, e)
+					}
+				}
+
+				// Apply properties
+				if (element) {
+					if (route.params) Object.assign(element, route.params)
+					if (route.props) Object.assign(element, route.props)
+					if (route.state) (element as any).state = route.state
+				}
+
+				return { element, route }
+			}),
+
+			shareReplay(1),
+
+			// Step 7: Swap components in DOM and update history
+			tap(({ element, route }) => this.swapComponents(element, route)),
+
+			catchError(error => {
+				console.error(`[${this.name}] Navigation error:`, error)
+				return EMPTY
+			}),
+
+			takeUntil(this.disconnecting)
+		)
+		.subscribe()
 	}
 
-	/**
-	 * Swap components with animation following the original pattern
-	 */
-	private swapComponents(newComponent: HTMLElement | null, routeAction: RouteActionWithTracking) {
-		// Important: We need to work with the light DOM, not shadow DOM
-		// The slot should remain in shadow DOM, and we append content to light DOM
 
-		// Find the current routed component (not the route definitions)
-		// Route definitions have display:none, actual components don't
+	/**
+	 * Swap components with animation
+	 */
+	private swapComponents(newComponent: HTMLElement | null, routeAction: RouteAction) {
+		// Find current routed component (not route definitions)
 		const oldComponent = Array.from(this.children).find(
 			child => !(child instanceof SchmancyRoute)
 		) as HTMLElement | undefined
 
-		// If no new component, just clear
+		// Clear if no new component
 		if (!newComponent) {
-			if (oldComponent) {
-				oldComponent.remove()
-			}
+			oldComponent?.remove()
 			return
 		}
 
 		// Animate transition
 		if (oldComponent) {
-			// Fade out old component
 			const fadeOut = oldComponent.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: 'ease-out' })
-
 			fadeOut.onfinish = () => {
 				oldComponent.remove()
-				// Add new component to light DOM (not shadow DOM!)
 				this.appendChild(newComponent)
 				newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-in' })
 			}
 		} else {
-			// No old component, just add and fade in to light DOM
 			this.appendChild(newComponent)
 			newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-in' })
 		}
 
-		// Update internal state
-		if (newComponent) {
-			const activeRoute: ActiveRoute = {
-				component: newComponent.tagName.toLowerCase(),
-				state: routeAction.state || {},
-				area: this.name,
-				params: routeAction.params || {},
-			}
-
-			area.current.set(this.name, activeRoute)
-			area.$current.next(area.current)
+		// Update area state
+		const activeRoute: ActiveRoute = {
+			component: newComponent.tagName.toLowerCase(),
+			state: routeAction.state || {},
+			area: this.name,
+			params: routeAction.params || {},
 		}
 
-		// Update browser history
-		if (area.enableHistoryMode && newComponent) {
-			const activeRoute: ActiveRoute = {
-				component: newComponent.tagName.toLowerCase(),
-				state: routeAction.state || {},
-				area: this.name,
-				params: routeAction.params || {},
-			}
+		area.current.set(this.name, activeRoute)
+		area.$current.next(area.current)
 
+		// Update browser history
+		if (area.enableHistoryMode) {
 			area._updateBrowserHistory(
 				this.name,
 				activeRoute,
 				routeAction.historyStrategy || HISTORY_STRATEGY.push,
-				routeAction.clearQueryParams,
+				routeAction.clearQueryParams
 			)
-		}
-	}
-
-	/**
-	 * Create URL path for the route (legacy method, now handled by service)
-	 */
-	newPath(tag: string, route: RouteAction) {
-		const oldPathname = location.pathname.split('/').pop()
-		let oldAreaState = {}
-		try {
-			oldAreaState = oldPathname ? JSON.parse(decodeURIComponent(oldPathname)) : {}
-		} catch {
-			oldAreaState = {}
-		}
-		route.state = route.state ?? {}
-		const queryParams = route.clearQueryParams ? this.queryParamClear(route.clearQueryParams) : document.location.search
-
-		return encodeURIComponent(
-			JSON.stringify({
-				...oldAreaState,
-				[this.name]: { component: tag.toLowerCase(), state: route.state, params: route.params },
-			}),
-		).concat(`${queryParams}`)
-	}
-
-	/**
-	 * Clear query parameters
-	 */
-	queryParamClear(params?: string[] | boolean) {
-		if (!params) {
-			return ''
-		}
-		// get query params from url
-		const urlParams = new URLSearchParams(location.search)
-
-		if (params === true) {
-			// Clear all query params
-			return ''
-		} else {
-			// Clear specific query params
-			params.forEach(param => urlParams.delete(param))
-			// update url
-			if (urlParams.toString() === '') return ''
-			return `?${urlParams.toString()}`
 		}
 	}
 

@@ -1,444 +1,206 @@
-import { html, css } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { animate } from '@lit-labs/motion'
 import { $LitElement } from '@mixins/index'
-import '@schmancy/surface'
 import '@schmancy/button'
+import '@schmancy/surface'
 import '@schmancy/typography'
-import { animate, fadeIn, fadeOut } from '@lit-labs/motion'
+import { html } from 'lit'
+import { customElement, state } from 'lit/decorators.js'
 
 @customElement('demo-navigation-overview')
-export class NavigationOverview extends $LitElement(css`
-  :host {
-    display: block;
-    padding: 24px;
-  }
-
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .intro-section {
-    margin-bottom: 48px;
-    text-align: center;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 24px;
-    margin-bottom: 48px;
-  }
-
-  .demo-section {
-    margin-bottom: 32px;
-  }
-
-  .demo-card {
-    height: 300px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .pattern-preview {
-    width: 100%;
-    height: 200px;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .mobile-frame {
-    width: 280px;
-    height: 200px;
-    margin: 0 auto;
-    border: 2px solid var(--md-sys-color-outline);
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .desktop-frame {
-    width: 100%;
-    height: 200px;
-    border: 1px solid var(--md-sys-color-outline);
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-  }
-
-  .rail-demo {
-    width: 80px;
-    background: var(--md-sys-color-surface-container);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 0;
-    gap: 8px;
-  }
-
-  .rail-item {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-  }
-
-  .rail-item.active {
-    background: var(--md-sys-color-secondary-container);
-  }
-
-  .drawer-demo {
-    width: 240px;
-    background: var(--md-sys-color-surface-container);
-    padding: 16px;
-  }
-
-  .drawer-item {
-    height: 48px;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    border-radius: 24px;
-    margin-bottom: 4px;
-  }
-
-  .drawer-item.active {
-    background: var(--md-sys-color-secondary-container);
-  }
-
-  .bottom-nav-demo {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 80px;
-    background: var(--md-sys-color-surface-container);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 8px;
-  }
-
-  .nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px;
-    border-radius: 16px;
-    transition: background-color 0.2s;
-  }
-
-  .nav-item.active {
-    background: var(--md-sys-color-secondary-container);
-  }
-
-  .icon-placeholder {
-    width: 24px;
-    height: 24px;
-    background: var(--md-sys-color-on-surface);
-    opacity: 0.6;
-    border-radius: 4px;
-  }
-
-  .text-placeholder {
-    height: 4px;
-    background: var(--md-sys-color-on-surface);
-    opacity: 0.4;
-    border-radius: 2px;
-  }
-
-  code {
-    background: var(--md-sys-color-surface-container);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 14px;
-  }
-
-  .comparison-table {
-    overflow-x: auto;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--md-sys-color-outline-variant);
-  }
-
-  th {
-    background: var(--md-sys-color-surface-container);
-    font-weight: 500;
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .badge.desktop {
-    background: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-  }
-
-  .badge.mobile {
-    background: var(--md-sys-color-secondary-container);
-    color: var(--md-sys-color-on-secondary-container);
-  }
-
-  .badge.both {
-    background: var(--md-sys-color-tertiary-container);
-    color: var(--md-sys-color-on-tertiary-container);
-  }
-`) {
+export class NavigationOverview extends $LitElement() {
   @state() private activeRailItem = 0
   @state() private activeDrawerItem = 0
   @state() private activeBottomItem = 0
 
   render() {
     return html`
-      <div class="container" ${animate()}>
+      <div class="max-w-6xl mx-auto p-6" ${animate()}>
         <!-- Intro Section -->
-        <div class="intro-section" ${animate({ in: fadeIn, out: fadeOut })}>
-          <schmancy-typography type="display" token="md">
-            Navigation Components
-          </schmancy-typography>
-          <schmancy-typography type="body" token="lg"
-            style="margin-top: 16px; opacity: 0.8; max-width: 600px; margin-left: auto; margin-right: auto;">
-            Comprehensive navigation patterns for building intuitive and responsive user interfaces.
-            From tabs to drawers, menus to navigation rails - all following Material Design 3 guidelines.
-          </schmancy-typography>
-        </div>
-
-        <!-- Key Features -->
-        <div class="features-grid">
-          <schmancy-surface type="filled" rounded="medium">
-            <div style="padding: 24px;">
-              <schmancy-icon name="responsive" style="font-size: 32px; margin-bottom: 16px;"></schmancy-icon>
-              <schmancy-typography type="headline" token="sm">Responsive</schmancy-typography>
-              <schmancy-typography type="body" token="md" style="margin-top: 8px; opacity: 0.8;">
-                Adapts seamlessly from mobile to desktop with appropriate navigation patterns.
-              </schmancy-typography>
-            </div>
-          </schmancy-surface>
-
-          <schmancy-surface type="filled" rounded="medium">
-            <div style="padding: 24px;">
-              <schmancy-icon name="touch_app" style="font-size: 32px; margin-bottom: 16px;"></schmancy-icon>
-              <schmancy-typography type="headline" token="sm">Touch Optimized</schmancy-typography>
-              <schmancy-typography type="body" token="md" style="margin-top: 8px; opacity: 0.8;">
-                Large touch targets and gesture support for mobile and tablet devices.
-              </schmancy-typography>
-            </div>
-          </schmancy-surface>
-
-          <schmancy-surface type="filled" rounded="medium">
-            <div style="padding: 24px;">
-              <schmancy-icon name="accessibility" style="font-size: 32px; margin-bottom: 16px;"></schmancy-icon>
-              <schmancy-typography type="headline" token="sm">Accessible</schmancy-typography>
-              <schmancy-typography type="body" token="md" style="margin-top: 8px; opacity: 0.8;">
-                Full keyboard navigation and screen reader support built-in.
-              </schmancy-typography>
-            </div>
-          </schmancy-surface>
-        </div>
-
-        <!-- Navigation Patterns Preview -->
-        <div class="demo-section">
-          <schmancy-typography type="headline" token="md" style="margin-bottom: 24px;">
+        <div class="mb-12 text-center">
+          <schmancy-typography type="display" token="lg" class="mb-4">
             Navigation Patterns
           </schmancy-typography>
+          <schmancy-typography type="body" token="lg" class="text-on-surface-variant max-w-3xl mx-auto">
+            Navigation is the foundation of user experience. Schmancy provides powerful, accessible navigation components
+            that adapt seamlessly to different screen sizes and interaction patterns.
+          </schmancy-typography>
+        </div>
 
-          <div class="features-grid">
-            <!-- Navigation Rail Preview -->
-            <schmancy-surface type="filled" rounded="large">
-              <div class="demo-card">
-                <schmancy-typography type="title" token="md" style="margin-bottom: 16px;">
-                  Navigation Rail
-                </schmancy-typography>
-                <div class="desktop-frame">
-                  <div class="rail-demo">
-                    ${[0, 1, 2, 3].map((i) => html`
-                      <div class="rail-item ${i === this.activeRailItem ? 'active' : ''}"
-                           @click=${() => this.activeRailItem = i}>
-                        <div class="icon-placeholder"></div>
-                      </div>
-                    `)}
-                  </div>
-                  <div style="flex: 1; padding: 24px;">
-                    <div class="text-placeholder" style="width: 60%; margin-bottom: 12px;"></div>
-                    <div class="text-placeholder" style="width: 80%; margin-bottom: 12px;"></div>
-                    <div class="text-placeholder" style="width: 70%;"></div>
-                  </div>
+        <!-- Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <schmancy-surface type="container" class="p-6 text-center">
+            <div class="w-full h-48 bg-gradient-to-br from-primary-container to-secondary-container rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12"></div>
+              <schmancy-typography type="title" token="lg" class="text-on-primary-container">
+                Rail Navigation
+              </schmancy-typography>
+            </div>
+            <schmancy-typography type="title" token="md" class="mb-2">
+              Navigation Rail
+            </schmancy-typography>
+            <schmancy-typography type="body" token="sm" class="text-on-surface-variant">
+              Side navigation for desktop applications with icon-based destinations
+            </schmancy-typography>
+          </schmancy-surface>
+
+          <schmancy-surface type="container" class="p-6 text-center">
+            <div class="w-full h-48 bg-gradient-to-br from-secondary-container to-tertiary-container rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12"></div>
+              <schmancy-typography type="title" token="lg" class="text-on-secondary-container">
+                Navigation Drawer
+              </schmancy-typography>
+            </div>
+            <schmancy-typography type="title" token="md" class="mb-2">
+              Navigation Drawer
+            </schmancy-typography>
+            <schmancy-typography type="body" token="sm" class="text-on-surface-variant">
+              Side panel navigation that can slide in and out for mobile and desktop
+            </schmancy-typography>
+          </schmancy-surface>
+
+          <schmancy-surface type="container" class="p-6 text-center">
+            <div class="w-full h-48 bg-gradient-to-br from-tertiary-container to-primary-container rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12"></div>
+              <schmancy-typography type="title" token="lg" class="text-on-tertiary-container">
+                Bottom Navigation
+              </schmancy-typography>
+            </div>
+            <schmancy-typography type="title" token="md" class="mb-2">
+              Bottom Navigation
+            </schmancy-typography>
+            <schmancy-typography type="body" token="sm" class="text-on-surface-variant">
+              Tab-based navigation for mobile devices with 3-5 primary destinations
+            </schmancy-typography>
+          </schmancy-surface>
+        </div>
+
+        <!-- Interactive Demos -->
+        <div class="space-y-8">
+          <!-- Rail Demo -->
+          <div class="mb-8">
+            <schmancy-typography type="title" token="lg" class="mb-4">
+              Navigation Rail Demo
+            </schmancy-typography>
+            <schmancy-surface type="container" class="p-6 rounded-xl">
+              <div class="flex h-48 overflow-hidden rounded-lg bg-surface">
+                <div class="w-20 bg-surface-container flex flex-col items-center py-3 gap-2">
+                  ${[0, 1, 2, 3].map(index => html`
+                    <div
+                      class="w-14 h-14 rounded-2xl flex items-center justify-center cursor-pointer transition-all relative
+                             ${this.activeRailItem === index ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}"
+                      @click=${() => this.activeRailItem = index}
+                    >
+                      <schmancy-icon>${['home', 'search', 'favorite', 'settings'][index]}</schmancy-icon>
+                      ${index === 1 ? html`<div class="absolute -top-1 -right-1 w-4 h-4 bg-error text-on-error rounded-md flex items-center justify-center text-xs font-medium">3</div>` : ''}
+                    </div>
+                  `)}
                 </div>
-                <schmancy-typography type="body" token="sm" style="margin-top: 12px; opacity: 0.7;">
-                  Compact navigation for desktop
-                </schmancy-typography>
+                <div class="flex-1 p-5 flex items-center justify-center text-on-surface">
+                  <schmancy-typography type="title" token="md">
+                    ${['Home Content', 'Search Results', 'Favorites List', 'Settings Panel'][this.activeRailItem]}
+                  </schmancy-typography>
+                </div>
               </div>
             </schmancy-surface>
+          </div>
 
-            <!-- Navigation Drawer Preview -->
-            <schmancy-surface type="filled" rounded="large">
-              <div class="demo-card">
-                <schmancy-typography type="title" token="md" style="margin-bottom: 16px;">
-                  Navigation Drawer
-                </schmancy-typography>
-                <div class="desktop-frame">
-                  <div class="drawer-demo">
-                    ${[0, 1, 2, 3].map((i) => html`
-                      <div class="drawer-item ${i === this.activeDrawerItem ? 'active' : ''}"
-                           @click=${() => this.activeDrawerItem = i}>
-                        <div class="icon-placeholder" style="margin-right: 12px;"></div>
-                        <div class="text-placeholder" style="width: 80px;"></div>
-                      </div>
-                    `)}
-                  </div>
-                  <div style="flex: 1; padding: 24px;">
-                    <div class="text-placeholder" style="width: 60%; margin-bottom: 12px;"></div>
-                    <div class="text-placeholder" style="width: 80%; margin-bottom: 12px;"></div>
-                    <div class="text-placeholder" style="width: 70%;"></div>
-                  </div>
+          <!-- Drawer Demo -->
+          <div class="mb-8">
+            <schmancy-typography type="title" token="lg" class="mb-4">
+              Navigation Drawer Demo
+            </schmancy-typography>
+            <schmancy-surface type="container" class="p-6 rounded-xl">
+              <div class="flex h-48 overflow-hidden rounded-lg bg-surface">
+                <div class="w-48 bg-surface-container flex flex-col py-4">
+                  ${[0, 1, 2, 3].map(index => html`
+                    <div
+                      class="py-3 px-6 flex items-center gap-3 cursor-pointer transition-all text-on-surface-variant
+                             ${this.activeDrawerItem === index ? 'bg-secondary-container text-on-secondary-container rounded-r-full mr-3' : 'hover:bg-surface-container-high hover:rounded-r-full hover:mr-3'}"
+                      @click=${() => this.activeDrawerItem = index}
+                    >
+                      <schmancy-icon>${['dashboard', 'analytics', 'inventory', 'account_circle'][index]}</schmancy-icon>
+                      <schmancy-typography type="body" token="md">
+                        ${['Dashboard', 'Analytics', 'Inventory', 'Profile'][index]}
+                      </schmancy-typography>
+                    </div>
+                  `)}
                 </div>
-                <schmancy-typography type="body" token="sm" style="margin-top: 12px; opacity: 0.7;">
-                  Traditional sidebar navigation
-                </schmancy-typography>
+                <div class="flex-1 p-5 flex items-center justify-center text-on-surface">
+                  <schmancy-typography type="title" token="md">
+                    ${['Dashboard View', 'Analytics Reports', 'Inventory Management', 'Profile Settings'][this.activeDrawerItem]}
+                  </schmancy-typography>
+                </div>
               </div>
             </schmancy-surface>
+          </div>
 
-            <!-- Bottom Navigation Preview -->
-            <schmancy-surface type="filled" rounded="large">
-              <div class="demo-card">
-                <schmancy-typography type="title" token="md" style="margin-bottom: 16px;">
-                  Bottom Navigation
-                </schmancy-typography>
-                <div class="mobile-frame">
-                  <div style="padding: 16px;">
-                    <div class="text-placeholder" style="width: 60%; margin-bottom: 12px;"></div>
-                    <div class="text-placeholder" style="width: 80%; margin-bottom: 12px;"></div>
-                    <div class="text-placeholder" style="width: 70%;"></div>
-                  </div>
-                  <div class="bottom-nav-demo">
-                    ${[0, 1, 2, 3].map((i) => html`
-                      <div class="nav-item ${i === this.activeBottomItem ? 'active' : ''}"
-                           @click=${() => this.activeBottomItem = i}>
-                        <div class="icon-placeholder"></div>
-                        <div class="text-placeholder" style="width: 40px; margin-top: 4px;"></div>
-                      </div>
-                    `)}
-                  </div>
+          <!-- Bottom Navigation Demo -->
+          <div class="mb-8">
+            <schmancy-typography type="title" token="lg" class="mb-4">
+              Bottom Navigation Demo
+            </schmancy-typography>
+            <schmancy-surface type="container" class="p-6 rounded-xl">
+              <div class="h-48 overflow-hidden rounded-lg bg-surface flex flex-col">
+                <div class="flex-1 p-5 flex items-center justify-center text-on-surface">
+                  <schmancy-typography type="title" token="md">
+                    ${['Home Screen', 'Browse Catalog', 'Shopping Cart', 'User Profile'][this.activeBottomItem]}
+                  </schmancy-typography>
                 </div>
-                <schmancy-typography type="body" token="sm" style="margin-top: 12px; opacity: 0.7;">
-                  Mobile-first navigation
-                </schmancy-typography>
+                <div class="h-20 bg-surface-container flex items-center justify-around px-6">
+                  ${[0, 1, 2, 3].map(index => html`
+                    <div
+                      class="flex flex-col items-center gap-1 cursor-pointer py-2 px-4 rounded-2xl transition-all min-w-16
+                             ${this.activeBottomItem === index ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface-variant hover:bg-surface-container-high'}"
+                      @click=${() => this.activeBottomItem = index}
+                    >
+                      <div class="relative">
+                        <schmancy-icon size="sm">${['home', 'explore', 'shopping_cart', 'person'][index]}</schmancy-icon>
+                        ${index === 2 ? html`<div class="absolute -top-1 -right-1 w-4 h-4 bg-tertiary-container text-on-tertiary-container rounded-md flex items-center justify-center text-xs font-medium">2</div>` : ''}
+                      </div>
+                      <span class="text-xs font-medium">
+                        ${['Home', 'Browse', 'Cart', 'Profile'][index]}
+                      </span>
+                    </div>
+                  `)}
+                </div>
               </div>
             </schmancy-surface>
           </div>
         </div>
 
-        <!-- Component Comparison -->
-        <schmancy-surface type="filled" rounded="large" style="padding: 24px; margin-bottom: 32px;">
-          <schmancy-typography type="headline" token="sm" style="margin-bottom: 16px;">
-            When to Use Each Pattern
+        <!-- Best Practices -->
+        <div class="mt-12">
+          <schmancy-typography type="title" token="lg" class="mb-6">
+            Navigation Best Practices
           </schmancy-typography>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <schmancy-surface type="container-low" class="p-6 rounded-lg">
+              <schmancy-typography type="title" token="md" class="mb-3 text-success">
+                ✓ Do
+              </schmancy-typography>
+              <ul class="space-y-2 text-on-surface-variant">
+                <li>• Use consistent navigation patterns throughout your app</li>
+                <li>• Provide clear visual feedback for active states</li>
+                <li>• Include proper labels and icons for accessibility</li>
+                <li>• Consider mobile-first navigation design</li>
+                <li>• Use badges sparingly for important notifications</li>
+              </ul>
+            </schmancy-surface>
 
-          <div class="comparison-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Component</th>
-                  <th>Best For</th>
-                  <th>Platform</th>
-                  <th>Items</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>schmancy-tabs</code></td>
-                  <td>Content organization within a page</td>
-                  <td><span class="badge both">Desktop & Mobile</span></td>
-                  <td>2-5 items</td>
-                </tr>
-                <tr>
-                  <td><code>schmancy-navigation-rail</code></td>
-                  <td>Primary app navigation on tablets/desktop</td>
-                  <td><span class="badge desktop">Desktop</span></td>
-                  <td>3-7 items</td>
-                </tr>
-                <tr>
-                  <td><code>schmancy-navigation-drawer</code></td>
-                  <td>Complex navigation hierarchies</td>
-                  <td><span class="badge both">Desktop & Mobile</span></td>
-                  <td>5+ items</td>
-                </tr>
-                <tr>
-                  <td><code>schmancy-bottom-navigation</code></td>
-                  <td>Primary mobile app navigation</td>
-                  <td><span class="badge mobile">Mobile</span></td>
-                  <td>3-5 items</td>
-                </tr>
-                <tr>
-                  <td><code>schmancy-menu</code></td>
-                  <td>Contextual actions and overflow</td>
-                  <td><span class="badge both">Desktop & Mobile</span></td>
-                  <td>Any</td>
-                </tr>
-              </tbody>
-            </table>
+            <schmancy-surface type="container-low" class="p-6 rounded-lg">
+              <schmancy-typography type="title" token="md" class="mb-3 text-error">
+                ✗ Don't
+              </schmancy-typography>
+              <ul class="space-y-2 text-on-surface-variant">
+                <li>• Overcrowd navigation with too many options</li>
+                <li>• Use inconsistent icon styles or meanings</li>
+                <li>• Hide primary navigation on smaller screens</li>
+                <li>• Ignore keyboard navigation accessibility</li>
+                <li>• Use unclear or ambiguous labels</li>
+              </ul>
+            </schmancy-surface>
           </div>
-        </schmancy-surface>
-
-        <!-- Quick Start -->
-        <schmancy-surface type="filled" rounded="large" style="padding: 24px;">
-          <schmancy-typography type="headline" token="sm" style="margin-bottom: 16px;">
-            Quick Start
-          </schmancy-typography>
-
-          <schmancy-typography type="body" token="md" style="margin-bottom: 16px;">
-            Import and use navigation components in your application:
-          </schmancy-typography>
-
-          <schmancy-surface type="outlined" rounded="medium" style="padding: 16px; margin-bottom: 16px;">
-            <pre style="margin: 0; font-family: 'Roboto Mono', monospace; font-size: 14px;">
-import '@mhmo91/schmancy/navigation'
-import '@mhmo91/schmancy/tabs'
-
-// Create navigation items
-const navItems = [
-  { id: 'home', label: 'Home', icon: 'home' },
-  { id: 'search', label: 'Search', icon: 'search' },
-  { id: 'profile', label: 'Profile', icon: 'person' }
-]
-
-// Use in template
-html\`
-  &lt;schmancy-navigation-rail
-    .items=\${navItems}
-    @item-selected=\${this.handleNavigation}
-  &gt;&lt;/schmancy-navigation-rail&gt;
-\`</pre>
-          </schmancy-surface>
-
-          <schmancy-typography type="body" token="sm" style="opacity: 0.7;">
-            Explore each section to see detailed examples and implementation patterns.
-          </schmancy-typography>
-        </schmancy-surface>
+        </div>
       </div>
     `
   }

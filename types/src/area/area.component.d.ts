@@ -1,5 +1,4 @@
 import { RouteComponent } from './route.component';
-import { RouteAction } from './router.types';
 declare const SchmancyArea_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export declare class SchmancyArea extends SchmancyArea_base {
     /**
@@ -18,17 +17,9 @@ export declare class SchmancyArea extends SchmancyArea_base {
     private routes;
     protected firstUpdated(): void;
     /**
-     * Swap components with animation following the original pattern
+     * Swap components with animation
      */
     private swapComponents;
-    /**
-     * Create URL path for the route (legacy method, now handled by service)
-     */
-    newPath(tag: string, route: RouteAction): string;
-    /**
-     * Clear query parameters
-     */
-    queryParamClear(params?: string[] | boolean): string;
     disconnectedCallback(): void;
     render(): import("lit-html").TemplateResult<1>;
 }

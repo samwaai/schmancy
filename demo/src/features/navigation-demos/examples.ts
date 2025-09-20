@@ -1,4 +1,4 @@
-import { html, css } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { $LitElement } from '@mixins/index'
 import '@schmancy/surface'
@@ -11,7 +11,7 @@ import '@schmancy/input'
 import { animate, fadeIn, fadeOut } from '@lit-labs/motion'
 
 @customElement('demo-navigation-examples')
-export class NavigationExamples extends $LitElement(css`
+export class NavigationExamples extends $LitElement() {
   :host {
     display: block;
     padding: 24px;
