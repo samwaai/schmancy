@@ -3,11 +3,7 @@ import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 @customElement('misc-animated-text')
-export default class MiscAnimatedText extends $LitElement(css`
-	:host {
-		display: block;
-	}
-`) {
+export default class MiscAnimatedText extends $LitElement() {
 	render() {
 		return html`
 			<schmancy-grid gap="md">

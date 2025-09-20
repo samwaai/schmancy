@@ -6,11 +6,11 @@ import '@schmancy/input'
 import '@schmancy/surface'
 import '@schmancy/tabs'
 import '@schmancy/typography'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 @customElement('overlays-dialog-showcase')
-export default class OverlaysDialogShowcase extends $LitElement(css``) {
+export default class OverlaysDialogShowcase extends $LitElement() {
 	@state() private activeTab = 'basic'
 	@state() private formSubmitting = false
 	@state() private formErrorMessage = ''

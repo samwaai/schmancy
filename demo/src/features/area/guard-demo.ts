@@ -82,10 +82,11 @@ export class DemoAreaGuards extends $LitElement(css`
 						?checked=${this.isAuthenticated}
 						@change=${() => this.toggleAuth()}
 						label="User is authenticated"
-					></schmancy-checkbox>
-					<schmancy-typography type="body" token="sm" class="mt-2 text-surface-onVariant">
-						${this.isAuthenticated ? '✅ Authenticated' : '❌ Not authenticated'}
-					</schmancy-typography>
+					>
+						<schmancy-typography type="body" token="sm" class="mt-2 text-surface-onVariant">
+							${this.isAuthenticated ? '✅ Authenticated' : '❌ Not authenticated'}
+						</schmancy-typography>
+					</schmancy-checkbox>
 				</schmancy-surface>
 
 				<!-- Navigation buttons -->

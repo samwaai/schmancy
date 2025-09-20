@@ -1,14 +1,9 @@
-import { html, css } from 'lit';
+import { html } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { $LitElement } from '@mixins/index';
 
 @customElement('lazy-settings')
-export default class LazySettings extends $LitElement(css`
-  :host {
-    display: block;
-    padding: 24px;
-  }
-`) {
+export default class LazySettings extends $LitElement() {
   render() {
     return html`
       <schmancy-surface type="container" rounded="all" class="p-6">

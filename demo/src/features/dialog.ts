@@ -1,18 +1,10 @@
 import { $LitElement } from '@mixins/index'
 import { $dialog } from '@schmancy/dialog'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 @customElement('demo-dialog')
-export class DemoDialog extends $LitElement(css`
-  :host {
-    display: block;
-  }
-  
-  .custom-component {
-    padding: 20px;
-  }
-`) {
+export class DemoDialog extends $LitElement() {
   private openBasicDialog() {
     $dialog.confirm({
       title: 'Basic Dialog',
@@ -25,7 +17,7 @@ export class DemoDialog extends $LitElement(css`
   private openCustomDialog() {
     $dialog.component(
       html`
-        <div class="custom-component">
+        <div class="p-5">
           <h2 class="text-xl font-bold mb-4">Custom Dialog Component</h2>
           <p class="mb-4">This dialog uses a custom component with standard dialog header and actions.</p>
           <schmancy-button 
@@ -49,13 +41,13 @@ export class DemoDialog extends $LitElement(css`
     $dialog.component(
       html`
         <schmancy-dialog-content>
-          <div style="padding: 0; margin: 0; height: 100%;">
-            <div style="background-color: #4f46e5; color: white; padding: 16px;">
+          <div class="p-0 m-0 h-full">
+            <div class="bg-indigo-600 text-white p-4">
               <h2 class="text-xl font-bold">Raw Component Dialog</h2>
               <p>This dialog has no standard wrapper elements</p>
             </div>
-            
-            <div style="padding: 16px;">
+
+            <div class="p-4">
               <p class="mb-4">This example shows a dialog without any standard dialog chrome.</p>
               <p class="mb-4">It renders the component directly without any padding, header, or action buttons.</p>
               

@@ -46,7 +46,7 @@ export default class DemoFormsDemos extends $LitElement(css`
   render() {
     return html`
       <schmancy-nav-drawer>
-        <schmancy-nav-drawer-navbar width="220px">
+        <schmancy-nav-drawer-navbar width="260px">
           <schmancy-list>
             <schmancy-list-item
               .selected=${this.activeDemo === 'overview'}

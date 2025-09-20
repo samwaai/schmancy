@@ -1,5 +1,5 @@
 import { $LitElement } from '@mixins/index'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import '@schmancy/boat'
 import '@schmancy/button'
@@ -9,33 +9,7 @@ import '@schmancy/grid'
 import '@schmancy/icon'
 
 @customElement('demo-boat')
-export class DemoBoat extends $LitElement(css`
-	:host {
-		display: block;
-		padding: 2rem;
-		min-height: 100vh;
-	}
-
-	.demo-section {
-		margin-bottom: 2rem;
-	}
-
-	.button-group {
-		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
-		margin-top: 1rem;
-	}
-
-	.content-demo {
-		padding: 2rem;
-		min-height: 200px;
-	}
-
-	.boat-content {
-		padding: 1rem;
-	}
-`) {
+export class DemoBoat extends $LitElement() {
 	@state() boatState: 'hidden' | 'minimized' | 'expanded' = 'hidden'
 	@state() boatContent: string = 'simple'
 

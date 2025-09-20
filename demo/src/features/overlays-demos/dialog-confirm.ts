@@ -1,34 +1,10 @@
 import { $LitElement } from '@mixins/index'
 import { $dialog } from '@schmancy/dialog'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 @customElement('overlays-dialog-confirm')
-export default class OverlaysDialogConfirm extends $LitElement(css`
-	:host {
-		display: block;
-		padding: 2rem;
-	}
-
-	.demo-section {
-		margin-bottom: 2rem;
-	}
-
-	.button-group {
-		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
-		margin-top: 1rem;
-	}
-
-	.result {
-		margin-top: 1rem;
-		padding: 1rem;
-		border-radius: 0.5rem;
-		background: var(--md-sys-color-surface-variant);
-		font-family: monospace;
-	}
-`) {
+export default class OverlaysDialogConfirm extends $LitElement() {
 	@state() lastResult: string = 'No action taken yet'
 
 	private numberFormatter = new Intl.NumberFormat('en-US')

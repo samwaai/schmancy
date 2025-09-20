@@ -402,6 +402,267 @@ export class DemoCoreButtons extends $LitElement() {
 							</schmancy-card>
 						</schmancy-code-preview>
 					</schmancy-grid>
+
+					<!-- Width Examples Section -->
+					<schmancy-typography type="title" token="lg" class="mb-6 mt-12 block">Width Examples</schmancy-typography>
+					<schmancy-typography type="body" token="lg" class="mb-6 text-surface-onVariant block">
+						Buttons support flexible width options through both the width property and Tailwind classes.
+					</schmancy-typography>
+
+					<schmancy-grid gap="lg" class="w-full">
+						<!-- Full Width with Property -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-3">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									Using width="full" property
+								</schmancy-typography>
+								<schmancy-button variant="filled" width="full">
+									Full Width Button
+								</schmancy-button>
+								<schmancy-button variant="outlined" width="full">
+									Another Full Width Button
+								</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Full Width with Tailwind Class -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-3">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									Using w-full Tailwind class
+								</schmancy-typography>
+								<schmancy-button variant="filled" class="w-full">
+									Full Width with Tailwind
+								</schmancy-button>
+								<schmancy-button variant="elevated" class="w-full">
+									Elevated Full Width
+								</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- All Variants Full Width -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-3">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									All variants with full width
+								</schmancy-typography>
+								<schmancy-button variant="elevated" class="w-full">Elevated</schmancy-button>
+								<schmancy-button variant="filled" class="w-full">Filled</schmancy-button>
+								<schmancy-button variant="filled tonal" class="w-full">Filled Tonal</schmancy-button>
+								<schmancy-button variant="outlined" class="w-full">Outlined</schmancy-button>
+								<schmancy-button variant="text" class="w-full">Text</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Full Width with Icons -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-3">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									Full width buttons with icons
+								</schmancy-typography>
+								<schmancy-button variant="filled" class="w-full">
+									<schmancy-icon slot="prefix">shopping_cart</schmancy-icon>
+									Add to Cart
+								</schmancy-button>
+								<schmancy-button variant="outlined" class="w-full">
+									Download Report
+									<schmancy-icon slot="suffix">download</schmancy-icon>
+								</schmancy-button>
+								<schmancy-button variant="filled tonal" class="w-full">
+									<schmancy-icon slot="prefix">upload</schmancy-icon>
+									Upload Files
+									<schmancy-icon slot="suffix">arrow_forward</schmancy-icon>
+								</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Icon Buttons Full Width -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-3">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									Icon buttons with full width (stretches to container width)
+								</schmancy-typography>
+								<schmancy-icon-button ariaLabel="Settings" variant="filled" class="w-full">
+									settings
+								</schmancy-icon-button>
+								<schmancy-icon-button ariaLabel="More options" variant="outlined" class="w-full">
+									more_horiz
+								</schmancy-icon-button>
+								<schmancy-icon-button ariaLabel="Add" variant="filled tonal" class="w-full">
+									add
+								</schmancy-icon-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Button Groups Full Width -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									Button groups with full width
+								</schmancy-typography>
+								<!-- Equal width buttons in a row -->
+								<div class="flex gap-2">
+									<schmancy-button variant="outlined" class="flex-1">
+										Previous
+									</schmancy-button>
+									<schmancy-button variant="filled" class="flex-1">
+										Next
+									</schmancy-button>
+								</div>
+								<!-- Three equal buttons -->
+								<div class="flex gap-2">
+									<schmancy-button variant="text" class="flex-1">
+										Option 1
+									</schmancy-button>
+									<schmancy-button variant="text" class="flex-1">
+										Option 2
+									</schmancy-button>
+									<schmancy-button variant="text" class="flex-1">
+										Option 3
+									</schmancy-button>
+								</div>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Responsive Width -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-3">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									Responsive width (full on mobile, auto on desktop)
+								</schmancy-typography>
+								<schmancy-button variant="filled" class="w-full sm:w-auto">
+									Responsive Button
+								</schmancy-button>
+								<schmancy-button variant="outlined" class="w-full md:w-auto">
+									Full until Medium
+								</schmancy-button>
+								<schmancy-button variant="elevated" class="w-full lg:w-auto">
+									Full until Large
+								</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Mixed Width Layouts -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									Mixed width layouts
+								</schmancy-typography>
+								<!-- Form with mixed widths -->
+								<div class="space-y-3">
+									<schmancy-input placeholder="Enter your email" class="w-full"></schmancy-input>
+									<schmancy-button variant="filled" class="w-full">
+										Subscribe to Newsletter
+									</schmancy-button>
+								</div>
+								<!-- Action bar with mixed widths -->
+								<div class="flex gap-2">
+									<schmancy-button variant="text" class="flex-shrink-0">
+										Cancel
+									</schmancy-button>
+									<schmancy-button variant="filled" class="flex-1">
+										Save Changes
+									</schmancy-button>
+								</div>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Constrained Full Width -->
+						<schmancy-code-preview language="html">
+							<div class="max-w-sm mx-auto space-y-3">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									Full width within constrained container
+								</schmancy-typography>
+								<schmancy-button variant="filled" class="w-full">
+									Login
+								</schmancy-button>
+								<schmancy-button variant="outlined" class="w-full">
+									Create Account
+								</schmancy-button>
+								<schmancy-button variant="text" class="w-full">
+									Forgot Password?
+								</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Loading States Full Width -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-3">
+								<schmancy-typography type="label" token="md" class="block mb-2">
+									Loading states with full width
+								</schmancy-typography>
+								<schmancy-button variant="filled" class="w-full" disabled>
+									<schmancy-spinner slot="prefix" size="4" color="surface"></schmancy-spinner>
+									Processing Payment...
+								</schmancy-button>
+								<schmancy-button variant="outlined" class="w-full" disabled>
+									Uploading Files
+									<schmancy-spinner slot="suffix" size="4" color="surface"></schmancy-spinner>
+								</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Real-World Example: Mobile-First Form -->
+						<schmancy-code-preview language="html">
+							<schmancy-card class="max-w-md mx-auto">
+								<div class="p-6 space-y-4">
+									<schmancy-typography type="headline" token="md" class="block">
+										Sign In
+									</schmancy-typography>
+									<schmancy-input
+										placeholder="Email"
+										type="email"
+										class="w-full">
+									</schmancy-input>
+									<schmancy-input
+										placeholder="Password"
+										type="password"
+										class="w-full">
+									</schmancy-input>
+									<schmancy-button variant="filled" class="w-full">
+										Sign In
+									</schmancy-button>
+									<div class="flex gap-2">
+										<schmancy-button variant="outlined" class="flex-1">
+											<schmancy-icon slot="prefix">mail</schmancy-icon>
+											Google
+										</schmancy-button>
+										<schmancy-button variant="outlined" class="flex-1">
+											<schmancy-icon slot="prefix">smartphone</schmancy-icon>
+											GitHub
+										</schmancy-button>
+									</div>
+									<schmancy-button variant="text" class="w-full">
+										Don't have an account? Sign up
+									</schmancy-button>
+								</div>
+							</schmancy-card>
+						</schmancy-code-preview>
+
+						<!-- Real-World Example: E-commerce Actions -->
+						<schmancy-code-preview language="html">
+							<schmancy-card>
+								<div class="p-6 space-y-4">
+									<schmancy-typography type="headline" token="sm" class="block">
+										Product Actions
+									</schmancy-typography>
+									<!-- Mobile-first full width on small screens -->
+									<div class="flex flex-col sm:flex-row gap-3">
+										<schmancy-button variant="filled" class="w-full sm:flex-1">
+											<schmancy-icon slot="prefix">shopping_cart</schmancy-icon>
+											Add to Cart
+										</schmancy-button>
+										<schmancy-button variant="filled tonal" class="w-full sm:w-auto">
+											<schmancy-icon>favorite_border</schmancy-icon>
+										</schmancy-button>
+									</div>
+									<schmancy-button variant="outlined" class="w-full">
+										Buy Now
+									</schmancy-button>
+								</div>
+							</schmancy-card>
+						</schmancy-code-preview>
+					</schmancy-grid>
 				</div>
 			</schmancy-surface>
 		`

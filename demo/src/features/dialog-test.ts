@@ -1,57 +1,26 @@
 import { $LitElement } from '@mixins/index'
 import { $dialog } from '@schmancy/dialog'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 @customElement('demo-dialog-test')
-export class DemoDialogTest extends $LitElement(css`
-  :host {
-    display: block;
-  }
-  
-  .raw-dialog-content {
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-  
-  .header {
-    background-color: #4f46e5;
-    color: white;
-    padding: 16px;
-  }
-  
-  .content {
-    padding: 16px;
-  }
-  
-  .footer {
-    padding: 16px;
-    border-top: 1px solid #e5e7eb;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-  }
-`) {
+export class DemoDialogTest extends $LitElement() {
   private openComponentDialog() {
     $dialog.component(
       html`
-        <div class="raw-dialog-content">
-          <div class="header">
+        <div class="w-full h-full bg-white rounded-lg overflow-hidden shadow-lg">
+          <div class="bg-indigo-600 text-white p-4">
             <h2 class="text-xl font-bold">Component Dialog</h2>
             <p>Using $dialog.component</p>
           </div>
           
-          <div class="content">
+          <div class="p-4">
             <p class="mb-4">This is using $dialog.component directly.</p>
             <p class="mb-4">There should be NO standard dialog buttons or headers.</p>
             <p class="mb-4">Testing dismiss functionality...</p>
           </div>
           
-          <div class="footer">
+          <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
             <schmancy-button 
               variant="outlined" 
               @click=${() => $dialog.dismiss()}
@@ -68,18 +37,18 @@ export class DemoDialogTest extends $LitElement(css`
   private openSimpleDialog() {
     $dialog.simple(
       html`
-        <div class="raw-dialog-content">
-          <div class="header">
+        <div class="w-full h-full bg-white rounded-lg overflow-hidden shadow-lg">
+          <div class="bg-indigo-600 text-white p-4">
             <h2 class="text-xl font-bold">Simple Dialog</h2>
             <p>Using $dialog.simple</p>
           </div>
           
-          <div class="content">
+          <div class="p-4">
             <p class="mb-4">This is using $dialog.simple which is just an alias for component.</p>
             <p class="mb-4">There should be NO standard dialog buttons or headers.</p>
           </div>
           
-          <div class="footer">
+          <div class="p-4 border-t border-gray-200 flex justify-end gap-2">
             <schmancy-button 
               variant="outlined" 
               @click=${() => $dialog.dismiss()}

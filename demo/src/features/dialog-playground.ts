@@ -5,54 +5,11 @@ import '@schmancy/input'
 import '@schmancy/surface'
 import '@schmancy/tabs'
 import '@schmancy/typography'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 @customElement('demo-dialog-playground')
-export class DemoDialogPlayground extends $LitElement(css`
-	:host {
-		display: block;
-	}
-
-	.demo-container {
-		margin-top: 24px;
-	}
-
-	.example-section {
-		border: 1px solid #e2e8f0;
-		border-radius: 8px;
-		padding: 24px;
-		margin-bottom: 24px;
-		background-color: white;
-	}
-
-	.example-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 16px;
-	}
-
-	.code-block {
-		background-color: #f8fafc;
-		border-radius: 6px;
-		padding: 16px;
-		font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-		font-size: 14px;
-		line-height: 1.5;
-		white-space: pre-wrap;
-		overflow-x: auto;
-		margin-bottom: 20px;
-		border: 1px solid #e2e8f0;
-	}
-
-	.actions {
-		display: flex;
-		justify-content: flex-end;
-		gap: 8px;
-		margin-top: 16px;
-	}
-`) {
+export class DemoDialogPlayground extends $LitElement() {
 	@state() private activeExample = 'basic'
 
 	private examples = {
@@ -627,8 +584,8 @@ document.body.appendChild(button);`,
 					</select>
 				</div>
 
-				<div class="example-section">
-					<div class="example-header">
+				<div class="border border-gray-300 rounded-lg p-6 mb-6 bg-white">
+					<div class="flex justify-between items-center mb-4">
 						<schmancy-typography type="title" token="lg">${example.title}</schmancy-typography>
 						<schmancy-button variant="text" size="sm" class="copy-button" @click=${this.copyCode}>
 							Copy Code
@@ -637,11 +594,11 @@ document.body.appendChild(button);`,
 
 					<schmancy-typography type="body" token="md" class="mb-4"> ${example.description} </schmancy-typography>
 
-					<div class="code-block">
+					<div class="bg-gray-50 rounded-md p-4 font-mono text-sm leading-relaxed whitespace-pre-wrap overflow-x-auto mb-5 border border-gray-300">
 						<pre><code>${this.getExampleCode()}</code></pre>
 					</div>
 
-					<div class="actions">
+					<div class="flex justify-end gap-2 mt-4">
 						<schmancy-button variant="filled" @click=${this.runExample}> Run Example </schmancy-button>
 					</div>
 				</div>
