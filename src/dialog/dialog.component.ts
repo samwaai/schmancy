@@ -363,7 +363,7 @@ export class SchmancyDialog extends $LitElement(css`
 				role="dialog" 
 				aria-modal="true"
 			>
-				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
+				<schmancy-surface class="p-2" rounded="all" elevation="3" type="containerHigh">
 					<slot></slot>
 				</schmancy-surface>
 			</div>
