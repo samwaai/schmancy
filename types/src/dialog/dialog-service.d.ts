@@ -9,7 +9,6 @@ export interface DialogOptions {
     confirmText?: string;
     cancelText?: string;
     variant?: 'default' | 'danger';
-    confirmColor?: 'primary' | 'error' | 'warning' | 'success';
     position?: {
         x: number;
         y: number;
@@ -105,12 +104,6 @@ export declare const $dialog: {
      * @returns Promise that resolves when dialog is closed
      */
     component: (content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, "content" | "message">) => Promise<boolean>;
-    /**
-     * Show a simple dialog without title or actions, just content
-     * This is an alias for component() since all component dialogs are now simple by design
-     * @returns Promise that resolves when dialog is closed
-     */
-    simple: (content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, "content" | "message" | "title" | "confirmText" | "cancelText">) => Promise<boolean>;
     /**
      * Dismiss the most recently opened dialog
      * @returns true if a dialog was dismissed, false if no dialogs were open

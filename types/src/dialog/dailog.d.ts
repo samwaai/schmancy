@@ -31,10 +31,6 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
      */
     variant: 'default' | 'danger';
     /**
-     * Confirm button color
-     */
-    confirmColor?: 'primary' | 'error' | 'warning' | 'success';
-    /**
      * Current position of the dialog
      */
     private position;
@@ -91,7 +87,7 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
      */
     private handleCancel;
     /**
-     * Get the CSS class for the confirm button based on color
+     * Get the CSS class for the confirm button based on variant
      */
     private getConfirmButtonClass;
     render(): import("lit-html").TemplateResult<1>;

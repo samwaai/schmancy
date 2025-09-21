@@ -1,6 +1,6 @@
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { css, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 /**
  * `<schmancy-navigation-rail-item>` component
