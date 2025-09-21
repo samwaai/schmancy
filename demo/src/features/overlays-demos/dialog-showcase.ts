@@ -1,13 +1,7 @@
 import { $LitElement } from '@mixins/index'
-import '@schmancy/button'
-import { $dialog } from '@schmancy/dialog'
-import '@schmancy/form'
-import '@schmancy/input'
-import '@schmancy/surface'
-import '@schmancy/tabs'
-import '@schmancy/typography'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
+import { $dialog } from '@schmancy/dialog'
 
 @customElement('overlays-dialog-showcase')
 export default class OverlaysDialogShowcase extends $LitElement() {
@@ -161,6 +155,39 @@ $dialog.confirm({
     });
   }
 });`,
+
+		scrollable: `import { html } from 'lit';
+import { $dialog } from '@schmancy/dialog';
+
+// Dialog with lots of content to test scrolling
+$dialog.component(html\`
+  <div>
+    <schmancy-typography type="headline" token="md" class="mb-4">
+      Long Content Dialog
+    </schmancy-typography>
+
+    <schmancy-typography type="body" token="md" class="mb-4">
+      This dialog contains a lot of content to demonstrate scrolling behavior.
+    </schmancy-typography>
+
+    <!-- Generate lots of content -->
+    \${[...Array(20)].map((_, i) => html\`
+      <schmancy-surface type="container" class="mb-3 p-3">
+        <schmancy-typography type="title" token="sm">Section \${i + 1}</schmancy-typography>
+        <schmancy-typography type="body" token="sm" class="mt-2">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        </schmancy-typography>
+      </schmancy-surface>
+    \`)}
+
+    <div class="flex justify-end mt-4">
+      <schmancy-button variant="filled" @click=\${() => $dialog.dismiss()}>
+        Close
+      </schmancy-button>
+    </div>
+  </div>
+\`, { width: '500px' });`,
 	}
 
 	private descriptions = {
@@ -171,22 +198,12 @@ $dialog.confirm({
 		form: 'An interactive form dialog with validation, loading states, and dynamic content. Shows how to handle complex user interactions.',
 		stacked:
 			'Demonstrates stacked dialogs that open on top of each other, creating a multi-step flow with proper layering.',
+		scrollable:
+			'A dialog with extensive content to test scrolling behavior. Shows how dialogs handle overflow content with proper scrolling.',
 	}
 
 	private handleTabChange(tab: string) {
 		this.activeTab = tab
-	}
-
-	private copyCode() {
-		navigator.clipboard.writeText(this.codeSnippets[this.activeTab]).then(() => {
-			const copyButton = this.shadowRoot?.querySelector('.copy-button')
-			if (copyButton) {
-				copyButton.textContent = 'Copied!'
-				setTimeout(() => {
-					copyButton.textContent = 'Copy code'
-				}, 2000)
-			}
-		})
 	}
 
 	// Dialog demos
@@ -338,6 +355,53 @@ $dialog.confirm({
 		}, 0)
 	}
 
+	private openScrollableDialog() {
+		$dialog.component(
+			html`
+				<div>
+					<schmancy-typography type="headline" token="md" class="mb-4">
+						Long Content Dialog
+					</schmancy-typography>
+
+					<schmancy-typography type="body" token="md" class="mb-4">
+						This dialog contains a lot of content to demonstrate scrolling behavior.
+						The dialog should automatically become scrollable when content exceeds the viewport height.
+					</schmancy-typography>
+
+					${[...Array(20)].map((_, i) => html`
+						<schmancy-surface type="container" class="mb-3 p-3">
+							<schmancy-typography type="title" token="sm">Section ${i + 1}</schmancy-typography>
+							<schmancy-typography type="body" token="sm" class="mt-2">
+								Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+								Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+								Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+								nisi ut aliquip ex ea commodo consequat.
+							</schmancy-typography>
+						</schmancy-surface>
+					`)}
+
+					<div class="flex justify-end gap-2 mt-4 sticky bottom-0 bg-surface p-4 -mx-4 -mb-4">
+						<schmancy-button variant="outlined" @click=${() => $dialog.dismiss()}>
+							Cancel
+						</schmancy-button>
+						<schmancy-button variant="filled" @click=${() => {
+							$dialog.dismiss()
+							$dialog.confirm({
+								title: 'Success',
+								message: 'You scrolled through all the content!',
+								confirmText: 'OK',
+								cancelText: ''
+							})
+						}}>
+							Confirm
+						</schmancy-button>
+					</div>
+				</div>
+			`,
+			{ width: '500px' }
+		)
+	}
+
 	private openStackedDialogs() {
 		$dialog
 			.confirm({
@@ -406,6 +470,9 @@ $dialog.confirm({
 						<schmancy-tab value="stacked" label="Stacked Dialogs" ?active=${this.activeTab === 'stacked'}>
 							Stacked Dialogs
 						</schmancy-tab>
+						<schmancy-tab value="scrollable" label="Scrollable Dialog" ?active=${this.activeTab === 'scrollable'}>
+							Scrollable Dialog
+						</schmancy-tab>
 					</schmancy-tabs-group>
 				</div>
 
@@ -416,15 +483,10 @@ $dialog.confirm({
 				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
 					<div>
 						<schmancy-surface rounded="all" class="p-4 h-full flex flex-col">
-							<div class="mb-2 flex justify-between items-center">
-								<schmancy-typography type="subtitle" token="md">Code Example</schmancy-typography>
-								<schmancy-button variant="text" size="sm" class="copy-button" @click=${this.copyCode}>
-									Copy code
-								</schmancy-button>
-							</div>
-							<div class="bg-gray-50 p-4 rounded overflow-auto font-mono text-sm flex-grow">
-								<pre><code>${this.codeSnippets[this.activeTab]}</code></pre>
-							</div>
+							<schmancy-typography type="subtitle" token="md" class="mb-4">Code Example</schmancy-typography>
+							<schmancy-code-preview language="typescript" class="flex-grow">
+								${this.codeSnippets[this.activeTab]}
+							</schmancy-code-preview>
 						</schmancy-surface>
 					</div>
 
@@ -453,11 +515,17 @@ $dialog.confirm({
 													Open Form Dialog
 												</schmancy-button>
 											`
-										: html`
-												<schmancy-button variant="filled" @click=${this.openStackedDialogs}>
-													Open Stacked Dialogs
-												</schmancy-button>
-											`}
+										: this.activeTab === 'scrollable'
+											? html`
+													<schmancy-button variant="filled" @click=${this.openScrollableDialog}>
+														Open Scrollable Dialog
+													</schmancy-button>
+												`
+											: html`
+													<schmancy-button variant="filled" @click=${this.openStackedDialogs}>
+														Open Stacked Dialogs
+													</schmancy-button>
+												`}
 						</schmancy-surface>
 					</div>
 				</div>

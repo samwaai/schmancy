@@ -84,12 +84,6 @@ export class ConfirmDialog extends $LitElement(css`
 	variant: 'default' | 'danger' = 'default'
 
 	/**
-	 * Confirm button color
-	 */
-	@property({ type: String, attribute: 'confirm-color' })
-	confirmColor?: 'primary' | 'error' | 'warning' | 'success'
-
-	/**
 	 * Current position of the dialog
 	 */
 	private position = { x: 0, y: 0 }
@@ -393,23 +387,15 @@ export class ConfirmDialog extends $LitElement(css`
 	}
 
 	/**
-	 * Get the CSS class for the confirm button based on color
+	 * Get the CSS class for the confirm button based on variant
 	 */
 	private getConfirmButtonClass(): string {
-		// Map confirmColor to appropriate CSS classes
-		const colorMap = {
-			error: 'bg-error-default hover:bg-error-container text-error-on',
-			warning: 'bg-tertiary-default hover:bg-tertiary-container text-tertiary-on',
-			success: 'bg-success-default hover:bg-success-container text-success-on',
-			primary: ''
-		}
-
 		// If variant is danger, use error color
-		if (this.variant === 'danger' || this.confirmColor === 'error') {
-			return colorMap.error
+		if (this.variant === 'danger') {
+			return 'bg-error-default hover:bg-error-container text-error-on'
 		}
 
-		return colorMap[this.confirmColor || 'primary'] || ''
+		return ''
 	}
 
 	render() {
@@ -424,8 +410,8 @@ export class ConfirmDialog extends $LitElement(css`
 			<div class="overlay" @click=${this.handleCancel}></div>
 
 			<div class="dialog" role="alertdialog" aria-modal="true">
-				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
-					<schmancy-form @submit=${this.handleConfirm} class="p-4">
+				<schmancy-surface rounded="all" elevation="3" type="containerHigh" class="p-4">
+					<schmancy-form @submit=${this.handleConfirm} >
 						${when(
 							this.title && this.title.trim() !== '',
 							() => html`

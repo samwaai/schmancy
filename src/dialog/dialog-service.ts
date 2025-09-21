@@ -1,5 +1,5 @@
 import { render, TemplateResult } from 'lit'
-import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, switchMap, takeUntil, tap, timer, Subscription } from 'rxjs'
+import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, Subscription, switchMap, takeUntil, tap, timer } from 'rxjs'
 import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.events'
 import { ConfirmDialog } from './dailog'
 import { DialogHereMorty, DialogHereMortyEvent, DialogWhereAreYouRicky } from './dialog-events'
@@ -14,7 +14,6 @@ export interface DialogOptions {
 	confirmText?: string
 	cancelText?: string
 	variant?: 'default' | 'danger'
-	confirmColor?: 'primary' | 'error' | 'warning' | 'success' // Button color for confirm action
 	position?: { x: number; y: number } | MouseEvent | TouchEvent
 
 	// New options for component rendering
@@ -185,7 +184,6 @@ export class DialogService {
 						if (options.confirmText) confirmDialog.confirmText = options.confirmText
 						if (options.cancelText) confirmDialog.cancelText = options.cancelText
 						if (options.variant) confirmDialog.variant = options.variant
-						if (options.confirmColor) confirmDialog.confirmColor = options.confirmColor
 						if (options.width) confirmDialog.style.setProperty('--dialog-width', options.width)
 						
 						// Handle custom content if provided
@@ -546,18 +544,6 @@ export const $dialog = {
 	component: (
 		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
 		options?: Omit<DialogOptions, 'content' | 'message'>,
-	): Promise<boolean> => {
-		return DialogService.getInstance().component(content, options)
-	},
-
-	/**
-	 * Show a simple dialog without title or actions, just content
-	 * This is an alias for component() since all component dialogs are now simple by design
-	 * @returns Promise that resolves when dialog is closed
-	 */
-	simple: (
-		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
-		options?: Omit<DialogOptions, 'content' | 'message' | 'title' | 'confirmText' | 'cancelText'>,
 	): Promise<boolean> => {
 		return DialogService.getInstance().component(content, options)
 	},

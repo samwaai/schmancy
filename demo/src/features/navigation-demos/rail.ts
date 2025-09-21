@@ -1,12 +1,7 @@
+import { animate } from '@lit-labs/motion'
+import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { $LitElement } from '@mixins/index'
-import '@schmancy/surface'
-import '@schmancy/nav-drawer'
-import '@schmancy/navigation-rail'
-import '@schmancy/typography'
-import '@schmancy/button'
-import { animate, fadeIn, fadeOut } from '@lit-labs/motion'
 
 @customElement('demo-navigation-rail')
 export class NavigationRail extends $LitElement() {
@@ -172,7 +167,7 @@ export class NavigationRail extends $LitElement() {
             Navigation Rail Best Practices
           </schmancy-typography>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <schmancy-surface type="container-low" class="p-6 rounded-lg border-l-4 border-tertiary">
+            <schmancy-surface type="containerLow" class="p-6 rounded-lg border-l-4 border-tertiary">
               <schmancy-typography type="title" token="md" class="mb-3 text-tertiary">
                 ✓ Do
               </schmancy-typography>
@@ -185,7 +180,7 @@ export class NavigationRail extends $LitElement() {
               </ul>
             </schmancy-surface>
 
-            <schmancy-surface type="container-low" class="p-6 rounded-lg border-l-4 border-error">
+            <schmancy-surface type="containerLow" class="p-6 rounded-lg border-l-4 border-error">
               <schmancy-typography type="title" token="md" class="mb-3 text-error">
                 ✗ Don't
               </schmancy-typography>

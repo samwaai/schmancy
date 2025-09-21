@@ -4,7 +4,7 @@ import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { fromEvent, tap } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
-import { DialogWhereAreYouRicky, DialogWhereAreYouRickyEvent, DialogHereMorty } from './dialog-events'
+import { DialogHereMorty, DialogWhereAreYouRicky, DialogWhereAreYouRickyEvent } from './dialog-events'
 
 /**
  * A basic dialog web component without title or actions
@@ -266,13 +266,15 @@ export class SchmancyDialog extends $LitElement(css`
 	 */
 	connectedCallback() {
 		super.connectedCallback()
-		
+
 		// Listen for "where are you ricky" events
-		fromEvent<DialogWhereAreYouRickyEvent>(window, DialogWhereAreYouRicky).pipe(
-			tap(e => {
-				if (e.detail.uid === this.uid) this.announcePresence()
-			}),
-		).subscribe()
+		fromEvent<DialogWhereAreYouRickyEvent>(window, DialogWhereAreYouRicky)
+			.pipe(
+				tap(e => {
+					if (e.detail.uid === this.uid) this.announcePresence()
+				}),
+			)
+			.subscribe()
 	}
 
 	/**
@@ -340,33 +342,30 @@ export class SchmancyDialog extends $LitElement(css`
 		// Determine if the dialog is centered
 		const viewportWidth = window.innerWidth
 		const viewportHeight = window.innerHeight
-		const isCentered = Math.abs(this.position.x - viewportWidth / 2) < 10 && Math.abs(this.position.y - viewportHeight / 2) < 10
-		
+		const isCentered =
+			Math.abs(this.position.x - viewportWidth / 2) < 10 && Math.abs(this.position.y - viewportHeight / 2) < 10
+
 		const dialogClasses = {
-			'absolute': true,
+			absolute: true,
 			'w-[var(--dialog-width)]': true, // Use the specified width
 			'max-w-[calc(100vw-2rem)]': true, // Prevent overflow on small screens
 			'max-h-[calc(100vh-40px)]': true,
-			'overflow-auto': true,
+			"overflow-hidden":true,
 			// Centered positioning
 			'top-1/2': isCentered,
 			'left-1/2': isCentered,
 			'-translate-x-1/2': isCentered,
 			'-translate-y-[55%]': isCentered, // Slight upward shift
 		}
-		
+
 		return html`
 			<div class="fixed inset-0 bg-scrim/40" @click=${this.handleClose}></div>
 
-			<div 
-				class=${this.classMap(dialogClasses)} 
-				role="dialog" 
-				aria-modal="true"
-			>
-				<schmancy-surface class="p-2" rounded="all" elevation="3" type="containerHigh">
-					<slot></slot>
+			<schmancy-scroll class=${this.classMap(dialogClasses)} role="dialog" aria-modal="true">
+				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
+							<slot></slot>
 				</schmancy-surface>
-			</div>
+			</schmancy-scroll>
 		`
 	}
 }

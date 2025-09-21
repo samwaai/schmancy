@@ -1,7 +1,7 @@
 import { $LitElement } from '@mixins/index'
-import { $dialog } from '@schmancy/dialog'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
+import { $dialog } from '@schmancy/dialog'
 
 @customElement('overlays-dialog-confirm')
 export default class OverlaysDialogConfirm extends $LitElement() {

@@ -1,4 +1,7 @@
-// Overlays demos navigation
+// Main overlays demos component
+export { default } from './overlays-demos';
+
+// Individual demo exports (for backward compatibility if needed)
 export const overlaysDemos = [
 	{
 		title: 'Overlays',

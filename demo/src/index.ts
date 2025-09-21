@@ -129,6 +129,7 @@ export default class SchmancyDemo extends $LitElement() {
 					{ name: 'Forms', component: lazy(() => import('./features/forms-demos')) as any },
 					{ name: 'Navigation', component: lazy(() => import('./features/navigation-demos')) as any },
 					{ name: 'Data Display', component: lazy(() => import('./features/data-display-demos')) as any },
+					{ name: 'Overlays', component: lazy(() => import('./features/overlays-demos')) as any },
 				]
 			},
 			{
