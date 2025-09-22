@@ -350,22 +350,22 @@ export class SchmancyDialog extends $LitElement(css`
 			'w-[var(--dialog-width)]': true, // Use the specified width
 			'max-w-[calc(100vw-2rem)]': true, // Prevent overflow on small screens
 			'max-h-[calc(100vh-40px)]': true,
-			"overflow-hidden":true,
 			// Centered positioning
 			'top-1/2': isCentered,
 			'left-1/2': isCentered,
 			'-translate-x-1/2': isCentered,
-			'-translate-y-[55%]': isCentered, // Slight upward shift
+			'-translate-y-[50%]': isCentered, // Slight upward shift
+			'overflow-auto':true
 		}
 
 		return html`
 			<div class="fixed inset-0 bg-scrim/40" @click=${this.handleClose}></div>
 
-			<schmancy-scroll class=${this.classMap(dialogClasses)} role="dialog" aria-modal="true">
+			<section class=${this.classMap(dialogClasses)} role="dialog" aria-modal="true">
 				<schmancy-surface rounded="all" elevation="3" type="containerHigh">
-							<slot></slot>
+								<slot></slot>
 				</schmancy-surface>
-			</schmancy-scroll>
+			</section>
 		`
 	}
 }

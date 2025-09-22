@@ -47,3 +47,6 @@ node_modules/  # In the root .gitignore
 functions/node_modules/ # This is also important.
 
 **/.claude/settings.local.json
+
+# Local Netlify folder
+.netlify

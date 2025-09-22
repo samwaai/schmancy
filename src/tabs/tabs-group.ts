@@ -120,7 +120,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 	protected render(): unknown {
 		const tabs = {
 			'bg-surface-default color-surface-on': true,
-			'flex z-50': true,
+			'flex z-50 overflow-auto': true,
 			'sticky top-0 shadow-md': this.mode === 'scroll',
 			'rounded-full': this.rounded,
 		}
