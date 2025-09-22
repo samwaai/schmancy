@@ -142,20 +142,20 @@ export class SchmancyStep extends $LitElement(css`
 
 		return html`
 			<li class="relative">
-				<!-- Connector line -->
+				<!-- Connector line - responsive positioning -->
 				<div
-					class="absolute top-8 left-4 -ml-px w-0.5 transition-colors duration-200 ${this.classMap(connectorClasses)}"
+					class="absolute top-8 left-3 sm:left-4 -ml-px w-0.5 transition-colors duration-200 ${this.classMap(connectorClasses)}"
 					style="height: calc(100% + var(--steps-gap, 0px))"
 					aria-hidden="true"
 				></div>
 
-				<!-- Step Button/Label -->
-				<button 
-					type="button" 
-					@click=${this._onStepClick} 
-					class="relative flex items-center group transition-all duration-200 hover:scale-[1.02] ${clickableClass} ${isActive ? 'bg-primary-container/20 -mx-2 px-2 py-3 rounded-lg' : 'py-2'}"
+				<!-- Step Button/Label - adjusted padding for mobile -->
+				<button
+					type="button"
+					@click=${this._onStepClick}
+					class="relative flex items-center group transition-all duration-200 hover:scale-[1.02] ${clickableClass} ${isActive ? 'bg-primary-container/20 -mx-1 sm:-mx-2 px-1 sm:px-2 py-2 sm:py-3 rounded-lg' : 'py-1 sm:py-2'}"
 				>
-					<span class="flex items-center h-12">
+					<span class="flex items-center h-10 sm:h-12">
 						<span class=${this.classMap(iconContainerClasses)}>
 							${isComplete
 								? html`
@@ -177,14 +177,14 @@ export class SchmancyStep extends $LitElement(css`
 						</span>
 					</span>
 
-					<span class="flex flex-col items-start justify-center min-w-0 ml-6">
+					<span class="flex flex-col items-start justify-center min-w-0 ml-3 sm:ml-6">
 						<schmancy-typography type="title" token="md">
 							<span class="transition-colors duration-200 ${this.classMap(textClasses)}">${this.title}</span>
 						</schmancy-typography>
 						${when(
 							this.description,
 							() => html`
-								<schmancy-typography type="body" token="sm" class="mt-1">
+								<schmancy-typography type="body" token="sm" class="mt-0.5 sm:mt-1">
 									<span class="text-surface-onVariant transition-colors duration-200 ${isActive ? 'text-primary-onContainer' : ''}">${this.description}</span>
 								</schmancy-typography>
 							`,
@@ -192,11 +192,11 @@ export class SchmancyStep extends $LitElement(css`
 					</span>
 				</button>
 
-				<!-- Render step content if the step is active, with enhanced spacing -->
+				<!-- Render step content if the step is active - responsive spacing -->
 				${when(
 					isActive,
 					() => html`
-						<div class="ml-10 mt-4 pb-8 transition-all duration-300 ease-out">
+						<div class="ml-6 sm:ml-10 mt-3 sm:mt-4 pb-6 sm:pb-8 transition-all duration-300 ease-out">
 						<slot></slot>
 						</div>
 					`,
