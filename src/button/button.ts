@@ -9,7 +9,7 @@ export interface SchmancyButtonEventMap {
 	SchmancyBlur: CustomEvent<void>
 }
 
-export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text'
+export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'tonal' | 'outlined' | 'text'
 
 /**
  * A button component.
@@ -148,6 +148,9 @@ export class SchmancyButton extends $LitElement(
 	}
 
 	render() {
+		// Map 'tonal' variant to 'filled tonal' for backwards compatibility
+		const effectiveVariant = this.variant === 'tonal' ? 'filled tonal' : this.variant;
+
 		// Compute classes for the interactive element.
 		const classes = {
 			'z-0 py-2 px-3 sm:py-1.5 sm:px-3 md:py-2 md:px-4 text-sm sm:text-base transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-1 sm:gap-1.5 md:gap-2 outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden w-[inherit]':
@@ -156,24 +159,24 @@ export class SchmancyButton extends $LitElement(
 			'opacity-[0.38]': this.disabled,
 			'hover:shadow-xs':
 				!this.disabled &&
-				(this.variant === 'outlined' ||
-					this.variant === 'text' ||
-					this.variant === 'filled' ||
-					this.variant === 'filled tonal'),
-			'hover:shadow-sm': !this.disabled && this.variant === 'elevated',
+				(effectiveVariant === 'outlined' ||
+					effectiveVariant === 'text' ||
+					effectiveVariant === 'filled' ||
+					effectiveVariant === 'filled tonal'),
+			'hover:shadow-sm': !this.disabled && effectiveVariant === 'elevated',
 			'w-full tex-center': this.width === 'full',
-			'bg-surface-low text-primary-default shadow-xs': this.variant === 'elevated',
-			'bg-transparent text-primary-default border-1 border-solid border-outline': this.variant === 'outlined',
-			'bg-primary-default text-primary-on': this.variant === 'filled',
-			'bg-secondary-container text-secondary-onContainer': this.variant === 'filled tonal',
-			'text-primary-default': this.variant === 'text',
+			'bg-surface-low text-primary-default shadow-xs': effectiveVariant === 'elevated',
+			'bg-transparent text-primary-default border-1 border-solid border-outline': effectiveVariant === 'outlined',
+			'bg-primary-default text-primary-on': effectiveVariant === 'filled',
+			'bg-secondary-container text-secondary-onContainer': effectiveVariant === 'filled tonal',
+			'text-primary-default': effectiveVariant === 'text',
 		}
 
 		const stateLayerClasses = {
 			'absolute inset-0 hover:opacity-[0.08] z-0 rounded-full': true,
-			'hover:bg-primary-on': this.variant === 'filled',
-			'hover:bg-primary-default': this.variant === 'outlined' || this.variant === 'elevated' || this.variant === 'text',
-			'hover:bg-secondary-container': this.variant === 'filled tonal',
+			'hover:bg-primary-on': effectiveVariant === 'filled',
+			'hover:bg-primary-default': effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text',
+			'hover:bg-secondary-container': effectiveVariant === 'filled tonal',
 		}
 
 		// If href is provided, render an anchor element.

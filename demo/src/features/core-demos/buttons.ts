@@ -59,7 +59,7 @@ export class DemoCoreButtons extends $LitElement() {
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">
-											'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text'
+											'elevated' | 'filled' | 'filled tonal' | 'tonal' | 'outlined' | 'text'
 										</schmancy-typography>
 									</td>
 									<td class="p-4">
@@ -277,6 +277,17 @@ export class DemoCoreButtons extends $LitElement() {
 								<schmancy-button variant="filled tonal">Filled Tonal</schmancy-button>
 								<schmancy-button variant="outlined">Outlined</schmancy-button>
 								<schmancy-button variant="text">Text</schmancy-button>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Tonal Variant Compatibility -->
+						<schmancy-code-preview language="html">
+							<div class="flex flex-wrap gap-4 items-center">
+								<schmancy-button variant="tonal">Tonal (alias)</schmancy-button>
+								<schmancy-button variant="filled tonal">Filled Tonal (original)</schmancy-button>
+								<schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+									Both render identically
+								</schmancy-typography>
 							</div>
 						</schmancy-code-preview>
 

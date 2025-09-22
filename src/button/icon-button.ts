@@ -116,6 +116,9 @@ export class SchmnacyIconButton extends $LitElement(css`
 	}
 
 	render() {
+		// Map 'tonal' variant to 'filled tonal' for backwards compatibility
+		const effectiveVariant = this.variant === 'tonal' ? 'filled tonal' : this.variant;
+
 		// Compute classes for the interactive element.
 		const classes = {
 			'z-0 h-full transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-[8px] outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden':
@@ -124,17 +127,17 @@ export class SchmnacyIconButton extends $LitElement(css`
 			'cursor-pointer': !this.disabled,
 			'hover:shadow-xs':
 				!this.disabled &&
-				(this.variant === 'outlined' ||
-					this.variant === 'text' ||
-					this.variant === 'filled' ||
-					this.variant === 'filled tonal'),
-			'hover:shadow-sm': !this.disabled && this.variant === 'elevated',
+				(effectiveVariant === 'outlined' ||
+					effectiveVariant === 'text' ||
+					effectiveVariant === 'filled' ||
+					effectiveVariant === 'filled tonal'),
+			'hover:shadow-sm': !this.disabled && effectiveVariant === 'elevated',
 			'w-full text-center': this.width === 'full',
-			'bg-surface-low text-primary-default shadow-xs': this.variant === 'elevated',
-			'bg-transparent text-primary-default border-1 border-outline': this.variant === 'outlined',
-			'bg-primary-default text-primary-on': this.variant === 'filled',
-			'bg-secondary-container text-secondary-onContainer': this.variant === 'filled tonal',
-			'text-primary-default': this.variant === 'text',
+			'bg-surface-low text-primary-default shadow-xs': effectiveVariant === 'elevated',
+			'bg-transparent text-primary-default border-1 border-outline': effectiveVariant === 'outlined',
+			'bg-primary-default text-primary-on': effectiveVariant === 'filled',
+			'bg-secondary-container text-secondary-onContainer': effectiveVariant === 'filled tonal',
+			'text-primary-default': effectiveVariant === 'text',
 			'px-[6px] py-[6px]': this.size === 'sm',
 			'px-[8px] py-[8px]': this.size === 'md',
 			'px-[12px] py-[12px]': this.size === 'lg',
@@ -142,9 +145,9 @@ export class SchmnacyIconButton extends $LitElement(css`
 
 		const stateLayerClasses = {
 			'hover:opacity-[0.08] rounded-full z-0': true,
-			'hover:bg-primary-on': this.variant === 'filled',
-			'hover:bg-primary-default': this.variant === 'outlined' || this.variant === 'elevated' || this.variant === 'text',
-			'hover:bg-secondary-container': this.variant === 'filled tonal',
+			'hover:bg-primary-on': effectiveVariant === 'filled',
+			'hover:bg-primary-default': effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text',
+			'hover:bg-secondary-container': effectiveVariant === 'filled tonal',
 		}
 
 		// If href is provided, render an anchor element.

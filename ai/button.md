@@ -7,7 +7,7 @@ import '@schmancy/index'  // For all Schmancy components
 
 // Component Tags
 <schmancy-button
-  variant="elevated|filled|filled tonal|outlined|text"  // Visual style (default: "text")
+  variant="elevated|filled|filled tonal|tonal|outlined|text"  // Visual style (default: "text", "tonal" is alias for "filled tonal")
   width="full|auto"                                     // Button width (default: "auto")
   type="button|reset|submit"                            // HTML button type (default: "button")
   href?="string"                                        // Makes button a link
@@ -19,7 +19,7 @@ import '@schmancy/index'  // For all Schmancy components
 
 // Icon Button Component
 <schmancy-icon-button
-  variant="elevated|filled|filled tonal|outlined|text"  // Visual style (default: "text")
+  variant="elevated|filled|filled tonal|tonal|outlined|text"  // Visual style (default: "text", "tonal" is alias for "filled tonal")
   size="sm|md|lg"                                      // Button size (default: "md")
   width="full|auto"                                     // Button width (default: "auto")
   type="button|reset|submit"                            // HTML button type (default: "button")

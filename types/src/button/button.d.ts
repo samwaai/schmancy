@@ -3,7 +3,7 @@ export interface SchmancyButtonEventMap {
     SchmancyFocus: CustomEvent<void>;
     SchmancyBlur: CustomEvent<void>;
 }
-export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'outlined' | 'text';
+export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'tonal' | 'outlined' | 'text';
 declare const SchmancyButton_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A button component.
