@@ -88,11 +88,37 @@ export default class SchmancyOption extends TailwindElement(css`
 		// Make the option clickable
 		fromEvent<MouseEvent>(this, 'click')
 			.pipe(takeUntil(this.disconnecting))
-			.subscribe(this.handleClick)
+			.subscribe((e) => {
+				e.stopPropagation()
+				if (this.disabled) return
+				// Dispatch a custom event with this option's value
+				this.dispatchEvent(
+					new CustomEvent('option-select', {
+						bubbles: true,
+						composed: true,
+						detail: { value: this.value },
+					}),
+				)
+			})
 
 		fromEvent<KeyboardEvent>(this, 'keydown')
 			.pipe(takeUntil(this.disconnecting))
-			.subscribe(this.handleKeyDown)
+			.subscribe((e) => {
+				// Handle space and enter as clicks
+				if (e.key === ' ' || e.key === 'Enter') {
+					e.preventDefault()
+					e.stopPropagation()
+					if (this.disabled) return
+					// Dispatch a custom event with this option's value
+					this.dispatchEvent(
+						new CustomEvent('option-select', {
+							bubbles: true,
+							composed: true,
+							detail: { value: this.value },
+						}),
+					)
+				}
+			})
 	}
 
 	disconnectedCallback() {
@@ -100,26 +126,6 @@ export default class SchmancyOption extends TailwindElement(css`
 		super.disconnectedCallback()
 	}
 
-	private handleClick(e: Event) {
-		e.stopPropagation()
-		if (this.disabled) return
-		// Dispatch a custom event with this option's value
-		this.dispatchEvent(
-			new CustomEvent('option-select', {
-				bubbles: true,
-				composed: true,
-				detail: { value: this.value },
-			}),
-		)
-	}
-
-	private handleKeyDown(e: KeyboardEvent) {
-		// Handle space and enter as clicks
-		if (e.key === ' ' || e.key === 'Enter') {
-			e.preventDefault()
-			this.handleClick(e)
-		}
-	}
 
 	render() {
 		const classes = {
