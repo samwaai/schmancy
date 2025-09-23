@@ -7,7 +7,8 @@ import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html, PropertyValues, TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
-import { fromEvent, takeUntil } from 'rxjs'
+import { BehaviorSubject, combineLatest, fromEvent, Subject, takeUntil } from 'rxjs'
+import { tap } from 'rxjs/operators'
 
 export type SchmancySelectChangeEvent = CustomEvent<{
 	value: string | string[]
@@ -34,7 +35,22 @@ export class SchmancySelect extends $LitElement(css`
 	@property({ type: Boolean, reflect: true }) required = false
 	@property({ type: Boolean, reflect: true }) disabled = false
 	@property({ type: String }) placeholder = ''
-	@property({ type: String, reflect: true }) value: string | string[] = '' // for single-select or multi-select
+	@property({ type: String, reflect: true })
+	get value() {
+		return this.multi
+			? this._selectedValues$.value.join(',')
+			: this._selectedValue$.value
+	}
+	set value(val: string | string[]) {
+		if (this.multi) {
+			const values = Array.isArray(val)
+				? val
+				: val ? String(val).split(',').map(v => v.trim()).filter(Boolean) : []
+			this._selectedValues$.next(values)
+		} else {
+			this._selectedValue$.next(String(val || ''))
+		}
+	}
 	@property({ type: Boolean }) multi = false
 	@property({ type: String }) label = ''
 	@property({ type: String }) hint = ''
@@ -54,6 +70,12 @@ export class SchmancySelect extends $LitElement(css`
 	@query('sch-input') private inputRef!: SchmancyInput
 	@queryAssignedElements({ flatten: true }) private options!: SchmancyOption[]
 	private cleanupPositioner?: () => void
+
+	// Reactive state management
+	private _options$ = new BehaviorSubject<SchmancyOption[]>([])
+	private _selectedValue$ = new BehaviorSubject<string>('')
+	private _selectedValues$ = new BehaviorSubject<string[]>([])
+	private _optionSelect$ = new Subject<SchmancyOption>()
 	@state() _userInteracted = false
 	@state() private _touched = false
 	@state() private _dirty = false
@@ -98,13 +120,8 @@ export class SchmancySelect extends $LitElement(css`
 		// Add keyboard handling to host element
 		fromEvent<KeyboardEvent>(this, 'keydown').pipe(takeUntil(this.disconnecting)).subscribe(this.handleKeyDown)
 
-		// Listen for option-select events from child options
-		fromEvent<CustomEvent>(this, 'option-select')
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe((e) => {
-				e.stopPropagation() // Prevent event from bubbling further
-				this.handleOptionSelect(e.detail.value)
-			})
+		// Setup reactive pipelines
+		this._setupReactivePipelines()
 
 		// Listen for form submission events to mark field as submitted
 		if (this.internals?.form) {
@@ -147,9 +164,6 @@ export class SchmancySelect extends $LitElement(css`
 			if (this.hasUpdated) {
 				this._dirty = true
 			}
-
-			// Update selection state of options
-			this.syncSelection()
 
 			// Check validity based on validation strategy
 			if (this.hasUpdated) {
@@ -359,9 +373,6 @@ export class SchmancySelect extends $LitElement(css`
 		// Don't mark as touched on opening - we'll do that on closing
 		// so errors only show after interaction is complete
 
-		// Make sure options' selected state is in sync before opening
-		this.syncSelection()
-
 		this.isOpen = true
 		await this.updateComplete
 
@@ -400,62 +411,129 @@ export class SchmancySelect extends $LitElement(css`
 		}
 	}
 
-	private handleOptionSelect(value: string) {
-		this._userInteracted = true
-		this._touched = true
-		this._dirty = true
+	private _setupReactivePipelines() {
+		// Listen for option-select events from child options
+		fromEvent<CustomEvent>(this, 'option-select')
+			.pipe(
+				tap((e) => {
+					e.stopPropagation() // Prevent event from bubbling further
+					const option = this.options.find(o => o.value === e.detail.value)
+					if (option) {
+						this._optionSelect$.next(option)
+					}
+				}),
+				takeUntil(this.disconnecting)
+			)
+			.subscribe()
 
-		if (this.multi) {
-			const option = this.options.find(o => o.value === value)
-			if (!option) return
+		// Handle option selection through reactive pipeline
+		this._optionSelect$
+			.pipe(
+				tap((option) => {
+					this._userInteracted = true
+					this._touched = true
+					this._dirty = true
 
-			option.selected = !option.selected
+					if (this.multi) {
+						option.selected = !option.selected
+						const currentValues = this._selectedValues$.value
 
-			let selectedValues: string[]
-			if (Array.isArray(this.value)) {
-				selectedValues = [...this.value]
-			} else {
-				selectedValues = this.value ? this.value.split(',') : []
-			}
+						if (option.selected) {
+							// Add value if not already present
+							if (!currentValues.includes(option.value)) {
+								this._selectedValues$.next([...currentValues, option.value])
+							}
+						} else {
+							// Remove value
+							this._selectedValues$.next(currentValues.filter(v => v !== option.value))
+						}
 
-			if (option.selected) {
-				// Add value if not already present
-				if (!selectedValues.includes(value)) {
-					selectedValues.push(value)
-				}
-			} else {
-				// Remove value
-				selectedValues = selectedValues.filter(v => v !== value)
-			}
+						// Update display label
+						const selectedValues = this._selectedValues$.value
+						this.valueLabel =
+							selectedValues.length > 0
+								? this.options
+										.filter(o => selectedValues.includes(o.value))
+										.map(o => o.label)
+										.join(', ')
+								: this.placeholder
+					} else {
+						// Single select - explicitly update all options' selection state
+						this.options.forEach(o => {
+							o.selected = o.value === option.value
+						})
+						this._selectedValue$.next(option.value)
+						this.valueLabel = option.label || this.placeholder
+						this.closeDropdown()
+					}
 
-			this.value = selectedValues
+					// Update the option's accessibility state
+					this.setupOptionsAccessibility()
 
-			// Update display label
-			this.valueLabel =
-				selectedValues.length > 0
-					? this.options
-							.filter(o => selectedValues.includes(o.value))
-							.map(o => o.label)
-							.join(', ')
-					: this.placeholder
-		} else {
-			// Single select - explicitly update all options' selection state
-			this.options.forEach(o => {
-				o.selected = o.value === value
-			})
-			this.value = value
-			this.valueLabel = this.options.find(o => o.value === value)?.label || this.placeholder
-			this.closeDropdown()
-		}
+					// Dispatch change event
+					this._fireChangeEvent()
+				}),
+				takeUntil(this.disconnecting)
+			)
+			.subscribe()
 
-		// Update the option's accessibility state
-		this.setupOptionsAccessibility()
+		// Options management pipeline - bind pointerdown events
+		this._options$
+			.pipe(
+				tap((options) => {
+					options.forEach((option) => {
+						// Remove any existing handler to avoid duplicates
+						option.removeEventListener('pointerdown', this._handleOptionPointerDown)
+						// Add new handler
+						option.addEventListener('pointerdown', this._handleOptionPointerDown)
+					})
+				}),
+				takeUntil(this.disconnecting)
+			)
+			.subscribe()
 
-		// Dispatch change event
-		this.dispatchChange(this.value)
+		// Selection sync pipeline - sync selected states with value changes
+		combineLatest([this._selectedValue$, this._selectedValues$, this._options$])
+			.pipe(
+				tap(([singleValue, multiValues, options]) => {
+					if (options.length === 0) return
+
+					if (this.multi) {
+						options.forEach(option => {
+							option.selected = multiValues.includes(option.value)
+						})
+					} else {
+						options.forEach(option => {
+							option.selected = option.value === singleValue
+						})
+					}
+				}),
+				takeUntil(this.disconnecting)
+			)
+			.subscribe()
 	}
 
-	private dispatchChange(value: string | string[]) {
+	// Handler for option pointerdown events
+	private _handleOptionPointerDown = (e: Event) => {
+		e.preventDefault()
+		const option = e.target as SchmancyOption
+		if (option && option.value) {
+			this._optionSelect$.next(option)
+		}
+	}
+
+	private handleOptionSelect(value: string) {
+		// This method is now called from keyboard navigation only
+		const option = this.options.find(o => o.value === value)
+		if (option) {
+			this._optionSelect$.next(option)
+		}
+	}
+
+	private _fireChangeEvent() {
+		// Get the current value based on multi/single mode
+		const value = this.multi ? this._selectedValues$.value : this._selectedValue$.value
+
 		// Dispatch only one change event with the value in detail
 		this.dispatchEvent(
 			new CustomEvent<SchmancySelectChangeEvent['detail']>('change', {
@@ -557,7 +635,6 @@ export class SchmancySelect extends $LitElement(css`
 		this._submitted = false
 		this._userInteracted = false
 		this.internals?.setValidity({})
-		this.syncSelection() // Update the options to match the reset value
 
 		if (this.inputRef) {
 			this.inputRef.error = false
@@ -642,8 +719,7 @@ export class SchmancySelect extends $LitElement(css`
 				>
 					<slot
 						@slotchange=${() => {
-							this.syncSelection()
-							this.setupOptionsAccessibility()
+							this._options$.next(this.options)
 						}}
 					></slot>
 				</ul>
