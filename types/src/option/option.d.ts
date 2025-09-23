@@ -31,8 +31,6 @@ export default class SchmancyOption extends SchmancyOption_base {
     icon: string;
     connectedCallback(): void;
     disconnectedCallback(): void;
-    private handleClick;
-    private handleKeyDown;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
