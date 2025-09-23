@@ -10,7 +10,8 @@ export declare class SchmancySelect extends SchmancySelect_base {
     required: boolean;
     disabled: boolean;
     placeholder: string;
-    value: string | string[];
+    get value(): string | string[];
+    set value(val: string | string[]);
     multi: boolean;
     label: string;
     hint: string;
@@ -25,6 +26,10 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private inputRef;
     private options;
     private cleanupPositioner?;
+    private _options$;
+    private _selectedValue$;
+    private _selectedValues$;
+    private _optionSelect$;
     _userInteracted: boolean;
     private _touched;
     private _dirty;
@@ -50,8 +55,10 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private focusOption;
     private openDropdown;
     private closeDropdown;
+    private _setupReactivePipelines;
+    private _handleOptionPointerDown;
     private handleOptionSelect;
-    private dispatchChange;
+    private _fireChangeEvent;
     checkValidity(): boolean;
     reportValidity(): boolean;
     setCustomValidity(message: string): void;
