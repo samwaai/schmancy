@@ -68,8 +68,8 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
     /**
      * Determines whether the scrollbar is hidden.
      *
-     * When `hide` is true, the inner scrollable div receives the `scrollbar-hide` class,
-     * which hides scrollbars in supported browsers.
+     * When `hide` is true, the host element's scrollbars are hidden
+     * in supported browsers using CSS.
      *
      * @attr hide
      * @example <schmancy-scroll hide></schmancy-scroll>
@@ -94,10 +94,10 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
      */
     direction: 'vertical' | 'horizontal' | 'both';
     /**
-     * Reference to the inner scrollable div element
+     * Reference to the scrollable element (the host element itself)
      * @public
      */
-    scroller: HTMLElement;
+    get scroller(): HTMLElement;
     /**
      * Debounce time in milliseconds for the scroll event.
      * Higher values reduce the frequency of scroll events being dispatched.
@@ -118,6 +118,22 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
      * @param behavior - The scroll behavior ('auto' or 'smooth')
      */
     scrollToLeft(left: number, behavior?: ScrollBehavior): void;
+    /**
+     * Called when the component is connected to the DOM
+     * Applies scrolling styles directly to the host element
+     * @protected
+     */
+    connectedCallback(): void;
+    /**
+     * Updates the overflow styles based on the direction property
+     * @private
+     */
+    private updateScrollingStyles;
+    /**
+     * Called when properties change
+     * @protected
+     */
+    protected updated(changedProperties: Map<string | number | symbol, unknown>): void;
     /**
      * Called after the component's first update
      * Sets up the scroll event listener with debouncing
