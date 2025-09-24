@@ -1,6 +1,6 @@
 import { PropertyValues } from 'lit';
-import { SchmancyFilterChip as SchmancyChip } from './filter-chip';
 import type { FilterChipChangeEvent as SchmancyChipChangeEvent } from './filter-chip';
+import { SchmancyFilterChip as SchmancyChip } from './filter-chip';
 declare const SchmancyChips_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyChips extends SchmancyChips_base {
     private value$;
