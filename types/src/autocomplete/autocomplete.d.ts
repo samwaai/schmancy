@@ -17,6 +17,8 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     autocomplete: string;
     debounceMs: number;
     similarityThreshold: number;
+    error: boolean;
+    validationMessage: string;
     get values(): string[];
     set values(vals: string[]);
     get value(): string;
@@ -48,6 +50,7 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     firstUpdated(): void;
     private handleChipRemove;
     private _getChipLabel;
+    private _focusTextInput;
     render(): import("lit-html").TemplateResult<1>;
     private _handleAutoSelectOnBlur;
     private _handleKeyDown;
