@@ -299,7 +299,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 			'bg-surface-containerLow': true,
 			'text-surface-onVariant': true,
 			'border-outline': true,
-
+			'border-solid':true,
 			// Input chips are flat (no elevation) per M3
 
 			// Focus-visible state

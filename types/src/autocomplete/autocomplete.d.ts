@@ -1,4 +1,5 @@
 import { InputSize, SchmancyInput } from '@schmancy/input';
+import '../chips/input-chip';
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string | string[];
     values?: string[];
@@ -45,6 +46,8 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     checkValidity(): boolean;
     reportValidity(): boolean;
     firstUpdated(): void;
+    private handleChipRemove;
+    private _getChipLabel;
     render(): import("lit-html").TemplateResult<1>;
     private _handleAutoSelectOnBlur;
     private _handleKeyDown;

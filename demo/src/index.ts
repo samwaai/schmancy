@@ -6,13 +6,13 @@ import { repeat } from 'lit/directives/repeat.js'
 import { filter, map } from 'rxjs'
 
 import '@lit-labs/virtualizer'
-import { createCompoundSelector, createContext, select } from '@schmancy/index'
 import { area, lazy } from '@schmancy/area'
+import { createCompoundSelector, createContext, select } from '@schmancy/index'
 import { schmancyNavDrawer } from '@schmancy/nav-drawer'
-import { fullHeight } from '../../src/directives/height'
-import './features/index'
 import '../../src/boat/boat'
+import { fullHeight } from '../../src/directives/height'
 import { DemoAreaDemos } from './features/area/area-demos'
+import './features/index'
 // Key Features
 import { DemoContext } from './features/context'
 import { ThemeServiceDemo } from './features/theme-service-demo'
@@ -194,6 +194,7 @@ export default class SchmancyDemo extends $LitElement() {
 						</schmancy-nav-drawer-navbar>
 						<schmancy-nav-drawer-content class="pl-2">
 							<schmancy-scroll>
+									<schmancy-nav-drawer-appbar></schmancy-nav-drawer-appbar>
 								<schmancy-area name="main" .default=${DemoAreaDemos}>
 									<schmancy-route when="area" .component=${DemoAreaDemos}></schmancy-route>
 								</schmancy-area>

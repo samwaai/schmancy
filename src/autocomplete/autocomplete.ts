@@ -5,6 +5,8 @@ import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { createRef, ref } from 'lit/directives/ref.js'
+import { repeat } from 'lit/directives/repeat.js'
+import { when } from 'lit/directives/when.js'
 import {
     BehaviorSubject,
     combineLatest,
@@ -28,6 +30,8 @@ import style from './autocomplete.scss?inline'
 
 // Import the similarity function (or include it inline)
 import { similarity } from '../utils/search'
+// Import chip component for multi-select display
+import '../chips/input-chip'
 
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string | string[]
@@ -50,9 +54,11 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     @property({ type: Boolean }) multi = false
     @property({ type: String }) description = ''
     @property({ type: String, reflect: true }) size: InputSize = 'md'
-    @property({ type: String }) autocomplete = 'on'
+    @property({ type: String }) autocomplete = 'off'
     @property({ type: Number }) debounceMs = 200
     @property({ type: Number }) similarityThreshold = 0.3 // Minimum similarity score to show option
+    @property({ type: Boolean }) error = false
+    @property({ type: String }) validationMessage = ''
 
     // Values property for multi-select mode
     @property({ type: Array })
@@ -233,9 +239,10 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                         ? [...currentValues.slice(0, index), ...currentValues.slice(index + 1)]
                         : [...currentValues, option.value]
                     this._selectedValues$.next(newValues)
-                    
-                    this._inputValue$.next('')
-                    this._inputValue = ''
+
+                    // Keep search input persistent - don't reset
+                    // this._inputValue$.next('')
+                    // this._inputValue = ''
                     
                     const labels = this._getSelectedLabels()
                     this._announceToScreenReader(
@@ -263,24 +270,16 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
             takeUntil(this.disconnecting)
         ).subscribe()
 
-        // Display update pipeline
+        // Display update pipeline - only for single select
         combineLatest([
             this._open$,
             this._selectedValue$,
-            this._selectedValues$,
             this._options$
         ]).pipe(
-            filter(() => !this._open$.value),
-            tap(([, selectedValue, selectedValues, options]) => {
-                if (this.multi) {
-                    const labels = options
-                        .filter(opt => selectedValues.includes(opt.value))
-                        .map(opt => opt.label || opt.textContent || '')
-                    this._inputValue = labels.join(', ')
-                } else {
-                    const option = options.find(opt => opt.value === selectedValue)
-                    this._inputValue = option ? option.label || option.textContent || '' : ''
-                }
+            filter(() => !this._open$.value && !this.multi),
+            tap(([, selectedValue, options]) => {
+                const option = options.find(opt => opt.value === selectedValue)
+                this._inputValue = option ? option.label || option.textContent || '' : ''
                 this._inputValue$.next(this._inputValue)
             }),
             takeUntil(this.disconnecting)
@@ -323,26 +322,23 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
 
     private _updateInputDisplay() {
+        // For multi-select, we don't update input display since chips show the selections
+        if (this.multi) {
+            return
+        }
+
         of(null).pipe(
             withLatestFrom(
                 this._selectedValue$,
-                this._selectedValues$,
                 this._options$,
                 this._open$
             ),
-            tap(([, selectedValue, selectedValues, options, isOpen]) => {
+            tap(([, selectedValue, options, isOpen]) => {
                 if (!this._inputElementRef.value) return
 
-                if (!isOpen || !this.multi) {
-                    if (this.multi) {
-                        const labels = options
-                            .filter(opt => selectedValues.includes(opt.value))
-                            .map(opt => opt.label || opt.textContent || '')
-                        this._inputValue = labels.join(', ')
-                    } else {
-                        const option = options.find(opt => opt.value === selectedValue)
-                        this._inputValue = option ? option.label || option.textContent || '' : ''
-                    }
+                if (!isOpen) {
+                    const option = options.find(opt => opt.value === selectedValue)
+                    this._inputValue = option ? option.label || option.textContent || '' : ''
                     this._inputValue$.next(this._inputValue)
                     this._inputElementRef.value.value = this._inputValue
                 }
@@ -404,8 +400,57 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         // Auto-selection now happens on blur, no need for autofill detection
     }
 
+    private handleChipRemove(value: string) {
+        const currentValues = this._selectedValues$.value
+        const newValues = currentValues.filter(v => v !== value)
+        this._selectedValues$.next(newValues)
+        this._fireChangeEvent()
+        this._announceToScreenReader(`Removed: ${this._getChipLabel(value)}`)
+    }
+
+    private _getChipLabel(value: string): string {
+        const option = this._options.find(opt => opt.value === value)
+        return option ? option.label || option.textContent || value : value
+    }
+
+    private _focusTextInput() {
+        if (this._inputElementRef.value) {
+            this._inputElementRef.value.focus()
+        }
+    }
+
     render() {
         const descriptionId = `${this.id}-desc`
+
+        // Get size-based styling to match Schmancy input
+        const getSizeStyles = () => {
+            switch (this.size) {
+                case 'sm':
+                    return {
+                        height: 'min-h-[40px]',
+                        padding: 'px-2',
+                        fontSize: 'text-sm', // 14px
+                        labelSize: 'text-sm'
+                    }
+                case 'lg':
+                    return {
+                        height: 'min-h-[60px]',
+                        padding: 'px-5',
+                        fontSize: 'text-lg', // 18px
+                        labelSize: 'text-lg'
+                    }
+                case 'md':
+                default:
+                    return {
+                        height: 'min-h-[50px]',
+                        padding: 'px-4',
+                        fontSize: 'text-base', // 16px
+                        labelSize: 'text-base'
+                    }
+            }
+        }
+
+        const { height, padding, fontSize, labelSize } = getSizeStyles()
 
         return html`
             <div class="relative">
@@ -415,61 +460,139 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                 <!-- Description -->
                 ${this.description ? html`<div id="${descriptionId}" class="sr-only">${this.description}</div>` : ''}
 
-                <!-- Input -->
+                <!-- Custom input wrapper for Gmail-style chip input -->
                 <slot name="trigger">
-                    <schmancy-input
-                        .size=${this.size}
-                        ${ref(this._inputElementRef)}
-                        id="autocomplete-input"
-                        class="w-full"
-                        .name=${this.name || this.label?.toLowerCase().replace(/\s+/g, '-')}
-                        .label=${this.label}
-                        .placeholder=${this.placeholder}
-                        .required=${this.required}
-                        .value=${this._inputValue}
-                        type="text"
-                        autocomplete=${this.autocomplete}
-                        clickable
-                        role="combobox"
-                        aria-autocomplete="list"
-                        aria-haspopup="listbox"
-                        aria-controls="options"
-                        aria-expanded=${this._open}
-                        aria-describedby=${this.description ? descriptionId : undefined}
-                        @input=${(e: Event) => {
-                            const value = (e.target as HTMLInputElement).value
-                            this._inputValue = value
-                            this._inputValue$.next(value)
-                        }}
-                        @focus=${(e: FocusEvent) => {
-                            e.stopPropagation()
-                            
-                            const hasSelection = this.multi 
-                                ? this._selectedValues$.value.length > 0
-                                : !!this._selectedValue$.value
-                            
-                            if (this.multi && !hasSelection) {
-                                this._inputValue = ''
-                                this._inputValue$.next('')
-                                if (this._inputElementRef.value) {
-                                    this._inputElementRef.value.value = ''
-                                }
-                            }
-                            
-                            this._open$.next(true)
-                        }}
-                        @click=${(e: MouseEvent) => {
-                            e.stopPropagation()
-                            this._open$.next(true)
-                        }}
-                        @keydown=${(e: KeyboardEvent) => {
-                            this._handleKeyDown(e)
-                        }}
-                        @blur=${() => {
-                            this._handleAutoSelectOnBlur()
-                        }}
-                    >
-                    </schmancy-input>
+                    ${when(this.multi,
+                        () => html`
+                            <!-- Custom multi-select input with inline chips -->
+                            <div class="relative">
+                                ${when(this.label, () => html`
+                                    <label class="${classMap({
+                                        'block mb-1 font-medium': true,
+                                        'text-primary-default': !this.error,
+                                        'text-error-default': this.error,
+                                        [labelSize]: true
+                                    })}">
+                                        ${this.label}${this.required ? html`<span class="text-error-default ml-1">*</span>` : ''}
+                                    </label>
+                                `)}
+                                <div
+                                    class="${classMap({
+                                        'flex flex-wrap items-center gap-1': true,
+                                        [height]: true,
+                                        [padding]: true,
+                                        'block w-full min-w-0 rounded-[8px] border-0': true,
+                                        'bg-surface-highest text-surface-on': true,
+                                        'ring-0 ring-inset focus-within:ring-1 focus-within:ring-inset': true,
+                                        'ring-secondary-default  focus-within:ring-secondary-default': !this.error,
+                                        'ring-error-default focus-within:ring-error-default': this.error,
+                                        'cursor-text transition-colors duration-200': true
+                                    })}"
+                                    @click=${() => this._focusTextInput()}
+                                    role="combobox"
+                                    aria-autocomplete="list"
+                                    aria-haspopup="listbox"
+                                    aria-controls="options"
+                                    aria-expanded=${this._open}
+                                >
+                                    <!-- Render chips inline -->
+                                    ${repeat(
+                                        this._selectedValues$.value,
+                                        value => value,
+                                        value => html`
+                                            <schmancy-input-chip
+                                                .value=${value}
+                                                @remove=${(e: CustomEvent) => this.handleChipRemove(e.detail.value)}
+                                                class="flex-shrink-0 my-0.5"
+                                            >
+                                                ${this._getChipLabel(value)}
+                                            </schmancy-input-chip>
+                                        `
+                                    )}
+
+                                    <!-- Text input for typing -->
+                                    <input
+                                        ${ref(this._inputElementRef)}
+                                        id="autocomplete-input"
+                                        type="text"
+                                        class="flex-1 min-w-[120px] py-1 bg-transparent border-none outline-none ${fontSize} font-medium text-surface-on placeholder:text-muted"
+                                        .name=${this.name || this.label?.toLowerCase().replace(/\s+/g, '-')}
+                                        .placeholder=${this._selectedValues$.value.length > 0 ? 'Add more...' : this.placeholder}
+                                        .value=${this._inputValue}
+                                        .autocomplete=${this.autocomplete}
+                                        @input=${(e: Event) => {
+                                            const value = (e.target as HTMLInputElement).value
+                                            this._inputValue = value
+                                            this._inputValue$.next(value)
+                                        }}
+                                        @focus=${(e: FocusEvent) => {
+                                            e.stopPropagation()
+                                            // Clear input on focus for new searches
+                                            this._inputValue = ''
+                                            this._inputValue$.next('')
+                                            this._open$.next(true)
+                                        }}
+                                        @keydown=${(e: KeyboardEvent) => {
+                                            this._handleKeyDown(e)
+                                        }}
+                                        @blur=${() => {
+                                            this._handleAutoSelectOnBlur()
+                                        }}
+                                    />
+                                </div>
+
+                                <!-- Validation message -->
+                                ${when(this.error && this.validationMessage, () => html`
+                                    <div class="mt-1 text-sm text-error-default">
+                                        ${this.validationMessage}
+                                    </div>
+                                `)}
+                            </div>
+                        `,
+                        () => html`
+                            <!-- Regular single-select input -->
+                            <schmancy-input
+                                .size=${this.size}
+                                ${ref(this._inputElementRef)}
+                                id="autocomplete-input"
+                                class="w-full"
+                                .name=${this.name || this.label?.toLowerCase().replace(/\s+/g, '-')}
+                                .label=${this.label}
+                                .placeholder=${this.placeholder}
+                                .required=${this.required}
+                                .value=${this._inputValue}
+                                type="text"
+                                autocomplete=${this.autocomplete}
+                                clickable
+                                role="combobox"
+                                aria-autocomplete="list"
+                                aria-haspopup="listbox"
+                                aria-controls="options"
+                                aria-expanded=${this._open}
+                                aria-describedby=${this.description ? descriptionId : undefined}
+                                @input=${(e: Event) => {
+                                    const value = (e.target as HTMLInputElement).value
+                                    this._inputValue = value
+                                    this._inputValue$.next(value)
+                                }}
+                                @focus=${(e: FocusEvent) => {
+                                    e.stopPropagation()
+                                    this._open$.next(true)
+                                }}
+                                @click=${(e: MouseEvent) => {
+                                    e.stopPropagation()
+                                    this._open$.next(true)
+                                }}
+                                @keydown=${(e: KeyboardEvent) => {
+                                    this._handleKeyDown(e)
+                                }}
+                                @blur=${() => {
+                                    this._handleAutoSelectOnBlur()
+                                }}
+                            >
+                            </schmancy-input>
+                        `
+                    )}
                 </slot>
 
                 <!-- Options dropdown -->
@@ -555,8 +678,15 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     private _handleKeyDown(_e: KeyboardEvent) {
         fromEvent<KeyboardEvent>(document, 'keydown').pipe(
             take(1),
-            withLatestFrom(this._open$, this._options$),
-            tap(([event, isOpen, options]) => {
+            withLatestFrom(this._open$, this._options$, this._selectedValues$),
+            tap(([event, isOpen, options, selectedValues]) => {
+                // Handle backspace to remove last chip in multi-select when input is empty
+                if (this.multi && event.key === 'Backspace' && !this._inputValue && selectedValues.length > 0 && !isOpen) {
+                    event.preventDefault()
+                    const lastValue = selectedValues[selectedValues.length - 1]
+                    this.handleChipRemove(lastValue)
+                    return
+                }
                 if (!isOpen && (event.key === 'ArrowDown' || event.key === 'Enter')) {
                     event.preventDefault()
                     this._open$.next(true)
