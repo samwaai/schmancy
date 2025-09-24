@@ -1,13 +1,24 @@
 import { $LitElement } from '@mixins/index'
-import { html, PropertyValues } from 'lit'
+import { css, html, PropertyValues } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
-import { SchmancyFilterChip as SchmancyChip } from './filter-chip'
-import type { FilterChipChangeEvent as SchmancyChipChangeEvent } from './filter-chip'
 import { BehaviorSubject, combineLatest } from 'rxjs'
-import { takeUntil, distinctUntilChanged, debounceTime } from 'rxjs/operators'
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
+import type { FilterChipChangeEvent as SchmancyChipChangeEvent } from './filter-chip'
+import { SchmancyFilterChip as SchmancyChip } from './filter-chip'
 
 @customElement('schmancy-chips')
-export default class SchmancyChips extends $LitElement() {
+export default class SchmancyChips extends $LitElement(
+css`
+
+	.scrollbar-hide {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none; /* Chrome, Safari, and Opera */
+	}
+`
+) {
 	// RxJS state streams - initialized with undefined to detect if properties were set
 	private value$ = new BehaviorSubject<string>('')
 	private values$ = new BehaviorSubject<string[]>([])
