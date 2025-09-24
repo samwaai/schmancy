@@ -8,7 +8,11 @@ import { SchmancyFilterChip as SchmancyChip } from './filter-chip'
 
 @customElement('schmancy-chips')
 export default class SchmancyChips extends $LitElement(
+
 css`
+	:host{
+		display:block;
+	}
 
 	.scrollbar-hide {
 		-ms-overflow-style: none; /* IE and Edge */
@@ -218,14 +222,14 @@ css`
 		})
 
 		return html`
-			<div class=${containerClasses} @change=${this.change}>
-				<slot
+			<schmancy-scroll class=${containerClasses} @change=${this.change}>
+					<slot
 					@slotchange=${() => {
 						// When slot changes, trigger state update through reactive pipeline
 						this.updateChipStates(this.mode, this._value, this._values)
 					}}
 				></slot>
-			</div>
+			</schmancy-scroll>
 		`
 	}
 }

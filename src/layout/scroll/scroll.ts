@@ -1,6 +1,6 @@
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 import { debounceTime, filter, fromEvent, takeUntil } from 'rxjs'
 
 /**
@@ -77,25 +77,26 @@ export class SchmancyScroll extends TailwindElement(css`
 	:host {
 		height: 100%;
 		width: 100%;
-		overflow: hidden;
 		box-sizing: border-box; /* Ensures proper sizing */
 		display: block;
 		position: relative;
 		inset: 0px;
+		scroll-behavior: smooth;
+		overscroll-behavior: contain;
 	}
-	.scrollbar-hide {
+	:host([hide]) {
 		-ms-overflow-style: none; /* IE and Edge */
 		scrollbar-width: none; /* Firefox */
 	}
-	.scrollbar-hide::-webkit-scrollbar {
+	:host([hide])::-webkit-scrollbar {
 		display: none; /* Chrome, Safari, and Opera */
 	}
 `) {
 	/**
 	 * Determines whether the scrollbar is hidden.
 	 *
-	 * When `hide` is true, the inner scrollable div receives the `scrollbar-hide` class,
-	 * which hides scrollbars in supported browsers.
+	 * When `hide` is true, the host element's scrollbars are hidden
+	 * in supported browsers using CSS.
 	 *
 	 * @attr hide
 	 * @example <schmancy-scroll hide></schmancy-scroll>
@@ -126,11 +127,12 @@ export class SchmancyScroll extends TailwindElement(css`
 	public direction: 'vertical' | 'horizontal' | 'both' = 'both'
 
 	/**
-	 * Reference to the inner scrollable div element
+	 * Reference to the scrollable element (the host element itself)
 	 * @public
 	 */
-	@query('#scroller')
-	scroller!: HTMLElement
+	get scroller(): HTMLElement {
+		return this
+	}
 
 	/**
 	 * Debounce time in milliseconds for the scroll event.
@@ -178,6 +180,49 @@ export class SchmancyScroll extends TailwindElement(css`
 				left,
 				behavior,
 			})
+		}
+	}
+
+	/**
+	 * Called when the component is connected to the DOM
+	 * Applies scrolling styles directly to the host element
+	 * @protected
+	 */
+	connectedCallback(): void {
+		super.connectedCallback()
+		this.updateScrollingStyles()
+		// Set the part attribute on the host element
+		this.setAttribute('part', 'scroller')
+	}
+
+	/**
+	 * Updates the overflow styles based on the direction property
+	 * @private
+	 */
+	private updateScrollingStyles(): void {
+		// Apply overflow styles based on direction
+		if (this.direction === 'horizontal') {
+			this.style.setProperty('overflow-y', 'hidden')
+			this.style.setProperty('overflow-x', 'auto')
+		} else if (this.direction === 'vertical') {
+			this.style.setProperty('overflow-y', 'auto')
+			this.style.setProperty('overflow-x', 'hidden')
+		} else {
+			// both
+			this.style.setProperty('overflow-y', 'auto')
+			this.style.setProperty('overflow-x', 'auto')
+		}
+	}
+
+	/**
+	 * Called when properties change
+	 * @protected
+	 */
+	protected updated(changedProperties: Map<string | number | symbol, unknown>): void {
+		super.updated(changedProperties)
+		// Update styles if direction changes
+		if (changedProperties.has('direction')) {
+			this.updateScrollingStyles()
 		}
 	}
 
@@ -255,23 +300,8 @@ export class SchmancyScroll extends TailwindElement(css`
 	 * @protected
 	 */
 	protected render() {
-		// The classes are dynamically assigned based on the properties
-		const classes = {
-			'h-full w-full inset-0 scroll-smooth overscroll-contain': true,
-			'overflow-y-auto': this.direction !== 'horizontal',
-			'overflow-y-hidden': this.direction === 'horizontal',
-			'overflow-x-auto': this.direction !== 'vertical',
-			'overflow-x-hidden': this.direction === 'vertical',
-			'scrollbar-hide': this.hide,
-		}
-
-		return html`
-			<div class="relative inset-0 h-full w-full overscroll-none">
-				<div id="scroller" part="scroller" class=${this.classMap(classes)}>
-					<slot></slot>
-				</div>
-			</div>
-		`
+		// Only render the slot, all styling is applied to the host
+		return html`<slot></slot>`
 	}
 }
 
