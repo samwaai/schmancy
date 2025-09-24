@@ -56,7 +56,6 @@ export declare class SchmancySelect extends SchmancySelect_base {
     private openDropdown;
     private closeDropdown;
     private _setupReactivePipelines;
-    private _handleOptionPointerDown;
     private handleOptionSelect;
     private _fireChangeEvent;
     checkValidity(): boolean;
