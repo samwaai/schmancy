@@ -209,13 +209,12 @@ css`
 
 	protected render(): unknown {
 		const containerClasses = this.classMap({
-			'inset-2': true,
-			flex: true,
-			'gap-2': true,
+			"grid auto-cols-max grid-flow-col": true,
 			'items-center': true,
 			'flex-wrap': this.wrap,
 			'overflow-x-auto': !this.wrap,
 			'scrollbar-hide': !this.wrap,
+			'gap-2':true,
 		})
 
 		return html`
