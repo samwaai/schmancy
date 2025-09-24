@@ -30,7 +30,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 	@query('#overlay') overlay!: HTMLElement
 	@query('nav') nav!: HTMLElement
 
-	@property({ type: String }) width = '320px'
+	@property({ type: String }) width = '220px'
 	@state() private _initialized = false
 
 	/**
@@ -151,7 +151,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 
 	protected render() {
 		const sidebarClasses = {
-			'p-[16px] max-w-[360px] w-fit h-full overflow-auto': true,
+			'p-2 max-w-[360px] w-fit h-full overflow-auto': true,
 			block: this.mode === 'push',
 			'fixed inset-0 z-50': this.mode === 'overlay',
 		}
