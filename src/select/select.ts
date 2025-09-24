@@ -8,7 +8,7 @@ import { css, html, PropertyValues, TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { BehaviorSubject, combineLatest, fromEvent, Subject, takeUntil } from 'rxjs'
-import { tap } from 'rxjs/operators'
+import { tap, withLatestFrom } from 'rxjs/operators'
 
 export type SchmancySelectChangeEvent = CustomEvent<{
 	value: string | string[]
@@ -204,24 +204,25 @@ export class SchmancySelect extends $LitElement(css`
 
 	private syncSelection() {
 		if (this.multi) {
-			const selectedValues = Array.isArray(this.value) ? this.value : this.value ? this.value.split(',') : []
+			// Read directly from the BehaviorSubject to avoid string conversion issues
+			const selectedValues = this._selectedValues$.value
 			this.options?.forEach(o => (o.selected = selectedValues.includes(o.value))) // Update option selected state
 			this.valueLabel =
 				selectedValues.length > 0
 					? this.options
 							?.filter(o => selectedValues.includes(o.value))
-							.map(o => o.label)
+							.map(o => o.label || o.textContent || '')
 							.join(', ') || this.placeholder
 					: this.placeholder
 		} else {
-			// Single select - update option selected state AND value label
-			const currentValue = String(this.value) // Convert to string for safer comparison
+			// Single select - read from BehaviorSubject
+			const currentValue = this._selectedValue$.value
 			this.options?.forEach(o => {
 				// Set selected property on each option based on matching value
 				o.selected = o.value === currentValue
 			})
 			const selectedOption = this.options?.find(o => o.value === currentValue)
-			this.valueLabel = selectedOption?.label || this.placeholder
+			this.valueLabel = selectedOption ? (selectedOption.label || selectedOption.textContent || '') : this.placeholder
 		}
 	}
 
@@ -429,41 +430,30 @@ export class SchmancySelect extends $LitElement(css`
 		// Handle option selection through reactive pipeline
 		this._optionSelect$
 			.pipe(
-				tap((option) => {
+				withLatestFrom(this._selectedValue$, this._selectedValues$),
+				tap(([option, _, currentValues]) => {
 					this._userInteracted = true
 					this._touched = true
 					this._dirty = true
 
 					if (this.multi) {
-						option.selected = !option.selected
-						const currentValues = this._selectedValues$.value
-
-						if (option.selected) {
-							// Add value if not already present
-							if (!currentValues.includes(option.value)) {
-								this._selectedValues$.next([...currentValues, option.value])
-							}
-						} else {
-							// Remove value
-							this._selectedValues$.next(currentValues.filter(v => v !== option.value))
-						}
+						const index = currentValues.indexOf(option.value)
+						const newValues = index > -1
+							? [...currentValues.slice(0, index), ...currentValues.slice(index + 1)]
+							: [...currentValues, option.value]
+						this._selectedValues$.next(newValues)
 
 						// Update display label
-						const selectedValues = this._selectedValues$.value
-						this.valueLabel =
-							selectedValues.length > 0
-								? this.options
-										.filter(o => selectedValues.includes(o.value))
-										.map(o => o.label)
-										.join(', ')
-								: this.placeholder
+						this.valueLabel = newValues.length > 0
+							? this.options
+									.filter(o => newValues.includes(o.value))
+									.map(o => o.label || o.textContent || '')
+									.join(', ')
+							: this.placeholder
 					} else {
-						// Single select - explicitly update all options' selection state
-						this.options.forEach(o => {
-							o.selected = o.value === option.value
-						})
+						// Single select
 						this._selectedValue$.next(option.value)
-						this.valueLabel = option.label || this.placeholder
+						this.valueLabel = option.label || option.textContent || this.placeholder
 						this.closeDropdown()
 					}
 
@@ -477,15 +467,27 @@ export class SchmancySelect extends $LitElement(css`
 			)
 			.subscribe()
 
-		// Options management pipeline - bind pointerdown events
+		// Options management pipeline - bind pointerdown events exactly like autocomplete
 		this._options$
 			.pipe(
 				tap((options) => {
-					options.forEach((option) => {
-						// Remove any existing handler to avoid duplicates
-						option.removeEventListener('pointerdown', this._handleOptionPointerDown)
-						// Add new handler
-						option.addEventListener('pointerdown', this._handleOptionPointerDown)
+					options.forEach((option, index) => {
+						option.setAttribute('role', 'option')
+						option.tabIndex = -1
+						if (!option.id) {
+							option.id = `${this.id}-option-${index}`
+						}
+						// Use data-event-bound to prevent duplicate bindings
+						if (!option.hasAttribute('data-event-bound')) {
+							fromEvent(option, 'pointerdown').pipe(
+								tap(e => {
+									e.preventDefault() // Prevent blur from firing
+									e.stopPropagation()
+								}),
+								takeUntil(this.disconnecting)
+							).subscribe(() => this._optionSelect$.next(option))
+							option.setAttribute('data-event-bound', 'true')
+						}
 					})
 				}),
 				takeUntil(this.disconnecting)
@@ -511,15 +513,6 @@ export class SchmancySelect extends $LitElement(css`
 				takeUntil(this.disconnecting)
 			)
 			.subscribe()
-	}
-
-	// Handler for option pointerdown events
-	private _handleOptionPointerDown = (e: Event) => {
-		e.preventDefault()
-		const option = e.target as SchmancyOption
-		if (option && option.value) {
-			this._optionSelect$.next(option)
-		}
 	}
 
 	private handleOptionSelect(value: string) {
@@ -720,6 +713,8 @@ export class SchmancySelect extends $LitElement(css`
 					<slot
 						@slotchange=${() => {
 							this._options$.next(this.options)
+							// Sync selection state when options re-render
+							this.syncSelection()
 						}}
 					></slot>
 				</ul>

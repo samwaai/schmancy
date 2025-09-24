@@ -7,6 +7,7 @@ import '@schmancy/nav-drawer';
 // Import all individual form demo components and their classes
 import { DemoFormsOverview } from './overview';
 import { DemoFormsTextInputs } from './text-inputs';
+import { DemoFormsAutocomplete } from './autocomplete';
 import { DemoFormsSelection } from './selection';
 import { DemoFormsValidation } from './validation';
 import { DemoFormsExamples } from './examples';
@@ -27,6 +28,7 @@ export default class DemoFormsDemos extends $LitElement() {
       const componentToDemoMap: Record<string, string> = {
         'demo-forms-overview': 'overview',
         'demo-forms-text-inputs': 'text-inputs',
+        'demo-forms-autocomplete': 'autocomplete',
         'demo-forms-selection': 'selection',
         'demo-forms-validation': 'validation',
         'demo-forms-examples': 'examples'
@@ -71,6 +73,21 @@ export default class DemoFormsDemos extends $LitElement() {
               <sch-flex flow="row" gap="2" align="center">
                 <schmancy-icon size="sm">text_fields</schmancy-icon>
                 <span>Text Inputs</span>
+              </sch-flex>
+            </schmancy-list-item>
+
+            <schmancy-list-item
+              .selected=${this.activeDemo === 'autocomplete'}
+              @click=${() => {
+                this.activeDemo = 'autocomplete';
+                area.push({ component: DemoFormsAutocomplete, area: 'forms' });
+              }}
+              rounded
+              variant="container"
+            >
+              <sch-flex flow="row" gap="2" align="center">
+                <schmancy-icon size="sm">search</schmancy-icon>
+                <span>Autocomplete</span>
               </sch-flex>
             </schmancy-list-item>
 

@@ -7,7 +7,7 @@ import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
 import markdown from 'highlight.js/lib/languages/markdown'
 import bash from 'highlight.js/lib/languages/bash'
-import {unsafeHTML} from 'lit/directives/unsafe-html.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 
 // Register only the languages we need
 hljs.registerLanguage('javascript', javascript)
@@ -28,7 +28,7 @@ export class SchmancyCode extends TailwindElement(css`
 		width: 100%;
 		overflow: hidden;
 	}
-	
+
 	/* Import highlight.js default dark theme */
 	.hljs {
 		display: block;
@@ -179,9 +179,9 @@ export class SchmancyCode extends TailwindElement(css`
 
 	private get highlightedCode(): string {
 		if (!this.code) return ''
-		
+
 		let highlightedHtml = ''
-		
+
 		try {
 			// Use highlight.js to get highlighted code
 			const result = hljs.highlight(this.code.trim(), { language: this.language })
@@ -214,7 +214,7 @@ export class SchmancyCode extends TailwindElement(css`
 	private getHighlightedLines(): Set<number> {
 		const lines = new Set<number>()
 		if (!this.highlightLines) return lines
-		
+
 		const parts = this.highlightLines.split(',')
 		for (const part of parts) {
 			const trimmed = part.trim()
@@ -238,20 +238,22 @@ export class SchmancyCode extends TailwindElement(css`
 	private addLineFeatures(highlightedHtml: string): string {
 		const lines = highlightedHtml.split('\n')
 		const highlightedLines = this.getHighlightedLines()
-		
-		return lines.map((line, index) => {
-			const lineNumber = index + 1
-			const isHighlighted = highlightedLines.has(lineNumber)
-			const lineClass = isHighlighted ? 'code-line highlighted' : 'code-line'
-			
-			let content = ''
-			if (this.lineNumbers) {
-				content += `<span class="line-number">${lineNumber}</span>`
-			}
-			content += line
-			
-			return `<div class="${lineClass}">${content}</div>`
-		}).join('')
+
+		return lines
+			.map((line, index) => {
+				const lineNumber = index + 1
+				const isHighlighted = highlightedLines.has(lineNumber)
+				const lineClass = isHighlighted ? 'code-line highlighted' : 'code-line'
+
+				let content = ''
+				if (this.lineNumbers) {
+					content += `<span class="line-number">${lineNumber}</span>`
+				}
+				content += line
+
+				return `<div class="${lineClass}">${content}</div>`
+			})
+			.join('')
 	}
 
 	private async copyCode() {
@@ -272,54 +274,55 @@ export class SchmancyCode extends TailwindElement(css`
 			typescript: 'TypeScript',
 			html: 'HTML',
 			markdown: 'Markdown',
-			bash: 'Bash'
+			bash: 'Bash',
 		}
-		
+
 		if (this.filename) {
 			return this.filename
 		}
-		
+
 		return languageMap[this.language.toLowerCase()] || this.language.toUpperCase()
 	}
 
 	render() {
 		const codeClass = this.lineNumbers || this.highlightLines ? 'code-with-lines' : 'hljs'
-		
+
 		return html`
 			<schmancy-theme mode="dark">
-				<div class="border border-outline rounded-lg bg-surface-dim overflow-hidden">
-					<!-- Header -->
-					<div class="flex items-center justify-between px-4 py-2 bg-surface-container border-b border-outline">
-						<div class="flex items-center gap-2">
-							<div class="flex gap-1.5">
-								<div class="w-3 h-3 rounded-full bg-error-default opacity-60"></div>
-								<div class="w-3 h-3 rounded-full bg-warning-default opacity-60"></div>
-								<div class="w-3 h-3 rounded-full bg-success-default opacity-60"></div>
+				<schmancy-details>
+					<section slot="summary">
+						<!-- Header -->
+						<div class="flex items-center justify-between px-4 py-2 bg-surface-container border-b border-outline">
+							<div class="flex items-center gap-2">
+								<div class="flex gap-1.5">
+									<div class="w-3 h-3 rounded-full bg-error-default opacity-60"></div>
+									<div class="w-3 h-3 rounded-full bg-warning-default opacity-60"></div>
+									<div class="w-3 h-3 rounded-full bg-success-default opacity-60"></div>
+								</div>
+								<span class="text-xs font-medium text-surface-onVariant opacity-70 ml-2">
+									${this.getLanguageLabel()}
+								</span>
 							</div>
-							<span class="text-xs font-medium text-surface-onVariant opacity-70 ml-2">
-								${this.getLanguageLabel()}
-							</span>
+							${this.copyButton
+								? html`
+										<schmancy-button
+											.variant="${this.copied ? 'filled tonal' : 'text'}"
+											size="sm"
+											@click=${this.copyCode}
+											class="transition-all"
+										>
+											<schmancy-icon size="16"> ${this.copied ? 'check' : 'content_copy'} </schmancy-icon>
+											<span class="ml-1">${this.copied ? 'Copied!' : 'Copy'}</span>
+										</schmancy-button>
+									`
+								: ''}
 						</div>
-						${this.copyButton ? html`
-							<schmancy-button
-								.variant="${this.copied ? 'filled tonal' : 'text'}"
-								size="sm"
-								@click=${this.copyCode}
-								class="transition-all"
-							>
-								<schmancy-icon size="16">
-									${this.copied ? 'check' : 'content_copy'}
-								</schmancy-icon>
-								<span class="ml-1">${this.copied ? 'Copied!' : 'Copy'}</span>
-							</schmancy-button>
-						` : ''}
-					</div>
-					
+					</section>
 					<!-- Code -->
 					<div class="overflow-auto" style="${this.maxHeight ? `max-height: ${this.maxHeight}` : ''}">
 						<pre class="m-0"><code class="${codeClass}">${unsafeHTML(this.highlightedCode)}</code></pre>
 					</div>
-				</div>
+				</schmancy-details>
 			</schmancy-theme>
 		`
 	}
