@@ -1,5 +1,7 @@
 # Schmancy Details - AI Reference
 
+A Material Design 3 compliant expansion panel component with smooth animations, ripple effects, and interactive states.
+
 ```js
 // Import
 import '@schmancy/index'  // For all Schmancy components
@@ -23,6 +25,16 @@ details.open -> boolean     // Get/set open state
 details.variant -> string   // Get/set visual variant
 details.summary -> string   // Get/set summary text
 ```
+
+## Material Design 3 Features
+
+- **Interactive States**: Hover, focus, and pressed states with proper state layers
+- **Ripple Effect**: Touch feedback animation on click/tap
+- **Minimum Touch Target**: 48px height on mobile, 56px on desktop (M3 spec)
+- **Smooth Animations**: 250ms slide-down animation with M3 easing curves
+- **Keyboard Support**: Full keyboard navigation with Enter/Space activation
+- **Elevation System**: Proper M3 elevation levels for elevated variant
+- **Focus Indicators**: 2px primary color outline with 2px offset
 
 ## Visual Variants
 

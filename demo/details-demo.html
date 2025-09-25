@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schmancy Details - Material Design 3 Demo</title>
+    <script type="module" src="../dist/index.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--schmancy-sys-color-surface-default);
+            color: var(--schmancy-sys-color-surface-on);
+        }
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: var(--schmancy-sys-color-surface-onVariant);
+            margin-bottom: 32px;
+        }
+        .demo-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>Schmancy Details Component</h1>
+        <p class="subtitle">Material Design 3 Expansion Panels with improved interactions</p>
+
+        <div class="section">
+            <h2>Default Variant</h2>
+            <div class="demo-grid">
+                <schmancy-details summary="What's new in Material Design 3?">
+                    <p>Material Design 3 introduces dynamic color, updated components, and new accessibility features. The design system emphasizes personal expression while maintaining usability.</p>
+                    <p>Key features include:</p>
+                    <ul>
+                        <li>Dynamic color theming</li>
+                        <li>Updated motion and interaction patterns</li>
+                        <li>Improved accessibility</li>
+                        <li>Enhanced component flexibility</li>
+                    </ul>
+                </schmancy-details>
+
+                <schmancy-details summary="How do ripple effects work?">
+                    <p>Ripple effects provide visual feedback at the point of interaction. They emanate from the touch or click point and expand outward, creating a natural and intuitive response.</p>
+                </schmancy-details>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Outlined Variant</h2>
+            <div class="demo-grid">
+                <schmancy-details variant="outlined" summary="Technical Specifications">
+                    <p><strong>Component Features:</strong></p>
+                    <ul>
+                        <li>Minimum touch target: 48px (mobile) / 56px (desktop)</li>
+                        <li>Animation duration: 250ms with cubic-bezier easing</li>
+                        <li>State layer opacity: 8% (hover), 12% (pressed)</li>
+                        <li>Border radius: 12px (M3 medium component)</li>
+                    </ul>
+                </schmancy-details>
+
+                <schmancy-details variant="outlined" summary="Accessibility Features">
+                    <p>This component is built with accessibility in mind:</p>
+                    <ul>
+                        <li>Full keyboard navigation support</li>
+                        <li>ARIA-compliant markup</li>
+                        <li>Visible focus indicators</li>
+                        <li>Screen reader friendly</li>
+                    </ul>
+                </schmancy-details>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Filled Variant</h2>
+            <div class="demo-grid">
+                <schmancy-details variant="filled" summary="Component Architecture">
+                    <p>The component uses Lit Element with Material Design 3 principles:</p>
+                    <ul>
+                        <li>Shadow DOM for style encapsulation</li>
+                        <li>Reactive properties for state management</li>
+                        <li>Custom CSS properties for theming</li>
+                        <li>Optimized render cycles</li>
+                    </ul>
+                </schmancy-details>
+
+                <schmancy-details variant="filled" summary="Interactive States">
+                    <p>The component responds to various interaction states:</p>
+                    <ul>
+                        <li><strong>Hover:</strong> Subtle state layer appears</li>
+                        <li><strong>Focus:</strong> Primary color outline with offset</li>
+                        <li><strong>Pressed:</strong> Darker state layer and ripple effect</li>
+                        <li><strong>Keyboard:</strong> Enter/Space keys toggle expansion</li>
+                    </ul>
+                </schmancy-details>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Elevated Variant</h2>
+            <div class="demo-grid">
+                <schmancy-details variant="elevated" summary="Elevation System">
+                    <p>Material Design 3 uses elevation to create visual hierarchy:</p>
+                    <ul>
+                        <li>Level 0: No elevation (flat)</li>
+                        <li>Level 1: Subtle shadow (collapsed state)</li>
+                        <li>Level 2: Increased shadow (expanded state)</li>
+                        <li>Smooth transition between elevation levels</li>
+                    </ul>
+                </schmancy-details>
+
+                <schmancy-details variant="elevated" summary="Performance Optimizations">
+                    <p>The component is optimized for performance:</p>
+                    <ul>
+                        <li>Hardware-accelerated animations</li>
+                        <li>Efficient render updates</li>
+                        <li>Minimal reflows and repaints</li>
+                        <li>Lazy content rendering when expanded</li>
+                    </ul>
+                </schmancy-details>
+
+                <schmancy-details variant="elevated" open summary="Initially Open Panel">
+                    <p>This panel starts in the expanded state using the <code>open</code> attribute.</p>
+                    <p>You can control the initial state programmatically or through the attribute.</p>
+                </schmancy-details>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Complex Content Example</h2>
+            <schmancy-details variant="elevated">
+                <div slot="summary" style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 24px;">🎨</span>
+                    <div>
+                        <div style="font-weight: 500;">Custom Summary Slot</div>
+                        <div style="font-size: 0.875rem; opacity: 0.7;">With additional description text</div>
+                    </div>
+                </div>
+                <div style="padding: 16px;">
+                    <h3 style="margin-top: 0;">Rich Content Support</h3>
+                    <p>The details component supports any HTML content in both the summary and body sections.</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+                        <div style="padding: 16px; background: var(--schmancy-sys-color-surface-container); border-radius: 8px;">
+                            <h4 style="margin: 0 0 8px 0;">Feature 1</h4>
+                            <p style="margin: 0; font-size: 0.875rem;">Supports nested components and complex layouts.</p>
+                        </div>
+                        <div style="padding: 16px; background: var(--schmancy-sys-color-surface-container); border-radius: 8px;">
+                            <h4 style="margin: 0 0 8px 0;">Feature 2</h4>
+                            <p style="margin: 0; font-size: 0.875rem;">Maintains proper spacing and typography.</p>
+                        </div>
+                    </div>
+                </div>
+            </schmancy-details>
+        </div>
+    </div>
+
+    <script>
+        // Example of programmatic interaction
+        document.addEventListener('DOMContentLoaded', () => {
+            const details = document.querySelectorAll('schmancy-details');
+            details.forEach(detail => {
+                detail.addEventListener('toggle', (e) => {
+                    console.log(`Details panel toggled:`, {
+                        summary: e.target.summary,
+                        open: e.detail.open
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
