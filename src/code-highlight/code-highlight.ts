@@ -19,7 +19,7 @@ hljs.registerLanguage('bash', bash)
 
 /**
  * @element schmancy-code
- * Code highlighting component using highlight.js with default theme
+ * Code highlighting component using highlight.js with schmancy theming support
  */
 @customElement('schmancy-code')
 export class SchmancyCode extends TailwindElement(css`
@@ -29,52 +29,60 @@ export class SchmancyCode extends TailwindElement(css`
 		overflow: hidden;
 	}
 
-	/* Import highlight.js default dark theme */
+	/* Code block styling using schmancy color system */
 	.hljs {
 		display: block;
 		overflow-x: auto;
 		padding: 0.5em;
-		color: #abb2bf;
-		background: #282c34;
+		color: var(--md-sys-color-on-surface-variant);
+		background: var(--md-sys-color-surface-container-lowest);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 	}
 
+	/* Comments and documentation */
 	.hljs-comment,
 	.hljs-quote {
-		color: #5c6370;
+		color: var(--md-sys-color-outline);
 		font-style: italic;
 	}
 
+	/* Keywords, doctags, formulas */
 	.hljs-doctag,
 	.hljs-keyword,
 	.hljs-formula {
-		color: #c678dd;
+		color: var(--md-sys-color-primary);
 	}
 
+	/* Tags, sections, names, deletions */
 	.hljs-section,
 	.hljs-name,
 	.hljs-selector-tag,
 	.hljs-deletion,
 	.hljs-subst {
-		color: #e06c75;
+		color: var(--md-sys-color-error);
 	}
 
+	/* Literals */
 	.hljs-literal {
-		color: #56b6c2;
+		color: var(--md-sys-color-tertiary);
 	}
 
+	/* Strings, regex, additions */
 	.hljs-string,
 	.hljs-regexp,
 	.hljs-addition,
 	.hljs-attribute,
 	.hljs-meta-string {
-		color: #98c379;
+		color: var(--md-sys-color-secondary);
 	}
 
+	/* Built-ins and class titles */
 	.hljs-built_in,
 	.hljs-class .hljs-title {
-		color: #e6c07b;
+		color: var(--md-sys-color-tertiary);
 	}
 
+	/* Variables, attributes, types */
 	.hljs-attr,
 	.hljs-variable,
 	.hljs-template-variable,
@@ -83,16 +91,17 @@ export class SchmancyCode extends TailwindElement(css`
 	.hljs-selector-attr,
 	.hljs-selector-pseudo,
 	.hljs-number {
-		color: #d19a66;
+		color: var(--md-sys-color-on-surface);
 	}
 
+	/* Symbols, bullets, links, meta */
 	.hljs-symbol,
 	.hljs-bullet,
 	.hljs-link,
 	.hljs-meta,
 	.hljs-selector-id,
 	.hljs-title {
-		color: #61aeee;
+		color: var(--md-sys-color-secondary);
 	}
 
 	.hljs-emphasis {
@@ -107,7 +116,7 @@ export class SchmancyCode extends TailwindElement(css`
 		text-decoration: underline;
 	}
 
-	/* Minimal custom styles for line numbers and highlighting */
+	/* Line features styling */
 	.code-with-lines {
 		background: transparent;
 		padding: 0;
@@ -116,10 +125,12 @@ export class SchmancyCode extends TailwindElement(css`
 	.code-line {
 		display: block;
 		padding-left: 0;
+		transition: background-color 0.2s ease;
 	}
 
 	.code-line.highlighted {
-		background-color: rgba(97, 174, 238, 0.15);
+		background-color: var(--md-sys-color-primary-container);
+		opacity: 0.2;
 	}
 
 	.line-number {
@@ -127,7 +138,7 @@ export class SchmancyCode extends TailwindElement(css`
 		width: 3rem;
 		padding-right: 1rem;
 		text-align: right;
-		color: #5c6370;
+		color: var(--md-sys-color-outline);
 		user-select: none;
 		font-size: inherit;
 	}
@@ -288,42 +299,41 @@ export class SchmancyCode extends TailwindElement(css`
 		const codeClass = this.lineNumbers || this.highlightLines ? 'code-with-lines' : 'hljs'
 
 		return html`
-			<schmancy-theme mode="dark">
-				<schmancy-details>
-					<section slot="summary">
-						<!-- Header -->
-						<div class="flex items-center justify-between px-4 py-2 bg-surface-container border-b border-outline">
-							<div class="flex items-center gap-2">
-								<div class="flex gap-1.5">
-									<div class="w-3 h-3 rounded-full bg-error-default opacity-60"></div>
-									<div class="w-3 h-3 rounded-full bg-warning-default opacity-60"></div>
-									<div class="w-3 h-3 rounded-full bg-success-default opacity-60"></div>
-								</div>
-								<span class="text-xs font-medium text-surface-onVariant opacity-70 ml-2">
-									${this.getLanguageLabel()}
-								</span>
+			<schmancy-details>
+				<section slot="summary">
+					<!-- Header -->
+					<div class="flex items-center justify-between px-4 py-2"
+						style="background-color: var(--md-sys-color-surface-container); border-bottom: 1px solid var(--md-sys-color-outline-variant);">
+						<div class="flex items-center gap-2">
+							<div class="flex gap-1.5">
+								<div class="w-3 h-3 rounded-full opacity-60" style="background-color: var(--md-sys-color-error);"></div>
+								<div class="w-3 h-3 rounded-full opacity-60" style="background-color: var(--md-sys-color-tertiary);"></div>
+								<div class="w-3 h-3 rounded-full opacity-60" style="background-color: var(--md-sys-color-secondary);"></div>
 							</div>
-							${this.copyButton
-								? html`
-										<schmancy-button
-											.variant="${this.copied ? 'filled tonal' : 'text'}"
-											size="sm"
-											@click=${this.copyCode}
-											class="transition-all"
-										>
-											<schmancy-icon size="16"> ${this.copied ? 'check' : 'content_copy'} </schmancy-icon>
-											<span class="ml-1">${this.copied ? 'Copied!' : 'Copy'}</span>
-										</schmancy-button>
-									`
-								: ''}
+							<span class="text-xs font-medium opacity-70 ml-2" style="color: var(--md-sys-color-on-surface-variant);">
+								${this.getLanguageLabel()}
+							</span>
 						</div>
-					</section>
-					<!-- Code -->
-					<div class="overflow-auto" style="${this.maxHeight ? `max-height: ${this.maxHeight}` : ''}">
-						<pre class="m-0"><code class="${codeClass}">${unsafeHTML(this.highlightedCode)}</code></pre>
+						${this.copyButton
+							? html`
+									<schmancy-button
+										.variant="${this.copied ? 'filled tonal' : 'text'}"
+										size="sm"
+										@click=${this.copyCode}
+										class="transition-all"
+									>
+										<schmancy-icon size="16"> ${this.copied ? 'check' : 'content_copy'} </schmancy-icon>
+										<span class="ml-1">${this.copied ? 'Copied!' : 'Copy'}</span>
+									</schmancy-button>
+								`
+							: ''}
 					</div>
-				</schmancy-details>
-			</schmancy-theme>
+				</section>
+				<!-- Code -->
+				<div class="overflow-auto" style="${this.maxHeight ? `max-height: ${this.maxHeight}` : ''}">
+					<pre class="m-0"><code class="${codeClass}">${unsafeHTML(this.highlightedCode)}</code></pre>
+				</div>
+			</schmancy-details>
 		`
 	}
 }

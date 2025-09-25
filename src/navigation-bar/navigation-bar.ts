@@ -1,0 +1,265 @@
+import { TailwindElement } from '@mixins/tailwind.mixin'
+import { color } from '@schmancy/directives'
+import { css, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { SchmancyTheme } from '..'
+import { BehaviorSubject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
+
+/**
+ * `<schmancy-navigation-bar>` component
+ *
+ * A horizontal navigation component following Material Design 3 specifications.
+ * Navigation bars provide access to between 3-7 primary destinations, fixed at the bottom of the viewport.
+ *
+ * @element schmancy-navigation-bar
+ * @slot - Default slot for navigation bar items
+ *
+ * @fires navigation-change - When an item is selected
+ *
+ * @example
+ * <schmancy-navigation-bar activeIndex="0">
+ *   <schmancy-navigation-bar-item icon="home" label="Home"></schmancy-navigation-bar-item>
+ *   <schmancy-navigation-bar-item icon="search" label="Search"></schmancy-navigation-bar-item>
+ *   <schmancy-navigation-bar-item icon="favorite" label="Favorites"></schmancy-navigation-bar-item>
+ *   <schmancy-navigation-bar-item icon="settings" label="Settings"></schmancy-navigation-bar-item>
+ * </schmancy-navigation-bar>
+ */
+@customElement('schmancy-navigation-bar')
+export class SchmancyNavigationBar extends TailwindElement(css`
+	:host {
+		display: block;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 10;
+	}
+
+	/* Support 3-7 items with equal distribution */
+	::slotted(schmancy-navigation-bar-item) {
+		flex: 1;
+		max-width: 168px; /* Prevent items from being too wide */
+	}
+
+	/* Accessibility focus indicators */
+	:host(:focus-within) {
+		outline: 2px solid var(--schmancy-sys-color-primary);
+		outline-offset: -2px;
+	}
+`) {
+	/**
+	 * Observable for active index state
+	 */
+	private activeIndex$ = new BehaviorSubject<number>(-1)
+
+	/**
+	 * Currently active item index
+	 * @default -1
+	 */
+	@property({ type: Number })
+	get activeIndex() { return this.activeIndex$.value }
+	set activeIndex(value: number) { this.activeIndex$.next(value) }
+
+	/**
+	 * Hide labels and show only icons
+	 * @default false
+	 */
+	@property({ type: Boolean, reflect: true })
+	hideLabels = false
+
+	/**
+	 * Elevation level for the navigation bar
+	 * @default 2
+	 */
+	@property({ type: Number, reflect: true })
+	elevation = 2
+
+	/**
+	 * Current focused item index for keyboard navigation
+	 */
+	@state()
+	private focusedIndex = -1
+
+	connectedCallback() {
+		super.connectedCallback()
+		this.addEventListener('bar-item-click', this.handleItemClick as EventListener)
+		this.addEventListener('keydown', this.handleKeyDown)
+
+		// Subscribe to active index changes
+		this.activeIndex$.pipe(
+			takeUntil(this.disconnecting)
+		).subscribe(index => {
+			this.updateActiveStates(index)
+		})
+
+		this.updateItems()
+	}
+
+	disconnectedCallback() {
+		this.removeEventListener('bar-item-click', this.handleItemClick as EventListener)
+		this.removeEventListener('keydown', this.handleKeyDown)
+		super.disconnectedCallback()
+	}
+
+	/**
+	 * Handle item click events
+	 */
+	private handleItemClick = (event: CustomEvent) => {
+		const items = this.querySelectorAll('schmancy-navigation-bar-item')
+		const clickedItem = event.target as HTMLElement
+		const index = Array.from(items).indexOf(clickedItem as any)
+
+		if (index !== -1 && this.activeIndex !== index) {
+			const oldIndex = this.activeIndex
+			// Setting activeIndex will trigger the BehaviorSubject
+			this.activeIndex = index
+
+			// Emit navigation change event
+			this.dispatchEvent(new CustomEvent('navigation-change', {
+				detail: {
+					oldIndex,
+					newIndex: index,
+					item: clickedItem
+				},
+				bubbles: true,
+				composed: true
+			}))
+		}
+	}
+
+	/**
+	 * Handle keyboard navigation
+	 */
+	private handleKeyDown = (event: KeyboardEvent) => {
+		const items = Array.from(this.querySelectorAll('schmancy-navigation-bar-item'))
+		const currentIndex = this.focusedIndex === -1 ? this.activeIndex : this.focusedIndex
+
+		switch (event.key) {
+			case 'ArrowLeft':
+				event.preventDefault()
+				if (currentIndex > 0) {
+					this.focusItem(currentIndex - 1)
+				}
+				break
+
+			case 'ArrowRight':
+				event.preventDefault()
+				if (currentIndex < items.length - 1) {
+					this.focusItem(currentIndex + 1)
+				}
+				break
+
+			case 'Home':
+				event.preventDefault()
+				this.focusItem(0)
+				break
+
+			case 'End':
+				event.preventDefault()
+				this.focusItem(items.length - 1)
+				break
+
+			case 'Enter':
+			case ' ':
+				event.preventDefault()
+				if (this.focusedIndex !== -1) {
+					const item = items[this.focusedIndex] as any
+					item?.click()
+				}
+				break
+		}
+	}
+
+	/**
+	 * Focus a specific item by index
+	 */
+	private focusItem(index: number) {
+		const items = this.querySelectorAll('schmancy-navigation-bar-item')
+		if (items[index]) {
+			this.focusedIndex = index
+			;(items[index] as HTMLElement).focus()
+		}
+	}
+
+	/**
+	 * Update the list of navigation items
+	 */
+	private updateItems() {
+		const slot = this.shadowRoot?.querySelector('slot')
+		if (slot) {
+			const handleSlotChange = () => {
+				// Update active states when slot content changes
+				this.updateActiveStates(this.activeIndex)
+			}
+			slot.addEventListener('slotchange', handleSlotChange)
+			handleSlotChange() // Initial update
+		}
+	}
+
+	/**
+	 * Update active states on all items
+	 */
+	private updateActiveStates(activeIndex: number) {
+		const items = this.querySelectorAll('schmancy-navigation-bar-item')
+		items.forEach((item, index) => {
+			const navItem = item as any
+			// Use setActive method to trigger item's reactive update
+			if (navItem.setActive) {
+				navItem.setActive(index === activeIndex)
+			} else {
+				// Fallback for backward compatibility
+				navItem.active = index === activeIndex
+			}
+			navItem.hideLabels = this.hideLabels
+			// Set tabindex for accessibility
+			;(item as HTMLElement).tabIndex = index === activeIndex ? 0 : -1
+		})
+	}
+
+	updated(changedProperties: Map<string, any>) {
+		super.updated(changedProperties)
+
+		if (changedProperties.has('hideLabels')) {
+			// Only update hide labels, active state is handled by the BehaviorSubject
+			this.updateActiveStates(this.activeIndex)
+		}
+	}
+
+	protected render() {
+		const containerClasses = {
+			'h-20': true, // 80px height
+			'fixed bottom-0 left-0 right-0': true,
+			'flex items-center justify-around': true,
+			'px-2 py-3 box-border': true,
+			'transition-all duration-200 ease-in-out': true,
+			// Elevation shadows
+			'shadow-none': this.elevation === 0,
+			'shadow-sm': this.elevation === 1,
+			'shadow-md': this.elevation === 2,
+			'shadow-lg': this.elevation === 3,
+			'shadow-xl': this.elevation === 4,
+			'shadow-2xl': this.elevation === 5,
+		}
+
+		return html`
+			<nav
+				class=${this.classMap(containerClasses)}
+				role="navigation"
+				aria-label="Main navigation"
+				${color({
+					bgColor: SchmancyTheme.sys.color.surface.container,
+					color: SchmancyTheme.sys.color.surface.on
+				})}
+			>
+				<slot></slot>
+			</nav>
+		`
+	}
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'schmancy-navigation-bar': SchmancyNavigationBar
+	}
+}

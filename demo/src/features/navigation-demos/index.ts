@@ -10,6 +10,7 @@ import { NavigationTabs } from './tabs'
 import { NavigationDrawer } from './drawer'
 import { NavigationRail } from './rail'
 import { NavigationMobile } from './mobile'
+import { NavigationBar } from './navigation-bar'
 import { NavigationMenu } from './menu'
 import { NavigationExamples } from './examples'
 
@@ -32,6 +33,7 @@ export default class NavigationDemos extends $LitElement() {
         'demo-navigation-drawer': 'drawer',
         'demo-navigation-rail': 'rail',
         'demo-navigation-mobile': 'mobile',
+        'demo-navigation-bar': 'navigation-bar',
         'demo-navigation-menu': 'menu',
         'demo-navigation-examples': 'examples'
       }
@@ -124,6 +126,21 @@ export default class NavigationDemos extends $LitElement() {
             </schmancy-list-item>
 
             <schmancy-list-item
+              .selected=${this.activeDemo === 'navigation-bar'}
+              @click=${() => {
+                this.activeDemo = 'navigation-bar'
+                area.push({ component: NavigationBar, area: 'navigation' })
+              }}
+              rounded
+              variant="container"
+            >
+              <sch-flex flow="row" gap="2" align="center">
+                <schmancy-icon size="sm">dock_to_bottom</schmancy-icon>
+                <span>Navigation Bar</span>
+              </sch-flex>
+            </schmancy-list-item>
+
+            <schmancy-list-item
               .selected=${this.activeDemo === 'menu'}
               @click=${() => {
                 this.activeDemo = 'menu'
@@ -158,6 +175,13 @@ export default class NavigationDemos extends $LitElement() {
           <schmancy-scroll>
             <schmancy-area name="navigation" .default=${NavigationOverview}>
               <schmancy-route when="overview" .component=${NavigationOverview}></schmancy-route>
+              <schmancy-route when="tabs" .component=${NavigationTabs}></schmancy-route>
+              <schmancy-route when="drawer" .component=${NavigationDrawer}></schmancy-route>
+              <schmancy-route when="rail" .component=${NavigationRail}></schmancy-route>
+              <schmancy-route when="mobile" .component=${NavigationMobile}></schmancy-route>
+              <schmancy-route when="navigation-bar" .component=${NavigationBar}></schmancy-route>
+              <schmancy-route when="menu" .component=${NavigationMenu}></schmancy-route>
+              <schmancy-route when="examples" .component=${NavigationExamples}></schmancy-route>
             </schmancy-area>
           </schmancy-scroll>
         </schmancy-nav-drawer-content>
