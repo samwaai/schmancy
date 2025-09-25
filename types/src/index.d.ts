@@ -29,6 +29,7 @@ export * from './mailbox';
 export * from './map';
 export * from './menu';
 export * from './nav-drawer';
+export * from './navigation-bar';
 export * from './navigation-rail';
 export * from './notification';
 export * from './option';

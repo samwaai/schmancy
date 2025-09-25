@@ -1,7 +1,7 @@
 declare const SchmancyCode_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * @element schmancy-code
- * Code highlighting component using highlight.js with default theme
+ * Code highlighting component using highlight.js with schmancy theming support
  */
 export declare class SchmancyCode extends SchmancyCode_base {
     /**
