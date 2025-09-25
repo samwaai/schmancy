@@ -3,8 +3,8 @@ import { color } from '@schmancy/directives'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { SchmancyTheme } from '..'
-import { BehaviorSubject } from 'rxjs'
-import { takeUntil } from 'rxjs/operators'
+import { BehaviorSubject, fromEvent } from 'rxjs'
+import { takeUntil, throttleTime, tap, pairwise, map, filter } from 'rxjs/operators'
 
 /**
  * `<schmancy-navigation-bar>` component
@@ -34,6 +34,11 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 		left: 0;
 		right: 0;
 		z-index: 10;
+		transition: transform 0.3s ease-in-out;
+	}
+
+	:host([hide-on-scroll]) {
+		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	/* Support 3-7 items with equal distribution */
@@ -76,10 +81,29 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	elevation = 2
 
 	/**
+	 * Hide navigation bar on scroll down, show on scroll up
+	 * @default false
+	 */
+	@property({ type: Boolean, reflect: true })
+	hideOnScroll = false
+
+	/**
 	 * Current focused item index for keyboard navigation
 	 */
 	@state()
 	private focusedIndex = -1
+
+	/**
+	 * Whether the navigation bar is hidden due to scrolling
+	 */
+	@state()
+	private isHidden = false
+
+
+	/**
+	 * Minimum scroll threshold before triggering hide/show
+	 */
+	private readonly SCROLL_THRESHOLD = 10
 
 	connectedCallback() {
 		super.connectedCallback()
@@ -93,7 +117,43 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			this.updateActiveStates(index)
 		})
 
+		// Set up scroll listener if hideOnScroll is enabled
+		if (this.hideOnScroll) {
+			this.setupScrollListener()
+		}
+
 		this.updateItems()
+	}
+
+	/**
+	 * Set up RxJS-based scroll listener
+	 */
+	private setupScrollListener() {
+		// Create scroll observable
+		fromEvent(window, 'scroll').pipe(
+			throttleTime(100), // Throttle for performance
+			map(() => window.scrollY),
+			pairwise(), // Get pairs of [previous, current] scroll positions
+			filter(([prev, curr]) => Math.abs(curr - prev) > this.SCROLL_THRESHOLD), // Only react if scrolled enough
+			tap(([prev, curr]) => {
+				const scrollingDown = curr > prev
+				const scrollingUp = curr < prev
+
+				// Hide when scrolling down, show when scrolling up
+				if (scrollingDown && !this.isHidden) {
+					this.isHidden = true
+				} else if (scrollingUp && this.isHidden) {
+					this.isHidden = false
+				}
+
+				// Always show when near top
+				if (curr <= this.SCROLL_THRESHOLD) {
+					this.isHidden = false
+				}
+
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe()
 	}
 
 	disconnectedCallback() {
@@ -224,6 +284,16 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			// Only update hide labels, active state is handled by the BehaviorSubject
 			this.updateActiveStates(this.activeIndex)
 		}
+
+		if (changedProperties.has('hideOnScroll')) {
+			if (this.hideOnScroll && !changedProperties.get('hideOnScroll')) {
+				// hideOnScroll was just enabled
+				this.setupScrollListener()
+			} else if (!this.hideOnScroll) {
+				// hideOnScroll was disabled, reset hidden state
+				this.isHidden = false
+			}
+		}
 	}
 
 	protected render() {
@@ -242,11 +312,16 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			'shadow-2xl': this.elevation === 5,
 		}
 
+		// Apply transform for hide/show animation
+		const transformStyle = this.isHidden ? 'translateY(100%)' : 'translateY(0)'
+
 		return html`
 			<nav
 				class=${this.classMap(containerClasses)}
 				role="navigation"
 				aria-label="Main navigation"
+				aria-hidden=${this.isHidden}
+				style="transform: ${transformStyle};"
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.container,
 					color: SchmancyTheme.sys.color.surface.on

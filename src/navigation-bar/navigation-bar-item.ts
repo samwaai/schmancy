@@ -3,8 +3,8 @@ import { color } from '@schmancy/directives'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { SchmancyTheme } from '..'
-import { BehaviorSubject } from 'rxjs'
-import { takeUntil } from 'rxjs/operators'
+import { BehaviorSubject, fromEvent, merge, timer } from 'rxjs'
+import { takeUntil, tap, filter } from 'rxjs/operators'
 
 /**
  * `<schmancy-navigation-bar-item>` component
@@ -135,14 +135,10 @@ export class SchmancyNavigationBarItem extends TailwindElement(css`
 	private ripples: { x: number; y: number; id: number }[] = []
 
 	/**
-	 * Handle click events
+	 * Add ripple effect (immediate, no debounce)
 	 */
-	private handleClick = (event: MouseEvent) => {
-		if (this.disabled) {
-			event.preventDefault()
-			event.stopPropagation()
-			return
-		}
+	private addRippleEffect = (event: MouseEvent) => {
+		if (this.disabled) return
 
 		// Find the icon indicator div for ripple positioning
 		const indicatorDiv = this.shadowRoot?.querySelector('.w-16.h-8')
@@ -154,32 +150,43 @@ export class SchmancyNavigationBarItem extends TailwindElement(css`
 				id: Date.now()
 			}
 			this.ripples = [...this.ripples, ripple]
-			setTimeout(() => {
-				this.ripples = this.ripples.filter(r => r.id !== ripple.id)
-			}, 600)
-		}
 
-		// Dispatch custom event
-		this.dispatchEvent(new CustomEvent('bar-item-click', {
-			detail: {
-				icon: this.icon,
-				label: this.label,
-				active: this.active
-			},
-			bubbles: true,
-			composed: true
-		}))
+			// Remove ripple after animation
+			timer(600).pipe(
+				tap(() => {
+					this.ripples = this.ripples.filter(r => r.id !== ripple.id)
+				}),
+				takeUntil(this.disconnecting)
+			).subscribe()
+		}
 	}
 
 	/**
-	 * Handle keyboard events for accessibility
+	 * Handle click events with RxJS
+	 */
+	private handleClick = (event: MouseEvent) => {
+		if (this.disabled) {
+			event.preventDefault()
+			event.stopPropagation()
+			return
+		}
+
+		// Add ripple immediately
+		this.addRippleEffect(event)
+
+		// Navigation event is handled in connectedCallback
+	}
+
+	/**
+	 * Handle keyboard events for accessibility (non-Enter/Space keys)
 	 */
 	private handleKeyDown = (event: KeyboardEvent) => {
 		if (this.disabled) return
 
+		// Enter and Space are handled by the RxJS stream
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault()
-			this.click()
+			// Keyboard activation is handled in connectedCallback
 		}
 	}
 
@@ -199,6 +206,46 @@ export class SchmancyNavigationBarItem extends TailwindElement(css`
 		).subscribe(() => {
 			this.requestUpdate()
 		})
+
+		// Set up navigation event stream
+		this.setupNavigationStream()
+	}
+
+	/**
+	 * Set up RxJS stream for navigation events
+	 */
+	private setupNavigationStream() {
+		const button = this.shadowRoot?.querySelector('button')
+		if (!button) return
+
+		// Create click stream
+		const click$ = fromEvent<MouseEvent>(button, 'click').pipe(
+			filter(() => !this.disabled)
+		)
+
+		// Create keyboard activation stream (Enter/Space)
+		const keyActivation$ = fromEvent<KeyboardEvent>(button, 'keydown').pipe(
+			filter(() => !this.disabled),
+			filter(event => event.key === 'Enter' || event.key === ' '),
+			tap(event => event.preventDefault())
+		)
+
+		// Merge click and keyboard streams for instant navigation
+		merge(click$, keyActivation$).pipe(
+			tap(() => {
+				// Dispatch navigation event
+				this.dispatchEvent(new CustomEvent('bar-item-click', {
+					detail: {
+						icon: this.icon,
+						label: this.label,
+						active: this.active
+					},
+					bubbles: true,
+					composed: true
+				}))
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe()
 	}
 
 	/**
@@ -213,6 +260,11 @@ export class SchmancyNavigationBarItem extends TailwindElement(css`
 		}
 		// For text badges, limit to 3 characters
 		return badge.slice(0, 3)
+	}
+
+	protected firstUpdated() {
+		// Set up navigation stream after first render when button is available
+		this.setupNavigationStream()
 	}
 
 	protected render() {
