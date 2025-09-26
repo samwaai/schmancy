@@ -12,6 +12,8 @@ export declare class SchmancySelect extends SchmancySelect_base {
     placeholder: string;
     get value(): string | string[];
     set value(val: string | string[]);
+    get values(): string[];
+    set values(vals: string[]);
     multi: boolean;
     label: string;
     hint: string;
