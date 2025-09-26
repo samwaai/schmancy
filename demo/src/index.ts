@@ -3,14 +3,13 @@ import '@schmancy/index'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { filter, map } from 'rxjs'
 
 import '@lit-labs/virtualizer'
 import { area, lazy } from '@schmancy/area'
 import { createCompoundSelector, createContext, select } from '@schmancy/index'
-import { schmancyNavDrawer } from '@schmancy/nav-drawer'
 import '../../src/boat/boat'
-import { fullHeight } from '../../src/directives/height'
+import '../../src/navigation-rail/navigation-rail'
+import '../../src/navigation-rail/navigation-rail-item'
 import { DemoAreaDemos } from './features/area/area-demos'
 import './features/index'
 // Key Features
@@ -70,23 +69,11 @@ export default class SchmancyDemo extends $LitElement() {
 				name: 'Momooooo',
 			})
 		}, 5000)
-
-		// Subscribe to route changes
-		area.$current
-			.pipe(
-				filter(r => r.has('main')),
-				map(r => r.get('main')),
-			)
-			.subscribe(r => {
-				if (r?.component) {
-					// Convert tag name to class name format
-					this.activeComponent = r.component.toLowerCase().replace(/-/g, '')
-				}
-			})
 	}
 
-	private navigate(demo: { name: string; component: CustomElementConstructor }) {
-		schmancyNavDrawer.close(this)
+	private navigate(demo: { name: string; component: CustomElementConstructor; value: string }) {
+		// Update active component for highlighting
+		this.activeComponent = demo.value
 
 		// Simple navigation - just use area.push with the component
 		area.push({
@@ -95,113 +82,105 @@ export default class SchmancyDemo extends $LitElement() {
 		})
 	}
 
+
 	render() {
+		// Define icons for each demo item
 		const sections = [
 			{
 				title: 'Key Features',
 				demos: [
-					{ name: 'Context', component: DemoContext },
-					{ name: 'Area', component: DemoAreaDemos as any },
-					{ name: 'Theme Service', component: ThemeServiceDemo },
+					{ name: 'Context', component: DemoContext, icon: 'hub', value: 'context' },
+					{ name: 'Area', component: DemoAreaDemos as any, icon: 'view_carousel', value: 'area' },
+					{ name: 'Theme Service', component: ThemeServiceDemo, icon: 'palette', value: 'theme' },
 				]
 			},
 			{
 				title: 'Core',
 				demos: [
-					// These components are now loaded through grouped demos
-					// { name: 'Typography', component: DemoTypography },
-					// { name: 'Button', component: DemoButton },
-					// { name: 'Card', component: DemoCard },
-					{ name: 'Chips', component: DemoChips },
-					// { name: 'Surface', component: DemoSurface },
-					// { name: 'Icons', component: DemoIcons },
-					// { name: 'Progress', component: DemoProgress },
-					// { name: 'Spinner', component: DemoBusy },
-					// { name: 'Notifications', component: NotificationDemo },
-					{ name: 'Details', component: DetailsShowcase },
-					{ name: 'Map', component: DemoMap },
-					{ name: 'Mailbox', component: DemoMailbox },
+					{ name: 'Chips', component: DemoChips, icon: 'label', value: 'chips' },
+					{ name: 'Details', component: DetailsShowcase, icon: 'expand_more', value: 'details' },
+					{ name: 'Map', component: DemoMap, icon: 'map', value: 'map' },
+					{ name: 'Mailbox', component: DemoMailbox, icon: 'mail', value: 'mailbox' },
 				]
 			},
 			{
 				title: 'Components',
 				demos: [
-					{ name: 'Forms', component: lazy(() => import('./features/forms-demos')) as any },
-					{ name: 'Navigation', component: lazy(() => import('./features/navigation-demos')) as any },
-					{ name: 'Data Display', component: lazy(() => import('./features/data-display-demos')) as any },
-					{ name: 'Overlays', component: lazy(() => import('./features/overlays-demos')) as any },
+					{ name: 'Forms', component: lazy(() => import('./features/forms-demos')) as any, icon: 'edit_note', value: 'forms' },
+					{ name: 'Navigation', component: lazy(() => import('./features/navigation-demos')) as any, icon: 'navigation', value: 'navigation' },
+					{ name: 'Data Display', component: lazy(() => import('./features/data-display-demos')) as any, icon: 'table_chart', value: 'data-display' },
+					{ name: 'Overlays', component: lazy(() => import('./features/overlays-demos')) as any, icon: 'layers', value: 'overlays' },
 				]
 			},
 			{
 				title: 'Layout',
 				demos: [
-					// These are now in layout-demos group
-					// { name: 'Layout', component: DemoLayout },
-					// { name: 'Content Drawer', component: DemoContentDrawer },
-					{ name: 'Boat', component: DemoBoat },
-					{ name: 'Steps', component: DemoSteps },
-					// { name: 'Sheet', component: DemoSheet }
+					{ name: 'Boat', component: DemoBoat, icon: 'sailing', value: 'boat' },
+					{ name: 'Steps', component: DemoSteps, icon: 'linear_scale', value: 'steps' },
 				]
 			},
 		]
 
 		return html`
 			<schmancy-theme root .color=${this.theme.color} .scheme=${this.theme.scheme}>
-				<schmancy-surface ${fullHeight()} type="container">
-					<schmancy-nav-drawer>
-						<schmancy-nav-drawer-navbar width="220px">
-							<div class="flex flex-col h-screen overflow-hidden">
-								<div class="p-6 flex-shrink-0">
-									<schmancy-typography type="headline" token="sm" class="mb-1">
-										Schmancy
-									</schmancy-typography>
-									<schmancy-typography type="body" token="sm" class="text-surface-onVariant">
-										Web Component Library
-									</schmancy-typography>
-								</div>
+				<!-- Flex container for navigation rail and content -->
+				<div class="flex h-screen">
+					<!-- Navigation rail on the left -->
+					<schmancy-navigation-rail
+						label-visibility="selected"
+						.activeValue=${this.activeComponent}
+						@navigate=${(e: CustomEvent<string>) => {
+							const demo = sections.flatMap(s => s.demos).find(d => d.value === e.detail)
+							if (demo) this.navigate(demo)
+						}}
+					>
+						<!-- Header with Schmancy branding -->
+						<div slot="header" class="p-4 text-center">
+							<schmancy-typography type="headline" token="sm" class="mb-1">
+								Schmancy
+							</schmancy-typography>
+							<schmancy-typography type="body" token="xs" class="text-surface-onVariant">
+								Web Components
+							</schmancy-typography>
+						</div>
 
-								<div class="px-4 overflow-y-auto space-y-4 flex-1 min-h-0">
+						<!-- Navigation items grouped by section -->
+						${repeat(
+							sections,
+							section => section.title,
+							section => {
+								return html`
 									${repeat(
-										sections,
-										section => section.title,
-										section => {
-											return html`
-											<schmancy-divider></schmancy-divider>
-												<div class="pt-4">
-													<div class="text-xs font-semibold text-primary-default mb-3 mt-6 first:mt-0">${section.title}</div>
-													<schmancy-list>
-														${repeat(
-															section.demos,
-															demo => demo.name,
-															demo => html`
-																<schmancy-list-item
-																	rounded
-																	class="my-1 cursor-pointer text-sm rounded-lg transition-colors hover:bg-surface-container"
-																	.selected=${this.activeComponent === demo.component.name?.toLowerCase().replace(/-/g, '')}
-																	@click=${() => this.navigate(demo)}
-																>
-																	${demo.name}
-																</schmancy-list-item>
-															`
-														)}
-													</schmancy-list>
-												</div>
-											`
-										}
+										section.demos,
+										demo => demo.value,
+										demo => html`
+											<schmancy-navigation-rail-item
+												.icon=${demo.icon}
+												.label=${demo.name}
+												.value=${demo.value}
+												?active=${this.activeComponent === demo.value}
+											></schmancy-navigation-rail-item>
+										`
 									)}
-								</div>
-							</div>
-						</schmancy-nav-drawer-navbar>
-						<schmancy-nav-drawer-content class="pl-2">
-							<schmancy-scroll>
-									<schmancy-nav-drawer-appbar></schmancy-nav-drawer-appbar>
-								<schmancy-area name="main" .default=${DemoAreaDemos}>
-									<schmancy-route when="area" .component=${DemoAreaDemos}></schmancy-route>
-								</schmancy-area>
-							</schmancy-scroll>
-						</schmancy-nav-drawer-content>
-					</schmancy-nav-drawer>
-				</schmancy-surface>
+
+									<!-- Add divider between sections -->
+									${section !== sections[sections.length - 1] ? html`
+										<schmancy-divider></schmancy-divider>
+									` : ''}
+								`
+							}
+						)}
+					</schmancy-navigation-rail>
+
+					<!-- Main content area - flex-1 to take remaining space, overflow-auto for scrolling -->
+					<div class="flex-1 overflow-auto">
+						<schmancy-surface type="container" fill="all" class="h-full">
+							<schmancy-area name="main" .default=${DemoAreaDemos}>
+								<schmancy-route when="area" .component=${DemoAreaDemos}></schmancy-route>
+							</schmancy-area>
+						</schmancy-surface>
+					</div>
+				</div>
 				<sch-notification-container></sch-notification-container>
 			</schmancy-theme>
 

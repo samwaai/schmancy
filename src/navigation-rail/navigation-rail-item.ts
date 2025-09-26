@@ -83,7 +83,7 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		color: var(--schmancy-sys-color-surface-onVariant);
 		user-select: none;
 		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-		padding: 8px 0;
+		padding: 12px 0;
 		gap: 4px;
 	}
 
@@ -98,12 +98,16 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		outline-offset: 2px;
 	}
 
-	/* Active indicator */
+	/* Active indicator - positioned behind icon only */
+	.icon-container {
+		position: relative;
+	}
+
 	.indicator {
 		position: absolute;
-		top: 12px;
+		top: 50%;
 		left: 50%;
-		transform: translateX(-50%) scale(0);
+		transform: translate(-50%, -50%) scale(0);
 		width: 56px;
 		height: 32px;
 		border-radius: 16px;
@@ -114,7 +118,7 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 
 	:host([active]) .indicator,
 	:host([selected]) .indicator {
-		transform: translateX(-50%) scale(1);
+		transform: translate(-50%, -50%) scale(1);
 	}
 
 	:host([active]) .container,
@@ -128,8 +132,9 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: var(--rail-item-icon-size);
-		height: var(--rail-item-icon-size);
+		width: auto;
+		min-width: 56px;
+		height: 32px;
 		flex-shrink: 0;
 		position: relative;
 		z-index: 1;
@@ -139,6 +144,8 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		font-family: 'Material Symbols Outlined';
 		font-size: var(--rail-item-icon-size);
 		line-height: 1;
+		position: relative;
+		z-index: 1;
 		font-variation-settings:
 			'FILL' 0,
 			'wght' 400,
@@ -170,17 +177,6 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		padding: 0 4px;
 	}
 
-	/* When label is shown, adjust container height */
-	:host([active]) .container,
-	:host([selected]) .container {
-		min-height: auto;
-		height: auto;
-	}
-
-	/* Ensure label has space when shown */
-	.label:not([style*="display: none"]) {
-		margin-bottom: 4px;
-	}
 
 	/* Badge styles */
 	.badge {
@@ -387,11 +383,6 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 	@state()
 	private showRipple = false
 
-	@state()
-	private hovering = false
-
-	@state()
-	private pressing = false
 
 	connectedCallback() {
 		super.connectedCallback()
@@ -409,19 +400,6 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 			fromEvent(this, 'mouseleave').pipe(tap(() => this.pressing$.next(false)))
 		).pipe(takeUntil(this.disconnecting)).subscribe()
 
-		// Subscribe to hovering$ to update state property
-		this.hovering$.pipe(
-			distinctUntilChanged(),
-			tap(hovering => this.hovering = hovering),
-			takeUntil(this.disconnecting)
-		).subscribe()
-
-		// Subscribe to pressing$ to update state property
-		this.pressing$.pipe(
-			distinctUntilChanged(),
-			tap(pressing => this.pressing = pressing),
-			takeUntil(this.disconnecting)
-		).subscribe()
 
 		// Ripple effect
 		this.pressing$.pipe(
@@ -509,8 +487,6 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 
 		const containerClasses = {
 			container: true,
-			hovering: this.hovering,
-			pressing: this.pressing,
 			rippling: this.showRipple
 		}
 
@@ -526,13 +502,13 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 				@click=${this.handleClick}
 				@keydown=${this.handleKeyDown}
 			>
-				<span class="indicator" part="indicator" aria-hidden="true"></span>
 				<span class="ripple" aria-hidden="true"></span>
 
 				${when(hasCustomContent,
 					() => html`<slot></slot>`,
 					() => html`
 						<div class="icon-container" part="icon">
+							<span class="indicator" part="indicator" aria-hidden="true"></span>
 							${when(hasCustomIcon,
 								() => html`<slot name="icon"></slot>`,
 								() => when(this.icon,
