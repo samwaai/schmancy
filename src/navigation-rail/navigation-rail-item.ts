@@ -1,94 +1,314 @@
-import { TailwindElement } from '@mixins/tailwind.mixin'
-import { css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { $LitElement } from '@mixins/index'
+import { css, html, PropertyValues } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { when } from 'lit/directives/when.js'
+import { BehaviorSubject, fromEvent, merge, takeUntil } from 'rxjs'
+import { tap, delay, distinctUntilChanged } from 'rxjs/operators'
+
+export type NavigationRailItemClickEvent = CustomEvent<{
+	icon: string
+	label: string
+	value: string
+	active: boolean
+}>
 
 /**
+ * Material Design 3 Navigation Rail Item Component
+ * @see https://m3.material.io/components/navigation-rail/overview
+ *
  * `<schmancy-navigation-rail-item>` component
  *
  * Individual navigation item for use within a navigation rail.
  * Represents a single destination or action with an icon and optional label.
  *
  * @element schmancy-navigation-rail-item
- * @slot icon - Slot for the navigation item icon
- * @slot - Default slot for custom content (takes precedence over icon/label props)
+ * @slot icon - Slot for the navigation item icon (e.g., schmancy-icon)
+ * @slot - Default slot for custom content
+ * @slot badge - Custom badge content
+ *
+ * @fires navigate - When the item is clicked
+ *
+ * @csspart container - The main item container
+ * @csspart indicator - The active indicator
+ * @csspart icon - The icon container
+ * @csspart label - The label text
+ * @csspart badge - The badge element
  *
  * @example
- * <schmancy-navigation-rail-item icon="home" label="Home" active></schmancy-navigation-rail-item>
+ * <schmancy-navigation-rail-item
+ *   icon="home"
+ *   label="Home"
+ *   value="/home"
+ *   badge="3"
+ *   active>
+ * </schmancy-navigation-rail-item>
+ *
+ * @example
+ * <!-- Using 'selected' alias -->
+ * <schmancy-navigation-rail-item
+ *   icon="settings"
+ *   label="Settings"
+ *   value="/settings"
+ *   selected>
+ * </schmancy-navigation-rail-item>
+ *
+ * @example
+ * <!-- With custom icon -->
+ * <schmancy-navigation-rail-item label="Dashboard">
+ *   <schmancy-icon slot="icon">dashboard</schmancy-icon>
+ * </schmancy-navigation-rail-item>
  */
 @customElement('schmancy-navigation-rail-item')
-export class SchmancyNavigationRailItem extends TailwindElement(css`
+export class SchmancyNavigationRailItem extends $LitElement(css`
 	:host {
+		display: block;
+		position: relative;
+		outline: none;
+		--rail-item-height: 56px;
+		--rail-item-icon-size: 24px;
+		--rail-item-show-label: block;
+	}
+
+	.container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		min-height: var(--rail-item-height);
+		width: 100%;
+		border-radius: 16px;
+		cursor: pointer;
+		position: relative;
+		box-sizing: border-box;
+		color: var(--schmancy-sys-color-surface-onVariant);
+		user-select: none;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		padding: 8px 0;
+		gap: 4px;
+	}
+
+	/* Hover state */
+	.container:hover {
+		background-color: var(--schmancy-sys-color-surface-highest);
+	}
+
+	/* Focus state */
+	:host(:focus-visible) .container {
+		outline: 2px solid var(--schmancy-sys-color-primary-default);
+		outline-offset: 2px;
+	}
+
+	/* Active indicator */
+	.indicator {
+		position: absolute;
+		top: 12px;
+		left: 50%;
+		transform: translateX(-50%) scale(0);
+		width: 56px;
+		height: 32px;
+		border-radius: 16px;
+		background-color: var(--schmancy-sys-color-secondary-container);
+		transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		z-index: 0;
+	}
+
+	:host([active]) .indicator,
+	:host([selected]) .indicator {
+		transform: translateX(-50%) scale(1);
+	}
+
+	:host([active]) .container,
+	:host([selected]) .container {
+		color: var(--schmancy-sys-color-secondary-onContainer);
+	}
+
+
+	/* Icon styles */
+	.icon-container {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		min-width: 56px;
-		min-height: 56px;
-		border-radius: 16px;
-		cursor: pointer;
-		transition: all 0.2s ease;
+		width: var(--rail-item-icon-size);
+		height: var(--rail-item-icon-size);
+		flex-shrink: 0;
 		position: relative;
-		box-sizing: border-box;
-		color: var(--schmancy-sys-color-surface-on-variant);
-		user-select: none;
-	}
-
-	:host(:hover) {
-		background-color: var(--schmancy-sys-color-surface-container-high);
-	}
-
-	:host([active]) {
-		background-color: var(--schmancy-sys-color-secondary-container);
-		color: var(--schmancy-sys-color-secondary-container-on);
-	}
-
-	:host([extended]) {
-		width: 168px;
-		justify-content: flex-start;
-		padding: 0 16px;
-		gap: 12px;
+		z-index: 1;
 	}
 
 	.icon {
 		font-family: 'Material Symbols Outlined';
-		font-size: 24px;
+		font-size: var(--rail-item-icon-size);
 		line-height: 1;
-		flex-shrink: 0;
+		font-variation-settings:
+			'FILL' 0,
+			'wght' 400,
+			'GRAD' 0,
+			'opsz' 24;
 	}
 
+	:host([active]) .icon,
+	:host([selected]) .icon {
+		font-variation-settings:
+			'FILL' 1,
+			'wght' 400,
+			'GRAD' 0,
+			'opsz' 24;
+	}
+
+	/* Label styles */
 	.label {
-		font-size: 14px;
+		font-size: 12px;
 		font-weight: 500;
-		line-height: 1.2;
+		line-height: 16px;
+		text-align: center;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		z-index: 1;
+		display: var(--rail-item-show-label, block);
+		max-width: 56px;
+		padding: 0 4px;
 	}
 
+	/* When label is shown, adjust container height */
+	:host([active]) .container,
+	:host([selected]) .container {
+		min-height: auto;
+		height: auto;
+	}
+
+	/* Ensure label has space when shown */
+	.label:not([style*="display: none"]) {
+		margin-bottom: 4px;
+	}
+
+	/* Badge styles */
 	.badge {
 		position: absolute;
-		top: 4px;
-		right: 4px;
+		top: 8px;
+		right: 12px;
 		min-width: 16px;
 		height: 16px;
 		border-radius: 8px;
-		background-color: var(--schmancy-sys-color-error);
+		background-color: var(--schmancy-sys-color-error-default);
 		color: var(--schmancy-sys-color-error-on);
 		font-size: 11px;
-		font-weight: 500;
+		font-weight: 600;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		padding: 0 4px;
 		box-sizing: border-box;
+		z-index: 2;
+		animation: badge-pulse 2s infinite;
 	}
 
-	:host([extended]) .badge {
-		position: static;
-		margin-left: auto;
+	@keyframes badge-pulse {
+		0%, 100% { transform: scale(1); }
+		50% { transform: scale(1.1); }
+	}
+
+	/* Nested items (for sub-navigation) */
+	:host([nested]) {
+		--rail-item-height: 48px;
+		--rail-item-icon-size: 20px;
+	}
+
+	:host([nested]) .container {
+		padding-left: 32px;
+	}
+
+	/* Disabled state */
+	:host([disabled]) {
+		pointer-events: none;
+		opacity: 0.38;
+	}
+
+	/* Ripple effect */
+	.ripple {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		border-radius: inherit;
+		overflow: hidden;
+		z-index: 0;
+	}
+
+	.ripple::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 0;
+		height: 0;
+		border-radius: 50%;
+		background: currentColor;
+		opacity: 0;
+		transform: translate(-50%, -50%);
+		transition: width 0.6s, height 0.6s, opacity 0.6s;
+	}
+
+	:host(:active) .ripple::before {
+		width: 200%;
+		height: 200%;
+		opacity: 0.12;
+	}
+
+	/* Tooltip styles (shown via title attribute) */
+	:host([title]:hover)::after {
+		content: attr(title);
+		position: absolute;
+		left: calc(100% + 8px);
+		top: 50%;
+		transform: translateY(-50%);
+		background: var(--schmancy-sys-color-inverseSurface);
+		color: var(--schmancy-sys-color-inverseOnSurface);
+		padding: 4px 8px;
+		border-radius: 4px;
+		font-size: 12px;
+		white-space: nowrap;
+		z-index: 1000;
+		pointer-events: none;
+		animation: tooltip-fade-in 0.2s ease;
+	}
+
+	@keyframes tooltip-fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(-50%) translateX(-4px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(-50%) translateX(0);
+		}
+	}
+
+	/* Group item styles */
+	:host([group]) {
+		margin-bottom: 8px;
+	}
+
+	:host([group])::after {
+		content: '';
+		position: absolute;
+		bottom: -4px;
+		left: 12px;
+		right: 12px;
+		height: 1px;
+		background: var(--schmancy-sys-color-outlineVariant);
+		opacity: 0.12;
 	}
 `) {
+	// Observable state
+	private hovering$ = new BehaviorSubject<boolean>(false)
+	private pressing$ = new BehaviorSubject<boolean>(false)
+	private active$ = new BehaviorSubject<boolean>(false)
+
+	// Properties
 	/**
-	 * Icon name for the navigation item
+	 * Icon name (Material Symbols icon)
 	 */
 	@property({ type: String })
 	icon = ''
@@ -100,52 +320,250 @@ export class SchmancyNavigationRailItem extends TailwindElement(css`
 	label = ''
 
 	/**
+	 * Value associated with this item (useful for routing)
+	 */
+	@property({ type: String })
+	value = ''
+
+	/**
 	 * Whether this item is currently active/selected
 	 * @default false
 	 */
 	@property({ type: Boolean, reflect: true })
-	active = false
+	get active() { return this.active$.value }
+	set active(value: boolean) {
+		this.active$.next(value)
+	}
 
 	/**
-	 * Badge text to display (e.g., notification count)
+	 * Whether this item is currently selected (alias for active)
+	 * @default false
+	 */
+	@property({ type: Boolean, reflect: true })
+	get selected() { return this.active }
+	set selected(value: boolean) { this.active = value }
+
+	/**
+	 * Badge text or number to display
 	 */
 	@property({ type: String })
 	badge = ''
 
 	/**
-	 * Whether the parent rail is extended
+	 * Badge variant
+	 */
+	@property({ type: String })
+	badgeVariant: 'error' | 'primary' | 'secondary' = 'error'
+
+	/**
+	 * Whether to show the label (controlled by parent rail)
+	 * @default false
+	 */
+	@property({ type: Boolean, attribute: 'show-label' })
+	showLabel = false
+
+	/**
+	 * Whether this item is disabled
 	 * @default false
 	 */
 	@property({ type: Boolean, reflect: true })
-	extended = false
+	disabled = false
+
+	/**
+	 * Whether this is a nested item (sub-navigation)
+	 * @default false
+	 */
+	@property({ type: Boolean, reflect: true })
+	nested = false
+
+	/**
+	 * Whether this item represents a group separator
+	 * @default false
+	 */
+	@property({ type: Boolean, reflect: true })
+	group = false
+
+	// State
+	@state()
+	private showRipple = false
+
+	@state()
+	private hovering = false
+
+	@state()
+	private pressing = false
+
+	connectedCallback() {
+		super.connectedCallback()
+
+		// Set up hover tracking
+		merge(
+			fromEvent(this, 'mouseenter').pipe(tap(() => this.hovering$.next(true))),
+			fromEvent(this, 'mouseleave').pipe(tap(() => this.hovering$.next(false)))
+		).pipe(takeUntil(this.disconnecting)).subscribe()
+
+		// Set up press tracking
+		merge(
+			fromEvent(this, 'mousedown').pipe(tap(() => this.pressing$.next(true))),
+			fromEvent(this, 'mouseup').pipe(tap(() => this.pressing$.next(false))),
+			fromEvent(this, 'mouseleave').pipe(tap(() => this.pressing$.next(false)))
+		).pipe(takeUntil(this.disconnecting)).subscribe()
+
+		// Subscribe to hovering$ to update state property
+		this.hovering$.pipe(
+			distinctUntilChanged(),
+			tap(hovering => this.hovering = hovering),
+			takeUntil(this.disconnecting)
+		).subscribe()
+
+		// Subscribe to pressing$ to update state property
+		this.pressing$.pipe(
+			distinctUntilChanged(),
+			tap(pressing => this.pressing = pressing),
+			takeUntil(this.disconnecting)
+		).subscribe()
+
+		// Ripple effect
+		this.pressing$.pipe(
+			tap(pressing => {
+				if (pressing && !this.disabled) {
+					this.showRipple = true
+				}
+			}),
+			delay(600),
+			tap(() => this.showRipple = false),
+			takeUntil(this.disconnecting)
+		).subscribe()
+
+		// Subscribe to active state changes for reactive updates
+		this.active$.pipe(
+			distinctUntilChanged(),
+			tap((isActive) => {
+				this.requestUpdate()
+				// Update ARIA attributes reactively
+				this.setAttribute('aria-selected', String(isActive))
+				this.setAttribute('tabindex', isActive ? '0' : '-1')
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe()
+
+		// Set ARIA attributes
+		this.setAttribute('role', 'listitem')
+		if (!this.hasAttribute('tabindex')) {
+			this.setAttribute('tabindex', this.active ? '0' : '-1')
+		}
+	}
+
+	updated(changedProperties: PropertyValues) {
+		super.updated(changedProperties)
+
+		// Active state is now handled by the BehaviorSubject subscription
+		// So we don't need to duplicate it here
+
+		if (changedProperties.has('disabled')) {
+			this.setAttribute('aria-disabled', String(this.disabled))
+		}
+
+		if (changedProperties.has('label')) {
+			this.setAttribute('aria-label', this.label)
+		}
+	}
 
 	/**
 	 * Handle click events
 	 */
-	private handleClick() {
-		this.dispatchEvent(new CustomEvent('rail-item-click', {
-			detail: {
-				icon: this.icon,
-				label: this.label,
-				active: this.active
-			},
+	private handleClick(event: Event) {
+		if (this.disabled) {
+			event.preventDefault()
+			event.stopPropagation()
+			return
+		}
+
+		// Emit navigate event with the value
+		this.dispatchEvent(new CustomEvent('navigate', {
+			detail: this.value || this.label,
 			bubbles: true,
 			composed: true
 		}))
+
+		// Visual feedback is handled by the ripple effect in connectedCallback
+		// The parent rail will confirm and update via activeIndex
+	}
+
+	/**
+	 * Handle keyboard events
+	 */
+	private handleKeyDown(event: KeyboardEvent) {
+		if (this.disabled) return
+
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault()
+			this.click()
+		}
 	}
 
 	protected render() {
-		const hasSlotContent = this.querySelector('[slot]') || this.textContent?.trim()
+		const hasCustomIcon = this.querySelector('[slot="icon"]')
+		const hasCustomContent = this.querySelector(':not([slot])')
+		const hasCustomBadge = this.querySelector('[slot="badge"]')
 
-		if (hasSlotContent) {
-			return html`<slot @click=${this.handleClick}></slot>`
+		const containerClasses = {
+			container: true,
+			hovering: this.hovering,
+			pressing: this.pressing,
+			rippling: this.showRipple
+		}
+
+		const badgeStyles = {
+			'background-color': `var(--schmancy-sys-color-${this.badgeVariant}-default)`,
+			'color': `var(--schmancy-sys-color-${this.badgeVariant}-on)`
 		}
 
 		return html`
-			<div @click=${this.handleClick}>
-				${this.icon ? html`<span class="icon">${this.icon}</span>` : ''}
-				${this.extended && this.label ? html`<span class="label">${this.label}</span>` : ''}
-				${this.badge ? html`<span class="badge">${this.badge}</span>` : ''}
+			<div
+				class=${this.classMap(containerClasses)}
+				part="container"
+				@click=${this.handleClick}
+				@keydown=${this.handleKeyDown}
+			>
+				<span class="indicator" part="indicator" aria-hidden="true"></span>
+				<span class="ripple" aria-hidden="true"></span>
+
+				${when(hasCustomContent,
+					() => html`<slot></slot>`,
+					() => html`
+						<div class="icon-container" part="icon">
+							${when(hasCustomIcon,
+								() => html`<slot name="icon"></slot>`,
+								() => when(this.icon,
+									() => html`<span class="icon">${this.icon}</span>`
+								)
+							)}
+						</div>
+
+						${when(this.label,
+							() => html`<span class="label" part="label">${this.label}</span>`
+						)}
+					`
+				)}
+
+				${when(this.badge,
+					() => html`
+						${when(hasCustomBadge,
+							() => html`<slot name="badge"></slot>`,
+							() => html`
+								<span
+									class="badge"
+									part="badge"
+									style=${this.styleMap(badgeStyles)}
+									aria-label="${this.badge} notifications"
+								>
+									${this.badge}
+								</span>
+							`
+						)}
+					`
+				)}
 			</div>
 		`
 	}
