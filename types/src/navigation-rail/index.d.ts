@@ -1,2 +1,2 @@
-export * from './navigation-rail';
 export * from './navigation-rail-item';
+export * from './navigation-rail';

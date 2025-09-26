@@ -1,6 +1,8 @@
 # Navigation Rail Component
 
-A Material Design 3 compliant vertical navigation component that provides access to primary destinations in an application. The navigation rail is positioned on the left side of the screen and offers a compact, ergonomic way to navigate between 3-7 primary sections.
+**Material Design 3 Reference:** https://m3.material.io/components/navigation-rail/overview
+
+A Material Design 3 compliant vertical navigation component that provides access to primary destinations in an application. The navigation rail is positioned on the left side of the screen with a fixed 80px width and offers a compact, ergonomic way to navigate between 3-7 primary sections.
 
 ## Installation
 
@@ -44,7 +46,7 @@ import { SchmancyNavigationRail, SchmancyNavigationRailItem } from '@schmancy'
 |----------|------|---------|-------------|
 | `activeIndex` | `number` | `-1` | The currently active item index |
 | `activeValue` | `string` | `''` | The currently active item value (for programmatic selection) |
-| `labelVisibility` | `'all' \| 'selected' \| 'none'` | `'selected'` | When to show labels for navigation items |
+| `labelVisibility` | `'all' \| 'selected' \| 'none'` | `'all'` | When to show labels for navigation items |
 | `alignment` | `'top' \| 'center' \| 'bottom'` | `'top'` | Vertical alignment of navigation items |
 | `showTooltips` | `boolean` | `true` | Show tooltips when labels are hidden |
 | `keyboardNavigation` | `boolean` | `true` | Enable keyboard navigation with arrow keys |
@@ -63,7 +65,7 @@ import { SchmancyNavigationRail, SchmancyNavigationRailItem } from '@schmancy'
 
 | Event | Detail | Description |
 |-------|--------|-------------|
-| `navigation-change` | `{ index: number, value: string, item: SchmancyNavigationRailItem }` | Fired when a navigation item is selected |
+| `navigate` | `string` | Fired when a navigation item is selected, detail contains the value |
 | `fab-click` | `void` | Fired when the FAB is clicked |
 | `menu-click` | `void` | Fired when the menu button is clicked |
 
@@ -89,7 +91,8 @@ import { SchmancyNavigationRail, SchmancyNavigationRailItem } from '@schmancy'
 | `icon` | `string` | `''` | Material Symbols icon name |
 | `label` | `string` | `''` | Label text for the navigation item |
 | `value` | `string` | `''` | Value associated with this item (useful for routing) |
-| `active` | `boolean` | `false` | Whether this item is currently selected |
+| `active` | `boolean` | `false` | Whether this item is currently active/selected |
+| `selected` | `boolean` | `false` | Alias for `active` property |
 | `badge` | `string` | `''` | Badge text or number to display |
 | `badgeVariant` | `'error' \| 'primary' \| 'secondary'` | `'error'` | Badge color variant |
 | `showLabel` | `boolean` | `false` | Whether to show the label (controlled by parent rail) |
@@ -109,7 +112,7 @@ import { SchmancyNavigationRail, SchmancyNavigationRailItem } from '@schmancy'
 
 | Event | Detail | Description |
 |-------|--------|-------------|
-| `rail-item-click` | `{ icon: string, label: string, value: string, active: boolean }` | Fired when the item is clicked |
+| `navigate` | `string` | Fired when the item is clicked, detail contains the value |
 
 ### CSS Custom Properties
 
@@ -265,8 +268,8 @@ class MyApp extends LitElement {
   }
 
   // Handle navigation
-  handleNavigationChange(event: NavigationRailChangeEvent) {
-    const { index, value, item } = event.detail
+  handleNavigationChange(event: CustomEvent<string>) {
+    const value = event.detail
     console.log(`Navigated to: ${value}`)
 
     // Update route
@@ -282,7 +285,7 @@ class MyApp extends LitElement {
   render() {
     return html`
       <schmancy-navigation-rail
-        @navigation-change=${this.handleNavigationChange}
+        @navigate=${this.handleNavigationChange}
       >
         <!-- items -->
       </schmancy-navigation-rail>
@@ -306,15 +309,15 @@ class AppShell extends LitElement {
     })
   }
 
-  handleNavigation(event: NavigationRailChangeEvent) {
-    Router.go(event.detail.value)
+  handleNavigation(event: CustomEvent<string>) {
+    Router.go(event.detail)
   }
 
   render() {
     return html`
       <schmancy-navigation-rail
         .activeValue=${this.currentRoute}
-        @navigation-change=${this.handleNavigation}
+        @navigate=${this.handleNavigation}
         labelVisibility="selected"
       >
         <schmancy-navigation-rail-item
