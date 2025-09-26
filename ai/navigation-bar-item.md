@@ -52,7 +52,7 @@ The `<schmancy-navigation-bar-item>` component represents an individual navigati
 ## Events
 
 ### bar-item-click
-Fired when the item is clicked (with 300ms debounce to prevent accidental double-clicks).
+Fired when the item is clicked.
 
 ```javascript
 item.addEventListener('bar-item-click', (event) => {
@@ -68,9 +68,9 @@ Standard focus and blur events for accessibility.
 ## Features
 
 ### RxJS-Powered Interactions
-- **Click handling**: Uses RxJS observables with 300ms debounce for navigation events
-- **Ripple effects**: Immediate visual feedback without debounce
-- **Keyboard support**: Enter and Space keys properly handled with same debounce
+- **Click handling**: Uses RxJS observables for instant navigation events
+- **Ripple effects**: Immediate visual feedback on interaction
+- **Keyboard support**: Enter and Space keys properly handled
 - **State management**: BehaviorSubject for reactive active state updates
 
 ### Full Clickable Area
@@ -140,8 +140,15 @@ schmancy-navigation-bar-item::part(button) {
 Programmatically set the active state of the item.
 
 ```javascript
-const item = document.querySelector('schmancy-navigation-bar-item');
-item.setActive(true); // Activate the item
+// In Lit component - use property binding
+@state() isActive = true;
+
+render() {
+  return html`
+    <schmancy-navigation-bar-item ?active=${this.isActive}>
+    </schmancy-navigation-bar-item>
+  `;
+}
 ```
 
 ## Integration Example
@@ -189,7 +196,7 @@ class AppNavigation extends LitElement {
 ## Accessibility
 
 ### Keyboard Support
-- `Enter` / `Space` - Activate the item (with 300ms debounce)
+- `Enter` / `Space` - Activate the item instantly
 - Full focus management with visual indicators
 - `aria-pressed` attribute reflects active state
 - `aria-label` for badge notifications
@@ -203,7 +210,7 @@ class AppNavigation extends LitElement {
 
 ### RxJS Observables
 - Efficient event handling with proper cleanup
-- Debounced navigation events (300ms) prevent double-clicks
+- Instant navigation events for responsive interaction
 - Immediate ripple feedback for better UX
 - Memory-safe with `takeUntil(this.disconnecting)`
 
@@ -225,11 +232,16 @@ class AppNavigation extends LitElement {
 
 ### Dynamic Badges
 ```javascript
-// Update badge based on notification count
-const updateBadge = (count) => {
-  const item = document.querySelector('#notifications-item');
-  item.badge = count > 0 ? String(count) : '';
-};
+// In Lit component - use declarative binding
+@state() notificationCount = 0;
+
+render() {
+  return html`
+    <schmancy-navigation-bar-item
+      badge=${this.notificationCount > 0 ? String(this.notificationCount) : ''}
+    ></schmancy-navigation-bar-item>
+  `;
+}
 ```
 
 ### Conditional Rendering

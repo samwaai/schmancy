@@ -51,6 +51,16 @@ export class SchmancySelect extends $LitElement(css`
 			this._selectedValue$.next(String(val || ''))
 		}
 	}
+
+	// Values property for multi-select mode
+	@property({ type: Array })
+	get values() {
+		return [...this._selectedValues$.value]
+	}
+	set values(vals: string[]) {
+		this._selectedValues$.next(Array.isArray(vals) ? [...vals] : [])
+	}
+
 	@property({ type: Boolean }) multi = false
 	@property({ type: String }) label = ''
 	@property({ type: String }) hint = ''

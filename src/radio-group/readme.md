@@ -1,82 +1,315 @@
-Certainly! Here's an example of a `README.md` file documenting the `mo-radio-group` component:
+# Schmancy Radio Group Component
 
-````markdown
-# mo-radio-group
+A flexible radio button group component with support for both declarative options and slotted radio buttons, built with reactive state management.
 
-A custom web component built with Lit, decorators, and RxJS that represents a radio button group.
+## Overview
+
+The `schmancy-radio-group` component provides two usage patterns:
+- **Declarative options**: Pass an array of options for automatic radio button generation
+- **Slotted radio buttons**: Use individual `schmancy-radio-button` components for maximum flexibility
+- **Form integration**: Full HTML form support with validation
+- **Reactive state management**: Built with RxJS for predictable state updates
+- **TypeScript support**: Complete type safety with proper interfaces
 
 ## Installation
 
-```bash
-npm install lit lit/decorators rxjs
-```
-````
-
-## Usage
-
-Import the `mo-radio-group` component into your project:
-
-```javascript
-import 'mo-radio-group'
+```typescript
+import '@schmancy/radio-group'
+// or
+import { RadioGroup, RadioButton } from '@schmancy/radio-group'
 ```
 
-Use the `mo-radio-group` component in your HTML:
+## Basic Usage
+
+### Declarative Options
 
 ```html
-<mo-radio-group
+<schmancy-radio-group
   name="fruit"
-  .selected=${'apple'}
-  .options=${['apple', 'banana', 'orange']}
-></mo-radio-group>
+  label="Select your favorite fruit"
+  value="apple"
+  required
+  .options=${[
+    { label: 'Apple', value: 'apple' },
+    { label: 'Banana', value: 'banana' },
+    { label: 'Orange', value: 'orange' }
+  ]}
+></schmancy-radio-group>
+```
+
+```typescript
+// Setting value programmatically
+const radioGroup = document.querySelector('schmancy-radio-group')
+radioGroup.value = 'banana'
+
+// Getting selected value
+console.log(radioGroup.value) // 'banana'
+```
+
+### Slotted Radio Buttons
+
+For more control over individual radio buttons:
+
+```html
+<schmancy-radio-group name="size" label="Select size" value="medium">
+  <schmancy-radio-button value="small">
+    <span slot="label">Small (S)</span>
+  </schmancy-radio-button>
+  <schmancy-radio-button value="medium">
+    <span slot="label">Medium (M)</span>
+  </schmancy-radio-button>
+  <schmancy-radio-button value="large">
+    <span slot="label">Large (L)</span>
+  </schmancy-radio-button>
+</schmancy-radio-group>
 ```
 
 ## Properties
 
-The `mo-radio-group` component exposes the following properties:
+### SchmancyRadioGroup
 
-- `name` (type: String): The name of the radio button group.
-- `selected` (type: String): The currently selected value.
-- `options` (type: Array): An array of string options for the radio button group.
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `name` | `string` | `''` | Form field name for submission |
+| `value` | `string` | `''` | Currently selected value |
+| `label` | `string` | `''` | Group label displayed above options |
+| `options` | `SchmancyRadioGroupOption[]` | `[]` | Array of options for declarative mode |
+| `required` | `boolean` | `false` | Make field required for form validation |
+
+### SchmancyRadioButton
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `value` | `string` | `''` | Value of this radio button |
+| `checked` | `boolean` | `false` | Whether this button is selected |
+| `disabled` | `boolean` | `false` | Disable this radio button |
+| `name` | `string` | `''` | Form field name (usually inherited from group) |
+
+## Types
+
+```typescript
+interface SchmancyRadioGroupOption {
+  label: string
+  value: string
+}
+
+interface SchmancyRadioGroupChangeEvent extends CustomEvent {
+  detail: {
+    value: string
+  }
+}
+```
 
 ## Events
 
-The `mo-radio-group` component emits the following event:
+### SchmancyRadioGroupChangeEvent
 
-- `change`: Fired when the selected value changes. You can listen to this event using the standard DOM `addEventListener` method.
+The component dispatches a `change` event when the selection changes:
 
-## Example
+```typescript
+// Event handling
+radioGroup.addEventListener('change', (e: SchmancyRadioGroupChangeEvent) => {
+  console.log('Selected value:', e.detail.value)
+})
+```
+
+## Form Integration
+
+The component fully supports HTML form integration:
 
 ```html
-<mo-radio-group
-  name="fruit"
-  .selected=${'apple'}
-  .options=${['apple', 'banana', 'orange']}
-></mo-radio-group>
+<form id="preferencesForm">
+  <schmancy-radio-group
+    name="theme"
+    label="Theme Preference"
+    required
+    .options=${[
+      { label: 'Light Mode', value: 'light' },
+      { label: 'Dark Mode', value: 'dark' },
+      { label: 'Auto (System)', value: 'auto' }
+    ]}
+  ></schmancy-radio-group>
+
+  <schmancy-radio-group
+    name="notifications"
+    label="Notification Frequency"
+    value="daily"
+    .options=${[
+      { label: 'Immediate', value: 'immediate' },
+      { label: 'Daily Digest', value: 'daily' },
+      { label: 'Weekly Summary', value: 'weekly' },
+      { label: 'Disabled', value: 'never' }
+    ]}
+  ></schmancy-radio-group>
+
+  <button type="submit">Save Preferences</button>
+</form>
 ```
 
-## Styling
+```typescript
+// Form submission handling
+document.getElementById('preferencesForm').addEventListener('submit', (e) => {
+  e.preventDefault()
+  const formData = new FormData(e.target)
 
-You can style the `mo-radio-group` component using CSS. Apply styles to the `mo-radio-group` element using the `::part` selector. For example:
+  console.log({
+    theme: formData.get('theme'),
+    notifications: formData.get('notifications')
+  })
+})
+```
 
-```css
-mo-radio-group::part(input[type='radio']) {
-	/* Styles for the radio buttons */
+## Advanced Examples
+
+### Mixed Usage Pattern
+
+```html
+<schmancy-radio-group name="plan" label="Select Plan" value="pro">
+  <!-- Custom radio button with rich content -->
+  <schmancy-radio-button value="free">
+    <div slot="label" class="flex items-center justify-between w-full">
+      <div>
+        <div class="font-semibold">Free Plan</div>
+        <div class="text-sm text-gray-500">Basic features</div>
+      </div>
+      <div class="text-lg font-bold">$0</div>
+    </div>
+  </schmancy-radio-button>
+
+  <!-- Another custom radio button -->
+  <schmancy-radio-button value="pro">
+    <div slot="label" class="flex items-center justify-between w-full">
+      <div>
+        <div class="font-semibold">Pro Plan</div>
+        <div class="text-sm text-gray-500">Advanced features</div>
+      </div>
+      <div class="text-lg font-bold">$19/mo</div>
+    </div>
+  </schmancy-radio-button>
+
+  <schmancy-radio-button value="enterprise">
+    <div slot="label" class="flex items-center justify-between w-full">
+      <div>
+        <div class="font-semibold">Enterprise Plan</div>
+        <div class="text-sm text-gray-500">All features + support</div>
+      </div>
+      <div class="text-lg font-bold">$99/mo</div>
+    </div>
+  </schmancy-radio-button>
+</schmancy-radio-group>
+```
+
+### Dynamic Options
+
+```typescript
+// Populate options dynamically
+const radioGroup = document.querySelector<RadioGroup>('schmancy-radio-group')
+
+async function loadCategories() {
+  const categories = await fetch('/api/categories').then(r => r.json())
+
+  radioGroup.options = categories.map(cat => ({
+    label: cat.name,
+    value: cat.id
+  }))
 }
 
-mo-radio-group::part(label) {
-	/* Styles for the labels */
-}
+// Set initial selection
+radioGroup.value = 'default-category'
+
+// Listen for changes
+radioGroup.addEventListener('change', (e: SchmancyRadioGroupChangeEvent) => {
+  console.log('Category selected:', e.detail.value)
+  updateContentForCategory(e.detail.value)
+})
 ```
 
-## Contributing
+### Standalone Radio Button
 
-Contributions are welcome! Please read our [contribution guidelines](CONTRIBUTING.md) to get started.
+Radio buttons can also be used independently outside of a radio group:
 
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
+```html
+<schmancy-radio-button
+  name="standalone"
+  value="option1"
+  checked
+>
+  <span slot="label">I agree to the terms and conditions</span>
+</schmancy-radio-button>
 ```
 
-Feel free to customize the documentation according to your specific requirements and add any additional sections or information that may be relevant to your component.
+```typescript
+const standaloneRadio = document.querySelector('schmancy-radio-button')
+standaloneRadio.addEventListener('change', (e) => {
+  console.log('Checkbox changed:', e.detail.value)
+})
 ```
+
+## Accessibility Features
+
+The component implements comprehensive accessibility features:
+
+### Keyboard Navigation
+- **Tab**: Move focus between radio buttons
+- **Arrow Keys**: Navigate between options within a group
+- **Space**: Select the focused radio button
+
+### ARIA Attributes
+The component automatically manages ARIA attributes:
+- `role="radiogroup"` on the container
+- `role="radio"` on individual buttons
+- `aria-checked` state management
+- `aria-required` for required groups
+- `aria-disabled` for disabled buttons
+
+### Screen Reader Support
+Full screen reader compatibility with proper announcements for:
+- Group labels and descriptions
+- Selected values
+- Required field states
+
+## TypeScript Usage
+
+```typescript
+import {
+  RadioGroup,
+  RadioButton,
+  SchmancyRadioGroupChangeEvent,
+  SchmancyRadioGroupOption
+} from '@schmancy/radio-group'
+
+// Create options with type safety
+const themeOptions: SchmancyRadioGroupOption[] = [
+  { label: 'Light', value: 'light' },
+  { label: 'Dark', value: 'dark' }
+]
+
+// Get typed reference
+const radioGroup = document.querySelector<RadioGroup>('schmancy-radio-group')
+
+// Type-safe value setting
+radioGroup.options = themeOptions
+radioGroup.value = 'light'
+
+// Typed event handling
+radioGroup?.addEventListener('change', (event: SchmancyRadioGroupChangeEvent) => {
+  const selectedValue: string = event.detail.value
+  console.log('Selected:', selectedValue)
+})
+```
+
+## Browser Support
+
+The component uses modern web standards and requires browsers that support:
+- Custom Elements v1
+- Shadow DOM v1
+- ES2015+
+- CSS Custom Properties
+
+For older browsers, consider using appropriate polyfills.
+
+## Related Components
+
+- `schmancy-radio-button` - Individual radio button component
+- `schmancy-checkbox` - Checkbox component for multi-select scenarios
+- `schmancy-select` - Dropdown selection component
