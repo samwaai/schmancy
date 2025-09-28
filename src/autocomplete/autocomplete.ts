@@ -9,22 +9,14 @@ import { repeat } from 'lit/directives/repeat.js'
 import { when } from 'lit/directives/when.js'
 import {
     BehaviorSubject,
-    combineLatest,
-    EMPTY,
-    fromEvent,
-    of,
-    Subject,
-    timer
+    combineLatest
 } from 'rxjs'
 import {
     debounceTime,
     distinctUntilChanged,
-    filter,
-    switchMap,
     take,
     takeUntil,
-    tap,
-    withLatestFrom
+    tap
 } from 'rxjs/operators'
 import style from './autocomplete.scss?inline'
 
@@ -78,11 +70,17 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     }
     set value(val: string) {
         if (this.multi) {
-            this._selectedValues$.next(
-                val ? val.split(',').map(v => v.trim()).filter(Boolean) : []
-            )
+            const newValues = val ? val.split(',').map(v => v.trim()).filter(Boolean) : []
+            const currentValues = this._selectedValues$.value
+            // Only update if values actually changed
+            if (JSON.stringify(newValues) !== JSON.stringify(currentValues)) {
+                this._selectedValues$.next(newValues)
+            }
         } else {
-            this._selectedValue$.next(val)
+            // Only update if value actually changed
+            if (val !== this._selectedValue$.value) {
+                this._selectedValue$.next(val)
+            }
         }
     }
 
@@ -92,260 +90,209 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     @state() private _visibleOptionsCount = 0
     @state() private _hasResults = true
 
+    // Track if we're clicking on an option to prevent blur interference
+    private _isSelectingOption = false
+
     // DOM references
     @query('#options') _listbox!: HTMLUListElement
     @query('sch-input') _input!: SchmancyInput
     @queryAssignedElements({ flatten: true }) private _options!: SchmancyOption[]
     private _inputElementRef = createRef<HTMLInputElement>()
 
-    // RxJS Subjects
+    // RxJS Subjects - only what we actually need
     private _selectedValue$ = new BehaviorSubject<string>('')
     private _selectedValues$ = new BehaviorSubject<string[]>([])
     private _inputValue$ = new BehaviorSubject<string>('')
-    private _open$ = new BehaviorSubject<boolean>(false)
-    private _options$ = new BehaviorSubject<SchmancyOption[]>([])
-    private _optionSelect$ = new Subject<SchmancyOption>()
-    private _documentClick$ = new Subject<MouseEvent>()
 
     connectedCallback() {
         super.connectedCallback()
-        
+
         if (!this.id) {
             this.id = `sch-autocomplete-${Math.random().toString(36).slice(2, 9)}`
         }
 
         this._setupAutocompleteLogic()
         this._setupDocumentClickHandler()
-        // Complex autofill detection disabled - using simple auto-select on blur instead
-        // this._setupAutofillDetection()
     }
 
     private _setupAutocompleteLogic() {
-        // Options management pipeline
-        this._options$.pipe(
-            tap(options => {
-                options.forEach((option, index) => {
-                    option.setAttribute('role', 'option')
-                    option.tabIndex = -1
-                    if (!option.id) {
-                        option.id = `${this.id}-option-${index}`
-                    }
-                    if (!option.hasAttribute('data-event-bound')) {
-                        // Use click event instead of pointerdown for better mobile UX
-                        // This allows users to scroll through options without immediately selecting
-                        fromEvent(option, 'click').pipe(
-                            tap(e => {
-                                e.stopPropagation()
-                            }),
-                            takeUntil(this.disconnecting)
-                        ).subscribe(() => this._optionSelect$.next(option))
-                        option.setAttribute('data-event-bound', 'true')
-                    }
-                })
-            }),
-            takeUntil(this.disconnecting)
-        ).subscribe()
-
-        // Selection sync pipeline
+        // Sync selection state
         combineLatest([
             this._selectedValue$,
-            this._selectedValues$,
-            this._options$
+            this._selectedValues$
         ]).pipe(
-            tap(([selectedValue, selectedValues, options]) => {
-                options.forEach(option => {
-                    option.selected = this.multi 
-                        ? selectedValues.includes(option.value)
-                        : option.value === selectedValue
-                    option.setAttribute('aria-selected', String(option.selected))
-                })
+            tap(([selectedValue, selectedValues]) => {
+                this._updateOptionSelection(selectedValue, selectedValues)
             }),
             takeUntil(this.disconnecting)
         ).subscribe()
 
-        // Enhanced fuzzy filtering pipeline
+        // Filter options based on input
         this._inputValue$.pipe(
             distinctUntilChanged(),
             debounceTime(this.debounceMs),
-            withLatestFrom(this._options$, this._open$),
-            tap(([searchTerm, options, isOpen]) => {
-                if (!isOpen) return
-
-                const term = searchTerm.trim()
-                
-                if (!term) {
-                    // Show all options if no search term
-                    options.forEach(option => {
-                        option.hidden = false
-                        option.style.order = '0' // Reset order
-                    })
-                    this._visibleOptionsCount = options.length
-                    this._hasResults = true
-                } else {
-                    // Calculate similarity scores for all options
-                    const scoredOptions: FilteredOption[] = options.map(option => {
-                        // Get text to search in (prioritize label, then textContent, then value)
-                        const optionLabel = option.label || option.textContent || ''
-                        const optionValue = option.value
-                        
-                        // Calculate similarity scores for both label and value
-                        const labelScore = similarity(term, optionLabel)
-                        const valueScore = similarity(term, optionValue)
-                        
-                        // Use the higher score (prioritizing label matches)
-                        const score = Math.max(labelScore * 1.1, valueScore) // Slight boost for label matches
-                        
-                        return { option, score }
-                    })
-                    
-                    // Sort by score (highest first)
-                    scoredOptions.sort((a, b) => b.score - a.score)
-                    
-                    // Apply visibility and ordering
-                    let visibleCount = 0
-                    scoredOptions.forEach((item, index) => {
-                        const { option, score } = item
-                        
-                        // Hide options below threshold
-                        if (score < this.similarityThreshold) {
-                            option.hidden = true
-                        } else {
-                            option.hidden = false
-                            visibleCount++
-                            // Use CSS order to sort visible options by relevance
-                            option.style.order = String(index)
-                        }
-                    })
-                    
-                    this._visibleOptionsCount = visibleCount
-                    this._hasResults = visibleCount > 0
-                }
-                
-                this._announceToScreenReader(
-                    this._visibleOptionsCount > 0 
-                        ? `${this._visibleOptionsCount} option${this._visibleOptionsCount === 1 ? '' : 's'} available.`
-                        : 'No results found.'
-                )
-            }),
-            takeUntil(this.disconnecting)
-        ).subscribe()
-
-        // Option selection pipeline
-        this._optionSelect$.pipe(
-            withLatestFrom(this._selectedValue$, this._selectedValues$),
-            tap(([option, _, currentValues]) => {
-                if (this.multi) {
-                    const index = currentValues.indexOf(option.value)
-                    const newValues = index > -1
-                        ? [...currentValues.slice(0, index), ...currentValues.slice(index + 1)]
-                        : [...currentValues, option.value]
-                    this._selectedValues$.next(newValues)
-
-                    // Keep search input persistent - don't reset
-                    // this._inputValue$.next('')
-                    // this._inputValue = ''
-                    
-                    const labels = this._getSelectedLabels()
-                    this._announceToScreenReader(
-                        labels.length > 0 
-                            ? `Selected: ${labels.join(', ')}`
-                            : 'No options selected'
-                    )
-                } else {
-                    this._selectedValue$.next(option.value)
-                    this._open$.next(false)
-                    this._open = false
-                    
-                    this._inputValue = option.label || option.textContent || ''
-                    this._inputValue$.next(this._inputValue)
-                    
-                    timer(100).pipe(
-                        tap(() => this._inputElementRef.value?.blur()),
-                        take(1)
-                    ).subscribe()
-                    
-                    this._announceToScreenReader(`Selected: ${option.label || option.textContent}`)
+            tap(searchTerm => {
+                if (this._open) {
+                    this._filterOptions(searchTerm)
                 }
             }),
-            tap(() => this._fireChangeEvent()),
-            takeUntil(this.disconnecting)
-        ).subscribe()
-
-        // Display update pipeline - only for single select
-        combineLatest([
-            this._open$,
-            this._selectedValue$,
-            this._options$
-        ]).pipe(
-            filter(() => !this._open$.value && !this.multi),
-            tap(([, selectedValue, options]) => {
-                const option = options.find(opt => opt.value === selectedValue)
-                this._inputValue = option ? option.label || option.textContent || '' : ''
-                this._inputValue$.next(this._inputValue)
-            }),
-            takeUntil(this.disconnecting)
-        ).subscribe()
-
-        // Open state sync
-        this._open$.pipe(
-            tap(open => this._open = open),
             takeUntil(this.disconnecting)
         ).subscribe()
     }
 
-    private _setupDocumentClickHandler() {
-        this._documentClick$.pipe(
-            filter(e => !e.composedPath().includes(this)),
-            filter(e => !this._options.some(opt => e.composedPath().includes(opt))),
-            filter(() => this._open),
-            tap(() => {
-                this._open$.next(false)
-                this._updateInputDisplay()
-            }),
-            takeUntil(this.disconnecting)
-        ).subscribe()
+    private _setupOptionHandlers() {
+        this._options.forEach((option, index) => {
+            option.setAttribute('role', 'option')
+            option.tabIndex = -1
+            if (!option.id) {
+                option.id = `${this.id}-option-${index}`
+            }
+            // Prevent blur handler from interfering with option selection
+            option.onmousedown = (e: MouseEvent) => {
+                e.preventDefault() // Prevent focus loss
+                this._isSelectingOption = true
+            }
 
-        this._open$.pipe(
-            distinctUntilChanged(),
-            switchMap(open =>
-                open
-                    ? timer(10).pipe(
-                        switchMap(() => fromEvent<MouseEvent>(document, 'click').pipe(
-                            tap(e => this._documentClick$.next(e)),
-                            takeUntil(this._open$.pipe(filter(isOpen => !isOpen)))
-                        ))
-                    )
-                    : EMPTY
-            ),
-            takeUntil(this.disconnecting)
-        ).subscribe()
+            // Handle the actual selection
+            option.onclick = (e: MouseEvent) => {
+                e.stopPropagation()
+                this._selectOption(option)
+                // Reset flag after a short delay
+                setTimeout(() => {
+                    this._isSelectingOption = false
+                }, 50)
+            }
+        })
+    }
+
+    private _updateOptionSelection(selectedValue: string, selectedValues: string[]) {
+        this._options.forEach(option => {
+            option.selected = this.multi
+                ? selectedValues.includes(option.value)
+                : option.value === selectedValue
+            option.setAttribute('aria-selected', String(option.selected))
+        })
+    }
+
+    private _filterOptions(searchTerm: string) {
+        const term = searchTerm.trim()
+
+        if (!term) {
+            // Show all options if no search term
+            this._options.forEach(option => {
+                option.hidden = false
+                option.style.order = '0'
+            })
+            this._visibleOptionsCount = this._options.length
+            this._hasResults = true
+        } else {
+            // Calculate similarity scores for all options
+            const scoredOptions: FilteredOption[] = this._options.map(option => {
+                const optionLabel = option.label || option.textContent || ''
+                const optionValue = option.value
+
+                const labelScore = similarity(term, optionLabel)
+                const valueScore = similarity(term, optionValue)
+                const score = Math.max(labelScore * 1.1, valueScore)
+
+                return { option, score }
+            })
+
+            // Sort by score (highest first)
+            scoredOptions.sort((a, b) => b.score - a.score)
+
+            // Apply visibility and ordering
+            let visibleCount = 0
+            scoredOptions.forEach((item, index) => {
+                const { option, score } = item
+
+                if (score < this.similarityThreshold) {
+                    option.hidden = true
+                } else {
+                    option.hidden = false
+                    visibleCount++
+                    option.style.order = String(index)
+                }
+            })
+
+            this._visibleOptionsCount = visibleCount
+            this._hasResults = visibleCount > 0
+        }
+
+        this._announceToScreenReader(
+            this._visibleOptionsCount > 0
+                ? `${this._visibleOptionsCount} option${this._visibleOptionsCount === 1 ? '' : 's'} available.`
+                : 'No results found.'
+        )
+    }
+
+    private _selectOption(option: SchmancyOption) {
+        if (this.multi) {
+            const currentValues = this._selectedValues$.value
+            const index = currentValues.indexOf(option.value)
+            const newValues = index > -1
+                ? currentValues.filter(v => v !== option.value)
+                : [...currentValues, option.value]
+
+            this._selectedValues$.next(newValues)
+            this._announceToScreenReader(
+                newValues.length > 0
+                    ? `Selected: ${this._getSelectedLabels().join(', ')}`
+                    : 'No options selected'
+            )
+            this._fireChangeEvent()
+        } else {
+            // Fix the bug: Update value BEFORE firing event
+            this._selectedValue$.next(option.value)
+
+            // Now fire event with the NEW value
+            this._fireChangeEvent()
+
+            // Update UI
+            this._open = false
+            this._inputValue = option.label || option.textContent || ''
+            this._inputValue$.next(this._inputValue)
+
+            // Blur the input
+            setTimeout(() => this._inputElementRef.value?.blur(), 100)
+
+            this._announceToScreenReader(`Selected: ${option.label || option.textContent}`)
+        }
+    }
+
+    private _setupDocumentClickHandler() {
+        // Simple document click handler
+        const handleDocumentClick = (e: MouseEvent) => {
+            if (!this._open) return
+
+            const path = e.composedPath()
+            if (!path.includes(this) && !this._options.some(opt => path.includes(opt))) {
+                this._open = false
+                this._updateInputDisplay()
+            }
+        }
+
+        document.addEventListener('click', handleDocumentClick)
+
+        // Cleanup on disconnect
+        this.disconnecting.pipe(take(1)).subscribe(() => {
+            document.removeEventListener('click', handleDocumentClick)
+        })
     }
 
 
     private _updateInputDisplay() {
         // For multi-select, we don't update input display since chips show the selections
-        if (this.multi) {
-            return
+        if (this.multi || this._open) return
+
+        const selectedValue = this._selectedValue$.value
+        const option = this._options.find(opt => opt.value === selectedValue)
+        this._inputValue = option ? option.label || option.textContent || '' : ''
+        this._inputValue$.next(this._inputValue)
+
+        if (this._inputElementRef.value) {
+            this._inputElementRef.value.value = this._inputValue
         }
-
-        of(null).pipe(
-            withLatestFrom(
-                this._selectedValue$,
-                this._options$,
-                this._open$
-            ),
-            tap(([, selectedValue, options, isOpen]) => {
-                if (!this._inputElementRef.value) return
-
-                if (!isOpen) {
-                    const option = options.find(opt => opt.value === selectedValue)
-                    this._inputValue = option ? option.label || option.textContent || '' : ''
-                    this._inputValue$.next(this._inputValue)
-                    this._inputElementRef.value.value = this._inputValue
-                }
-            }),
-            take(1)
-        ).subscribe()
     }
 
     private _getSelectedLabels(): string[] {
@@ -398,7 +345,14 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     }
 
     firstUpdated() {
-        // Auto-selection now happens on blur, no need for autofill detection
+        this._setupOptionHandlers()
+
+        // Update options when slot changes
+        const slot = this.shadowRoot?.querySelector('slot')
+        slot?.addEventListener('slotchange', () => {
+            this._setupOptionHandlers()
+            this._updateOptionSelection(this._selectedValue$.value, this._selectedValues$.value)
+        })
     }
 
     private handleChipRemove(value: string) {
@@ -517,7 +471,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                                         id="autocomplete-input"
                                         type="text"
                                         class="flex-1 min-w-[120px] py-1 bg-transparent border-none outline-none ${fontSize} font-medium text-surface-on placeholder:text-muted"
-                                        .name=${this.name || this.label?.toLowerCase().replace(/\s+/g, '-')}
+                                        name=${this.name || this.label?.toLowerCase().replace(/\s+/g, '-') || ''}
                                         .placeholder=${this._selectedValues$.value.length > 0 ? 'Add more...' : this.placeholder}
                                         .value=${this._inputValue}
                                         .autocomplete=${this.autocomplete}
@@ -531,7 +485,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                                             // Clear input on focus for new searches
                                             this._inputValue = ''
                                             this._inputValue$.next('')
-                                            this._open$.next(true)
+                                            this._open = true
                                         }}
                                         @keydown=${(e: KeyboardEvent) => {
                                             this._handleKeyDown(e)
@@ -557,7 +511,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                                 ${ref(this._inputElementRef)}
                                 id="autocomplete-input"
                                 class="w-full"
-                                .name=${this.name || this.label?.toLowerCase().replace(/\s+/g, '-')}
+                                .name=${this.name || this.label?.toLowerCase().replace(/\s+/g, '-') || ''}
                                 .label=${this.label}
                                 .placeholder=${this.placeholder}
                                 .required=${this.required}
@@ -578,11 +532,11 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                                 }}
                                 @focus=${(e: FocusEvent) => {
                                     e.stopPropagation()
-                                    this._open$.next(true)
+                                    this._open = true
                                 }}
                                 @click=${(e: MouseEvent) => {
                                     e.stopPropagation()
-                                    this._open$.next(true)
+                                    this._open = true
                                 }}
                                 @keydown=${(e: KeyboardEvent) => {
                                     this._handleKeyDown(e)
@@ -618,7 +572,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                     ?hidden=${!this._open}
                     style="max-height: ${this.maxHeight}; display: ${this._open ? 'flex' : 'none'};"
                     @slotchange=${() => {
-                        this._options$.next(this._options)
+                        this._setupOptionHandlers()
                     }}
                 >
                     <slot></slot>
@@ -631,6 +585,11 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     }
 
     private _handleAutoSelectOnBlur() {
+        // Don't run if we're clicking on an option (prevents interference with click handler)
+        if (this._isSelectingOption) {
+            return
+        }
+
         // Only auto-select in single-select mode and when dropdown is open with a search term
         if (this.multi || !this._open || !this._inputValue.trim()) {
             return
@@ -666,95 +625,88 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         
         // Auto-select the best match if found
         if (bestMatch) {
-            // Select the option using the existing pipeline
-            this._optionSelect$.next(bestMatch)
-            
+            // Select the option directly
+            this._selectOption(bestMatch)
+
             // Close the dropdown
-            this._open$.next(false)
             this._open = false
-            
         }
     }
 
-    private _handleKeyDown(_e: KeyboardEvent) {
-        fromEvent<KeyboardEvent>(document, 'keydown').pipe(
-            take(1),
-            withLatestFrom(this._open$, this._options$, this._selectedValues$),
-            tap(([event, isOpen, options, selectedValues]) => {
-                // Handle backspace to remove last chip in multi-select when input is empty
-                if (this.multi && event.key === 'Backspace' && !this._inputValue && selectedValues.length > 0 && !isOpen) {
+    private _handleKeyDown(event: KeyboardEvent) {
+        const isOpen = this._open
+        const selectedValues = this._selectedValues$.value
+
+        // Handle backspace to remove last chip in multi-select when input is empty
+        if (this.multi && event.key === 'Backspace' && !this._inputValue && selectedValues.length > 0 && !isOpen) {
+            event.preventDefault()
+            const lastValue = selectedValues[selectedValues.length - 1]
+            this.handleChipRemove(lastValue)
+            return
+        }
+
+        if (!isOpen && (event.key === 'ArrowDown' || event.key === 'Enter')) {
+            event.preventDefault()
+            this._open = true
+
+            setTimeout(() => {
+                const firstVisible = this._options.find(opt => !opt.hidden)
+                firstVisible?.focus()
+            }, 10)
+            return
+        }
+
+        if (!isOpen) return
+
+        const visibleOptions = this._options.filter(opt => !opt.hidden)
+            .sort((a, b) => parseInt(a.style.order || '0') - parseInt(b.style.order || '0'))
+
+        const focusedOption = visibleOptions.find(opt => opt === document.activeElement)
+        const currentIndex = focusedOption ? visibleOptions.indexOf(focusedOption) : -1
+
+        switch (event.key) {
+            case 'Escape':
+                event.preventDefault()
+                this._open = false
+                this._updateInputDisplay()
+                this._inputElementRef.value?.focus()
+                break
+
+            case 'Tab':
+                this._open = false
+                this._updateInputDisplay()
+                break
+
+            case 'ArrowDown':
+                event.preventDefault()
+                const nextIndex = currentIndex < visibleOptions.length - 1 ? currentIndex + 1 : 0
+                visibleOptions[nextIndex]?.focus()
+                break
+
+            case 'ArrowUp':
+                event.preventDefault()
+                const prevIndex = currentIndex > 0 ? currentIndex - 1 : visibleOptions.length - 1
+                visibleOptions[prevIndex]?.focus()
+                break
+
+            case 'Home':
+                event.preventDefault()
+                visibleOptions[0]?.focus()
+                break
+
+            case 'End':
+                event.preventDefault()
+                visibleOptions[visibleOptions.length - 1]?.focus()
+                break
+
+            case 'Enter':
+            case ' ':
+                if (focusedOption) {
                     event.preventDefault()
-                    const lastValue = selectedValues[selectedValues.length - 1]
-                    this.handleChipRemove(lastValue)
-                    return
+                    this._selectOption(focusedOption)
                 }
-                if (!isOpen && (event.key === 'ArrowDown' || event.key === 'Enter')) {
-                    event.preventDefault()
-                    this._open$.next(true)
-                    
-                    timer(10).pipe(
-                        tap(() => {
-                            const firstVisible = options.find(opt => !opt.hidden)
-                            firstVisible?.focus()
-                        }),
-                        take(1)
-                    ).subscribe()
-                    return
-                }
-
-                if (!isOpen) return
-
-                const visibleOptions = options.filter(opt => !opt.hidden)
-                    .sort((a, b) => parseInt(a.style.order || '0') - parseInt(b.style.order || '0'))
-                
-                const focusedOption = visibleOptions.find(opt => opt === document.activeElement)
-                const currentIndex = focusedOption ? visibleOptions.indexOf(focusedOption) : -1
-
-                switch (event.key) {
-                    case 'Escape':
-                        event.preventDefault()
-                        this._open$.next(false)
-                        this._updateInputDisplay()
-                        this._inputElementRef.value?.focus()
-                        break
-
-                    case 'Tab':
-                        this._open$.next(false)
-                        this._updateInputDisplay()
-                        break
-
-                    case 'ArrowDown':
-                        event.preventDefault()
-                        const nextIndex = currentIndex < visibleOptions.length - 1 ? currentIndex + 1 : 0
-                        visibleOptions[nextIndex]?.focus()
-                        break
-
-                    case 'ArrowUp':
-                        event.preventDefault()
-                        const prevIndex = currentIndex > 0 ? currentIndex - 1 : visibleOptions.length - 1
-                        visibleOptions[prevIndex]?.focus()
-                        break
-
-                    case 'Home':
-                        event.preventDefault()
-                        visibleOptions[0]?.focus()
-                        break
-
-                    case 'End':
-                        event.preventDefault()
-                        visibleOptions[visibleOptions.length - 1]?.focus()
-                        break
-
-                    case 'Enter':
-                    case ' ':
-                        if (focusedOption) {
-                            event.preventDefault()
-                            this._optionSelect$.next(focusedOption)
-                        }
-                        break
-                }
-            })
-        ).subscribe()
+                break
+        }
     }
 }
 
