@@ -213,7 +213,7 @@ css`
 
 	protected render(): unknown {
 		const containerClasses = this.classMap({
-			"grid auto-cols-max grid-flow-col": true,
+			"flex auto-cols-max": true,
 			'items-center': true,
 			'flex-wrap': this.wrap,
 			'overflow-x-auto': !this.wrap,
@@ -222,14 +222,14 @@ css`
 		})
 
 		return html`
-			<schmancy-scroll class=${containerClasses} @change=${this.change}>
+			<section class=${containerClasses} @change=${this.change}>
 					<slot
 					@slotchange=${() => {
 						// When slot changes, trigger state update through reactive pipeline
 						this.updateChipStates(this.mode, this._value, this._values)
 					}}
 				></slot>
-			</schmancy-scroll>
+			</section>
 		`
 	}
 }

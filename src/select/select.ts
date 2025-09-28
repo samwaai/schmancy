@@ -489,9 +489,10 @@ export class SchmancySelect extends $LitElement(css`
 						}
 						// Use data-event-bound to prevent duplicate bindings
 						if (!option.hasAttribute('data-event-bound')) {
-							fromEvent(option, 'pointerdown').pipe(
+							// Use click event instead of pointerdown for better mobile UX
+							// This allows users to scroll through options without immediately selecting
+							fromEvent(option, 'click').pipe(
 								tap(e => {
-									e.preventDefault() // Prevent blur from firing
 									e.stopPropagation()
 								}),
 								takeUntil(this.disconnecting)

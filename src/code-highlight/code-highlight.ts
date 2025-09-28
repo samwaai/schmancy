@@ -1,12 +1,12 @@
 import { TailwindElement } from '@mixins/index'
-import { css, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
 import hljs from 'highlight.js/lib/core'
+import bash from 'highlight.js/lib/languages/bash'
 import javascript from 'highlight.js/lib/languages/javascript'
+import markdown from 'highlight.js/lib/languages/markdown'
 import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
-import markdown from 'highlight.js/lib/languages/markdown'
-import bash from 'highlight.js/lib/languages/bash'
+import { css, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 
 // Register only the languages we need
@@ -299,11 +299,11 @@ export class SchmancyCode extends TailwindElement(css`
 		const codeClass = this.lineNumbers || this.highlightLines ? 'code-with-lines' : 'hljs'
 
 		return html`
-			<schmancy-details>
+			<schmancy-details class="bg-surface-default">
 				<section slot="summary">
 					<!-- Header -->
-					<div class="flex items-center justify-between px-4 py-2"
-						style="background-color: var(--md-sys-color-surface-container); border-bottom: 1px solid var(--md-sys-color-outline-variant);">
+					<div class="flex items-center justify-between"
+						>
 						<div class="flex items-center gap-2">
 							<div class="flex gap-1.5">
 								<div class="w-3 h-3 rounded-full opacity-60" style="background-color: var(--md-sys-color-error);"></div>
@@ -318,11 +318,10 @@ export class SchmancyCode extends TailwindElement(css`
 							? html`
 									<schmancy-button
 										.variant="${this.copied ? 'filled tonal' : 'text'}"
-										size="sm"
 										@click=${this.copyCode}
 										class="transition-all"
 									>
-										<schmancy-icon size="16"> ${this.copied ? 'check' : 'content_copy'} </schmancy-icon>
+										<schmancy-icon > ${this.copied ? 'check' : 'content_copy'} </schmancy-icon>
 										<span class="ml-1">${this.copied ? 'Copied!' : 'Copy'}</span>
 									</schmancy-button>
 								`

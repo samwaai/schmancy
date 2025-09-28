@@ -1,6 +1,6 @@
-import { $LitElement } from '@mixins/index'
-import { html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { $LitElement } from '@mixins/index';
+import { html } from 'lit';
+import { customElement, state } from 'lit/decorators.js';
 
 @customElement('demo-chips-filter')
 export class DemoChipsFilter extends $LitElement() {
@@ -115,7 +115,7 @@ export class DemoChipsFilter extends $LitElement() {
                 Basic Filter Selection
               </schmancy-typography>
               <!-- Note: Container manages selection state -->
-              <schmancy-chips .wrap=${true} .values=${['selected1', 'selected2']}>
+              <schmancy-chips .values=${['selected1', 'selected2']}>
                 <schmancy-filter-chip value="selected1">Selected</schmancy-filter-chip>
                 <schmancy-filter-chip value="unselected">Unselected</schmancy-filter-chip>
                 <schmancy-filter-chip value="selected2" elevated>Elevated Selected</schmancy-filter-chip>
