@@ -21,6 +21,8 @@ export default class SchmancyForm extends SchmancyForm_base {
     protected static shadowRootOptions: {
         mode: string;
         delegatesFocus: boolean;
+        clonable?: boolean;
+        customElementRegistry?: CustomElementRegistry;
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };

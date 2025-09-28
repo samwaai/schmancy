@@ -10,6 +10,8 @@ export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
     protected static shadowRootOptions: {
         mode: string;
         delegatesFocus: boolean;
+        clonable?: boolean;
+        customElementRegistry?: CustomElementRegistry;
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };

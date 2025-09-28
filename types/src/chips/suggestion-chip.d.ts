@@ -28,6 +28,8 @@ export declare class SchmancySuggestionChip extends SchmancySuggestionChip_base 
     private ripples;
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
+        clonable?: boolean;
+        customElementRegistry?: CustomElementRegistry;
         mode: ShadowRootMode;
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;

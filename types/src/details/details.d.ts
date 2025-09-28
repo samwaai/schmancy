@@ -4,6 +4,8 @@ export default class SchmancyDetails extends SchmancyDetails_base {
     protected static shadowRootOptions: {
         mode: "open";
         delegatesFocus: boolean;
+        clonable?: boolean;
+        customElementRegistry?: CustomElementRegistry;
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };

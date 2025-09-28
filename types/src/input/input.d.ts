@@ -113,6 +113,8 @@ export default class SchmancyInput extends SchmancyInput_base {
     private defaultValue;
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
+        clonable?: boolean;
+        customElementRegistry?: CustomElementRegistry;
         mode: ShadowRootMode;
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;

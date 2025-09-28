@@ -12,6 +12,8 @@ declare const SchmancyCheckboxElement_base: import("@mixins/index").Constructor<
 declare class SchmancyCheckboxElement extends SchmancyCheckboxElement_base {
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
+        clonable?: boolean;
+        customElementRegistry?: CustomElementRegistry;
         mode: ShadowRootMode;
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;

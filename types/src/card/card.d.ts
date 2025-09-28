@@ -4,6 +4,8 @@ export default class SchmancyCard extends SchmancyCard_base {
     protected static shadowRootOptions: {
         mode: string;
         delegatesFocus: boolean;
+        clonable?: boolean;
+        customElementRegistry?: CustomElementRegistry;
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };

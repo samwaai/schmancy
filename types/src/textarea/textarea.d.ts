@@ -3,6 +3,8 @@ declare const SchmancyTextarea_base: import("@mixins/index").Constructor<CustomE
 export default class SchmancyTextarea extends SchmancyTextarea_base {
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
+        clonable?: boolean;
+        customElementRegistry?: CustomElementRegistry;
         mode: ShadowRootMode;
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
