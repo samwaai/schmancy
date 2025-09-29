@@ -38,8 +38,8 @@ interface FilteredOption {
 @customElement('schmancy-autocomplete')
 export default class SchmancyAutocomplete extends $LitElement(style) {
     // Track whether value/values have been explicitly set
-    private _valueSet: boolean = false
-    private _valuesSet: boolean = false
+     _valueSet: boolean = false
+     _valuesSet: boolean = false
 
     // Public API properties
     @property({ type: Boolean }) required = false
