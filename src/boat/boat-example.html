@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schmancy Boat - Draggable Example</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .demo-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            color: #555;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-content">
+        <h1>Schmancy Boat - Draggable Demo</h1>
+
+        <p>The boat component is now draggable! Try the following features:</p>
+
+        <ul class="feature-list">
+            <li>Click and hold the header area to drag the boat around</li>
+            <li>The boat position is saved in localStorage and persists after page refresh</li>
+            <li>The cursor changes to a grab hand when hovering over the header</li>
+            <li>While dragging, the boat becomes slightly transparent with enhanced shadow</li>
+            <li>The boat automatically determines its anchor point (corner) based on position</li>
+            <li>Smooth animations during state transitions (minimized/expanded)</li>
+            <li>High z-index (9999) ensures it floats above other UI elements</li>
+        </ul>
+
+        <p><strong>How it works:</strong></p>
+        <p>The dragging functionality is implemented using RxJS observables for smooth, reactive behavior. When you drag the boat to a new position, it automatically calculates which corner of the viewport it's closest to and anchors itself there. This ensures the boat stays in the expected position even when the window is resized.</p>
+
+        <p>The position is automatically saved to localStorage, so your preferred boat location persists across browser sessions.</p>
+    </div>
+
+    <!-- Boat Component -->
+    <schmancy-boat state="minimized">
+        <div slot="header">
+            <span style="font-weight: 500;">Draggable Boat</span>
+        </div>
+
+        <div style="padding: 16px;">
+            <h3 style="margin: 0 0 12px 0; font-size: 18px;">Hello from the Boat!</h3>
+            <p style="margin: 0 0 8px 0; color: #666;">This is a floating UI element that can be:</p>
+            <ul style="margin: 0; padding-left: 20px; color: #666;">
+                <li>Dragged to any position</li>
+                <li>Minimized or expanded</li>
+                <li>Closed completely</li>
+            </ul>
+            <p style="margin: 12px 0 0 0; font-size: 14px; color: #999;">
+                Try dragging me by my header!
+            </p>
+        </div>
+    </schmancy-boat>
+
+    <script type="module">
+        // Import the boat component (adjust path as needed)
+        import './boat.js';
+    </script>
+</body>
+</html>

@@ -9,12 +9,16 @@ export default class SchmancyBoat extends SchmancyBoat_base {
     private containerRef;
     private contentRef;
     private iconRef;
+    private headerRef;
     private currentAnimation?;
     private readonly ANIMATION_CONFIG;
     private currentState;
     private isContentVisible;
     private isAnimating;
     private isLowered;
+    private isDragging;
+    private position;
+    private anchor;
     connectedCallback(): void;
     private setupUnifiedPipeline;
     private animateTransition;
@@ -26,6 +30,11 @@ export default class SchmancyBoat extends SchmancyBoat_base {
     private applyInitialStyles;
     toggleState(): void;
     close(): void;
+    private loadSavedPosition;
+    private savePosition;
+    private setupDragPipeline;
+    private updateContainerPosition;
+    private updateAnchor;
     disconnectedCallback(): void;
     protected render(): unknown;
 }

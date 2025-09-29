@@ -152,14 +152,27 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 		let theme = formateTheme(
 			themeFromSourceColor(argbFromHex(this.color)),
 			this.scheme === 'dark' ? true : false,
-			argbFromHex('#34B334'),
+			{
+				success: argbFromHex('#34B334'),
+				warning: argbFromHex('#FFA726'),
+				info: argbFromHex('#29B6F6')
+			}
 		)
 		theme = { ...theme, ...this.theme }
 
 		this.registerThemeValues('schmancy', '', theme)
-		
-		// Set the color-scheme CSS property on the host element
+
+		// Backward compatibility: Map old variable names to new ones
 		const hostElement = this.root ? document.body : (this.shadowRoot.host as HTMLElement)
+		const getVar = (name: string) => hostElement.style.getPropertyValue(name)
+
+		// Map old surface container names to new M3 names
+		hostElement.style.setProperty('--schmancy-sys-color-surface-low', getVar('--schmancy-sys-color-surface-containerLow'))
+		hostElement.style.setProperty('--schmancy-sys-color-surface-high', getVar('--schmancy-sys-color-surface-containerHigh'))
+		hostElement.style.setProperty('--schmancy-sys-color-surface-highest', getVar('--schmancy-sys-color-surface-containerHighest'))
+		hostElement.style.setProperty('--schmancy-sys-color-surface-lowest', getVar('--schmancy-sys-color-surface-containerLowest'))
+
+		// Set the color-scheme CSS property on the host element
 		hostElement.style.colorScheme = this.scheme === 'dark' ? 'dark' : 'light'
 	}
 
