@@ -13,7 +13,9 @@ The boat component is a bottom sheet that slides up from the bottom of the scree
 
 | Event | Detail | Description |
 |-------|--------|-------------|
-| `change` | `'hidden' \| 'minimized' \| 'expanded'` | Fired when the state changes |
+| `toggle` | `'hidden' \| 'minimized' \| 'expanded'` | Fired when the state changes |
+
+> **Note:** The component uses the `toggle` event name following HTML standards (similar to `<details>` and `<dialog>` elements). This prevents event name collisions with child components that might emit `change` events.
 
 ## Slots
 
@@ -41,12 +43,12 @@ The boat component is a bottom sheet that slides up from the bottom of the scree
 
 ### With Icon in Header
 ```html
-<schmancy-boat state="minimized" @change="${(e) => console.log(e.detail)}">
+<schmancy-boat state="minimized" @toggle="${(e) => console.log(e.detail)}">
   <div slot="header" class="flex gap-2 justify-center">
     <schmancy-icon>info</schmancy-icon>
     <schmancy-typography variant="title">Settings</schmancy-typography>
   </div>
-  
+
   <div class="flex flex-col gap-4 p-4">
     <!-- Settings content -->
   </div>
@@ -68,7 +70,7 @@ boat.state = 'expanded';
 boat.state = 'hidden';
 
 // Listen for state changes
-boat.addEventListener('change', (e) => {
+boat.addEventListener('toggle', (e) => {
   console.log('New state:', e.detail);
 });
 ```
