@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schmancy Boat - RxJS Refactored Test</title>
+    <script type="module">
+        import './dist/boat/boat.js';
+        import './dist/surface/surface.js';
+        import './dist/icon-button/icon-button.js';
+
+        // Test the reactive boat component
+        document.addEventListener('DOMContentLoaded', () => {
+            const boat = document.querySelector('schmancy-boat');
+
+            // Log state changes
+            boat.addEventListener('toggle', (e) => {
+                console.log('Boat state changed to:', e.detail);
+            });
+
+            // Test external state control
+            const controlPanel = document.getElementById('control-panel');
+
+            document.getElementById('btn-minimize').addEventListener('click', () => {
+                boat.state = 'minimized';
+            });
+
+            document.getElementById('btn-expand').addEventListener('click', () => {
+                boat.state = 'expanded';
+            });
+
+            document.getElementById('btn-hide').addEventListener('click', () => {
+                boat.state = 'hidden';
+            });
+
+            document.getElementById('btn-toggle-lowered').addEventListener('click', () => {
+                boat.lowered = !boat.lowered;
+                document.getElementById('lowered-status').textContent = boat.lowered ? 'Yes' : 'No';
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        #control-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #6366f1;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        .status {
+            padding: 12px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .status span {
+            font-weight: bold;
+            color: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <div id="control-panel">
+        <h1>🚀 Single-Pipe Reactive Boat Component</h1>
+
+        <p>This test page demonstrates the unified single-pipe SchmancyBoat architecture:</p>
+        <ul>
+            <li>✅ ONE unified reactive pipeline for ALL state management</li>
+            <li>✅ External state changes (boat.state = 'expanded') trigger animations</li>
+            <li>✅ All state flows through single stateChange$ subject</li>
+            <li>✅ Clean separation: internal vs external state changes</li>
+            <li>✅ Lit ref directives for DOM access (no querySelector)</li>
+        </ul>
+
+        <h2>External State Control</h2>
+        <div class="controls">
+            <button id="btn-minimize">Set Minimized</button>
+            <button id="btn-expand">Set Expanded</button>
+            <button id="btn-hide">Set Hidden</button>
+            <button id="btn-toggle-lowered">Toggle Lowered</button>
+        </div>
+
+        <div class="status">
+            <p>Current State: Check boat in bottom-right</p>
+            <p>Lowered: <span id="lowered-status">No</span></p>
+        </div>
+
+        <h2>Features</h2>
+        <ul>
+            <li>Click the boat header to toggle expand/minimize</li>
+            <li>Use the expand/minimize button in the boat</li>
+            <li>Close button hides the boat completely</li>
+            <li>All animations are handled via RxJS streams</li>
+            <li>State changes are reactive and observable</li>
+        </ul>
+    </div>
+
+    <!-- The refactored boat component with unified pipeline -->
+    <schmancy-boat>
+        <span slot="header">
+            <strong>Single-Pipe Architecture</strong> - Clean & Reactive
+        </span>
+        <div style="padding: 20px;">
+            <h3>Unified Pipeline Benefits</h3>
+            <p>This boat now uses a single unified reactive pipeline:</p>
+            <ul>
+                <li>🔄 Single stateChange$ subject handles all changes</li>
+                <li>🎯 External state setter properly triggers animations</li>
+                <li>📊 scan() operator accumulates all state</li>
+                <li>⚡ switchMap() handles animations in pipeline</li>
+                <li>🔧 Clean separation of concerns</li>
+            </ul>
+            <p>The unified architecture is simpler, more maintainable, and solves the state setter animation issue completely.</p>
+        </div>
+    </schmancy-boat>
+</body>
+</html>

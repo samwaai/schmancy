@@ -10,7 +10,7 @@ import '@schmancy/icon'
 
 @customElement('demo-boat')
 export class DemoBoat extends $LitElement() {
-	@state() boatState: 'hidden' | 'minimized' | 'expanded' = 'hidden'
+	@state() boatState: 'hidden' | 'minimized' | 'expanded' = 'minimized'
 	@state() boatContent: string = 'simple'
 
 	private toggleBoat() {
@@ -162,9 +162,9 @@ export class DemoBoat extends $LitElement() {
 				</schmancy-surface>
 
 				<!-- The Actual Boat Component -->
-				<schmancy-boat 
-					state="hidden"
-					@change=${(e: CustomEvent) => this.boatState = e.detail}
+				<schmancy-boat
+					state="minimized"
+					@toggle=${(e: CustomEvent) => this.boatState = e.detail}
 				>
 					<schmancy-typography slot="header" type="title" token="md">
 						${this.boatContent === 'simple' ? 'Simple Content' : 

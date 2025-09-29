@@ -1,9 +1,34 @@
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { when } from 'lit/directives/when.js'
+import { createRef, ref, Ref } from 'lit/directives/ref.js'
+import {
+  Subject,
+  fromEvent,
+  merge,
+  of,
+  EMPTY
+} from 'rxjs'
+import {
+  filter,
+  switchMap,
+  takeUntil,
+  tap,
+  finalize,
+  catchError,
+  debounceTime,
+  scan,
+  shareReplay
+} from 'rxjs/operators'
 
 type BoatState = 'hidden' | 'minimized' | 'expanded'
+
+// State change event for the unified pipeline
+interface StateChangeEvent {
+	source: 'internal' | 'external' | 'resize'
+	target?: BoatState
+	type: 'state' | 'lowered' | 'resize'
+}
 
 @customElement('schmancy-boat')
 export default class SchmancyBoat extends TailwindElement(css`
@@ -15,462 +40,464 @@ export default class SchmancyBoat extends TailwindElement(css`
 		backface-visibility: hidden;
 	}
 `) {
-	@property({
-		type: String,
-		reflect: true,
-	})
-	state: BoatState = 'hidden'
-
-	@property({
-		type: Boolean,
-		reflect: true,
-	})
-	lowered: boolean = false
-
-	@state()
-	private contentVisible: boolean = false
-
-	// Track previous state for animations
-	 previousState: BoatState = 'hidden'
-
-	// Web Animations API references
-	private containerElement?: HTMLElement
-	private contentElement?: HTMLElement
-	private headerElement?: HTMLElement
-	private iconElement?: HTMLElement
-
-	// Active animations tracking
-	private activeAnimations: Animation[] = []
-
-	// Animation configs
-	private readonly DURATIONS = {
-		expand: 350,
-		minimize: 250,
-		hide: 200,
-		contentFade: 300,
+	// Public properties - route ALL changes through stateChange$
+	@property({ type: String, reflect: true })
+	get state(): BoatState {
+		return this.currentState
+	}
+	set state(value: BoatState) {
+		// Route external state changes through the unified pipeline
+		this.stateChange$.next({
+			source: 'external',
+			target: value,
+			type: 'state'
+		})
 	}
 
-	private readonly EASINGS = {
-		emphasized: 'cubic-bezier(0.2, 0.0, 0, 1.0)',
-		emphasizedDecelerate: 'cubic-bezier(0.05, 0.7, 0.1, 1.0)',
-		emphasizedAccelerate: 'cubic-bezier(0.3, 0.0, 0.8, 0.15)',
-		standard: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+	@property({ type: Boolean, reflect: true })
+	get lowered(): boolean {
+		return this.isLowered
+	}
+	set lowered(value: boolean) {
+		this.stateChange$.next({
+			source: 'external',
+			target: this.currentState,
+			type: 'lowered'
+		})
+		this.isLowered = value
 	}
 
-	// Shadow configurations for different states
-	private readonly SHADOWS = {
-		fab: '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)',
-		fabLowered:
-			'0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12)',
-		expanded: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-		none: 'none',
+	// Single unified state change stream - ALL state changes go through this
+	private stateChange$ = new Subject<StateChangeEvent>()
+
+	// Element references
+	private containerRef: Ref<HTMLDivElement> = createRef()
+	private contentRef: Ref<HTMLElement> = createRef()
+	private iconRef: Ref<HTMLElement> = createRef()
+
+	// Current animation reference
+	private currentAnimation?: Animation
+
+	// Animation configuration
+	private readonly ANIMATION_CONFIG = {
+		durations: {
+			expand: 350,
+			minimize: 250,
+			hide: 200,
+			content: 300,
+		},
+		easing: {
+			emphasized: 'cubic-bezier(0.2, 0.0, 0, 1.0)',
+			decelerate: 'cubic-bezier(0.05, 0.7, 0.1, 1.0)',
+			accelerate: 'cubic-bezier(0.3, 0.0, 0.8, 0.15)',
+			standard: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+		},
+		shadows: {
+			fab: '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)',
+			fabLowered: '0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12)',
+			expanded: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+		}
 	}
 
-	async toggleState() {
-		// Cancel all active animations
-		this.cancelActiveAnimations()
+	// Reactive state for template
+	@state() private currentState: BoatState = 'minimized'
+	@state() private isContentVisible: boolean = false
+	@state() private isAnimating: boolean = false
+	@state() private isLowered: boolean = false
 
-		const previousState = this.state
-		const newState = this.state === 'minimized' ? 'expanded' : 'minimized'
-		this.state = newState
+	connectedCallback() {
+		super.connectedCallback()
+		this.setupUnifiedPipeline()
+	}
 
-		// Perform animations
-		await this.animateStateChange(previousState, newState)
+	private setupUnifiedPipeline() {
+		// Create resize stream
+		const resize$ = typeof window !== 'undefined'
+			? fromEvent(window, 'resize').pipe(
+				debounceTime(100),
+				filter(() => this.currentState === 'expanded'),
+				tap(() => this.stateChange$.next({
+					source: 'resize',
+					type: 'resize'
+				}))
+			)
+			: EMPTY
 
-		this.dispatchEvent(
-			new CustomEvent('toggle', {
-				detail: this.state,
-				bubbles: true,
-				composed: true,
+		// SINGLE UNIFIED PIPELINE - All state management in ONE place
+		merge(
+			// Initial state
+			of({
+				source: 'internal' as const,
+				target: 'minimized' as BoatState,
+				type: 'state' as const
 			}),
+			// All state changes
+			this.stateChange$,
+			// Window resize events
+			resize$
+		).pipe(
+			// Accumulate state and handle all changes
+			scan((state, event: StateChangeEvent) => {
+				// Handle different event types
+				if (event.type === 'resize' && this.currentState === 'expanded') {
+					// Just update width, no animation needed
+					this.updateExpandedWidth()
+					return { ...state, resized: true }
+				}
+
+				if (event.type === 'lowered') {
+					// Update lowered state
+					return { ...state, lowered: !state.lowered }
+				}
+
+				// Handle state changes
+				if (event.type === 'state' && event.target && event.target !== state.current) {
+					return {
+						...state,
+						previous: state.current,
+						current: event.target,
+						pending: true,
+						source: event.source
+					}
+				}
+
+				return state
+			}, {
+				current: 'minimized' as BoatState,
+				previous: 'minimized' as BoatState,
+				pending: false,
+				lowered: false,
+				resized: false,
+				source: 'internal' as 'internal' | 'external' | 'resize'
+			}),
+
+			// Only process when there's a pending state change
+			tap(state => {
+				// Always update lowered state
+				this.isLowered = state.lowered
+			}),
+
+			// Handle animations for state transitions
+			switchMap(state => {
+				if (!state.pending || this.isAnimating) {
+					return of(state)
+				}
+
+				// Mark as animating
+				this.isAnimating = true
+
+				// Animate the transition
+				return this.animateTransition(state.previous, state.current).pipe(
+					tap(() => {
+						// Update state after animation completes
+						this.currentState = state.current
+						this.isContentVisible = state.current === 'expanded'
+
+						// Dispatch event
+						this.dispatchEvent(new CustomEvent('toggle', {
+							detail: state.current,
+							bubbles: true,
+							composed: true,
+						}))
+					}),
+					catchError(err => {
+						console.warn('Animation error:', err)
+						// Still update state even if animation fails
+						this.currentState = state.current
+						this.isContentVisible = state.current === 'expanded'
+						return of(state)
+					}),
+					finalize(() => {
+						this.isAnimating = false
+					}),
+					// Return the state for next iteration
+					tap(() => state.pending = false)
+				)
+			}),
+
+			// Share the pipeline result
+			shareReplay(1),
+			takeUntil(this.disconnecting)
+		).subscribe()
+	}
+
+	// Simplified animation transition method
+	private animateTransition(fromState: BoatState, toState: BoatState) {
+		return of({ fromState, toState }).pipe(
+			tap(() => this.currentAnimation?.cancel()),
+			switchMap(({ fromState, toState }) => {
+				const container = this.containerRef.value
+				if (!container) return EMPTY
+
+				// Update content visibility before expand, after minimize
+				if (toState === 'expanded') {
+					this.isContentVisible = true
+				}
+
+				// Create animation based on target state
+				const animations = this.createAnimations(fromState, toState)
+
+				// Execute animations and return completion promise
+				return new Promise<void>((resolve) => {
+					const mainAnimation = animations.container
+					if (mainAnimation) {
+						this.currentAnimation = mainAnimation
+						mainAnimation.finished.then(() => {
+							if (toState !== 'expanded') {
+								this.isContentVisible = false
+							}
+							resolve()
+						}).catch(() => resolve())
+					} else {
+						resolve()
+					}
+				})
+			})
 		)
 	}
 
-	private cancelActiveAnimations() {
-		this.activeAnimations.forEach(animation => {
-			animation.cancel()
-		})
-		this.activeAnimations = []
-	}
+	// Create animations for state transition
+	private createAnimations(fromState: BoatState, toState: BoatState) {
+		const container = this.containerRef.value
+		const content = this.contentRef.value
+		const icon = this.iconRef.value
+		const animations: { container?: Animation; content?: Animation; icon?: Animation } = {}
 
-	private async animateStateChange(from: BoatState, to: BoatState) {
-		if (!this.containerElement) return
+		if (!container) return animations
 
-		const animations: Promise<void>[] = []
+		const config = this.ANIMATION_CONFIG
+		const fromStyles = this.getStyleForState(fromState)
+		const toStyles = this.getStyleForState(toState)
 
-		// Get animation values for states
-		const fromStyles = this.getStylesForState(from)
-		const toStyles = this.getStylesForState(to)
-
-		// Container animation - handles transform, dimensions, shadow, border-radius, and backdrop
-		if (to === 'expanded') {
-			// Expanding animation with overshoot
-			const containerAnim = this.containerElement.animate(
-				[
-					{
-						transform: fromStyles.transform,
-						width: fromStyles.width,
-						maxWidth: fromStyles.maxWidth,
-						maxHeight: fromStyles.maxHeight,
-						boxShadow: fromStyles.boxShadow,
-						borderRadius: fromStyles.borderRadius,
-						backdropFilter: fromStyles.backdropFilter,
-						WebkitBackdropFilter: fromStyles.backdropFilter,
-					} as any,
-					{
-						transform: 'translate3d(0, -8px, 0)',
-						width: toStyles.width,
-						maxWidth: toStyles.maxWidth,
-						maxHeight: toStyles.maxHeight,
-						boxShadow: toStyles.boxShadow,
-						borderRadius: toStyles.borderRadius,
-						backdropFilter: toStyles.backdropFilter,
-						WebkitBackdropFilter: toStyles.backdropFilter,
-						offset: 0.7,
-					} as any,
-					{
-						transform: toStyles.transform,
-						width: toStyles.width,
-						maxWidth: toStyles.maxWidth,
-						maxHeight: toStyles.maxHeight,
-						boxShadow: toStyles.boxShadow,
-						borderRadius: toStyles.borderRadius,
-						backdropFilter: toStyles.backdropFilter,
-						WebkitBackdropFilter: toStyles.backdropFilter,
-					} as any,
-				],
-				{
-					duration: this.DURATIONS.expand,
-					easing: this.EASINGS.emphasizedDecelerate,
-					fill: 'forwards',
-				},
-			)
-			this.activeAnimations.push(containerAnim)
-			animations.push(containerAnim.finished.then(() => {}))
-
-			// Show content immediately for expanded state
-			this.contentVisible = true
-
-			// Animate content fade-in
-			if (this.contentElement) {
-				const contentAnim = this.contentElement.animate(
-					[
-						{ opacity: 0, transform: 'translateY(8px)' },
-						{ opacity: 1, transform: 'translateY(0)' },
-					],
-					{
-						duration: this.DURATIONS.contentFade,
-						easing: this.EASINGS.standard,
-						fill: 'forwards',
-					},
-				)
-				this.activeAnimations.push(contentAnim)
-				animations.push(contentAnim.finished.then(() => {}))
-			}
-		} else if (to === 'minimized') {
-			// Minimizing animation
-			const containerAnim = this.containerElement.animate(
-				[
-					{
-						transform: fromStyles.transform,
-						width: fromStyles.width,
-						maxWidth: fromStyles.maxWidth,
-						maxHeight: fromStyles.maxHeight,
-						boxShadow: fromStyles.boxShadow,
-						borderRadius: fromStyles.borderRadius,
-						backdropFilter: fromStyles.backdropFilter,
-						WebkitBackdropFilter: fromStyles.backdropFilter,
-					} as any,
-					{
-						transform: toStyles.transform,
-						width: toStyles.width,
-						maxWidth: toStyles.maxWidth,
-						maxHeight: toStyles.maxHeight,
-						boxShadow: toStyles.boxShadow,
-						borderRadius: toStyles.borderRadius,
-						backdropFilter: toStyles.backdropFilter,
-						WebkitBackdropFilter: toStyles.backdropFilter,
-					} as any,
-				],
-				{
-					duration: this.DURATIONS.minimize,
-					easing: this.EASINGS.emphasizedAccelerate,
-					fill: 'forwards',
-				},
-			)
-			this.activeAnimations.push(containerAnim)
-
-			// Hide content first, then animate container
-			if (this.contentElement) {
-				const contentAnim = this.contentElement.animate(
-					[
-						{ opacity: 1, transform: 'translateY(0)' },
-						{ opacity: 0, transform: 'translateY(-8px)' },
-					],
-					{
-						duration: 150,
-						easing: this.EASINGS.standard,
-						fill: 'forwards',
-					},
-				)
-				this.activeAnimations.push(contentAnim)
-				await contentAnim.finished
-			}
-			this.contentVisible = false
-
-			animations.push(containerAnim.finished.then(() => {}))
-		} else if (to === 'hidden') {
-			// Hiding animation
-			const containerAnim = this.containerElement.animate(
-				[
-					{
-						transform: fromStyles.transform,
-						width: fromStyles.width,
-						maxWidth: fromStyles.maxWidth,
-						maxHeight: fromStyles.maxHeight,
-						boxShadow: fromStyles.boxShadow,
-						borderRadius: fromStyles.borderRadius,
-						backdropFilter: fromStyles.backdropFilter,
-						WebkitBackdropFilter: fromStyles.backdropFilter,
-					} as any,
-					{
-						transform: toStyles.transform,
-						width: toStyles.width,
-						maxWidth: toStyles.maxWidth,
-						maxHeight: toStyles.maxHeight,
-						boxShadow: toStyles.boxShadow,
-						borderRadius: toStyles.borderRadius,
-						backdropFilter: toStyles.backdropFilter,
-						WebkitBackdropFilter: toStyles.backdropFilter,
-					} as any,
-				],
-				{
-					duration: this.DURATIONS.hide,
-					easing: this.EASINGS.emphasizedAccelerate,
-					fill: 'forwards',
-				},
-			)
-			this.activeAnimations.push(containerAnim)
-			this.contentVisible = false
-			animations.push(containerAnim.finished.then(() => {}))
+		// Container animation
+		if (toState === 'expanded') {
+			// Add bounce effect for expand
+			animations.container = container.animate([
+				fromStyles,
+				{ ...toStyles, transform: 'translate3d(0, -8px, 0)', offset: 0.7 },
+				toStyles,
+			], {
+				duration: config.durations.expand,
+				easing: config.easing.decelerate,
+				fill: 'forwards',
+			})
+		} else {
+			animations.container = container.animate([fromStyles, toStyles], {
+				duration: toState === 'hidden' ? config.durations.hide : config.durations.minimize,
+				easing: config.easing.accelerate,
+				fill: 'forwards',
+			})
 		}
 
-		// Header scale animation
-		if (this.headerElement) {
-			const scale = to === 'minimized' ? 0.98 : 1
-			const headerAnim = this.headerElement.animate(
-				[{ transform: `scale(${from === 'minimized' ? 0.98 : 1})` }, { transform: `scale(${scale})` }],
-				{
-					duration: 200,
-					easing: this.EASINGS.emphasized,
-					fill: 'forwards',
-				},
-			)
-			this.activeAnimations.push(headerAnim)
-			animations.push(headerAnim.finished.then(() => {}))
+		// Content animation (only for expand/minimize transitions)
+		if (content && fromState === 'expanded' && toState === 'minimized') {
+			// Fade out content before minimizing
+			content.animate([
+				{ opacity: 1, transform: 'translateY(0)' },
+				{ opacity: 0, transform: 'translateY(-8px)' },
+			], {
+				duration: 150,
+				easing: config.easing.standard,
+				fill: 'forwards',
+			})
+		} else if (content && toState === 'expanded') {
+			// Fade in content when expanding
+			content.animate([
+				{ opacity: 0, transform: 'translateY(8px)' },
+				{ opacity: 1, transform: 'translateY(0)' },
+			], {
+				duration: config.durations.content,
+				easing: config.easing.standard,
+				fill: 'forwards',
+			})
 		}
 
 		// Icon rotation animation
-		if (this.iconElement) {
-			const rotation = to === 'expanded' ? 180 : 0
-			const iconAnim = this.iconElement.animate(
-				[{ transform: `rotate(${from === 'expanded' ? 180 : 0}deg)` }, { transform: `rotate(${rotation}deg)` }],
-				{
+		if (icon) {
+			const isExpanding = toState === 'expanded'
+			const isCollapsing = fromState === 'expanded' && toState === 'minimized'
+
+			if (isExpanding || isCollapsing) {
+				icon.animate([
+					{ transform: isExpanding ? 'rotate(0deg)' : 'rotate(180deg)' },
+					{ transform: isExpanding ? 'rotate(180deg)' : 'rotate(0deg)' },
+				], {
 					duration: 250,
-					easing: this.EASINGS.emphasized,
+					easing: config.easing.emphasized,
 					fill: 'forwards',
-				},
-			)
-			this.activeAnimations.push(iconAnim)
-			animations.push(iconAnim.finished.then(() => {}))
-		}
-
-		// Wait for all animations to complete
-		await Promise.all(animations)
-
-		// Clear completed animations
-		this.activeAnimations = []
-	}
-
-	private getTransformForState(state: BoatState): string {
-		switch (state) {
-			case 'hidden':
-				return 'translate3d(0, calc(100% + 16px), 0)'
-			case 'minimized':
-				return 'translate3d(0, calc(100% - 56px), 0)'
-			case 'expanded':
-				return 'translate3d(0, 0, 0)'
-		}
-	}
-
-	private getStylesForState(state: BoatState) {
-		const isMinimized = state === 'minimized'
-		const isExpanded = state === 'expanded'
-		const isHidden = state === 'hidden'
-
-		// Calculate responsive width based on viewport
-		let expandedWidth = '40vw'
-		if (typeof window !== 'undefined') {
-			const vw = window.innerWidth
-			if (vw < 768) {
-				expandedWidth = 'calc(100vw - 32px)'
-			} else if (vw < 1024) {
-				expandedWidth = '70vw'
-			} else if (vw < 1280) {
-				expandedWidth = '60vw'
-			}
-		}
-
-		return {
-			transform: this.getTransformForState(state),
-			width: isMinimized ? '300px' : isExpanded ? expandedWidth : '300px',
-			maxWidth: isMinimized ? '300px' : isExpanded ? '100%' : '300px',
-			maxHeight: isExpanded ? '80vh' : 'auto',
-			boxShadow: isHidden
-				? this.SHADOWS.none
-				: isMinimized
-					? this.lowered
-						? this.SHADOWS.fabLowered
-						: this.SHADOWS.fab
-					: this.SHADOWS.expanded,
-			borderRadius: isMinimized ? '16px' : '8px 8px 0 0',
-			backdropFilter: isExpanded ? 'blur(12px)' : 'none',
-		}
-	}
-
-	firstUpdated() {
-		// Get references for Web Animations API
-		this.containerElement = this.shadowRoot?.querySelector('.boat-container') as HTMLElement
-		this.contentElement = this.shadowRoot?.querySelector('.boat-content') as HTMLElement
-		this.headerElement = this.shadowRoot?.querySelector('.boat-header') as HTMLElement
-		this.iconElement = this.shadowRoot?.querySelector('.icon-container') as HTMLElement
-
-		// Apply initial state styles programmatically
-		if (this.containerElement) {
-			const initialStyles = this.getStylesForState(this.state)
-
-			// Set all animated properties
-			this.containerElement.style.transform = initialStyles.transform
-			this.containerElement.style.width = initialStyles.width
-			this.containerElement.style.maxWidth = initialStyles.maxWidth
-			this.containerElement.style.maxHeight = initialStyles.maxHeight
-			this.containerElement.style.boxShadow = initialStyles.boxShadow
-			this.containerElement.style.borderRadius = initialStyles.borderRadius
-			this.containerElement.style.backdropFilter = initialStyles.backdropFilter
-			;(this.containerElement.style as any).webkitBackdropFilter = initialStyles.backdropFilter
-		}
-
-		// Set initial header scale
-		if (this.headerElement && this.state === 'minimized') {
-			this.headerElement.style.transform = 'scale(0.98)'
-		}
-
-		// Set initial icon rotation
-		if (this.iconElement && this.state === 'expanded') {
-			this.iconElement.style.transform = 'rotate(180deg)'
-		}
-
-		// Set initial content visibility
-		this.contentVisible = this.state === 'expanded'
-
-		// Set initial content opacity
-		if (this.contentElement) {
-			this.contentElement.style.opacity = this.state === 'expanded' ? '1' : '0'
-		}
-
-		// Set initial previous state
-		this.previousState = this.state
-	}
-
-	updated(changedProperties: Map<string | number | symbol, unknown>) {
-		super.updated(changedProperties)
-
-		// Handle external state changes
-		if (changedProperties.has('state') && this.containerElement) {
-			const oldState = changedProperties.get('state') as BoatState
-
-			// Only animate if this is an external change (not from toggleState)
-			if (oldState !== undefined && oldState !== this.state) {
-				// Cancel any active animations
-				this.cancelActiveAnimations()
-
-				// Perform the animation from old state to new state
-				this.animateStateChange(oldState, this.state).then(() => {
-					// Update previous state after animation completes
-					this.previousState = this.state
 				})
 			}
 		}
+
+		return animations
 	}
 
+	// Get styles for a specific state
+	private getStyleForState(state: BoatState): Keyframe {
+		const { shadows } = this.ANIMATION_CONFIG
+		const baseStyles = {
+			width: '300px',
+			maxWidth: '300px',
+			maxHeight: 'auto',
+			borderRadius: '16px',
+		}
+
+		const stateStyles: Record<BoatState, Keyframe> = {
+			hidden: {
+				...baseStyles,
+				transform: 'translate3d(0, calc(100% + 16px), 0)',
+				boxShadow: 'none',
+				backdropFilter: 'none',
+			},
+			minimized: {
+				...baseStyles,
+				transform: 'translate3d(0, calc(100% - 56px), 0)',
+				boxShadow: this.isLowered ? shadows.fabLowered : shadows.fab,
+				backdropFilter: 'none',
+			},
+			expanded: {
+				transform: 'translate3d(0, 0, 0)',
+				width: this.getResponsiveWidth(),
+				maxWidth: '100%',
+				maxHeight: '80vh',
+				boxShadow: shadows.expanded,
+				borderRadius: '8px 8px 0 0',
+				backdropFilter: 'blur(12px)',
+			},
+		}
+
+		return stateStyles[state] as Keyframe
+	}
+
+	// Calculate responsive width based on viewport
+	private getResponsiveWidth(): string {
+		if (typeof window === 'undefined') return '40vw'
+
+		const vw = window.innerWidth
+		if (vw < 768) return 'calc(100vw - 32px)'
+		if (vw < 1024) return '70vw'
+		if (vw < 1280) return '60vw'
+		return '40vw'
+	}
+
+	// Update expanded width on window resize
+	private updateExpandedWidth() {
+		const container = this.containerRef.value
+		if (container && this.currentState === 'expanded') {
+			container.style.width = this.getResponsiveWidth()
+		}
+	}
+
+	// Initialize component styles after first render
+	firstUpdated() {
+		// Apply initial styles
+		this.applyInitialStyles()
+	}
+
+	// Apply initial styles to elements
+	private applyInitialStyles() {
+		const container = this.containerRef.value
+		const content = this.contentRef.value
+		const icon = this.iconRef.value
+
+		if (container) {
+			const initialStyle = this.getStyleForState(this.currentState)
+			Object.assign(container.style, initialStyle)
+
+			// Safari compatibility for backdrop filter
+			if ('webkitBackdropFilter' in container.style) {
+				(container.style as any).webkitBackdropFilter = initialStyle.backdropFilter
+			}
+		}
+
+		// Set initial content opacity
+		if (content) {
+			content.style.opacity = this.isContentVisible ? '1' : '0'
+		}
+
+		// Set initial icon rotation
+		if (icon && this.currentState === 'expanded') {
+			icon.style.transform = 'rotate(180deg)'
+		}
+	}
+
+	// Public method to toggle between minimized and expanded
+	toggleState() {
+		const newState = this.currentState === 'minimized' ? 'expanded' : 'minimized'
+		this.stateChange$.next({
+			source: 'internal',
+			target: newState,
+			type: 'state'
+		})
+	}
+
+	// Public method to close (hide) the boat
+	close() {
+		this.stateChange$.next({
+			source: 'internal',
+			target: 'hidden',
+			type: 'state'
+		})
+	}
+
+	// Cleanup on component disconnect
+	disconnectedCallback() {
+		super.disconnectedCallback()
+		this.currentAnimation?.cancel()
+		this.stateChange$.complete()
+	}
+
+	// Render the component
 	protected render(): unknown {
-		// Base structural classes only - all animated properties handled by Web Animations API
-		const containerClasses = {
-			// Base structural classes only
-			'boat-container z-[100] fixed bottom-4 right-4 overflow-y-auto flex flex-col': true,
-		}
-
-		// Header classes - structural only
-		const headerClasses = {
-			'boat-header sticky top-0 px-3 py-2 flex items-center justify-between gap-3': true,
-		}
-
-		// Content container classes - structural only
-		const contentClasses = {
-			'boat-content z-0 flex-1': true,
-		}
-
-		// Dynamic surface elevation based on state (MD3: 3 for FAB, 1 for lowered, 4 for expanded)
-		const surfaceElevation = this.state === 'minimized' ? (this.lowered ? '1' : '3') : '4'
+		// Calculate dynamic values
+		const surfaceElevation = this.currentState === 'minimized'
+			? (this.isLowered ? '1' : '3')
+			: '4'
+		const isMinimized = this.currentState === 'minimized'
+		const iconName = isMinimized ? 'expand_less' : 'expand_more'
 
 		return html`
-			<div class="${this.classMap(containerClasses)}">
+			<div
+				class="boat-container z-[9999] fixed bottom-4 right-4 overflow-y-auto flex flex-col"
+				${ref(this.containerRef)}
+			>
+				<!-- Header section -->
 				<section class="sticky top-0 z-10">
 					<schmancy-surface
 						elevation="${surfaceElevation}"
 						class="cursor-pointer"
-						rounded="${this.state === 'minimized' ? 'none' : 'top'}"
+						rounded="${isMinimized ? 'none' : 'top'}"
 						type="containerLowest"
 						@click=${() => this.toggleState()}
 					>
-						<div class="${this.classMap(headerClasses)}">
+						<div class="sticky top-0 px-3 py-2 flex items-center justify-between gap-3">
+							<!-- Header content slot -->
 							<div class="flex-1 flex items-center min-w-0">
 								<slot name="header"></slot>
 							</div>
 
+							<!-- Control buttons -->
 							<div class="flex items-center gap-1 flex-shrink-0">
+								<!-- Toggle button -->
 								<schmancy-icon-button
-									variant="${this.state === 'minimized' ? 'text' : 'filled tonal'}"
-									@click=${async (e: Event) => {
+									variant="${isMinimized ? 'text' : 'filled tonal'}"
+									@click=${(e: Event) => {
 										e.stopPropagation()
-										await this.toggleState()
+										this.toggleState()
 									}}
-									title=${this.state === 'minimized' ? 'Expand' : 'Minimize'}
+									title=${isMinimized ? 'Expand' : 'Minimize'}
 								>
-									<span class="icon-container">
-										${when(
-											this.state === 'minimized',
-											() => html`expand_less`,
-											() => html`expand_more`,
-										)}
+									<span class="icon-container" ${ref(this.iconRef)}>
+										${iconName}
 									</span>
 								</schmancy-icon-button>
 
+								<!-- Close button -->
 								<schmancy-icon-button
 									variant="text"
-									@click=${async (e: Event) => {
+									@click=${(e: Event) => {
 										e.stopPropagation()
-										this.cancelActiveAnimations()
-										const previousState = this.state
-										this.state = 'hidden'
-										await this.animateStateChange(previousState, 'hidden')
-										this.dispatchEvent(
-											new CustomEvent('toggle', {
-												detail: this.state,
-												bubbles: true,
-												composed: true,
-											}),
-										)
+										this.close()
 									}}
 									title="Close"
 								>
@@ -480,7 +507,14 @@ export default class SchmancyBoat extends TailwindElement(css`
 						</div>
 					</schmancy-surface>
 				</section>
-				<schmancy-surface .hidden=${!this.contentVisible} type="containerLow" class="${this.classMap(contentClasses)}">
+
+				<!-- Content section -->
+				<schmancy-surface
+					.hidden=${!this.isContentVisible}
+					type="containerLow"
+					class="boat-content z-0 flex-1"
+					${ref(this.contentRef)}
+				>
 					<slot></slot>
 				</schmancy-surface>
 			</div>
