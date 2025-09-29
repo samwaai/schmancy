@@ -6,7 +6,7 @@ import { repeat } from 'lit/directives/repeat.js'
 @customElement('demo-forms-autocomplete')
 export default class DemoFormsAutocomplete extends $LitElement() {
 	// Basic autocomplete state
-	@state() private basicValue = ''
+	@state() private basicValue = 'angular'
 
 	// Multi-select state
 	@state() private multiValues: string[] = ['react', 'vue']

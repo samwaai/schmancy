@@ -37,6 +37,10 @@ interface FilteredOption {
 
 @customElement('schmancy-autocomplete')
 export default class SchmancyAutocomplete extends $LitElement(style) {
+    // Track whether value/values have been explicitly set
+    private _valueSet: boolean = false
+    private _valuesSet: boolean = false
+
     // Public API properties
     @property({ type: Boolean }) required = false
     @property({ type: String }) placeholder = ''
@@ -58,6 +62,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         return [...this._selectedValues$.value]
     }
     set values(vals: string[]) {
+        this._valuesSet = true
         this._selectedValues$.next(Array.isArray(vals) ? [...vals] : [])
     }
 
@@ -69,6 +74,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
             : this._selectedValue$.value
     }
     set value(val: string) {
+        this._valueSet = true
         if (this.multi) {
             const newValues = val ? val.split(',').map(v => v.trim()).filter(Boolean) : []
             const currentValues = this._selectedValues$.value
@@ -80,6 +86,8 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
             // Only update if value actually changed
             if (val !== this._selectedValue$.value) {
                 this._selectedValue$.next(val)
+                // Update the input display when value is set
+                this._updateInputDisplay()
             }
         }
     }
@@ -283,7 +291,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
     private _updateInputDisplay() {
         // For multi-select, we don't update input display since chips show the selections
-        if (this.multi || this._open) return
+        if (this.multi) return
 
         const selectedValue = this._selectedValue$.value
         const option = this._options.find(opt => opt.value === selectedValue)
@@ -346,6 +354,9 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
     firstUpdated() {
         this._setupOptionHandlers()
+
+        // Sync initial value with display after options are available
+        this._updateInputDisplay()
 
         // Update options when slot changes
         const slot = this.shadowRoot?.querySelector('slot')
