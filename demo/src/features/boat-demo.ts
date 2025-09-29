@@ -5,13 +5,11 @@ import '@schmancy/boat'
 import '@schmancy/button'
 import '@schmancy/typography'
 import '@schmancy/surface'
-import '@schmancy/grid'
 import '@schmancy/icon'
 import '@schmancy/input'
 import '@schmancy/chips'
 import '@schmancy/chip'
 import '@schmancy/badge'
-import '@schmancy/flex'
 import '@schmancy/code-preview'
 
 @customElement('demo-boat')
@@ -58,7 +56,7 @@ export class DemoBoat extends $LitElement() {
 
 	render() {
 		return html`
-			<schmancy-grid gap="xl" class="pb-32">
+			<div class="grid gap-8 pb-32">
 				<!-- Component Header -->
 				<div class="demo-section">
 					<schmancy-typography type="display" token="lg" class="mb-4">
@@ -168,7 +166,7 @@ export class DemoBoat extends $LitElement() {
 					</schmancy-typography>
 
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<schmancy-flex gap="sm" class="items-start">
+						<div class="flex gap-2 items-start">
 							<schmancy-icon class="text-primary">layers</schmancy-icon>
 							<div>
 								<schmancy-typography type="title" token="sm">Three States</schmancy-typography>
@@ -176,9 +174,9 @@ export class DemoBoat extends $LitElement() {
 									Hidden, minimized, and expanded modes
 								</schmancy-typography>
 							</div>
-						</schmancy-flex>
+						</div>
 
-						<schmancy-flex gap="sm" class="items-start">
+						<div class="flex gap-2 items-start">
 							<schmancy-icon class="text-primary">open_with</schmancy-icon>
 							<div>
 								<schmancy-typography type="title" token="sm">Draggable</schmancy-typography>
@@ -186,9 +184,9 @@ export class DemoBoat extends $LitElement() {
 									Fully draggable with position persistence
 								</schmancy-typography>
 							</div>
-						</schmancy-flex>
+						</div>
 
-						<schmancy-flex gap="sm" class="items-start">
+						<div class="flex gap-2 items-start">
 							<schmancy-icon class="text-primary">animation</schmancy-icon>
 							<div>
 								<schmancy-typography type="title" token="sm">Smooth Animations</schmancy-typography>
@@ -196,9 +194,9 @@ export class DemoBoat extends $LitElement() {
 									Fluid Material Design 3 transitions
 								</schmancy-typography>
 							</div>
-						</schmancy-flex>
+						</div>
 
-						<schmancy-flex gap="sm" class="items-start">
+						<div class="flex gap-2 items-start">
 							<schmancy-icon class="text-primary">memory</schmancy-icon>
 							<div>
 								<schmancy-typography type="title" token="sm">Position Memory</schmancy-typography>
@@ -206,9 +204,9 @@ export class DemoBoat extends $LitElement() {
 									Remembers position across sessions
 								</schmancy-typography>
 							</div>
-						</schmancy-flex>
+						</div>
 
-						<schmancy-flex gap="sm" class="items-start">
+						<div class="flex gap-2 items-start">
 							<schmancy-icon class="text-primary">responsive_layout</schmancy-icon>
 							<div>
 								<schmancy-typography type="title" token="sm">Responsive</schmancy-typography>
@@ -216,9 +214,9 @@ export class DemoBoat extends $LitElement() {
 									Adapts to different screen sizes
 								</schmancy-typography>
 							</div>
-						</schmancy-flex>
+						</div>
 
-						<schmancy-flex gap="sm" class="items-start">
+						<div class="flex gap-2 items-start">
 							<schmancy-icon class="text-primary">tune</schmancy-icon>
 							<div>
 								<schmancy-typography type="title" token="sm">Customizable</schmancy-typography>
@@ -226,7 +224,7 @@ export class DemoBoat extends $LitElement() {
 									Flexible header and content slots
 								</schmancy-typography>
 							</div>
-						</schmancy-flex>
+						</div>
 					</div>
 				</schmancy-surface>
 
@@ -239,7 +237,7 @@ export class DemoBoat extends $LitElement() {
 						A simple boat with standard controls demonstrating the three states.
 					</schmancy-typography>
 
-					<schmancy-flex gap="md" class="mb-4">
+					<div class="flex gap-4 mb-4">
 						<schmancy-button variant="filled" @click=${() => this.basicBoatState = 'minimized'}>
 							Show Minimized
 						</schmancy-button>
@@ -249,7 +247,7 @@ export class DemoBoat extends $LitElement() {
 						<schmancy-button variant="outlined" @click=${() => this.basicBoatState = 'hidden'}>
 							Hide
 						</schmancy-button>
-					</schmancy-flex>
+					</div>
 
 					<schmancy-typography type="body" token="sm" class="mb-6 text-surface-onVariant">
 						Current state: <strong>${this.basicBoatState}</strong>
@@ -257,12 +255,12 @@ export class DemoBoat extends $LitElement() {
 
 					<schmancy-code-preview language="html">
 &lt;schmancy-boat state="minimized" @toggle="${e => handleStateChange(e)}"&gt;
-  &lt;schmancy-flex slot="header" gap="sm" center&gt;
+  &lt;div slot="header" class="flex gap-2 items-center"&gt;
     &lt;schmancy-icon&gt;info&lt;/schmancy-icon&gt;
     &lt;schmancy-typography type="title" token="md"&gt;
       Information Panel
     &lt;/schmancy-typography&gt;
-  &lt;/schmancy-flex&gt;
+  &lt;/div&gt;
 
   &lt;div class="p-6"&gt;
     &lt;schmancy-typography type="body" token="md"&gt;
@@ -282,7 +280,7 @@ export class DemoBoat extends $LitElement() {
 						Drag the boat to reposition it anywhere on screen. Position is saved to localStorage.
 					</schmancy-typography>
 
-					<schmancy-flex gap="md" class="mb-4">
+					<div class="flex gap-4 mb-4">
 						<schmancy-button variant="filled" @click=${() => this.draggableBoatState = 'minimized'}>
 							<schmancy-icon>open_with</schmancy-icon>
 							Show Draggable Boat
@@ -290,7 +288,7 @@ export class DemoBoat extends $LitElement() {
 						<schmancy-button variant="outlined" @click=${() => this.draggableBoatState = 'hidden'}>
 							Hide
 						</schmancy-button>
-					</schmancy-flex>
+					</div>
 
 					<schmancy-typography type="body" token="sm" class="mb-6 text-surface-onVariant">
 						💡 Tip: Try dragging the minimized boat to different corners of the screen!
@@ -305,12 +303,12 @@ export class DemoBoat extends $LitElement() {
   state="minimized"
   lowered="true"  // Optional: reduces elevation when minimized
 &gt;
-  &lt;schmancy-flex slot="header" gap="sm" center&gt;
+  &lt;div slot="header" class="flex gap-2 items-center"&gt;
     &lt;schmancy-icon&gt;drag_indicator&lt;/schmancy-icon&gt;
     &lt;schmancy-typography type="title" token="md"&gt;
       Drag Me!
     &lt;/schmancy-typography&gt;
-  &lt;/schmancy-flex&gt;
+  &lt;/div&gt;
 
   &lt;div class="p-4"&gt;
     Content here...
@@ -328,7 +326,7 @@ export class DemoBoat extends $LitElement() {
 						Boat with interactive elements like filters, forms, and task lists.
 					</schmancy-typography>
 
-					<schmancy-flex gap="md" class="mb-6">
+					<div class="flex gap-4 mb-6">
 						<schmancy-button variant="filled" @click=${() => this.interactiveBoatState = 'expanded'}>
 							<schmancy-icon>checklist</schmancy-icon>
 							Show Task Manager
@@ -336,17 +334,17 @@ export class DemoBoat extends $LitElement() {
 						<schmancy-button variant="outlined" @click=${() => this.interactiveBoatState = 'hidden'}>
 							Hide
 						</schmancy-button>
-					</schmancy-flex>
+					</div>
 
 					<schmancy-code-preview language="html">
 &lt;schmancy-boat state="expanded"&gt;
-  &lt;schmancy-flex slot="header" gap="sm" center&gt;
+  &lt;div slot="header" class="flex gap-2 items-center"&gt;
     &lt;schmancy-icon&gt;checklist&lt;/schmancy-icon&gt;
     &lt;schmancy-typography type="title" token="md"&gt;
       Task Manager
     &lt;/schmancy-typography&gt;
     &lt;schmancy-badge class="ml-2"&gt;5&lt;/schmancy-badge&gt;
-  &lt;/schmancy-flex&gt;
+  &lt;/div&gt;
 
   &lt;!-- Filter chips --&gt;
   &lt;div class="p-4 border-b border-outline-variant"&gt;
@@ -372,10 +370,10 @@ export class DemoBoat extends $LitElement() {
 					.state=${this.basicBoatState}
 					@toggle=${(e: CustomEvent) => this.basicBoatState = e.detail}
 				>
-					<schmancy-flex slot="header" gap="sm" center>
+					<div slot="header" class="flex gap-2 items-center">
 						<schmancy-icon>info</schmancy-icon>
 						<schmancy-typography type="title" token="md">Information Panel</schmancy-typography>
-					</schmancy-flex>
+					</div>
 
 					<div class="p-6">
 						<schmancy-typography type="headline" token="sm" class="mb-4">
@@ -386,10 +384,10 @@ export class DemoBoat extends $LitElement() {
 							expanded to show all content, or hidden completely. Try clicking the header to toggle between states!
 						</schmancy-typography>
 
-						<schmancy-grid gap="md">
+						<div class="grid gap-4">
 							${this.demoItems.map(item => html`
 								<schmancy-surface type="containerLow" rounded="all" class="p-4">
-									<schmancy-flex gap="sm" center>
+									<div class="flex gap-2 items-center">
 										<schmancy-icon>${item.icon}</schmancy-icon>
 										<div class="flex-1">
 											<schmancy-typography type="title" token="sm">${item.name}</schmancy-typography>
@@ -397,10 +395,10 @@ export class DemoBoat extends $LitElement() {
 												${item.description}
 											</schmancy-typography>
 										</div>
-									</schmancy-flex>
+									</div>
 								</schmancy-surface>
 							`)}
-						</schmancy-grid>
+						</div>
 					</div>
 				</schmancy-boat>
 
@@ -410,11 +408,11 @@ export class DemoBoat extends $LitElement() {
 					lowered
 					@toggle=${(e: CustomEvent) => this.draggableBoatState = e.detail}
 				>
-					<schmancy-flex slot="header" gap="sm" center>
+					<div slot="header" class="flex gap-2 items-center">
 						<schmancy-icon>drag_indicator</schmancy-icon>
 						<schmancy-typography type="title" token="md">Drag Me!</schmancy-typography>
 						<schmancy-badge type="filled" class="ml-auto">Draggable</schmancy-badge>
-					</schmancy-flex>
+					</div>
 
 					<div class="p-6">
 						<schmancy-typography type="headline" token="sm" class="mb-4">
@@ -454,11 +452,11 @@ export class DemoBoat extends $LitElement() {
 					.state=${this.interactiveBoatState}
 					@toggle=${(e: CustomEvent) => this.interactiveBoatState = e.detail}
 				>
-					<schmancy-flex slot="header" gap="sm" center>
+					<div slot="header" class="flex gap-2 items-center">
 						<schmancy-icon>checklist</schmancy-icon>
 						<schmancy-typography type="title" token="md">Task Manager</schmancy-typography>
 						<schmancy-badge class="ml-2">${this.filteredTasks.length}</schmancy-badge>
-					</schmancy-flex>
+					</div>
 
 					<div class="overflow-y-auto max-h-[60vh]">
 						<!-- Filter chips -->
@@ -528,7 +526,7 @@ export class DemoBoat extends $LitElement() {
 					</div>
 				</div>
 				</schmancy-boat>
-			</schmancy-grid>
+			</div>
 		`
 	}
 }

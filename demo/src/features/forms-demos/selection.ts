@@ -3,7 +3,7 @@ import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 @customElement('demo-forms-selection')
-export class DemoFormsSelection extends $LitElement() {
+export default class DemoFormsSelection extends $LitElement() {
   @state() private selectValue = 'option2';
   @state() private multiSelectValue: string[] = ['option1', 'option3'];
   @state() private radioValue = 'medium';

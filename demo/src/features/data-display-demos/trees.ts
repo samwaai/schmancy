@@ -15,7 +15,7 @@ interface TreeNode {
 }
 
 @customElement('demo-data-display-trees')
-export class DataDisplayTrees extends $LitElement() {
+export default class DataDisplayTrees extends $LitElement() {
   @state() private expandedNodes = new Set<string>(['root', 'src', 'components']);
   @state() private selectedNode: string | null = null;
   @state() private checkedNodes = new Set<string>();

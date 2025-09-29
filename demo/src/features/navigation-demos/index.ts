@@ -6,12 +6,12 @@ import '@schmancy/nav-drawer'
 
 // Import all individual navigation demo components and their classes
 import { NavigationOverview } from './overview'
-import { NavigationTabs } from './tabs'
-import { NavigationDrawer } from './drawer'
-import { NavigationRail } from './rail'
+import NavigationTabs from './tabs'
+import NavigationDrawer from './drawer'
+import NavigationRail from './rail'
 import { NavigationMobile } from './mobile'
-import { NavigationBar } from './navigation-bar'
-import { NavigationMenu } from './menu'
+import NavigationBar from './navigation-bar'
+import NavigationMenu from './menu'
 import { NavigationExamples } from './examples'
 
 // Main Demo Navigation Component

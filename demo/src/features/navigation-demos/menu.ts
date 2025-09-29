@@ -8,7 +8,7 @@ import '@schmancy/menu'
 import { animate, fadeIn, fadeOut } from '@lit-labs/motion'
 
 @customElement('demo-navigation-menu')
-export class NavigationMenu extends $LitElement() {
+export default class NavigationMenu extends $LitElement() {
   @state() private activeExample = 'basic'
 
   render() {

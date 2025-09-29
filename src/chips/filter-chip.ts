@@ -30,7 +30,8 @@ export class SchmancyFilterChip extends TailwindElement(css`
 
 	:host([disabled]) {
 		pointer-events: none;
-		opacity: 0.5;
+		/* M3 disabled state opacity */
+		opacity: var(--schmancy-sys-state-disabled-opacity);
 	}
 
 	button {
@@ -209,10 +210,12 @@ export class SchmancyFilterChip extends TailwindElement(css`
 			'inline-flex': true,
 			'items-center': true,
 			'gap-2': true,
-			'rounded-full': true,
+			/* M3 shape: small for chips */
+			'rounded-lg': true,
 			'h-8 px-4': true,
 			'cursor-pointer': !this.disabled,
 			'transition-all': true,
+			/* M3 motion: short duration */
 			'duration-200': true,
 			'select-none': true,
 			'text-sm': true,
@@ -231,10 +234,10 @@ export class SchmancyFilterChip extends TailwindElement(css`
 
 			// Hover states
 			'hover:brightness-95': this._selected && !this.disabled,
-			'hover:bg-surface-containerHigh': !this._selected && !this.disabled,
+			'hover:bg-surface-container-high': !this._selected && !this.disabled,
 
-			// Pressed state
-			'active:scale-95': !this.disabled,
+			// M3 pressed state (no scale transformation in M3)
+			'active:brightness-90': !this.disabled,
 
 			// Focus-visible state for better UX
 			'focus-visible:outline': !this.disabled,
@@ -246,8 +249,8 @@ export class SchmancyFilterChip extends TailwindElement(css`
 			'shadow-md': this.elevated && !this.disabled,
 			'hover:shadow-lg': this.elevated && !this.disabled,
 
-			// Disabled state
-			'opacity-50': this.disabled,
+			// M3 disabled state
+			'opacity-[var(--schmancy-sys-state-disabled-opacity)]': this.disabled,
 			'cursor-not-allowed': this.disabled
 		}
 
@@ -293,7 +296,7 @@ export class SchmancyFilterChip extends TailwindElement(css`
 				<!-- Remove button (if removable) -->
 				${this.removable ? html`
 					<button
-						class="ml-1 -mr-1 p-0.5 rounded-full hover:bg-surface-containerHighest transition-colors"
+						class="ml-1 -mr-1 p-0.5 rounded-full hover:bg-surface-container-highest transition-colors duration-200"
 						@click=${this.handleRemove}
 						aria-label="Remove filter"
 						tabindex="-1"

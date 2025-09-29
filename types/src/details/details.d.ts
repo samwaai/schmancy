@@ -15,18 +15,18 @@ export default class SchmancyDetails extends SchmancyDetails_base {
     variant: 'default' | 'outlined' | 'filled' | 'elevated';
     private ripples;
     private pressed;
-    private _isOpen;
     private nextRippleId;
     private _open$;
-    connectedCallback(): void;
     render(): import("lit-html").TemplateResult<1>;
     private _handleToggle;
+    private _toggleOpen;
+    private _dispatchToggleEvent;
     private _handleClick;
+    private _handleKeyDown;
+    private _handleKeyUp;
     private _handleMouseDown;
     private _handleMouseUp;
     private _handleMouseLeave;
-    private _handleKeyDown;
-    private _handleKeyUp;
 }
 declare global {
     interface HTMLElementTagNameMap {

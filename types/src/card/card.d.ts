@@ -50,13 +50,17 @@ export default class SchmancyCard extends SchmancyCard_base {
     private nextRippleId;
     connectedCallback(): void;
     updated(changedProperties: Map<string, any>): void;
+    private _updateAriaAttributes;
+    private _addRipple;
+    private _navigate;
+    private _triggerAction;
     private handleClick;
     private handleKeyDown;
     private handleKeyUp;
+    private _setPressed;
     private handleMouseDown;
     private handleMouseUp;
     private handleMouseLeave;
-    private getStateLayerOpacity;
     protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

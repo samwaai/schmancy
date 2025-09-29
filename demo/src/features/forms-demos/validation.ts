@@ -3,7 +3,7 @@ import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 @customElement('demo-forms-validation')
-export class DemoFormsValidation extends $LitElement() {
+export default class DemoFormsValidation extends $LitElement() {
   // Real-time validation states
   @state() private emailValue = '';
   @state() private emailError = '';

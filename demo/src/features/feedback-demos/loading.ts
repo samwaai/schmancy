@@ -3,7 +3,7 @@ import { customElement } from 'lit/decorators.js'
 import { html } from 'lit'
 
 @customElement('demo-feedback-loading')
-export class DemoFeedbackLoading extends $LitElement() {
+export default class DemoFeedbackLoading extends $LitElement() {
 	render() {
 		return html`
 			<schmancy-surface class="p-8">

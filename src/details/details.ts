@@ -1,9 +1,7 @@
 import { TailwindElement } from '@mixins/index'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { when } from 'lit/directives/when.js'
-import { BehaviorSubject, takeUntil } from 'rxjs'
-import { tap } from 'rxjs/operators'
+import { BehaviorSubject } from 'rxjs'
 
 @customElement('schmancy-details')
 export default class SchmancyDetails extends TailwindElement(css`
@@ -23,67 +21,57 @@ export default class SchmancyDetails extends TailwindElement(css`
 
 	/* Container border-radius following M3 spec */
 	details {
-		border-radius: 12px; /* M3 medium component radius */
-		transition: all 200ms cubic-bezier(0.2, 0, 0, 1); /* M3 standard easing */
+		/* M3 medium shape for expandable components */
+		border-radius: var(--schmancy-sys-shape-corner-medium);
+		transition: all var(--schmancy-sys-motion-duration-short4) var(--schmancy-sys-motion-easing-standard);
 	}
 
 	/* Variant-specific styles */
 	:host([variant='outlined']) details {
-		border: 1px solid var(--schmancy-sys-color-outline-variant);
+		border: 1px solid var(--schmancy-sys-color-outlineVariant);
 		background-color: var(--schmancy-sys-color-surface-default);
 	}
 
 	:host([variant='filled']) details {
+		/* M3: container surface */
 		background-color: var(--schmancy-sys-color-surface-container);
 	}
 
 	:host([variant='elevated']) details {
+		/* M3: containerLow when closed */
 		background-color: var(--schmancy-sys-color-surface-low);
 		box-shadow: var(--schmancy-sys-elevation-1);
 	}
 
 	:host([variant='elevated']) details[open] {
+		/* M3: elevated state increases elevation and changes surface */
 		box-shadow: var(--schmancy-sys-elevation-2);
 		background-color: var(--schmancy-sys-color-surface-container);
 	}
 
-	/* Content animation */
+	/* Animation keyframes */
 	@keyframes slideDown {
-		from {
-			opacity: 0;
-			transform: translateY(-8px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
+		from { opacity: 0; transform: translateY(-8px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	@keyframes ripple {
+		to { transform: scale(4); opacity: 0; }
 	}
 
 	.content-wrapper[data-open='true'] {
-		animation: slideDown 250ms cubic-bezier(0.2, 0, 0, 1);
-	}
-
-	/* Ripple effect */
-	@keyframes ripple {
-		to {
-			transform: scale(4);
-			opacity: 0;
-		}
+		animation: slideDown var(--schmancy-sys-motion-duration-medium1) var(--schmancy-sys-motion-easing-emphasized-decelerate);
 	}
 
 	/* Focus ring following M3 spec */
 	summary:focus-visible {
 		outline: 2px solid var(--schmancy-sys-color-primary-default);
 		outline-offset: 2px;
-		border-radius: 12px;
+		border-radius: var(--schmancy-sys-shape-corner-medium);
 	}
 
-	/* Icon rotation transition */
-	.icon-wrapper {
-		transition: transform 200ms cubic-bezier(0.2, 0, 0, 1);
-	}
-
-	.icon-wrapper[data-open='true'] {
+	/* Icon rotation transition with M3 motion */
+	.icon-rotate {
 		transform: rotate(90deg);
 	}
 `) {
@@ -108,101 +96,36 @@ export default class SchmancyDetails extends TailwindElement(css`
 	// Internal state for ripple effects
 	@state() private ripples: Array<{ x: number; y: number; id: number }> = []
 	@state() private pressed = false
-	@state() private _isOpen = false
 
 	private nextRippleId = 0
 	private _open$ = new BehaviorSubject<boolean>(false)
 
-	connectedCallback() {
-		super.connectedCallback()
-
-		// Subscribe to open state changes
-		this._open$.pipe(
-			tap(isOpen => {
-				this._isOpen = isOpen
-				this.requestUpdate()
-			}),
-			takeUntil(this.disconnecting)
-		).subscribe()
-	}
-
 	render() {
-		// Define state layer opacity based on variant and state
-		const getStateLayerOpacity = () => {
-			if (this.pressed) return 'opacity-[0.12]' // M3 pressed state
-			if (this.variant === 'default') {
-				return 'opacity-0 hover:opacity-[0.08]' // M3 hover state
-			}
-			return 'opacity-0 hover:opacity-[0.04]' // Reduced for filled/elevated variants
-		}
+		const isOpen = this._open$.value
 
-		// Summary classes following M3 specs
-		const summaryClasses = this.classMap({
-			'cursor-pointer': true,
-			'select-none': true,
-			'relative': true,
-			'flex': true,
-			'items-center': true,
-			'gap-3': true,
-			'min-h-[48px]': true, // M3 minimum touch target
-			'sm:min-h-[56px]': true, // Desktop size
-			'px-4': true, // M3 standard padding
-			'sm:px-6': true,
-			'py-3': true,
-			'sm:py-4': true,
-			'rounded-xl': true, // Match container radius
-			'transition-colors': true,
-			'duration-200': true,
-			'text-surface-on': true,
-			'group': true, // For hover states on icon
-		})
+		// Dynamic state layer opacity
+		const stateLayerOpacity = this.pressed
+			? 'opacity-[var(--schmancy-sys-state-pressed-opacity)]'
+			: this.variant === 'default'
+				? 'opacity-0 hover:opacity-[var(--schmancy-sys-state-hover-opacity)]'
+				: 'opacity-0 hover:opacity-[0.04]'
 
-		// State layer for interactive feedback
-		const stateLayerClasses = this.classMap({
-			'absolute': true,
-			'inset-0': true,
-			'rounded-xl': true,
-			'pointer-events-none': true,
-			'transition-opacity': true,
-			'duration-200': true,
-			'bg-surface-on': true,
-			[getStateLayerOpacity()]: true,
-		})
-
-		// Content wrapper classes
-		const contentClasses = this.classMap({
-			'px-4': true,
-			'sm:px-6': true,
-			'pb-3': true,
-			'sm:pb-4': true,
-			'text-surface-onVariant': true,
-			'text-sm': true,
-			'sm:text-base': true,
-		})
-
-		// Icon classes with group hover
+		// Dynamic icon rotation class
 		const iconClasses = this.classMap({
-			'flex': true,
-			'items-center': true,
-			'justify-center': true,
-			'w-6': true,
-			'h-6': true,
-			'rounded-full': true,
-			'flex-shrink-0': true,
-			'text-surface-onVariant': true,
-			'group-hover:text-surface-on': true,
-			'transition-all': true,
-			'duration-200': true,
+			'flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0': true,
+			'text-surface-onVariant group-hover:text-surface-on': true,
+			'transition-all duration-200': true,
+			'icon-rotate': isOpen
 		})
 
 		return html`
 			<details
-				?open=${this._isOpen}
+				?open=${isOpen}
 				@toggle=${this._handleToggle}
 				class="w-full overflow-hidden"
 			>
 				<summary
-					class=${summaryClasses}
+					class="cursor-pointer select-none relative flex items-center gap-3 min-h-[48px] sm:min-h-[56px] px-4 sm:px-6 py-3 sm:py-4 rounded-xl transition-colors duration-200 text-surface-on group"
 					@click=${this._handleClick}
 					@mousedown=${this._handleMouseDown}
 					@mouseup=${this._handleMouseUp}
@@ -212,7 +135,7 @@ export default class SchmancyDetails extends TailwindElement(css`
 					tabindex="0"
 				>
 					<!-- State layer for hover/focus/pressed states -->
-					<div class=${stateLayerClasses}></div>
+					<div class="absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-200 bg-surface-on ${stateLayerOpacity}"></div>
 
 					<!-- Ripple container -->
 					<div class="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
@@ -239,11 +162,7 @@ export default class SchmancyDetails extends TailwindElement(css`
 					</span>
 
 					<!-- Expand/collapse icon -->
-					<span
-						class=${iconClasses}
-						data-open=${this._isOpen}
-						style="transform: rotate(${this._isOpen ? '90deg' : '0deg'})"
-					>
+					<span class=${iconClasses}>
 						<svg
 							width="24"
 							height="24"
@@ -264,49 +183,26 @@ export default class SchmancyDetails extends TailwindElement(css`
 				</summary>
 
 				<!-- Content area -->
-				<div
-					class=${contentClasses}
-					data-open=${this._isOpen}
-					style="${this._isOpen ? '' : 'display: none;'}"
-				>
-					${when(
-						this._isOpen,
-						() => html`
-							<div class="content-wrapper" data-open=${this._isOpen}>
-								<slot></slot>
-							</div>
-						`
-					)}
-				</div>
+				${isOpen ? html`
+					<div class="px-4 sm:px-6 pb-3 sm:pb-4 text-surface-onVariant text-sm sm:text-base">
+						<div class="content-wrapper" data-open="true">
+							<slot></slot>
+						</div>
+					</div>
+				` : ''}
 			</details>
 		`
 	}
 
 	private _handleToggle(e: Event) {
 		const details = e.target as HTMLDetailsElement
-		// Sync the internal state with the actual details element state
 		this._open$.next(details.open)
-
-		// Dispatch custom event
-		this.dispatchEvent(
-			new CustomEvent('toggle', {
-				detail: { open: details.open },
-				bubbles: true,
-				composed: true,
-			}),
-		)
+		this._dispatchToggleEvent(details.open)
 	}
 
-	private _handleClick(e: MouseEvent) {
-		// Prevent default to control the toggle manually
-		e.preventDefault()
-
-		// Add ripple effect at click position
-		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-		const x = e.clientX - rect.left
-		const y = e.clientY - rect.top
+	private _toggleOpen(x: number, y: number) {
+		// Add ripple effect
 		const id = this.nextRippleId++
-
 		this.ripples = [...this.ripples, { x, y, id }]
 
 		// Remove ripple after animation
@@ -314,17 +210,41 @@ export default class SchmancyDetails extends TailwindElement(css`
 			this.ripples = this.ripples.filter(r => r.id !== id)
 		}, 600)
 
-		// Toggle the open state through the BehaviorSubject
-		this._open$.next(!this._open$.value)
+		// Toggle state
+		const newState = !this._open$.value
+		this._open$.next(newState)
+		this._dispatchToggleEvent(newState)
+	}
 
-		// Dispatch the toggle event
+	private _dispatchToggleEvent(open: boolean) {
 		this.dispatchEvent(
 			new CustomEvent('toggle', {
-				detail: { open: this._open$.value },
+				detail: { open },
 				bubbles: true,
 				composed: true,
-			}),
+			})
 		)
+	}
+
+	private _handleClick(e: MouseEvent) {
+		e.preventDefault()
+		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+		this._toggleOpen(e.clientX - rect.left, e.clientY - rect.top)
+	}
+
+	private _handleKeyDown(e: KeyboardEvent) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault()
+			this.pressed = true
+			const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+			this._toggleOpen(rect.width / 2, rect.height / 2)
+		}
+	}
+
+	private _handleKeyUp(e: KeyboardEvent) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			this.pressed = false
+		}
 	}
 
 	private _handleMouseDown() {
@@ -337,44 +257,6 @@ export default class SchmancyDetails extends TailwindElement(css`
 
 	private _handleMouseLeave() {
 		this.pressed = false
-	}
-
-	private _handleKeyDown(e: KeyboardEvent) {
-		// Handle keyboard activation
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault()
-			this.pressed = true
-
-			// Add ripple effect from center
-			const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-			const x = rect.width / 2
-			const y = rect.height / 2
-			const id = this.nextRippleId++
-
-			this.ripples = [...this.ripples, { x, y, id }]
-
-			setTimeout(() => {
-				this.ripples = this.ripples.filter(r => r.id !== id)
-			}, 600)
-
-			// Toggle the open state through the BehaviorSubject
-			this._open$.next(!this._open$.value)
-
-			// Dispatch the toggle event
-			this.dispatchEvent(
-				new CustomEvent('toggle', {
-					detail: { open: this._open$.value },
-					bubbles: true,
-					composed: true,
-				}),
-			)
-		}
-	}
-
-	private _handleKeyUp(e: KeyboardEvent) {
-		if (e.key === 'Enter' || e.key === ' ') {
-			this.pressed = false
-		}
 	}
 }
 

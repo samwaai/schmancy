@@ -8,6 +8,8 @@ export class DemoCoreButtons extends $LitElement() {
 	render() {
 		return html`
 			<schmancy-surface class="p-8">
+
+			<section class="size-8 bg-white rounded-shape-sm"></section>
 				<!-- Component Title -->
 				<schmancy-typography type="display" token="lg" class="mb-4 block">
 					Button

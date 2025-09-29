@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js'
 import { $LitElement } from '@mixins/index'
 
 @customElement('demo-navigation-bar')
-export class NavigationBar extends $LitElement(css`
+export default class NavigationBar extends $LitElement(css`
   :host {
     display: block;
   }

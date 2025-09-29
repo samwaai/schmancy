@@ -15,7 +15,7 @@ interface Product {
 }
 
 @customElement('demo-data-display-tables')
-export class DataDisplayTables extends $LitElement() {
+export default class DataDisplayTables extends $LitElement() {
   @state() private products: Product[] = this.generateProducts();
   @state() private filteredProducts: Product[] = this.products;
   @state() private sortField: keyof Product = 'name';

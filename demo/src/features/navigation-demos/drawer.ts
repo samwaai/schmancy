@@ -9,7 +9,7 @@ import '@schmancy/list'
 import { animate, fadeIn, fadeOut } from '@lit-labs/motion'
 
 @customElement('demo-navigation-drawer')
-export class NavigationDrawer extends $LitElement() {
+export default class NavigationDrawer extends $LitElement() {
   @state() private drawerOpen = false
   @state() private activeDrawerItem = 'dashboard'
   @state() private persistentDrawer = true

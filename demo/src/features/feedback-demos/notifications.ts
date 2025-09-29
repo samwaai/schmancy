@@ -11,7 +11,7 @@ import { concatMap } from 'rxjs/operators'
  * @element sch-notification-demo
  */
 @customElement('demo-feedback-notifications')
-export class DemoFeedbackNotifications extends $LitElement() {
+export default class DemoFeedbackNotifications extends $LitElement() {
 	@state() private position:
 		| 'top-right'
 		| 'top-left'

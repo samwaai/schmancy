@@ -17,7 +17,7 @@ interface ListItem {
 }
 
 @customElement('demo-data-display-lists')
-export class DataDisplayLists extends $LitElement() {
+export default class DataDisplayLists extends $LitElement() {
   @state() private basicItems: ListItem[] = this.generateItems(20);
   @state() private virtualItems: ListItem[] = this.generateItems(1000);
   @state() private groupedItems: ListItem[] = this.generateItems(50);

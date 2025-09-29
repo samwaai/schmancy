@@ -57,23 +57,50 @@ export class SchmancyNavigationRail extends $LitElement(css`
 	:host {
 		display: flex;
 		flex-direction: column;
-		width: 80px;
+		width: 80px; /* Fixed width - never changes to prevent layout shift */
 		height: 100%;
-		background-color: var(--schmancy-sys-color-surface-container);
-		color: var(--schmancy-sys-color-surface-on);
 		box-sizing: border-box;
 		position: relative;
 		overflow: visible;
+		z-index: 1; /* Base z-index */
 	}
 
-	/* Rail container */
+	/* Hover state: elevate and show expanded content */
+	:host(:hover) {
+		z-index: 100; /* Higher z-index to overlay content */
+	}
+
+	/* Rail container - this is what expands */
 	.rail {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
+		width: 80px; /* Base width */
 		padding: 8px 12px;
 		gap: 4px;
 		box-sizing: border-box;
+		background-color: var(--schmancy-sys-color-surface-default);
+		color: var(--schmancy-sys-color-surface-on);
+		position: relative;
+		/* M3 motion: smooth transition for width and shadow */
+		transition:
+			width 300ms cubic-bezier(0.2, 0, 0, 1),
+			box-shadow 300ms cubic-bezier(0.2, 0, 0, 1);
+	}
+
+	/* Hover state: expand rail with shadow to show overlay */
+	:host(:hover) .rail {
+		width: 240px;
+		/* M3 elevation 3 shadow for overlay effect */
+		box-shadow:
+			0px 6px 10px 0px rgba(0, 0, 0, 0.14),
+			0px 1px 18px 0px rgba(0, 0, 0, 0.12),
+			0px 3px 5px -1px rgba(0, 0, 0, 0.2);
+	}
+
+	/* Force label visibility when hovered */
+	:host(:hover) ::slotted(schmancy-navigation-rail-item) {
+		--rail-item-show-label: flex !important;
 	}
 
 	/* Header section */
@@ -94,7 +121,7 @@ export class SchmancyNavigationRail extends $LitElement(css`
 		overflow-y: auto;
 		overflow-x: hidden;
 		scrollbar-width: thin;
-		scrollbar-color: var(--schmancy-sys-color-surface-onVariant) transparent;
+		scrollbar-color: var(--schmancy-sys-color-outlineVariant) transparent;
 	}
 
 	.nav::-webkit-scrollbar {
@@ -106,7 +133,7 @@ export class SchmancyNavigationRail extends $LitElement(css`
 	}
 
 	.nav::-webkit-scrollbar-thumb {
-		background-color: var(--schmancy-sys-color-surface-onVariant);
+		background-color: var(--schmancy-sys-color-outlineVariant);
 		border-radius: 2px;
 		opacity: 0.5;
 	}
@@ -122,44 +149,43 @@ export class SchmancyNavigationRail extends $LitElement(css`
 	}
 
 	/* FAB styles */
-	::slotted([slot="fab"]) {
+	::slotted([slot='fab']) {
 		margin-bottom: 8px;
 	}
 
 	/* Menu button styles */
-	::slotted([slot="menu"]) {
+	::slotted([slot='menu']) {
 		margin-bottom: 12px;
 	}
 
 	/* Alignment variants */
-	:host([alignment="top"]) .nav {
+	:host([alignment='top']) .nav {
 		justify-content: flex-start;
 	}
 
-	:host([alignment="center"]) .nav {
+	:host([alignment='center']) .nav {
 		justify-content: center;
 	}
 
-	:host([alignment="bottom"]) .nav {
+	:host([alignment='bottom']) .nav {
 		justify-content: flex-end;
 	}
 
 	/* Label visibility states */
-	:host([label-visibility="none"]) ::slotted(schmancy-navigation-rail-item) {
+	:host([label-visibility='none']) ::slotted(schmancy-navigation-rail-item) {
 		--rail-item-show-label: none;
 	}
 
-	:host([label-visibility="selected"]) ::slotted(schmancy-navigation-rail-item:not([active])) {
+	:host([label-visibility='selected']) ::slotted(schmancy-navigation-rail-item:not([active])) {
 		--rail-item-show-label: none;
 	}
-
 
 	/* Group header styles */
 	::slotted(.group-header) {
 		padding: 8px 12px;
 		font-size: 12px;
 		font-weight: 500;
-		color: var(--schmancy-sys-color-surface-onVariant);
+		color: var(--schmancy-sys-color-outline);
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 		white-space: nowrap;
@@ -175,11 +201,17 @@ export class SchmancyNavigationRail extends $LitElement(css`
 	/* Responsive behavior */
 	@media (max-width: 768px) {
 		:host {
-			width: 56px;
+			width: 56px; /* Smaller fixed width on mobile */
 		}
 
 		.rail {
+			width: 56px; /* Match host width */
 			padding: 8px;
+		}
+
+		/* On mobile, expand to a smaller width */
+		:host(:hover) .rail {
+			width: 200px;
 		}
 	}
 `) {
@@ -192,14 +224,20 @@ export class SchmancyNavigationRail extends $LitElement(css`
 	 * @default -1
 	 */
 	@property({ type: Number })
-	get activeIndex() { return this.activeIndex$.value }
-	set activeIndex(value: number) { this.activeIndex$.next(value) }
+	get activeIndex() {
+		return this.activeIndex$.value
+	}
+	set activeIndex(value: number) {
+		this.activeIndex$.next(value)
+	}
 
 	/**
 	 * The currently active item value (for programmatic selection)
 	 */
 	@property({ type: String })
-	get activeValue() { return this._activeValue }
+	get activeValue() {
+		return this._activeValue
+	}
 	set activeValue(value: string) {
 		this._activeValue = value
 		this.updateActiveByValue(value)
@@ -247,9 +285,7 @@ export class SchmancyNavigationRail extends $LitElement(css`
 	private allElements!: Element[]
 
 	private get navigationItems(): SchmancyNavigationRailItem[] {
-		return this.allElements.filter(
-			el => el.tagName === 'SCHMANCY-NAVIGATION-RAIL-ITEM'
-		) as SchmancyNavigationRailItem[]
+		return this.allElements.filter(el => el.tagName === 'SCHMANCY-NAVIGATION-RAIL-ITEM') as SchmancyNavigationRailItem[]
 	}
 
 	connectedCallback() {
@@ -261,11 +297,13 @@ export class SchmancyNavigationRail extends $LitElement(css`
 		}
 
 		// Subscribe to active index changes with distinct values only
-		this.activeIndex$.pipe(
-			distinctUntilChanged(),
-			tap(index => this.updateActiveStates(index)),
-			takeUntil(this.disconnecting)
-		).subscribe()
+		this.activeIndex$
+			.pipe(
+				distinctUntilChanged(),
+				tap(index => this.updateActiveStates(index)),
+				takeUntil(this.disconnecting),
+			)
+			.subscribe()
 
 		// Listen for navigate events from child items
 		this.setupNavigateListener()
@@ -305,20 +343,16 @@ export class SchmancyNavigationRail extends $LitElement(css`
 	}
 
 	private updateActiveByValue(value: string) {
-		const index = this.navigationItems.findIndex(
-			item => item.getAttribute('value') === value || item.label === value
-		)
+		const index = this.navigationItems.findIndex(item => item.getAttribute('value') === value || item.label === value)
 		if (index >= 0) {
 			this.activeIndex = index
 		}
 	}
 
-
 	private updateLabelVisibility() {
 		this.navigationItems.forEach((item, i) => {
 			const shouldShowLabel =
-				this.labelVisibility === 'all' ||
-				(this.labelVisibility === 'selected' && i === this.activeIndex)
+				this.labelVisibility === 'all' || (this.labelVisibility === 'selected' && i === this.activeIndex)
 
 			item.showLabel = shouldShowLabel
 
@@ -330,7 +364,6 @@ export class SchmancyNavigationRail extends $LitElement(css`
 			}
 		})
 	}
-
 
 	private handleKeyDown(event: KeyboardEvent) {
 		const items = this.navigationItems
@@ -372,18 +405,22 @@ export class SchmancyNavigationRail extends $LitElement(css`
 
 	private handleFabClick(event: Event) {
 		event.stopPropagation()
-		this.dispatchEvent(new CustomEvent('fab-click', {
-			bubbles: true,
-			composed: true
-		}))
+		this.dispatchEvent(
+			new CustomEvent('fab-click', {
+				bubbles: true,
+				composed: true,
+			}),
+		)
 	}
 
 	private handleMenuClick(event: Event) {
 		event.stopPropagation()
-		this.dispatchEvent(new CustomEvent('menu-click', {
-			bubbles: true,
-			composed: true
-		}))
+		this.dispatchEvent(
+			new CustomEvent('menu-click', {
+				bubbles: true,
+				composed: true,
+			}),
+		)
 	}
 
 	protected render() {
@@ -406,16 +443,13 @@ export class SchmancyNavigationRail extends $LitElement(css`
 		`
 	}
 
-
 	private setupNavigateListener() {
 		// Listen for navigate events from child items
 		this.addEventListener('navigate', (e: Event) => {
 			if (e instanceof CustomEvent) {
 				const value = e.detail
 				// Find the item that dispatched the event and update active state
-				const itemIndex = this.navigationItems.findIndex(
-					item => item.value === value || item.label === value
-				)
+				const itemIndex = this.navigationItems.findIndex(item => item.value === value || item.label === value)
 				if (itemIndex >= 0) {
 					this.activeIndex = itemIndex
 					this._activeValue = value

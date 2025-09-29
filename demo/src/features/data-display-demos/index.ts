@@ -6,9 +6,9 @@ import '@schmancy/nav-drawer'
 
 // Import all individual data display demo components and their classes
 import { DataDisplayOverview } from './overview'
-import { DataDisplayTables } from './tables'
-import { DataDisplayLists } from './lists'
-import { DataDisplayTrees } from './trees'
+import DataDisplayTables from './tables'
+import DataDisplayLists from './lists'
+import DataDisplayTrees from './trees'
 import { DataDisplayIndicators } from './indicators'
 import { DataDisplayCards } from './cards'
 import { DataDisplayExamples } from './examples'

@@ -76,13 +76,14 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		justify-content: center;
 		min-height: var(--rail-item-height);
 		width: 100%;
-		border-radius: 16px;
+		/* M3 shape: large for navigation rail items */
+		border-radius: var(--schmancy-sys-shape-corner-large);
 		cursor: pointer;
 		position: relative;
 		box-sizing: border-box;
 		color: var(--schmancy-sys-color-surface-onVariant);
 		user-select: none;
-		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		transition: all var(--schmancy-sys-motion-duration-short3) var(--schmancy-sys-motion-easing-emphasized);
 		padding: 12px 0;
 		gap: 4px;
 	}
@@ -110,9 +111,10 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		transform: translate(-50%, -50%) scale(0);
 		width: 56px;
 		height: 32px;
-		border-radius: 16px;
+		/* M3 shape: large for active indicators */
+		border-radius: var(--schmancy-sys-shape-corner-large);
 		background-color: var(--schmancy-sys-color-secondary-container);
-		transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		transition: transform var(--schmancy-sys-motion-duration-short3) var(--schmancy-sys-motion-easing-emphasized);
 		z-index: 0;
 	}
 
@@ -185,7 +187,8 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		right: 12px;
 		min-width: 16px;
 		height: 16px;
-		border-radius: 8px;
+		/* M3 shape: small for badges */
+		border-radius: var(--schmancy-sys-shape-corner-small);
 		background-color: var(--schmancy-sys-color-error-default);
 		color: var(--schmancy-sys-color-error-on);
 		font-size: 11px;
@@ -220,7 +223,7 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		opacity: 0.38;
 	}
 
-	/* Ripple effect */
+	/* Ripple effect with M3 motion */
 	.ripple {
 		position: absolute;
 		top: 0;
@@ -243,13 +246,15 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		background: currentColor;
 		opacity: 0;
 		transform: translate(-50%, -50%);
-		transition: width 0.6s, height 0.6s, opacity 0.6s;
+		/* M3 motion: medium duration for ripple effect */
+		transition: width var(--schmancy-sys-motion-duration-medium2), height var(--schmancy-sys-motion-duration-medium2), opacity var(--schmancy-sys-motion-duration-medium2);
 	}
 
 	:host(:active) .ripple::before {
 		width: 200%;
 		height: 200%;
-		opacity: 0.12;
+		/* M3 pressed state opacity */
+		opacity: var(--schmancy-sys-state-pressed-opacity);
 	}
 
 	/* Tooltip styles (shown via title attribute) */
@@ -262,12 +267,13 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		background: var(--schmancy-sys-color-inverseSurface);
 		color: var(--schmancy-sys-color-inverseOnSurface);
 		padding: 4px 8px;
-		border-radius: 4px;
+		/* M3 shape: extra small for tooltips */
+		border-radius: var(--schmancy-sys-shape-corner-extraSmall);
 		font-size: 12px;
 		white-space: nowrap;
 		z-index: 1000;
 		pointer-events: none;
-		animation: tooltip-fade-in 0.2s ease;
+		animation: tooltip-fade-in var(--schmancy-sys-motion-duration-short3) var(--schmancy-sys-motion-easing-standard);
 	}
 
 	@keyframes tooltip-fade-in {
@@ -401,13 +407,14 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		).pipe(takeUntil(this.disconnecting)).subscribe()
 
 
-		// Ripple effect
+		// Ripple effect with M3 timing
 		this.pressing$.pipe(
 			tap(pressing => {
 				if (pressing && !this.disabled) {
 					this.showRipple = true
 				}
 			}),
+			// M3 standard ripple duration
 			delay(600),
 			tap(() => this.showRipple = false),
 			takeUntil(this.disconnecting)

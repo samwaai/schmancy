@@ -3,7 +3,7 @@ import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 @customElement('demo-forms-text-inputs')
-export class DemoFormsTextInputs extends $LitElement() {
+export default class DemoFormsTextInputs extends $LitElement() {
   @state() private basicValue = '';
   @state() private filledValue = 'Pre-filled text';
   @state() private outlinedValue = '';

@@ -8,7 +8,7 @@ import '@schmancy/button'
 import { animate, fadeIn, fadeOut } from '@lit-labs/motion'
 
 @customElement('demo-navigation-tabs')
-export class NavigationTabs extends $LitElement() {
+export default class NavigationTabs extends $LitElement() {
   @state() private basicTab = 'tab1'
   @state() private iconTab = 'overview'
   @state() private scrollableTab = 'item1'

@@ -42,44 +42,68 @@ export class SchmancySurface extends TailwindElement(css`
 		height: 100%;
 	}
 	
-	/* Rounded corner styles */
+	/* Rounded corner styles using M3 shape tokens */
 	:host([rounded='none']) {
 		border-radius: 0;
 	}
 	:host([rounded='top']) {
-		border-radius: 8px 8px 0 0;
+		border-radius: var(--schmancy-sys-shape-corner-small) var(--schmancy-sys-shape-corner-small) 0 0;
 	}
 	:host([rounded='left']) {
-		border-radius: 8px 0 0 8px;
+		border-radius: var(--schmancy-sys-shape-corner-small) 0 0 var(--schmancy-sys-shape-corner-small);
 	}
 	:host([rounded='right']) {
-		border-radius: 0 8px 8px 0;
+		border-radius: 0 var(--schmancy-sys-shape-corner-small) var(--schmancy-sys-shape-corner-small) 0;
 	}
 	:host([rounded='bottom']) {
-		border-radius: 0 0 8px 8px;
+		border-radius: 0 0 var(--schmancy-sys-shape-corner-small) var(--schmancy-sys-shape-corner-small);
 	}
 	:host([rounded='all']) {
-		border-radius: 8px;
+		border-radius: var(--schmancy-sys-shape-corner-small);
 	}
 	
-	/* Elevation styles */
+	/* Elevation styles with M3 surface tint support */
 	:host([elevation='1']) {
 		box-shadow: var(--schmancy-sys-elevation-1);
+		/* Apply surface tint for elevated surfaces */
+		position: relative;
 	}
 	:host([elevation='2']) {
 		box-shadow: var(--schmancy-sys-elevation-2);
+		position: relative;
 	}
 	:host([elevation='3']) {
 		box-shadow: var(--schmancy-sys-elevation-3);
+		position: relative;
 	}
 	:host([elevation='4']) {
 		box-shadow: var(--schmancy-sys-elevation-4);
+		position: relative;
 	}
 	:host([elevation='5']) {
 		box-shadow: var(--schmancy-sys-elevation-5);
+		position: relative;
 	}
+
+	/* M3 Surface tint overlay for elevated surfaces */
+	:host([elevation]:not([elevation='0']))::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		pointer-events: none;
+		background: var(--schmancy-sys-color-surface-tint);
+		/* Tint opacity increases with elevation */
+		opacity: calc(var(--elevation, 0) * 0.02);
+	}
+	:host([elevation='1'])::after { --elevation: 1; }
+	:host([elevation='2'])::after { --elevation: 2; }
+	:host([elevation='3'])::after { --elevation: 3; }
+	:host([elevation='4'])::after { --elevation: 4; }
+	:host([elevation='5'])::after { --elevation: 5; }
 	
 	/* Surface type styles - background and text colors */
+	/* Note: surface-low/high/lowest/highest map to M3 containerLow/High/Lowest/Highest */
 	:host([type='surface']) {
 		background-color: var(--schmancy-sys-color-surface-default);
 		color: var(--schmancy-sys-color-surface-on);
@@ -93,22 +117,27 @@ export class SchmancySurface extends TailwindElement(css`
 		color: var(--schmancy-sys-color-surface-on);
 	}
 	:host([type='containerLowest']) {
+		/* M3 containerLowest */
 		background-color: var(--schmancy-sys-color-surface-lowest);
 		color: var(--schmancy-sys-color-surface-on);
 	}
 	:host([type='containerLow']) {
+		/* M3 containerLow */
 		background-color: var(--schmancy-sys-color-surface-low);
 		color: var(--schmancy-sys-color-surface-on);
 	}
 	:host([type='container']) {
+		/* M3 container */
 		background-color: var(--schmancy-sys-color-surface-container);
 		color: var(--schmancy-sys-color-surface-on);
 	}
 	:host([type='containerHigh']) {
+		/* M3 containerHigh */
 		background-color: var(--schmancy-sys-color-surface-high);
 		color: var(--schmancy-sys-color-surface-on);
 	}
 	:host([type='containerHighest']) {
+		/* M3 containerHighest */
 		background-color: var(--schmancy-sys-color-surface-highest);
 		color: var(--schmancy-sys-color-surface-on);
 	}

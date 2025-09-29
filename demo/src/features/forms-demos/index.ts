@@ -6,10 +6,10 @@ import '@schmancy/nav-drawer';
 
 // Import all individual form demo components and their classes
 import { DemoFormsOverview } from './overview';
-import { DemoFormsTextInputs } from './text-inputs';
-import { DemoFormsAutocomplete } from './autocomplete';
-import { DemoFormsSelection } from './selection';
-import { DemoFormsValidation } from './validation';
+import DemoFormsTextInputs from './text-inputs';
+import DemoFormsAutocomplete from './autocomplete';
+import DemoFormsSelection from './selection';
+import DemoFormsValidation from './validation';
 import { DemoFormsExamples } from './examples';
 
 // Main Demo Forms Component

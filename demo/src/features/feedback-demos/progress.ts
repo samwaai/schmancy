@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js'
 import { TailwindElement } from '@mixins/tailwind.mixin'
 
 @customElement('demo-feedback-progress')
-export class DemoFeedbackProgress extends TailwindElement() {
+export default class DemoFeedbackProgress extends TailwindElement() {
   @state() private dynamicProgress = 0
   @state() private isRunning = false
 

@@ -1,7 +1,6 @@
 import { TailwindElement } from '@mixins/index'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 
 @customElement('schmancy-card')
@@ -9,74 +8,54 @@ export default class SchmancyCard extends TailwindElement(css`
 	:host {
 		display: block;
 		position: relative;
-		border-radius: 12px; /* M3 spec: 12px for cards */
-		transition: box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
+		border-radius: var(--schmancy-sys-shape-corner-medium);
+		transition: box-shadow var(--schmancy-sys-motion-duration-short4) var(--schmancy-sys-motion-easing-standard);
 		outline: none;
 	}
 
-	/* Type-specific base styles */
+	/* Type variants */
 	:host([type='elevated']) {
 		background-color: var(--schmancy-sys-color-surface-low);
-		box-shadow: var(--shadow-1);
+		box-shadow: var(--schmancy-sys-elevation-1);
 	}
-
 	:host([type='filled']) {
 		background-color: var(--schmancy-sys-color-surface-highest);
-		box-shadow: var(--shadow-0);
+		box-shadow: var(--schmancy-sys-elevation-0);
 	}
-
 	:host([type='outlined']) {
 		background-color: var(--schmancy-sys-color-surface-default);
 		border: 1px solid var(--schmancy-sys-color-outlineVariant);
-		box-shadow: var(--shadow-0);
+		box-shadow: var(--schmancy-sys-elevation-0);
 	}
 
-	/* Interactive state */
+	/* Interactive states */
 	:host([interactive]) {
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
-
-	/* Elevated interactive states */
-	:host([type='elevated'][interactive]:hover:not([disabled])) {
-		box-shadow: var(--shadow-2);
-	}
-
-	:host([type='elevated'][dragged]) {
-		box-shadow: var(--shadow-3);
-	}
-
-	/* Filled interactive states */
-	:host([type='filled'][interactive]:hover:not([disabled])) {
-		box-shadow: var(--shadow-1);
-	}
-
-	:host([type='filled'][dragged]) {
-		box-shadow: var(--shadow-3);
-	}
-
-	/* Outlined interactive states */
-	:host([type='outlined'][interactive]:hover:not([disabled])) {
-		box-shadow: var(--shadow-1);
-	}
-
-	:host([type='outlined'][dragged]) {
-		box-shadow: var(--shadow-3);
-	}
-
-	/* Disabled state */
-	:host([disabled]) {
-		pointer-events: none;
-		opacity: 0.38;
-	}
-
-	/* Focus ring */
 	:host([interactive]:focus-visible:not([disabled])) {
 		outline: 2px solid var(--schmancy-sys-color-primary-default);
 		outline-offset: 2px;
 	}
+	:host([disabled]) {
+		pointer-events: none;
+		opacity: var(--schmancy-sys-state-disabled-opacity);
+	}
 
-	/* Ripple effect animation */
+	/* Hover elevations */
+	:host([type='elevated'][interactive]:hover:not([disabled])) {
+		box-shadow: var(--schmancy-sys-elevation-2);
+	}
+	:host([type='filled'][interactive]:hover:not([disabled])),
+	:host([type='outlined'][interactive]:hover:not([disabled])) {
+		box-shadow: var(--schmancy-sys-elevation-1);
+	}
+
+	/* Dragged state */
+	:host([dragged]) {
+		box-shadow: var(--schmancy-sys-elevation-3);
+	}
+
 	@keyframes ripple {
 		to {
 			transform: scale(4);
@@ -150,61 +129,60 @@ export default class SchmancyCard extends TailwindElement(css`
 
 	connectedCallback() {
 		super.connectedCallback()
-
-		// Set appropriate ARIA attributes for interactive cards
-		if (this.interactive && !this.disabled) {
-			this.setAttribute('tabindex', '0')
-			if (!this.role || this.role === 'article') {
-				this.role = this.href ? 'link' : 'button'
-			}
-		}
+		this._updateAriaAttributes()
 	}
 
 	updated(changedProperties: Map<string, any>) {
 		super.updated(changedProperties)
-
-		// Update ARIA attributes when interactive or disabled state changes
 		if (changedProperties.has('interactive') || changedProperties.has('disabled')) {
-			if (this.interactive && !this.disabled) {
-				this.setAttribute('tabindex', '0')
-				if (!this.role || this.role === 'article') {
-					this.role = this.href ? 'link' : 'button'
-				}
-			} else {
-				this.removeAttribute('tabindex')
-				if (this.role === 'button' || this.role === 'link') {
-					this.role = 'article'
-				}
+			this._updateAriaAttributes()
+		}
+	}
+
+	// Consolidate ARIA attribute updates
+	private _updateAriaAttributes() {
+		const isInteractive = this.interactive && !this.disabled
+
+		if (isInteractive) {
+			this.setAttribute('tabindex', '0')
+			if (!this.role || this.role === 'article') {
+				this.role = this.href ? 'link' : 'button'
+			}
+		} else {
+			this.removeAttribute('tabindex')
+			if (this.role === 'button' || this.role === 'link') {
+				this.role = 'article'
 			}
 		}
 	}
 
-	private handleClick = (e: MouseEvent) => {
-		if (this.disabled || !this.interactive) return
-
-		// Add ripple effect at click position
-		const rect = this.getBoundingClientRect()
-		const x = e.clientX - rect.left
-		const y = e.clientY - rect.top
+	// Shared ripple creation logic
+	private _addRipple(x: number, y: number) {
 		const id = this.nextRippleId++
-
 		this.ripples = [...this.ripples, { x, y, id }]
 
 		// Remove ripple after animation completes
 		setTimeout(() => {
 			this.ripples = this.ripples.filter(r => r.id !== id)
-		}, 600)
+		}, 600) // M3 medium duration
+	}
 
-		// Navigate if href is provided
-		if (this.href) {
-			if (this.target === '_blank') {
-				window.open(this.href, '_blank')
-			} else {
-				window.location.href = this.href
-			}
+	// Shared navigation logic
+	private _navigate() {
+		if (!this.href) return
+
+		if (this.target === '_blank') {
+			window.open(this.href, '_blank')
+		} else {
+			window.location.href = this.href
 		}
+	}
 
-		// Dispatch click event for parent components to handle
+	// Combined action trigger (ripple + navigate + event)
+	private _triggerAction(x: number, y: number) {
+		this._addRipple(x, y)
+		this._navigate()
+
 		this.dispatchEvent(
 			new CustomEvent('schmancy-click', {
 				detail: { value: this.type },
@@ -214,89 +192,56 @@ export default class SchmancyCard extends TailwindElement(css`
 		)
 	}
 
+	private handleClick = (e: MouseEvent) => {
+		if (this.disabled || !this.interactive) return
+
+		const rect = this.getBoundingClientRect()
+		this._triggerAction(e.clientX - rect.left, e.clientY - rect.top)
+	}
+
 	private handleKeyDown = (e: KeyboardEvent) => {
 		if (this.disabled || !this.interactive) return
 
-		// Activate on Enter or Space for keyboard navigation
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault()
-			this.pressed = true
-			this.setAttribute('pressed', '')
+			this._setPressed(true)
 
-			// Simulate click
+			// Simulate click at center
 			const rect = this.getBoundingClientRect()
-			const x = rect.width / 2
-			const y = rect.height / 2
-			const id = this.nextRippleId++
-
-			this.ripples = [...this.ripples, { x, y, id }]
-
-			setTimeout(() => {
-				this.ripples = this.ripples.filter(r => r.id !== id)
-			}, 600)
-
-			if (this.href) {
-				if (this.target === '_blank') {
-					window.open(this.href, '_blank')
-				} else {
-					window.location.href = this.href
-				}
-			}
-
-			this.dispatchEvent(
-				new CustomEvent('schmancy-click', {
-					detail: { value: this.type },
-					bubbles: true,
-					composed: true,
-				}),
-			)
+			this._triggerAction(rect.width / 2, rect.height / 2)
 		}
 	}
 
 	private handleKeyUp = (e: KeyboardEvent) => {
 		if (e.key === 'Enter' || e.key === ' ') {
-			this.pressed = false
+			this._setPressed(false)
+		}
+	}
+
+	// Consolidate pressed state management
+	private _setPressed(pressed: boolean) {
+		this.pressed = pressed
+		if (pressed) {
+			this.setAttribute('pressed', '')
+		} else {
 			this.removeAttribute('pressed')
 		}
 	}
 
 	private handleMouseDown = () => {
 		if (this.disabled || !this.interactive) return
-		this.pressed = true
-		this.setAttribute('pressed', '')
+		this._setPressed(true)
 	}
 
-	private handleMouseUp = () => {
-		this.pressed = false
-		this.removeAttribute('pressed')
-	}
-
-	private handleMouseLeave = () => {
-		this.pressed = false
-		this.removeAttribute('pressed')
-	}
-
-	// Get the classes for state layer based on current state
-	private getStateLayerOpacity(): string {
-		if (!this.interactive || this.disabled) return 'opacity-0'
-		if (this.pressed) return 'opacity-[0.1]' // M3 pressed: 0.1
-		return 'opacity-0 hover:opacity-[0.08] focus-visible:opacity-[0.1]' // M3 hover: 0.08, focus: 0.1
-	}
+	private handleMouseUp = () => this._setPressed(false)
+	private handleMouseLeave = () => this._setPressed(false)
 
 	protected render() {
-		const containerClasses = classMap({
-			'relative w-full h-full rounded-xl': true,
-			'cursor-pointer': this.interactive && !this.disabled,
-		})
-
-		const stateLayerClasses = classMap({
-			'absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-200 bg-surface-on': true,
-			[this.getStateLayerOpacity()]: true,
-		})
+		const isInteractive = this.interactive && !this.disabled
 
 		return html`
 			<div
-				class=${containerClasses}
+				class="relative w-full h-full rounded-xl ${isInteractive ? 'cursor-pointer' : ''}"
 				@click=${this.handleClick}
 				@keydown=${this.handleKeyDown}
 				@keyup=${this.handleKeyUp}
@@ -306,25 +251,24 @@ export default class SchmancyCard extends TailwindElement(css`
 				aria-label=${ifDefined(this.ariaLabel)}
 				aria-disabled=${this.disabled ? 'true' : 'false'}
 			>
-				<!-- State layer for hover/focus/pressed states -->
-				<div class=${stateLayerClasses}></div>
+				<!-- State layer -->
+				<div
+					class="absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-200 bg-surface-on ${!isInteractive
+						? 'opacity-0'
+						: this.pressed
+							? 'opacity-[var(--schmancy-sys-state-pressed-opacity)]'
+							: 'opacity-0 hover:opacity-[var(--schmancy-sys-state-hover-opacity)] focus-visible:opacity-[var(--schmancy-sys-state-focus-opacity)]'}"
+				></div>
 
-				<!-- Ripple container for click effects -->
-				${this.interactive
+				<!-- Ripples -->
+				${this.interactive && this.ripples.length
 					? html`
 							<div class="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
 								${this.ripples.map(
-									ripple => html`
+									r => html`
 										<span
-											class="absolute rounded-full scale-0 animate-[ripple_600ms_linear] bg-surface-on opacity-[0.12] pointer-events-none"
-											style="
-												left: ${ripple.x}px;
-												top: ${ripple.y}px;
-												width: 20px;
-												height: 20px;
-												margin-left: -10px;
-												margin-top: -10px;
-											"
+											class="absolute rounded-full scale-0 animate-[ripple_600ms_linear] bg-surface-on opacity-[0.12] w-5 h-5 -ml-2.5 -mt-2.5"
+											style="left: ${r.x}px; top: ${r.y}px"
 										></span>
 									`,
 								)}
@@ -332,7 +276,7 @@ export default class SchmancyCard extends TailwindElement(css`
 						`
 					: ''}
 
-				<!-- Card content -->
+				<!-- Content -->
 				<div class="relative h-full w-full rounded-xl">
 					<slot></slot>
 				</div>
