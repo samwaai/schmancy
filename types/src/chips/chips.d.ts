@@ -8,12 +8,17 @@ export default class SchmancyChips extends SchmancyChips_base {
     private _value;
     private _values;
     private _multi;
+    private _valueSet;
+    private _valuesSet;
     /**
      * @deprecated Use .values for multi-selection or .value for single-selection instead.
      * The mode is now automatically determined based on which property is used.
      */
     get multi(): boolean;
     set multi(value: boolean);
+    /**
+     * Automatically determines the selection mode based on which properties are in use
+     */
     private get mode();
     get values(): string[];
     set values(value: string[]);
@@ -23,7 +28,7 @@ export default class SchmancyChips extends SchmancyChips_base {
     wrap: boolean;
     connectedCallback(): void;
     private updateChipStates;
-    change(e: CustomEvent<SchmancyChipChangeEvent>): void;
+    change(e: CustomEvent<SchmancyChipChangeEvent>): Promise<void>;
     protected firstUpdated(_changedProperties: PropertyValues): void;
     protected render(): unknown;
 }
