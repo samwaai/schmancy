@@ -6,6 +6,8 @@ export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 }>;
 declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
+    _valueSet: boolean;
+    _valuesSet: boolean;
     required: boolean;
     placeholder: string;
     label: string;
