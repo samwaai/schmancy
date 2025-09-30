@@ -1,9 +1,9 @@
 import { $LitElement } from '@mixins/index'
-import { css, html, PropertyValues } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { BehaviorSubject, fromEvent, merge, takeUntil } from 'rxjs'
-import { tap, delay, distinctUntilChanged } from 'rxjs/operators'
+import { delay, distinctUntilChanged, tap } from 'rxjs/operators'
 
 export type NavigationRailItemClickEvent = CustomEvent<{
 	icon: string
@@ -59,250 +59,7 @@ export type NavigationRailItemClickEvent = CustomEvent<{
  * </schmancy-navigation-rail-item>
  */
 @customElement('schmancy-navigation-rail-item')
-export class SchmancyNavigationRailItem extends $LitElement(css`
-	:host {
-		display: block;
-		position: relative;
-		outline: none;
-		--rail-item-height: 56px;
-		--rail-item-icon-size: 24px;
-		--rail-item-show-label: block;
-	}
-
-	.container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		min-height: var(--rail-item-height);
-		width: 100%;
-		/* M3 shape: large for navigation rail items */
-		border-radius: var(--schmancy-sys-shape-corner-large);
-		cursor: pointer;
-		position: relative;
-		box-sizing: border-box;
-		color: var(--schmancy-sys-color-surface-onVariant);
-		user-select: none;
-		transition: all var(--schmancy-sys-motion-duration-short3) var(--schmancy-sys-motion-easing-emphasized);
-		padding: 12px 0;
-		gap: 4px;
-	}
-
-	/* Hover state */
-	.container:hover {
-		background-color: var(--schmancy-sys-color-surface-highest);
-	}
-
-	/* Focus state */
-	:host(:focus-visible) .container {
-		outline: 2px solid var(--schmancy-sys-color-primary-default);
-		outline-offset: 2px;
-	}
-
-	/* Active indicator - positioned behind icon only */
-	.icon-container {
-		position: relative;
-	}
-
-	.indicator {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%) scale(0);
-		width: 56px;
-		height: 32px;
-		/* M3 shape: large for active indicators */
-		border-radius: var(--schmancy-sys-shape-corner-large);
-		background-color: var(--schmancy-sys-color-secondary-container);
-		transition: transform var(--schmancy-sys-motion-duration-short3) var(--schmancy-sys-motion-easing-emphasized);
-		z-index: 0;
-	}
-
-	:host([active]) .indicator,
-	:host([selected]) .indicator {
-		transform: translate(-50%, -50%) scale(1);
-	}
-
-	:host([active]) .container,
-	:host([selected]) .container {
-		color: var(--schmancy-sys-color-secondary-onContainer);
-	}
-
-
-	/* Icon styles */
-	.icon-container {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: auto;
-		min-width: 56px;
-		height: 32px;
-		flex-shrink: 0;
-		position: relative;
-		z-index: 1;
-	}
-
-	.icon {
-		font-family: 'Material Symbols Outlined';
-		font-size: var(--rail-item-icon-size);
-		line-height: 1;
-		position: relative;
-		z-index: 1;
-		font-variation-settings:
-			'FILL' 0,
-			'wght' 400,
-			'GRAD' 0,
-			'opsz' 24;
-	}
-
-	:host([active]) .icon,
-	:host([selected]) .icon {
-		font-variation-settings:
-			'FILL' 1,
-			'wght' 400,
-			'GRAD' 0,
-			'opsz' 24;
-	}
-
-	/* Label styles */
-	.label {
-		font-size: 12px;
-		font-weight: 500;
-		line-height: 16px;
-		text-align: center;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		z-index: 1;
-		display: var(--rail-item-show-label, block);
-		max-width: 56px;
-		padding: 0 4px;
-	}
-
-
-	/* Badge styles */
-	.badge {
-		position: absolute;
-		top: 8px;
-		right: 12px;
-		min-width: 16px;
-		height: 16px;
-		/* M3 shape: small for badges */
-		border-radius: var(--schmancy-sys-shape-corner-small);
-		background-color: var(--schmancy-sys-color-error-default);
-		color: var(--schmancy-sys-color-error-on);
-		font-size: 11px;
-		font-weight: 600;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 0 4px;
-		box-sizing: border-box;
-		z-index: 2;
-		animation: badge-pulse 2s infinite;
-	}
-
-	@keyframes badge-pulse {
-		0%, 100% { transform: scale(1); }
-		50% { transform: scale(1.1); }
-	}
-
-	/* Nested items (for sub-navigation) */
-	:host([nested]) {
-		--rail-item-height: 48px;
-		--rail-item-icon-size: 20px;
-	}
-
-	:host([nested]) .container {
-		padding-left: 32px;
-	}
-
-	/* Disabled state */
-	:host([disabled]) {
-		pointer-events: none;
-		opacity: 0.38;
-	}
-
-	/* Ripple effect with M3 motion */
-	.ripple {
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		border-radius: inherit;
-		overflow: hidden;
-		z-index: 0;
-	}
-
-	.ripple::before {
-		content: '';
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		width: 0;
-		height: 0;
-		border-radius: 50%;
-		background: currentColor;
-		opacity: 0;
-		transform: translate(-50%, -50%);
-		/* M3 motion: medium duration for ripple effect */
-		transition: width var(--schmancy-sys-motion-duration-medium2), height var(--schmancy-sys-motion-duration-medium2), opacity var(--schmancy-sys-motion-duration-medium2);
-	}
-
-	:host(:active) .ripple::before {
-		width: 200%;
-		height: 200%;
-		/* M3 pressed state opacity */
-		opacity: var(--schmancy-sys-state-pressed-opacity);
-	}
-
-	/* Tooltip styles (shown via title attribute) */
-	:host([title]:hover)::after {
-		content: attr(title);
-		position: absolute;
-		left: calc(100% + 8px);
-		top: 50%;
-		transform: translateY(-50%);
-		background: var(--schmancy-sys-color-inverseSurface);
-		color: var(--schmancy-sys-color-inverseOnSurface);
-		padding: 4px 8px;
-		/* M3 shape: extra small for tooltips */
-		border-radius: var(--schmancy-sys-shape-corner-extraSmall);
-		font-size: 12px;
-		white-space: nowrap;
-		z-index: 1000;
-		pointer-events: none;
-		animation: tooltip-fade-in var(--schmancy-sys-motion-duration-short3) var(--schmancy-sys-motion-easing-standard);
-	}
-
-	@keyframes tooltip-fade-in {
-		from {
-			opacity: 0;
-			transform: translateY(-50%) translateX(-4px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(-50%) translateX(0);
-		}
-	}
-
-	/* Group item styles */
-	:host([group]) {
-		margin-bottom: 8px;
-	}
-
-	:host([group])::after {
-		content: '';
-		position: absolute;
-		bottom: -4px;
-		left: 12px;
-		right: 12px;
-		height: 1px;
-		background: var(--schmancy-sys-color-outlineVariant);
-		opacity: 0.12;
-	}
-`) {
+export class SchmancyNavigationRailItem extends $LitElement() {
 	// Observable state
 	private hovering$ = new BehaviorSubject<boolean>(false)
 	private pressing$ = new BehaviorSubject<boolean>(false)
@@ -492,40 +249,139 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 		const hasCustomContent = this.querySelector(':not([slot])')
 		const hasCustomBadge = this.querySelector('[slot="badge"]')
 
-		const containerClasses = {
-			container: true,
-			rippling: this.showRipple
-		}
+		// M3 Navigation Rail Item classes with theme integration
+		const containerClasses = this.classMap({
+			// Layout & Spacing (M3 56px height, 12px vertical padding)
+			'flex flex-col items-center justify-center': true,
+			'min-h-14 w-full': true, // min-h-14 = 56px
+			'py-3': true, // py-3 = 12px top/bottom
+			'gap-1': true, // gap-1 = 4px
 
-		const badgeStyles = {
-			'background-color': `var(--schmancy-sys-color-${this.badgeVariant}-default)`,
-			'color': `var(--schmancy-sys-color-${this.badgeVariant}-on)`
-		}
+			// M3 Shape & Interaction
+			'rounded-lg': true, // M3 large corner radius
+			'cursor-pointer': true,
+			'relative': true,
+			'select-none': true,
+			'box-border': true,
+
+			// Colors & States
+			'text-surface-onVariant': !this.active,
+			'text-secondary-onContainer': this.active,
+			'hover:bg-surface-containerHighest': true,
+
+			// Transitions (M3 emphasized motion)
+			'transition-all duration-150 ease-out': true,
+
+			// Disabled state
+			'pointer-events-none opacity-38': this.disabled,
+
+			// Active ripple effect
+			'[&>.ripple]:scale-100': this.showRipple,
+
+			// Nested item adjustments
+			'min-h-12 pl-8': this.nested, // 48px height, 32px left padding for nested
+
+			// Group separator
+			'mb-2 after:absolute after:bottom-[-4px] after:left-3 after:right-3 after:h-px after:bg-outline-variant after:opacity-12': this.group,
+		})
+
+		// Icon container with active indicator
+		const iconContainerClasses = this.classMap({
+			'flex items-center justify-center': true,
+			'w-auto min-w-14 h-8': true, // 56px min-width, 32px height
+			'flex-shrink-0 relative z-10': true,
+		})
+
+		// Active indicator behind icon
+		const indicatorClasses = this.classMap({
+			'absolute top-1/2 left-1/2': true,
+			'w-14 h-8': true, // 56px x 32px
+			'rounded-lg': true, // M3 large corner radius
+			'bg-secondary-container': true,
+			'transition-transform duration-150 ease-out': true,
+			'z-0': true,
+			// Transform based on active state
+			'scale-0 -translate-x-1/2 -translate-y-1/2': !this.active,
+			'scale-100 -translate-x-1/2 -translate-y-1/2': this.active,
+		})
+
+		// Icon styling
+		const iconClasses = this.classMap({
+			'text-2xl leading-none': !this.nested, // 24px icon for normal
+			'text-xl leading-none': this.nested, // 20px icon for nested
+			'relative z-10': true,
+			// Material Symbols font variations handled via CSS custom properties
+		})
+
+		// Label styling
+		const labelClasses = this.classMap({
+			'text-xs font-medium leading-4': true, // 12px, medium weight, 16px line height
+			'text-center': true,
+			'overflow-hidden text-ellipsis whitespace-nowrap': true,
+			'z-10 max-w-14 px-1': true, // max 56px width, 4px horizontal padding
+			'hidden': !this.showLabel && !this.label, // Hide if not shown or no label
+		})
+
+		// Badge styling with dynamic colors
+		const badgeClasses = this.classMap({
+			'absolute top-2 right-3': true, // 8px from top, 12px from right
+			'min-w-4 h-4': true, // 16px min-width and height
+			'rounded-sm': true, // M3 small corner radius
+			'text-xs font-semibold': true, // 11px, 600 weight
+			'flex items-center justify-center': true,
+			'px-1 box-border z-20': true, // 4px padding
+			'animate-pulse': true, // Pulse animation
+			// Dynamic background based on variant
+			'bg-error-default text-error-on': this.badgeVariant === 'error',
+			'bg-primary-default text-primary-on': this.badgeVariant === 'primary',
+			'bg-secondary-default text-secondary-on': this.badgeVariant === 'secondary',
+		})
+
+		// Ripple effect classes
+		const rippleClasses = this.classMap({
+			'absolute inset-0 rounded-lg overflow-hidden z-0': true,
+			'before:content-[""] before:absolute before:top-1/2 before:left-1/2': true,
+			'before:w-0 before:h-0 before:rounded-full': true,
+			'before:bg-current before:opacity-0': true,
+			'before:-translate-x-1/2 before:-translate-y-1/2': true,
+			'before:transition-all before:duration-300': true,
+			// Active state
+			'before:w-[200%] before:h-[200%] before:opacity-12': this.showRipple,
+		})
 
 		return html`
 			<div
-				class=${this.classMap(containerClasses)}
+				class=${containerClasses}
 				part="container"
 				@click=${this.handleClick}
 				@keydown=${this.handleKeyDown}
+				style="outline: ${this.matches(':focus-visible') ? '2px solid var(--schmancy-sys-color-primary-default)' : 'none'}; outline-offset: 2px;"
 			>
-				<span class="ripple" aria-hidden="true"></span>
+				<span class=${rippleClasses} aria-hidden="true"></span>
 
 				${when(hasCustomContent,
 					() => html`<slot></slot>`,
 					() => html`
-						<div class="icon-container" part="icon">
-							<span class="indicator" part="indicator" aria-hidden="true"></span>
+						<div class=${iconContainerClasses} part="icon">
+							<span class=${indicatorClasses} part="indicator" aria-hidden="true"></span>
 							${when(hasCustomIcon,
 								() => html`<slot name="icon"></slot>`,
 								() => when(this.icon,
-									() => html`<span class="icon">${this.icon}</span>`
+									() => html`
+										<span
+											class=${iconClasses}
+											part="icon-text"
+											style="font-family: 'Material Symbols Outlined'; font-variation-settings: 'FILL' ${this.active ? '1' : '0'}, 'wght' 400, 'GRAD' 0, 'opsz' ${this.nested ? '20' : '24'};"
+										>
+											${this.icon}
+										</span>
+									`
 								)
 							)}
 						</div>
 
 						${when(this.label,
-							() => html`<span class="label" part="label">${this.label}</span>`
+							() => html`<span class=${labelClasses} part="label">${this.label}</span>`
 						)}
 					`
 				)}
@@ -536,15 +392,31 @@ export class SchmancyNavigationRailItem extends $LitElement(css`
 							() => html`<slot name="badge"></slot>`,
 							() => html`
 								<span
-									class="badge"
+									class=${badgeClasses}
 									part="badge"
-									style=${this.styleMap(badgeStyles)}
 									aria-label="${this.badge} notifications"
 								>
 									${this.badge}
 								</span>
 							`
 						)}
+					`
+				)}
+
+				<!-- Tooltip shown via title attribute -->
+				${when(this.hasAttribute('title'),
+					() => html`
+						<div class="
+							absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2
+							bg-surface-inverse text-surface-inverseOn
+							px-2 py-1 rounded-sm text-xs whitespace-nowrap
+							z-[1000] pointer-events-none opacity-0
+							hover:opacity-100 hover:translate-x-0
+							transition-all duration-150 ease-out
+							-translate-x-1
+						" aria-hidden="true">
+							${this.getAttribute('title')}
+						</div>
 					`
 				)}
 			</div>

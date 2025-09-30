@@ -14,9 +14,9 @@ A searchable dropdown component with fuzzy search, keyboard navigation, and mult
   maxHeight="300px"
   @change=${handleChange}>
   
-  <schmancy-option value="option1" label="Option 1"></schmancy-option>
-  <schmancy-option value="option2" label="Option 2"></schmancy-option>
-  <schmancy-option value="option3" label="Option 3"></schmancy-option>
+  <schmancy-option value="option1">Option 1</schmancy-option>
+  <schmancy-option value="option2">Option 2</schmancy-option>
+  <schmancy-option value="option3">Option 3</schmancy-option>
 </schmancy-autocomplete>
 
 // Multi-Select Autocomplete
@@ -27,9 +27,9 @@ A searchable dropdown component with fuzzy search, keyboard navigation, and mult
   .values=${['option1', 'option3']} // Array of selected values (preferred for multi-select)
   @change=${handleMultiChange}>
   
-  <schmancy-option value="option1" label="Option 1"></schmancy-option>
-  <schmancy-option value="option2" label="Option 2"></schmancy-option>
-  <schmancy-option value="option3" label="Option 3"></schmancy-option>
+  <schmancy-option value="option1">Option 1</schmancy-option>
+  <schmancy-option value="option2">Option 2</schmancy-option>
+  <schmancy-option value="option3">Option 3</schmancy-option>
 </schmancy-autocomplete>
 
 // Autocomplete with Custom Trigger
@@ -69,11 +69,11 @@ reportValidity() -> boolean   // Show validation state and return validity
   placeholder="Select country"
   @change=${(e) => selectedCountry = e.detail.value}>
   
-  <schmancy-option value="us" label="United States"></schmancy-option>
-  <schmancy-option value="ca" label="Canada"></schmancy-option>
-  <schmancy-option value="mx" label="Mexico"></schmancy-option>
-  <schmancy-option value="fr" label="France"></schmancy-option>
-  <schmancy-option value="de" label="Germany"></schmancy-option>
+  <schmancy-option value="us">United States</schmancy-option>
+  <schmancy-option value="ca">Canada</schmancy-option>
+  <schmancy-option value="mx">Mexico</schmancy-option>
+  <schmancy-option value="fr">France</schmancy-option>
+  <schmancy-option value="de">Germany</schmancy-option>
 </schmancy-autocomplete>
 
 // Multi-select with preferred API
@@ -86,11 +86,11 @@ reportValidity() -> boolean   // Show validation state and return validity
     selectedLanguages = e.detail.values; // Use the new values array property
   }}>
   
-  <schmancy-option value="js" label="JavaScript"></schmancy-option>
-  <schmancy-option value="ts" label="TypeScript"></schmancy-option>
-  <schmancy-option value="py" label="Python"></schmancy-option>
-  <schmancy-option value="java" label="Java"></schmancy-option>
-  <schmancy-option value="go" label="Go"></schmancy-option>
+  <schmancy-option value="js">JavaScript</schmancy-option>
+  <schmancy-option value="ts">TypeScript</schmancy-option>
+  <schmancy-option value="py">Python</schmancy-option>
+  <schmancy-option value="java">Java</schmancy-option>
+  <schmancy-option value="go">Go</schmancy-option>
 </schmancy-autocomplete>
 
 // Handling the change event
@@ -111,9 +111,8 @@ handleChange(e) {
   .value=${selectedItem}>
   
   ${items.map(item => html`
-    <schmancy-option
-      value=${item.id}
-      label=${item.name}>
+    <schmancy-option value=${item.id}>
+      ${item.name}
     </schmancy-option>
   `)}
 </schmancy-autocomplete>
@@ -130,9 +129,9 @@ handleChange(e) {
     name="department"
     label="Department"
     required>
-    <schmancy-option value="hr" label="Human Resources"></schmancy-option>
-    <schmancy-option value="eng" label="Engineering"></schmancy-option>
-    <schmancy-option value="fin" label="Finance"></schmancy-option>
+    <schmancy-option value="hr">Human Resources</schmancy-option>
+    <schmancy-option value="eng">Engineering</schmancy-option>
+    <schmancy-option value="fin">Finance</schmancy-option>
   </schmancy-autocomplete>
   
   <schmancy-button type="submit">Submit</schmancy-button>

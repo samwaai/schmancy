@@ -9,7 +9,7 @@ A versatile option element designed for use with select dropdowns and autocomple
 <schmancy-option value="1">Option One</schmancy-option>
 
 <!-- Option with custom label -->
-<schmancy-option value="us" label="United States"></schmancy-option>
+<schmancy-option value="us">United States</schmancy-option>
 
 <!-- Option with icon -->
 <schmancy-option value="email" icon="✉️">Email Notifications</schmancy-option>

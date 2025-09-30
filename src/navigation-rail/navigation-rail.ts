@@ -1,5 +1,5 @@
 import { $LitElement } from '@mixins/index'
-import { css, html, PropertyValues } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { BehaviorSubject, takeUntil } from 'rxjs'
 import { distinctUntilChanged, tap } from 'rxjs/operators'
@@ -53,168 +53,7 @@ export type LabelVisibility = 'all' | 'selected' | 'none'
  * </schmancy-navigation-rail>
  */
 @customElement('schmancy-navigation-rail')
-export class SchmancyNavigationRail extends $LitElement(css`
-	:host {
-		display: flex;
-		flex-direction: column;
-		width: 80px; /* Fixed width - never changes to prevent layout shift */
-		height: 100%;
-		box-sizing: border-box;
-		position: relative;
-		overflow: visible;
-		z-index: 1; /* Base z-index */
-	}
-
-	/* Hover state: elevate and show expanded content */
-	:host(:hover) {
-		z-index: 100; /* Higher z-index to overlay content */
-	}
-
-	/* Rail container - this is what expands */
-	.rail {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		width: 80px; /* Base width */
-		padding: 8px 12px;
-		gap: 4px;
-		box-sizing: border-box;
-		background-color: var(--schmancy-sys-color-surface-default);
-		color: var(--schmancy-sys-color-surface-on);
-		position: relative;
-		/* M3 motion: smooth transition for width and shadow */
-		transition:
-			width 300ms cubic-bezier(0.2, 0, 0, 1),
-			box-shadow 300ms cubic-bezier(0.2, 0, 0, 1);
-	}
-
-	/* Hover state: expand rail with shadow to show overlay */
-	:host(:hover) .rail {
-		width: 240px;
-		/* M3 elevation 3 shadow for overlay effect */
-		box-shadow:
-			0px 6px 10px 0px rgba(0, 0, 0, 0.14),
-			0px 1px 18px 0px rgba(0, 0, 0, 0.12),
-			0px 3px 5px -1px rgba(0, 0, 0, 0.2);
-	}
-
-	/* Force label visibility when hovered */
-	:host(:hover) ::slotted(schmancy-navigation-rail-item) {
-		--rail-item-show-label: flex !important;
-	}
-
-	/* Header section */
-	.header {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 4px;
-		margin-bottom: 8px;
-	}
-
-	/* Navigation container */
-	.nav {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		overflow-y: auto;
-		overflow-x: hidden;
-		scrollbar-width: thin;
-		scrollbar-color: var(--schmancy-sys-color-outlineVariant) transparent;
-	}
-
-	.nav::-webkit-scrollbar {
-		width: 4px;
-	}
-
-	.nav::-webkit-scrollbar-track {
-		background: transparent;
-	}
-
-	.nav::-webkit-scrollbar-thumb {
-		background-color: var(--schmancy-sys-color-outlineVariant);
-		border-radius: 2px;
-		opacity: 0.5;
-	}
-
-	/* Footer section */
-	.footer {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 4px;
-		margin-top: auto;
-		padding-top: 8px;
-	}
-
-	/* FAB styles */
-	::slotted([slot='fab']) {
-		margin-bottom: 8px;
-	}
-
-	/* Menu button styles */
-	::slotted([slot='menu']) {
-		margin-bottom: 12px;
-	}
-
-	/* Alignment variants */
-	:host([alignment='top']) .nav {
-		justify-content: flex-start;
-	}
-
-	:host([alignment='center']) .nav {
-		justify-content: center;
-	}
-
-	:host([alignment='bottom']) .nav {
-		justify-content: flex-end;
-	}
-
-	/* Label visibility states */
-	:host([label-visibility='none']) ::slotted(schmancy-navigation-rail-item) {
-		--rail-item-show-label: none;
-	}
-
-	:host([label-visibility='selected']) ::slotted(schmancy-navigation-rail-item:not([active])) {
-		--rail-item-show-label: none;
-	}
-
-	/* Group header styles */
-	::slotted(.group-header) {
-		padding: 8px 12px;
-		font-size: 12px;
-		font-weight: 500;
-		color: var(--schmancy-sys-color-outline);
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	/* Divider styles */
-	::slotted(schmancy-divider) {
-		margin: 8px 0;
-	}
-
-	/* Responsive behavior */
-	@media (max-width: 768px) {
-		:host {
-			width: 56px; /* Smaller fixed width on mobile */
-		}
-
-		.rail {
-			width: 56px; /* Match host width */
-			padding: 8px;
-		}
-
-		/* On mobile, expand to a smaller width */
-		:host(:hover) .rail {
-			width: 200px;
-		}
-	}
-`) {
+export class SchmancyNavigationRail extends $LitElement() {
 	// Observable state
 	private activeIndex$ = new BehaviorSubject<number>(-1)
 
@@ -365,6 +204,17 @@ export class SchmancyNavigationRail extends $LitElement(css`
 		})
 	}
 
+	// Handle hover to show all labels
+	private handleMouseEnter = () => {
+		this.navigationItems.forEach(item => {
+			item.showLabel = true
+		})
+	}
+
+	private handleMouseLeave = () => {
+		this.updateLabelVisibility()
+	}
+
 	private handleKeyDown(event: KeyboardEvent) {
 		const items = this.navigationItems
 		if (items.length === 0) return
@@ -424,20 +274,86 @@ export class SchmancyNavigationRail extends $LitElement(css`
 	}
 
 	protected render() {
+		// Host-level classes for the navigation rail
+		const hostClasses = this.classMap({
+			// Layout & Structure - Fixed width to prevent layout shift
+			'flex flex-col': true,
+			'w-20 h-full': true, // w-20 = 80px fixed width
+			'box-border relative overflow-visible': true,
+			'z-10 hover:z-[100]': true, // Base z-index, elevated on hover for overlay
+
+			// Mobile responsive - smaller fixed width
+			'md:w-20 w-14': true, // w-14 = 56px on mobile
+		})
+
+		// Rail container - this expands on hover
+		const railClasses = this.classMap({
+			// Layout & Structure
+			'flex flex-col h-full': true,
+			'w-20 px-3 py-2 gap-1': true, // w-20 = 80px base width, 12px horizontal padding, 8px vertical padding
+			'box-border relative': true,
+
+			// M3 Colors & Theme
+			'bg-surface-default text-surface-on': true,
+
+			// M3 Motion - smooth transitions for width and shadow
+			'transition-all duration-300 ease-emphasized': true,
+
+			// Hover state - expand to 240px with elevation shadow
+			'hover:w-60': true, // w-60 = 240px expanded width
+			'hover:shadow-lg': true, // M3 elevation 3 shadow
+
+			// Mobile responsive - base width and hover expansion
+			'md:w-20 w-14': true, // w-14 = 56px on mobile, w-20 = 80px on desktop
+			'md:px-3 px-2': true, // Smaller padding on mobile
+			'md:hover:w-60 hover:w-50': true, // w-50 = 200px expansion on mobile
+		})
+
+		// Header section classes
+		const headerClasses = this.classMap({
+			'flex flex-col items-center gap-1 mb-2': true,
+			// FAB and menu button spacing
+			'[&_[slot="fab"]]:mb-2': true,
+			'[&_[slot="menu"]]:mb-3': true,
+		})
+
+		// Navigation container classes with alignment and scrolling
+		const navClasses = this.classMap({
+			'flex-1 flex flex-col gap-1': true,
+			'overflow-y-auto overflow-x-hidden': true,
+			// Alignment variants
+			'justify-start': this.alignment === 'top',
+			'justify-center': this.alignment === 'center',
+			'justify-end': this.alignment === 'bottom',
+			// Custom scrollbar styling - thin scrollbars with theme colors
+			'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-outline-variant': true,
+		})
+
+		// Footer section classes
+		const footerClasses = this.classMap({
+			'flex flex-col items-center gap-1 mt-auto pt-2': true,
+		})
+
 		return html`
-			<div class="rail" part="rail">
-				<div class="header" part="header">
-					<slot name="fab" @click=${this.handleFabClick}></slot>
-					<slot name="menu" @click=${this.handleMenuClick}></slot>
-					<slot name="header"></slot>
-				</div>
+			<div
+				class=${hostClasses}
+				@mouseenter=${this.handleMouseEnter}
+				@mouseleave=${this.handleMouseLeave}
+			>
+				<div class=${railClasses} part="rail">
+					<div class=${headerClasses} part="header">
+						<slot name="fab" @click=${this.handleFabClick}></slot>
+						<slot name="menu" @click=${this.handleMenuClick}></slot>
+						<slot name="header"></slot>
+					</div>
 
-				<nav class="nav" part="nav" role="list">
-					<slot @slotchange=${this.handleSlotChange}></slot>
-				</nav>
+					<nav class=${navClasses} part="nav" role="list">
+						<slot @slotchange=${this.handleSlotChange}></slot>
+					</nav>
 
-				<div class="footer" part="footer">
-					<slot name="footer"></slot>
+					<div class=${footerClasses} part="footer">
+						<slot name="footer"></slot>
+					</div>
 				</div>
 			</div>
 		`

@@ -168,12 +168,12 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 										console.log('Selected:', e.detail.value)
 									}}
 								>
-									<schmancy-option value="angular" label="Angular"></schmancy-option>
-									<schmancy-option value="react" label="React"></schmancy-option>
-									<schmancy-option value="vue" label="Vue.js"></schmancy-option>
-									<schmancy-option value="svelte" label="Svelte"></schmancy-option>
-									<schmancy-option value="ember" label="Ember.js"></schmancy-option>
-									<schmancy-option value="backbone" label="Backbone.js"></schmancy-option>
+									<schmancy-option value="angular">Angular</schmancy-option>
+									<schmancy-option value="react">React</schmancy-option>
+									<schmancy-option value="vue">Vue.js</schmancy-option>
+									<schmancy-option value="svelte">Svelte</schmancy-option>
+									<schmancy-option value="ember">Ember.js</schmancy-option>
+									<schmancy-option value="backbone">Backbone.js</schmancy-option>
 								</schmancy-autocomplete>
 
 								<!-- With Initial Value -->
@@ -185,14 +185,14 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 										this.selectedCountry = e.detail.value
 									}}
 								>
-									<schmancy-option value="us" label="United States"></schmancy-option>
-									<schmancy-option value="ca" label="Canada"></schmancy-option>
-									<schmancy-option value="mx" label="Mexico"></schmancy-option>
-									<schmancy-option value="uk" label="United Kingdom"></schmancy-option>
-									<schmancy-option value="fr" label="France"></schmancy-option>
-									<schmancy-option value="de" label="Germany"></schmancy-option>
-									<schmancy-option value="jp" label="Japan"></schmancy-option>
-									<schmancy-option value="au" label="Australia"></schmancy-option>
+									<schmancy-option value="us">United States</schmancy-option>
+									<schmancy-option value="ca">Canada</schmancy-option>
+									<schmancy-option value="mx">Mexico</schmancy-option>
+									<schmancy-option value="uk">United Kingdom</schmancy-option>
+									<schmancy-option value="fr">France</schmancy-option>
+									<schmancy-option value="de">Germany</schmancy-option>
+									<schmancy-option value="jp">Japan</schmancy-option>
+									<schmancy-option value="au">Australia</schmancy-option>
 								</schmancy-autocomplete>
 
 								<!-- Required Field -->
@@ -202,26 +202,26 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 									required
 									description="This field is required"
 								>
-									<schmancy-option value="hr" label="Human Resources"></schmancy-option>
-									<schmancy-option value="eng" label="Engineering"></schmancy-option>
-									<schmancy-option value="fin" label="Finance"></schmancy-option>
-									<schmancy-option value="mkt" label="Marketing"></schmancy-option>
-									<schmancy-option value="ops" label="Operations"></schmancy-option>
-									<schmancy-option value="sales" label="Sales"></schmancy-option>
+									<schmancy-option value="hr">Human Resources</schmancy-option>
+									<schmancy-option value="eng">Engineering</schmancy-option>
+									<schmancy-option value="fin">Finance</schmancy-option>
+									<schmancy-option value="mkt">Marketing</schmancy-option>
+									<schmancy-option value="ops">Operations</schmancy-option>
+									<schmancy-option value="sales">Sales</schmancy-option>
 								</schmancy-autocomplete>
 
 								<!-- Different Sizes -->
 								<div class="flex flex-col gap-4">
 									<schmancy-autocomplete label="Small Size" size="sm" placeholder="Size small...">
-										<schmancy-option value="opt1" label="Option 1"></schmancy-option>
-										<schmancy-option value="opt2" label="Option 2"></schmancy-option>
-										<schmancy-option value="opt3" label="Option 3"></schmancy-option>
+										<schmancy-option value="opt1">Option 1</schmancy-option>
+										<schmancy-option value="opt2">Option 2</schmancy-option>
+										<schmancy-option value="opt3">Option 3</schmancy-option>
 									</schmancy-autocomplete>
 
 									<schmancy-autocomplete label="Large Size" size="lg" placeholder="Size large...">
-										<schmancy-option value="opt1" label="Option 1"></schmancy-option>
-										<schmancy-option value="opt2" label="Option 2"></schmancy-option>
-										<schmancy-option value="opt3" label="Option 3"></schmancy-option>
+										<schmancy-option value="opt1">Option 1</schmancy-option>
+										<schmancy-option value="opt2">Option 2</schmancy-option>
+										<schmancy-option value="opt3">Option 3</schmancy-option>
 									</schmancy-autocomplete>
 								</div>
 							</div>
@@ -247,16 +247,16 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 										console.log('Selected languages:', this.selectedLanguages)
 									}}
 								>
-									<schmancy-option value="javascript" label="JavaScript"></schmancy-option>
-									<schmancy-option value="typescript" label="TypeScript"></schmancy-option>
-									<schmancy-option value="python" label="Python"></schmancy-option>
-									<schmancy-option value="java" label="Java"></schmancy-option>
-									<schmancy-option value="csharp" label="C#"></schmancy-option>
-									<schmancy-option value="go" label="Go"></schmancy-option>
-									<schmancy-option value="rust" label="Rust"></schmancy-option>
-									<schmancy-option value="swift" label="Swift"></schmancy-option>
-									<schmancy-option value="kotlin" label="Kotlin"></schmancy-option>
-									<schmancy-option value="ruby" label="Ruby"></schmancy-option>
+									<schmancy-option value="javascript">JavaScript</schmancy-option>
+									<schmancy-option value="typescript">TypeScript</schmancy-option>
+									<schmancy-option value="python">Python</schmancy-option>
+									<schmancy-option value="java">Java</schmancy-option>
+									<schmancy-option value="csharp">C#</schmancy-option>
+									<schmancy-option value="go">Go</schmancy-option>
+									<schmancy-option value="rust">Rust</schmancy-option>
+									<schmancy-option value="swift">Swift</schmancy-option>
+									<schmancy-option value="kotlin">Kotlin</schmancy-option>
+									<schmancy-option value="ruby">Ruby</schmancy-option>
 								</schmancy-autocomplete>
 
 								<!-- Pre-selected Multi-Select -->
@@ -269,13 +269,13 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 										this.multiValues = e.detail.values || []
 									}}
 								>
-									<schmancy-option value="react" label="React"></schmancy-option>
-									<schmancy-option value="vue" label="Vue.js"></schmancy-option>
-									<schmancy-option value="angular" label="Angular"></schmancy-option>
-									<schmancy-option value="svelte" label="Svelte"></schmancy-option>
-									<schmancy-option value="nextjs" label="Next.js"></schmancy-option>
-									<schmancy-option value="nuxt" label="Nuxt.js"></schmancy-option>
-									<schmancy-option value="gatsby" label="Gatsby"></schmancy-option>
+									<schmancy-option value="react">React</schmancy-option>
+									<schmancy-option value="vue">Vue.js</schmancy-option>
+									<schmancy-option value="angular">Angular</schmancy-option>
+									<schmancy-option value="svelte">Svelte</schmancy-option>
+									<schmancy-option value="nextjs">Next.js</schmancy-option>
+									<schmancy-option value="nuxt">Nuxt.js</schmancy-option>
+									<schmancy-option value="gatsby">Gatsby</schmancy-option>
 								</schmancy-autocomplete>
 
 								<!-- Skills Selection -->
@@ -289,14 +289,14 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 										this.formSkills = e.detail.values || []
 									}}
 								>
-									<schmancy-option value="frontend" label="Frontend Development"></schmancy-option>
-									<schmancy-option value="backend" label="Backend Development"></schmancy-option>
-									<schmancy-option value="mobile" label="Mobile Development"></schmancy-option>
-									<schmancy-option value="devops" label="DevOps"></schmancy-option>
-									<schmancy-option value="testing" label="Testing/QA"></schmancy-option>
-									<schmancy-option value="design" label="UI/UX Design"></schmancy-option>
-									<schmancy-option value="database" label="Database Management"></schmancy-option>
-									<schmancy-option value="security" label="Security"></schmancy-option>
+									<schmancy-option value="frontend">Frontend Development</schmancy-option>
+									<schmancy-option value="backend">Backend Development</schmancy-option>
+									<schmancy-option value="mobile">Mobile Development</schmancy-option>
+									<schmancy-option value="devops">DevOps</schmancy-option>
+									<schmancy-option value="testing">Testing/QA</schmancy-option>
+									<schmancy-option value="design">UI/UX Design</schmancy-option>
+									<schmancy-option value="database">Database Management</schmancy-option>
+									<schmancy-option value="security">Security</schmancy-option>
 								</schmancy-autocomplete>
 
 								<!-- Display Selected Values -->
@@ -341,10 +341,9 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 								>
 									${this.employees.map(
 										employee => html`
-											<schmancy-option
-												value=${employee.id}
-												label="${employee.name} - ${employee.department}"
-											></schmancy-option>
+											<schmancy-option value=${employee.id}>
+												${employee.name} - ${employee.department}
+											</schmancy-option>
 										`,
 									)}
 								</schmancy-autocomplete>
@@ -361,54 +360,42 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 								>
 									${this.cities.map(
 										city => html`
-											<schmancy-option value=${city.toLowerCase().replace(/\s+/g, '-')} label=${city}></schmancy-option>
+											<schmancy-option value=${city.toLowerCase().replace(/\s+/g, '-')}>${city}</schmancy-option>
 										`,
 									)}
 								</schmancy-autocomplete>
 
 								<!-- With Icons -->
 								<schmancy-autocomplete label="File Type" placeholder="Select file type...">
-									<schmancy-option value="pdf" label="PDF Document">
-										<schmancy-icon slot="leading" size="sm">picture_as_pdf</schmancy-icon>
-									</schmancy-option>
-									<schmancy-option value="doc" label="Word Document">
-										<schmancy-icon slot="leading" size="sm">description</schmancy-icon>
-									</schmancy-option>
-									<schmancy-option value="xls" label="Excel Spreadsheet">
-										<schmancy-icon slot="leading" size="sm">table_chart</schmancy-icon>
-									</schmancy-option>
-									<schmancy-option value="img" label="Image">
-										<schmancy-icon slot="leading" size="sm">image</schmancy-icon>
-									</schmancy-option>
-									<schmancy-option value="video" label="Video">
-										<schmancy-icon slot="leading" size="sm">videocam</schmancy-icon>
-									</schmancy-option>
-									<schmancy-option value="audio" label="Audio">
-										<schmancy-icon slot="leading" size="sm">audiotrack</schmancy-icon>
-									</schmancy-option>
+									<schmancy-option value="pdf">PDF Document</schmancy-option>
+									<schmancy-option value="doc">Word Document</schmancy-option>
+									<schmancy-option value="xls">Excel Spreadsheet</schmancy-option>
+									<schmancy-option value="img">Image</schmancy-option>
+									<schmancy-option value="video">Video</schmancy-option>
+									<schmancy-option value="audio">Audio</schmancy-option>
 								</schmancy-autocomplete>
 
 								<!-- With Descriptions -->
 								<schmancy-autocomplete label="Database Type" placeholder="Choose database...">
-									<schmancy-option value="postgresql" label="PostgreSQL">
+									<schmancy-option value="postgresql">
 										<div class="py-1">
 											<div class="font-medium">PostgreSQL</div>
 											<div class="text-sm text-surface-onVariant">Open source relational database</div>
 										</div>
 									</schmancy-option>
-									<schmancy-option value="mongodb" label="MongoDB">
+									<schmancy-option value="mongodb">
 										<div class="py-1">
 											<div class="font-medium">MongoDB</div>
 											<div class="text-sm text-surface-onVariant">NoSQL document database</div>
 										</div>
 									</schmancy-option>
-									<schmancy-option value="mysql" label="MySQL">
+									<schmancy-option value="mysql">
 										<div class="py-1">
 											<div class="font-medium">MySQL</div>
 											<div class="text-sm text-surface-onVariant">Popular open source SQL database</div>
 										</div>
 									</schmancy-option>
-									<schmancy-option value="redis" label="Redis">
+									<schmancy-option value="redis">
 										<div class="py-1">
 											<div class="font-medium">Redis</div>
 											<div class="text-sm text-surface-onVariant">In-memory data structure store</div>
@@ -629,11 +616,11 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 											this.strictSearchValue = e.detail.value
 										}}
 									>
-										<schmancy-option value="javascript" label="JavaScript"></schmancy-option>
-										<schmancy-option value="typescript" label="TypeScript"></schmancy-option>
-										<schmancy-option value="java" label="Java"></schmancy-option>
-										<schmancy-option value="python" label="Python"></schmancy-option>
-										<schmancy-option value="csharp" label="C#"></schmancy-option>
+										<schmancy-option value="javascript">JavaScript</schmancy-option>
+										<schmancy-option value="typescript">TypeScript</schmancy-option>
+										<schmancy-option value="java">Java</schmancy-option>
+										<schmancy-option value="python">Python</schmancy-option>
+										<schmancy-option value="csharp">C#</schmancy-option>
 									</schmancy-autocomplete>
 								</div>
 
@@ -651,11 +638,11 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 											this.looseSearchValue = e.detail.value
 										}}
 									>
-										<schmancy-option value="javascript" label="JavaScript"></schmancy-option>
-										<schmancy-option value="typescript" label="TypeScript"></schmancy-option>
-										<schmancy-option value="java" label="Java"></schmancy-option>
-										<schmancy-option value="python" label="Python"></schmancy-option>
-										<schmancy-option value="csharp" label="C#"></schmancy-option>
+										<schmancy-option value="javascript">JavaScript</schmancy-option>
+										<schmancy-option value="typescript">TypeScript</schmancy-option>
+										<schmancy-option value="java">Java</schmancy-option>
+										<schmancy-option value="python">Python</schmancy-option>
+										<schmancy-option value="csharp">C#</schmancy-option>
 									</schmancy-autocomplete>
 								</div>
 
@@ -665,9 +652,9 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 										Fast Response (50ms debounce)
 									</schmancy-typography>
 									<schmancy-autocomplete label="Fast Search" placeholder="Instant results..." debounceMs=${50}>
-										<schmancy-option value="opt1" label="Option 1"></schmancy-option>
-										<schmancy-option value="opt2" label="Option 2"></schmancy-option>
-										<schmancy-option value="opt3" label="Option 3"></schmancy-option>
+										<schmancy-option value="opt1">Option 1</schmancy-option>
+										<schmancy-option value="opt2">Option 2</schmancy-option>
+										<schmancy-option value="opt3">Option 3</schmancy-option>
 									</schmancy-autocomplete>
 								</div>
 
@@ -681,9 +668,9 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 										placeholder="Wait for typing to stop..."
 										debounceMs=${500}
 									>
-										<schmancy-option value="opt1" label="Option 1"></schmancy-option>
-										<schmancy-option value="opt2" label="Option 2"></schmancy-option>
-										<schmancy-option value="opt3" label="Option 3"></schmancy-option>
+										<schmancy-option value="opt1">Option 1</schmancy-option>
+										<schmancy-option value="opt2">Option 2</schmancy-option>
+										<schmancy-option value="opt3">Option 3</schmancy-option>
 									</schmancy-autocomplete>
 								</div>
 							</div>
@@ -725,11 +712,11 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 											this.formDepartment = e.detail.value
 										}}
 									>
-										<schmancy-option value="hr" label="Human Resources"></schmancy-option>
-										<schmancy-option value="eng" label="Engineering"></schmancy-option>
-										<schmancy-option value="fin" label="Finance"></schmancy-option>
-										<schmancy-option value="mkt" label="Marketing"></schmancy-option>
-										<schmancy-option value="ops" label="Operations"></schmancy-option>
+										<schmancy-option value="hr">Human Resources</schmancy-option>
+										<schmancy-option value="eng">Engineering</schmancy-option>
+										<schmancy-option value="fin">Finance</schmancy-option>
+										<schmancy-option value="mkt">Marketing</schmancy-option>
+										<schmancy-option value="ops">Operations</schmancy-option>
 									</schmancy-autocomplete>
 
 									<div class="md:col-span-2">
@@ -743,14 +730,14 @@ export default class DemoFormsAutocomplete extends $LitElement() {
 												this.formSkills = e.detail.values || []
 											}}
 										>
-											<schmancy-option value="communication" label="Communication"></schmancy-option>
-											<schmancy-option value="teamwork" label="Teamwork"></schmancy-option>
-											<schmancy-option value="problem-solving" label="Problem Solving"></schmancy-option>
-											<schmancy-option value="leadership" label="Leadership"></schmancy-option>
-											<schmancy-option value="creativity" label="Creativity"></schmancy-option>
-											<schmancy-option value="time-management" label="Time Management"></schmancy-option>
-											<schmancy-option value="adaptability" label="Adaptability"></schmancy-option>
-											<schmancy-option value="critical-thinking" label="Critical Thinking"></schmancy-option>
+											<schmancy-option value="communication">Communication</schmancy-option>
+											<schmancy-option value="teamwork">Teamwork</schmancy-option>
+											<schmancy-option value="problem-solving">Problem Solving</schmancy-option>
+											<schmancy-option value="leadership">Leadership</schmancy-option>
+											<schmancy-option value="creativity">Creativity</schmancy-option>
+											<schmancy-option value="time-management">Time Management</schmancy-option>
+											<schmancy-option value="adaptability">Adaptability</schmancy-option>
+											<schmancy-option value="critical-thinking">Critical Thinking</schmancy-option>
 										</schmancy-autocomplete>
 									</div>
 
