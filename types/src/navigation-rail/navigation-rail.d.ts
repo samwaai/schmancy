@@ -80,6 +80,11 @@ export declare class SchmancyNavigationRail extends SchmancyNavigationRail_base 
      * @default true
      */
     keyboardNavigation: boolean;
+    /**
+     * Whether the navigation rail is expanded
+     * @default false
+     */
+    expanded: boolean;
     private focusedIndex;
     private allElements;
     private get navigationItems();
@@ -88,8 +93,18 @@ export declare class SchmancyNavigationRail extends SchmancyNavigationRail_base 
     private updateActiveStates;
     private updateActiveByValue;
     private updateLabelVisibility;
-    private handleMouseEnter;
-    private handleMouseLeave;
+    /**
+     * Programmatically expand the navigation rail
+     */
+    expand(): void;
+    /**
+     * Programmatically collapse the navigation rail
+     */
+    collapse(): void;
+    /**
+     * Toggle the navigation rail between expanded and collapsed states
+     */
+    toggle(): void;
     private handleKeyDown;
     private handleFabClick;
     private handleMenuClick;

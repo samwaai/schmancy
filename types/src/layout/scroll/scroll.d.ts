@@ -130,6 +130,11 @@ export declare class SchmancyScroll extends SchmancyScroll_base {
      */
     private updateScrollingStyles;
     /**
+     * Updates the layout context based on parent container type
+     * @private
+     */
+    private updateLayoutContext;
+    /**
      * Called when properties change
      * @protected
      */
