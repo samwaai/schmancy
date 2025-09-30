@@ -50,6 +50,7 @@ import { SchmancyNavigationRail, SchmancyNavigationRailItem } from '@schmancy'
 | `alignment` | `'top' \| 'center' \| 'bottom'` | `'top'` | Vertical alignment of navigation items |
 | `showTooltips` | `boolean` | `true` | Show tooltips when labels are hidden |
 | `keyboardNavigation` | `boolean` | `true` | Enable keyboard navigation with arrow keys |
+| `expanded` | `boolean` | `false` | Whether the navigation rail is expanded |
 
 ### Slots
 
@@ -73,14 +74,25 @@ import { SchmancyNavigationRail, SchmancyNavigationRailItem } from '@schmancy'
 
 | Property | Default | Description |
 |----------|---------|-------------|
-| `--rail-width` | `80px` | Fixed width of the rail |
-| `--rail-width-mobile` | `56px` | Width on mobile devices |
+| `--rail-width` | `80px` (collapsed) / `240px` (expanded) | Fixed width of the rail |
+| `--rail-width-mobile` | `56px` (collapsed) / `200px` (expanded) | Width on mobile devices |
+
+### CSS Parts
+
+| Part | Description |
+|------|-------------|
+| `rail` | The main rail container |
+| `header` | The header section containing FAB and menu |
+| `nav` | The navigation items container |
+| `footer` | The footer section |
 
 ### Methods
 
 | Method | Description |
 |--------|-------------|
-| None | Component is controlled via properties and events |
+| `expand()` | Programmatically expand the navigation rail |
+| `collapse()` | Programmatically collapse the navigation rail |
+| `toggle()` | Toggle between expanded and collapsed states |
 
 ## Navigation Rail Item Component
 
@@ -116,12 +128,18 @@ import { SchmancyNavigationRail, SchmancyNavigationRailItem } from '@schmancy'
 
 ### CSS Custom Properties
 
-| Property | Default | Description |
-|----------|---------|-------------|
-| `--rail-item-height` | `56px` | Item height |
-| `--rail-item-icon-size` | `24px` | Icon size |
-| `--rail-item-padding` | `12px` | Item padding |
-| `--rail-item-gap` | `4px` | Gap between icon and label |
+Navigation rail items use the Schmancy design token system and do not expose custom properties for theming.
+
+### CSS Parts
+
+| Part | Description |
+|------|-------------|
+| `container` | The main item container |
+| `indicator` | The active indicator behind the icon |
+| `icon` | The icon container |
+| `icon-text` | The icon text element |
+| `label` | The label text |
+| `badge` | The badge element |
 
 ## Examples
 
@@ -131,7 +149,7 @@ import { SchmancyNavigationRail, SchmancyNavigationRailItem } from '@schmancy'
 <schmancy-navigation-rail
   activeIndex="0"
   labelVisibility="selected"
-  @navigation-change=${this.handleNavigation}
+  @navigate=${this.handleNavigation}
   @fab-click=${this.handleFabClick}
   @menu-click=${this.handleMenuClick}
 >
@@ -268,12 +286,25 @@ class MyApp extends LitElement {
   }
 
   // Handle navigation
-  handleNavigationChange(event: CustomEvent<string>) {
+  handleNavigate(event: CustomEvent<string>) {
     const value = event.detail
     console.log(`Navigated to: ${value}`)
 
     // Update route
     this.router.navigate(value)
+  }
+
+  // Expand/collapse rail
+  expandRail() {
+    this.navigationRail.expand()
+  }
+
+  collapseRail() {
+    this.navigationRail.collapse()
+  }
+
+  toggleRail() {
+    this.navigationRail.toggle()
   }
 
   // Change label visibility programmatically
@@ -292,6 +323,44 @@ class MyApp extends LitElement {
     `
   }
 }
+```
+
+### With Expanded State
+
+```html
+<schmancy-navigation-rail
+  expanded
+  activeIndex="0"
+>
+  <schmancy-button slot="menu" variant="text" @click=${this.toggleRail}>
+    <schmancy-icon>menu</schmancy-icon>
+  </schmancy-button>
+
+  <schmancy-navigation-rail-item
+    icon="home"
+    label="Home"
+    value="/home"
+  ></schmancy-navigation-rail-item>
+
+  <schmancy-navigation-rail-item
+    icon="dashboard"
+    label="Dashboard"
+    value="/dashboard"
+  ></schmancy-navigation-rail-item>
+
+  <schmancy-navigation-rail-item
+    icon="analytics"
+    label="Analytics"
+    value="/analytics"
+  ></schmancy-navigation-rail-item>
+</schmancy-navigation-rail>
+
+<script>
+  function toggleRail() {
+    const rail = document.querySelector('schmancy-navigation-rail')
+    rail.toggle()
+  }
+</script>
 ```
 
 ### With Router Integration
@@ -372,24 +441,33 @@ The navigation rail adapts to different screen sizes:
 
 ## Theming
 
-The navigation rail uses Schmancy theme tokens:
+The navigation rail uses Schmancy design tokens:
 
 ```css
 /* Custom theming */
 schmancy-navigation-rail {
-  /* Colors */
-  --schmancy-sys-color-surface-container: #f5f5f5;
-  --schmancy-sys-color-secondary-container: #e3f2fd;
+  /* Colors - Surface and backgrounds */
+  --schmancy-sys-color-surface-default: #ffffff;
+  --schmancy-sys-color-surface-on: #1c1b1f;
+  --schmancy-sys-color-surface-containerHighest: #e6e0e9;
 
-  /* Dimensions */
-  --rail-width: 80px;
-  --rail-width-mobile: 56px;
+  /* Colors - Active state */
+  --schmancy-sys-color-secondary-container: #e8def8;
+  --schmancy-sys-color-secondary-onContainer: #1d192b;
+
+  /* Colors - Inactive state */
+  --schmancy-sys-color-surface-onVariant: #49454f;
 }
 
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
   schmancy-navigation-rail {
-    --schmancy-sys-color-surface-container: #1e1e1e;
+    --schmancy-sys-color-surface-default: #1c1b1f;
+    --schmancy-sys-color-surface-on: #e6e0e9;
+    --schmancy-sys-color-surface-containerHighest: #36343b;
+    --schmancy-sys-color-secondary-container: #4a4458;
+    --schmancy-sys-color-secondary-onContainer: #e8def8;
+    --schmancy-sys-color-surface-onVariant: #cac4d0;
   }
 }
 ```
@@ -402,8 +480,13 @@ schmancy-navigation-rail {
 4. **Hierarchy**: Place most important items at the top
 5. **Badges**: Use sparingly for important notifications
 6. **FAB**: Only include if there's a clear primary action
-7. **Label Visibility**: Use 'selected' for most cases, 'all' for better discoverability
-8. **Mobile**: Consider using bottom navigation bar on mobile instead
+7. **Label Visibility**:
+   - Use `'selected'` for most cases to save space
+   - Use `'all'` for better discoverability
+   - Use `'none'` with tooltips for maximum space efficiency
+   - In expanded state, labels are always shown regardless of setting
+8. **Expanded State**: Use expanded rail for applications that need more descriptive labels or additional information
+9. **Mobile**: Consider using bottom navigation bar on mobile instead
 
 ## Migration Guide
 
