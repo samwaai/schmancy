@@ -88,6 +88,8 @@ export declare class SchmancyNavigationRail extends SchmancyNavigationRail_base 
     private updateActiveStates;
     private updateActiveByValue;
     private updateLabelVisibility;
+    private handleMouseEnter;
+    private handleMouseLeave;
     private handleKeyDown;
     private handleFabClick;
     private handleMenuClick;
