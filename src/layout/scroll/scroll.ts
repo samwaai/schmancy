@@ -75,14 +75,20 @@ declare global {
 @customElement('schmancy-scroll')
 export class SchmancyScroll extends TailwindElement(css`
 	:host {
-		height: 100%;
+		/* Flexible sizing for different layout contexts */
 		width: 100%;
+		min-height: 0; /* Allow flex shrinking */
+		flex: 1; /* Grow in flex containers */
 		box-sizing: border-box; /* Ensures proper sizing */
 		display: block;
 		position: relative;
-		inset: 0px;
 		scroll-behavior: smooth;
 		overscroll-behavior: contain;
+	}
+	/* Fallback for non-flex contexts */
+	:host(.explicit-height) {
+		height: 100%;
+		flex: none;
 	}
 	:host([hide]) {
 		-ms-overflow-style: none; /* IE and Edge */
@@ -191,6 +197,7 @@ export class SchmancyScroll extends TailwindElement(css`
 	connectedCallback(): void {
 		super.connectedCallback()
 		this.updateScrollingStyles()
+		this.updateLayoutContext()
 		// Set the part attribute on the host element
 		this.setAttribute('part', 'scroller')
 	}
@@ -215,6 +222,39 @@ export class SchmancyScroll extends TailwindElement(css`
 	}
 
 	/**
+	 * Updates the layout context based on parent container type
+	 * @private
+	 */
+	private updateLayoutContext(): void {
+		// Use requestAnimationFrame to ensure DOM is fully rendered
+		requestAnimationFrame(() => {
+			// Check if parent is a flex container
+			const parent = this.parentElement
+			if (parent) {
+				const parentStyles = getComputedStyle(parent)
+				const isFlexParent = parentStyles.display === 'flex' || parentStyles.display === 'inline-flex'
+
+				// For debugging - remove in production
+				console.debug('schmancy-scroll parent detection:', {
+					parent: parent.tagName,
+					display: parentStyles.display,
+					isFlexParent,
+				})
+
+				// Apply appropriate class based on parent layout
+				if (isFlexParent) {
+					this.classList.remove('explicit-height')
+				} else {
+					this.classList.add('explicit-height')
+				}
+			} else {
+				// Default to explicit height if no parent
+				this.classList.add('explicit-height')
+			}
+		})
+	}
+
+	/**
 	 * Called when properties change
 	 * @protected
 	 */
@@ -224,6 +264,8 @@ export class SchmancyScroll extends TailwindElement(css`
 		if (changedProperties.has('direction')) {
 			this.updateScrollingStyles()
 		}
+		// Always update layout context in case parent layout changed
+		this.updateLayoutContext()
 	}
 
 	/**

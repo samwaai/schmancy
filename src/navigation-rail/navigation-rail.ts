@@ -114,6 +114,13 @@ export class SchmancyNavigationRail extends $LitElement() {
 	@property({ type: Boolean })
 	keyboardNavigation = true
 
+	/**
+	 * Whether the navigation rail is expanded
+	 * @default false
+	 */
+	@property({ type: Boolean, reflect: true })
+	expanded = false
+
 	// State
 	@state()
 	private focusedIndex = -1
@@ -165,6 +172,10 @@ export class SchmancyNavigationRail extends $LitElement() {
 		if (changedProperties.has('activeValue')) {
 			this.updateActiveByValue(this.activeValue)
 		}
+
+		if (changedProperties.has('expanded')) {
+			this.updateLabelVisibility()
+		}
 	}
 
 	private updateActiveStates(index: number) {
@@ -190,13 +201,21 @@ export class SchmancyNavigationRail extends $LitElement() {
 
 	private updateLabelVisibility() {
 		this.navigationItems.forEach((item, i) => {
-			const shouldShowLabel =
-				this.labelVisibility === 'all' || (this.labelVisibility === 'selected' && i === this.activeIndex)
+			let shouldShowLabel = false
+
+			// M3 Spec: In expanded state, always show all labels
+			if (this.expanded) {
+				shouldShowLabel = true
+			} else {
+				// In collapsed state, respect labelVisibility setting
+				shouldShowLabel =
+					this.labelVisibility === 'all' || (this.labelVisibility === 'selected' && i === this.activeIndex)
+			}
 
 			item.showLabel = shouldShowLabel
 
-			// Add tooltips when labels are hidden
-			if (this.showTooltips && !shouldShowLabel && item.label) {
+			// Add tooltips when labels are hidden (only in collapsed state)
+			if (this.showTooltips && !shouldShowLabel && !this.expanded && item.label) {
 				item.setAttribute('title', item.label)
 			} else {
 				item.removeAttribute('title')
@@ -204,15 +223,28 @@ export class SchmancyNavigationRail extends $LitElement() {
 		})
 	}
 
-	// Handle hover to show all labels
-	private handleMouseEnter = () => {
-		this.navigationItems.forEach(item => {
-			item.showLabel = true
-		})
+	// Note: Hover-based label showing removed for M3 compliance
+	// Labels are now controlled via labelVisibility property and expanded state
+
+	/**
+	 * Programmatically expand the navigation rail
+	 */
+	expand() {
+		this.expanded = true
 	}
 
-	private handleMouseLeave = () => {
-		this.updateLabelVisibility()
+	/**
+	 * Programmatically collapse the navigation rail
+	 */
+	collapse() {
+		this.expanded = false
+	}
+
+	/**
+	 * Toggle the navigation rail between expanded and collapsed states
+	 */
+	toggle() {
+		this.expanded = !this.expanded
 	}
 
 	private handleKeyDown(event: KeyboardEvent) {
@@ -286,11 +318,10 @@ export class SchmancyNavigationRail extends $LitElement() {
 			'md:w-20 w-14': true, // w-14 = 56px on mobile
 		})
 
-		// Rail container - this expands on hover
+		// Rail container - programmatically controlled width
 		const railClasses = this.classMap({
 			// Layout & Structure
 			'flex flex-col h-full': true,
-			'w-20 px-3 py-2 gap-1': true, // w-20 = 80px base width, 12px horizontal padding, 8px vertical padding
 			'box-border relative': true,
 
 			// M3 Colors & Theme
@@ -299,14 +330,16 @@ export class SchmancyNavigationRail extends $LitElement() {
 			// M3 Motion - smooth transitions for width and shadow
 			'transition-all duration-300 ease-emphasized': true,
 
-			// Hover state - expand to 240px with elevation shadow
-			'hover:w-60': true, // w-60 = 240px expanded width
-			'hover:shadow-lg': true, // M3 elevation 3 shadow
+			// Collapsed state (default) - M3 standard 80px width
+			'w-20 px-3 py-2 gap-1': !this.expanded, // w-20 = 80px base width
+			'md:w-20 w-14': !this.expanded, // w-14 = 56px on mobile
+			'md:px-3 px-2': !this.expanded, // Smaller padding on mobile
 
-			// Mobile responsive - base width and hover expansion
-			'md:w-20 w-14': true, // w-14 = 56px on mobile, w-20 = 80px on desktop
-			'md:px-3 px-2': true, // Smaller padding on mobile
-			'md:hover:w-60 hover:w-50': true, // w-50 = 200px expansion on mobile
+			// Expanded state - M3 expanded width with shadow
+			'w-60 px-4 py-2 gap-1': this.expanded, // w-60 = 240px expanded width
+			'md:w-60 w-50': this.expanded, // w-50 = 200px expansion on mobile
+			'md:px-4 px-3': this.expanded, // Larger padding when expanded
+			'shadow-lg': this.expanded, // M3 elevation 3 shadow when expanded
 		})
 
 		// Header section classes
@@ -317,16 +350,14 @@ export class SchmancyNavigationRail extends $LitElement() {
 			'[&_[slot="menu"]]:mb-3': true,
 		})
 
-		// Navigation container classes with alignment and scrolling
+		// Navigation container classes with alignment
 		const navClasses = this.classMap({
 			'flex-1 flex flex-col gap-1': true,
-			'overflow-y-auto overflow-x-hidden': true,
+			'min-h-0': true, // Allow flex shrinking and proper scroll container height calculation
 			// Alignment variants
 			'justify-start': this.alignment === 'top',
 			'justify-center': this.alignment === 'center',
 			'justify-end': this.alignment === 'bottom',
-			// Custom scrollbar styling - thin scrollbars with theme colors
-			'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-outline-variant': true,
 		})
 
 		// Footer section classes
@@ -337,8 +368,6 @@ export class SchmancyNavigationRail extends $LitElement() {
 		return html`
 			<div
 				class=${hostClasses}
-				@mouseenter=${this.handleMouseEnter}
-				@mouseleave=${this.handleMouseLeave}
 			>
 				<div class=${railClasses} part="rail">
 					<div class=${headerClasses} part="header">
@@ -348,7 +377,9 @@ export class SchmancyNavigationRail extends $LitElement() {
 					</div>
 
 					<nav class=${navClasses} part="nav" role="list">
-						<slot @slotchange=${this.handleSlotChange}></slot>
+						<schmancy-scroll hide direction="vertical">
+							<slot @slotchange=${this.handleSlotChange}></slot>
+						</schmancy-scroll>
 					</nav>
 
 					<div class=${footerClasses} part="footer">
