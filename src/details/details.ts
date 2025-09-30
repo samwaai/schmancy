@@ -28,7 +28,7 @@ export default class SchmancyDetails extends TailwindElement(css`
 
 	/* Variant-specific styles */
 	:host([variant='outlined']) details {
-		border: 1px solid var(--schmancy-sys-color-outlineVariant);
+		border: 1px solid var(--schmancy-sys-color-outline-variant);
 		background-color: var(--schmancy-sys-color-surface-default);
 	}
 
@@ -39,7 +39,7 @@ export default class SchmancyDetails extends TailwindElement(css`
 
 	:host([variant='elevated']) details {
 		/* M3: containerLow when closed */
-		background-color: var(--schmancy-sys-color-surface-low);
+		background-color: var(--schmancy-sys-color-surface-containerLow);
 		box-shadow: var(--schmancy-sys-elevation-1);
 	}
 
@@ -103,12 +103,12 @@ export default class SchmancyDetails extends TailwindElement(css`
 	render() {
 		const isOpen = this._open$.value
 
-		// Dynamic state layer opacity
+		// Dynamic state layer opacity - using M3 standard values
 		const stateLayerOpacity = this.pressed
-			? 'opacity-[var(--schmancy-sys-state-pressed-opacity)]'
+			? 'opacity-12'  // M3 pressed state: 12%
 			: this.variant === 'default'
-				? 'opacity-0 hover:opacity-[var(--schmancy-sys-state-hover-opacity)]'
-				: 'opacity-0 hover:opacity-[0.04]'
+				? 'opacity-0 hover:opacity-8'  // M3 hover state: 8%
+				: 'opacity-0 hover:opacity-8'
 
 		// Dynamic icon rotation class
 		const iconClasses = this.classMap({
@@ -142,7 +142,7 @@ export default class SchmancyDetails extends TailwindElement(css`
 						${this.ripples.map(
 							ripple => html`
 								<span
-									class="absolute rounded-full scale-0 animate-[ripple_600ms_linear] bg-surface-on opacity-[0.12] pointer-events-none"
+									class="absolute rounded-full scale-0 animate-[ripple_600ms_linear] bg-surface-on opacity-12 pointer-events-none"
 									style="
 										left: ${ripple.x}px;
 										top: ${ripple.y}px;
