@@ -12,6 +12,7 @@ import type { SchmancyNavigationBarItem } from './navigation-bar-item'
  *
  * A horizontal navigation component following Material Design 3 specifications.
  * Navigation bars provide access to between 3-7 primary destinations, fixed at the bottom of the viewport.
+ * Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).
  *
  * @element schmancy-navigation-bar
  * @slot - Default slot for navigation bar items
@@ -88,6 +89,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	@property({ type: Boolean, reflect: true })
 	hideOnScroll = false
 
+
 	/**
 	 * Current focused item index for keyboard navigation
 	 */
@@ -98,7 +100,13 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	 * Whether the navigation bar is hidden due to scrolling
 	 */
 	@state()
-	private isHidden = false
+	private isHiddenByScroll = false
+
+	/**
+	 * Whether the navigation bar is hidden due to fullscreen mode
+	 */
+	@state()
+	private isFullscreen = false
 
 	/**
 	 * Get all navigation bar items from the slot
@@ -139,6 +147,15 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			this.updateActiveStates(index)
 		})
 
+		// Listen to fullscreen events
+		fromEvent(window, 'fullscreen').pipe(
+			tap((event: Event) => {
+				const customEvent = event as CustomEvent
+				this.isFullscreen = customEvent.detail
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe()
+
 		// Set up scroll listener if hideOnScroll is enabled
 		if (this.hideOnScroll) {
 			this.setupScrollListener()
@@ -162,15 +179,15 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 				const scrollingUp = curr < prev
 
 				// Hide when scrolling down, show when scrolling up
-				if (scrollingDown && !this.isHidden) {
-					this.isHidden = true
-				} else if (scrollingUp && this.isHidden) {
-					this.isHidden = false
+				if (scrollingDown && !this.isHiddenByScroll) {
+					this.isHiddenByScroll = true
+				} else if (scrollingUp && this.isHiddenByScroll) {
+					this.isHiddenByScroll = false
 				}
 
 				// Always show when near top
 				if (curr <= this.SCROLL_THRESHOLD) {
-					this.isHidden = false
+					this.isHiddenByScroll = false
 				}
 
 			}),
@@ -274,6 +291,21 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 		}
 	}
 
+
+	/**
+	 * Add a boat item to the navigation bar
+	 * @param config Configuration for the boat item
+	 */
+	public addBoatItem(config: { id: string; title: string; icon?: string }) {
+		const item = document.createElement('schmancy-navigation-bar-item')
+		item.setAttribute('value', config.id)
+		item.innerHTML = `
+			<schmancy-icon>${config.icon || 'widgets'}</schmancy-icon>
+			<span>${config.title}</span>
+		`
+		this.appendChild(item)
+	}
+
 	/**
 	 * Update active states on all items
 	 */
@@ -308,18 +340,21 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 				this.setupScrollListener()
 			} else if (!this.hideOnScroll) {
 				// hideOnScroll was disabled, reset hidden state
-				this.isHidden = false
+				this.isHiddenByScroll = false
 			}
 		}
 	}
 
 	protected render() {
+		// Determine if the bar should be visually hidden
+		const isVisuallyHidden = this.isFullscreen || this.isHiddenByScroll
+
 		const containerClasses = {
 			'h-20': true, // 80px height
 			'fixed bottom-0 left-0 right-0': true,
 			'flex items-center justify-around': true,
 			'px-2 py-3 box-border': true,
-			'transition-all duration-200 ease-in-out': true,
+			'transition-all duration-300 ease-in-out': true,
 			// Elevation shadows
 			'shadow-none': this.elevation === 0,
 			'shadow-sm': this.elevation === 1,
@@ -330,14 +365,14 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 		}
 
 		// Apply transform for hide/show animation
-		const transformStyle = this.isHidden ? 'translateY(100%)' : 'translateY(0)'
+		const transformStyle = isVisuallyHidden ? 'translateY(100%)' : 'translateY(0)'
 
 		return html`
 			<nav
 				class=${this.classMap(containerClasses)}
 				role="navigation"
 				aria-label="Main navigation"
-				aria-hidden=${this.isHidden}
+				aria-hidden=${isVisuallyHidden}
 				style="transform: ${transformStyle};"
 				${color({
 					bgColor: SchmancyTheme.sys.color.surface.container,

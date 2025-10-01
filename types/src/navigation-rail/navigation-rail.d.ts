@@ -1,4 +1,5 @@
 import { PropertyValues } from 'lit';
+import { SchmancyNavigationRailItem } from './navigation-rail-item';
 export type NavigateEvent = CustomEvent<string>;
 export type NavigationRailMenuClickEvent = CustomEvent<void>;
 export type NavigationRailFabClickEvent = CustomEvent<void>;
@@ -12,6 +13,7 @@ declare const SchmancyNavigationRail_base: CustomElementConstructor & import("@m
  *
  * A Material Design 3 vertical navigation component positioned on the left side of an application.
  * Navigation rails provide access to between 3-7 primary destinations with a compact footprint.
+ * Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).
  *
  * @element schmancy-navigation-rail
  * @slot fab - Slot for a floating action button at the top
@@ -86,6 +88,7 @@ export declare class SchmancyNavigationRail extends SchmancyNavigationRail_base 
      */
     expanded: boolean;
     private focusedIndex;
+    private isFullscreen;
     private allElements;
     private get navigationItems();
     connectedCallback(): void;
@@ -101,6 +104,16 @@ export declare class SchmancyNavigationRail extends SchmancyNavigationRail_base 
      * Programmatically collapse the navigation rail
      */
     collapse(): void;
+    /**
+     * Add a boat item to the navigation rail
+     * @param config Configuration for the boat item
+     * @returns The created navigation rail item element
+     */
+    addBoatItem(config: {
+        id: string;
+        title: string;
+        icon?: string;
+    }): SchmancyNavigationRailItem;
     /**
      * Toggle the navigation rail between expanded and collapsed states
      */

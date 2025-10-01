@@ -1,7 +1,7 @@
 import { $LitElement } from '@mixins/index'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
-import { BehaviorSubject, takeUntil } from 'rxjs'
+import { BehaviorSubject, fromEvent, takeUntil } from 'rxjs'
 import { distinctUntilChanged, tap } from 'rxjs/operators'
 import { SchmancyNavigationRailItem } from './navigation-rail-item'
 
@@ -10,6 +10,7 @@ export type NavigateEvent = CustomEvent<string>
 export type NavigationRailMenuClickEvent = CustomEvent<void>
 
 export type NavigationRailFabClickEvent = CustomEvent<void>
+
 
 export type LabelVisibility = 'all' | 'selected' | 'none'
 
@@ -21,6 +22,7 @@ export type LabelVisibility = 'all' | 'selected' | 'none'
  *
  * A Material Design 3 vertical navigation component positioned on the left side of an application.
  * Navigation rails provide access to between 3-7 primary destinations with a compact footprint.
+ * Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).
  *
  * @element schmancy-navigation-rail
  * @slot fab - Slot for a floating action button at the top
@@ -121,9 +123,13 @@ export class SchmancyNavigationRail extends $LitElement() {
 	@property({ type: Boolean, reflect: true })
 	expanded = false
 
+
 	// State
 	@state()
 	private focusedIndex = -1
+
+	@state()
+	private isFullscreen = false
 
 	// Queries
 
@@ -150,6 +156,15 @@ export class SchmancyNavigationRail extends $LitElement() {
 				takeUntil(this.disconnecting),
 			)
 			.subscribe()
+
+		// Listen to fullscreen events
+		fromEvent(window, 'fullscreen').pipe(
+			tap((event: Event) => {
+				const customEvent = event as CustomEvent
+				this.isFullscreen = customEvent.detail
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe()
 
 		// Listen for navigate events from child items
 		this.setupNavigateListener()
@@ -241,11 +256,34 @@ export class SchmancyNavigationRail extends $LitElement() {
 	}
 
 	/**
+	 * Add a boat item to the navigation rail
+	 * @param config Configuration for the boat item
+	 * @returns The created navigation rail item element
+	 */
+	public addBoatItem(config: { id: string; title: string; icon?: string }) {
+		const item = document.createElement('schmancy-navigation-rail-item')
+		item.setAttribute('value', config.id)
+		item.innerHTML = `
+			<schmancy-icon slot="icon">${config.icon || 'widgets'}</schmancy-icon>
+			${config.title}
+		`
+		// Add to the rail before any footer content
+		const footer = this.querySelector('[slot="footer"]')
+		if (footer) {
+			this.insertBefore(item, footer)
+		} else {
+			this.appendChild(item)
+		}
+		return item
+	}
+
+	/**
 	 * Toggle the navigation rail between expanded and collapsed states
 	 */
 	toggle() {
 		this.expanded = !this.expanded
 	}
+
 
 	private handleKeyDown(event: KeyboardEvent) {
 		const items = this.navigationItems
@@ -316,6 +354,11 @@ export class SchmancyNavigationRail extends $LitElement() {
 
 			// Mobile responsive - smaller fixed width
 			'md:w-20 w-14': true, // w-14 = 56px on mobile
+
+			// Visibility and transition
+			'transition-all duration-300 ease-emphasized': true,
+			'opacity-100 translate-x-0': !this.isFullscreen,
+			'opacity-0 -translate-x-full pointer-events-none': this.isFullscreen,
 		})
 
 		// Rail container - programmatically controlled width

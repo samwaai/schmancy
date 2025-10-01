@@ -1,214 +1,206 @@
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { theme } from '../../../src/theme'
-import { takeUntil } from 'rxjs'
+import { takeUntil, tap } from 'rxjs'
 import { $LitElement } from '@mixins/litElement.mixin'
 
 @customElement('theme-service-demo')
 export class ThemeServiceDemo extends $LitElement() {
-  @state() private currentScheme: 'dark' | 'light' | 'auto' = 'auto'
-  @state() private currentColor: string = '#6200ee'
-  @state() private resolvedScheme: 'dark' | 'light' = 'light'
-  @state() private isDark: boolean = false
+	@state() private currentScheme: 'dark' | 'light' | 'auto' = 'auto'
+	@state() private currentColor: string = '#6200ee'
+	@state() private resolvedScheme: 'dark' | 'light' = 'light'
+	@state() private isDark: boolean = false
+	@state() private activityLog: string[] = []
 
-  connectedCallback() {
-    super.connectedCallback()
+	private presetColors = [
+		{ name: 'Purple', value: '#6750A4' },
+		{ name: 'Blue', value: '#0061A4' },
+		{ name: 'Green', value: '#006E1C' },
+		{ name: 'Orange', value: '#C4320A' },
+		{ name: 'Pink', value: '#A8194D' },
+	]
 
-    // Subscribe to theme changes
-    theme.scheme$.pipe(takeUntil(this.disconnecting)).subscribe(scheme => {
-      this.currentScheme = scheme
-    })
+	connectedCallback() {
+		super.connectedCallback()
 
-    theme.color$.pipe(takeUntil(this.disconnecting)).subscribe(color => {
-      this.currentColor = color
-    })
+		console.log('ThemeServiceDemo connected')
+		console.log('theme.themeComponent:', theme.themeComponent)
 
-    theme.resolvedScheme$.pipe(takeUntil(this.disconnecting)).subscribe(scheme => {
-      this.resolvedScheme = scheme
-    })
+		// Get initial state directly
+		const comp = theme.themeComponent
+		if (comp) {
+			this.currentScheme = comp.scheme
+			this.currentColor = comp.color
+			this.addLog(`Found theme: ${comp.scheme}, ${comp.color}`)
+		} else {
+			this.addLog('No theme component!')
+			// Try discovery
+			theme.discoverTheme().subscribe(discovered => {
+				console.log('Discovered:', discovered)
+				if (discovered) {
+					this.addLog(`Discovered: ${discovered.scheme}, ${discovered.color}`)
+				}
+			})
+		}
 
-    theme.isDarkMode().pipe(takeUntil(this.disconnecting)).subscribe(isDark => {
-      this.isDark = isDark
-    })
-  }
+		// Subscribe to changes
+		theme.scheme$.pipe(
+			tap(scheme => {
+				this.currentScheme = scheme
+				this.addLog(`Scheme: ${scheme}`)
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe()
 
-  private handleColorChange(e: Event) {
-    const input = e.target as HTMLInputElement
-    theme.setColor(input.value)
-  }
+		theme.color$.pipe(
+			tap(color => {
+				this.currentColor = color
+				this.addLog(`Color: ${color}`)
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe()
 
-  private handleSchemeChange(scheme: 'dark' | 'light' | 'auto') {
-    theme.setScheme(scheme)
-  }
+		theme.resolvedScheme$.pipe(
+			tap(scheme => this.resolvedScheme = scheme),
+			takeUntil(this.disconnecting)
+		).subscribe()
 
-  private toggleTheme() {
-    theme.toggleScheme()
-  }
+		theme.isDarkMode().pipe(
+			tap(isDark => this.isDark = isDark),
+			takeUntil(this.disconnecting)
+		).subscribe()
+	}
 
-  render() {
-    return html`
-      <schmancy-surface elevation="2" rounded="all" class="p-6 space-y-6">
-        <schmancy-typography type="headline" size="lg">
-          Theme Service Demo
-        </schmancy-typography>
+	private addLog(message: string) {
+		this.activityLog = [`${new Date().toLocaleTimeString()}: ${message}`, ...this.activityLog.slice(0, 9)]
+	}
 
-        <div class="space-y-4">
-          <schmancy-typography type="headline" size="sm">
-            Current Theme Values
-          </schmancy-typography>
+	private clearLog() {
+		this.activityLog = []
+	}
 
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <schmancy-typography type="label" class="mb-1">
-                Scheme Setting:
-              </schmancy-typography>
-              <schmancy-badge color="primary">
-                ${this.currentScheme}
-              </schmancy-badge>
-            </div>
+	private handleColorChange(e: Event) {
+		const input = e.target as HTMLInputElement
+		theme.setColor(input.value)
+	}
 
-            <div>
-              <schmancy-typography type="label" class="mb-1">
-                Resolved Scheme:
-              </schmancy-typography>
-              <schmancy-badge color="secondary">
-                ${this.resolvedScheme}
-              </schmancy-badge>
-            </div>
+	private handleSchemeChange(scheme: 'dark' | 'light' | 'auto') {
+		console.log('handleSchemeChange:', scheme)
+		console.log('Before - themeComponent:', theme.themeComponent)
+		this.addLog(`Calling setScheme(${scheme})`)
+		theme.setScheme(scheme)
+		console.log('After - themeComponent.scheme:', theme.themeComponent?.scheme)
+	}
 
-            <div>
-              <schmancy-typography type="label" class="mb-1">
-                Is Dark Mode:
-              </schmancy-typography>
-              <schmancy-badge color="${this.isDark ? 'success' : 'warning'}">
-                ${this.isDark ? 'Yes' : 'No'}
-              </schmancy-badge>
-            </div>
+	private toggleTheme() {
+		console.log('toggleTheme called')
+		this.addLog('Calling toggleScheme()')
+		theme.toggleScheme()
+	}
 
-            <div>
-              <schmancy-typography type="label" class="mb-1">
-                Primary Color:
-              </schmancy-typography>
-              <div class="flex items-center gap-2">
-                <div
-                  class="w-8 h-8 rounded border border-outline"
-                  style="background-color: ${this.currentColor}"
-                ></div>
-                <schmancy-typography type="body" size="sm">
-                  ${this.currentColor}
-                </schmancy-typography>
-              </div>
-            </div>
-          </div>
-        </div>
+	private setPresetColor(color: string) {
+		console.log('setPresetColor:', color)
+		this.addLog(`Calling setColor(${color})`)
+		theme.setColor(color)
+	}
 
-        <div class="space-y-4">
-          <schmancy-typography type="headline" size="sm">
-            Theme Controls
-          </schmancy-typography>
+	render() {
+		return html`
+			<div class="max-w-3xl space-y-6">
+				<h1 class="text-3xl font-bold">Theme Service</h1>
 
-          <div class="space-y-3">
-            <div>
-              <schmancy-typography type="label" class="mb-2">
-                Color Scheme
-              </schmancy-typography>
-              <div class="flex gap-2">
-                <schmancy-button
-                  variant="${this.currentScheme === 'light' ? 'filled' : 'outlined'}"
-                  @click="${() => this.handleSchemeChange('light')}"
-                >
-                  Light
-                </schmancy-button>
-                <schmancy-button
-                  variant="${this.currentScheme === 'dark' ? 'filled' : 'outlined'}"
-                  @click="${() => this.handleSchemeChange('dark')}"
-                >
-                  Dark
-                </schmancy-button>
-                <schmancy-button
-                  variant="${this.currentScheme === 'auto' ? 'filled' : 'outlined'}"
-                  @click="${() => this.handleSchemeChange('auto')}"
-                >
-                  Auto
-                </schmancy-button>
-              </div>
-            </div>
+				<!-- Current State -->
+				<schmancy-surface elevation="1" rounded="all" class="p-6">
+					<h2 class="text-xl font-semibold mb-4">Current State</h2>
+					<div class="space-y-2 text-sm">
+						<p>Scheme: <strong>${this.currentScheme}</strong></p>
+						<p>Resolved: <strong>${this.resolvedScheme}</strong></p>
+						<p>Dark Mode: <strong>${this.isDark ? 'Yes' : 'No'}</strong></p>
+						<p class="flex items-center gap-2">
+							Color: <strong>${this.currentColor}</strong>
+							<span
+								class="inline-block w-6 h-6 rounded border border-outline"
+								style="background: ${this.currentColor}"
+							></span>
+						</p>
+					</div>
+				</schmancy-surface>
 
-            <div>
-              <schmancy-typography type="label" class="mb-2">
-                Primary Color
-              </schmancy-typography>
-              <div class="flex gap-2 items-center">
-                <input
-                  type="color"
-                  .value="${this.currentColor}"
-                  @change="${this.handleColorChange}"
-                  class="w-20 h-10 rounded cursor-pointer"
-                />
-                <schmancy-button
-                  variant="tonal"
-                  @click="${() => theme.setColor('#6200ee')}"
-                >
-                  Reset to Default
-                </schmancy-button>
-              </div>
-            </div>
+				<!-- Scheme -->
+				<schmancy-surface elevation="1" rounded="all" class="p-6">
+					<h2 class="text-xl font-semibold mb-4">Color Scheme</h2>
+					<div class="flex gap-2 flex-wrap">
+						<schmancy-button
+							variant="${this.currentScheme === 'light' ? 'filled' : 'outlined'}"
+							@click="${() => this.handleSchemeChange('light')}"
+						>
+							Light
+						</schmancy-button>
+						<schmancy-button
+							variant="${this.currentScheme === 'dark' ? 'filled' : 'outlined'}"
+							@click="${() => this.handleSchemeChange('dark')}"
+						>
+							Dark
+						</schmancy-button>
+						<schmancy-button
+							variant="${this.currentScheme === 'auto' ? 'filled' : 'outlined'}"
+							@click="${() => this.handleSchemeChange('auto')}"
+						>
+							Auto
+						</schmancy-button>
+						<schmancy-button variant="tonal" @click="${this.toggleTheme}"> Toggle </schmancy-button>
+					</div>
+				</schmancy-surface>
 
-            <div>
-              <schmancy-button
-                variant="filled"
-                @click="${this.toggleTheme}"
-              >
-                Toggle Theme
-              </schmancy-button>
-            </div>
-          </div>
-        </div>
+				<!-- Color -->
+				<schmancy-surface elevation="1" rounded="all" class="p-6">
+					<h2 class="text-xl font-semibold mb-4">Primary Color</h2>
+					<div class="flex gap-2 items-center mb-4">
+						<input
+							type="color"
+							.value="${this.currentColor}"
+							@change="${this.handleColorChange}"
+							class="w-16 h-16 rounded cursor-pointer"
+						/>
+						<span class="text-sm">${this.currentColor}</span>
+					</div>
+					<div class="flex gap-2 flex-wrap">
+						${this.presetColors.map(
+							color => html`
+								<button
+									class="w-12 h-12 rounded border border-outline hover:scale-110 transition-transform"
+									style="background: ${color.value}"
+									@click="${() => this.setPresetColor(color.value)}"
+									title="${color.name}"
+								></button>
+							`,
+						)}
+					</div>
+				</schmancy-surface>
 
-        <div class="space-y-4">
-          <schmancy-typography type="headline" size="sm">
-            Usage Example
-          </schmancy-typography>
-
-          <schmancy-surface type="containerLow" rounded="all" class="p-4">
-            <schmancy-code-preview language="typescript">
-${`import { theme } from '@schmancy/theme';
-
-// Get current values
-console.log(theme.scheme); // 'light' | 'dark' | 'auto'
-console.log(theme.color); // '#6200ee'
-
-// Subscribe to changes
-theme.scheme$.subscribe(scheme => {
-  console.log('Scheme changed:', scheme);
-});
-
-theme.color$.subscribe(color => {
-  console.log('Color changed:', color);
-});
-
-// Check if dark mode is active
-theme.isDarkMode().subscribe(isDark => {
-  console.log('Is dark mode:', isDark);
-});
-
-// Set values
-theme.setScheme('dark');
-theme.setColor('#ff5722');
-theme.toggleScheme();
-
-// Get CSS variables
-const primaryColor = theme.getCSSVariable('sys-color-primary-default');`}
-            </schmancy-code-preview>
-          </schmancy-surface>
-        </div>
-      </schmancy-surface>
-    `
-  }
+				<!-- Activity Log -->
+				<schmancy-surface elevation="1" rounded="all" class="p-6">
+					<div class="flex justify-between items-center mb-4">
+						<h2 class="text-xl font-semibold">Activity Log</h2>
+						<schmancy-button variant="text" size="sm" @click="${this.clearLog}"> Clear </schmancy-button>
+					</div>
+					<schmancy-surface type="containerLow" rounded="all" class="p-4">
+						${this.activityLog.length > 0
+							? html`
+									<div class="space-y-1 font-mono text-xs max-h-64 overflow-y-auto">
+										${this.activityLog.map(log => html`<div class="py-1">${log}</div>`)}
+									</div>
+								`
+							: html`<p class="text-sm opacity-50 text-center">No activity yet. Try changing settings!</p>`}
+					</schmancy-surface>
+				</schmancy-surface>
+			</div>
+		`
+	}
 }
 
 declare global {
-  interface HTMLElementTagNameMap {
-    'theme-service-demo': ThemeServiceDemo
-  }
+	interface HTMLElementTagNameMap {
+		'theme-service-demo': ThemeServiceDemo
+	}
 }

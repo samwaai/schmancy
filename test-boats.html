@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Multiple Boats</title>
+    <script type="module" src="./demo/src/index.js"></script>
+</head>
+<body>
+    <schmancy-theme color="#6200ee" scheme="auto">
+        <h1>Test Multiple Boats</h1>
+        <button onclick="createBoat()">Create Boat</button>
+
+        <script>
+            let boatCount = 0;
+            function createBoat() {
+                const boat = document.createElement('schmancy-boat');
+                boat.id = `boat-${++boatCount}`;
+                boat.innerHTML = `
+                    <div slot="header">Boat ${boatCount}</div>
+                    <div slot="content">
+                        <p>This is boat number ${boatCount}</p>
+                        <p>It should auto-stack with other boats</p>
+                    </div>
+                `;
+                document.body.appendChild(boat);
+            }
+
+            // Create 3 boats on load
+            setTimeout(() => {
+                createBoat();
+                createBoat();
+                createBoat();
+            }, 100);
+        </script>
+    </schmancy-theme>
+</body>
+</html>

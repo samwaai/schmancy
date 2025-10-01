@@ -4,6 +4,7 @@ declare const SchmancyNavigationBar_base: import("../../mixins").Constructor<Cus
  *
  * A horizontal navigation component following Material Design 3 specifications.
  * Navigation bars provide access to between 3-7 primary destinations, fixed at the bottom of the viewport.
+ * Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).
  *
  * @element schmancy-navigation-bar
  * @slot - Default slot for navigation bar items
@@ -51,7 +52,15 @@ export declare class SchmancyNavigationBar extends SchmancyNavigationBar_base {
     /**
      * Whether the navigation bar is hidden due to scrolling
      */
-    private isHidden;
+    private isHiddenByScroll;
+    /**
+     * Whether the navigation bar is hidden due to fullscreen mode
+     */
+    private isFullscreen;
+    /**
+     * Get all navigation bar items from the slot
+     */
+    private getItems;
     /**
      * Get all navigation bar items from the slot
      */
@@ -81,6 +90,15 @@ export declare class SchmancyNavigationBar extends SchmancyNavigationBar_base {
      * Update the list of navigation items
      */
     private updateItems;
+    /**
+     * Add a boat item to the navigation bar
+     * @param config Configuration for the boat item
+     */
+    addBoatItem(config: {
+        id: string;
+        title: string;
+        icon?: string;
+    }): void;
     /**
      * Update active states on all items
      */

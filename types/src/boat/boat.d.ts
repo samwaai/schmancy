@@ -1,11 +1,11 @@
 type BoatState = 'hidden' | 'minimized' | 'expanded';
-declare const SchmancyBoat_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyBoat_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyBoat extends SchmancyBoat_base {
     get state(): BoatState;
     set state(value: BoatState);
+    id: string;
     get lowered(): boolean;
     set lowered(value: boolean);
-    private stateChange$;
     private containerRef;
     private contentRef;
     private iconRef;
@@ -20,8 +20,9 @@ export default class SchmancyBoat extends SchmancyBoat_base {
     private position;
     private anchor;
     connectedCallback(): void;
-    private setupUnifiedPipeline;
-    private animateTransition;
+    private initializePosition;
+    private animateToState;
+    private performTransition;
     private createAnimations;
     private getStyleForState;
     private getResponsiveWidth;
@@ -30,7 +31,11 @@ export default class SchmancyBoat extends SchmancyBoat_base {
     private applyInitialStyles;
     toggleState(): void;
     close(): void;
-    private loadSavedPosition;
+    private closeAndAddToNav;
+    private animateToNavItem;
+    private animateFromNavItem;
+    private bringToFront;
+    private calculateDragPosition;
     private savePosition;
     private setupDragPipeline;
     private updateContainerPosition;

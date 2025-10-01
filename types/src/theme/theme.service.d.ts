@@ -34,10 +34,9 @@ import type { TSchmancyTheme } from './theme.interface';
  */
 declare class ThemeService {
     private static instance;
-    private _scheme$;
-    private _color$;
     private _theme$;
     private _themeComponent$;
+    private _fullscreen$;
     readonly scheme$: Observable<"auto" | "dark" | "light">;
     readonly color$: Observable<string>;
     readonly theme$: Observable<Partial<{
@@ -323,10 +322,12 @@ declare class ThemeService {
         };
     }>>;
     readonly themeComponent$: Observable<SchmancyThemeComponent>;
+    readonly fullscreen$: Observable<boolean>;
     get scheme(): 'dark' | 'light' | 'auto';
     get color(): string;
     get theme(): Partial<TSchmancyTheme>;
     get themeComponent(): SchmancyThemeComponent | null;
+    get fullscreen(): boolean;
     readonly resolvedScheme$: Observable<"dark" | "light">;
     constructor();
     /**
@@ -469,6 +470,60 @@ declare class ThemeService {
      */
     watchCSSVariable(variableName: string): Observable<string>;
     /**
+     * Set the fullscreen state for the application.
+     * This emits a custom event that navigation components can listen to.
+     *
+     * @param {boolean} value - Whether fullscreen mode is active
+     *
+     * @example
+     * ```typescript
+     * // Enter fullscreen mode
+     * theme.setFullscreen(true)
+     *
+     * // Exit fullscreen mode
+     * theme.setFullscreen(false)
+     * ```
+     */
+    setFullscreen(value: boolean): void;
+    /**
+     * Toggle fullscreen mode.
+     *
+     * @example
+     * ```typescript
+     * // Toggle fullscreen mode on button click
+     * button.addEventListener('click', () => {
+     *   theme.toggleFullscreen()
+     * })
+     * ```
+     */
+    toggleFullscreen(): void;
+    /**
+     * Convenience method to update theme state including fullscreen.
+     * Can be called with next() like syntax for familiarity.
+     *
+     * @param {Object} values - Theme values to update
+     * @param {boolean} [values.fullscreen] - Fullscreen state
+     * @param {'dark' | 'light' | 'auto'} [values.scheme] - Color scheme
+     * @param {string} [values.color] - Primary color
+     *
+     * @example
+     * ```typescript
+     * // Set fullscreen mode
+     * theme.next({ fullscreen: true })
+     *
+     * // Update multiple values
+     * theme.next({
+     *   fullscreen: true,
+     *   scheme: 'dark'
+     * })
+     * ```
+     */
+    next(values: {
+        fullscreen?: boolean;
+        scheme?: 'dark' | 'light' | 'auto';
+        color?: string;
+    }): void;
+    /**
      * Get the singleton instance of ThemeService.
      *
      * @returns {ThemeService} The singleton ThemeService instance
@@ -478,4 +533,5 @@ declare class ThemeService {
     static getInstance(): ThemeService;
 }
 export declare const theme: ThemeService;
+export declare const schmancyTheme: ThemeService;
 export default theme;

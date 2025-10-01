@@ -33,6 +33,22 @@ The `<schmancy-navigation-bar>` component is a Material Design 3 compliant horiz
 </schmancy-navigation-bar>
 ```
 
+### Fullscreen Mode Support
+The navigation bar automatically hides in fullscreen mode when triggered via the theme service:
+
+```javascript
+import { schmancyTheme } from '@schmancy/theme';
+
+// Enter fullscreen mode (hides navigation bar)
+schmancyTheme.next({ fullscreen: true });
+
+// Exit fullscreen mode (shows navigation bar)
+schmancyTheme.next({ fullscreen: false });
+
+// Toggle fullscreen mode
+schmancyTheme.toggleFullscreen();
+```
+
 ## Properties
 
 | Property | Type | Default | Description |
@@ -41,6 +57,7 @@ The `<schmancy-navigation-bar>` component is a Material Design 3 compliant horiz
 | `hideLabels` | `boolean` | `false` | Hide labels and show only icons |
 | `elevation` | `number` | `2` | Elevation level for the navigation bar (0-5) |
 | `hideOnScroll` | `boolean` | `false` | Automatically hide bar when scrolling down, show when scrolling up |
+
 
 ## Events
 
@@ -55,6 +72,7 @@ navigationBar.addEventListener('navigation-change', (event) => {
 });
 ```
 
+
 ## Features
 
 ### Reactive State Management
@@ -67,6 +85,15 @@ When `hideOnScroll` is enabled:
 - Uses smooth CSS transforms for GPU-accelerated animations
 - Implements a 10px scroll threshold to prevent jittery behavior
 - Always visible when near the top of the page
+
+### Visibility Control
+The navigation bar provides comprehensive visibility control:
+- **Manual Control**: Use `hide()`, `show()`, or `toggleVisibility()` methods
+- **Fullscreen Support**: Hide the navigation bar for immersive experiences
+- **Event-driven**: Listen to `visibility-change` events to react to visibility changes
+- **Smooth Transitions**: All visibility changes use smooth animations (300ms cubic-bezier)
+- **ARIA Compliance**: Automatically updates `aria-hidden` attribute
+- **Independent Controls**: `hidden` property works independently of scroll-based hiding
 
 ### Keyboard Navigation
 Full keyboard support for accessibility:
@@ -156,8 +183,7 @@ class MyApp extends LitElement {
 
 ## Performance Notes
 
-- Uses RxJS for efficient event handling
-- Scroll events are throttled at 100ms intervals
+- Efficient event handling with automatic cleanup
+- Scroll events are throttled at 100ms intervals to prevent performance issues
 - CSS transforms for smooth GPU-accelerated animations
-- Debounced navigation events (300ms) prevent accidental double-clicks
-- Lazy subscription setup for scroll listeners
+- Lazy subscription setup for scroll listeners only when needed

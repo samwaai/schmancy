@@ -1,37 +1,17 @@
-import { TailwindElement } from '@mixins/tailwind.mixin'
-import { css, html } from 'lit'
+import { $LitElement } from '@mixins/index'
+import { html, css } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref.js'
-import { Subject, fromEvent, merge, of, EMPTY } from 'rxjs'
-import {
-	filter,
-	switchMap,
-	takeUntil,
-	tap,
-	finalize,
-	catchError,
-	debounceTime,
-	scan,
-	shareReplay,
-	map,
-} from 'rxjs/operators'
+import { fromEvent, merge, race } from 'rxjs'
+import { filter, switchMap, takeUntil, tap, finalize, map, take } from 'rxjs/operators'
 
 type BoatState = 'hidden' | 'minimized' | 'expanded'
 
-// State change event for the unified pipeline
-interface StateChangeEvent {
-	source: 'internal' | 'external' | 'resize'
-	target?: BoatState
-	type: 'state' | 'lowered' | 'resize'
-}
-
-// Position interface for drag functionality
 interface Position {
 	x: number
 	y: number
 }
 
-// Saved position from localStorage
 interface SavedPosition {
 	x: number
 	y: number
@@ -39,59 +19,30 @@ interface SavedPosition {
 }
 
 @customElement('schmancy-boat')
-export default class SchmancyBoat extends TailwindElement(css`
-	/* Performance optimization - GPU hints only */
-	.boat-container {
-		will-change: transform, border-radius, width, max-width, box-shadow;
-		contain: layout style;
-		transform: translate3d(0, 0, 0); /* Force GPU acceleration */
-		backface-visibility: hidden;
-		user-select: none; /* Prevent text selection during drag */
-	}
-
-	/* Dragging state styles */
-	.boat-container.dragging {
-		box-shadow: 0 24px 48px -8px rgba(0, 0, 0, 0.2), 0 12px 24px -4px rgba(0, 0, 0, 0.12);
-	}
-
-	/* Drag handle hover effect */
-	.drag-handle {
-		transition: opacity 0.2s ease;
-	}
-
-	.boat-header:hover .drag-handle {
-		opacity: 1 !important;
+export default class SchmancyBoat extends $LitElement(css`
+	:host {
+		display: contents;
 	}
 `) {
-	// Public properties - route ALL changes through stateChange$
 	@property({ type: String, reflect: true })
 	get state(): BoatState {
 		return this.currentState
 	}
 	set state(value: BoatState) {
-		// Route external state changes through the unified pipeline
-		this.stateChange$.next({
-			source: 'external',
-			target: value,
-			type: 'state',
-		})
+		if (this.isAnimating || value === this.currentState) return
+		this.animateToState(value)
 	}
+
+	@property({ type: String }) id: string = 'default'
 
 	@property({ type: Boolean, reflect: true })
 	get lowered(): boolean {
 		return this.isLowered
 	}
 	set lowered(value: boolean) {
-		this.stateChange$.next({
-			source: 'external',
-			target: this.currentState,
-			type: 'lowered',
-		})
 		this.isLowered = value
+		this.requestUpdate()
 	}
-
-	// Single unified state change stream - ALL state changes go through this
-	private stateChange$ = new Subject<StateChangeEvent>()
 
 	// Element references
 	private containerRef: Ref<HTMLDivElement> = createRef()
@@ -135,167 +86,104 @@ export default class SchmancyBoat extends TailwindElement(css`
 
 	connectedCallback() {
 		super.connectedCallback()
-		this.loadSavedPosition()
-		this.setupUnifiedPipeline()
-		this.setupDragPipeline()
-	}
 
-	private setupUnifiedPipeline() {
-		// Create resize stream
-		const resize$ =
-			typeof window !== 'undefined'
-				? fromEvent(window, 'resize').pipe(
-						debounceTime(100),
-						filter(() => this.currentState === 'expanded'),
-						tap(() =>
-							this.stateChange$.next({
-								source: 'resize',
-								type: 'resize',
-							}),
-						),
-					)
-				: EMPTY
-
-		// SINGLE UNIFIED PIPELINE - All state management in ONE place
-		merge(
-			// Initial state
-			of({
-				source: 'internal' as const,
-				target: 'minimized' as BoatState,
-				type: 'state' as const,
-			}),
-			// All state changes
-			this.stateChange$,
-			// Window resize events
-			resize$,
-		)
-			.pipe(
-				// Accumulate state and handle all changes
-				scan(
-					(state, event: StateChangeEvent) => {
-						// Handle different event types
-						if (event.type === 'resize' && this.currentState === 'expanded') {
-							// Just update width, no animation needed
-							this.updateExpandedWidth()
-							return { ...state, resized: true }
-						}
-
-						if (event.type === 'lowered') {
-							// Update lowered state
-							return { ...state, lowered: !state.lowered }
-						}
-
-						// Handle state changes
-						if (event.type === 'state' && event.target && event.target !== state.current) {
-							return {
-								...state,
-								previous: state.current,
-								current: event.target,
-								pending: true,
-								source: event.source,
-							}
-						}
-
-						return state
-					},
-					{
-						current: 'minimized' as BoatState,
-						previous: 'minimized' as BoatState,
-						pending: false,
-						lowered: false,
-						resized: false,
-						source: 'internal' as 'internal' | 'external' | 'resize',
-					},
-				),
-
-				// Only process when there's a pending state change
-				tap(state => {
-					// Always update lowered state
-					this.isLowered = state.lowered
-				}),
-
-				// Handle animations for state transitions
-				switchMap(state => {
-					if (!state.pending || this.isAnimating) {
-						return of(state)
-					}
-
-					// Mark as animating
-					this.isAnimating = true
-
-					// Animate the transition
-					return this.animateTransition(state.previous, state.current).pipe(
-						tap(() => {
-							// Update state after animation completes
-							this.currentState = state.current
-							this.isContentVisible = state.current === 'expanded'
-
-							// Dispatch event
-							this.dispatchEvent(
-								new CustomEvent('toggle', {
-									detail: state.current,
-									bubbles: true,
-									composed: true,
-								}),
-							)
-						}),
-						catchError(err => {
-							console.warn('Animation error:', err)
-							// Still update state even if animation fails
-							this.currentState = state.current
-							this.isContentVisible = state.current === 'expanded'
-							return of(state)
-						}),
-						finalize(() => {
-							this.isAnimating = false
-						}),
-						// Return the state for next iteration
-						tap(() => (state.pending = false)),
-					)
-				}),
-
-				// Share the pipeline result
-				shareReplay(1),
-				takeUntil(this.disconnecting),
-			)
-			.subscribe()
-	}
-
-	// Simplified animation transition method
-	private animateTransition(fromState: BoatState, toState: BoatState) {
-		return of({ fromState, toState }).pipe(
-			tap(() => this.currentAnimation?.cancel()),
-			switchMap(({ fromState, toState }) => {
-				const container = this.containerRef.value
-				if (!container) return EMPTY
-
-				// Update content visibility before expand, after minimize
-				if (toState === 'expanded') {
-					this.isContentVisible = true
-				}
-
-				// Create animation based on target state
-				const animations = this.createAnimations(fromState, toState)
-
-				// Execute animations and return completion promise
-				return new Promise<void>(resolve => {
-					const mainAnimation = animations.container
-					if (mainAnimation) {
-						this.currentAnimation = mainAnimation
-						mainAnimation.finished
-							.then(() => {
-								if (toState !== 'expanded') {
-									this.isContentVisible = false
-								}
-								resolve()
-							})
-							.catch(() => resolve())
-					} else {
-						resolve()
+		if (typeof window !== 'undefined') {
+			fromEvent(window, 'resize')
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe(() => {
+					if (this.currentState === 'expanded') {
+						this.updateExpandedWidth()
 					}
 				})
-			}),
-		)
+
+			// Keyboard shortcut - Escape key
+			fromEvent<KeyboardEvent>(window, 'keydown')
+				.pipe(
+					filter(e => e.key === 'Escape' && this.currentState !== 'hidden'),
+					tap(e => e.preventDefault()),
+					takeUntil(this.disconnecting)
+				)
+				.subscribe(() => {
+					if (this.currentState === 'expanded') {
+						this.toggleState() // Minimize on Esc if expanded
+					} else {
+						this.close() // Hide on Esc if minimized
+					}
+				})
+		}
+	}
+
+	private initializePosition() {
+		if (typeof window === 'undefined') return
+
+		const saved = localStorage.getItem(`schmancy-boat-${this.id}`)
+
+		if (saved) {
+			try {
+				const parsed: SavedPosition = JSON.parse(saved)
+				this.position = { x: parsed.x, y: parsed.y }
+				this.anchor = parsed.anchor
+				console.log('📍 Loaded position:', this.id, parsed)
+			} catch (e) {
+				// Use default position on parse error
+			}
+		}
+		// If no saved position, use default from @state initialization
+	}
+
+	private async animateToState(targetState: BoatState) {
+		if (this.isAnimating || targetState === this.currentState) return
+
+		const previousState = this.currentState
+		this.isAnimating = true
+
+		try {
+			await this.performTransition(previousState, targetState)
+			this.currentState = targetState
+			this.isContentVisible = targetState === 'expanded'
+
+			// Dispatch event
+			this.dispatchEvent(
+				new CustomEvent('toggle', {
+					detail: targetState,
+					bubbles: true,
+					composed: true,
+				}),
+			)
+		} catch (err) {
+			console.warn('Animation error:', err)
+			this.currentState = targetState
+			this.isContentVisible = targetState === 'expanded'
+		} finally {
+			this.isAnimating = false
+		}
+	}
+
+	// Simplified animation transition
+	private async performTransition(fromState: BoatState, toState: BoatState): Promise<void> {
+		this.currentAnimation?.cancel()
+
+		const container = this.containerRef.value
+		if (!container) return
+
+		// Update content visibility before expand
+		if (toState === 'expanded') {
+			this.isContentVisible = true
+		}
+
+		// Create animations
+		const animations = this.createAnimations(fromState, toState)
+
+		// Wait for main animation to complete
+		if (animations.container) {
+			this.currentAnimation = animations.container
+			await animations.container.finished
+
+			// Hide content after minimize
+			if (toState !== 'expanded') {
+				this.isContentVisible = false
+			}
+		}
 	}
 
 	// Create animations for state transition
@@ -383,7 +271,6 @@ export default class SchmancyBoat extends TailwindElement(css`
 	private getStyleForState(state: BoatState): Keyframe {
 		const { shadows } = this.ANIMATION_CONFIG
 		const baseStyles = {
-			width: '300px',
 			maxWidth: '300px',
 			maxHeight: 'auto',
 			borderRadius: '16px',
@@ -438,12 +325,11 @@ export default class SchmancyBoat extends TailwindElement(css`
 		}
 	}
 
-	// Initialize component styles after first render
 	firstUpdated() {
-		// Apply initial styles
+		this.initializePosition()
 		this.applyInitialStyles()
-		// Apply saved position
 		this.updateContainerPosition()
+		this.setupDragPipeline()
 	}
 
 	// Apply initial styles to elements
@@ -476,39 +362,185 @@ export default class SchmancyBoat extends TailwindElement(css`
 	// Public method to toggle between minimized and expanded
 	toggleState() {
 		const newState = this.currentState === 'minimized' ? 'expanded' : 'minimized'
-		this.stateChange$.next({
-			source: 'internal',
-			target: newState,
-			type: 'state',
-		})
+		this.animateToState(newState)
 	}
 
 	// Public method to close (hide) the boat
 	close() {
-		this.stateChange$.next({
-			source: 'internal',
-			target: 'hidden',
-			type: 'state',
-		})
+		this.animateToState('hidden')
 	}
 
-	// Load saved position from localStorage
-	private loadSavedPosition() {
-		if (typeof window === 'undefined') return
+	private closeAndAddToNav() {
+		// Use discovery to find navigation components
+		race(
+			this.discover<any>('schmancy-navigation-rail'),
+			this.discover<any>('schmancy-navigation-bar'),
+			this.discover<any>('schmancy-nav-drawer'),
+			this.discover<any>('app-navigation-rail'),
+			this.discover<any>('app-navigation-bar'),
+			this.discover<any>('app-nav-drawer'),
+		)
+			.pipe(
+				take(1),
+				tap(async navComponent => {
+					if (navComponent && typeof navComponent.addBoatItem === 'function') {
+						// Get the actual icon from the header
+						const headerSlot = this.querySelector('[slot="header"]')
+						const iconElement = headerSlot?.querySelector('schmancy-icon')
+						const icon = iconElement?.textContent?.trim() || 'widgets'
 
-		const saved = localStorage.getItem('schmancy-boat-position')
-		if (saved) {
-			try {
-				const parsed: SavedPosition = JSON.parse(saved)
-				this.position = { x: parsed.x, y: parsed.y }
-				this.anchor = parsed.anchor
-			} catch (e) {
-				// Use default position if parse fails
-			}
+						// Get a clean title (remove the icon text from the header text)
+						let title = headerSlot?.textContent?.trim() || 'Boat'
+						if (icon && title.includes(icon)) {
+							title = title.replace(icon, '').trim()
+						}
+
+						// Add the boat to navigation first
+						const navItem = navComponent.addBoatItem({
+							id: `boat-${this.id}`,
+							title: title || this.id,
+							icon: icon,
+						})
+
+						// Animate the boat to the nav item position (genie effect)
+						if (navItem) {
+							await this.animateToNavItem(navItem)
+
+							// Listen for clicks on the nav item to re-open the boat
+							navItem.addEventListener('click', () => {
+								// Animate from nav item back to expanded position
+								this.animateFromNavItem(navItem)
+							})
+						}
+					} else {
+						// No nav component found, just hide
+						this.close()
+					}
+				}),
+			)
+			.subscribe()
+	}
+
+	private async animateToNavItem(navItem: HTMLElement) {
+		const container = this.containerRef.value
+		if (!container) return
+
+		// Get positions
+		const boatRect = container.getBoundingClientRect()
+		const navRect = navItem.getBoundingClientRect()
+
+		// Cancel any existing animation
+		this.currentAnimation?.cancel()
+
+		// Create genie effect animation (like macOS)
+		const keyframes: Keyframe[] = [
+			{
+				transform: 'scale(1) translate3d(0, 0, 0)',
+				opacity: 1,
+				borderRadius: '8px',
+			},
+			{
+				transform: `scale(0.3) translate3d(${navRect.left - boatRect.left}px, ${navRect.top - boatRect.top}px, 0)`,
+				opacity: 0.5,
+				borderRadius: '50%',
+			},
+			{
+				transform: `scale(0) translate3d(${navRect.left - boatRect.left}px, ${navRect.top - boatRect.top}px, 0)`,
+				opacity: 0,
+				borderRadius: '50%',
+			},
+		]
+		this.currentAnimation = container.animate(
+			keyframes,
+			{
+				duration: 600,
+				easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+				fill: 'forwards',
+			},
+		)
+
+		await this.currentAnimation.finished
+		this.currentState = 'hidden'
+	}
+
+	private animateFromNavItem(navItem: HTMLElement) {
+		const container = this.containerRef.value
+		if (!container) return
+
+		// Get nav item position
+		const navRect = navItem.getBoundingClientRect()
+
+		// Set initial position at nav item
+		container.style.transformOrigin = `${navRect.left}px ${navRect.top}px`
+
+		// Cancel any existing animation
+		this.currentAnimation?.cancel()
+
+		// Animate from nav item to expanded state
+		const expandKeyframes: Keyframe[] = [
+			{
+				transform: `scale(0) translate3d(${navRect.left}px, ${navRect.top}px, 0)`,
+				opacity: 0,
+				borderRadius: '50%',
+			},
+			{
+				transform: 'scale(0.5) translate3d(0, 0, 0)',
+				opacity: 0.5,
+				borderRadius: '24px',
+			},
+			{
+				transform: 'scale(1) translate3d(0, 0, 0)',
+				opacity: 1,
+				borderRadius: '8px',
+			},
+		]
+		this.currentAnimation = container.animate(
+			expandKeyframes,
+			{
+				duration: 400,
+				easing: 'cubic-bezier(0.2, 0.0, 0, 1.0)',
+				fill: 'forwards',
+			},
+		)
+
+		// Update state
+		this.currentState = 'expanded'
+		this.isContentVisible = true
+		this.bringToFront()
+	}
+
+	private bringToFront() {
+		const container = this.containerRef.value
+		if (container) {
+			container.style.zIndex = String(10000 + (Date.now() % 1000))
 		}
 	}
 
-	// Save position to localStorage
+	private calculateDragPosition(
+		clientX: number,
+		clientY: number,
+		offsetX: number,
+		offsetY: number,
+		initialRect: DOMRect,
+	): Position {
+		const targetLeft = clientX - offsetX
+		const targetTop = clientY - offsetY
+		const vw = window.innerWidth
+		const vh = window.innerHeight
+		const clampedLeft = Math.max(0, Math.min(targetLeft, vw - initialRect.width))
+		const clampedTop = Math.max(0, Math.min(targetTop, vh - initialRect.height))
+
+		const newX = this.anchor.includes('right')
+			? vw - (clampedLeft + initialRect.width)
+			: clampedLeft
+
+		const newY = this.anchor.includes('bottom')
+			? vh - (clampedTop + initialRect.height)
+			: clampedTop
+
+		return { x: Math.max(0, newX), y: Math.max(0, newY) }
+	}
+
 	private savePosition() {
 		if (typeof window === 'undefined') return
 
@@ -517,136 +549,109 @@ export default class SchmancyBoat extends TailwindElement(css`
 			y: this.position.y,
 			anchor: this.anchor,
 		}
-		localStorage.setItem('schmancy-boat-position', JSON.stringify(toSave))
+		const key = `schmancy-boat-${this.id}`
+		localStorage.setItem(key, JSON.stringify(toSave))
+		console.log('💾 Saved position:', key, toSave)
 	}
 
-	// Setup drag pipeline for the header
 	private setupDragPipeline() {
 		if (typeof window === 'undefined') return
 
-		// Wait for header element to be available
-		setTimeout(() => {
-			const header = this.headerRef.value
-			const container = this.containerRef.value
-			if (!header || !container) return
+		const header = this.headerRef.value
+		const container = this.containerRef.value
+		if (!header || !container) return
 
-			// Track whether we should process click events
-			let hasDragged = false
-			const DRAG_THRESHOLD = 5 // pixels
+		let hasDragged = false
+		const DRAG_THRESHOLD = 5
 
-			const dragStart$ = fromEvent<MouseEvent>(header, 'mousedown').pipe(
-				filter((e: MouseEvent) => e.button === 0), // Left mouse button only
-				tap((e: MouseEvent) => {
+		// Merge mouse and touch start events
+		const dragStart$ = merge(
+			fromEvent<MouseEvent>(header, 'mousedown').pipe(
+				filter(e => e.button === 0),
+				tap(e => {
 					e.preventDefault()
 					e.stopPropagation()
-					// Don't set isDragging yet - wait to see if user actually drags
+				}),
+				map(e => ({
+					clientX: e.clientX,
+					clientY: e.clientY,
+					type: 'mouse' as const,
+				})),
+			),
+			fromEvent<TouchEvent>(header, 'touchstart').pipe(
+				map(e => ({
+					clientX: e.touches[0].clientX,
+					clientY: e.touches[0].clientY,
+					type: 'touch' as const,
+				})),
+			),
+		).pipe(
+			map(({ clientX, clientY, type }) => {
+				const rect = container.getBoundingClientRect()
+				hasDragged = false
+				return {
+					startX: clientX,
+					startY: clientY,
+					offsetX: clientX - rect.left,
+					offsetY: clientY - rect.top,
+					initialRect: rect,
+					type,
+				}
+			}),
+		)
+
+		dragStart$
+			.pipe(
+				switchMap(({ startX, startY, offsetX, offsetY, initialRect, type }) => {
+					const move$ =
+						type === 'mouse'
+							? fromEvent<MouseEvent>(window, 'mousemove').pipe(
+									map(e => ({ clientX: e.clientX, clientY: e.clientY })),
+								)
+							: fromEvent<TouchEvent>(window, 'touchmove').pipe(
+									map(e => ({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })),
+								)
+
+					const end$ = type === 'mouse' ? fromEvent(window, 'mouseup') : fromEvent(window, 'touchend')
+
+					return move$.pipe(
+						map(({ clientX, clientY }) => {
+							const deltaX = clientX - startX
+							const deltaY = clientY - startY
+							const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+
+							if (distance > DRAG_THRESHOLD && !hasDragged) {
+								hasDragged = true
+								this.isDragging = true
+							}
+
+							if (!hasDragged) return null
+
+							return this.calculateDragPosition(clientX, clientY, offsetX, offsetY, initialRect)
+						}),
+						filter(position => position !== null),
+						tap(position => {
+							if (position) {
+								this.position = position
+								this.updateContainerPosition()
+							}
+						}),
+						takeUntil(end$),
+					)
+				}),
+				finalize(() => {
+					if (hasDragged) {
+						this.updateAnchor()
+						this.savePosition()
+					} else {
+						this.toggleState()
+					}
+					this.isDragging = false
 					hasDragged = false
 				}),
-				map((e: MouseEvent) => {
-					// Get the current position of the boat in viewport coordinates
-					const rect = container.getBoundingClientRect()
-
-					// Calculate the offset from where the user clicked to the boat's position
-					// This offset will be maintained throughout the drag
-					const offsetX = e.clientX - rect.left
-					const offsetY = e.clientY - rect.top
-
-					return {
-						startMouseX: e.clientX,
-						startMouseY: e.clientY,
-						offsetX,
-						offsetY,
-						initialRect: rect,
-					}
-				}),
+				takeUntil(this.disconnecting),
 			)
-
-			const dragMove$ = fromEvent<MouseEvent>(window, 'mousemove')
-			const dragEnd$ = fromEvent<MouseEvent>(window, 'mouseup')
-
-			dragStart$
-				.pipe(
-					switchMap(({ startMouseX, startMouseY, offsetX, offsetY, initialRect }) =>
-						dragMove$.pipe(
-							// Remove throttling for smoother movement
-							map((moveEvent: MouseEvent) => {
-								const deltaX = moveEvent.clientX - startMouseX
-								const deltaY = moveEvent.clientY - startMouseY
-
-								// Check if we've moved beyond the threshold
-								const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
-								if (distance > DRAG_THRESHOLD && !hasDragged) {
-									hasDragged = true
-									this.isDragging = true
-								}
-
-								// Only update position if actually dragging
-								if (!hasDragged) {
-									return null
-								}
-
-								// Calculate where the boat should be positioned
-								// The boat should follow the cursor while maintaining the initial offset
-								const targetLeft = moveEvent.clientX - offsetX
-								const targetTop = moveEvent.clientY - offsetY
-
-								// Get viewport dimensions
-								const vw = window.innerWidth
-								const vh = window.innerHeight
-
-								// Clamp to viewport bounds
-								const clampedLeft = Math.max(0, Math.min(targetLeft, vw - initialRect.width))
-								const clampedTop = Math.max(0, Math.min(targetTop, vh - initialRect.height))
-
-								// Convert to position values based on current anchor
-								let newX: number
-								let newY: number
-
-								if (this.anchor.includes('right')) {
-									// Distance from right edge
-									newX = vw - (clampedLeft + initialRect.width)
-								} else {
-									// Distance from left edge
-									newX = clampedLeft
-								}
-
-								if (this.anchor.includes('bottom')) {
-									// Distance from bottom edge
-									newY = vh - (clampedTop + initialRect.height)
-								} else {
-									// Distance from top edge
-									newY = clampedTop
-								}
-
-								return { x: Math.max(0, newX), y: Math.max(0, newY) }
-							}),
-							filter(position => position !== null),
-							tap(position => {
-								if (hasDragged && position) {
-									this.position = position
-									this.updateContainerPosition()
-									// Check if we need to update anchor
-									this.updateAnchor()
-								}
-							}),
-							takeUntil(dragEnd$),
-						),
-					),
-					finalize(() => {
-						// If we didn't drag, trigger the click
-						if (!hasDragged) {
-							this.toggleState()
-						} else {
-							// Save position only if we actually dragged
-							this.savePosition()
-						}
-						this.isDragging = false
-						hasDragged = false
-					}),
-					takeUntil(this.disconnecting),
-				)
-				.subscribe()
-		}, 100)
+			.subscribe()
 	}
 
 	// Update container position based on anchor and position values
@@ -712,23 +717,30 @@ export default class SchmancyBoat extends TailwindElement(css`
 	disconnectedCallback() {
 		super.disconnectedCallback()
 		this.currentAnimation?.cancel()
-		this.stateChange$.complete()
 	}
 
-	// Render the component
 	protected render(): unknown {
-		// Calculate dynamic values
 		const surfaceElevation = this.currentState === 'minimized' ? (this.isLowered ? '1' : '3') : '4'
 		const isMinimized = this.currentState === 'minimized'
-		const iconName = isMinimized ? 'expand_less' : 'expand_more'
 
-		// Dynamic styles for dragging state
-		const containerClass = `boat-container z-[9999] fixed overflow-y-auto flex flex-col transition-shadow ${
-			this.isDragging ? 'dragging opacity-95' : ''
-		}`
+		const containerClasses = {
+			'fixed': true,
+			'overflow-y-auto': true,
+			'flex': true,
+			'flex-col': true,
+			'z-[10000]': true,
+			'select-none': true,
+			'will-change-transform': true,
+			'[contain:layout_style]': true,
+			'[transform:translate3d(0,0,0)]': true,
+			'[backface-visibility:hidden]': true,
+			'transition-shadow': true,
+			'opacity-95': this.isDragging,
+			'shadow-[0_24px_48px_-8px_rgba(0,0,0,0.2),0_12px_24px_-4px_rgba(0,0,0,0.12)]': this.isDragging,
+		}
 
 		return html`
-			<div class="${containerClass}" ${ref(this.containerRef)}>
+			<div class=${this.classMap(containerClasses)} ${ref(this.containerRef)} @click=${this.bringToFront}>
 				<!-- Header section -->
 				<section class="sticky top-0 z-10">
 					<schmancy-surface
@@ -737,44 +749,69 @@ export default class SchmancyBoat extends TailwindElement(css`
 						type="containerLowest"
 					>
 						<div
-							class="boat-header sticky top-0 px-3 py-2 flex items-center justify-between gap-3 ${this.isDragging ? 'cursor-grabbing' : 'cursor-move'}"
+							class="group sticky top-0 px-3 py-2 flex items-center justify-between gap-3 ${this.isDragging
+								? 'cursor-grabbing'
+								: 'cursor-move'}"
 							${ref(this.headerRef)}
-							title="Drag to move, click to expand/collapse"
+							title="Drag to move, double-click to toggle"
+							@dblclick=${(e: Event) => {
+								e.preventDefault()
+								e.stopPropagation()
+								this.toggleState()
+							}}
 						>
 							<!-- Drag handle indicator -->
-							<div class="drag-handle flex items-center text-surface-onVariant opacity-40">
+							<div
+								class="flex items-center text-surface-onVariant opacity-40 transition-opacity duration-200 group-hover:opacity-100"
+							>
 								<schmancy-icon style="font-size: 20px">drag_indicator</schmancy-icon>
 							</div>
 
 							<!-- Header content slot -->
-							<div class="flex-1 min-w-fit items-center justify-start">
+							<div class="flex-1 min-w-fit items-center flex justify-start">
 								<slot name="header"></slot>
 							</div>
 
 							<!-- Control buttons -->
 							<div class="flex items-center gap-1 flex-shrink-0">
-								<!-- Toggle button -->
-								<schmancy-icon-button
-									variant="${isMinimized ? 'text' : 'filled tonal'}"
-									@click=${(e: Event) => {
-										e.stopPropagation()
-										this.toggleState()
-									}}
-									title=${isMinimized ? 'Expand' : 'Minimize'}
-								>
-									<span class="icon-container" ${ref(this.iconRef)}> ${iconName} </span>
-								</schmancy-icon-button>
+								${isMinimized
+									? html`
+											<!-- Expand button (when minimized) -->
+											<schmancy-icon-button
+												variant="text"
+												@click=${(e: Event) => {
+													e.stopPropagation()
+													this.state = 'expanded'
+												}}
+												title="Expand"
+											>
+												<schmancy-icon ${ref(this.iconRef)}>expand_less</schmancy-icon>
+											</schmancy-icon-button>
+										`
+									: html`
+											<!-- Minimize button (when expanded) -->
+											<schmancy-icon-button
+												variant="filled tonal"
+												@click=${(e: Event) => {
+													e.stopPropagation()
+													this.state = 'minimized'
+												}}
+												title="Minimize"
+											>
+												<schmancy-icon ${ref(this.iconRef)}>expand_more</schmancy-icon>
+											</schmancy-icon-button>
+										`}
 
 								<!-- Close button -->
 								<schmancy-icon-button
 									variant="text"
 									@click=${(e: Event) => {
 										e.stopPropagation()
-										this.close()
+										this.closeAndAddToNav()
 									}}
-									title="Close"
+									title="Close and add to navigation"
 								>
-									close
+									<schmancy-icon>close</schmancy-icon>
 								</schmancy-icon-button>
 							</div>
 						</div>
@@ -785,7 +822,7 @@ export default class SchmancyBoat extends TailwindElement(css`
 				<schmancy-surface
 					.hidden=${!this.isContentVisible}
 					type="containerLow"
-					class="boat-content z-0 flex-1"
+					class="z-0 flex-1"
 					${ref(this.contentRef)}
 				>
 					<slot></slot>

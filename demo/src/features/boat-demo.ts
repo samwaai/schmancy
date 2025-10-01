@@ -367,6 +367,7 @@ export class DemoBoat extends $LitElement() {
 
 				<!-- Basic Boat -->
 				<schmancy-boat
+					id="basic"
 					.state=${this.basicBoatState}
 					@toggle=${(e: CustomEvent) => this.basicBoatState = e.detail}
 				>
@@ -404,6 +405,7 @@ export class DemoBoat extends $LitElement() {
 
 				<!-- Draggable Boat -->
 				<schmancy-boat
+					id="draggable"
 					.state=${this.draggableBoatState}
 					lowered
 					@toggle=${(e: CustomEvent) => this.draggableBoatState = e.detail}
@@ -449,6 +451,7 @@ export class DemoBoat extends $LitElement() {
 
 				<!-- Interactive Boat with Task Manager -->
 				<schmancy-boat
+					id="tasks"
 					.state=${this.interactiveBoatState}
 					@toggle=${(e: CustomEvent) => this.interactiveBoatState = e.detail}
 				>

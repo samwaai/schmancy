@@ -266,6 +266,23 @@ Navigation rail items use the Schmancy design token system and do not expose cus
 </schmancy-navigation-rail>
 ```
 
+### Fullscreen Mode Support
+
+The navigation rail automatically hides in fullscreen mode when triggered via the theme service:
+
+```typescript
+import { schmancyTheme } from '@schmancy/theme';
+
+// Enter fullscreen mode (hides navigation rail)
+schmancyTheme.next({ fullscreen: true });
+
+// Exit fullscreen mode (shows navigation rail)
+schmancyTheme.next({ fullscreen: false });
+
+// Toggle fullscreen mode
+schmancyTheme.toggleFullscreen();
+```
+
 ### Programmatic Control
 
 ```typescript
@@ -361,6 +378,61 @@ class MyApp extends LitElement {
     rail.toggle()
   }
 </script>
+```
+
+### With Fullscreen Mode Support
+
+```typescript
+import { LitElement, html } from 'lit'
+import { customElement, state } from 'lit/decorators.js'
+
+@customElement('my-app')
+class MyApp extends LitElement {
+  @state() private fullScreen = false
+
+  handleFullscreenToggle() {
+    this.fullScreen = !this.fullScreen
+  }
+
+  handleVisibilityChange(e: CustomEvent) {
+    console.log(`Navigation rail is ${e.detail.hidden ? 'hidden' : 'visible'}`)
+  }
+
+  render() {
+    return html`
+      <schmancy-nav-drawer .fullscreen=${this.fullScreen}>
+        <!-- Navigation rail hides automatically in fullscreen mode -->
+        <schmancy-navigation-rail
+          .hidden=${this.fullScreen}
+          activeIndex="0"
+          @visibility-change=${this.handleVisibilityChange}
+        >
+          <schmancy-navigation-rail-item
+            icon="home"
+            label="Home"
+          ></schmancy-navigation-rail-item>
+
+          <schmancy-navigation-rail-item
+            icon="search"
+            label="Search"
+          ></schmancy-navigation-rail-item>
+
+          <schmancy-navigation-rail-item
+            icon="settings"
+            label="Settings"
+          ></schmancy-navigation-rail-item>
+        </schmancy-navigation-rail>
+
+        <main>
+          <button @click=${this.handleFullscreenToggle}>
+            ${this.fullScreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+          </button>
+          <!-- Main content here -->
+        </main>
+      </schmancy-nav-drawer>
+    `
+  }
+}
 ```
 
 ### With Router Integration

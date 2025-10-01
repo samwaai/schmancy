@@ -3,7 +3,7 @@ import { argbFromHex, themeFromSourceColor } from '@material/material-color-util
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Observable, of, switchMap, fromEvent, takeUntil } from 'rxjs'
+import { Observable, of, switchMap, fromEvent, takeUntil, distinctUntilChanged, debounceTime, combineLatest, tap } from 'rxjs'
 import { themeContext } from './context'
 import { formateTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
@@ -93,38 +93,52 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 
 	connectedCallback(): void {
 		super.connectedCallback()
-		if (!this.color) this.color = this.generateRandomColor()
+
+		// Check if color/scheme were set via attributes or should use service values
+		const hasColorAttribute = this.hasAttribute('color')
+		const hasSchemeAttribute = this.hasAttribute('scheme')
+
+		// Initialize from service if no attributes provided
+		if (!hasColorAttribute) {
+			const serviceColor = themeService.color
+			this.color = (typeof serviceColor === 'string' && serviceColor.startsWith('#'))
+				? serviceColor
+				: this.generateRandomColor()
+		}
+
+		if (!hasSchemeAttribute) {
+			this.scheme = themeService.scheme
+		}
 
 		// Register with theme service
 		themeService.registerThemeComponent(this)
 
-		of(this.scheme)
-			.pipe(
-				switchMap(scheme => {
-					if (scheme === 'auto') return $colorScheme
-					return of(scheme)
-				}),
-			)
-			.subscribe(scheme => {
+		// Subscribe to all theme changes in a single pipe
+		combineLatest([
+			themeService.scheme$.pipe(
+				switchMap(scheme => scheme === 'auto' ? $colorScheme : of(scheme))
+			),
+			themeService.color$
+		]).pipe(
+			distinctUntilChanged((prev, curr) =>
+				prev[0] === curr[0] && prev[1] === curr[1]
+			),
+			debounceTime(10),
+			tap(([scheme, color]) => {
 				this.scheme = scheme as 'dark' | 'light'
-				this.registerTheme()
-				// Update theme service when scheme changes
-				themeService.updateTheme({
-					scheme: this.scheme,
-					color: this.color,
-					theme: this.theme
-				})
-			})
+				this.color = color
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe(() => {
+			this.registerTheme()
+		})
 
 		// Listen for generic theme discovery events
-		fromEvent<ThemeWhereAreYouEvent>(this, ThemeWhereAreYou)
-		.pipe(
+		fromEvent<ThemeWhereAreYouEvent>(this, ThemeWhereAreYou).pipe(
 			takeUntil(this.disconnecting)
-		)
-		.subscribe((e) => {
+		).subscribe((e) => {
 			e.stopPropagation()
 			e.preventDefault()
-			// Respond immediately with this theme container
 			window.dispatchEvent(
 				new CustomEvent(ThemeHereIAm, {
 					detail: { theme: this },
@@ -133,13 +147,12 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 				})
 			)
 		})
-
 	}
 
 	updated(changedProperties: Map<string | number | symbol, unknown>): void {
 		super.updated(changedProperties)
 
-		// Update theme service when properties change
+		// Update service when properties change from outside (attributes/properties)
 		if (changedProperties.has('color') || changedProperties.has('scheme') || changedProperties.has('theme')) {
 			themeService.updateTheme({
 				scheme: this.scheme,
@@ -149,8 +162,11 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 		}
 	}
 	registerTheme() {
+		// Ensure color is a valid hex string
+		const colorHex = typeof this.color === 'string' ? this.color : '#6200ee'
+
 		let theme = formateTheme(
-			themeFromSourceColor(argbFromHex(this.color)),
+			themeFromSourceColor(argbFromHex(colorHex)),
 			this.scheme === 'dark' ? true : false,
 			{
 				success: argbFromHex('#34B334'),

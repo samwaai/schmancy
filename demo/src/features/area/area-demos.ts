@@ -18,7 +18,7 @@ import './lazy-demo'
 
 // Main Demo Area Component
 @customElement('demo-area-demos')
-export class DemoAreaDemos extends $LitElement() {
+export default class DemoAreaDemos extends $LitElement() {
 	@state() private activeDemo = 'overview'
 
 	connectedCallback() {

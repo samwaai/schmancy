@@ -19,7 +19,7 @@ import './features/core-demos/icons'
 import './features/core-demos/cards'
 
 // Direct component imports for non-lazy loaded components
-import { DemoAreaDemos } from './features/area/area-demos'
+import DemoAreaDemos from './features/area/area-demos'
 import { DemoContext } from './features/context'
 import { ThemeServiceDemo } from './features/theme-service-demo'
 import { DemoChips } from './features/chips'
@@ -28,7 +28,6 @@ import { DemoBoat } from './features/boat'
 import { DemoSteps } from './features/steps'
 import DetailsShowcase from './features/details-showcase'
 import { DemoMailbox } from './features/mailbox'
-
 
 type Theme = {
 	color: string
@@ -80,10 +79,9 @@ export default class SchmancyDemo extends $LitElement() {
 		// Simple navigation - just use area.push with the component
 		area.push({
 			area: 'main',
-			component: demo.component
+			component: demo.component,
 		})
 	}
-
 
 	render() {
 		// All components in a flat, alphabetical structure for easy discovery
@@ -96,32 +94,112 @@ export default class SchmancyDemo extends $LitElement() {
 			{ name: 'Icon', component: 'demo-core-icons', icon: 'palette', value: 'icon' },
 
 			// Input & Forms
-			{ name: 'Text Input', component: lazy(() => import('./features/forms-demos/text-inputs')), icon: 'text_fields', value: 'text-input' },
-			{ name: 'Autocomplete', component: lazy(() => import('./features/forms-demos/autocomplete')), icon: 'search', value: 'autocomplete' },
-			{ name: 'Select/Checkbox', component: lazy(() => import('./features/forms-demos/selection')), icon: 'check_box', value: 'select' },
-			{ name: 'Form Validation', component: lazy(() => import('./features/forms-demos/validation')), icon: 'fact_check', value: 'validation' },
+			{
+				name: 'Text Input',
+				component: lazy(() => import('./features/forms-demos/text-inputs')),
+				icon: 'text_fields',
+				value: 'text-input',
+			},
+			{
+				name: 'Autocomplete',
+				component: lazy(() => import('./features/forms-demos/autocomplete')),
+				icon: 'search',
+				value: 'autocomplete',
+			},
+			{
+				name: 'Select/Checkbox',
+				component: lazy(() => import('./features/forms-demos/selection')),
+				icon: 'check_box',
+				value: 'select',
+			},
+			{
+				name: 'Form Validation',
+				component: lazy(() => import('./features/forms-demos/validation')),
+				icon: 'fact_check',
+				value: 'validation',
+			},
 
 			// Navigation Components
-			{ name: 'Navigation Bar', component: lazy(() => import('./features/navigation-demos/navigation-bar')), icon: 'navigation', value: 'navbar' },
+			{
+				name: 'Navigation Bar',
+				component: lazy(() => import('./features/navigation-demos/navigation-bar')),
+				icon: 'navigation',
+				value: 'navbar',
+			},
 			{ name: 'Tabs', component: lazy(() => import('./features/navigation-demos/tabs')), icon: 'tab', value: 'tabs' },
-			{ name: 'Navigation Rail', component: lazy(() => import('./features/navigation-demos/rail')), icon: 'view_sidebar', value: 'nav-rail' },
-			{ name: 'Drawer', component: lazy(() => import('./features/navigation-demos/drawer')), icon: 'menu', value: 'drawer' },
-			{ name: 'Menu', component: lazy(() => import('./features/navigation-demos/menu')), icon: 'more_vert', value: 'menu' },
+			{
+				name: 'Navigation Rail',
+				component: lazy(() => import('./features/navigation-demos/rail')),
+				icon: 'view_sidebar',
+				value: 'nav-rail',
+			},
+			{
+				name: 'Drawer',
+				component: lazy(() => import('./features/navigation-demos/drawer')),
+				icon: 'menu',
+				value: 'drawer',
+			},
+			{
+				name: 'Menu',
+				component: lazy(() => import('./features/navigation-demos/menu')),
+				icon: 'more_vert',
+				value: 'menu',
+			},
 
 			// Data & Lists
-			{ name: 'Table', component: lazy(() => import('./features/data-display-demos/tables')), icon: 'table_chart', value: 'table' },
-			{ name: 'List', component: lazy(() => import('./features/data-display-demos/lists')), icon: 'list', value: 'list' },
-			{ name: 'Tree View', component: lazy(() => import('./features/data-display-demos/trees')), icon: 'account_tree', value: 'tree' },
+			{
+				name: 'Table',
+				component: lazy(() => import('./features/data-display-demos/tables')),
+				icon: 'table_chart',
+				value: 'table',
+			},
+			{
+				name: 'List',
+				component: lazy(() => import('./features/data-display-demos/lists')),
+				icon: 'list',
+				value: 'list',
+			},
+			{
+				name: 'Tree View',
+				component: lazy(() => import('./features/data-display-demos/trees')),
+				icon: 'account_tree',
+				value: 'tree',
+			},
 			{ name: 'Chips', component: DemoChips, icon: 'label', value: 'chips' },
 
 			// Feedback & Status
-			{ name: 'Progress', component: lazy(() => import('./features/feedback-demos/progress')), icon: 'pending', value: 'progress' },
-			{ name: 'Loading', component: lazy(() => import('./features/feedback-demos/loading')), icon: 'hourglass_empty', value: 'loading' },
-			{ name: 'Notification', component: lazy(() => import('./features/feedback-demos/notifications')), icon: 'notifications', value: 'notification' },
+			{
+				name: 'Progress',
+				component: lazy(() => import('./features/feedback-demos/progress')),
+				icon: 'pending',
+				value: 'progress',
+			},
+			{
+				name: 'Loading',
+				component: lazy(() => import('./features/feedback-demos/loading')),
+				icon: 'hourglass_empty',
+				value: 'loading',
+			},
+			{
+				name: 'Notification',
+				component: lazy(() => import('./features/feedback-demos/notifications')),
+				icon: 'notifications',
+				value: 'notification',
+			},
 
 			// Overlays
-			{ name: 'Dialog', component: lazy(() => import('./features/overlays-demos/dialog-showcase')), icon: 'web_asset', value: 'dialog' },
-			{ name: 'Sheet', component: lazy(() => import('./features/overlays-demos/sheet')), icon: 'vertical_split', value: 'sheet' },
+			{
+				name: 'Dialog',
+				component: lazy(() => import('./features/overlays-demos/dialog-showcase')),
+				icon: 'web_asset',
+				value: 'dialog',
+			},
+			{
+				name: 'Sheet',
+				component: lazy(() => import('./features/overlays-demos/sheet')),
+				icon: 'vertical_split',
+				value: 'sheet',
+			},
 			{ name: 'Details', component: DetailsShowcase, icon: 'expand_more', value: 'details' },
 
 			// Layout Components
@@ -150,16 +228,11 @@ export default class SchmancyDemo extends $LitElement() {
 		]
 
 		return html`
-			<schmancy-theme root .color=${this.theme.color} .scheme=${this.theme.scheme}>
+			<schmancy-theme root>
 				<!-- Toggle between grid and sidebar view -->
 				<div class="absolute top-4 right-4 z-10">
-					<schmancy-button
-						variant="filled tonal"
-						@click=${() => this.showGrid = !this.showGrid}
-					>
-						<schmancy-icon slot="prefix">
-							${this.showGrid ? 'view_sidebar' : 'grid_view'}
-						</schmancy-icon>
+					<schmancy-button variant="filled tonal" @click=${() => (this.showGrid = !this.showGrid)}>
+						<schmancy-icon slot="prefix"> ${this.showGrid ? 'view_sidebar' : 'grid_view'} </schmancy-icon>
 						${this.showGrid ? 'Sidebar View' : 'Grid View'}
 					</schmancy-button>
 				</div>
@@ -176,7 +249,7 @@ export default class SchmancyDemo extends $LitElement() {
 					>
 						<!-- Header with Schmancy branding -->
 						<div slot="header" class="animate-pulse mt-3">
-							<img .src=${'./logo-dark.png'} class="max-w-12"/>
+							<img .src=${'./logo-dark.png'} class="max-w-12" />
 						</div>
 
 						<!-- Navigation items with minimal section labels -->
@@ -200,10 +273,10 @@ export default class SchmancyDemo extends $LitElement() {
 												.value=${demo.value}
 												?active=${this.activeComponent === demo.value}
 											></schmancy-navigation-rail-item>
-										`
+										`,
 									)}
 								`
-							}
+							},
 						)}
 					</schmancy-navigation-rail>
 
@@ -241,15 +314,11 @@ export default class SchmancyDemo extends $LitElement() {
 											}}
 										>
 											<div class="flex flex-col items-center gap-3 text-center">
-												<schmancy-icon size="lg" class="text-primary">
-													${demo.icon}
-												</schmancy-icon>
-												<schmancy-typography type="label" token="lg">
-													${demo.name}
-												</schmancy-typography>
+												<schmancy-icon size="lg" class="text-primary"> ${demo.icon} </schmancy-icon>
+												<schmancy-typography type="label" token="lg"> ${demo.name} </schmancy-typography>
 											</div>
 										</schmancy-surface>
-									`
+									`,
 								)}
 							</div>
 
@@ -278,25 +347,25 @@ export default class SchmancyDemo extends $LitElement() {
 															this.navigate(demo)
 														}}
 													>
-														<schmancy-icon slot="prefix" size="sm">
-															${demo.icon}
-														</schmancy-icon>
+														<schmancy-icon slot="prefix" size="sm"> ${demo.icon} </schmancy-icon>
 														${demo.name}
 													</schmancy-button>
-												`
+												`,
 											)}
 										</div>
 									</div>
-								`
+								`,
 							)}
 						</div>
 					</schmancy-surface>
 				</div>
 
 				<sch-notification-container></sch-notification-container>
+
+				<!-- Floating Theme Controls -->
+
+				<schmancy-theme-controls></schmancy-theme-controls>
 			</schmancy-theme>
-
-
 		`
 	}
 }

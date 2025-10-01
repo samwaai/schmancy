@@ -15,6 +15,19 @@ import {
 import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from './theme.events'
 import type { SchmancyThemeComponent } from './theme.component'
 import type { TSchmancyTheme } from './theme.interface'
+import { createContext } from '../store'
+
+interface ThemeSettings {
+  scheme: 'dark' | 'light' | 'auto'
+  color: string
+}
+
+// Single context for all theme settings
+const ThemeContext = createContext<ThemeSettings>(
+  { scheme: 'auto', color: '#6200ee' },
+  'local',
+  'schmancy-theme-settings'
+)
 
 /**
  * Theme Service - Provides centralized theme management for Schmancy components.
@@ -51,18 +64,19 @@ class ThemeService {
   private static instance: ThemeService
 
   // Observable properties for theme values
-  private _scheme$ = new BehaviorSubject<'dark' | 'light' | 'auto'>('auto')
-  private _color$ = new BehaviorSubject<string>('#6200ee')
   private _theme$ = new BehaviorSubject<Partial<TSchmancyTheme>>({})
   private _themeComponent$ = new BehaviorSubject<SchmancyThemeComponent | null>(null)
+  private _fullscreen$ = new BehaviorSubject<boolean>(false)
 
-  // Public observables
-  public readonly scheme$ = this._scheme$.asObservable().pipe(
+  // Public observables derived from context
+  public readonly scheme$ = ThemeContext.$.pipe(
+    map(settings => settings.scheme),
     distinctUntilChanged(),
     shareReplay(1)
   )
 
-  public readonly color$ = this._color$.asObservable().pipe(
+  public readonly color$ = ThemeContext.$.pipe(
+    map(settings => settings.color),
     distinctUntilChanged(),
     shareReplay(1)
   )
@@ -77,13 +91,18 @@ class ThemeService {
     shareReplay(1)
   )
 
+  public readonly fullscreen$ = this._fullscreen$.asObservable().pipe(
+    distinctUntilChanged(),
+    shareReplay(1)
+  )
+
   // Getters for synchronous access to current values
   get scheme(): 'dark' | 'light' | 'auto' {
-    return this._scheme$.getValue()
+    return ThemeContext.value.scheme
   }
 
   get color(): string {
-    return this._color$.getValue()
+    return ThemeContext.value.color
   }
 
   get theme(): Partial<TSchmancyTheme> {
@@ -92,6 +111,10 @@ class ThemeService {
 
   get themeComponent(): SchmancyThemeComponent | null {
     return this._themeComponent$.getValue()
+  }
+
+  get fullscreen(): boolean {
+    return this._fullscreen$.getValue()
   }
 
   // Computed observable for actual scheme (resolving 'auto')
@@ -188,8 +211,7 @@ class ThemeService {
     this._themeComponent$.next(component)
 
     // Update values from the component
-    this._scheme$.next(component.scheme)
-    this._color$.next(component.color)
+    ThemeContext.set({ scheme: component.scheme, color: component.color })
     this._theme$.next(component.theme)
   }
 
@@ -208,11 +230,15 @@ class ThemeService {
     color?: string
     theme?: Partial<TSchmancyTheme>
   }): void {
+    const updates: Partial<ThemeSettings> = {}
     if (values.scheme !== undefined) {
-      this._scheme$.next(values.scheme)
+      updates.scheme = values.scheme
     }
     if (values.color !== undefined) {
-      this._color$.next(values.color)
+      updates.color = values.color
+    }
+    if (Object.keys(updates).length > 0) {
+      ThemeContext.set(updates)
     }
     if (values.theme !== undefined) {
       this._theme$.next(values.theme)
@@ -237,10 +263,10 @@ class ThemeService {
     const component = this.themeComponent
     if (component) {
       component.scheme = scheme
-      this._scheme$.next(scheme)
+      ThemeContext.set({ scheme })
     } else {
       console.warn('No theme component found. Scheme change may not persist.')
-      this._scheme$.next(scheme)
+      ThemeContext.set({ scheme })
     }
   }
 
@@ -262,10 +288,10 @@ class ThemeService {
     const component = this.themeComponent
     if (component) {
       component.color = color
-      this._color$.next(color)
+      ThemeContext.set({ color })
     } else {
       console.warn('No theme component found. Color change may not persist.')
-      this._color$.next(color)
+      ThemeContext.set({ color })
     }
   }
 
@@ -365,6 +391,86 @@ class ThemeService {
   }
 
   /**
+   * Set the fullscreen state for the application.
+   * This emits a custom event that navigation components can listen to.
+   *
+   * @param {boolean} value - Whether fullscreen mode is active
+   *
+   * @example
+   * ```typescript
+   * // Enter fullscreen mode
+   * theme.setFullscreen(true)
+   *
+   * // Exit fullscreen mode
+   * theme.setFullscreen(false)
+   * ```
+   */
+  public setFullscreen(value: boolean): void {
+    this._fullscreen$.next(value)
+
+    // Emit custom event for components to listen to
+    window.dispatchEvent(
+      new CustomEvent('fullscreen', {
+        detail: value,
+        bubbles: true,
+        composed: true
+      })
+    )
+  }
+
+  /**
+   * Toggle fullscreen mode.
+   *
+   * @example
+   * ```typescript
+   * // Toggle fullscreen mode on button click
+   * button.addEventListener('click', () => {
+   *   theme.toggleFullscreen()
+   * })
+   * ```
+   */
+  public toggleFullscreen(): void {
+    this.setFullscreen(!this.fullscreen)
+  }
+
+  /**
+   * Convenience method to update theme state including fullscreen.
+   * Can be called with next() like syntax for familiarity.
+   *
+   * @param {Object} values - Theme values to update
+   * @param {boolean} [values.fullscreen] - Fullscreen state
+   * @param {'dark' | 'light' | 'auto'} [values.scheme] - Color scheme
+   * @param {string} [values.color] - Primary color
+   *
+   * @example
+   * ```typescript
+   * // Set fullscreen mode
+   * theme.next({ fullscreen: true })
+   *
+   * // Update multiple values
+   * theme.next({
+   *   fullscreen: true,
+   *   scheme: 'dark'
+   * })
+   * ```
+   */
+  public next(values: {
+    fullscreen?: boolean
+    scheme?: 'dark' | 'light' | 'auto'
+    color?: string
+  }): void {
+    if (values.fullscreen !== undefined) {
+      this.setFullscreen(values.fullscreen)
+    }
+    if (values.scheme !== undefined) {
+      this.setScheme(values.scheme)
+    }
+    if (values.color !== undefined) {
+      this.setColor(values.color)
+    }
+  }
+
+  /**
    * Get the singleton instance of ThemeService.
    *
    * @returns {ThemeService} The singleton ThemeService instance
@@ -381,4 +487,5 @@ class ThemeService {
 
 // Export singleton instance
 export const theme = ThemeService.getInstance()
+export const schmancyTheme = theme // Alias for convenience
 export default theme
