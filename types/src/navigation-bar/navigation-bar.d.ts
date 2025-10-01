@@ -53,6 +53,10 @@ export declare class SchmancyNavigationBar extends SchmancyNavigationBar_base {
      */
     private isHidden;
     /**
+     * Get all navigation bar items from the slot
+     */
+    private getItems;
+    /**
      * Minimum scroll threshold before triggering hide/show
      */
     private readonly SCROLL_THRESHOLD;
@@ -61,7 +65,6 @@ export declare class SchmancyNavigationBar extends SchmancyNavigationBar_base {
      * Set up RxJS-based scroll listener
      */
     private setupScrollListener;
-    disconnectedCallback(): void;
     /**
      * Handle item click events
      */
