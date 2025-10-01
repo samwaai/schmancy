@@ -175,7 +175,7 @@ export default class SchmancyDemo extends $LitElement() {
 						}}
 					>
 						<!-- Header with Schmancy branding -->
-						<div slot="header" class="animate-pulse">
+						<div slot="header" class="animate-pulse mt-3">
 							<img .src=${'./logo-dark.png'} class="max-w-12"/>
 						</div>
 

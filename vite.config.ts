@@ -7,7 +7,7 @@ import { defineConfig } from 'vite'
 import webfontDownload from 'vite-plugin-webfont-dl'
 import tailwindcss from '@tailwindcss/vite'
 
-const getDirectories = async source =>
+const getDirectories = async (source: string) =>
 	(await readdir(source, { withFileTypes: true })).filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
 
 const components = await getDirectories(resolve(__dirname, './src/'))
@@ -32,7 +32,10 @@ export default defineConfig({
 		},
 		exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**'],
 	},
-	plugins: [webfontDownload(['https://ticket.funkhaus-berlin.net/assets/GT-Eesti-Pro-Display-Regular-Czpp09nv.woff'])],
+	plugins: [
+		webfontDownload(['https://ticket.funkhaus-berlin.net/assets/GT-Eesti-Pro-Display-Regular-Czpp09nv.woff']),
+		tailwindcss(),
+	],
 	build: {
 		lib: {
 			entry: components.reduce(

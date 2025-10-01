@@ -59,20 +59,25 @@ export default class SchmancyIcon extends TailwindElement(css`
 		justify-content: center;
 	}
 `) {
-	// Static property to track if fonts are loaded globally
+	// Static flag to track if Google Fonts have been loaded
 	private static fontsLoaded = false
 
-	// Static method to load Material Symbols fonts
+	/**
+	 * Load Material Symbols fonts from Google Fonts CDN
+	 */
 	private static loadFonts(): void {
-		// Check if fonts are already loaded
-		if (!document.head.querySelector('#material-symbols-fonts')) {
-			const link = document.createElement('link')
-			link.id = 'material-symbols-fonts'
-			link.rel = 'stylesheet'
-			link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap'
-			document.head.appendChild(link)
+		if (SchmancyIcon.fontsLoaded) {
+			return
 		}
+
+		const link = document.createElement('link')
+		link.rel = 'stylesheet'
+		link.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap'
+		document.head.appendChild(link)
+
+		SchmancyIcon.fontsLoaded = true
 	}
+
 	/**
 	 * Fill value for the icon (0-1)
 	 * 0 = outlined, 1 = filled
@@ -110,11 +115,8 @@ export default class SchmancyIcon extends TailwindElement(css`
 	connectedCallback(): void {
 		super.connectedCallback()
 
-		// Load fonts only once globally
-		if (!SchmancyIcon.fontsLoaded) {
-			SchmancyIcon.loadFonts()
-			SchmancyIcon.fontsLoaded = true
-		}
+		// Load Google Fonts if not already loaded
+		SchmancyIcon.loadFonts()
 
 		// Set accessibility attributes for decorative icons
 		if (!this.hasAttribute('aria-label') &&
