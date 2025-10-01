@@ -4,7 +4,7 @@ import { Subject, fromEvent, Observable } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
-import { discoverComponent } from '../src/discovery/discovery.service'
+import { discoverComponent } from './discovery.service'
 
 export declare class IBaseMixin {
 	disconnecting: Subject<boolean>
