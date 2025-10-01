@@ -294,7 +294,7 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 
 		// Active indicator behind icon
 		const indicatorClasses = this.classMap({
-			'absolute top-1/2 left-1/2': true,
+			'absolute top-1/2 left-1/2 opacity-50': true,
 			'w-14 h-8': true, // 56px x 32px
 			'rounded-lg': true, // M3 large corner radius
 			'bg-secondary-container': true,
