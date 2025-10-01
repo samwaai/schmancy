@@ -1,55 +1,73 @@
 # Content Drawer
 
-Sliding panel system for navigation, overlays, and responsive layouts.
+Responsive sliding panel that automatically switches between push and overlay modes based on screen size.
+
+## Overview
+
+The content drawer provides a responsive panel system that adapts to different screen sizes:
+- **Large screens**: Panel pushes content aside (push mode)
+- **Small screens**: Panel overlays content (overlay mode)
+- **Automatic switching**: Responds to screen width changes
 
 ## Components
 
 ```js
-// Main container that manages drawer behavior
+// Main container that manages responsive behavior
 <schmancy-content-drawer
-  ?open="${boolean}"           // Controls drawer visibility
-  position="left|right|top|bottom"  // Drawer position (default: left)
-  variant="standard|modal|persistent"  // Behavior type
-  breakpoint="1024px"          // Responsive breakpoint
-  ?backdrop="${boolean}"       // Show backdrop when open
+  ?open="${boolean}"           // Controls drawer visibility (auto-managed)
+  .minWidth="${{main: 360, sheet: 576}}"  // Min widths for main and sheet
 >
-  <schmancy-content-drawer-main>
-    // Main content that shifts when drawer opens
-  </schmancy-content-drawer-main>
-  
-  <schmancy-content-drawer-sheet
-    width="256px"              // Width for left/right drawers
-    height="auto"              // Height for top/bottom drawers
-    offset="0"                 // Offset for nested drawers
+  <schmancy-content-drawer-main
+    minWidth="${number}"        // Minimum width for main content (default: 360px)
   >
-    // Drawer content
+    // Main content area
+  </schmancy-content-drawer-main>
+
+  <schmancy-content-drawer-sheet
+    minWidth="${number}"        // Minimum width for sheet (default: 576px)
+  >
+    <section slot="placeholder">
+      // Optional placeholder content when sheet is empty
+    </section>
   </schmancy-content-drawer-sheet>
 </schmancy-content-drawer>
 ```
+
+## Responsive Behavior
+
+The drawer automatically switches between modes based on viewport width:
+- **Push mode**: When `viewport >= main.minWidth + sheet.minWidth`
+  - Sheet panel appears inline beside main content
+  - Content is pushed to make room for the sheet
+  - Sheet remains visible
+- **Overlay mode**: When `viewport < main.minWidth + sheet.minWidth`
+  - Sheet overlays on top of main content
+  - Opens/closes via the service API
+  - Shows as a modal sheet
 
 ## Service API
 
 ```js
 import { schmancyContentDrawer } from '@schmancy/content-drawer'
 
-// NEW: Push API - Renders component with automatic re-rendering support
+// Push API - Recommended for dynamic content rendering
 schmancyContentDrawer.push(component)
 // component can be:
-// - string: 'demo-button' (tag name)
-// - HTMLElement: new DemoButton()
-// - Factory: () => new DemoButton()
-// - Async: () => import('./button').then(m => new m.default())
+// - string: 'demo-button' (HTML tag name)
+// - HTMLElement: new DemoButton() (component instance)
+// - Factory: () => new DemoButton() (factory function)
+// - Async: async () => import('./button').then(m => new m.default())
 
-// Legacy render API (backward compatible)
+// Legacy render API (for backward compatibility)
 schmancyContentDrawer.render(ref, component, title?)
 
-// Dismiss drawer
+// Dismiss drawer (note: method has typo in implementation)
 schmancyContentDrawer.dimiss(ref)
 ```
 
 ### Push API Features
 
-The `push` API solves the re-rendering issue when the same component instance is pushed with updated properties:
+The `push` API automatically handles re-rendering when the same component instance is pushed with updated properties:
 
 ```js
 // Create a component instance
@@ -61,23 +79,50 @@ schmancyContentDrawer.push(myComponent)
 
 // Later, update properties and push again
 myComponent.variant = 'outlined'
-schmancyContentDrawer.push(myComponent) // Automatically detects same instance and forces re-render
+schmancyContentDrawer.push(myComponent) // Automatically re-renders with new properties
 ```
 
 ## Examples
 
-### 1. Using Push API for Dynamic Content
+### 1. Basic Responsive Drawer
+
+```html
+<schmancy-content-drawer>
+  <schmancy-content-drawer-main>
+    <schmancy-list class="p-0">
+      <schmancy-list-item @click=${() => {
+        schmancyContentDrawer.push('demo-button')
+      }}>
+        Show Button Demo
+      </schmancy-list-item>
+      <schmancy-list-item @click=${() => {
+        schmancyContentDrawer.push(new TypographyDemo())
+      }}>
+        Show Typography Demo
+      </schmancy-list-item>
+    </schmancy-list>
+  </schmancy-content-drawer-main>
+
+  <schmancy-content-drawer-sheet class="px-4">
+    <section slot="placeholder">
+      <schmancy-typography>Select an item to view</schmancy-typography>
+    </section>
+  </schmancy-content-drawer-sheet>
+</schmancy-content-drawer>
+```
+
+### 2. Using Different Push API Patterns
 
 ```js
-// Simple string component
-schmancyContentDrawer.push('demo-typography')
+// String tag name
+schmancyContentDrawer.push('demo-button')
 
-// Component instance with properties
+// Component instance
 const button = new DemoButton()
 button.variant = 'filled'
 schmancyContentDrawer.push(button)
 
-// Factory function for custom setup
+// Factory function with custom setup
 schmancyContentDrawer.push(() => {
   const comp = new MyComponent()
   comp.setAttribute('theme', 'dark')
@@ -91,134 +136,63 @@ schmancyContentDrawer.push(async () => {
 })
 ```
 
-### 2. Basic Navigation Drawer
+### 3. Configuring Minimum Widths
+
 ```html
-<schmancy-content-drawer ?open="${drawerOpen}">
-  <schmancy-content-drawer-main>
-    <button @click="${() => drawerOpen = !drawerOpen}">Menu</button>
-    <main>App content</main>
+<schmancy-content-drawer>
+  <!-- Main content requires at least 400px -->
+  <schmancy-content-drawer-main minWidth="400">
+    <div>Main application content</div>
   </schmancy-content-drawer-main>
-  
-  <schmancy-content-drawer-sheet width="280px">
-    <nav>
-      <a href="/home">Home</a>
-      <a href="/about">About</a>
-    </nav>
+
+  <!-- Sheet requires at least 600px -->
+  <schmancy-content-drawer-sheet minWidth="600">
+    <div>Detail panel content</div>
   </schmancy-content-drawer-sheet>
 </schmancy-content-drawer>
 ```
 
-### 2. Bottom Sheet
-```html
-<schmancy-content-drawer 
-  ?open="${sheetOpen}"
-  position="bottom"
-  @drawer-closed="${() => sheetOpen = false}"
->
-  <schmancy-content-drawer-main>
-    <button @click="${() => sheetOpen = true}">Show Options</button>
-  </schmancy-content-drawer-main>
-  
-  <schmancy-content-drawer-sheet height="auto" max-height="50vh">
-    <div class="sheet-handle"></div>
-    <h3>Select Option</h3>
-    <schmancy-list>
-      <schmancy-list-item>Option 1</schmancy-list-item>
-      <schmancy-list-item>Option 2</schmancy-list-item>
-    </schmancy-list>
-  </schmancy-content-drawer-sheet>
-</schmancy-content-drawer>
-```
+## Integration with Schmancy Systems
 
-### 3. Persistent Sidebar
+The content drawer integrates with:
+- **Area router**: In push mode, uses `schmancy-area` for content routing
+- **Sheet system**: In overlay mode, uses the schmancy sheet for modal presentation
+- **Grid system**: Uses `schmancy-grid` for responsive layout
+
+## CSS Styling
+
+The component uses standard Tailwind classes for styling:
+- Main container uses `overflow-scroll` for scrollable content
+- Sheet positioning handled automatically based on mode
+- Animations use Web Animations API (500ms duration)
+
+## Common Patterns
+
+**Master-Detail View**: List of items in main, details in sheet
 ```js
-// Responsive persistent drawer
-const drawer = contentDrawerContext.create('sidebar')
-
-// Auto-persist on large screens
-const mediaQuery = window.matchMedia('(min-width: 1024px)')
-drawer.setPersistent(mediaQuery.matches)
-mediaQuery.addEventListener('change', e => drawer.setPersistent(e.matches))
+// In main area - list of items
+<schmancy-list-item @click=${() => {
+  schmancyContentDrawer.push(new ItemDetail(item))
+}}>
+  ${item.name}
+</schmancy-list-item>
 ```
 
-```html
-<schmancy-content-drawer
-  .context="${drawer}"
-  variant="persistent"
-  breakpoint="1024px"
->
-  <schmancy-content-drawer-main>
-    <schmancy-app-bar>
-      <schmancy-icon-button 
-        icon="menu"
-        @click="${() => drawer.toggle()}"
-      ></schmancy-icon-button>
-    </schmancy-app-bar>
-    <main>Dashboard content</main>
-  </schmancy-content-drawer-main>
-  
-  <schmancy-content-drawer-sheet width="240px">
-    <aside>Sidebar content</aside>
-  </schmancy-content-drawer-sheet>
-</schmancy-content-drawer>
-```
-
-### 4. Nested Drawers
+**Settings Panel**: Configuration options in the sheet
 ```js
-const mainDrawer = contentDrawerContext.create('main')
-const subDrawer = contentDrawerContext.create('sub')
+// Push settings component
+schmancyContentDrawer.push(new SettingsPanel())
 ```
 
-```html
-<schmancy-content-drawer .context="${mainDrawer}">
-  <schmancy-content-drawer-main>
-    <!-- Nested drawer container -->
-    <schmancy-content-drawer .context="${subDrawer}">
-      <schmancy-content-drawer-main>
-        <button @click="${() => mainDrawer.open()}">Menu</button>
-      </schmancy-content-drawer-main>
-      
-      <!-- Sub drawer -->
-      <schmancy-content-drawer-sheet width="280px" offset="240px">
-        <button @click="${() => subDrawer.close()}">Back</button>
-        <div>Sub menu content</div>
-      </schmancy-content-drawer-sheet>
-    </schmancy-content-drawer>
-  </schmancy-content-drawer-main>
-  
-  <!-- Main drawer -->
-  <schmancy-content-drawer-sheet width="240px">
-    <button @click="${() => subDrawer.open()}">Open Submenu</button>
-    <div>Main menu content</div>
-  </schmancy-content-drawer-sheet>
-</schmancy-content-drawer>
-```
-
-## CSS Variables
-
-```css
-schmancy-content-drawer {
-  --drawer-width: 256px;
-  --drawer-background: var(--md-sys-color-surface);
-  --drawer-shadow: 0 8px 10px -5px rgba(0,0,0,0.2);
-  --drawer-transition-duration: 250ms;
-  --drawer-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
-  --backdrop-color: rgba(0, 0, 0, 0.5);
-  --drawer-z-index: 200;
-}
+**Navigation Drawer**: Navigation links in main, content in sheet
+```js
+// Navigation item clicks update sheet content
+schmancyContentDrawer.push(() => import(`./pages/${page}`))
 ```
 
 ## Related Components
 
-- [Sheet](./sheet.md) - Simpler sheet component for modals
-- [Navigation Drawer](./nav-drawer.md) - Specialized navigation component
-- [Dialog](./dialog.md) - Modal dialogs
-- [Layout](./layout.md) - Layout utilities
-
-## Common Patterns
-
-**Command Palette**: Top drawer with search input
-**Help Panel**: Right drawer with contextual help
-**Mobile Menu**: Left drawer for navigation
-**Action Sheet**: Bottom drawer for mobile actions
-**Settings Panel**: Persistent right drawer
+- [Sheet](./sheet.md) - Modal sheet component used in overlay mode
+- [Area](./area.md) - Routing system used in push mode
+- [Grid](./grid.md) - Layout system for responsive design
+- [List](./list.md) - List component for navigation items
