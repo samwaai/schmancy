@@ -5,6 +5,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { SchmancyTheme } from '..'
 import { BehaviorSubject, fromEvent } from 'rxjs'
 import { takeUntil, throttleTime, tap, pairwise, map, filter } from 'rxjs/operators'
+import type { SchmancyNavigationBarItem } from './navigation-bar-item'
 
 /**
  * `<schmancy-navigation-bar>` component
@@ -99,6 +100,17 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	@state()
 	private isHidden = false
 
+	/**
+	 * Get all navigation bar items from the slot
+	 */
+	private getItems(): SchmancyNavigationBarItem[] {
+		const slot = this.shadowRoot?.querySelector('slot') as HTMLSlotElement | null
+		if (!slot) return []
+		return slot.assignedElements({ flatten: true })
+			.filter((el): el is SchmancyNavigationBarItem =>
+				el.tagName.toLowerCase() === 'schmancy-navigation-bar-item'
+			)
+	}
 
 	/**
 	 * Minimum scroll threshold before triggering hide/show
@@ -107,8 +119,18 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 
 	connectedCallback() {
 		super.connectedCallback()
-		this.addEventListener('bar-item-click', this.handleItemClick as EventListener)
-		this.addEventListener('keydown', this.handleKeyDown)
+
+		// Listen to bar-item-click events using RxJS
+		fromEvent(this, 'bar-item-click').pipe(
+			tap((event: Event) => this.handleItemClick(event as CustomEvent)),
+			takeUntil(this.disconnecting)
+		).subscribe()
+
+		// Listen to keydown events using RxJS
+		fromEvent(this, 'keydown').pipe(
+			tap((event: Event) => this.handleKeyDown(event as KeyboardEvent)),
+			takeUntil(this.disconnecting)
+		).subscribe()
 
 		// Subscribe to active index changes
 		this.activeIndex$.pipe(
@@ -156,19 +178,14 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 		).subscribe()
 	}
 
-	disconnectedCallback() {
-		this.removeEventListener('bar-item-click', this.handleItemClick as EventListener)
-		this.removeEventListener('keydown', this.handleKeyDown)
-		super.disconnectedCallback()
-	}
 
 	/**
 	 * Handle item click events
 	 */
 	private handleItemClick = (event: CustomEvent) => {
-		const items = this.querySelectorAll('schmancy-navigation-bar-item')
+		const items = this.getItems()
 		const clickedItem = event.target as HTMLElement
-		const index = Array.from(items).indexOf(clickedItem as any)
+		const index = items.indexOf(clickedItem as any)
 
 		if (index !== -1 && this.activeIndex !== index) {
 			const oldIndex = this.activeIndex
@@ -192,7 +209,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	 * Handle keyboard navigation
 	 */
 	private handleKeyDown = (event: KeyboardEvent) => {
-		const items = Array.from(this.querySelectorAll('schmancy-navigation-bar-item'))
+		const items = this.getItems()
 		const currentIndex = this.focusedIndex === -1 ? this.activeIndex : this.focusedIndex
 
 		switch (event.key) {
@@ -235,7 +252,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	 * Focus a specific item by index
 	 */
 	private focusItem(index: number) {
-		const items = this.querySelectorAll('schmancy-navigation-bar-item')
+		const items = this.getItems()
 		if (items[index]) {
 			this.focusedIndex = index
 			;(items[index] as HTMLElement).focus()
@@ -261,7 +278,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	 * Update active states on all items
 	 */
 	private updateActiveStates(activeIndex: number) {
-		const items = this.querySelectorAll('schmancy-navigation-bar-item')
+		const items = this.getItems()
 		items.forEach((item, index) => {
 			const navItem = item as any
 			// Use setActive method to trigger item's reactive update
