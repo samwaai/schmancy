@@ -11,6 +11,9 @@ declare const SchmancyIcon_base: import("@mixins/index").Constructor<CustomEleme
  */
 export default class SchmancyIcon extends SchmancyIcon_base {
     private static fontsLoaded;
+    /**
+     * Load Material Symbols fonts from Google Fonts CDN
+     */
     private static loadFonts;
     /**
      * Fill value for the icon (0-1)
