@@ -62,10 +62,6 @@ export declare class SchmancyNavigationBar extends SchmancyNavigationBar_base {
      */
     private getItems;
     /**
-     * Get all navigation bar items from the slot
-     */
-    private getItems;
-    /**
      * Minimum scroll threshold before triggering hide/show
      */
     private readonly SCROLL_THRESHOLD;

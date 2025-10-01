@@ -17,6 +17,7 @@ export * from './delay';
 export * from './details';
 export * from './dialog';
 export * from './directives';
+export * from './discovery';
 export * from './divider';
 export * from './dropdown';
 export * from './extra';
