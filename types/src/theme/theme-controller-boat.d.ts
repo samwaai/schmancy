@@ -1,5 +1,4 @@
-import { SchmancyThemeController } from './theme-controller'
-
+import { SchmancyThemeController } from './theme-controller';
 /**
  * BOAT UX theme controller - Wraps the base theme controller in a schmancy-boat component.
  * Provides a floating, draggable container for theme controls.
@@ -21,11 +20,10 @@ import { SchmancyThemeController } from './theme-controller'
  * ```
  */
 export declare class SchmancyThemeControllerBoat extends SchmancyThemeController {
-	render(): import('lit').TemplateResult
+    render(): import("lit-html").TemplateResult<1>;
 }
-
 declare global {
-	interface HTMLElementTagNameMap {
-		'schmancy-theme-controller-boat': SchmancyThemeControllerBoat
-	}
+    interface HTMLElementTagNameMap {
+        'schmancy-theme-controller-boat': SchmancyThemeControllerBoat;
+    }
 }
