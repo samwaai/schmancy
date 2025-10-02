@@ -466,6 +466,42 @@ export class ThemeServiceDemo extends $LitElement() {
 					</schmancy-surface>
 				</schmancy-surface>
 
+				<!-- Nested Theme Isolation -->
+				<schmancy-surface elevation="1" rounded="all" class="p-6">
+					<schmancy-typography type="headline" token="sm" class="mb-4 flex items-center gap-2">
+						<schmancy-icon size="sm" class="text-primary-default">layers</schmancy-icon>
+						Nested Theme Isolation
+					</schmancy-typography>
+					<schmancy-typography type="body" token="sm" class="mb-4 text-surface-onVariant">
+						Each nested theme maintains its own independent color and scheme, demonstrating proper isolation.
+					</schmancy-typography>
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<schmancy-theme color="#e91e63" scheme="light">
+							<schmancy-surface class="p-6 text-center" type="container" rounded="all">
+								<schmancy-icon class="text-6xl mb-2">palette</schmancy-icon>
+								<schmancy-typography type="headline" token="sm" class="mb-1">Pink Light</schmancy-typography>
+								<schmancy-typography type="body" token="xs" class="text-surface-onVariant">#e91e63</schmancy-typography>
+							</schmancy-surface>
+						</schmancy-theme>
+
+						<schmancy-theme color="#2196f3" scheme="dark">
+							<schmancy-surface class="p-6 text-center" type="container" rounded="all">
+								<schmancy-icon class="text-6xl mb-2">palette</schmancy-icon>
+								<schmancy-typography type="headline" token="sm" class="mb-1">Blue Dark</schmancy-typography>
+								<schmancy-typography type="body" token="xs" class="text-surface-onVariant">#2196f3</schmancy-typography>
+							</schmancy-surface>
+						</schmancy-theme>
+
+						<schmancy-theme color="#4caf50" scheme="light">
+							<schmancy-surface class="p-6 text-center" type="container" rounded="all">
+								<schmancy-icon class="text-6xl mb-2">palette</schmancy-icon>
+								<schmancy-typography type="headline" token="sm" class="mb-1">Green Light</schmancy-typography>
+								<schmancy-typography type="body" token="xs" class="text-surface-onVariant">#4caf50</schmancy-typography>
+							</schmancy-surface>
+						</schmancy-theme>
+					</div>
+				</schmancy-surface>
+
 				<!-- API Reference -->
 				<schmancy-surface elevation="1" rounded="all" class="p-6">
 					<schmancy-typography type="headline" token="sm" class="mb-4 flex items-center gap-2">

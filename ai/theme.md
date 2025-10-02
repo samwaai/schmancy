@@ -126,33 +126,53 @@ theme.watchCSSVariable('color-primary').subscribe(color => {
 })
 ```
 
-## Theme Controls Component
+## Theme Controller Components
 
-Ready-to-use UI component for complete theme control:
+Two theme controller components are available:
+
+### 1. Standalone Theme Controller
+Embeddable theme controls for integration into settings panels:
 
 ```html
-<schmancy-theme-controls
-  .customColors=${['#6750A4', '#0061A4', '#006E1C']}
-></schmancy-theme-controls>
+<schmancy-theme-controller
+  .customColors=${[
+    { name: 'Brand Blue', value: '#1976D2', category: 'primary' },
+    { name: 'Brand Red', value: '#D32F2F', category: 'accent' }
+  ]}
+></schmancy-theme-controller>
+```
+
+### 2. BOAT UX Theme Controller
+Floating, draggable theme control panel:
+
+```html
+<schmancy-theme-controller-boat
+  .customColors=${[
+    { name: 'Ocean', value: '#006994', category: 'primary' },
+    { name: 'Sunset', value: '#FF6B35', category: 'accent' }
+  ]}
+></schmancy-theme-controller-boat>
 ```
 
 ### Features
 - **Color Picker**: Visual color selection with debounced input
 - **Scheme Toggle**: Beautiful icons for light/dark/auto modes
 - **Random Color**: Generate random theme colors
-- **Custom Presets**: Define your own color palette
+- **Custom Presets**: Define your own color palette with categories
 
 ### Implementation Example
 ```typescript
-import '@schmancy/theme-controls'
+import '@schmancy/theme-controller'
+// or
+import '@schmancy/theme-controller-boat'
 
 @customElement('my-settings')
 export class MySettings extends $LitElement() {
   private brandColors = [
-    '#6750A4', // Brand primary
-    '#0061A4', // Brand secondary
-    '#006E1C', // Brand success
-    '#BA1B1B'  // Brand error
+    { name: 'Brand Primary', value: '#6750A4', category: 'primary' },
+    { name: 'Brand Secondary', value: '#0061A4', category: 'secondary' },
+    { name: 'Brand Success', value: '#006E1C', category: 'accent' },
+    { name: 'Brand Error', value: '#BA1B1B', category: 'accent' }
   ]
 
   render() {
@@ -162,9 +182,9 @@ export class MySettings extends $LitElement() {
           Theme Settings
         </schmancy-typography>
 
-        <schmancy-theme-controls
+        <schmancy-theme-controller
           .customColors=${this.brandColors}
-        ></schmancy-theme-controls>
+        ></schmancy-theme-controller>
       </schmancy-surface>
     `
   }

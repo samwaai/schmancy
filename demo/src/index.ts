@@ -364,7 +364,7 @@ export default class SchmancyDemo extends $LitElement() {
 
 				<!-- Floating Theme Controls -->
 
-				<schmancy-theme-controls></schmancy-theme-controls>
+				<schmancy-theme-controller-boat></schmancy-theme-controller-boat>
 			</schmancy-theme>
 		`
 	}
