@@ -110,6 +110,48 @@ export class DemoBoat extends $LitElement() {
 								</tr>
 								<tr class="border-t border-outline-variant">
 									<td class="p-4">
+										<schmancy-badge type="filled">icon</schmancy-badge>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">string</code>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">undefined</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Material icon name to display in header</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline-variant">
+									<td class="p-4">
+										<schmancy-badge type="filled">label</schmancy-badge>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">string</code>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">undefined</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Text label for the header</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline-variant">
+									<td class="p-4">
+										<schmancy-badge type="filled">badge</schmancy-badge>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">string | number</code>
+									</td>
+									<td class="p-4">
+										<code class="text-sm">undefined</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Optional badge value to display</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline-variant">
+									<td class="p-4">
 										<schmancy-badge type="filled">lowered</schmancy-badge>
 									</td>
 									<td class="p-4">
@@ -157,6 +199,21 @@ export class DemoBoat extends $LitElement() {
 							</tbody>
 						</table>
 					</schmancy-surface>
+				</schmancy-surface>
+
+				<!-- Deprecation Notice -->
+				<schmancy-surface type="container" rounded="all" class="p-6 border border-warning">
+					<div class="flex gap-3 items-start">
+						<schmancy-icon class="text-warning">warning</schmancy-icon>
+						<div>
+							<schmancy-typography type="title" token="md" class="mb-2">
+								Header Slot Deprecation Notice
+							</schmancy-typography>
+							<schmancy-typography type="body" token="md" class="text-surface-onVariant">
+								The <code>slot="header"</code> pattern is deprecated. Use the new <code>icon</code>, <code>label</code>, and <code>badge</code> properties for cleaner, more maintainable code.
+							</schmancy-typography>
+						</div>
+					</div>
 				</schmancy-surface>
 
 				<!-- Key Features -->
@@ -254,14 +311,12 @@ export class DemoBoat extends $LitElement() {
 					</schmancy-typography>
 
 					<schmancy-code-preview language="html">
-&lt;schmancy-boat state="minimized" @toggle="${e => handleStateChange(e)}"&gt;
-  &lt;div slot="header" class="flex gap-2 items-center"&gt;
-    &lt;schmancy-icon&gt;info&lt;/schmancy-icon&gt;
-    &lt;schmancy-typography type="title" token="md"&gt;
-      Information Panel
-    &lt;/schmancy-typography&gt;
-  &lt;/div&gt;
-
+&lt;schmancy-boat
+  state="minimized"
+  icon="info"
+  label="Information Panel"
+  @toggle="${e => handleStateChange(e)}"
+&gt;
   &lt;div class="p-6"&gt;
     &lt;schmancy-typography type="body" token="md"&gt;
       This is the main content area of the boat component.
@@ -294,22 +349,17 @@ export class DemoBoat extends $LitElement() {
 						💡 Tip: Try dragging the minimized boat to different corners of the screen!
 					</schmancy-typography>
 
-					<schmancy-code-preview language="typescript">
-// The boat component automatically handles dragging
-// Position is persisted to localStorage with a unique key
-// based on the component's tag name
+					<schmancy-code-preview language="html">
+&lt;!-- The boat component automatically handles dragging --&gt;
+&lt;!-- Position is persisted to localStorage with a unique key --&gt;
 
 &lt;schmancy-boat
   state="minimized"
-  lowered="true"  // Optional: reduces elevation when minimized
+  icon="drag_indicator"
+  label="Drag Me!"
+  badge="Draggable"
+  lowered="true"
 &gt;
-  &lt;div slot="header" class="flex gap-2 items-center"&gt;
-    &lt;schmancy-icon&gt;drag_indicator&lt;/schmancy-icon&gt;
-    &lt;schmancy-typography type="title" token="md"&gt;
-      Drag Me!
-    &lt;/schmancy-typography&gt;
-  &lt;/div&gt;
-
   &lt;div class="p-4"&gt;
     Content here...
   &lt;/div&gt;
@@ -337,15 +387,12 @@ export class DemoBoat extends $LitElement() {
 					</div>
 
 					<schmancy-code-preview language="html">
-&lt;schmancy-boat state="expanded"&gt;
-  &lt;div slot="header" class="flex gap-2 items-center"&gt;
-    &lt;schmancy-icon&gt;checklist&lt;/schmancy-icon&gt;
-    &lt;schmancy-typography type="title" token="md"&gt;
-      Task Manager
-    &lt;/schmancy-typography&gt;
-    &lt;schmancy-badge class="ml-2"&gt;5&lt;/schmancy-badge&gt;
-  &lt;/div&gt;
-
+&lt;schmancy-boat
+  state="expanded"
+  icon="checklist"
+  label="Task Manager"
+  badge="5"
+&gt;
   &lt;!-- Filter chips --&gt;
   &lt;div class="p-4 border-b border-outline-variant"&gt;
     &lt;schmancy-chips&gt;
@@ -369,12 +416,10 @@ export class DemoBoat extends $LitElement() {
 				<schmancy-boat
 					id="basic"
 					.state=${this.basicBoatState}
+					icon="info"
+					label="Information Panel"
 					@toggle=${(e: CustomEvent) => this.basicBoatState = e.detail}
 				>
-					<div slot="header" class="flex gap-2 items-center">
-						<schmancy-icon>info</schmancy-icon>
-						<schmancy-typography type="title" token="md">Information Panel</schmancy-typography>
-					</div>
 
 					<div class="p-6">
 						<schmancy-typography type="headline" token="sm" class="mb-4">
@@ -407,14 +452,12 @@ export class DemoBoat extends $LitElement() {
 				<schmancy-boat
 					id="draggable"
 					.state=${this.draggableBoatState}
+					icon="drag_indicator"
+					label="Drag Me!"
+					badge="Draggable"
 					lowered
 					@toggle=${(e: CustomEvent) => this.draggableBoatState = e.detail}
 				>
-					<div slot="header" class="flex gap-2 items-center">
-						<schmancy-icon>drag_indicator</schmancy-icon>
-						<schmancy-typography type="title" token="md">Drag Me!</schmancy-typography>
-						<schmancy-badge type="filled" class="ml-auto">Draggable</schmancy-badge>
-					</div>
 
 					<div class="p-6">
 						<schmancy-typography type="headline" token="sm" class="mb-4">
@@ -453,13 +496,11 @@ export class DemoBoat extends $LitElement() {
 				<schmancy-boat
 					id="tasks"
 					.state=${this.interactiveBoatState}
+					icon="checklist"
+					label="Task Manager"
+					.badge=${this.filteredTasks.length}
 					@toggle=${(e: CustomEvent) => this.interactiveBoatState = e.detail}
 				>
-					<div slot="header" class="flex gap-2 items-center">
-						<schmancy-icon>checklist</schmancy-icon>
-						<schmancy-typography type="title" token="md">Task Manager</schmancy-typography>
-						<schmancy-badge class="ml-2">${this.filteredTasks.length}</schmancy-badge>
-					</div>
 
 					<div class="overflow-y-auto max-h-[60vh]">
 						<!-- Filter chips -->

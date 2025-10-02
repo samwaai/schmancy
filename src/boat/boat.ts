@@ -44,6 +44,11 @@ export default class SchmancyBoat extends $LitElement(css`
 		this.requestUpdate()
 	}
 
+	// New properties for simplified API
+	@property({ type: String }) icon?: string
+	@property({ type: String }) label?: string
+	@property() badge?: string | number
+
 	// Element references
 	private containerRef: Ref<HTMLDivElement> = createRef()
 	private contentRef: Ref<HTMLElement> = createRef()
@@ -101,7 +106,7 @@ export default class SchmancyBoat extends $LitElement(css`
 				.pipe(
 					filter(e => e.key === 'Escape' && this.currentState !== 'hidden'),
 					tap(e => e.preventDefault()),
-					takeUntil(this.disconnecting)
+					takeUntil(this.disconnecting),
 				)
 				.subscribe(() => {
 					if (this.currentState === 'expanded') {
@@ -330,6 +335,16 @@ export default class SchmancyBoat extends $LitElement(css`
 		this.applyInitialStyles()
 		this.updateContainerPosition()
 		this.setupDragPipeline()
+
+		// Check for deprecated header slot usage
+		const hasHeaderSlot = this.querySelector('[slot="header"]')
+		if (hasHeaderSlot && !this.icon && !this.label) {
+			console.warn(
+				'[schmancy-boat] Using slot="header" is deprecated. ' +
+					'Please use the icon, label, and badge properties instead. ' +
+					'Example: <schmancy-boat icon="info" label="Title" badge="5">',
+			)
+		}
 	}
 
 	// Apply initial styles to elements
@@ -359,6 +374,7 @@ export default class SchmancyBoat extends $LitElement(css`
 		}
 	}
 
+
 	// Public method to toggle between minimized and expanded
 	toggleState() {
 		const newState = this.currentState === 'minimized' ? 'expanded' : 'minimized'
@@ -371,7 +387,6 @@ export default class SchmancyBoat extends $LitElement(css`
 	}
 
 	private closeAndAddToNav() {
-		// Use discovery to find navigation components
 		race(
 			this.discover<any>('schmancy-navigation-rail'),
 			this.discover<any>('schmancy-navigation-bar'),
@@ -382,35 +397,57 @@ export default class SchmancyBoat extends $LitElement(css`
 		)
 			.pipe(
 				take(1),
-				tap(async navComponent => {
+				tap(navComponent => {
 					if (navComponent && typeof navComponent.addBoatItem === 'function') {
-						// Get the actual icon from the header
-						const headerSlot = this.querySelector('[slot="header"]')
-						const iconElement = headerSlot?.querySelector('schmancy-icon')
-						const icon = iconElement?.textContent?.trim() || 'widgets'
+						// Use properties first, fall back to slot parsing
+						const icon =
+							this.icon ||
+							(() => {
+								const headerSlot = this.querySelector('[slot="header"]')
+								const iconElement = headerSlot?.querySelector('schmancy-icon')
+								return iconElement?.textContent?.trim() || 'widgets'
+							})()
 
-						// Get a clean title (remove the icon text from the header text)
-						let title = headerSlot?.textContent?.trim() || 'Boat'
-						if (icon && title.includes(icon)) {
-							title = title.replace(icon, '').trim()
-						}
+						const label =
+							this.label ||
+							(() => {
+								const headerSlot = this.querySelector('[slot="header"]')
+								let title = headerSlot?.textContent?.trim() || 'Boat'
+								if (icon && title.includes(icon)) {
+									title = title.replace(icon, '').trim()
+								}
+								return title || this.id
+							})()
 
-						// Add the boat to navigation first
+						// Add the boat to navigation
 						const navItem = navComponent.addBoatItem({
 							id: `boat-${this.id}`,
-							title: title || this.id,
+							title: label,
 							icon: icon,
 						})
 
-						// Animate the boat to the nav item position (genie effect)
 						if (navItem) {
-							await this.animateToNavItem(navItem)
+							// Simple fade out then hide
+							const container = this.containerRef.value
+							if (container) {
+								container
+									.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: 'ease-out', fill: 'forwards' })
+									.finished.then(() => {
+										this.currentState = 'hidden'
+										this.isContentVisible = false
+									})
+							} else {
+								this.currentState = 'hidden'
+								this.isContentVisible = false
+							}
 
-							// Listen for clicks on the nav item to re-open the boat
-							navItem.addEventListener('click', () => {
-								// Animate from nav item back to expanded position
-								this.animateFromNavItem(navItem)
-							})
+							// Set up click listener to reopen - using RxJS pattern
+							fromEvent(navItem, 'click')
+								.pipe(
+									tap(() => this.state = 'expanded'),
+									takeUntil(this.disconnecting)
+								)
+								.subscribe()
 						}
 					} else {
 						// No nav component found, just hide
@@ -421,100 +458,6 @@ export default class SchmancyBoat extends $LitElement(css`
 			.subscribe()
 	}
 
-	private async animateToNavItem(navItem: HTMLElement) {
-		const container = this.containerRef.value
-		if (!container) return
-
-		// Get positions
-		const boatRect = container.getBoundingClientRect()
-		const navRect = navItem.getBoundingClientRect()
-
-		// Cancel any existing animation
-		this.currentAnimation?.cancel()
-
-		// Create genie effect animation (like macOS)
-		const keyframes: Keyframe[] = [
-			{
-				transform: 'scale(1) translate3d(0, 0, 0)',
-				opacity: 1,
-				borderRadius: '8px',
-			},
-			{
-				transform: `scale(0.3) translate3d(${navRect.left - boatRect.left}px, ${navRect.top - boatRect.top}px, 0)`,
-				opacity: 0.5,
-				borderRadius: '50%',
-			},
-			{
-				transform: `scale(0) translate3d(${navRect.left - boatRect.left}px, ${navRect.top - boatRect.top}px, 0)`,
-				opacity: 0,
-				borderRadius: '50%',
-			},
-		]
-		this.currentAnimation = container.animate(
-			keyframes,
-			{
-				duration: 600,
-				easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
-				fill: 'forwards',
-			},
-		)
-
-		await this.currentAnimation.finished
-		this.currentState = 'hidden'
-	}
-
-	private animateFromNavItem(navItem: HTMLElement) {
-		const container = this.containerRef.value
-		if (!container) return
-
-		// Get nav item position
-		const navRect = navItem.getBoundingClientRect()
-
-		// Set initial position at nav item
-		container.style.transformOrigin = `${navRect.left}px ${navRect.top}px`
-
-		// Cancel any existing animation
-		this.currentAnimation?.cancel()
-
-		// Animate from nav item to expanded state
-		const expandKeyframes: Keyframe[] = [
-			{
-				transform: `scale(0) translate3d(${navRect.left}px, ${navRect.top}px, 0)`,
-				opacity: 0,
-				borderRadius: '50%',
-			},
-			{
-				transform: 'scale(0.5) translate3d(0, 0, 0)',
-				opacity: 0.5,
-				borderRadius: '24px',
-			},
-			{
-				transform: 'scale(1) translate3d(0, 0, 0)',
-				opacity: 1,
-				borderRadius: '8px',
-			},
-		]
-		this.currentAnimation = container.animate(
-			expandKeyframes,
-			{
-				duration: 400,
-				easing: 'cubic-bezier(0.2, 0.0, 0, 1.0)',
-				fill: 'forwards',
-			},
-		)
-
-		// Update state
-		this.currentState = 'expanded'
-		this.isContentVisible = true
-		this.bringToFront()
-	}
-
-	private bringToFront() {
-		const container = this.containerRef.value
-		if (container) {
-			container.style.zIndex = String(10000 + (Date.now() % 1000))
-		}
-	}
 
 	private calculateDragPosition(
 		clientX: number,
@@ -530,13 +473,9 @@ export default class SchmancyBoat extends $LitElement(css`
 		const clampedLeft = Math.max(0, Math.min(targetLeft, vw - initialRect.width))
 		const clampedTop = Math.max(0, Math.min(targetTop, vh - initialRect.height))
 
-		const newX = this.anchor.includes('right')
-			? vw - (clampedLeft + initialRect.width)
-			: clampedLeft
+		const newX = this.anchor.includes('right') ? vw - (clampedLeft + initialRect.width) : clampedLeft
 
-		const newY = this.anchor.includes('bottom')
-			? vh - (clampedTop + initialRect.height)
-			: clampedTop
+		const newY = this.anchor.includes('bottom') ? vh - (clampedTop + initialRect.height) : clampedTop
 
 		return { x: Math.max(0, newX), y: Math.max(0, newY) }
 	}
@@ -565,7 +504,7 @@ export default class SchmancyBoat extends $LitElement(css`
 		const DRAG_THRESHOLD = 5
 
 		// Merge mouse and touch start events
-		const dragStart$ = merge(
+		merge(
 			fromEvent<MouseEvent>(header, 'mousedown').pipe(
 				filter(e => e.button === 0),
 				tap(e => {
@@ -585,29 +524,26 @@ export default class SchmancyBoat extends $LitElement(css`
 					type: 'touch' as const,
 				})),
 			),
-		).pipe(
-			map(({ clientX, clientY, type }) => {
-				const rect = container.getBoundingClientRect()
-				hasDragged = false
-				return {
-					startX: clientX,
-					startY: clientY,
-					offsetX: clientX - rect.left,
-					offsetY: clientY - rect.top,
-					initialRect: rect,
-					type,
-				}
-			}),
 		)
-
-		dragStart$
+			.pipe(
+				map(({ clientX, clientY, type }) => {
+					const rect = container.getBoundingClientRect()
+					hasDragged = false
+					return {
+						startX: clientX,
+						startY: clientY,
+						offsetX: clientX - rect.left,
+						offsetY: clientY - rect.top,
+						initialRect: rect,
+						type,
+					}
+				}),
+			)
 			.pipe(
 				switchMap(({ startX, startY, offsetX, offsetY, initialRect, type }) => {
 					const move$ =
 						type === 'mouse'
-							? fromEvent<MouseEvent>(window, 'mousemove').pipe(
-									map(e => ({ clientX: e.clientX, clientY: e.clientY })),
-								)
+							? fromEvent<MouseEvent>(window, 'mousemove').pipe(map(e => ({ clientX: e.clientX, clientY: e.clientY })))
 							: fromEvent<TouchEvent>(window, 'touchmove').pipe(
 									map(e => ({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })),
 								)
@@ -723,12 +659,17 @@ export default class SchmancyBoat extends $LitElement(css`
 		const surfaceElevation = this.currentState === 'minimized' ? (this.isLowered ? '1' : '3') : '4'
 		const isMinimized = this.currentState === 'minimized'
 
+		// Set transform origin based on anchor for proper expansion
+		const transformOrigin = this.anchor.includes('bottom')
+			? (this.anchor.includes('right') ? 'bottom right' : 'bottom left')
+			: (this.anchor.includes('right') ? 'top right' : 'top left')
+
 		const containerClasses = {
-			'fixed': true,
+			'z-50':true,
+			fixed: true,
 			'overflow-y-auto': true,
-			'flex': true,
+			flex: true,
 			'flex-col': true,
-			'z-[10000]': true,
 			'select-none': true,
 			'will-change-transform': true,
 			'[contain:layout_style]': true,
@@ -740,9 +681,13 @@ export default class SchmancyBoat extends $LitElement(css`
 		}
 
 		return html`
-			<div class=${this.classMap(containerClasses)} ${ref(this.containerRef)} @click=${this.bringToFront}>
+			<div
+				class=${this.classMap(containerClasses)}
+				style="transform-origin: ${transformOrigin}"
+				${ref(this.containerRef)}
+			>
 				<!-- Header section -->
-				<section class="sticky top-0 z-10">
+				<section class="sticky top-0">
 					<schmancy-surface
 						elevation="${surfaceElevation}"
 						rounded="${isMinimized ? 'none' : 'top'}"
@@ -767,9 +712,21 @@ export default class SchmancyBoat extends $LitElement(css`
 								<schmancy-icon style="font-size: 20px">drag_indicator</schmancy-icon>
 							</div>
 
-							<!-- Header content slot -->
+							<!-- Header content - use properties if provided, else fallback to slot -->
 							<div class="flex-1 min-w-fit items-center flex justify-start">
-								<slot name="header"></slot>
+								${this.icon || this.label
+									? html`
+											<div class="flex gap-2 items-center">
+												${this.icon ? html`<schmancy-icon>${this.icon}</schmancy-icon>` : ''}
+												${this.label
+													? html`<schmancy-typography type="title" token="md">${this.label}</schmancy-typography>`
+													: ''}
+												${this.badge !== undefined && this.badge !== null && this.badge !== ''
+													? html`<schmancy-badge>${this.badge}</schmancy-badge>`
+													: ''}
+											</div>
+										`
+									: html`<slot name="header"></slot>`}
 							</div>
 
 							<!-- Control buttons -->
@@ -819,12 +776,7 @@ export default class SchmancyBoat extends $LitElement(css`
 				</section>
 
 				<!-- Content section -->
-				<schmancy-surface
-					.hidden=${!this.isContentVisible}
-					type="containerLow"
-					class="z-0 flex-1"
-					${ref(this.contentRef)}
-				>
+				<schmancy-surface .hidden=${!this.isContentVisible} type="containerLow" class="flex-1" ${ref(this.contentRef)}>
 					<slot></slot>
 				</schmancy-surface>
 			</div>

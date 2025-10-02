@@ -295,8 +295,17 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	/**
 	 * Add a boat item to the navigation bar
 	 * @param config Configuration for the boat item
+	 * @returns The created or existing navigation bar item element
 	 */
 	public addBoatItem(config: { id: string; title: string; icon?: string }) {
+		// Check if item already exists
+		const existingItem = this.querySelector(`[value="${config.id}"]`) as HTMLElement
+		if (existingItem) {
+			// Item already exists, just return it
+			return existingItem
+		}
+
+		// Create new item
 		const item = document.createElement('schmancy-navigation-bar-item')
 		item.setAttribute('value', config.id)
 		item.innerHTML = `
@@ -304,6 +313,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			<span>${config.title}</span>
 		`
 		this.appendChild(item)
+		return item
 	}
 
 	/**

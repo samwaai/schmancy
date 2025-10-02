@@ -258,9 +258,17 @@ export class SchmancyNavigationRail extends $LitElement() {
 	/**
 	 * Add a boat item to the navigation rail
 	 * @param config Configuration for the boat item
-	 * @returns The created navigation rail item element
+	 * @returns The created or existing navigation rail item element
 	 */
 	public addBoatItem(config: { id: string; title: string; icon?: string }) {
+		// Check if item already exists
+		const existingItem = this.querySelector(`[value="${config.id}"]`) as HTMLElement
+		if (existingItem) {
+			// Item already exists, just return it
+			return existingItem
+		}
+
+		// Create new item
 		const item = document.createElement('schmancy-navigation-rail-item')
 		item.setAttribute('value', config.id)
 		item.innerHTML = `

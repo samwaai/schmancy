@@ -89,12 +89,13 @@ export declare class SchmancyNavigationBar extends SchmancyNavigationBar_base {
     /**
      * Add a boat item to the navigation bar
      * @param config Configuration for the boat item
+     * @returns The created or existing navigation bar item element
      */
     addBoatItem(config: {
         id: string;
         title: string;
         icon?: string;
-    }): void;
+    }): HTMLElement;
     /**
      * Update active states on all items
      */

@@ -6,6 +6,9 @@ export default class SchmancyBoat extends SchmancyBoat_base {
     id: string;
     get lowered(): boolean;
     set lowered(value: boolean);
+    icon?: string;
+    label?: string;
+    badge?: string | number;
     private containerRef;
     private contentRef;
     private iconRef;
@@ -32,9 +35,6 @@ export default class SchmancyBoat extends SchmancyBoat_base {
     toggleState(): void;
     close(): void;
     private closeAndAddToNav;
-    private animateToNavItem;
-    private animateFromNavItem;
-    private bringToFront;
     private calculateDragPosition;
     private savePosition;
     private setupDragPipeline;
