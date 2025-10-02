@@ -49,6 +49,13 @@ export declare class SchmancyThemeComponent extends SchmancyThemeComponent_base 
      */
     root: boolean;
     /**
+     * Unique name for this theme instance (used for session storage).
+     * If not provided, will be generated from DOM path.
+     * @attr name
+     * @type {string}
+     */
+    name?: string;
+    /**
      * Theme configuration object containing all theme variables.
      * @property {Partial<TSchmancyTheme>} theme
      * @internal
@@ -59,6 +66,10 @@ export declare class SchmancyThemeComponent extends SchmancyThemeComponent_base 
     registerTheme(): void;
     registerThemeValues(prefix: string, path: string, value: Partial<TSchmancyTheme>): string | undefined;
     generateRandomColor(): string;
+    /**
+     * Generate a unique theme name based on DOM path
+     */
+    private generateThemeName;
     protected render(): unknown;
 }
 declare global {
