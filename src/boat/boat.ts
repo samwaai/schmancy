@@ -1,9 +1,9 @@
 import { $LitElement } from '@mixins/index'
-import { html, css } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref.js'
 import { fromEvent, merge, race } from 'rxjs'
-import { filter, switchMap, takeUntil, tap, finalize, map, take } from 'rxjs/operators'
+import { filter, finalize, map, switchMap, take, takeUntil, tap } from 'rxjs/operators'
 
 type BoatState = 'hidden' | 'minimized' | 'expanded'
 
@@ -374,7 +374,6 @@ export default class SchmancyBoat extends $LitElement(css`
 		}
 	}
 
-
 	// Public method to toggle between minimized and expanded
 	toggleState() {
 		const newState = this.currentState === 'minimized' ? 'expanded' : 'minimized'
@@ -444,8 +443,8 @@ export default class SchmancyBoat extends $LitElement(css`
 							// Set up click listener to reopen - using RxJS pattern
 							fromEvent(navItem, 'click')
 								.pipe(
-									tap(() => this.state = 'expanded'),
-									takeUntil(this.disconnecting)
+									tap(() => (this.state = 'expanded')),
+									takeUntil(this.disconnecting),
 								)
 								.subscribe()
 						}
@@ -457,7 +456,6 @@ export default class SchmancyBoat extends $LitElement(css`
 			)
 			.subscribe()
 	}
-
 
 	private calculateDragPosition(
 		clientX: number,
@@ -661,11 +659,15 @@ export default class SchmancyBoat extends $LitElement(css`
 
 		// Set transform origin based on anchor for proper expansion
 		const transformOrigin = this.anchor.includes('bottom')
-			? (this.anchor.includes('right') ? 'bottom right' : 'bottom left')
-			: (this.anchor.includes('right') ? 'top right' : 'top left')
+			? this.anchor.includes('right')
+				? 'bottom right'
+				: 'bottom left'
+			: this.anchor.includes('right')
+				? 'top right'
+				: 'top left'
 
 		const containerClasses = {
-			'z-50':true,
+			'z-50': true,
 			fixed: true,
 			'overflow-y-auto': true,
 			flex: true,
@@ -716,7 +718,8 @@ export default class SchmancyBoat extends $LitElement(css`
 							<div class="flex-1 min-w-fit items-center flex justify-start">
 								${this.icon || this.label
 									? html`
-											<div class="flex gap-2 items-center">
+											<div 
+											class="flex gap-2 items-center">
 												${this.icon ? html`<schmancy-icon>${this.icon}</schmancy-icon>` : ''}
 												${this.label
 													? html`<schmancy-typography type="title" token="md">${this.label}</schmancy-typography>`
@@ -735,33 +738,37 @@ export default class SchmancyBoat extends $LitElement(css`
 									? html`
 											<!-- Expand button (when minimized) -->
 											<schmancy-icon-button
+												size="sm"
 												variant="text"
 												@click=${(e: Event) => {
 													e.stopPropagation()
 													this.state = 'expanded'
 												}}
 												title="Expand"
+												${ref(this.iconRef)}
 											>
-												<schmancy-icon ${ref(this.iconRef)}>fullscreen</schmancy-icon>
+												fullscreen
 											</schmancy-icon-button>
 										`
 									: html`
 											<!-- Minimize button (when expanded) -->
 											<schmancy-icon-button
+												size="sm"
 												variant="filled tonal"
 												@click=${(e: Event) => {
 													e.stopPropagation()
 													this.state = 'minimized'
 												}}
 												title="Minimize"
+												${ref(this.iconRef)}
 											>
-												<schmancy-icon ${ref(this.iconRef)}>close_fullscreen</schmancy-icon>
+												close_fullscreen
 											</schmancy-icon-button>
 										`}
 
 								<!-- Close button -->
 								<schmancy-icon-button
-									variant="outlined"
+									size="sm"
 									@click=${(e: Event) => {
 										e.stopPropagation()
 										this.closeAndAddToNav()

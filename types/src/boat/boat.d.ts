@@ -36,6 +36,7 @@ export default class SchmancyBoat extends SchmancyBoat_base {
     close(): void;
     private closeAndAddToNav;
     private calculateDragPosition;
+    private clampPositionToViewport;
     private savePosition;
     private setupDragPipeline;
     private updateContainerPosition;
