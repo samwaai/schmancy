@@ -742,7 +742,7 @@ export default class SchmancyBoat extends $LitElement(css`
 												}}
 												title="Expand"
 											>
-												<schmancy-icon ${ref(this.iconRef)}>expand_less</schmancy-icon>
+												<schmancy-icon ${ref(this.iconRef)}>collapse_content</schmancy-icon>
 											</schmancy-icon-button>
 										`
 									: html`
@@ -755,7 +755,7 @@ export default class SchmancyBoat extends $LitElement(css`
 												}}
 												title="Minimize"
 											>
-												<schmancy-icon ${ref(this.iconRef)}>expand_more</schmancy-icon>
+												<schmancy-icon ${ref(this.iconRef)}>expand_content</schmancy-icon>
 											</schmancy-icon-button>
 										`}
 
@@ -768,7 +768,7 @@ export default class SchmancyBoat extends $LitElement(css`
 									}}
 									title="Close and add to navigation"
 								>
-									<schmancy-icon>close</schmancy-icon>
+									<schmancy-icon>minimize</schmancy-icon>
 								</schmancy-icon-button>
 							</div>
 						</div>
