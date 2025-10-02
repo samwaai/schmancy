@@ -80,6 +80,14 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 	@property({ type: Boolean }) root = false
 
 	/**
+	 * Unique name for this theme instance (used for session storage).
+	 * If not provided, will be generated from DOM path.
+	 * @attr name
+	 * @type {string}
+	 */
+	@property({ type: String }) name?: string
+
+	/**
 	 * Theme configuration object containing all theme variables.
 	 * @property {Partial<TSchmancyTheme>} theme
 	 * @internal
@@ -93,12 +101,26 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 	connectedCallback(): void {
 		super.connectedCallback()
 
-		// Initialize color if not set
+		// Generate unique theme name for session storage
+		const themeName = this.generateThemeName()
+
+		// Priority 1: Session storage
+		const storedColor = sessionStorage.getItem(`schmancy-theme-${themeName}-color`)
+		const storedScheme = sessionStorage.getItem(`schmancy-theme-${themeName}-scheme`)
+
+		// Priority 2: Properties (if set via attributes)
+		// Priority 3: Random generation
 		if (!this.color) {
-			this.color = this.generateRandomColor()
+			this.color = storedColor || this.generateRandomColor()
+			// Save the initial color to session storage
+			sessionStorage.setItem(`schmancy-theme-${themeName}-color`, this.color)
 		}
 
-		// Subscribe to scheme changes (independent, not from service)
+		if (!this.hasAttribute('scheme') && storedScheme) {
+			this.scheme = storedScheme as 'dark' | 'light' | 'auto'
+		}
+
+		// Watch only OWN scheme property (independent per instance)
 		of(this.scheme).pipe(
 			switchMap(scheme => {
 				if (scheme === 'auto') return $colorScheme
@@ -108,6 +130,8 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 		).subscribe(scheme => {
 			this.scheme = scheme as 'dark' | 'light'
 			this.registerTheme()
+			// Save to session storage with unique theme name
+			sessionStorage.setItem(`schmancy-theme-${themeName}-scheme`, this.scheme)
 		})
 
 		// Listen for generic theme discovery events
@@ -129,8 +153,21 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 	updated(changedProperties: Map<string | number | symbol, unknown>): void {
 		super.updated(changedProperties)
 
-		// Register theme when properties change
-		if (changedProperties.has('color') || changedProperties.has('scheme') || changedProperties.has('theme')) {
+		// Generate unique theme name for session storage
+		const themeName = this.generateThemeName()
+
+		// Re-register theme and save to session when properties change
+		if (changedProperties.has('color')) {
+			sessionStorage.setItem(`schmancy-theme-${themeName}-color`, this.color)
+			this.registerTheme()
+		}
+
+		if (changedProperties.has('scheme')) {
+			sessionStorage.setItem(`schmancy-theme-${themeName}-scheme`, this.scheme)
+			this.registerTheme()
+		}
+
+		if (changedProperties.has('theme')) {
 			this.registerTheme()
 		}
 	}
@@ -194,6 +231,30 @@ export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
 		const randomColor = Math.floor(Math.random() * 16777215).toString(16)
 		// Pad with leading zeros if necessary to ensure 6 characters
 		return '#' + randomColor.padStart(6, '0')
+	}
+
+	/**
+	 * Generate a unique theme name based on DOM path
+	 */
+	private generateThemeName(): string {
+		// If name is provided, use it
+		if (this.name) return this.name
+
+		// Generate from DOM path
+		const path: string[] = []
+		let element: Element | null = this as Element
+
+		while (element && element !== document.body) {
+			const parent = element.parentElement
+			if (parent) {
+				const index = Array.from(parent.children).indexOf(element)
+				const tag = element.tagName.toLowerCase()
+				path.unshift(`${tag}[${index}]`)
+			}
+			element = parent
+		}
+
+		return path.join('>')
 	}
 
 	protected render(): unknown {
