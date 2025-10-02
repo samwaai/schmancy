@@ -742,7 +742,7 @@ export default class SchmancyBoat extends $LitElement(css`
 												}}
 												title="Expand"
 											>
-												<schmancy-icon ${ref(this.iconRef)}>collapse_content</schmancy-icon>
+												<schmancy-icon ${ref(this.iconRef)}>fullscreen</schmancy-icon>
 											</schmancy-icon-button>
 										`
 									: html`
@@ -755,20 +755,20 @@ export default class SchmancyBoat extends $LitElement(css`
 												}}
 												title="Minimize"
 											>
-												<schmancy-icon ${ref(this.iconRef)}>expand_content</schmancy-icon>
+												<schmancy-icon ${ref(this.iconRef)}>close_fullscreen</schmancy-icon>
 											</schmancy-icon-button>
 										`}
 
 								<!-- Close button -->
 								<schmancy-icon-button
-									variant="text"
+									variant="outlined"
 									@click=${(e: Event) => {
 										e.stopPropagation()
 										this.closeAndAddToNav()
 									}}
 									title="Close and add to navigation"
 								>
-									<schmancy-icon>minimize</schmancy-icon>
+									remove
 								</schmancy-icon-button>
 							</div>
 						</div>

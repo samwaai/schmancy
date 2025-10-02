@@ -13,6 +13,7 @@ import { NavigationMobile } from './mobile'
 import NavigationBar from './navigation-bar'
 import NavigationMenu from './menu'
 import { NavigationExamples } from './examples'
+import { FullscreenModeDemo } from '../fullscreen-mode-demo'
 
 // Main Demo Navigation Component
 @customElement('demo-navigation-demos')
@@ -35,7 +36,8 @@ export default class NavigationDemos extends $LitElement() {
         'demo-navigation-mobile': 'mobile',
         'demo-navigation-bar': 'navigation-bar',
         'demo-navigation-menu': 'menu',
-        'demo-navigation-examples': 'examples'
+        'demo-navigation-examples': 'examples',
+        'fullscreen-mode-demo': 'fullscreen'
       }
 
       const demoName = componentToDemoMap[route.component]

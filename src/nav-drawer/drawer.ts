@@ -113,6 +113,15 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 				}
 			})
 
+		// Listen to fullscreen events
+		fromEvent(window, 'fullscreen').pipe(
+			tap((event: Event) => {
+				const customEvent = event as CustomEvent
+				this.fullscreen = customEvent.detail
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe()
+
 		// Listen to the custom toggle event.
 		fromEvent(window, SchmancyEvents.NavDrawer_toggle)
 			.pipe(

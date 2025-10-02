@@ -1,35 +1,41 @@
 # Schmancy Project Guidelines
 
-## Important Component Locations
+## 📚 Project-Specific Knowledge Files
 
-### Demo Components
-The demo components are located in `/demo/src/features/` directory:
-- Forms demos: `/demo/src/features/forms-demos/`
-  - Autocomplete demo: `/demo/src/features/forms-demos/autocomplete.ts` (class: `DemoFormsAutocomplete`)
-  - Select demo: `/demo/src/features/forms-demos/select.ts`
-- Feedback demos: `/demo/src/features/feedback-demos/`
-- Navigation demos: `/demo/src/features/navigation-demos/`
+**CRITICAL: Before working on ANY task in this project, you MUST read the relevant knowledge file:**
 
-**NEVER create test HTML files in the project root. Use the existing demo structure.**
+- **Working on library components** (`/src/**`) → Read [src/CLAUDE.md](src/CLAUDE.md) first
+- **Working on demos** (`/demo/**`) → Read [demo/CLAUDE.md](demo/CLAUDE.md) first
+- **Working on both** → Read BOTH files
 
-## Component Architecture
+These files contain essential patterns, architecture decisions, and conventions that are NOT repeated here.
 
-### Value Binding Pattern
-When implementing value binding for form components (select, autocomplete, chips, etc.):
-1. Components should display the label of the selected option when value is set programmatically
-2. Use `_updateInputDisplay()` method to sync display with value
-3. Call `_updateInputDisplay()` in `firstUpdated()` for initial value sync
-4. Tracking flags like `_valueSet` and `_valuesSet` can be used to track explicit property setting
+**Failure to read these files will result in code that doesn't follow project patterns.**
 
-## Testing Changes
-To test component changes:
-1. Run `yarn dev` to start the development server
-2. Navigate to the appropriate demo page in the browser
-3. The demo components already have comprehensive examples
-4. DO NOT create standalone HTML test files
+## 🎯 Quick Reference
 
-## File Structure
-- Source components: `/src/`
-- Demo components: `/demo/src/features/`
-- Types: `/types/src/`
-- Build output: `/dist/`
+### File Structure
+- **Library source**: `/src/` - Component implementations (see [src/CLAUDE.md](src/CLAUDE.md))
+- **Demo site**: `/demo/src/features/` - Component demos (see [demo/CLAUDE.md](demo/CLAUDE.md))
+- **Types**: `/types/src/` - TypeScript type definitions
+- **Build output**: `/dist/` - Compiled library
+
+### Testing Changes
+1. Run `yarn dev` to start demo development server
+2. Navigate to the appropriate demo page in browser
+3. **NEVER create test HTML files in project root** - use existing demo structure
+
+### Agent Assignment for Schmancy
+
+| Task | Agent | Must Read First |
+|------|-------|-----------------|
+| Library component work | `ui-developer` | [src/CLAUDE.md](src/CLAUDE.md) |
+| Demo creation/updates | `ui-developer` | [demo/CLAUDE.md](demo/CLAUDE.md) |
+| Full component + demo | `ui-developer` | Both CLAUDE.md files |
+
+## 🚨 Critical Rules
+
+1. **Always read project-specific CLAUDE.md files before starting work**
+2. **Never create standalone test HTML files** - use demo structure
+3. **Follow patterns in existing code** - consistency is critical
+4. **Use `yarn dev` for testing** - not build commands (per global rules)

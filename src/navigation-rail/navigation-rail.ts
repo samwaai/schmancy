@@ -356,17 +356,20 @@ export class SchmancyNavigationRail extends $LitElement() {
 		const hostClasses = this.classMap({
 			// Layout & Structure - Fixed width to prevent layout shift
 			'flex flex-col': true,
-			'w-20 h-full': true, // w-20 = 80px fixed width
+			'h-full': true,
 			'box-border relative overflow-visible': true,
 			'z-10 hover:z-[100]': true, // Base z-index, elevated on hover for overlay
 
-			// Mobile responsive - smaller fixed width
-			'md:w-20 w-14': true, // w-14 = 56px on mobile
+			// Width - collapses to 0 when fullscreen
+			'w-20': !this.isFullscreen, // w-20 = 80px fixed width
+			'md:w-20 w-14': !this.isFullscreen, // w-14 = 56px on mobile
+			'w-0': this.isFullscreen, // Collapse width to 0 in fullscreen
 
 			// Visibility and transition
 			'transition-all duration-300 ease-emphasized': true,
-			'opacity-100 translate-x-0': !this.isFullscreen,
-			'opacity-0 -translate-x-full pointer-events-none': this.isFullscreen,
+			'opacity-100': !this.isFullscreen,
+			'opacity-0 pointer-events-none': this.isFullscreen,
+			'overflow-hidden': this.isFullscreen, // Hide overflow when collapsed
 		})
 
 		// Rail container - programmatically controlled width
