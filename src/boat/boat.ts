@@ -715,10 +715,21 @@ export default class SchmancyBoat extends $LitElement(css`
 							</div>
 
 							<!-- Header content - use properties if provided, else fallback to slot -->
-							<div class="flex-1 min-w-fit items-center flex justify-start">
+							<div
+								class="flex-1 min-w-fit items-center flex justify-start ${isMinimized ? 'cursor-pointer' : ''}"
+								
+								@dblclick=${(e: Event) => {
+									if (isMinimized) {
+										e.preventDefault()
+										e.stopPropagation()
+										this.state = 'expanded'
+									}
+								}}
+								title="${isMinimized ? 'Click to expand' : ''}"
+							>
 								${this.icon || this.label
 									? html`
-											<div 
+											<div
 											class="flex gap-2 items-center">
 												${this.icon ? html`<schmancy-icon>${this.icon}</schmancy-icon>` : ''}
 												${this.label
