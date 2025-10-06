@@ -1,7 +1,7 @@
 import { SchmancyEvents } from '@schmancy/types/events'
 import { Subject } from 'rxjs'
 
-type DrawerAction = 'dismiss' | 'render' | 'push'
+// type DrawerAction = 'dismiss' | 'render' | 'push'
 type TRef = Element | Window
 type TRenderRequest = HTMLElement
 export type TRenderCustomEvent = CustomEvent<{
@@ -154,26 +154,26 @@ class DrawerService {
 	 * // Legacy (deprecated)
 	 * schmancyContentDrawer.push(myComponent)
 	 */
-	push(options: ComponentType | DrawerPushOptions) {
-		const normalized = this.normalizeOptions(options)
-		this.$drawer.next({
-			action: 'push',
-			ref: window,
-			...normalized,
-		})
-	}
+	// push(options: ComponentType | DrawerPushOptions) {
+	// 	const normalized = this.normalizeOptions(options)
+	// 	this.$drawer.next({
+	// 		action: 'push',
+	// 		ref: window,
+	// 		...normalized,
+	// 	})
+	// }
 
-	private normalizeOptions(options: ComponentType | DrawerPushOptions): {
-		component: ComponentType
-		state?: Record<string, unknown>
-		params?: Record<string, unknown>
-		props?: Record<string, unknown>
-	} {
-		if (typeof options === 'object' && options !== null && 'component' in options) {
-			return options
-		}
-		return { component: options }
-	}
+	// private normalizeOptions(options: ComponentType | DrawerPushOptions): {
+	// 	component: ComponentType
+	// 	state?: Record<string, unknown>
+	// 	params?: Record<string, unknown>
+	// 	props?: Record<string, unknown>
+	// } {
+	// 	if (typeof options === 'object' && options !== null && 'component' in options) {
+	// 		return options
+	// 	}
+	// 	return { component: options }
+	// }
 }
 
 export const schmancyContentDrawer = new DrawerService()

@@ -31,6 +31,12 @@ export declare class SchmancyContentDrawer extends SchmancyContentDrawer_base {
     maxHeight: string;
     assignedElements: HTMLElement[];
     firstUpdated(): void;
+    private setupResizeListener;
+    private setupToggleListener;
+    private setupRenderListener;
+    private updateMaxHeight;
+    private updateMode;
+    private handleRender;
     getOffsetTop(element: HTMLElement | null): number;
     protected render(): typeof nothing | import("lit-html").TemplateResult<1>;
 }

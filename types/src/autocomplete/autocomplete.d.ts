@@ -29,7 +29,6 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     private _inputValue;
     private _visibleOptionsCount;
     private _hasResults;
-    private _isSelectingOption;
     _listbox: HTMLUListElement;
     _input: SchmancyInput;
     private _options;
@@ -42,6 +41,7 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     private _setupOptionHandlers;
     private _updateOptionSelection;
     private _filterOptions;
+    private _openDropdown;
     private _selectOption;
     private _setupDocumentClickHandler;
     private _updateInputDisplay;

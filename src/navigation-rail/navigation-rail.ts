@@ -361,8 +361,7 @@ export class SchmancyNavigationRail extends $LitElement() {
 			'z-10 hover:z-[100]': true, // Base z-index, elevated on hover for overlay
 
 			// Width - collapses to 0 when fullscreen
-			'w-20': !this.isFullscreen, // w-20 = 80px fixed width
-			'md:w-20 w-14': !this.isFullscreen, // w-14 = 56px on mobile
+			'w-20': !this.isFullscreen, // w-20 = 80px fixed width (M3 spec: 80dp)
 			'w-0': this.isFullscreen, // Collapse width to 0 in fullscreen
 
 			// Visibility and transition
@@ -377,6 +376,8 @@ export class SchmancyNavigationRail extends $LitElement() {
 			// Layout & Structure
 			'flex flex-col h-full': true,
 			'box-border relative': true,
+			'py-2': true,
+
 
 			// M3 Colors & Theme
 			'bg-surface-default text-surface-on': true,
@@ -385,14 +386,12 @@ export class SchmancyNavigationRail extends $LitElement() {
 			'transition-all duration-300 ease-emphasized': true,
 
 			// Collapsed state (default) - M3 standard 80px width
-			'w-20 px-3 py-2 gap-1': !this.expanded, // w-20 = 80px base width
-			'md:w-20 w-14': !this.expanded, // w-14 = 56px on mobile
-			'md:px-3 px-2': !this.expanded, // Smaller padding on mobile
+			'w-20': !this.expanded, // w-20 = 80px (M3 spec: 80dp)
+			'px-3': !this.expanded, // px-3 = 12px (M3 spec: 12px to center 56px items)
 
 			// Expanded state - M3 expanded width with shadow
-			'w-60 px-4 py-2 gap-1': this.expanded, // w-60 = 240px expanded width
-			'md:w-60 w-50': this.expanded, // w-50 = 200px expansion on mobile
-			'md:px-4 px-3': this.expanded, // Larger padding when expanded
+			'w-60': this.expanded, // w-60 = 240px expanded width
+			'px-4': this.expanded, // Larger padding when expanded
 			'shadow-lg': this.expanded, // M3 elevation 3 shadow when expanded
 		})
 
@@ -406,7 +405,7 @@ export class SchmancyNavigationRail extends $LitElement() {
 
 		// Navigation container classes with alignment
 		const navClasses = this.classMap({
-			'flex-1 flex flex-col gap-1': true,
+			'flex-1 flex flex-col gap-3': true, // gap-3 = 12px (M3 spec: 12px item spacing)
 			'min-h-0': true, // Allow flex shrinking and proper scroll container height calculation
 			// Alignment variants
 			'justify-start': this.alignment === 'top',
