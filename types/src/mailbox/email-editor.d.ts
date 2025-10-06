@@ -1,5 +1,5 @@
-import type { EmailAttachment, EmailComposeConfig, EmailTemplate } from './types';
 import './email-layout-selector';
+import type { EmailAttachment, EmailComposeConfig, EmailTemplate } from './types';
 declare const SchmancyEmailEditor_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * Email editor component with rich text formatting and file attachments
