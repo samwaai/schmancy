@@ -90,8 +90,7 @@ import '@mhmo91/schmancy/select'
 
 ### 📚 User Documentation
 
-- **[GitHub Wiki](https://github.com/mhmo91/schmancy/wiki)** - Comprehensive guides, examples, and API reference
-- **[Component Demos](https://schmancy-demo.netlify.app)** - Interactive examples and live playground
+**[Interactive Component Demos](https://schmancy.samwa.ai/)** - Explore all components with live examples and code snippets
 
 ### 🤖 AI-Assisted Development
 
@@ -249,7 +248,7 @@ yarn test:coverage # With coverage report
 
 ### Project Structure
 
-```
+```plaintext
 schmancy/
 ├── src/              # Library source code
 │   ├── Button/       # Component directories
@@ -274,6 +273,7 @@ We welcome contributions! Please:
 5. Ensure tests pass and types are correct
 6. Submit a pull request
 
+
 ## Browser Support
 
 Schmancy supports all modern browsers that implement the Web Components standard:
@@ -281,6 +281,7 @@ Schmancy supports all modern browsers that implement the Web Components standard
 - Chrome/Edge 90+
 - Firefox 88+
 - Safari 14+
+
 
 ## License
 
@@ -299,7 +300,7 @@ Built with:
 - **npm Package**: [@mhmo91/schmancy](https://www.npmjs.com/package/@mhmo91/schmancy)
 - **GitHub Repository**: [mhmo91/schmancy](https://github.com/mhmo91/schmancy)
 - **Issue Tracker**: [GitHub Issues](https://github.com/mhmo91/schmancy/issues)
-- **Documentation Wiki**: [GitHub Wiki](https://github.com/mhmo91/schmancy/wiki)
+- **Demo Site**: [Component Demos](https://schmancy.samwa.ai/)
 
 ---
 

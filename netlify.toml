@@ -1,366 +1,72 @@
-[[headers]]
-for = "*.html"
+# Netlify configuration for Schmancy UI Library Demo Site
+# This is a Vite-based SPA showcasing the Schmancy component library
 
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
+[build]
+  command = "yarn build:demo"
+  publish = "dist"
 
-[[headers]]
-for = "*.css"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.js"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-Access-Control-Allow-Origin = "*"
-Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-Access-Control-Allow-Headers = "X-Requested-With, Content-Type, Authorization"
-
-[[headers]]
-for = "*.mjs"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.png"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.jpg"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.jpeg"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.gif"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.svg"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.ico"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.woff"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-Access-Control-Allow-Origin = "*"
-Content-Security-Policy-Report-Only = "default-src 'self'; font-src 'self' https://ticket.funkhaus-berlin.net/;"
-Content-Type = "application/font-woff"
-Server = "YourServerName"
-Strict-Transport-Security = "max-age=31536000; includeSubDomains"
-Vary = "Origin"
-X-Content-Type-Options = "nosniff"
-X-Frame-Options = "DENY"
-X-XSS-Protection = "1; mode=block"
-
-[[headers]]
-for = "*.woff2"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-Access-Control-Allow-Origin = "*"
-
-[[headers]]
-for = "*.ttf"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.otf"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.eot"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.mp4"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.mp3"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.wav"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.webm"
-
-[headers.values]
-Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-for = "*.*"
-
-[headers.values]
-Cache-Control = "public, max-age=86400"
-
+# SPA redirect - all routes should serve index.html for client-side routing
 [[redirects]]
-from = "/api/email-tickets"
-to = "/.netlify/functions/email-tickets-background"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/api/download-ticket"
-to = "/.netlify/functions/download-ticket"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/api/invoice"
-to = "/.netlify/functions/invoice"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/api/create-payment-intent"
-to = "/.netlify/functions/create-payment-intent"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/api/stripe-webhook"
-to = "/.netlify/functions/stripe-webhook"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/api/payment-status"
-to = "/.netlify/functions/payment-status"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/api/generate-wallet-pass"
-to = "/.netlify/functions/generate-wallet-pass"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/api/schedule-availability"
-to = "/.netlify/functions/schedule-availability"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/api/resend-booking-email"
-to = "/.netlify/functions/resend-booking-email"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/api/check-email-status"
-to = "/.netlify/functions/check-email-status"
-status = 200.0
-force = true
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/:filename.:extension"
-to = "/:filename.:extension"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.conditions.Path]
-":extension" = ["png", "jpg", "jpeg", "gif", "svg", "webp", "ico", "pdf", "txt", "xml", "json", "webmanifest", "woff", "woff2", "ttf", "otf", "eot"]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/icons/*"
-to = "/icons/:splat"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/svg/*"
-to = "/svg/:splat"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/GT-Eesti/*"
-to = "/GT-Eesti/:splat"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/login/*"
-to = "/login/:splat"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/reset-password/*"
-to = "/reset-password/:splat"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/signin/*"
-to = "/signin/:splat"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
-
-[[redirects]]
-from = "/:directory/*"
-to = "/:directory/:splat"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.conditions.Directory]
-":directory" = true
-
-[redirects.headers]
-
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200.0
-force = false
-
-[redirects.query]
-
-[redirects.conditions]
-
-[redirects.headers]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cache headers for optimal performance
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.mjs"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Font files
+[[headers]]
+  for = "/*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/*.woff"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"
+
+# Images
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
