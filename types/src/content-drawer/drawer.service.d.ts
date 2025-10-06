@@ -1,4 +1,4 @@
-import { LazyComponent } from '../area/lazy';
+import { ComponentType } from '../area/router.types';
 type TRef = Element | Window;
 type TRenderRequest = ComponentType;
 export type TRenderCustomEvent = CustomEvent<{
@@ -8,7 +8,6 @@ export type TRenderCustomEvent = CustomEvent<{
     params?: Record<string, unknown>;
     props?: Record<string, unknown>;
 }>;
-type ComponentType = CustomElementConstructor | string | HTMLElement | LazyComponent<any>;
 export type DrawerPushOptions = {
     component: ComponentType;
     state?: Record<string, unknown>;

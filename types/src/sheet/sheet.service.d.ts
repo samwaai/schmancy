@@ -1,19 +1,17 @@
 import { Subject } from 'rxjs';
+import { ComponentType } from '../area/router.types';
 import SchmancySheet from './sheet';
 export declare enum SchmancySheetPosition {
     Side = "side",
     Bottom = "bottom"
 }
 export type SheetConfig = {
-    component: HTMLElement;
+    component: ComponentType;
     uid?: string;
     position?: SchmancySheetPosition;
     persist?: boolean;
     close?: () => void;
     lock?: boolean;
-    handleHistory?: boolean;
-    title?: string;
-    header?: 'hidden' | 'visible';
     onBeforeOpen?: (component: HTMLElement) => void;
     onAfterOpen?: (component: HTMLElement) => void;
 };
@@ -31,7 +29,6 @@ declare class BottomSheetService {
     bottomSheet: Subject<SheetConfig>;
     $dismiss: Subject<string>;
     private activeSheets;
-    private sheetComponents;
     private popStateListenerActive;
     constructor();
     /**
@@ -62,12 +59,6 @@ declare class BottomSheetService {
      * Close all open sheets
      */
     closeAll(): void;
-    /**
-     * Gets the component instance for a given sheet
-     * @param uid - The unique identifier of the sheet
-     * @returns The component instance, or undefined if not found
-     */
-    getComponent<T extends HTMLElement = HTMLElement>(uid: string): T | undefined;
 }
 export declare const sheet: BottomSheetService;
 export {};

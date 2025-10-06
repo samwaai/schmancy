@@ -143,7 +143,6 @@ export class SchmancyContentDrawer extends $LitElement(css`
 			sheet.open({
 				component: detail.component,
 				uid: this.schmancyContentDrawerID,
-				title: detail.title,
 			})
 		}
 	}

@@ -1,16 +1,16 @@
 import { $LitElement } from '@mixins/index'
-import { html, css } from 'lit'
-import { customElement, state, property } from 'lit/decorators.js'
-import { ref, createRef } from 'lit/directives/ref.js'
-import { when } from 'lit/directives/when.js'
+import { css, html } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { createRef, ref } from 'lit/directives/ref.js'
 import { repeat } from 'lit/directives/repeat.js'
+import { when } from 'lit/directives/when.js'
 import { fromEvent, takeUntil } from 'rxjs'
-import type { EmailAttachment, EmailComposeConfig, EmailTemplate } from './types'
-import { $notify } from '../notification'
 import { $dialog } from '../dialog'
+import { $notify } from '../notification'
 import { sheet } from '../sheet/sheet.service'
 import './email-layout-selector'
 import { SchmancyEmailTemplatePicker } from './email-template-picker'
+import type { EmailAttachment, EmailComposeConfig, EmailTemplate } from './types'
 
 /**
  * Email editor component with rich text formatting and file attachments
@@ -515,8 +515,7 @@ The Fulfillment Team`
 		).subscribe(this.handleTemplateSelected)
 		
 		sheet.open({
-			component: picker,
-			title: 'Choose Email Template'
+			component: picker
 		})
 	}
 
