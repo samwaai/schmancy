@@ -268,7 +268,7 @@ export class SchmancyArea extends $LitElement(css`
 					identifier = component.name || 'CustomElement'
 				}
 
-				const key = `${identifier}${JSON.stringify(route.params)}${JSON.stringify(route.state)}`
+				const key = `${identifier}${JSON.stringify(route.params)}${JSON.stringify(route.state)}${JSON.stringify(route.props)}`
 
 				return { ...route, key, tagName: identifier }
 			}),
@@ -359,6 +359,7 @@ export class SchmancyArea extends $LitElement(css`
 			state: routeAction.state || {},
 			area: this.name,
 			params: routeAction.params || {},
+			props: routeAction.props || {},
 		}
 
 		area.current.set(this.name, activeRoute)

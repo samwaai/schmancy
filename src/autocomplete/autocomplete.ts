@@ -98,9 +98,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     @state() private _visibleOptionsCount = 0
     @state() private _hasResults = true
 
-    // Track if we're clicking on an option to prevent blur interference
-    private _isSelectingOption = false
-
     // DOM references
     @query('#options') _listbox!: HTMLUListElement
     @query('sch-input') _input!: SchmancyInput
@@ -158,17 +155,12 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
             // Prevent blur handler from interfering with option selection
             option.onmousedown = (e: MouseEvent) => {
                 e.preventDefault() // Prevent focus loss
-                this._isSelectingOption = true
             }
 
             // Handle the actual selection
             option.onclick = (e: MouseEvent) => {
                 e.stopPropagation()
                 this._selectOption(option)
-                // Reset flag after a short delay
-                setTimeout(() => {
-                    this._isSelectingOption = false
-                }, 50)
             }
         })
     }
@@ -234,6 +226,12 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         )
     }
 
+    private _openDropdown() {
+        this._open = true
+        // Reset filters based on current input value when dropdown opens
+        this._filterOptions(this._inputValue)
+    }
+
     private _selectOption(option: SchmancyOption) {
         if (this.multi) {
             const currentValues = this._selectedValues$.value
@@ -250,19 +248,18 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
             )
             this._fireChangeEvent()
         } else {
-            // Fix the bug: Update value BEFORE firing event
+            // Update value first
             this._selectedValue$.next(option.value)
+
+            // Close dropdown IMMEDIATELY to prevent blur handler from firing
+            this._open = false
 
             // Now fire event with the NEW value
             this._fireChangeEvent()
 
             // Update UI
-            this._open = false
             this._inputValue = option.label || option.textContent || ''
             this._inputValue$.next(this._inputValue)
-
-            // Blur the input
-            setTimeout(() => this._inputElementRef.value?.blur(), 100)
 
             this._announceToScreenReader(`Selected: ${option.label || option.textContent}`)
         }
@@ -496,7 +493,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                                             // Clear input on focus for new searches
                                             this._inputValue = ''
                                             this._inputValue$.next('')
-                                            this._open = true
+                                            this._openDropdown()
                                         }}
                                         @keydown=${(e: KeyboardEvent) => {
                                             this._handleKeyDown(e)
@@ -543,11 +540,11 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                                 }}
                                 @focus=${(e: FocusEvent) => {
                                     e.stopPropagation()
-                                    this._open = true
+                                    this._openDropdown()
                                 }}
                                 @click=${(e: MouseEvent) => {
                                     e.stopPropagation()
-                                    this._open = true
+                                    this._openDropdown()
                                 }}
                                 @keydown=${(e: KeyboardEvent) => {
                                     this._handleKeyDown(e)
@@ -596,11 +593,6 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     }
 
     private _handleAutoSelectOnBlur() {
-        // Don't run if we're clicking on an option (prevents interference with click handler)
-        if (this._isSelectingOption) {
-            return
-        }
-
         // Only auto-select in single-select mode and when dropdown is open with a search term
         if (this.multi || !this._open || !this._inputValue.trim()) {
             return
@@ -636,10 +628,10 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         
         // Auto-select the best match if found
         if (bestMatch) {
-            // Select the option directly
-            this._selectOption(bestMatch)
-
-            // Close the dropdown
+            // Silently update the selected value without firing change event
+            this._selectedValue$.next(bestMatch.value)
+            this._inputValue = bestMatch.label || bestMatch.textContent || ''
+            this._inputValue$.next(this._inputValue)
             this._open = false
         }
     }
@@ -658,7 +650,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
         if (!isOpen && (event.key === 'ArrowDown' || event.key === 'Enter')) {
             event.preventDefault()
-            this._open = true
+            this._openDropdown()
 
             setTimeout(() => {
                 const firstVisible = this._options.find(opt => !opt.hidden)

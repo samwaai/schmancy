@@ -11,6 +11,10 @@ export const layoutDemos = [
 				name: 'Content Drawer',
 				component: () => import('./drawer'),
 			},
+			{
+				name: 'Content Drawer - User Management',
+				component: () => import('./content-drawer-users'),
+			},
 		],
 	},
 ]

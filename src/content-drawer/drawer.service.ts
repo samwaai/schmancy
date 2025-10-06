@@ -7,55 +7,71 @@ type TRenderRequest = HTMLElement
 export type TRenderCustomEvent = CustomEvent<{
 	component: TRenderRequest
 	title?: string
+	state?: Record<string, unknown>
+	params?: Record<string, unknown>
+	props?: Record<string, unknown>
 }>
 
 type ComponentType = string | HTMLElement | (() => HTMLElement) | (() => Promise<{ default: any }>)
 
+export type DrawerPushOptions = {
+	component: ComponentType
+	state?: Record<string, unknown>
+	params?: Record<string, unknown>
+	props?: Record<string, unknown>
+}
+
+type DrawerCommand =
+	| { action: 'dismiss'; ref: TRef }
+	| { action: 'render'; ref: TRef; component: TRenderRequest; title?: string }
+	| { action: 'push'; ref: TRef; component: ComponentType; state?: Record<string, unknown>; params?: Record<string, unknown>; props?: Record<string, unknown> }
+
 class DrawerService {
-	private $drawer = new Subject<{
-		ref: TRef
-		action: DrawerAction
-		component?: TRenderRequest | ComponentType
-		title?: string
-	}>()
+	private $drawer = new Subject<DrawerCommand>()
 	private lastComponent: HTMLElement | null = null
 
 	constructor() {
-		this.$drawer.pipe().subscribe(data => {
-			if (data.action === 'dismiss') {
-				data.ref.dispatchEvent(
-					new CustomEvent(SchmancyEvents.ContentDrawerToggle, {
-						detail: {
-							state: 'close',
-						},
-						bubbles: true,
-						composed: true,
-					}),
-				)
-			} else if (data.action === 'render') {
-				data.ref.dispatchEvent(
-					new CustomEvent(SchmancyEvents.ContentDrawerToggle, {
-						detail: {
-							state: 'open',
-						},
-						bubbles: true,
-						composed: true,
-					}),
-				)
-				data.ref.dispatchEvent(
-					new CustomEvent('schmancy-content-drawer-render', {
-						detail: {
-							component: data.component,
-							title: data.title,
-						},
-						bubbles: true,
-						composed: true,
-					}),
-				)
-			} else if (data.action === 'push') {
-				this.handlePush(data.ref, data.component as ComponentType)
+		this.$drawer.pipe().subscribe(command => {
+			switch (command.action) {
+				case 'dismiss':
+					this.dispatchToggleEvent(command.ref, 'close')
+					break
+				case 'render':
+					this.dispatchToggleEvent(command.ref, 'open')
+					this.dispatchRenderEvent(command.ref, command.component, command.title)
+					break
+				case 'push':
+					this.handlePush(command.ref, command.component, command.state, command.params, command.props)
+					break
 			}
 		})
+	}
+
+	private dispatchToggleEvent(ref: TRef, state: 'open' | 'close') {
+		ref.dispatchEvent(
+			new CustomEvent(SchmancyEvents.ContentDrawerToggle, {
+				detail: { state },
+				bubbles: true,
+				composed: true,
+			})
+		)
+	}
+
+	private dispatchRenderEvent(
+		ref: TRef,
+		component: TRenderRequest,
+		title?: string,
+		state?: Record<string, unknown>,
+		params?: Record<string, unknown>,
+		props?: Record<string, unknown>
+	) {
+		ref.dispatchEvent(
+			new CustomEvent('schmancy-content-drawer-render', {
+				detail: { component, title, state, params, props },
+				bubbles: true,
+				composed: true,
+			})
+		)
 	}
 
 	dimiss(ref: TRef) {
@@ -75,70 +91,88 @@ class DrawerService {
 		})
 	}
 
-	private async handlePush(ref: TRef, component: ComponentType) {
-		let resolvedComponent: HTMLElement
+	private async handlePush(
+		ref: TRef,
+		component: ComponentType,
+		state?: Record<string, unknown>,
+		params?: Record<string, unknown>,
+		props?: Record<string, unknown>
+	) {
+		const resolvedComponent = await this.resolveComponent(component)
+		if (!resolvedComponent) return
 
-		// Resolve component to HTMLElement
-		if (typeof component === 'string') {
-			// String tag name - create element
-			resolvedComponent = document.createElement(component) as HTMLElement
-		} else if (component instanceof HTMLElement) {
-			// Already an HTMLElement
-			resolvedComponent = component
-		} else if (typeof component === 'function') {
-			// Factory function or async module
-			try {
-				const result = await component()
-				if (result && typeof result === 'object' && 'default' in result) {
-					// ES module with default export
-					const Constructor = result.default
-					resolvedComponent = new Constructor() as HTMLElement
-				} else if (result instanceof HTMLElement) {
-					// Factory returned HTMLElement
-					resolvedComponent = result
-				} else {
-					// Assume it's a constructor
-					resolvedComponent = new (result as any)() as HTMLElement
-				}
-			} catch (error) {
-				console.error('Failed to resolve component:', error)
-				return
-			}
-		} else {
-			console.error('Invalid component type:', component)
-			return
-		}
-
-		// Check if it's the same component instance and force update
+		// Force update if same instance
 		if (this.lastComponent === resolvedComponent && 'requestUpdate' in resolvedComponent) {
 			(resolvedComponent as any).requestUpdate()
 		}
 		this.lastComponent = resolvedComponent
 
-		// Dispatch events to open drawer and render component
-		ref.dispatchEvent(
-			new CustomEvent(SchmancyEvents.ContentDrawerToggle, {
-				detail: { state: 'open' },
-				bubbles: true,
-				composed: true,
-			}),
-		)
-		ref.dispatchEvent(
-			new CustomEvent('schmancy-content-drawer-render', {
-				detail: { component: resolvedComponent },
-				bubbles: true,
-				composed: true,
-			}),
-		)
+		this.dispatchToggleEvent(ref, 'open')
+		this.dispatchRenderEvent(ref, resolvedComponent, undefined, state, params, props)
 	}
 
-	push(component: ComponentType) {
-		// Use window as default ref for simplicity
+	private async resolveComponent(component: ComponentType): Promise<HTMLElement | null> {
+		if (typeof component === 'string') {
+			return document.createElement(component) as HTMLElement
+		}
+
+		if (component instanceof HTMLElement) {
+			return component
+		}
+
+		if (typeof component === 'function') {
+			try {
+				const result = await component()
+				if (result && typeof result === 'object' && 'default' in result) {
+					return new result.default() as HTMLElement
+				}
+				if (result instanceof HTMLElement) {
+					return result
+				}
+				return new (result as any)() as HTMLElement
+			} catch (error) {
+				console.error('Failed to resolve component:', error)
+				return null
+			}
+		}
+
+		console.error('Invalid component type:', component)
+		return null
+	}
+
+	/**
+	 * Push a component to the content drawer
+	 * @param options - Component configuration object with optional state/params/props
+	 * @deprecated Passing a raw ComponentType is deprecated. Use DrawerPushOptions object instead.
+	 * @example
+	 * // Recommended
+	 * schmancyContentDrawer.push({
+	 *   component: myComponent,
+	 *   props: { id: '123' }
+	 * })
+	 *
+	 * // Legacy (deprecated)
+	 * schmancyContentDrawer.push(myComponent)
+	 */
+	push(options: ComponentType | DrawerPushOptions) {
+		const normalized = this.normalizeOptions(options)
 		this.$drawer.next({
 			action: 'push',
 			ref: window,
-			component: component,
+			...normalized,
 		})
+	}
+
+	private normalizeOptions(options: ComponentType | DrawerPushOptions): {
+		component: ComponentType
+		state?: Record<string, unknown>
+		params?: Record<string, unknown>
+		props?: Record<string, unknown>
+	} {
+		if (typeof options === 'object' && options !== null && 'component' in options) {
+			return options
+		}
+		return { component: options }
 	}
 }
 

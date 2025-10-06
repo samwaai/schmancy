@@ -62,6 +62,7 @@ export default class SchmancyDemo extends $LitElement() {
 
 	@state() activeComponent: string = ''
 	@state() showGrid: boolean = false
+
 	connectedCallback(): void {
 		super.connectedCallback()
 
@@ -205,6 +206,12 @@ export default class SchmancyDemo extends $LitElement() {
 			// Layout Components
 			{ name: 'Boat', component: DemoBoat, icon: 'sailing', value: 'boat' },
 			{ name: 'Steps', component: DemoSteps, icon: 'linear_scale', value: 'steps' },
+			{
+				name: 'Content Drawer',
+				component: lazy(() => import('./features/layout-demos/content-drawer-users')),
+				icon: 'view_sidebar',
+				value: 'content-drawer',
+			},
 
 			// Advanced Features (grouped at bottom)
 			{ name: 'Context State', component: DemoContext, icon: 'hub', value: 'context' },
@@ -223,8 +230,8 @@ export default class SchmancyDemo extends $LitElement() {
 			{ title: 'Data', demos: allDemos.slice(14, 18) },
 			{ title: 'Feedback', demos: allDemos.slice(18, 21) },
 			{ title: 'Overlays', demos: allDemos.slice(21, 24) },
-			{ title: 'Layout', demos: allDemos.slice(24, 26) },
-			{ title: 'Advanced', demos: allDemos.slice(26) },
+			{ title: 'Layout', demos: allDemos.slice(24, 27) },
+			{ title: 'Advanced', demos: allDemos.slice(27) },
 		]
 
 		return html`

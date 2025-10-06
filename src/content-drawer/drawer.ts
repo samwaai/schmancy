@@ -68,70 +68,84 @@ export class SchmancyContentDrawer extends $LitElement(css`
 
 	@queryAssignedElements({ flatten: true })
 	assignedElements!: HTMLElement[]
+
 	firstUpdated(): void {
-		merge(fromEvent<CustomEvent>(window, 'resize'), fromEvent<CustomEvent>(window, SchmancyEvents.ContentDrawerResize))
+		this.setupResizeListener()
+		this.setupToggleListener()
+		this.setupRenderListener()
+	}
+
+	private setupResizeListener() {
+		merge(
+			fromEvent<CustomEvent>(window, 'resize'),
+			fromEvent<CustomEvent>(window, SchmancyEvents.ContentDrawerResize)
+		)
 			.pipe(
 				startWith(true),
-				map(() => (this.clientWidth ? this.clientWidth : window.innerWidth)),
-				map(width => width >= this.minWidth.main + this.minWidth.sheet),
 				debounceTime(100),
-				tap(() => {
-					this.maxHeight = `${window.innerHeight - this.getOffsetTop(this) - 32}px`
-					this.style.setProperty('max-height', this.maxHeight)
-				}),
+				map(() => this.clientWidth || window.innerWidth),
+				map(width => width >= this.minWidth.main + this.minWidth.sheet),
 				distinctUntilChanged(),
-				takeUntil(this.disconnecting),
+				tap(() => this.updateMaxHeight()),
+				takeUntil(this.disconnecting)
 			)
-			.subscribe(lgScreen => {
-				if (lgScreen) {
-					this.mode = 'push'
-					this.open = 'open'
-				} else {
-					this.mode = 'overlay'
-					this.open = 'close'
-				}
-			})
+			.subscribe(isLargeScreen => this.updateMode(isLargeScreen))
+	}
 
-		/*
-		 * Listen to the toggle event
-		 */
+	private setupToggleListener() {
 		fromEvent<CustomEvent>(window, SchmancyEvents.ContentDrawerToggle)
 			.pipe(
-				tap(event => {
-					event.stopPropagation()
-				}),
+				tap(event => event.stopPropagation()),
 				map(event => event.detail.state),
-				takeUntil(this.disconnecting),
+				takeUntil(this.disconnecting)
 			)
 			.subscribe(state => {
 				this.open = state
 			})
+	}
 
+	private setupRenderListener() {
 		fromEvent<TRenderCustomEvent>(window, 'schmancy-content-drawer-render')
 			.pipe(
-				tap(event => {
-					event.stopPropagation()
-				}),
+				tap(event => event.stopPropagation()),
 				map(event => event.detail),
-				takeUntil(this.disconnecting),
+				takeUntil(this.disconnecting)
 			)
-			.subscribe(({ component, title }) => {
-				if (this.mode === 'push') {
-					// TODO: Fix the router to render if constructor has different arguments
-					area.push({
-						area: this.schmancyContentDrawerID,
-						component: 'empty',
-						historyStrategy: 'silent',
-					})
-					area.push({
-						area: this.schmancyContentDrawerID,
-						component: component,
-						historyStrategy: 'silent',
-					})
-				} else if ((this.mode = 'overlay')) {
-					sheet.open({ component: component, uid: this.schmancyContentDrawerID, title })
-				}
+			.subscribe(detail => this.handleRender(detail))
+	}
+
+	private updateMaxHeight() {
+		this.maxHeight = `${window.innerHeight - this.getOffsetTop(this)}px`
+		this.style.setProperty('max-height', this.maxHeight)
+	}
+
+	private updateMode(isLargeScreen: boolean) {
+		if (isLargeScreen) {
+			this.mode = 'push'
+			this.open = 'open'
+		} else {
+			this.mode = 'overlay'
+			this.open = 'close'
+		}
+	}
+
+	private handleRender(detail: TRenderCustomEvent['detail']) {
+		if (this.mode === 'push') {
+			area.push({
+				area: this.schmancyContentDrawerID,
+				component: detail.component,
+				historyStrategy: 'silent',
+				state: detail.state,
+				params: detail.params,
+				props: detail.props,
 			})
+		} else if (this.mode === 'overlay') {
+			sheet.open({
+				component: detail.component,
+				uid: this.schmancyContentDrawerID,
+				title: detail.title,
+			})
+		}
 	}
 
 	getOffsetTop(element: HTMLElement | null) {
@@ -145,16 +159,19 @@ export class SchmancyContentDrawer extends $LitElement(css`
 
 	protected render() {
 		if (!this.mode || !this.open) return nothing
+
+		const gridClasses = [
+			'grid h-full',
+			'grid-flow-col auto-cols-max',
+			'grid-rows-[1fr]',
+			'justify-items-stretch items-stretch',
+			this.mode === 'overlay' ? 'grid-cols-[1fr]' : 'grid-cols-[auto_1fr]'
+		].join(' ')
+
 		return html`
-			<schmancy-grid
-				cols=${this.mode === 'overlay' ? '1fr' : 'auto 1fr'}
-				rows="1fr"
-				flow="col"
-				justify="stretch"
-				align="stretch"
-			>
+			<div class=${gridClasses}>
 				<slot></slot>
-			</schmancy-grid>
+			</div>
 		`
 	}
 }

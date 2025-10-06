@@ -138,19 +138,20 @@ class AreaService implements AreaSubscription {
 		if (!areaName) {
 			throw new Error('Area name is required')
 		}
-		
+
 		const areaSubject = this.getOrCreateAreaSubject(areaName)
 		const observable = areaSubject.asObservable().pipe(
-			// Add distinct to prevent duplicate emissions - now includes state
-			distinctUntilChanged((a, b) => 
+			// Add distinct to prevent duplicate emissions - includes state, params, and props
+			distinctUntilChanged((a, b) =>
 				a.component === b.component &&
 				JSON.stringify(a.state) === JSON.stringify(b.state) &&
-				JSON.stringify(a.params) === JSON.stringify(b.params)
+				JSON.stringify(a.params) === JSON.stringify(b.params) &&
+				JSON.stringify(a.props) === JSON.stringify(b.props)
 			),
 			// Share the subscription
 			shareReplay(1)
 		)
-		
+
 		return skipCurrent ? observable.pipe(skip(1)) : observable
 	}
 	

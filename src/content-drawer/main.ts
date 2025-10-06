@@ -19,7 +19,7 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 	}
 `) {
 	@property({ type: Number })
-	minWidth
+	minWidth: number
 
 	@consume({ context: SchmancyContentDrawerMinWidth, subscribe: true })
 	drawerMinWidth: typeof SchmancyContentDrawerMinWidth.__context__
@@ -30,7 +30,7 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 
 	@consume({ context: SchmancyContentDrawerMaxHeight, subscribe: true })
 	@state()
-	maxHeight
+	maxHeight: string
 
 	connectedCallback(): void {
 		super.connectedCallback()
@@ -51,20 +51,22 @@ export class SchmancyContentDrawerMain extends $LitElement(css`
 			minWidth: `${this.minWidth}px`,
 			maxHeight: this.maxHeight,
 		}
+
+		const gridClasses = [
+			'grid h-full relative overflow-scroll',
+			'grid-flow-col auto-cols-max',
+			'grid-rows-[1fr]',
+			'items-stretch justify-items-stretch',
+			this.mode === 'push' ? 'grid-cols-[auto_1fr]' : 'grid-cols-[1fr]'
+		].join(' ')
+
 		return html`
 			<section class="relative inset-0 h-full">
-				<schmancy-grid
-					class="h-full relative overflow-scroll"
-					cols="${this.mode === 'push' ? 'auto 1fr' : '1fr'}"
-					rows="1fr"
-					flow="col"
-					align="stretch"
-					justify="stretch"
-				>
+				<div class=${gridClasses}>
 					<section style=${this.styleMap(styles)}>
 						<slot></slot>
 					</section>
-				</schmancy-grid>
+				</div>
 				${when(
 					this.mode === 'push',
 					() => html` <schmancy-divider class="absolute right-0 top-0" orientation="vertical"></schmancy-divider>`,
