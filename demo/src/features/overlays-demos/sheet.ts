@@ -1,9 +1,9 @@
 import { $LitElement } from '@mixins/index'
+import { $dialog } from '@schmancy/dialog'
+import { sheet } from '@schmancy/sheet'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import '../../shared/installation-section'
-import { sheet } from '@schmancy/sheet'
-import { $dialog } from '@schmancy/dialog'
 
 @customElement('overlays-sheet')
 export default class OverlaysSheet extends $LitElement() {

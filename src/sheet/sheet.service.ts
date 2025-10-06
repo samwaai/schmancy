@@ -115,7 +115,6 @@ class BottomSheetService {
 				map(([existingSheet, theme, target]) => {
 					let sheet = existingSheet?.sheet
 					let targetContainer: HTMLElement
-					let isNewSheet = false // Track if this is a new sheet
 
 					if (sheet) {
 						// Use existing sheet
@@ -125,7 +124,6 @@ class BottomSheetService {
 						targetContainer = theme || (document.querySelector('schmancy-theme') as HTMLElement) || document.body
 
 						// Create new sheet
-						isNewSheet = true
 						const uid = target.uid ?? `sheet-${Date.now()}`
 						sheet = document.createElement('schmancy-sheet')
 						sheet.setAttribute('uid', uid)
@@ -141,20 +139,18 @@ class BottomSheetService {
 					target.persist && sheet.setAttribute('persist', String(target.persist))
 
 					document.body.style.overflow = 'hidden' // lock the scroll of the host
-					return { target, sheet: sheet as SchmancySheet, isNewSheet }
+					return { target, sheet: sheet as SchmancySheet }
 				}),
 				delay(20),
-				tap(({ target, sheet, isNewSheet }) => {
-					// Only dispatch render event for NEW sheets to avoid duplicate component rendering
-					if (isNewSheet) {
-						window.dispatchEvent(
-							new CustomEvent('schmancy-sheet-render', {
-								detail: { component: target.component, uid: sheet.getAttribute('uid') },
-								bubbles: true,
-								composed: true,
-							}),
-						)
-					}
+				tap(({ target, sheet }) => {
+					// Always dispatch render event - area router handles duplicate prevention
+					window.dispatchEvent(
+						new CustomEvent('schmancy-sheet-render', {
+							detail: { component: target.component, uid: sheet.getAttribute('uid') },
+							bubbles: true,
+							composed: true,
+						}),
+					)
 				}),
 				delay(1),
 				tap(({ target, sheet }) => {
