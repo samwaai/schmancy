@@ -31,11 +31,6 @@ import type { SchmancyNavigationBarItem } from './navigation-bar-item'
 export class SchmancyNavigationBar extends TailwindElement(css`
 	:host {
 		display: block;
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		z-index: 10;
 		transition: transform 0.3s ease-in-out;
 	}
 
@@ -361,7 +356,6 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 
 		const containerClasses = {
 			'h-20': true, // 80px height
-			'fixed bottom-0 left-0 right-0': true,
 			'flex items-center justify-around': true,
 			'px-2 py-3 box-border': true,
 			'transition-all duration-300 ease-in-out': true,

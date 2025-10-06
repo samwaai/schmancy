@@ -58,7 +58,7 @@ export default class NavigationRail extends $LitElement() {
 							</div>
 							<div class="flex-1 p-8 flex items-center justify-center text-on-surface">
 								<div class="text-center">
-									<schmancy-icon size="xl" class="mb-4"
+									<schmancy-icon  class="mb-4"
 										>${this.railItems.find(i => i.id === this.activeRailItem)?.icon}</schmancy-icon
 									>
 									<schmancy-typography type="title" token="lg">
@@ -155,7 +155,7 @@ export default class NavigationRail extends $LitElement() {
 							</div>
 							<div class="flex-1 p-8 flex items-center justify-center text-on-surface">
 								<div class="text-center">
-									<schmancy-icon size="xl" class="mb-4"
+									<schmancy-icon  class="mb-4"
 										>${this.badgeItems.find(i => i.id === this.railWithBadges)?.icon}</schmancy-icon
 									>
 									<schmancy-typography type="title" token="lg">
