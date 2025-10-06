@@ -3,8 +3,12 @@ declare const SchmancyNavigationBar_base: import("../../mixins").Constructor<Cus
  * `<schmancy-navigation-bar>` component
  *
  * A horizontal navigation component following Material Design 3 specifications.
- * Navigation bars provide access to between 3-7 primary destinations, fixed at the bottom of the viewport.
+ * Navigation bars provide access to between 3-7 primary destinations.
  * Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).
+ *
+ * **IMPORTANT**: This component does not apply positioning by default. The consumer is responsible
+ * for positioning the navigation bar in their layout. For typical bottom-fixed positioning, add:
+ * `class="fixed bottom-0 left-0 right-0 z-10"` or similar CSS to position the component.
  *
  * @element schmancy-navigation-bar
  * @slot - Default slot for navigation bar items
@@ -12,12 +16,22 @@ declare const SchmancyNavigationBar_base: import("../../mixins").Constructor<Cus
  * @fires navigation-change - When an item is selected
  *
  * @example
- * <schmancy-navigation-bar activeIndex="0">
+ * <!-- Fixed at bottom (typical usage) -->
+ * <schmancy-navigation-bar activeIndex="0" class="fixed bottom-0 left-0 right-0 z-10">
  *   <schmancy-navigation-bar-item icon="home" label="Home"></schmancy-navigation-bar-item>
  *   <schmancy-navigation-bar-item icon="search" label="Search"></schmancy-navigation-bar-item>
  *   <schmancy-navigation-bar-item icon="favorite" label="Favorites"></schmancy-navigation-bar-item>
  *   <schmancy-navigation-bar-item icon="settings" label="Settings"></schmancy-navigation-bar-item>
  * </schmancy-navigation-bar>
+ *
+ * @example
+ * <!-- Within a container (demo/mockup usage) -->
+ * <div class="flex flex-col h-screen">
+ *   <main class="flex-1">Content</main>
+ *   <schmancy-navigation-bar activeIndex="0">
+ *     <schmancy-navigation-bar-item icon="home" label="Home"></schmancy-navigation-bar-item>
+ *   </schmancy-navigation-bar>
+ * </div>
  */
 export declare class SchmancyNavigationBar extends SchmancyNavigationBar_base {
     /**
