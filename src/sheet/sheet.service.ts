@@ -13,6 +13,7 @@ import {
 	tap,
 	timer,
 } from 'rxjs'
+import { ComponentType } from '../area/router.types'
 import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.events'
 import SchmancySheet from './sheet'
 
@@ -22,15 +23,12 @@ export enum SchmancySheetPosition {
 }
 
 export type SheetConfig = {
-	component: HTMLElement
+	component: ComponentType
 	uid?: string
 	position?: SchmancySheetPosition
 	persist?: boolean
 	close?: () => void
 	lock?: boolean // Controls both ESC and overlay click dismissal
-	handleHistory?: boolean // Controls browser back button behavior
-	title?: string
-	header?: 'hidden' | 'visible'
 	onBeforeOpen?: (component: HTMLElement) => void
 	onAfterOpen?: (component: HTMLElement) => void
 }
@@ -60,8 +58,6 @@ class BottomSheetService {
 	$dismiss = new Subject<string>()
 	// Track currently open sheets
 	private activeSheets = new Set<string>()
-	// Track sheet components for retrieval
-	private sheetComponents = new Map<string, HTMLElement>()
 	// To track if we've set up the popstate listener
 	private popStateListenerActive = false
 
@@ -93,8 +89,8 @@ class BottomSheetService {
 						),
 						of(target).pipe(
 							tap(() => {
-								// Determine uid - use provided uid or component tagName
-								const uid = target.uid ?? target.component.tagName
+								// Determine uid - use provided uid or generate one
+								const uid = target.uid ?? `sheet-${Date.now()}`
 
 								// First ask for existing sheet
 								window.dispatchEvent(
@@ -128,7 +124,7 @@ class BottomSheetService {
 						targetContainer = theme || (document.querySelector('schmancy-theme') as HTMLElement) || document.body
 
 						// Create new sheet
-						const uid = target.uid ?? target.component.tagName
+						const uid = target.uid ?? `sheet-${Date.now()}`
 						sheet = document.createElement('schmancy-sheet')
 						sheet.setAttribute('uid', uid)
 						targetContainer.appendChild(sheet)
@@ -140,65 +136,29 @@ class BottomSheetService {
 					const position = target.position || getPosition()
 					sheet.setAttribute('position', position)
 
-					target.title && sheet.setAttribute('title', target.title)
 					target.persist && sheet.setAttribute('persist', String(target.persist))
-					target.header && sheet.setAttribute('header', target.header)
-
-					// Handle history logic if the property exists
-					if (target.handleHistory !== undefined) {
-						sheet.setAttribute('handleHistory', String(target.handleHistory))
-					}
 
 					document.body.style.overflow = 'hidden' // lock the scroll of the host
 					return { target, sheet: sheet as SchmancySheet }
 				}),
 				delay(20),
 				tap(({ target, sheet }) => {
-					// Call onBeforeOpen callback if provided
-					if (target.onBeforeOpen) {
-						target.onBeforeOpen(target.component)
-					}
-
-					// Handle HTMLElement components
-					const assignedElements = sheet?.shadowRoot?.querySelector('slot')?.assignedElements() || []
-
-					const existingComponent = assignedElements.find(e => (e as HTMLElement).tagName === target.component.tagName)
-
-					if (!existingComponent) {
-						// Need to append the component
-						sheet?.appendChild(target.component)
-					} else {
-					}
+					// Dispatch render event - sheet component will use area router to handle component
+					window.dispatchEvent(
+						new CustomEvent('schmancy-sheet-render', {
+							detail: { component: target.component, uid: sheet.getAttribute('uid') },
+							bubbles: true,
+							composed: true,
+						}),
+					)
 				}),
 				delay(1),
 				tap(({ target, sheet }) => {
 					sheet?.setAttribute('open', 'true')
 
 					// Add to active sheets tracking
-					const uid =
-						target.uid ?? (target.component instanceof HTMLElement ? target.component.tagName : `sheet-${Date.now()}`)
+					const uid = target.uid ?? `sheet-${Date.now()}`
 					this.activeSheets.add(uid)
-					this.sheetComponents.set(uid, target.component)
-
-					// Handle history integration - default to true if not specified
-					const shouldHandleHistory = target.handleHistory !== false
-
-					if (shouldHandleHistory) {
-						// Use history state to track this specific sheet
-						const historyState = {
-							schmancySheet: true,
-							uid: uid,
-							timestamp: Date.now(),
-						}
-
-						// Push a new history state
-						history.pushState(historyState, '', window.location.href)
-					}
-
-					// Call onAfterOpen callback if provided
-					if (target.onAfterOpen) {
-						target.onAfterOpen(target.component)
-					}
 
 					// Set up close event listener (always, not just for new sheets)
 					fromEvent<CustomEvent>(sheet, 'close')
@@ -213,7 +173,6 @@ class BottomSheetService {
 								const uid = sheetElement.getAttribute('uid')
 								if (uid) {
 									this.activeSheets.delete(uid)
-									this.sheetComponents.delete(uid)
 								}
 
 								// Only keep sheet if persist is explicitly set to a truthy value
@@ -328,13 +287,5 @@ class BottomSheetService {
 		})
 	}
 
-	/**
-	 * Gets the component instance for a given sheet
-	 * @param uid - The unique identifier of the sheet
-	 * @returns The component instance, or undefined if not found
-	 */
-	getComponent<T extends HTMLElement = HTMLElement>(uid: string): T | undefined {
-		return this.sheetComponents.get(uid) as T | undefined
-	}
 }
 export const sheet = new BottomSheetService()

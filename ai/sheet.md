@@ -2,10 +2,7 @@
 
 The sheet component provides a sliding panel overlay that can be used for forms, details views, or any content that needs to be displayed in a drawer-style interface.
 
-**Important Note about Templates**: The sheet service now only accepts HTMLElement components. If you're using Lit's `html` template literals, you need to either:
-1. Create a wrapper element and use innerHTML (for simple content)
-2. Create a custom element class (for complex interactions)
-3. Use the `render` function from Lit to render into a container element
+**Component Resolution**: The sheet service uses the area router for component resolution, supporting the same component types as `area.push()` and `schmancyContentDrawer.push()`.
 
 ```js
 // Import Options
@@ -14,16 +11,21 @@ import { sheet, $sheet } from '@schmancy/index';
 
 // Sheet Service API
 $sheet.open({
-  component: HTMLElement,                  // Content to display (must be an HTMLElement)
+  component: ComponentType,                // Component to display (same types as area router)
   uid?: string,                            // Unique identifier for the sheet
   position?: 'side' | 'bottom',           // Position (default: responsive based on screen size)
   persist?: boolean,                       // Keep sheet in DOM after closing (default: false)
   close?: () => void,                      // Callback when sheet closes
   lock?: boolean,                          // Prevent dismissal via ESC/overlay click (default: false)
-  handleHistory?: boolean,                 // Integrate with browser back button (default: true)
-  title?: string,                          // Sheet title
-  header?: 'hidden' | 'visible'           // Header visibility (default: 'visible')
+  onBeforeOpen?: (component: HTMLElement) => void,  // Called before sheet opens
+  onAfterOpen?: (component: HTMLElement) => void    // Called after sheet opens
 }) -> void
+
+// ComponentType (matches area router):
+// - string - HTML tag name (e.g., 'my-element')
+// - HTMLElement - Component instance (e.g., new MyElement())
+// - CustomElementConstructor - Component class (e.g., MyElement)
+// - LazyComponent<any> - Lazy import (e.g., lazy(() => import('./my-element')))
 
 // Service Methods
 $sheet.dismiss(uid?: string)    // Close specific sheet or most recent if no uid
@@ -45,9 +47,9 @@ SchmancySheetPosition.Bottom   // Bottom sheet (mobile)
   title="Sheet Title"
   header="visible|hidden"
   @close=${handleClose}>
-  
-  <!-- Main content goes in default slot -->
-  <div>Sheet content goes here</div>
+
+  <!-- Content managed by area router -->
+  <!-- Use sheet.open() to push components -->
 </schmancy-sheet>
 
 // Sheet Header Component
@@ -59,49 +61,32 @@ SchmancySheetPosition.Bottom   // Bottom sheet (mobile)
 
 // Examples
 
-// 1. Basic Sheet with Form - Using a wrapper element for template content
+// 1. HTMLElement Instance (backward compatible)
 const formContent = document.createElement('div');
 formContent.className = 'p-6';
-formContent.innerHTML = `
-  <schmancy-typography type="headline" token="md" class="mb-4">
-    User Details
-  </schmancy-typography>
-  <schmancy-form>
-    <schmancy-input label="Name" value="John Doe"></schmancy-input>
-    <schmancy-input label="Email" value="john@example.com"></schmancy-input>
-    <schmancy-button type="submit">Save</schmancy-button>
-  </schmancy-form>
-`;
+formContent.innerHTML = '<h1>User Details</h1>';
+$sheet.open({ component: formContent });
 
+// 2. Component Class (NEW!)
+class UserDetails extends HTMLElement {
+  connectedCallback() {
+    this.innerHTML = '<div>User details content</div>';
+  }
+}
+customElements.define('user-details', UserDetails);
+$sheet.open({ component: UserDetails });
+
+// 3. String Tag (NEW!)
+$sheet.open({ component: 'user-details' });
+
+// 4. Lazy Import (NEW!)
+import { lazy } from '@schmancy/area';
 $sheet.open({
-  component: formContent,
-  title: "Edit User"
+  component: lazy(() => import('./components/user-details')),
+  uid: 'user-details-sheet'
 });
 
-// 2. Using HTMLElement Component
-const myComponent = document.createElement('my-custom-element');
-$sheet.open({
-  component: myComponent,
-  uid: 'my-custom-element', // Will reuse existing sheet if already open
-  persist: true,            // Keep in DOM after closing
-  title: "Custom Component"
-});
-
-// 3. Sheet with Lock (using Lit render for interactive content)
-import { render, html } from 'lit';
-
-const lockContent = document.createElement('div');
-render(html`
-  <div class="p-6">
-    <schmancy-typography type="body" token="lg">
-      This action requires confirmation. Please complete the form.
-    </schmancy-typography>
-    <schmancy-button @click=${() => $sheet.dismiss()}>
-      Complete Action
-    </schmancy-button>
-  </div>
-`, lockContent);
-
+// 5. With Options
 $sheet.open({
   component: lockContent,
   lock: true,

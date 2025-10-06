@@ -1,9 +1,10 @@
 import { SchmancyEvents } from '@schmancy/types/events'
 import { Subject } from 'rxjs'
+import { ComponentType } from '../area/router.types'
 
 // type DrawerAction = 'dismiss' | 'render' | 'push'
 type TRef = Element | Window
-type TRenderRequest = HTMLElement
+type TRenderRequest = ComponentType
 export type TRenderCustomEvent = CustomEvent<{
 	component: TRenderRequest
 	title?: string
@@ -11,8 +12,6 @@ export type TRenderCustomEvent = CustomEvent<{
 	params?: Record<string, unknown>
 	props?: Record<string, unknown>
 }>
-
-type ComponentType = string | HTMLElement | (() => HTMLElement) | (() => Promise<{ default: any }>)
 
 export type DrawerPushOptions = {
 	component: ComponentType
@@ -28,7 +27,6 @@ type DrawerCommand =
 
 class DrawerService {
 	private $drawer = new Subject<DrawerCommand>()
-	private lastComponent: HTMLElement | null = null
 
 	constructor() {
 		this.$drawer.pipe().subscribe(command => {
@@ -91,53 +89,16 @@ class DrawerService {
 		})
 	}
 
-	private async handlePush(
+	private handlePush(
 		ref: TRef,
 		component: ComponentType,
 		state?: Record<string, unknown>,
 		params?: Record<string, unknown>,
 		props?: Record<string, unknown>
 	) {
-		const resolvedComponent = await this.resolveComponent(component)
-		if (!resolvedComponent) return
-
-		// Force update if same instance
-		if (this.lastComponent === resolvedComponent && 'requestUpdate' in resolvedComponent) {
-			(resolvedComponent as any).requestUpdate()
-		}
-		this.lastComponent = resolvedComponent
-
+		// Simply pass through to drawer component - it will call area.push() which handles all component resolution
 		this.dispatchToggleEvent(ref, 'open')
-		this.dispatchRenderEvent(ref, resolvedComponent, undefined, state, params, props)
-	}
-
-	private async resolveComponent(component: ComponentType): Promise<HTMLElement | null> {
-		if (typeof component === 'string') {
-			return document.createElement(component) as HTMLElement
-		}
-
-		if (component instanceof HTMLElement) {
-			return component
-		}
-
-		if (typeof component === 'function') {
-			try {
-				const result = await component()
-				if (result && typeof result === 'object' && 'default' in result) {
-					return new result.default() as HTMLElement
-				}
-				if (result instanceof HTMLElement) {
-					return result
-				}
-				return new (result as any)() as HTMLElement
-			} catch (error) {
-				console.error('Failed to resolve component:', error)
-				return null
-			}
-		}
-
-		console.error('Invalid component type:', component)
-		return null
+		this.dispatchRenderEvent(ref, component, undefined, state, params, props)
 	}
 
 	/**

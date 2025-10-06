@@ -1,5 +1,6 @@
+import { LazyComponent } from '../area/lazy';
 type TRef = Element | Window;
-type TRenderRequest = HTMLElement;
+type TRenderRequest = ComponentType;
 export type TRenderCustomEvent = CustomEvent<{
     component: TRenderRequest;
     title?: string;
@@ -7,9 +8,7 @@ export type TRenderCustomEvent = CustomEvent<{
     params?: Record<string, unknown>;
     props?: Record<string, unknown>;
 }>;
-type ComponentType = string | HTMLElement | (() => HTMLElement) | (() => Promise<{
-    default: any;
-}>);
+type ComponentType = CustomElementConstructor | string | HTMLElement | LazyComponent<any>;
 export type DrawerPushOptions = {
     component: ComponentType;
     state?: Record<string, unknown>;
@@ -18,14 +17,12 @@ export type DrawerPushOptions = {
 };
 declare class DrawerService {
     private $drawer;
-    private lastComponent;
     constructor();
     private dispatchToggleEvent;
     private dispatchRenderEvent;
     dimiss(ref: TRef): void;
     render(ref: TRef, component: TRenderRequest, title?: string): void;
     private handlePush;
-    private resolveComponent;
     /**
      * Push a component to the content drawer
      * @param options - Component configuration object with optional state/params/props

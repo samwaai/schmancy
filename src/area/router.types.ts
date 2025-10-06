@@ -1,7 +1,12 @@
 import { LazyComponent } from './lazy'
 
+/**
+ * Component type accepted by area router, drawer, and sheet services
+ */
+export type ComponentType = CustomElementConstructor | string | HTMLElement | LazyComponent<any>
+
 export type RouteAction = {
-	component: CustomElementConstructor | string | HTMLElement | LazyComponent<any>
+	component: ComponentType
 	area: string
 	state?: Record<string, unknown>
 	params?: Record<string, unknown>

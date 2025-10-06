@@ -1,4 +1,5 @@
 import { $LitElement } from '@mixins/index'
+import { area } from '../area'
 import { html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { cache } from 'lit/directives/cache.js'
@@ -94,7 +95,22 @@ export default class SchmancySheet extends $LitElement(style) {
 			}),
 		)
 
-		merge(popState$, keyUp$, rickyComm$).pipe(takeUntil(this.disconnecting)).subscribe()
+		// Handle render events from sheet service
+		const render$ = fromEvent<CustomEvent>(window, 'schmancy-sheet-render').pipe(
+			tap(e => {
+				const detail = e.detail
+				if (detail.uid === this.uid) {
+					// Use area router to handle component resolution
+					area.push({
+						area: this.uid,
+						component: detail.component,
+						historyStrategy: 'silent',
+					})
+				}
+			}),
+		)
+
+		merge(popState$, keyUp$, rickyComm$, render$).pipe(takeUntil(this.disconnecting)).subscribe()
 	}
 
 	private setBackgroundInert(inert: boolean) {
@@ -205,7 +221,11 @@ export default class SchmancySheet extends $LitElement(style) {
 					)}
 
 					<schmancy-surface rounded="left" fill="all" id="body" class="overflow-auto" type="surface">
-						<schmancy-scroll> <slot></slot></schmancy-scroll>
+						<schmancy-scroll>
+							<schmancy-area name=${this.uid}>
+								<slot></slot>
+							</schmancy-area>
+						</schmancy-scroll>
 					</schmancy-surface>
 				</schmancy-grid>
 			</div>

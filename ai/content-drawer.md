@@ -10,18 +10,18 @@ import { schmancyContentDrawer } from '@schmancy/content-drawer'
 
 ### `push(options)`
 
-Push a component to the drawer. Automatically resolves different component types.
+Push a component to the drawer. Component types are passed directly to the area router - no resolution happens in the drawer service.
 
 **Parameters:**
 
 - `options: ComponentType | DrawerPushOptions`
 
-**ComponentType formats:**
+**ComponentType formats (matches area router API):**
 
 - `string` - HTML tag name (e.g., `'demo-button'`)
 - `HTMLElement` - Component instance (e.g., `new MyComponent()`)
-- `() => HTMLElement` - Factory function
-- `() => Promise<{default: any}>` - Async import
+- `CustomElementConstructor` - Component class (e.g., `UserDetails`)
+- `LazyComponent<any>` - Lazy import (e.g., `lazy(() => import('./my-component'))`)
 
 **DrawerPushOptions object:**
 
@@ -43,17 +43,18 @@ schmancyContentDrawer.push('demo-button')
 // HTMLElement instance
 schmancyContentDrawer.push(new UserDetail())
 
+// Component class (constructor)
+schmancyContentDrawer.push(UserDetails)
+
 // With options object (recommended)
 schmancyContentDrawer.push({
-  component: new UserDetail(),
+  component: UserDetails,
   props: { userId: '123' }
 })
 
-// Factory function
-schmancyContentDrawer.push(() => new MyComponent())
-
-// Async import
-schmancyContentDrawer.push(() => import('./my-component'))
+// Lazy import
+import { lazy } from '@schmancy/area'
+schmancyContentDrawer.push(lazy(() => import('./my-component')))
 ```
 
 ### `render(ref, component, title?)`
@@ -100,6 +101,15 @@ schmancyContentDrawer.dimiss(window)
 - `open: 'open' | 'close'` - Auto-managed based on mode
 - `mode: 'push' | 'overlay'` - Auto-switches at 936px breakpoint
 
+## How It Works
+
+The drawer service is a simple passthrough to the area router:
+
+1. **Push mode (desktop)**: Calls `area.push()` with your component
+2. **Overlay mode (mobile)**: Calls `sheet.open()` with your component
+
+Component resolution is handled entirely by the area router - the drawer service just dispatches events.
+
 ## Example
 
 ```typescript
@@ -109,8 +119,9 @@ html`
       <schmancy-list>
         ${items.map(item => html`
           <schmancy-list-item @click=${() => {
+            // Pass component class directly - area router handles instantiation
             schmancyContentDrawer.push({
-              component: new ItemDetail(),
+              component: ItemDetail,
               props: { item }
             })
           }}>
