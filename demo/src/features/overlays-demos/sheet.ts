@@ -3,6 +3,7 @@ import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import '../../shared/installation-section'
 import { sheet } from '@schmancy/sheet'
+import { $dialog } from '@schmancy/dialog'
 
 @customElement('overlays-sheet')
 export default class OverlaysSheet extends $LitElement() {
@@ -283,7 +284,6 @@ sheet.dismiss()
 									`
 									sheet.open({
 										component: content,
-										title: 'Basic Sheet',
 										uid: 'basic-sheet'
 									})
 								}}
@@ -303,7 +303,7 @@ sheet.dismiss()
 										content.innerHTML = '<p>Side positioned sheet</p>'
 										sheet.open({
 											component: content,
-											title: 'Side Sheet',
+											
 											uid: 'side-sheet'
 										})
 									}}
@@ -318,7 +318,7 @@ sheet.dismiss()
 										content.innerHTML = '<p>Bottom positioned sheet</p>'
 										sheet.open({
 											component: content,
-											title: 'Bottom Sheet',
+											
 											uid: 'bottom-sheet'
 										})
 									}}
@@ -353,7 +353,7 @@ sheet.dismiss()
 									`
 									sheet.open({
 										component: nav,
-										title: 'Menu',
+										
 										uid: 'nav-menu'
 									})
 								}}
@@ -379,7 +379,6 @@ sheet.dismiss()
 									`
 									sheet.open({
 										component: form,
-										title: 'Edit Profile',
 										uid: 'edit-form'
 									})
 								}}
@@ -464,7 +463,6 @@ sheet.dismiss()
 
 									sheet.open({
 										component: dateFilterContent,
-										title: 'Date Filter',
 										uid: 'date-filter'
 									})
 								}}
@@ -517,7 +515,6 @@ sheet.dismiss()
 
 									sheet.open({
 										component: testContent,
-										title: 'Dismiss Test',
 										uid: 'dismiss-test',
 										onBeforeOpen: (component) => {
 										},
@@ -568,7 +565,7 @@ sheet.dismiss()
 									setTimeout(() => {
 										const btn = content.querySelector('#openDialogBtn')
 										btn?.addEventListener('click', async () => {
-											const confirmed = await ConfirmDialog.confirm({
+											const confirmed = await $dialog.confirm({
 												title: 'Dialog Above Sheet',
 												message: 'This dialog should appear above the sheet. Can you see it properly?',
 												confirmText: 'Yes, it works!',
@@ -579,7 +576,6 @@ sheet.dismiss()
 
 									sheet.open({
 										component: content,
-										title: 'Dialog Z-Index Test',
 										uid: 'dialog-test-sheet'
 									})
 								}}
