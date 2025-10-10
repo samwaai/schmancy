@@ -121,7 +121,7 @@ export class SchmancyStep extends $LitElement(css`
 		// Enhanced styling classes with better visual hierarchy
 		const connectorClasses = {
 			'bg-tertiary-default': isComplete,
-			'bg-outline-variant': !isComplete,
+			'bg-outlineVariant': !isComplete,
 		}
 
 		const iconContainerClasses = {

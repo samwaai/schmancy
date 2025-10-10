@@ -8,6 +8,10 @@ export const layoutDemos = [
 				component: () => import('./layout'),
 			},
 			{
+				name: 'Divider',
+				component: () => import('./divider'),
+			},
+			{
 				name: 'Content Drawer',
 				component: () => import('./drawer'),
 			},

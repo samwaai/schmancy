@@ -144,7 +144,7 @@ export function formateTheme(
 		inverseOnSurface: isDark ? 20 : 95,
 
 		outline: isDark ? 60 : 50,
-		outlineVariant: isDark ? 30 : 80,
+		outlineVariant: isDark ? 60 : 80,
 		shadow: 0,
 		scrim: 0,
 	}
