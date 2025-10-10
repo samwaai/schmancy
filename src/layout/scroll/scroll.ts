@@ -83,7 +83,8 @@ export class SchmancyScroll extends TailwindElement(css`
 		display: block;
 		position: relative;
 		scroll-behavior: smooth;
-		overscroll-behavior: contain;
+		overscroll-behavior-x: contain;
+		overscroll-behavior-y: auto;
 	}
 	/* Fallback for non-flex contexts */
 	:host(.explicit-height) {
