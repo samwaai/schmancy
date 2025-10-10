@@ -74,6 +74,7 @@ export class SchmancyArea extends $LitElement(css`
 									component: parsed[this.name].component,
 									state: parsed[this.name].state || {},
 									params: parsed[this.name].params || {},
+									props: parsed[this.name].props || {},
 									historyStrategy: HISTORY_STRATEGY.replace,
 								} as RouteAction
 							}
@@ -121,6 +122,7 @@ export class SchmancyArea extends $LitElement(css`
 							component: stateData.component,
 							state: stateData.state || {},
 							params: stateData.params || {},
+							props: stateData.props || {},
 							historyStrategy: HISTORY_STRATEGY.pop,
 						} as RouteAction
 					}
@@ -139,6 +141,7 @@ export class SchmancyArea extends $LitElement(css`
 									component: parsed[this.name].component,
 									state: parsed[this.name].state || {},
 									params: parsed[this.name].params || {},
+									props: parsed[this.name].props || {},
 									historyStrategy: HISTORY_STRATEGY.replace,
 								} as RouteAction
 							}
