@@ -1,6 +1,5 @@
 import { Subject } from 'rxjs';
 import { ComponentType } from '../area/router.types';
-import SchmancySheet from './sheet';
 export declare enum SchmancySheetPosition {
     Side = "side",
     Bottom = "bottom"
@@ -16,15 +15,6 @@ export type SheetConfig = {
     onAfterOpen?: (component: HTMLElement) => void;
 };
 type BottomSheeetTarget = SheetConfig;
-export type SheetWhereAreYouRickyEvent = CustomEvent<{
-    uid: string;
-}>;
-export declare const SheetWhereAreYouRicky = "are-you-there-sheet";
-export type SheetHereMortyEvent = CustomEvent<{
-    sheet?: SchmancySheet;
-    theme?: HTMLElement;
-}>;
-export declare const SheetHereMorty = "yes-here";
 declare class BottomSheetService {
     bottomSheet: Subject<SheetConfig>;
     $dismiss: Subject<string>;

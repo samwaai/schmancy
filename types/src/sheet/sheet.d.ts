@@ -3,27 +3,23 @@ declare const SchmancySheet_base: CustomElementConstructor & import("@mixins/ind
 export default class SchmancySheet extends SchmancySheet_base {
     uid: string;
     open: boolean;
-    header: 'hidden' | 'visible';
     position: SchmancySheetPosition;
     persist: boolean;
     lock: boolean;
     handleHistory: boolean;
-    title: string;
-    private sheetRef;
-    private assignedElements;
-    focusAttribute: string;
     private lastFocusedElement;
+    private overlayEl;
+    private contentEl;
     onOpenChange(_oldValue: boolean, newValue: boolean): void;
+    private animateIn;
+    private animateOut;
     connectedCallback(): void;
     disconnectedCallback(): void;
     private setupEventListeners;
     private setBackgroundInert;
-    setIsSheetShown(isShown: boolean): void;
     closeSheet(): void;
-    private getFocusElement;
     focus(): void;
     private handleOverlayClick;
-    private handleHeaderDismiss;
     render(): import("lit-html").TemplateResult<1>;
 }
 declare global {
