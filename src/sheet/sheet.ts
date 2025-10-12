@@ -1,38 +1,22 @@
 import { $LitElement } from '@mixins/index'
 import { area } from '../area'
 import { html } from 'lit'
-import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
-import { cache } from 'lit/directives/cache.js'
+import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
-import { ifDefined } from 'lit/directives/if-defined.js'
-import { createRef, ref } from 'lit/directives/ref.js'
-import { fromEvent, merge, of, take, takeUntil, tap } from 'rxjs'
+import { fromEvent, merge, takeUntil, tap, filter } from 'rxjs'
 import { on } from './hook'
 import style from './sheet.scss?inline'
-import {
-	SchmancySheetPosition,
-	SheetHereMorty,
-	SheetWhereAreYouRicky,
-	SheetWhereAreYouRickyEvent,
-	sheet,
-} from './sheet.service'
+import { SchmancySheetPosition, sheet } from './sheet.service'
 
 @customElement('schmancy-sheet')
 export default class SchmancySheet extends $LitElement(style) {
 	@property({ type: String, reflect: true }) uid!: string
 	@property({ type: Boolean, reflect: true }) open = false
-	@property({ type: String, reflect: true }) header: 'hidden' | 'visible' = 'visible'
 	@property({ type: String, reflect: true }) position: SchmancySheetPosition = SchmancySheetPosition.Side
 	@property({ type: Boolean, reflect: true }) persist = false
 	@property({ type: Boolean, reflect: true }) lock = false
 	@property({ type: Boolean, reflect: true }) handleHistory = true
-	@property({ type: String, reflect: true }) title = ''
 
-	// Use ref directive instead of @query
-	private sheetRef = createRef<HTMLDivElement>()
-	@queryAssignedElements({ flatten: true }) private assignedElements!: HTMLElement[]
-
-	@property() focusAttribute = 'autofocus'
 	private lastFocusedElement: HTMLElement | null = null
 
 	@on('open')
@@ -60,17 +44,16 @@ export default class SchmancySheet extends $LitElement(style) {
 	}
 
 	private setupEventListeners() {
-		// Handle browser back button - only if handleHistory is true
-		const popState$ = this.handleHistory
-			? fromEvent<PopStateEvent>(window, 'popstate').pipe(
-					tap(e => {
-						e.preventDefault()
-						this.closeSheet()
-					}),
-				)
-			: of(null).pipe(take(0)) // Empty observable if handleHistory is false
+		// Handle browser back button
+		const popState$ = fromEvent<PopStateEvent>(window, 'popstate').pipe(
+			filter(() => this.handleHistory),
+			tap(e => {
+				e.preventDefault()
+				this.closeSheet()
+			}),
+		)
 
-		// Handle ESC key - listen on the sheet element for better event capture
+		// Handle ESC key
 		const keyUp$ = fromEvent<KeyboardEvent>(this, 'keydown').pipe(
 			tap(event => {
 				if (event.key === 'Escape' && !this.lock && this.open) {
@@ -81,70 +64,30 @@ export default class SchmancySheet extends $LitElement(style) {
 			}),
 		)
 
-		// Handle inter-component communication
-		const rickyComm$ = fromEvent<SheetWhereAreYouRickyEvent>(window, SheetWhereAreYouRicky).pipe(
-			tap(e => {
-				if (e.detail.uid === this.uid)
-					this.dispatchEvent(
-						new CustomEvent(SheetHereMorty, {
-							detail: { sheet: this },
-							bubbles: true,
-							composed: true,
-						}),
-					)
-			}),
-		)
-
 		// Handle render events from sheet service
 		const render$ = fromEvent<CustomEvent>(window, 'schmancy-sheet-render').pipe(
+			filter(e => e.detail.uid === this.uid),
 			tap(e => {
-				const detail = e.detail
-				if (detail.uid === this.uid) {
-					// Use area router to handle component resolution
-					area.push({
-						area: this.uid,
-						component: detail.component,
-						historyStrategy: 'silent',
-					})
-				}
+				area.push({
+					area: this.uid,
+					component: e.detail.component,
+					historyStrategy: 'silent',
+				})
 			}),
 		)
 
-		merge(popState$, keyUp$, rickyComm$, render$).pipe(takeUntil(this.disconnecting)).subscribe()
+		merge(popState$, keyUp$, render$).pipe(takeUntil(this.disconnecting)).subscribe()
 	}
 
 	private setBackgroundInert(inert: boolean) {
-		// Get all sibling elements and make them inert
 		const parent = this.parentElement
-		if (parent) {
-			Array.from(parent.children).forEach(child => {
-				if (child !== this && child instanceof HTMLElement) {
-					if (inert) {
-						child.setAttribute('inert', '')
-					} else {
-						child.removeAttribute('inert')
-					}
-				}
-			})
-		}
+		if (!parent) return
 
-		// Also handle body's direct children if sheet is attached to body
-		if (this.parentElement === document.body) {
-			Array.from(document.body.children).forEach(child => {
-				if (child !== this && child !== parent && child instanceof HTMLElement) {
-					if (inert) {
-						child.setAttribute('inert', '')
-					} else {
-						child.removeAttribute('inert')
-					}
-				}
-			})
-		}
-	}
-
-	setIsSheetShown(isShown: boolean) {
-		this.sheetRef.value?.setAttribute('aria-hidden', String(!isShown))
-		this.sheetRef.value?.setAttribute('aria-modal', String(isShown))
+		Array.from(parent.children).forEach(child => {
+			if (child !== this && child instanceof HTMLElement) {
+				child.toggleAttribute('inert', inert)
+			}
+		})
 	}
 
 	closeSheet() {
@@ -152,21 +95,13 @@ export default class SchmancySheet extends $LitElement(style) {
 		this.dispatchEvent(new CustomEvent('close'))
 	}
 
-	private getFocusElement(): HTMLElement | null {
-		const selector = `[${this.focusAttribute}]`
-		return (this.assignedElements.find(el => el.matches(selector) || el.querySelector(selector)) as HTMLElement) ?? null
-	}
-
 	override focus() {
-		// First try native autofocus attribute
-		const autofocusElement = this.querySelector('[autofocus]') as HTMLElement
-		if (autofocusElement) {
-			autofocusElement.focus()
-			return
+		// delegatesFocus in shadowRootOptions handles automatic focus
+		// Just focus first element with autofocus attribute if present
+		const element = this.querySelector('[autofocus]')
+		if (element instanceof HTMLElement) {
+			element.focus()
 		}
-
-		// Fallback to custom focus attribute
-		this.getFocusElement()?.focus()
 	}
 
 	private handleOverlayClick = (e: Event) => {
@@ -174,11 +109,6 @@ export default class SchmancySheet extends $LitElement(style) {
 		if (!this.lock) {
 			sheet.dismiss(this.uid)
 		}
-	}
-
-	private handleHeaderDismiss = (e: CustomEvent) => {
-		e.stopPropagation()
-		sheet.dismiss(this.uid)
 	}
 
 	render() {
@@ -197,29 +127,12 @@ export default class SchmancySheet extends $LitElement(style) {
 			<div
 				class=${classMap(sheetClasses)}
 				role="dialog"
-				aria-labelledby=${ifDefined(this.header !== 'hidden' ? 'sheet-title' : undefined)}
 				aria-hidden=${!this.open}
 				aria-modal=${this.open}
 				tabindex="0"
-				${ref(this.sheetRef)}
 			>
-				<div class=${classMap(overlayClasses)} @click=${this.lock ? undefined : this.handleOverlayClick}></div>
-				<schmancy-grid
-					rows=${this.header === 'hidden' ? '1fr' : 'auto 1fr'}
-					class="content w-full"
-					data-position=${this.position}
-				>
-					${cache(
-						this.header !== 'hidden'
-							? html`<schmancy-sheet-header
-									class="sticky top-0 z-50 w-full"
-									@dismiss=${this.handleHeaderDismiss}
-									id="sheet-title"
-									title=${ifDefined(this.title || undefined)}
-								></schmancy-sheet-header>`
-							: '',
-					)}
-
+				<div class=${classMap(overlayClasses)} @click=${this.handleOverlayClick}></div>
+				<div class="content w-full" data-position=${this.position}>
 					<schmancy-surface rounded="left" fill="all" id="body" class="overflow-auto" type="surface">
 						<schmancy-scroll>
 							<schmancy-area name=${this.uid}>
@@ -227,7 +140,7 @@ export default class SchmancySheet extends $LitElement(style) {
 							</schmancy-area>
 						</schmancy-scroll>
 					</schmancy-surface>
-				</schmancy-grid>
+				</div>
 			</div>
 		`
 	}

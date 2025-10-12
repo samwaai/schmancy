@@ -1,7 +1,5 @@
 import {
-	defaultIfEmpty,
 	delay,
-	forkJoin,
 	fromEvent,
 	map,
 	mergeMap,
@@ -9,12 +7,10 @@ import {
 	Subject,
 	switchMap,
 	take,
-	takeUntil,
 	tap,
-	timer,
 } from 'rxjs'
 import { ComponentType } from '../area/router.types'
-import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.events'
+import { discoverComponent } from '@mixins/discovery.service'
 import SchmancySheet from './sheet'
 
 export enum SchmancySheetPosition {
@@ -35,18 +31,6 @@ export type SheetConfig = {
 
 // Keep old name for backward compatibility
 type BottomSheeetTarget = SheetConfig
-
-// Events for communication between bottom-sheet component and bottom-sheet.service
-export type SheetWhereAreYouRickyEvent = CustomEvent<{
-	uid: string
-}>
-export const SheetWhereAreYouRicky = 'are-you-there-sheet'
-
-export type SheetHereMortyEvent = CustomEvent<{
-	sheet?: SchmancySheet
-	theme?: HTMLElement
-}>
-export const SheetHereMorty = 'yes-here'
 
 // Function to determine the position based on screen size
 const getPosition = (): SchmancySheetPosition => {
@@ -73,115 +57,80 @@ class BottomSheetService {
 	private setupSheetOpeningLogic() {
 		this.bottomSheet
 			.pipe(
-				switchMap(target =>
-					forkJoin([
-						// First check for existing sheet
-						fromEvent<SheetHereMortyEvent>(window, SheetHereMorty).pipe(
-							takeUntil(timer(50)),
-							map(e => e.detail),
-							defaultIfEmpty(undefined),
-						),
-						// Then find theme container
-						fromEvent<ThemeHereIAmEvent>(window, ThemeHereIAm).pipe(
-							takeUntil(timer(50)),
-							map(e => e.detail.theme),
-							defaultIfEmpty(undefined),
-						),
-						of(target).pipe(
-							tap(() => {
-								// Determine uid - use provided uid or generate one
-								const uid = target.uid ?? `sheet-${Date.now()}`
+				switchMap(target => {
+					const uid = target.uid ?? `sheet-${Date.now()}`
 
-								// First ask for existing sheet
-								window.dispatchEvent(
-									new CustomEvent(SheetWhereAreYouRicky, {
-										detail: { uid },
-										bubbles: true,
-										composed: true,
-									}),
-								)
-								// Then ask for theme container
-								window.dispatchEvent(
-									new CustomEvent(ThemeWhereAreYou, {
-										bubbles: true,
-										composed: true,
-									}),
-								)
-							}),
-						),
-					]),
-				),
-
-				map(([existingSheet, theme, target]) => {
-					let sheet = existingSheet?.sheet
-					let targetContainer: HTMLElement
-
-					if (sheet) {
-						// Use existing sheet
-						targetContainer = sheet.parentElement as HTMLElement
-					} else {
-						// Determine container - use theme from discovery or fallback
-						targetContainer = theme || (document.querySelector('schmancy-theme') as HTMLElement) || document.body
-
-						// Create new sheet
-						const uid = target.uid ?? `sheet-${Date.now()}`
-						sheet = document.createElement('schmancy-sheet')
-						sheet.setAttribute('uid', uid)
-						targetContainer.appendChild(sheet)
+					// Discover existing sheet with this uid
+					return discoverComponent<SchmancySheet>('schmancy-sheet').pipe(
+						map(existingSheet => {
+							// Check if discovered sheet matches our uid
+							const sheet = existingSheet?.getAttribute('uid') === uid ? existingSheet : null
+							return { target, existingSheet: sheet, uid }
+						})
+					)
+				}),
+				switchMap(({ target, existingSheet, uid }) => {
+					// Discover theme container if creating new sheet
+					if (existingSheet) {
+						return of({ target, sheet: existingSheet, uid })
 					}
 
-					target.lock && sheet.setAttribute('lock', 'true')
+					return discoverComponent<HTMLElement>('schmancy-theme').pipe(
+						map(theme => {
+							// Determine container - use theme or fallback to body
+							const targetContainer = theme || document.body
 
-					// Use the dynamic position function here
+							// Create new sheet
+							const sheet = document.createElement('schmancy-sheet')
+							sheet.setAttribute('uid', uid)
+							targetContainer.appendChild(sheet)
+
+							return { target, sheet: sheet as SchmancySheet, uid }
+						})
+					)
+				}),
+				tap(({ target, sheet }) => {
+					// Configure sheet attributes
+					if (target.lock) sheet.setAttribute('lock', 'true')
+
 					const position = target.position || getPosition()
 					sheet.setAttribute('position', position)
 
-					target.persist && sheet.setAttribute('persist', String(target.persist))
+					if (target.persist) sheet.setAttribute('persist', String(target.persist))
 
 					document.body.style.overflow = 'hidden' // lock the scroll of the host
-					return { target, sheet: sheet as SchmancySheet }
 				}),
 				delay(20),
-				tap(({ target, sheet }) => {
-					// Always dispatch render event - area router handles duplicate prevention
+				tap(({ target, uid }) => {
+					// Dispatch render event - area router handles duplicate prevention
 					window.dispatchEvent(
 						new CustomEvent('schmancy-sheet-render', {
-							detail: { component: target.component, uid: sheet.getAttribute('uid') },
+							detail: { component: target.component, uid },
 							bubbles: true,
 							composed: true,
 						}),
 					)
 				}),
 				delay(1),
-				tap(({ target, sheet }) => {
-					sheet?.setAttribute('open', 'true')
+				tap(({ sheet, uid }) => {
+					sheet.setAttribute('open', 'true')
 
 					// Add to active sheets tracking
-					const uid = sheet.getAttribute('uid') || target.uid || `sheet-${Date.now()}`
 					this.activeSheets.add(uid)
 
-					// Set up close event listener (always, not just for new sheets)
+					// Set up close event listener
 					fromEvent<CustomEvent>(sheet, 'close')
-						.pipe(take(1))
-						.pipe(delay(300))
-						.subscribe(_ => {
-							// Use the sheet reference directly, not e.target
-							const sheetElement = sheet as SchmancySheet
-
+						.pipe(take(1), delay(300))
+						.subscribe(() => {
 							// Remove from active sheets tracking
-							if (sheetElement) {
-								const uid = sheetElement.getAttribute('uid')
-								if (uid) {
-									this.activeSheets.delete(uid)
-								}
+							this.activeSheets.delete(uid)
 
-								// Only keep sheet if persist is explicitly set to a truthy value
-								const persistAttr = sheetElement.getAttribute('persist')
-								const shouldRemove = !persistAttr || persistAttr === 'false'
+							// Only keep sheet if persist is explicitly set to a truthy value
+							const persistAttr = sheet.getAttribute('persist')
+							const shouldRemove = !persistAttr || persistAttr === 'false'
 
-								if (shouldRemove) {
-									sheetElement.remove()
-								}
+							if (shouldRemove) {
+								sheet.remove()
 							}
 
 							document.body.style.overflow = 'auto' // unlock the scroll of the host
@@ -198,24 +147,15 @@ class BottomSheetService {
 		this.$dismiss
 			.pipe(
 				mergeMap(uid =>
-					forkJoin([
-						fromEvent<SheetHereMortyEvent>(window, SheetHereMorty).pipe(
-							takeUntil(timer(100)),
-							map(e => e.detail),
-							defaultIfEmpty(undefined),
-						),
-						of(uid).pipe(
-							tap(() => {
-								window.dispatchEvent(new CustomEvent(SheetWhereAreYouRicky, { detail: { uid } }))
-							}),
-						),
-					]),
+					discoverComponent<SchmancySheet>('schmancy-sheet').pipe(
+						map(sheet => ({ sheet, uid }))
+					)
 				),
-				tap(([response, uid]) => {
-					if (response?.sheet) {
-						response.sheet.closeSheet()
+				tap(({ sheet, uid }) => {
+					// Check if discovered sheet matches the uid we're trying to dismiss
+					if (sheet && sheet.getAttribute('uid') === uid) {
+						sheet.closeSheet()
 						this.activeSheets.delete(uid)
-					} else {
 					}
 				}),
 			)
