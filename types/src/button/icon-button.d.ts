@@ -22,7 +22,7 @@ export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
      * @attr
      * @default 'md'
      */
-    size: 'sm' | 'md' | 'lg';
+    size: 'sm' | 'md' | 'lg' | 'xl';
     /**
      * The variant of the button.
      * @attr
@@ -53,6 +53,12 @@ export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
      * @attr
      */
     disabled: boolean;
+    /**
+     * Render slot content as text instead of wrapping in schmancy-icon.
+     * Use this when you want to display text labels in the button.
+     * @attr
+     */
+    text: boolean;
     set ariaLabel(value: string);
     get ariaLabel(): string;
     /** Sets focus in the button. */
