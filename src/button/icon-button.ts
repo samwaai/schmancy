@@ -33,7 +33,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 	 * @default 'md'
 	 */
 	@property({ type: String })
-	public size: 'sm' | 'md' | 'lg' = 'md'
+	public size: 'sm' | 'md' | 'lg' | 'xl' = 'md'
 
 	/**
 	 * The variant of the button.
@@ -74,6 +74,14 @@ export class SchmnacyIconButton extends $LitElement(css`
 	 */
 	@property({ type: Boolean, reflect: true })
 	public disabled = false
+
+	/**
+	 * Render slot content as text instead of wrapping in schmancy-icon.
+	 * Use this when you want to display text labels in the button.
+	 * @attr
+	 */
+	@property({ type: Boolean, reflect: true })
+	public text = false
 
 	// Manage aria-label manually so that we can always use our internal property.
 	public override set ariaLabel(value: string) {
@@ -141,6 +149,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 			'px-[6px] py-[6px]': this.size === 'sm',
 			'px-[8px] py-[8px]': this.size === 'md',
 			'px-[12px] py-[12px]': this.size === 'lg',
+			'px-[16px] py-[16px]': this.size === 'xl',
 		}
 
 		const stateLayerClasses = {
@@ -149,6 +158,9 @@ export class SchmnacyIconButton extends $LitElement(css`
 			'hover:bg-primary-default': effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text',
 			'hover:bg-secondary-container': effectiveVariant === 'filled tonal',
 		}
+
+		// Icon size mapping
+		const iconSize = this.size === 'sm' ? '18px' : this.size === 'md' ? '24px' : this.size === 'lg' ? '32px' : '40px';
 
 		// If href is provided, render an anchor element.
 		if (this.href) {
@@ -163,9 +175,10 @@ export class SchmnacyIconButton extends $LitElement(css`
 					@click=${this.disabled ? this._preventDefault : undefined}
 				>
 					${when(!this.disabled, () => html`<div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div>`)}
-					<schmancy-icon size=${this.size === 'sm' ? '18px' : this.size === 'md' ? '24px' : '32px'}>
-						<slot></slot>
-					</schmancy-icon>
+					${this.text
+						? html`<slot></slot>`
+						: html`<schmancy-icon size=${iconSize}><slot></slot></schmancy-icon>`
+					}
 				</a>
 			`
 		}
@@ -181,9 +194,10 @@ export class SchmnacyIconButton extends $LitElement(css`
 				tabindex=${ifDefined(this.disabled ? '-1' : undefined)}
 			>
 				${when(!this.disabled, () => html`<div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div>`)}
-				<schmancy-icon size=${this.size === 'sm' ? '18px' : this.size === 'md' ? '24px' : '32px'}>
-					<slot></slot>
-				</schmancy-icon>
+				${this.text
+					? html`<slot></slot>`
+					: html`<schmancy-icon size=${iconSize}><slot></slot></schmancy-icon>`
+				}
 			</button>
 		`
 	}
