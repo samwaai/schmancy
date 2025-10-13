@@ -13,6 +13,7 @@ export type SheetConfig = {
     lock?: boolean;
     onBeforeOpen?: (component: HTMLElement) => void;
     onAfterOpen?: (component: HTMLElement) => void;
+    props?: Record<string, unknown>;
 };
 type BottomSheeetTarget = SheetConfig;
 declare class BottomSheetService {
@@ -39,8 +40,14 @@ declare class BottomSheetService {
     dismiss(uid?: string): void;
     /**
      * Open a sheet with the given target configuration
+     * @deprecated Use `push` instead for consistency with area router API
      */
     open(target: BottomSheeetTarget): void;
+    /**
+     * Push a component to the sheet (recommended method)
+     * Follows the same API pattern as area.push for consistency
+     */
+    push(target: BottomSheeetTarget): void;
     /**
      * Check if a sheet is currently open by uid
      */
