@@ -386,7 +386,7 @@ sheet.dismiss()
 											This is a basic sheet example.
 										</schmancy-typography>
 									`
-									sheet.open({
+									sheet.push({
 										component: content,
 										uid: 'basic-sheet'
 									})
@@ -405,9 +405,9 @@ sheet.dismiss()
 										const content = document.createElement('div')
 										content.className = 'p-6'
 										content.innerHTML = '<p>Side positioned sheet</p>'
-										sheet.open({
+										sheet.push({
 											component: content,
-											
+
 											uid: 'side-sheet'
 										})
 									}}
@@ -420,7 +420,7 @@ sheet.dismiss()
 										const content = document.createElement('div')
 										content.className = 'p-6'
 										content.innerHTML = '<p>Bottom positioned sheet</p>'
-										sheet.open({
+										sheet.push({
 											component: content,
 											
 											uid: 'bottom-sheet'
@@ -455,7 +455,7 @@ sheet.dismiss()
 											</schmancy-list-item>
 										</schmancy-list>
 									`
-									sheet.open({
+									sheet.push({
 										component: nav,
 										
 										uid: 'nav-menu'
@@ -481,7 +481,7 @@ sheet.dismiss()
 											<schmancy-button type="submit" variant="filled">Save</schmancy-button>
 										</schmancy-grid>
 									`
-									sheet.open({
+									sheet.push({
 										component: form,
 										uid: 'edit-form'
 									})
@@ -544,7 +544,8 @@ sheet.dismiss()
 									const applyBtn = dateFilterContent.querySelector('#applyBtn')
 									const cancelBtn = dateFilterContent.querySelector('#cancelBtn')
 
-									dateRange?.addEventListener('change', (e: CustomEvent) => {
+									dateRange?.addEventListener('change', (_e: CustomEvent) => {
+										// Handle date range change if needed
 									})
 
 									applyBtn?.addEventListener('click', () => {
@@ -565,7 +566,7 @@ sheet.dismiss()
 										sheet.dismiss('date-filter')
 									})
 
-									sheet.open({
+									sheet.push({
 										component: dateFilterContent,
 										uid: 'date-filter'
 									})
@@ -617,12 +618,13 @@ sheet.dismiss()
 										})
 									}, 100)
 
-									sheet.open({
+									sheet.push({
 										component: testContent,
 										uid: 'dismiss-test',
-										onBeforeOpen: (component) => {
+										onBeforeOpen: (_component) => {
+											// Called before sheet opens
 										},
-										onAfterOpen: (component) => {
+										onAfterOpen: (_component) => {
 
 											// Log sheet state
 
@@ -669,7 +671,7 @@ sheet.dismiss()
 									setTimeout(() => {
 										const btn = content.querySelector('#openDialogBtn')
 										btn?.addEventListener('click', async () => {
-											const confirmed = await $dialog.confirm({
+											await $dialog.confirm({
 												title: 'Dialog Above Sheet',
 												message: 'This dialog should appear above the sheet. Can you see it properly?',
 												confirmText: 'Yes, it works!',
@@ -678,7 +680,7 @@ sheet.dismiss()
 										})
 									}, 100)
 
-									sheet.open({
+									sheet.push({
 										component: content,
 										uid: 'dialog-test-sheet'
 									})
