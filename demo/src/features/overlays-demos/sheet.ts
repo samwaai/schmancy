@@ -1,9 +1,51 @@
 import { $LitElement } from '@mixins/index'
 import { $dialog } from '@schmancy/dialog'
 import { sheet } from '@schmancy/sheet'
-import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { html, css } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 import '../../shared/installation-section'
+
+// Test component that accepts props
+@customElement('demo-detail-view')
+class DemoDetailView extends $LitElement(css`
+	:host {
+		display: block;
+	}
+`) {
+	@property() itemId!: string
+	@property() itemTitle?: string
+	@property() description?: string
+
+	render() {
+		return html`
+			<div class="p-6">
+				<schmancy-typography type="headline" token="md" class="mb-4 block">
+					${this.itemTitle || 'Detail View'}
+				</schmancy-typography>
+				<schmancy-grid gap="md">
+					<schmancy-surface type="surfaceDim" class="p-4 rounded-lg">
+						<schmancy-typography type="label" token="sm" class="mb-2 block text-surface-onVariant">
+							Item ID
+						</schmancy-typography>
+						<schmancy-typography type="body" token="md">
+							${this.itemId || 'No ID provided'}
+						</schmancy-typography>
+					</schmancy-surface>
+					${this.description ? html`
+						<schmancy-surface type="surfaceDim" class="p-4 rounded-lg">
+							<schmancy-typography type="label" token="sm" class="mb-2 block text-surface-onVariant">
+								Description
+							</schmancy-typography>
+							<schmancy-typography type="body" token="md">
+								${this.description}
+							</schmancy-typography>
+						</schmancy-surface>
+					` : ''}
+				</schmancy-grid>
+			</div>
+		`
+	}
+}
 
 @customElement('overlays-sheet')
 export default class OverlaysSheet extends $LitElement() {
@@ -33,16 +75,24 @@ import { sheet } from '@mhmo91/schmancy/sheet'
 				<div class="mb-12">
 					<schmancy-typography type="title" token="lg" class="mb-4 block">Quick Start</schmancy-typography>
 					<schmancy-code-preview language="javascript" .preview=${false}>
-// Basic usage
-const content = document.createElement('div')
-content.innerHTML = '<p>Hello World!</p>'
-sheet.open({ component: content })
+// Recommended: Use push() with props
+sheet.push({
+  component: 'my-detail-view',
+  props: {
+    itemId: '123',
+    title: 'Item Details'
+  }
+})
 
-// With options
-sheet.open({
-  component: content,
-  title: 'My Sheet',
-  position: 'side'
+// Pass props to component instances
+const item = { id: 'abc-123', name: 'Product A' }
+sheet.push({
+  component: 'product-details',
+  props: {
+    productId: item.id,
+    productName: item.name
+  },
+  uid: 'product-sheet'
 })
 
 // Dismiss
@@ -70,11 +120,21 @@ sheet.dismiss()
 							<tbody>
 								<tr class="border-t border-outline">
 									<td class="p-4">
+										<code class="text-sm">sheet.push(config)</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">
+											Opens a sheet with component and props (recommended, follows area router pattern)
+										</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
 										<code class="text-sm">sheet.open(config)</code>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">
-											Opens a sheet with component, title, position, etc.
+											<span class="text-warning">@deprecated</span> - Use push() instead
 										</schmancy-typography>
 									</td>
 								</tr>
@@ -137,14 +197,30 @@ sheet.dismiss()
 										<code class="text-sm">component</code>
 									</td>
 									<td class="p-4">
-										<schmancy-typography type="body" token="sm">HTMLElement</schmancy-typography>
+										<schmancy-typography type="body" token="sm">ComponentType</schmancy-typography>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">required</schmancy-typography>
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">
-											The content element to display in the sheet
+											Component to display (string, class, element, or lazy)
+										</schmancy-typography>
+									</td>
+								</tr>
+								<tr class="border-t border-outline">
+									<td class="p-4">
+										<code class="text-sm">props</code>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">Record&lt;string, unknown&gt;</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">undefined</schmancy-typography>
+									</td>
+									<td class="p-4">
+										<schmancy-typography type="body" token="sm">
+											Properties to pass to the component
 										</schmancy-typography>
 									</td>
 								</tr>
@@ -269,6 +345,34 @@ sheet.dismiss()
 				<div>
 					<schmancy-typography type="title" token="lg" class="mb-6 block">Examples</schmancy-typography>
 					<schmancy-grid gap="lg" class="w-full">
+						<!-- Props Example (NEW) -->
+						<schmancy-code-preview>
+							<schmancy-button
+								variant="filled"
+								@click=${() => {
+									// Simulate passing data to a detail view component
+									const mockItem = {
+										id: 'item-' + Math.floor(Math.random() * 1000),
+										title: 'Sample Product',
+										description: 'This component received props from the sheet.push() method'
+									}
+
+									sheet.push({
+										component: 'demo-detail-view',
+										props: {
+											itemId: mockItem.id,
+											itemTitle: mockItem.title,
+											description: mockItem.description
+										},
+										uid: 'detail-sheet-props'
+									})
+								}}
+							>
+								<schmancy-icon>visibility</schmancy-icon>
+								Open with Props
+							</schmancy-button>
+						</schmancy-code-preview>
+
 						<!-- Basic Sheet -->
 						<schmancy-code-preview>
 							<schmancy-button

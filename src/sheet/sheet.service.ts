@@ -27,6 +27,7 @@ export type SheetConfig = {
 	lock?: boolean // Controls both ESC and overlay click dismissal
 	onBeforeOpen?: (component: HTMLElement) => void
 	onAfterOpen?: (component: HTMLElement) => void
+	props?: Record<string, unknown> // Properties to pass to the component
 }
 
 // Keep old name for backward compatibility
@@ -105,7 +106,11 @@ class BottomSheetService {
 					// Dispatch render event - area router handles duplicate prevention
 					window.dispatchEvent(
 						new CustomEvent('schmancy-sheet-render', {
-							detail: { component: target.component, uid },
+							detail: {
+								component: target.component,
+								uid,
+								props: target.props
+							},
 							bubbles: true,
 							composed: true,
 						}),
@@ -205,8 +210,17 @@ class BottomSheetService {
 
 	/**
 	 * Open a sheet with the given target configuration
+	 * @deprecated Use `push` instead for consistency with area router API
 	 */
 	open(target: BottomSheeetTarget) {
+		this.bottomSheet.next(target)
+	}
+
+	/**
+	 * Push a component to the sheet (recommended method)
+	 * Follows the same API pattern as area.push for consistency
+	 */
+	push(target: BottomSheeetTarget) {
 		this.bottomSheet.next(target)
 	}
 

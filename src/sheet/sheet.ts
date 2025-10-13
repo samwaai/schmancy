@@ -115,6 +115,7 @@ export default class SchmancySheet extends $LitElement(style) {
 				area.push({
 					area: this.uid,
 					component: e.detail.component,
+					props: e.detail.props,
 					historyStrategy: 'silent',
 				})
 			}),
