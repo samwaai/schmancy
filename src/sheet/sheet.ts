@@ -121,7 +121,15 @@ export default class SchmancySheet extends $LitElement(style) {
 			}),
 		)
 
-		merge(popState$, keyUp$, render$).pipe(takeUntil(this.disconnecting)).subscribe()
+		// Handle dismiss events from sheet service
+		const dismiss$ = fromEvent<CustomEvent>(window, 'schmancy-sheet-dismiss').pipe(
+			filter(e => e.detail.uid === this.uid),
+			tap(() => {
+				this.closeSheet()
+			}),
+		)
+
+		merge(popState$, keyUp$, render$, dismiss$).pipe(takeUntil(this.disconnecting)).subscribe()
 	}
 
 	private setBackgroundInert(inert: boolean) {

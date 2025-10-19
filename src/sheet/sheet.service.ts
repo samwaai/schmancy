@@ -2,7 +2,6 @@ import {
 	delay,
 	fromEvent,
 	map,
-	mergeMap,
 	of,
 	Subject,
 	switchMap,
@@ -40,7 +39,6 @@ const getPosition = (): SchmancySheetPosition => {
 
 class BottomSheetService {
 	bottomSheet = new Subject<BottomSheeetTarget>()
-	$dismiss = new Subject<string>()
 	// Track currently open sheets
 	private activeSheets = new Set<string>()
 	// To track if we've set up the popstate listener
@@ -48,7 +46,6 @@ class BottomSheetService {
 
 	constructor() {
 		this.setupSheetOpeningLogic()
-		this.setupSheetDismissLogic()
 		this.setupPopStateListener()
 	}
 
@@ -146,28 +143,6 @@ class BottomSheetService {
 	}
 
 	/**
-	 * Sets up the sheet closing/dismissal logic
-	 */
-	private setupSheetDismissLogic() {
-		this.$dismiss
-			.pipe(
-				mergeMap(uid =>
-					discoverComponent<SchmancySheet>('schmancy-sheet').pipe(
-						map(sheet => ({ sheet, uid }))
-					)
-				),
-				tap(({ sheet, uid }) => {
-					// Check if discovered sheet matches the uid we're trying to dismiss
-					if (sheet && sheet.getAttribute('uid') === uid) {
-						sheet.closeSheet()
-						this.activeSheets.delete(uid)
-					}
-				}),
-			)
-			.subscribe()
-	}
-
-	/**
 	 * Sets up the popstate listener to handle browser back button
 	 */
 	private setupPopStateListener() {
@@ -204,7 +179,14 @@ class BottomSheetService {
 		}
 
 		if (uid) {
-			this.$dismiss.next(uid)
+			window.dispatchEvent(
+				new CustomEvent('schmancy-sheet-dismiss', {
+					detail: { uid },
+					bubbles: true,
+					composed: true,
+				})
+			)
+			this.activeSheets.delete(uid)
 		}
 	}
 
