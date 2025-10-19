@@ -18,7 +18,6 @@ export type SheetConfig = {
 type BottomSheeetTarget = SheetConfig;
 declare class BottomSheetService {
     bottomSheet: Subject<SheetConfig>;
-    $dismiss: Subject<string>;
     private activeSheets;
     private popStateListenerActive;
     constructor();
@@ -26,10 +25,6 @@ declare class BottomSheetService {
      * Sets up the main sheet opening logic
      */
     private setupSheetOpeningLogic;
-    /**
-     * Sets up the sheet closing/dismissal logic
-     */
-    private setupSheetDismissLogic;
     /**
      * Sets up the popstate listener to handle browser back button
      */
