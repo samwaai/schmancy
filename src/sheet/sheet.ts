@@ -174,7 +174,7 @@ export default class SchmancySheet extends $LitElement(style) {
 				<div class=${contentClasses}>
 					<schmancy-surface rounded="left" fill="all" id="body" class="overflow-auto ${bodyClasses}" type="surface">
 						<schmancy-scroll>
-							<schmancy-area class="relative inset-0" name=${this.uid}>
+							<schmancy-area class="h-full" name=${this.uid}>
 								<slot></slot>
 							</schmancy-area>
 						</schmancy-scroll>
