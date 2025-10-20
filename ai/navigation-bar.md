@@ -3,9 +3,23 @@
 ## Overview
 The `<schmancy-navigation-bar>` component is a Material Design 3 compliant horizontal navigation component that provides access to 3-7 primary destinations in your application. It's typically fixed at the bottom of the viewport and follows M3 specifications with proper elevation, touch targets, and responsive behavior.
 
+**Z-Index**: The component includes `z-10` by default (consistent with `schmancy-navigation-rail`), ensuring it layers correctly below overlay components like sheets and dialogs.
+
 ## Usage
 
-### Basic Example
+### Fixed at Bottom (Typical Usage)
+```html
+<schmancy-navigation-bar activeIndex="0" class="fixed bottom-0 left-0 right-0">
+  <schmancy-navigation-bar-item icon="home" label="Home"></schmancy-navigation-bar-item>
+  <schmancy-navigation-bar-item icon="search" label="Search"></schmancy-navigation-bar-item>
+  <schmancy-navigation-bar-item icon="favorite" label="Favorites"></schmancy-navigation-bar-item>
+  <schmancy-navigation-bar-item icon="settings" label="Settings"></schmancy-navigation-bar-item>
+</schmancy-navigation-bar>
+```
+
+**Note**: The component includes `z-10` by default. You only need to add positioning classes like `fixed bottom-0 left-0 right-0`.
+
+### Within a Container
 ```html
 <schmancy-navigation-bar activeIndex="0">
   <schmancy-navigation-bar-item icon="home" label="Home"></schmancy-navigation-bar-item>
@@ -116,13 +130,15 @@ The component respects the Schmancy theme system:
 - Background: `SchmancyTheme.sys.color.surface.container`
 - Text: `SchmancyTheme.sys.color.surface.on`
 
-### Custom Styling
-```css
-schmancy-navigation-bar {
-  /* Custom z-index if needed */
-  --navigation-bar-z-index: 20;
-}
+### Custom Z-Index
+The component includes `z-10` by default. If you need a different z-index value, you can override it:
+```html
+<schmancy-navigation-bar class="!z-20">
+  <!-- items -->
+</schmancy-navigation-bar>
 ```
+
+**Note**: The default `z-10` ensures the navigation bar appears below overlay components (sheets at `z-999`, dialogs, etc.) while remaining above regular content.
 
 ## Integration with schmancy-area
 

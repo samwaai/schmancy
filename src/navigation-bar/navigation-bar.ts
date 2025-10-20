@@ -14,9 +14,9 @@ import type { SchmancyNavigationBarItem } from './navigation-bar-item'
  * Navigation bars provide access to between 3-7 primary destinations.
  * Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).
  *
- * **IMPORTANT**: This component does not apply positioning by default. The consumer is responsible
- * for positioning the navigation bar in their layout. For typical bottom-fixed positioning, add:
- * `class="fixed bottom-0 left-0 right-0 z-10"` or similar CSS to position the component.
+ * **IMPORTANT**: This component includes `z-10` by default (consistent with navigation-rail).
+ * The consumer is responsible for positioning the navigation bar in their layout.
+ * For typical bottom-fixed positioning, add: `class="fixed bottom-0 left-0 right-0"`.
  *
  * @element schmancy-navigation-bar
  * @slot - Default slot for navigation bar items
@@ -25,7 +25,7 @@ import type { SchmancyNavigationBarItem } from './navigation-bar-item'
  *
  * @example
  * <!-- Fixed at bottom (typical usage) -->
- * <schmancy-navigation-bar activeIndex="0" class="fixed bottom-0 left-0 right-0 z-10">
+ * <schmancy-navigation-bar activeIndex="0" class="fixed bottom-0 left-0 right-0">
  *   <schmancy-navigation-bar-item icon="home" label="Home"></schmancy-navigation-bar-item>
  *   <schmancy-navigation-bar-item icon="search" label="Search"></schmancy-navigation-bar-item>
  *   <schmancy-navigation-bar-item icon="favorite" label="Favorites"></schmancy-navigation-bar-item>
@@ -373,6 +373,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			'flex items-center justify-around': true,
 			'px-2 py-3 box-border': true,
 			'transition-all duration-300 ease-in-out': true,
+			'z-10': true, // Consistent with navigation-rail z-index
 			// Elevation shadows
 			'shadow-none': this.elevation === 0,
 			'shadow-sm': this.elevation === 1,

@@ -83,20 +83,20 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 		// Apply sorting
 		if (this.sortable && this.sortColumn && this.sortDirection) {
 			// Find the column configuration for the sorting column
-			const sortColumnConfig = this.columns.find(col => col.key === this.sortColumn);
-			
+			const sortColumnConfig = this.columns.find(col => col.key === this.sortColumn)
+
 			result.sort((a, b) => {
 				// Use the value function if provided in the column configuration
-				let aValue, bValue;
-				
+				let aValue, bValue
+
 				if (sortColumnConfig && sortColumnConfig.value) {
 					// Use custom value function for sorting
-					aValue = sortColumnConfig.value(a);
-					bValue = sortColumnConfig.value(b);
+					aValue = sortColumnConfig.value(a)
+					bValue = sortColumnConfig.value(b)
 				} else {
 					// Use standard property access
-					aValue = a[this.sortColumn as keyof T];
-					bValue = b[this.sortColumn as keyof T];
+					aValue = a[this.sortColumn as keyof T]
+					bValue = b[this.sortColumn as keyof T]
 				}
 
 				// Handle null/undefined values - always sort them to the end regardless of sort direction
@@ -196,60 +196,58 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 			'cursor-pointer gap-1': this.sortable && column.sortable !== false && column.key,
 		})
 		return html`
-			<schmancy-surface fill="all" type="container" rounded="all" elevation="2">
-				<schmancy-grid class="h-full w-full" cols="1fr" rows="auto 1fr">
-					<schmancy-surface rounded="top" elevation="1" type="containerHighest" class="sticky top-0 z-10">
-						<schmancy-grid align="center" class="px-4 py-3" .cols=${this.cols} gap="md" rows="1fr">
-							${this.columns.map(
-								column => html`
-									<div
-										class=${this.classMap(columnHeadClasses(column))}
-										@click=${() => (this.sortable && column.sortable !== false ? this.toggleSort(column) : null)}
-									>
-										<schmancy-typography align=${column.align ?? 'left'} weight=${column.weight ?? 'bold'}>
-											${column.name}
-										</schmancy-typography>
-										${this.renderSortIndicator(column)}
-									</div>
-								`,
-							)}
-						</schmancy-grid>
-					</schmancy-surface>
-
-					${this.filteredData.length > 0
-						? html`
-								<lit-virtualizer
-									scroller
-									class="w-full h-full relative overflow-auto"
-									.items=${this.filteredData}
-									.renderItem=${(item: T, index: number) =>
-										html`
-											<schmancy-table-row
-												class="w-full border-b border-solid border-outlineVariant"
-												.columns=${this.columns}
-												.item=${item}
-												cols=${this.cols}
-												@click=${() => {
-													const detail = { item, index }
-													this.dispatchEvent(
-														new CustomEvent('click', {
-															detail,
-															bubbles: true,
-															composed: true,
-														}),
-													)
-												}}
-											></schmancy-table-row>
-										` as TemplateResult}
-								></lit-virtualizer>
-							`
-						: html`
-								<div class="flex items-center justify-center w-full h-full p-8 text-center">
-									<schmancy-typography type="body" token="lg"> No data available </schmancy-typography>
+			<schmancy-grid class="h-full w-full" cols="1fr" rows="auto 1fr">
+				<schmancy-surface rounded="top" elevation="1" type="containerHighest" class="sticky top-0 z-10">
+					<schmancy-grid align="center" class="px-4 py-3" .cols=${this.cols} gap="md" rows="1fr">
+						${this.columns.map(
+							column => html`
+								<div
+									class=${this.classMap(columnHeadClasses(column))}
+									@click=${() => (this.sortable && column.sortable !== false ? this.toggleSort(column) : null)}
+								>
+									<schmancy-typography align=${column.align ?? 'left'} weight=${column.weight ?? 'bold'}>
+										${column.name}
+									</schmancy-typography>
+									${this.renderSortIndicator(column)}
 								</div>
-							`}
-				</schmancy-grid>
-			</schmancy-surface>
+							`,
+						)}
+					</schmancy-grid>
+				</schmancy-surface>
+
+				${this.filteredData.length > 0
+					? html`
+							<lit-virtualizer
+								scroller
+								class="w-full h-full relative overflow-auto"
+								.items=${this.filteredData}
+								.renderItem=${(item: T, index: number) =>
+									html`
+										<schmancy-table-row
+											class="w-full border-b border-solid border-outlineVariant"
+											.columns=${this.columns}
+											.item=${item}
+											cols=${this.cols}
+											@click=${() => {
+												const detail = { item, index }
+												this.dispatchEvent(
+													new CustomEvent('click', {
+														detail,
+														bubbles: true,
+														composed: true,
+													}),
+												)
+											}}
+										></schmancy-table-row>
+									` as TemplateResult}
+							></lit-virtualizer>
+						`
+					: html`
+							<div class="flex items-center justify-center w-full h-full p-8 text-center">
+								<schmancy-typography type="body" token="lg"> No data available </schmancy-typography>
+							</div>
+						`}
+			</schmancy-grid>
 		`
 	}
 }
