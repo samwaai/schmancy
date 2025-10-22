@@ -1,6 +1,6 @@
 {
 	"name": "@mhmo91/schmancy",
-	"version": "0.6.14",
+	"version": "0.6.15",
 	"description": "UI library build with web components",
 	"main": "./dist/index.js",
 	"exports": {
