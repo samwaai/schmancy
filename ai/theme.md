@@ -197,25 +197,29 @@ The theme service generates a COMPLETE M3 design system with hundreds of tokens:
 
 ### Extended Color System
 
-Beyond primary/secondary/tertiary/error, the theme includes:
+Beyond primary/secondary/tertiary/error, the theme includes complete semantic color palettes:
 
 ```typescript
-// Additional semantic colors
-theme.theme.success     // Success states (#006E1C base)
-theme.theme.onSuccess    // Text on success backgrounds
-theme.theme.successContainer
-theme.theme.onSuccessContainer
+// Success - Green palette for success states
+theme.theme.sys.color.success.default        // Success default (#006E1C base)
+theme.theme.sys.color.success.on             // Text on success backgrounds
+theme.theme.sys.color.success.container      // Success container backgrounds
+theme.theme.sys.color.success.onContainer    // Text on success containers
 
-theme.theme.warning     // Warning states (#FFB800 base)
-theme.theme.onWarning
-theme.theme.warningContainer
-theme.theme.onWarningContainer
+// Warning - Amber/Yellow palette for warning states
+theme.theme.sys.color.warning.default        // Warning default (#FFD600 base)
+theme.theme.sys.color.warning.on             // Text on warning backgrounds
+theme.theme.sys.color.warning.container      // Warning container backgrounds
+theme.theme.sys.color.warning.onContainer    // Text on warning containers
 
-theme.theme.info        // Info states (#0061A4 base)
-theme.theme.onInfo
-theme.theme.infoContainer
-theme.theme.onInfoContainer
+// Info - Blue palette for informational states
+theme.theme.sys.color.info.default           // Info default (#2979FF base)
+theme.theme.sys.color.info.on                // Text on info backgrounds
+theme.theme.sys.color.info.container         // Info container backgrounds
+theme.theme.sys.color.info.onContainer       // Text on info containers
 ```
+
+**Note**: All color roles follow the same pattern: `default`, `on`, `container`, `onContainer`
 
 ### Surface System
 
@@ -575,6 +579,95 @@ export class ThemeChart extends $LitElement() {
   }
 }
 ```
+
+## Tailwind Utility Classes
+
+All theme colors are available as Tailwind utility classes with convenient aliases:
+
+### Color Utility Aliases
+
+Base color names (e.g., `bg-primary`, `text-error`) are **aliases** to their `-default` variants:
+
+```html
+<!-- These are IDENTICAL -->
+<div class="bg-primary">Primary</div>
+<div class="bg-primary-default">Primary</div>
+
+<div class="text-error">Error</div>
+<div class="text-error-default">Error</div>
+
+<div class="bg-warning">Warning</div>
+<div class="bg-warning-default">Warning</div>
+
+<div class="border-success">Success</div>
+<div class="border-success-default">Success</div>
+```
+
+### All Available Color Utilities
+
+**Core Colors** (primary, secondary, tertiary):
+```html
+<!-- Background utilities -->
+<div class="bg-primary">Primary</div>
+<div class="bg-primary-default">Primary default (same as above)</div>
+<div class="bg-primary-container">Primary container</div>
+<div class="bg-on-primary">On primary</div>
+<div class="bg-on-primary-container">On primary container</div>
+
+<!-- Text utilities (same pattern) -->
+<div class="text-secondary">Secondary text</div>
+<div class="text-secondary-container">Secondary container text</div>
+
+<!-- Border utilities (same pattern) -->
+<div class="border-tertiary">Tertiary border</div>
+```
+
+**Semantic Colors** (error, warning, success, info):
+```html
+<!-- Error -->
+<div class="bg-error">Error</div>
+<div class="bg-error-container">Error container</div>
+<div class="text-error">Error text</div>
+<div class="text-on-error">On error text</div>
+
+<!-- Warning -->
+<div class="bg-warning">Warning</div>
+<div class="bg-warning-container">Warning container</div>
+<div class="text-warning">Warning text</div>
+<div class="border-warning">Warning border</div>
+
+<!-- Success -->
+<div class="bg-success">Success</div>
+<div class="bg-success-container">Success container</div>
+
+<!-- Info -->
+<div class="bg-info">Info</div>
+<div class="bg-info-container">Info container</div>
+```
+
+**All utilities support standard Tailwind prefixes**:
+- `bg-*` - Background colors
+- `text-*` - Text colors
+- `border-*` - Border colors
+- `ring-*` - Ring colors
+- `decoration-*` - Text decoration colors
+- `divide-*` - Divider colors
+- `outline-*` - Outline colors
+- `fill-*` - SVG fill colors
+- `stroke-*` - SVG stroke colors
+
+### Pattern Summary
+
+Every color role has **four variants**:
+1. `{color}` or `{color}-default` - Main color (aliases)
+2. `on-{color}` - Text/content on the color
+3. `{color}-container` - Container/background variant
+4. `on-{color}-container` - Text/content on container
+
+Applied to all colors:
+- **Core**: `primary`, `secondary`, `tertiary`
+- **Semantic**: `error`, `warning`, `success`, `info`
+- **Surfaces**: `surface`, `surface-dim`, `surface-bright`, `surface-container-*`
 
 ## Complete CSS Variable Reference
 
@@ -992,7 +1085,8 @@ theme.setColor('#6750A4') // Generates 100+ tokens
 ## Summary
 
 The theme service provides a complete Material Design 3 implementation with:
-- 🎨 **Extended color system** with semantic colors
+- 🎨 **Extended color system** with semantic colors (error, warning, success, info)
+- 🎨 **Tailwind utilities** with convenient aliases (`bg-primary` = `bg-primary-default`)
 - 📐 **Complete surface hierarchy** for proper elevation
 - 🔤 **Full typography scale** across 5 categories
 - 🎬 **Sophisticated motion system** with easing and duration
@@ -1004,3 +1098,10 @@ The theme service provides a complete Material Design 3 implementation with:
 - ⚡ **Reactive observables** for all properties
 
 Use the theme service as your single source of truth for all design tokens and theming needs.
+
+### Quick Reference
+
+**Colors**: primary, secondary, tertiary, error, warning, success, info
+**Each color has**: default, on, container, onContainer variants
+**Tailwind**: All colors work with bg-*, text-*, border-*, ring-* prefixes
+**Aliases**: Base names (e.g., `bg-error`) automatically resolve to `-default` variants
