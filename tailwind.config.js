@@ -76,14 +76,16 @@ module.exports = {
 
 				// Warning colors (new M3)
 				'warning': 'var(--schmancy-sys-color-warning-default)',
-				'warning-container': 'var(--schmancy-sys-color-warning-container)',
+				'warning-default': 'var(--schmancy-sys-color-warning-default)',
 				'warning-on': 'var(--schmancy-sys-color-warning-on)',
+				'warning-container': 'var(--schmancy-sys-color-warning-container)',
 				'warning-onContainer': 'var(--schmancy-sys-color-warning-onContainer)',
 
 				// Info colors (new M3)
 				'info': 'var(--schmancy-sys-color-info-default)',
-				'info-container': 'var(--schmancy-sys-color-info-container)',
+				'info-default': 'var(--schmancy-sys-color-info-default)',
 				'info-on': 'var(--schmancy-sys-color-info-on)',
+				'info-container': 'var(--schmancy-sys-color-info-container)',
 				'info-onContainer': 'var(--schmancy-sys-color-info-onContainer)',
 
 				// Inverse colors (new M3)
