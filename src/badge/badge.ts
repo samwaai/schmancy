@@ -232,12 +232,8 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 		// Refined styles for a more elegant look (only CSS that can't be done with Tailwind)
 		const styles = {
 			borderColor: colorStyles.border,
-			...(this.outlined ? {
-				backdropFilter: 'blur(4px)',
-			} : {}),
-			...(this.size === 'lg' && !this.outlined ? {
-				boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1)'
-			} : {}),
+			backdropFilter: this.outlined ? 'blur(4px)' : undefined,
+			boxShadow: this.size === 'lg' && !this.outlined ? '0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.1)' : undefined,
 			...exoticStyles,
 		}
 
