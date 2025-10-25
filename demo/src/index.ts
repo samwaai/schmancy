@@ -8,8 +8,7 @@ import { area, lazy } from '@mhmo91/schmancy/area'
 import { createCompoundSelector, createContext, select } from '@mhmo91/schmancy/index'
 import '@mhmo91/schmancy/boat'
 import '@mhmo91/schmancy/navigation-rail'
-import '@mhmo91/schmancy/navigation-rail'
-import '@mhmo91/schmancy/scroll'
+import '@mhmo91/schmancy/layout'
 
 // Import all demo modules to ensure they're registered
 import './features/index'

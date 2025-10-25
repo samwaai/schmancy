@@ -10,7 +10,7 @@
 		},
 		"./mixins": {
 			"types": "./types/mixins/index.d.ts",
-			"default": "./dist/mixins.js"
+			"default": "./mixins/index.ts"
 		},
 		"./ai/*": "./ai/*",
 		"./*": {
@@ -34,6 +34,7 @@
 	"files": [
 		"dist",
 		"types",
+		"mixins",
 		"ai",
 		"README.md"
 	],
