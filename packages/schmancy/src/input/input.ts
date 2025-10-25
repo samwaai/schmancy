@@ -46,7 +46,8 @@ export type InputSize = 'sm' | 'md' | 'lg'
  *
  * This component uses the native form association API and maintains parity with
  * native input behaviors while providing a stylish, accessible interface.
- * 
+ *
+ * @prop {string} name - Name attribute for form submission (inherited from FormFieldMixin)
  * @prop {string} label - Label text for the form field (inherited from FormFieldMixin)
  * @prop {boolean} required - Whether the field is required (inherited from FormFieldMixin)
  * @prop {boolean} disabled - Whether the field is disabled (inherited from FormFieldMixin)

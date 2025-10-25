@@ -5,6 +5,14 @@ import { repeat } from 'lit/directives/repeat.js'
 import timezonesData from './timezones.data'
 import SchmancyAutocomplete from '@schmancy/autocomplete/autocomplete'
 
+/**
+ * Timezone selector component with autocomplete filtering.
+ *
+ * @prop {string} name - Name attribute for form submission
+ * @prop {string} value - Selected timezone value
+ * @prop {string} label - Label text for the field
+ * @prop {boolean} required - Whether the field is required
+ */
 @customElement('schmancy-select-timezones')
 export class SchmancyTimezonesSelect extends $LitElement(css`
 	:host {

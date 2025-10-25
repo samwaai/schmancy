@@ -1,4 +1,12 @@
 declare const SchmancyTimezonesSelect_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+/**
+ * Timezone selector component with autocomplete filtering.
+ *
+ * @prop {string} name - Name attribute for form submission
+ * @prop {string} value - Selected timezone value
+ * @prop {string} label - Label text for the field
+ * @prop {boolean} required - Whether the field is required
+ */
 export declare class SchmancyTimezonesSelect extends SchmancyTimezonesSelect_base {
     static formAssociated: boolean;
     private internals?;

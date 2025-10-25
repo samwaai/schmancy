@@ -8,6 +8,19 @@ import { when } from 'lit/directives/when.js'
 import { distinctUntilChanged, filter, fromEvent, map } from 'rxjs'
 import style from './textarea.scss?inline'
 import { TailwindElement } from '@mixins/index'
+
+/**
+ * Textarea component with auto-resize and form integration.
+ *
+ * @prop {string} name - Name attribute for form submission
+ * @prop {string} value - Current value of the textarea
+ * @prop {string} placeholder - Placeholder text
+ * @prop {boolean} required - Whether the field is required
+ * @prop {boolean} disabled - Whether the field is disabled
+ * @prop {boolean} readonly - Whether the field is read-only
+ * @prop {number} rows - Number of visible text rows
+ * @prop {number} maxlength - Maximum character length
+ */
 @customElement('schmancy-textarea')
 export default class SchmancyTextarea extends TailwindElement(style) {
 	protected static shadowRootOptions = {

@@ -1,5 +1,17 @@
 import { LitElement } from 'lit';
 declare const SchmancyTextarea_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+/**
+ * Textarea component with auto-resize and form integration.
+ *
+ * @prop {string} name - Name attribute for form submission
+ * @prop {string} value - Current value of the textarea
+ * @prop {string} placeholder - Placeholder text
+ * @prop {boolean} required - Whether the field is required
+ * @prop {boolean} disabled - Whether the field is disabled
+ * @prop {boolean} readonly - Whether the field is read-only
+ * @prop {number} rows - Number of visible text rows
+ * @prop {number} maxlength - Maximum character length
+ */
 export default class SchmancyTextarea extends SchmancyTextarea_base {
     protected static shadowRootOptions: {
         delegatesFocus: boolean;

@@ -47,7 +47,7 @@ export declare class SchmancyNavigationDrawer extends SchmancyNavigationDrawer_b
      * Helper method to update state based on a given width.
      */
     private updateState;
-    protected render(): typeof nothing | import("lit-html").TemplateResult<1>;
+    protected render(): import("lit-html").TemplateResult<1> | typeof nothing;
 }
 declare global {
     interface HTMLElementTagNameMap {

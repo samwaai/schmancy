@@ -4,6 +4,14 @@ import { customElement, property } from 'lit/decorators.js'
 import { FormFieldMixin } from '../../mixins/formField.mixin'
 import { fromEvent, takeUntil } from 'rxjs'
 
+/**
+ * Radio button component for use within radio groups.
+ *
+ * @prop {string} name - Name attribute for grouping radio buttons
+ * @prop {string} value - Value of this radio button
+ * @prop {boolean} checked - Whether the radio button is selected
+ * @prop {boolean} disabled - Whether the radio button is disabled
+ */
 @customElement('schmancy-radio-button')
 export class RadioButton extends FormFieldMixin(TailwindElement()) {
 	@property({ type: String }) override value = ''

@@ -5,6 +5,17 @@ export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     values?: string[];
 }>;
 declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+/**
+ * Autocomplete input component with filtering and multi-select support.
+ *
+ * @prop {string} name - Name attribute for form submission
+ * @prop {string} label - Label text displayed above the input
+ * @prop {string} placeholder - Placeholder text for the input
+ * @prop {boolean} required - Whether the field is required
+ * @prop {boolean} multi - Enable multi-select mode
+ * @prop {string} value - Selected value (single select mode)
+ * @prop {string[]} values - Selected values (multi-select mode)
+ */
 export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     _valueSet: boolean;
     _valuesSet: boolean;

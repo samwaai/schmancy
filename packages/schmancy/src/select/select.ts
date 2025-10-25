@@ -14,6 +14,17 @@ export type SchmancySelectChangeEvent = CustomEvent<{
 	value: string | string[]
 }>
 
+/**
+ * Select dropdown component with single and multi-select support.
+ *
+ * @prop {string} name - Name attribute for form submission
+ * @prop {string} label - Label text displayed above the select
+ * @prop {string} placeholder - Placeholder text when no value is selected
+ * @prop {boolean} required - Whether the field is required
+ * @prop {boolean} multi - Enable multi-select mode
+ * @prop {string} value - Selected value (single select mode)
+ * @prop {string[]} values - Selected values (multi-select mode)
+ */
 @customElement('schmancy-select')
 export class SchmancySelect extends $LitElement(css`
 	:host {

@@ -35,6 +35,17 @@ interface FilteredOption {
     score: number
 }
 
+/**
+ * Autocomplete input component with filtering and multi-select support.
+ *
+ * @prop {string} name - Name attribute for form submission
+ * @prop {string} label - Label text displayed above the input
+ * @prop {string} placeholder - Placeholder text for the input
+ * @prop {boolean} required - Whether the field is required
+ * @prop {boolean} multi - Enable multi-select mode
+ * @prop {string} value - Selected value (single select mode)
+ * @prop {string[]} values - Selected values (multi-select mode)
+ */
 @customElement('schmancy-autocomplete')
 export default class SchmancyAutocomplete extends $LitElement(style) {
     // Track whether value/values have been explicitly set
