@@ -39,3 +39,57 @@ These files contain essential patterns, architecture decisions, and conventions 
 2. **Never create standalone test HTML files** - use demo structure
 3. **Follow patterns in existing code** - consistency is critical
 4. **Use `yarn dev` for testing** - not build commands (per global rules)
+
+## 📝 MANDATORY: Documentation & Demo Updates After Code Changes
+
+**ABSOLUTE RULE: ANY code change to a component MUST include:**
+
+### 1. AI Documentation Updates (`/ai/{component}.md`)
+
+After modifying a component, you MUST update its AI documentation file to reflect:
+
+- ✅ All new properties/attributes added
+- ✅ All new type options or variants
+- ✅ Updated property signatures (if changed)
+- ✅ New usage examples demonstrating new features
+- ✅ Updated API reference showing complete current API
+
+**Example:** If you add new surface types (`glass`, `transparent`, `primaryContainer`), the `/ai/surface.md` file MUST be updated to include these in:
+
+- Property type definitions
+- Surface types list
+- Usage examples
+- Common use cases section
+
+### 2. Demo Updates (`/demo/src/features/{category}-demos/`)
+
+After modifying a component, you MUST update its demo to include:
+
+- ✅ Visual examples of ALL new features
+- ✅ Interactive demonstrations of new functionality
+- ✅ Updated API reference table showing all properties
+- ✅ Real-world use case examples
+
+**Example:** If you add new surface types, the demo MUST show:
+
+- Visual comparison of all new types
+- Interactive examples (e.g., selection states using `primaryContainer`)
+- Practical use cases (e.g., glass effects, semantic containers)
+
+### 3. Enforcement - Task Incomplete Without Documentation
+
+**A code change is NOT complete until:**
+
+1. ✅ Component code is updated
+2. ✅ AI documentation (`/ai/*.md`) reflects ALL current features
+3. ✅ Demo shows ALL current features with examples
+4. ✅ Type definitions are updated (if applicable)
+
+**Failure to update documentation = incomplete task = must go back and update.**
+
+### Why This Matters
+
+- Developers rely on AI docs for accurate API reference
+- Demos serve as living documentation and testing ground
+- Outdated docs lead to confusion and incorrect usage
+- Complete documentation prevents feature discovery issues

@@ -5,7 +5,7 @@
 <schmancy-surface
   fill="all|width|height|auto"
   rounded="none|top|left|right|bottom|all"
-  type="surface|surfaceDim|surfaceBright|containerLowest|containerLow|container|containerHigh|containerHighest"
+  type="surface|surfaceDim|surfaceBright|containerLowest|containerLow|container|containerHigh|containerHighest|glass|glassOforim|transparent|primary|primaryContainer|secondary|secondaryContainer|tertiary|tertiaryContainer|error|errorContainer"
   elevation="0|1|2|3|4|5">
   Content goes here
 </schmancy-surface>
@@ -16,15 +16,32 @@ rounded: string       // Corner rounding: "none", "top", "left", "right", "botto
 type: string          // Surface color variant (default: "container")
 elevation: number     // Shadow depth 0-5 (default: 0)
 
-// Surface Types (background colors)
+// Surface Types (19 total variants)
+
+// Neutral Surfaces (8 types) - for general backgrounds
 "surface"             // Default surface color
 "surfaceDim"          // Dimmed surface
 "surfaceBright"       // Bright surface
 "containerLowest"     // Lowest container elevation
 "containerLow"        // Low container elevation
-"container"           // Standard container
+"container"           // Standard container (default)
 "containerHigh"       // High container elevation
 "containerHighest"    // Highest container elevation
+
+// Glass Effects (3 types) - for modern glassmorphism
+"glass"               // Standard glass effect with backdrop blur
+"glassOforim"         // Enhanced glass with stronger blur effect
+"transparent"         // Fully transparent background
+
+// State-Based Surfaces (8 types) - for selection/semantic meaning
+"primary"             // High emphasis primary (selected/active states)
+"primaryContainer"    // Lower emphasis primary container
+"secondary"           // High emphasis secondary
+"secondaryContainer"  // Lower emphasis secondary container
+"tertiary"            // High emphasis tertiary
+"tertiaryContainer"   // Lower emphasis tertiary container
+"error"               // High emphasis error state
+"errorContainer"      // Lower emphasis error container
 
 // Examples
 // 1. Basic surface
@@ -33,8 +50,8 @@ elevation: number     // Shadow depth 0-5 (default: 0)
 </schmancy-surface>
 
 // 2. Elevated card
-<schmancy-surface 
-  elevation="2" 
+<schmancy-surface
+  elevation="2"
   rounded="all"
   type="containerLow">
   <h3>Card Title</h3>
@@ -42,7 +59,7 @@ elevation: number     // Shadow depth 0-5 (default: 0)
 </schmancy-surface>
 
 // 3. Full-width surface
-<schmancy-surface 
+<schmancy-surface
   fill="width"
   type="surfaceDim"
   elevation="1">
@@ -58,6 +75,39 @@ elevation: number     // Shadow depth 0-5 (default: 0)
   <div class="dashboard-content">
     <!-- Content -->
   </div>
+</schmancy-surface>
+
+// 5. Glass effect surface
+<schmancy-surface
+  type="glass"
+  rounded="all"
+  elevation="2"
+  class="p-6">
+  Modern glassmorphism card
+</schmancy-surface>
+
+// 6. Selected state (interactive list item)
+<schmancy-surface
+  type=${isSelected ? 'primaryContainer' : 'containerHighest'}
+  rounded="all"
+  class="cursor-pointer p-4">
+  Selectable item
+</schmancy-surface>
+
+// 7. Error message container
+<schmancy-surface
+  type="errorContainer"
+  rounded="all"
+  class="p-4">
+  <p>Validation error message</p>
+</schmancy-surface>
+
+// 8. Transparent overlay
+<schmancy-surface
+  type="transparent"
+  fill="all"
+  class="absolute inset-0">
+  Transparent overlay content
 </schmancy-surface>
 ```
 
@@ -149,9 +199,9 @@ import { SchmancySurfaceTypeContext } from '@schmancy/index'
 
 5. **Sidebar Panels**: Directional rounding
    ```html
-   <schmancy-surface 
-     fill="height" 
-     rounded="right" 
+   <schmancy-surface
+     fill="height"
+     rounded="right"
      elevation="2"
      type="containerHigh">
      <nav class="sidebar">
@@ -159,3 +209,65 @@ import { SchmancySurfaceTypeContext } from '@schmancy/index'
      </nav>
    </schmancy-surface>
    ```
+
+6. **Glass Effect Cards**: Modern glassmorphism
+   ```html
+   <schmancy-surface
+     type="glass"
+     elevation="3"
+     rounded="all"
+     class="p-6">
+     <h3>Premium Feature</h3>
+     <p>Glass effect with backdrop blur</p>
+   </schmancy-surface>
+   ```
+
+7. **Selected List Items**: Selection states
+   ```html
+   <schmancy-surface
+     type=${item.selected ? 'primaryContainer' : 'containerHighest'}
+     rounded="all"
+     class="cursor-pointer p-4 transition-all hover:scale-[1.01]"
+     @click=${() => toggleSelection(item)}>
+     ${item.name}
+   </schmancy-surface>
+   ```
+
+8. **Error/Warning Messages**: Semantic containers
+   ```html
+   <!-- Error message -->
+   <schmancy-surface type="errorContainer" rounded="all" class="p-4 mb-4">
+     <strong>Error:</strong> Please fix the validation errors
+   </schmancy-surface>
+
+   <!-- Info message -->
+   <schmancy-surface type="primaryContainer" rounded="all" class="p-4">
+     <strong>Info:</strong> Your changes have been saved
+   </schmancy-surface>
+   ```
+
+9. **Transparent Overlays**: Modal backgrounds
+   ```html
+   <schmancy-surface
+     type="transparent"
+     fill="all"
+     class="absolute inset-0 flex items-center justify-center">
+     <schmancy-surface type="glass" elevation="5" rounded="all" class="p-8">
+       <h2>Modal Content</h2>
+       <p>Transparent overlay with glass modal</p>
+     </schmancy-surface>
+   </schmancy-surface>
+   ```
+
+10. **Interactive Cards**: Hover states with type switching
+    ```html
+    <schmancy-surface
+      type=${isHovered ? 'secondaryContainer' : 'container'}
+      elevation="2"
+      rounded="all"
+      class="p-6 transition-all cursor-pointer"
+      @mouseenter=${() => setHovered(true)}
+      @mouseleave=${() => setHovered(false)}>
+      Hover me!
+    </schmancy-surface>
+    ```

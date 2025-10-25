@@ -141,6 +141,61 @@ export class SchmancySurface extends TailwindElement(css`
 		background-color: var(--schmancy-sys-color-surface-highest);
 		color: var(--schmancy-sys-color-surface-on);
 	}
+	:host([type='glass']) {
+		/* Glassmorphism effect with theme-aware colors */
+		background-color: color-mix(in srgb, var(--schmancy-sys-color-surface-container) 70%, transparent);
+		backdrop-filter: blur(10px) saturate(180%);
+		-webkit-backdrop-filter: blur(10px) saturate(180%);
+		color: var(--schmancy-sys-color-surface-on);
+		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-surface-on) 10%, transparent);
+	}
+	:host([type='transparent']) {
+		/* Fully transparent background */
+		background-color: transparent;
+		color: var(--schmancy-sys-color-surface-on);
+	}
+	:host([type='glassOforim']) {
+		/* Oforim-specific glass variant with enhanced blur */
+		background-color: color-mix(in srgb, var(--schmancy-sys-color-surface-container) 60%, transparent);
+		backdrop-filter: blur(16px) saturate(200%) brightness(1.1);
+		-webkit-backdrop-filter: blur(16px) saturate(200%) brightness(1.1);
+		color: var(--schmancy-sys-color-surface-on);
+		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-primary-default) 20%, transparent);
+	}
+
+	/* State-based surface types for selection/active states */
+	:host([type='primary']) {
+		background-color: var(--schmancy-sys-color-primary-default);
+		color: var(--schmancy-sys-color-primary-on);
+	}
+	:host([type='primaryContainer']) {
+		background-color: var(--schmancy-sys-color-primary-container);
+		color: var(--schmancy-sys-color-primary-onContainer);
+	}
+	:host([type='secondary']) {
+		background-color: var(--schmancy-sys-color-secondary-default);
+		color: var(--schmancy-sys-color-secondary-on);
+	}
+	:host([type='secondaryContainer']) {
+		background-color: var(--schmancy-sys-color-secondary-container);
+		color: var(--schmancy-sys-color-secondary-onContainer);
+	}
+	:host([type='tertiary']) {
+		background-color: var(--schmancy-sys-color-tertiary-default);
+		color: var(--schmancy-sys-color-tertiary-on);
+	}
+	:host([type='tertiaryContainer']) {
+		background-color: var(--schmancy-sys-color-tertiary-container);
+		color: var(--schmancy-sys-color-tertiary-onContainer);
+	}
+	:host([type='error']) {
+		background-color: var(--schmancy-sys-color-error-default);
+		color: var(--schmancy-sys-color-error-on);
+	}
+	:host([type='errorContainer']) {
+		background-color: var(--schmancy-sys-color-error-container);
+		color: var(--schmancy-sys-color-error-onContainer);
+	}
 `) {
 	/**
 	 * Fill the width and/or height of the parent container.
@@ -162,7 +217,10 @@ export class SchmancySurface extends TailwindElement(css`
 	 * Specifies the surface type for styling.
 	 * Provided to descendant components via context.
 	 * Options: 'surface', 'surfaceDim', 'surfaceBright', 'containerLowest',
-	 * 'containerLow', 'container', 'containerHigh', 'containerHighest'.
+	 * 'containerLow', 'container', 'containerHigh', 'containerHighest',
+	 * 'glass', 'transparent', 'glassOforim', 'primary', 'primaryContainer',
+	 * 'secondary', 'secondaryContainer', 'tertiary', 'tertiaryContainer',
+	 * 'error', 'errorContainer'.
 	 * @default 'container'
 	 */
 	@provide({ context: SchmancySurfaceTypeContext })

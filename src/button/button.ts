@@ -23,6 +23,8 @@ export class SchmancyButton extends $LitElement(
 	css`:host{
 		display: inline-block;
 		min-width: fit-content;
+		overflow: hidden;
+		position: relative;
 	}`
 ) {
 	protected static shadowRootOptions = {

@@ -1,10 +1,11 @@
 import { $LitElement } from '@mixins/index'
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
 import '../../shared/installation-section'
 
 @customElement('demo-core-surfaces')
 export class DemoCoreSurfaces extends $LitElement() {
+	@state() private selectedOption: 'option1' | 'option2' | 'option3' | null = null
 	render() {
 		return html`
 			<schmancy-surface class="p-8">
@@ -56,8 +57,11 @@ export class DemoCoreSurfaces extends $LitElement() {
 									</td>
 									<td class="p-4">
 										<schmancy-typography type="body" token="sm">
-											'surface' | 'surfaceDim' | 'surfaceBright' | 'container' | 
-											'containerLowest' | 'containerLow' | 'containerHigh' | 'containerHighest'
+											'surface' | 'surfaceDim' | 'surfaceBright' | 'container' |
+											'containerLowest' | 'containerLow' | 'containerHigh' | 'containerHighest' |
+											'glass' | 'transparent' | 'glassOforim' |
+											'primary' | 'primaryContainer' | 'secondary' | 'secondaryContainer' |
+											'tertiary' | 'tertiaryContainer' | 'error' | 'errorContainer'
 										</schmancy-typography>
 									</td>
 									<td class="p-4">
@@ -324,6 +328,251 @@ export class DemoCoreSurfaces extends $LitElement() {
 								<schmancy-surface type="surfaceDim" fill="all" class="p-4">
 									<schmancy-typography type="label" token="md">
 										This surface fills the entire parent container (fill="all")
+									</schmancy-typography>
+								</schmancy-surface>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- State-Based Surface Types -->
+						<div class="col-span-full mt-8">
+							<schmancy-typography type="title" token="lg" class="mb-4 block">
+								State-Based Surface Types
+							</schmancy-typography>
+							<schmancy-typography type="body" token="md" class="text-surface-onVariant mb-4 block">
+								Use state-based surface types to indicate selection, active states, or semantic meaning
+							</schmancy-typography>
+						</div>
+
+						<schmancy-code-preview language="html">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<schmancy-surface type="primary" rounded="all" elevation="2" class="p-6">
+									<schmancy-typography type="title" token="lg" class="block mb-2">
+										Primary
+									</schmancy-typography>
+									<schmancy-typography type="body" token="md">
+										High emphasis state using primary color. Use for primary actions or selected states.
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="primaryContainer" rounded="all" class="p-6">
+									<schmancy-typography type="title" token="lg" class="block mb-2">
+										Primary Container
+									</schmancy-typography>
+									<schmancy-typography type="body" token="md">
+										Lower emphasis primary state. Ideal for selected list items or active navigation.
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="secondary" rounded="all" elevation="2" class="p-6">
+									<schmancy-typography type="title" token="lg" class="block mb-2">
+										Secondary
+									</schmancy-typography>
+									<schmancy-typography type="body" token="md">
+										Secondary emphasis state using secondary color palette.
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="secondaryContainer" rounded="all" class="p-6">
+									<schmancy-typography type="title" token="lg" class="block mb-2">
+										Secondary Container
+									</schmancy-typography>
+									<schmancy-typography type="body" token="md">
+										Lower emphasis secondary state for subtle highlighting.
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="tertiary" rounded="all" elevation="2" class="p-6">
+									<schmancy-typography type="title" token="lg" class="block mb-2">
+										Tertiary
+									</schmancy-typography>
+									<schmancy-typography type="body" token="md">
+										Tertiary emphasis state for complementary information.
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="tertiaryContainer" rounded="all" class="p-6">
+									<schmancy-typography type="title" token="lg" class="block mb-2">
+										Tertiary Container
+									</schmancy-typography>
+									<schmancy-typography type="body" token="md">
+										Lower emphasis tertiary state for accent highlights.
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="error" rounded="all" elevation="2" class="p-6">
+									<schmancy-typography type="title" token="lg" class="block mb-2">
+										Error
+									</schmancy-typography>
+									<schmancy-typography type="body" token="md">
+										High emphasis error state for critical issues or warnings.
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="errorContainer" rounded="all" class="p-6">
+									<schmancy-typography type="title" token="lg" class="block mb-2">
+										Error Container
+									</schmancy-typography>
+									<schmancy-typography type="body" token="md">
+										Lower emphasis error state for validation messages.
+									</schmancy-typography>
+								</schmancy-surface>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Interactive Selection Example -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-3">
+								<schmancy-typography type="label" token="lg" class="block mb-3">
+									Interactive Selection Example
+								</schmancy-typography>
+
+								<schmancy-surface
+									type=${this.selectedOption === 'option1' ? 'primaryContainer' : 'containerHighest'}
+									rounded="all"
+									class="p-4 cursor-pointer transition-all"
+									@click=${() => { this.selectedOption = 'option1' }}
+								>
+									<schmancy-typography type="title" token="md" class="block mb-1">
+										Option 1
+									</schmancy-typography>
+									<schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+										${this.selectedOption === 'option1' ? '✓ Selected' : 'Click to select'}
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface
+									type=${this.selectedOption === 'option2' ? 'primaryContainer' : 'containerHighest'}
+									rounded="all"
+									class="p-4 cursor-pointer transition-all"
+									@click=${() => { this.selectedOption = 'option2' }}
+								>
+									<schmancy-typography type="title" token="md" class="block mb-1">
+										Option 2
+									</schmancy-typography>
+									<schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+										${this.selectedOption === 'option2' ? '✓ Selected' : 'Click to select'}
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface
+									type=${this.selectedOption === 'option3' ? 'primaryContainer' : 'containerHighest'}
+									rounded="all"
+									class="p-4 cursor-pointer transition-all"
+									@click=${() => { this.selectedOption = 'option3' }}
+								>
+									<schmancy-typography type="title" token="md" class="block mb-1">
+										Option 3
+									</schmancy-typography>
+									<schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+										${this.selectedOption === 'option3' ? '✓ Selected' : 'Click to select'}
+									</schmancy-typography>
+								</schmancy-surface>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Semantic Meaning Example -->
+						<schmancy-code-preview language="html">
+							<div class="space-y-4">
+								<schmancy-typography type="label" token="lg" class="block mb-3">
+									Semantic Meaning Example
+								</schmancy-typography>
+
+								<schmancy-surface type="primaryContainer" rounded="all" class="p-4">
+									<schmancy-typography type="label" token="md" class="block mb-1">
+										ℹ️ Information
+									</schmancy-typography>
+									<schmancy-typography type="body" token="sm">
+										Use primary container for informational messages or tips
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="secondaryContainer" rounded="all" class="p-4">
+									<schmancy-typography type="label" token="md" class="block mb-1">
+										✨ Feature Highlight
+									</schmancy-typography>
+									<schmancy-typography type="body" token="sm">
+										Use secondary container to highlight new or special features
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="tertiaryContainer" rounded="all" class="p-4">
+									<schmancy-typography type="label" token="md" class="block mb-1">
+										💡 Pro Tip
+									</schmancy-typography>
+									<schmancy-typography type="body" token="sm">
+										Use tertiary container for helpful tips or suggestions
+									</schmancy-typography>
+								</schmancy-surface>
+
+								<schmancy-surface type="errorContainer" rounded="all" class="p-4">
+									<schmancy-typography type="label" token="md" class="block mb-1">
+										⚠️ Warning
+									</schmancy-typography>
+									<schmancy-typography type="body" token="sm">
+										Use error container for validation errors or warnings
+									</schmancy-typography>
+								</schmancy-surface>
+							</div>
+						</schmancy-code-preview>
+
+						<!-- Glass and Transparent Types -->
+						<div class="col-span-full mt-8">
+							<schmancy-typography type="title" token="lg" class="mb-4 block">
+								Glass & Transparent Effects
+							</schmancy-typography>
+						</div>
+
+						<schmancy-code-preview language="html">
+							<!-- Container with background for glass effect demonstration -->
+							<div class="relative p-8 rounded-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+								<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+									<schmancy-surface type="glass" elevation="2" rounded="all" class="p-6">
+										<schmancy-typography type="title" token="lg" class="block mb-2">
+											Glass
+										</schmancy-typography>
+										<schmancy-typography type="body" token="md">
+											Standard glassmorphism effect with backdrop blur and semi-transparent background
+										</schmancy-typography>
+									</schmancy-surface>
+
+									<schmancy-surface type="glassOforim" elevation="3" rounded="all" class="p-6">
+										<schmancy-typography type="title" token="lg" class="block mb-2">
+											Glass Oforim
+										</schmancy-typography>
+										<schmancy-typography type="body" token="md">
+											Enhanced glass variant with stronger blur and brightness
+										</schmancy-typography>
+									</schmancy-surface>
+
+									<schmancy-surface type="transparent" rounded="all" class="p-6">
+										<schmancy-typography type="title" token="lg" class="block mb-2">
+											Transparent
+										</schmancy-typography>
+										<schmancy-typography type="body" token="md">
+											Fully transparent background without backdrop effects
+										</schmancy-typography>
+									</schmancy-surface>
+								</div>
+							</div>
+						</schmancy-code-preview>
+
+						<schmancy-code-preview language="html">
+							<!-- Layered glass surfaces example -->
+							<div class="relative p-8 rounded-lg" style="background: linear-gradient(to right, #ff6b6b, #feca57, #48dbfb, #ff9ff3);">
+								<schmancy-surface type="glass" elevation="3" rounded="all" class="p-6 max-w-md">
+									<schmancy-typography type="headline" token="md" class="block mb-4">
+										Layered Glass Card
+									</schmancy-typography>
+									<schmancy-surface type="glassOforim" rounded="all" class="p-4 mb-4">
+										<schmancy-typography type="label" token="lg" class="block mb-2">
+											Nested Glass Surface
+										</schmancy-typography>
+										<schmancy-typography type="body" token="sm" class="text-surface-onVariant">
+											Glass effects can be layered for enhanced depth
+										</schmancy-typography>
+									</schmancy-surface>
+									<schmancy-typography type="body" token="md">
+										The glass effect adapts to theme colors and works beautifully over any background
 									</schmancy-typography>
 								</schmancy-surface>
 							</div>
