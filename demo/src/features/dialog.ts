@@ -1,5 +1,5 @@
-import { $LitElement } from '@mixins/index'
-import { $dialog } from '@schmancy/dialog'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
+import { $dialog } from '@mhmo91/schmancy/dialog'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 

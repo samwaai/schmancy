@@ -1,5 +1,5 @@
-import { $LitElement } from '@mixins/index'
-import { area } from '@schmancy/area'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
+import { area } from '@mhmo91/schmancy/area'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 

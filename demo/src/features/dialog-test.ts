@@ -1,5 +1,5 @@
-import { $LitElement } from '@mixins/index'
-import { $dialog } from '@schmancy/dialog'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
+import { $dialog } from '@mhmo91/schmancy/dialog'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -35,7 +35,7 @@ export class DemoDialogTest extends $LitElement() {
   }
 
   private openSimpleDialog() {
-    $dialog.simple(
+    $dialog.component(
       html`
         <div class="w-full h-full bg-white rounded-lg overflow-hidden shadow-lg">
           <div class="bg-indigo-600 text-white p-4">

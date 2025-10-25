@@ -1,22 +1,23 @@
-import { $LitElement } from '@mixins/index'
-import '@schmancy/index'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
+import '@mhmo91/schmancy/index'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 
-import { area, lazy } from '@schmancy/area'
-import { createCompoundSelector, createContext, select } from '@schmancy/index'
-import '../../src/boat/boat'
-import '../../src/navigation-rail/navigation-rail'
-import '../../src/navigation-rail/navigation-rail-item'
+import { area, lazy } from '@mhmo91/schmancy/area'
+import { createCompoundSelector, createContext, select } from '@mhmo91/schmancy/index'
+import '@mhmo91/schmancy/boat'
+import '@mhmo91/schmancy/navigation-rail'
+import '@mhmo91/schmancy/navigation-rail'
+import '@mhmo91/schmancy/scroll'
 
 // Import all demo modules to ensure they're registered
 import './features/index'
-import './features/core-demos/buttons'
-import './features/core-demos/typography'
-import './features/core-demos/surfaces'
-import './features/core-demos/icons'
-import './features/core-demos/cards'
+import './demos/buttons'
+import './demos/typography'
+import './demos/surfaces'
+import './demos/icons'
+import './demos/cards'
 
 // Direct component imports for non-lazy loaded components
 import DemoAreaDemos from './features/area/area-demos'
@@ -97,25 +98,25 @@ export default class SchmancyDemo extends $LitElement() {
 			// Input & Forms
 			{
 				name: 'Text Input',
-				component: lazy(() => import('./features/forms-demos/text-inputs')),
+				component: lazy(() => import('./demos/text-inputs')),
 				icon: 'text_fields',
 				value: 'text-input',
 			},
 			{
 				name: 'Autocomplete',
-				component: lazy(() => import('./features/forms-demos/autocomplete')),
+				component: lazy(() => import('./demos/autocomplete')),
 				icon: 'search',
 				value: 'autocomplete',
 			},
 			{
 				name: 'Select/Checkbox',
-				component: lazy(() => import('./features/forms-demos/selection')),
+				component: lazy(() => import('./demos/selection')),
 				icon: 'check_box',
 				value: 'select',
 			},
 			{
 				name: 'Form Validation',
-				component: lazy(() => import('./features/forms-demos/validation')),
+				component: lazy(() => import('./demos/validation')),
 				icon: 'fact_check',
 				value: 'validation',
 			},
@@ -123,26 +124,26 @@ export default class SchmancyDemo extends $LitElement() {
 			// Navigation Components
 			{
 				name: 'Navigation Bar',
-				component: lazy(() => import('./features/navigation-demos/navigation-bar')),
+				component: lazy(() => import('./demos/navigation-bar')),
 				icon: 'navigation',
 				value: 'navbar',
 			},
-			{ name: 'Tabs', component: lazy(() => import('./features/navigation-demos/tabs')), icon: 'tab', value: 'tabs' },
+			{ name: 'Tabs', component: lazy(() => import('./demos/tabs')), icon: 'tab', value: 'tabs' },
 			{
 				name: 'Navigation Rail',
-				component: lazy(() => import('./features/navigation-demos/rail')),
+				component: lazy(() => import('./demos/rail')),
 				icon: 'view_sidebar',
 				value: 'nav-rail',
 			},
 			{
 				name: 'Drawer',
-				component: lazy(() => import('./features/navigation-demos/drawer')),
+				component: lazy(() => import('./demos/drawer')),
 				icon: 'menu',
 				value: 'drawer',
 			},
 			{
 				name: 'Menu',
-				component: lazy(() => import('./features/navigation-demos/menu')),
+				component: lazy(() => import('./demos/menu')),
 				icon: 'more_vert',
 				value: 'menu',
 			},
@@ -150,19 +151,19 @@ export default class SchmancyDemo extends $LitElement() {
 			// Data & Lists
 			{
 				name: 'Table',
-				component: lazy(() => import('./features/data-display-demos/tables')),
+				component: lazy(() => import('./demos/tables')),
 				icon: 'table_chart',
 				value: 'table',
 			},
 			{
 				name: 'List',
-				component: lazy(() => import('./features/data-display-demos/lists')),
+				component: lazy(() => import('./demos/lists')),
 				icon: 'list',
 				value: 'list',
 			},
 			{
 				name: 'Tree View',
-				component: lazy(() => import('./features/data-display-demos/trees')),
+				component: lazy(() => import('./demos/trees')),
 				icon: 'account_tree',
 				value: 'tree',
 			},
@@ -171,19 +172,19 @@ export default class SchmancyDemo extends $LitElement() {
 			// Feedback & Status
 			{
 				name: 'Progress',
-				component: lazy(() => import('./features/feedback-demos/progress')),
+				component: lazy(() => import('./demos/progress')),
 				icon: 'pending',
 				value: 'progress',
 			},
 			{
 				name: 'Loading',
-				component: lazy(() => import('./features/feedback-demos/loading')),
+				component: lazy(() => import('./demos/loading')),
 				icon: 'hourglass_empty',
 				value: 'loading',
 			},
 			{
 				name: 'Notification',
-				component: lazy(() => import('./features/feedback-demos/notifications')),
+				component: lazy(() => import('./demos/notifications')),
 				icon: 'notifications',
 				value: 'notification',
 			},
@@ -191,13 +192,13 @@ export default class SchmancyDemo extends $LitElement() {
 			// Overlays
 			{
 				name: 'Dialog',
-				component: lazy(() => import('./features/overlays-demos/dialog-showcase')),
+				component: lazy(() => import('./demos/dialog-showcase')),
 				icon: 'web_asset',
 				value: 'dialog',
 			},
 			{
 				name: 'Sheet',
-				component: lazy(() => import('./features/overlays-demos/sheet')),
+				component: lazy(() => import('./demos/sheet')),
 				icon: 'vertical_split',
 				value: 'sheet',
 			},
@@ -208,7 +209,7 @@ export default class SchmancyDemo extends $LitElement() {
 			{ name: 'Steps', component: DemoSteps, icon: 'linear_scale', value: 'steps' },
 			{
 				name: 'Content Drawer',
-				component: lazy(() => import('./features/layout-demos/content-drawer-users')),
+				component: lazy(() => import('./demos/content-drawer-users')),
 				icon: 'view_sidebar',
 				value: 'content-drawer',
 			},
@@ -298,72 +299,73 @@ export default class SchmancyDemo extends $LitElement() {
 				</div>
 
 				<!-- Grid view - shows all components at once -->
-				<div class="h-screen overflow-auto p-8" style="display: ${this.showGrid ? 'block' : 'none'}">
-					<schmancy-surface type="container" fill="all">
-						<div class="max-w-7xl mx-auto">
-							<schmancy-typography type="display" token="lg" class="mb-8 text-center block">
-								Schmancy Component Library
-							</schmancy-typography>
-
-							<!-- Grid of all components -->
-							<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-								${repeat(
-									allDemos,
-									demo => demo.value,
-									demo => html`
-										<schmancy-surface
-											type="containerLow"
-											rounded="all"
-											class="p-4 cursor-pointer hover:elevation-2 transition-all"
-											@click=${() => {
-												this.showGrid = false
-												this.navigate(demo)
-											}}
-										>
-											<div class="flex flex-col items-center gap-3 text-center">
-												<schmancy-icon size="lg" class="text-primary"> ${demo.icon} </schmancy-icon>
-												<schmancy-typography type="label" token="lg"> ${demo.name} </schmancy-typography>
-											</div>
-										</schmancy-surface>
-									`,
-								)}
-							</div>
-
-							<!-- Section divider -->
-							<schmancy-divider class="my-8"></schmancy-divider>
-
-							<!-- Grouped by sections for reference -->
-							${repeat(
-								sections,
-								section => section.title,
-								section => html`
-									<div class="mb-8">
-										<schmancy-typography type="headline" token="sm" class="mb-4 block">
-											${section.title}
-										</schmancy-typography>
-										<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-											${repeat(
-												section.demos,
-												demo => demo.value,
-												demo => html`
-													<schmancy-button
-														variant="outlined"
-														class="justify-start"
-														@click=${() => {
-															this.showGrid = false
-															this.navigate(demo)
-														}}
-													>
-														<schmancy-icon slot="prefix" size="sm"> ${demo.icon} </schmancy-icon>
-														${demo.name}
-													</schmancy-button>
-												`,
-											)}
-										</div>
+				<div class="h-screen flex flex-col" style="display: ${this.showGrid ? 'flex' : 'none'}">
+					<schmancy-surface type="container" fill="all" class="flex flex-col h-full">
+						<!-- Scrollable content area -->
+						<schmancy-scroll class="flex-1">
+							<div class="px-6 sm:px-8 pb-8">
+								<div class="max-w-7xl mx-auto">
+									<!-- Grid of all components -->
+									<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+										${repeat(
+											allDemos,
+											demo => demo.value,
+											demo => html`
+												<schmancy-surface
+													type="containerLow"
+													rounded="all"
+													class="p-4 cursor-pointer hover:elevation-2 transition-all"
+													@click=${() => {
+														this.showGrid = false
+														this.navigate(demo)
+													}}
+												>
+													<div class="flex flex-col items-center gap-3 text-center">
+														<schmancy-icon size="lg" class="text-primary"> ${demo.icon} </schmancy-icon>
+														<schmancy-typography type="label" token="lg"> ${demo.name} </schmancy-typography>
+													</div>
+												</schmancy-surface>
+											`,
+										)}
 									</div>
-								`,
-							)}
-						</div>
+
+									<!-- Section divider -->
+									<schmancy-divider class="my-8"></schmancy-divider>
+
+									<!-- Grouped by sections for reference -->
+									${repeat(
+										sections,
+										section => section.title,
+										section => html`
+											<div class="mb-8">
+												<schmancy-typography type="headline" token="sm" class="mb-4 block">
+													${section.title}
+												</schmancy-typography>
+												<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+													${repeat(
+														section.demos,
+														demo => demo.value,
+														demo => html`
+															<schmancy-button
+																variant="outlined"
+																class="justify-start"
+																@click=${() => {
+																	this.showGrid = false
+																	this.navigate(demo)
+																}}
+															>
+																<schmancy-icon slot="prefix" size="sm"> ${demo.icon} </schmancy-icon>
+																${demo.name}
+															</schmancy-button>
+														`,
+													)}
+												</div>
+											</div>
+										`,
+									)}
+								</div>
+							</div>
+						</schmancy-scroll>
 					</schmancy-surface>
 				</div>
 

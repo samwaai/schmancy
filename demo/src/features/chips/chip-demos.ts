@@ -1,8 +1,8 @@
 import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import { $LitElement } from '@mixins/index';
-import { area } from '@schmancy/area';
-import '@schmancy/nav-drawer';
+import { $LitElement } from '@mhmo91/schmancy/mixins';
+import { area } from '@mhmo91/schmancy/area';
+import '@mhmo91/schmancy/nav-drawer';
 
 // Import all individual chip demo components and their classes
 import { DemoChipsOverview } from './overview';

@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import { $LitElement } from '@mixins/index';
+import { $LitElement } from '@mhmo91/schmancy/mixins';
 
 @customElement('lazy-users')
 export default class LazyUsers extends $LitElement() {

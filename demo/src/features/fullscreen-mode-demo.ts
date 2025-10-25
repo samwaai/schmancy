@@ -1,4 +1,4 @@
-import { $LitElement } from '@mhmo91/schmancy'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
 import '@mhmo91/schmancy/nav-drawer'
 import '@mhmo91/schmancy/navigation-rail'
 import { theme } from '@mhmo91/schmancy/theme'

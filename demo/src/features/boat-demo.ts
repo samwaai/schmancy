@@ -1,16 +1,16 @@
-import { $LitElement } from '@mixins/index'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import '@schmancy/boat'
-import '@schmancy/button'
-import '@schmancy/typography'
-import '@schmancy/surface'
-import '@schmancy/icon'
-import '@schmancy/input'
-import '@schmancy/chips'
-import '@schmancy/chip'
-import '@schmancy/badge'
-import '@schmancy/code-preview'
+import '@mhmo91/schmancy/boat'
+import '@mhmo91/schmancy/button'
+import '@mhmo91/schmancy/typography'
+import '@mhmo91/schmancy/surface'
+import '@mhmo91/schmancy/icon'
+import '@mhmo91/schmancy/input'
+import '@mhmo91/schmancy/chips'
+import '@mhmo91/schmancy/chip'
+import '@mhmo91/schmancy/badge'
+import '@mhmo91/schmancy/code-preview'
 
 @customElement('demo-boat')
 export class DemoBoat extends $LitElement() {
@@ -315,7 +315,7 @@ export class DemoBoat extends $LitElement() {
   state="minimized"
   icon="info"
   label="Information Panel"
-  @toggle="${e => handleStateChange(e)}"
+  @toggle="\${e => handleStateChange(e)}"
 &gt;
   &lt;div class="p-6"&gt;
     &lt;schmancy-typography type="body" token="md"&gt;

@@ -1,10 +1,10 @@
-import { $LitElement } from '@mixins/index'
-import '@schmancy/button'
-import '@schmancy/form'
-import '@schmancy/input'
-import '@schmancy/surface'
-import '@schmancy/tabs'
-import '@schmancy/typography'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
+import '@mhmo91/schmancy/button'
+import '@mhmo91/schmancy/form'
+import '@mhmo91/schmancy/input'
+import '@mhmo91/schmancy/surface'
+import '@mhmo91/schmancy/tabs'
+import '@mhmo91/schmancy/typography'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
@@ -16,7 +16,7 @@ export class DemoDialogPlayground extends $LitElement() {
 		basic: {
 			title: 'Basic Dialog',
 			description: 'A simple dialog with title, subtitle, message, and standard buttons.',
-			code: `import { $dialog } from '@schmancy/dialog';
+			code: `import { $dialog } from '@mhmo91/schmancy/dialog';
 
 // Basic dialog with title, subtitle, message, and buttons
 function openBasicDialog() {
@@ -41,7 +41,7 @@ document.body.appendChild(button);`,
 			title: 'Custom Component Dialog',
 			description: 'A custom dialog with rich UI components and styling using Schmancy components.',
 			code: `import { html } from 'lit';
-import { $dialog } from '@schmancy/dialog';
+import { $dialog } from '@mhmo91/schmancy/dialog';
 
 // Function to open a custom component dialog
 function openCustomDialog() {
@@ -93,7 +93,7 @@ document.body.appendChild(button);`,
 			title: 'Form Dialog',
 			description: 'An interactive form dialog with validation, loading states, and dynamic content.',
 			code: `import { html } from 'lit';
-import { $dialog } from '@schmancy/dialog';
+import { $dialog } from '@mhmo91/schmancy/dialog';
 
 // State variables
 let isSubmitting = false;
@@ -220,7 +220,7 @@ document.body.appendChild(button);`,
 		stacked: {
 			title: 'Stacked Dialogs',
 			description: 'A series of stacked dialogs that open on top of each other, creating a multi-step flow.',
-			code: `import { $dialog } from '@schmancy/dialog';
+			code: `import { $dialog } from '@mhmo91/schmancy/dialog';
 
 // Function to demonstrate stacked dialogs
 function openStackedDialogs() {
@@ -319,7 +319,7 @@ document.body.appendChild(button);`,
 
 	// Example implementations
 	private runBasicDialog() {
-		import('@schmancy/dialog').then(module => {
+		import('@mhmo91/schmancy/dialog').then(module => {
 			const $dialog = module.$dialog
 			$dialog
 				.confirm({
@@ -328,13 +328,13 @@ document.body.appendChild(button);`,
 					confirmText: 'Confirm',
 					cancelText: 'Cancel',
 				})
-				.then(result => {
+				.then(() => {
 				})
 		})
 	}
 
 	private runCustomDialog() {
-		import('@schmancy/dialog').then(module => {
+		import('@mhmo91/schmancy/dialog').then(module => {
 			const $dialog = module.$dialog
 			$dialog.component(
 				html`
@@ -396,7 +396,7 @@ document.body.appendChild(button);`,
 	}
 
 	private showFormDialog() {
-		import('@schmancy/dialog').then(module => {
+		import('@mhmo91/schmancy/dialog').then(module => {
 			const $dialog = module.$dialog
 			$dialog.component(
 				html`
@@ -438,7 +438,7 @@ document.body.appendChild(button);`,
 								<schmancy-button
 									variant="outlined"
 									@click=${() => {
-										import('@schmancy/dialog').then(module => {
+										import('@mhmo91/schmancy/dialog').then(module => {
 											module.$dialog.dismiss()
 										})
 									}}
@@ -481,7 +481,7 @@ document.body.appendChild(button);`,
 			await new Promise(resolve => setTimeout(resolve, 1500))
 
 			// Show success message
-			import('@schmancy/dialog').then(module => {
+			import('@mhmo91/schmancy/dialog').then(module => {
 				const $dialog = module.$dialog
 				$dialog.dismiss()
 				setTimeout(() => {
@@ -502,7 +502,7 @@ document.body.appendChild(button);`,
 	}
 
 	private updateFormDialog() {
-		import('@schmancy/dialog').then(module => {
+		import('@mhmo91/schmancy/dialog').then(module => {
 			module.$dialog.dismiss()
 			setTimeout(() => {
 				this.showFormDialog()
@@ -511,7 +511,7 @@ document.body.appendChild(button);`,
 	}
 
 	private runStackedDialogs() {
-		import('@schmancy/dialog').then(module => {
+		import('@mhmo91/schmancy/dialog').then(module => {
 			const $dialog = module.$dialog
 			// First dialog
 			$dialog

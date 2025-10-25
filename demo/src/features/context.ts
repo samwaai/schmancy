@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { TailwindElement } from '@mhmo91/schmancy/mixins'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import '../shared/installation-section'

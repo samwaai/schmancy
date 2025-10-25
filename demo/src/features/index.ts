@@ -1,16 +1,5 @@
-// Grouped Component Demos
-export * from './core-demos'
-export * from './feedback-demos'
-export * from './forms-demos'
-export * from './navigation-demos'
-export * from './data-display-demos'
-export * from './overlays-demos'
-export * from './layout-demos'
-export * from './misc-demos'
-
 // Individual components still at root level
 export * from './chips'
-export * from './boat'
 export * from './steps'
 export * from './details-showcase'
 export * from './map'

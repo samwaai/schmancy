@@ -1,8 +1,7 @@
 import { html, LitElement } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import '../../../src/theme/theme-controller'
-import '../../../src/theme/theme-controller-boat'
-import type { ColorPreset } from '../../../src/theme/theme-controller'
+import '@mhmo91/schmancy/theme'
+import type { ColorPreset } from '@mhmo91/schmancy/theme'
 
 /**
  * Demo page for testing the refactored theme controller components

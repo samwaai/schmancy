@@ -1,0 +1,33 @@
+import { $LitElement } from '@mhmo91/schmancy/mixins'
+import { html } from 'lit'
+import { customElement } from 'lit/decorators.js'
+
+@customElement('misc-animated-text')
+export default class MiscAnimatedText extends $LitElement() {
+	render() {
+		return html`
+			<schmancy-grid gap="md">
+				<schmancy-typography type="display">
+					<schmancy-animated-text>Animated Text</schmancy-animated-text>
+				</schmancy-typography>
+				<schmancy-typography type="display">
+					<schmancy-animated-text stagger=${100}>Staggered Animated Text</schmancy-animated-text>
+				</schmancy-typography>
+
+				<!-- fast stagger -->
+				<schmancy-typography type="display">
+					<schmancy-animated-text stagger=${10}>Fast Staggered Animated Text</schmancy-animated-text>
+				</schmancy-typography>
+				<schmancy-typography type="display">
+					<schmancy-animated-text delay=${1000}>Delayed Animated Text</schmancy-animated-text>
+				</schmancy-typography>
+			</schmancy-grid>
+		`
+	}
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'misc-animated-text': MiscAnimatedText
+	}
+}

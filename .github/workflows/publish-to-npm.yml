@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'src/**' # Trigger only on changes in this directory
-      - 'mixins/**' # Trigger only on changes in this directory
-      - 'package.json' # Trigger only on changes in this directory
-      - 'ai/**'
+      - 'packages/schmancy/src/**' # Trigger only on changes in this directory
+      - 'packages/schmancy/mixins/**' # Trigger only on changes in this directory
+      - 'packages/schmancy/package.json' # Trigger only on changes in this directory
+      - 'packages/schmancy/ai/**'
 
 permissions:
   contents: write
@@ -47,10 +47,14 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Bump package version
-        run: yarn version patch
+        run: |
+          cd packages/schmancy
+          yarn version patch
 
       - name: Publish to npm
-        run: npm publish --access public # Ensure --access public is present
+        run: |
+          cd packages/schmancy
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -60,7 +64,7 @@ jobs:
           git config user.email "github-actions@github.com"
           git add .
           git commit -m "ci: bump package version [skip ci]"
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./packages/schmancy/package.json').version")
           git tag -a "v$VERSION" -m "Release v$VERSION"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push origin --tags

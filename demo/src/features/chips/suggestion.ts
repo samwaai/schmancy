@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
@@ -6,7 +6,6 @@ import { customElement, state } from 'lit/decorators.js'
 export class DemoChipsSuggestion extends $LitElement() {
   @state() private selectedSuggestion = '';
   @state() private searchQuery = '';
-  @state() private messageReply = '';
 
   private handleSuggestion(value: string) {
     this.selectedSuggestion = value;
@@ -16,8 +15,8 @@ export class DemoChipsSuggestion extends $LitElement() {
     this.searchQuery = query;
   }
 
-  private handleReply(reply: string) {
-    this.messageReply = reply;
+  private handleReply(_reply: string) {
+    // Handle reply logic here
   }
 
   render() {

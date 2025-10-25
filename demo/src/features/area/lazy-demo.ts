@@ -1,5 +1,5 @@
-import { $LitElement } from '@mixins/index';
-import { area, lazy } from '@schmancy/area';
+import { $LitElement } from '@mhmo91/schmancy/mixins';
+import { area, lazy } from '@mhmo91/schmancy/area';
 import { html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { BehaviorSubject, filter, map, of } from 'rxjs';

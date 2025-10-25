@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import '../shared/installation-section'
@@ -19,7 +19,6 @@ export class DemoSteps extends $LitElement() {
 		expiryDate: '',
 		cvv: ''
 	}
-	@state() private completedSteps: number[] = []
 	@state() private dynamicCurrentStep = 1
 	@state() private lockBackDemo = false
 
@@ -48,12 +47,6 @@ export class DemoSteps extends $LitElement() {
 
 	private toggleLockBack() {
 		this.lockBackDemo = !this.lockBackDemo
-	}
-
-	private markStepComplete(step: number) {
-		if (!this.completedSteps.includes(step)) {
-			this.completedSteps = [...this.completedSteps, step]
-		}
 	}
 
 	render() {

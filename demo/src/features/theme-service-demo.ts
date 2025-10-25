@@ -1,8 +1,8 @@
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import { theme } from '../../../src/theme'
+import { theme } from '@mhmo91/schmancy/theme'
 import { takeUntil, tap } from 'rxjs'
-import { $LitElement } from '@mixins/litElement.mixin'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
 import { repeat } from 'lit/directives/repeat.js'
 
 @customElement('theme-service-demo')

@@ -1,9 +1,9 @@
-import { $LitElement } from '@mixins/index'
-import '@schmancy/button'
-import '@schmancy/icons'
-import '@schmancy/surface'
-import '@schmancy/tabs'
-import '@schmancy/typography'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
+import '@mhmo91/schmancy/button'
+import '@mhmo91/schmancy/icons'
+import '@mhmo91/schmancy/surface'
+import '@mhmo91/schmancy/tabs'
+import '@mhmo91/schmancy/typography'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
@@ -23,8 +23,8 @@ export class DemoPlayground extends $LitElement() {
   <title>Schmancy Button Demo</title>
   <script type="module">
     // Import the components directly
-    import '@schmancy/button';
-    import '@schmancy/theme';
+    import '@mhmo91/schmancy/button';
+    import '@mhmo91/schmancy/theme';
   </script>
   <style>
     body {
@@ -94,9 +94,9 @@ export class DemoPlayground extends $LitElement() {
   <title>Schmancy Dialog Demo</title>
   <script type="module">
     // Import components with standard path
-    import '@schmancy/button';
-    import '@schmancy/theme';
-    import { $dialog } from '@schmancy/dialog';
+    import '@mhmo91/schmancy/button';
+    import '@mhmo91/schmancy/theme';
+    import { $dialog } from '@mhmo91/schmancy/dialog';
     
     // Set up event handlers after components are loaded
     document.addEventListener('DOMContentLoaded', () => {
@@ -194,9 +194,9 @@ export class DemoPlayground extends $LitElement() {
   <title>Schmancy Surface Demo</title>
   <script type="module">
     // Import components directly
-    import '@schmancy/surface';
-    import '@schmancy/typography';
-    import '@schmancy/theme';
+    import '@mhmo91/schmancy/surface';
+    import '@mhmo91/schmancy/typography';
+    import '@mhmo91/schmancy/theme';
   </script>
   <style>
     body {
@@ -283,10 +283,10 @@ export class DemoPlayground extends $LitElement() {
   <title>Schmancy Typography Demo</title>
   <script type="module">
     // Import components directly
-    import '@schmancy/typography';
-    import '@schmancy/icons';
-    import '@schmancy/surface';
-    import '@schmancy/theme';
+    import '@mhmo91/schmancy/typography';
+    import '@mhmo91/schmancy/icons';
+    import '@mhmo91/schmancy/surface';
+    import '@mhmo91/schmancy/theme';
   </script>
   <style>
     body {

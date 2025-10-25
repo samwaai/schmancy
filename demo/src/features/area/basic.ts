@@ -1,7 +1,7 @@
-import { $LitElement } from '@mixins/index'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { area } from '@schmancy/area'
+import { area } from '@mhmo91/schmancy/area'
 
 // Demo components for basic navigation
 @customElement('area-basic-home')
@@ -105,7 +105,7 @@ ${`<schmancy-area name="basic-demo"></schmancy-area>`}
 						<div>
 							<schmancy-typography type="title" token="sm" class="mb-2 block">2. Import the area service</schmancy-typography>
 							<schmancy-code-preview language="javascript">
-${`import { area } from '@schmancy/area'`}
+${`import { area } from '@mhmo91/schmancy/area'`}
 							</schmancy-code-preview>
 						</div>
 

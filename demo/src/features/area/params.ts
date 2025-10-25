@@ -1,7 +1,7 @@
-import { $LitElement } from '@mixins/index'
+import { $LitElement } from '@mhmo91/schmancy/mixins'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { area } from '@schmancy/area'
+import { area } from '@mhmo91/schmancy/area'
 
 
 // Demo component that receives parameters
