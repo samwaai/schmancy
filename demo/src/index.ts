@@ -63,6 +63,7 @@ export default class SchmancyDemo extends $LitElement() {
 
 	@state() activeComponent: string = ''
 	@state() showGrid: boolean = false
+	@state() searchQuery: string = ''
 
 	connectedCallback(): void {
 		super.connectedCallback()

@@ -32,7 +32,8 @@
 		"dev": "concurrently \"cd packages/schmancy && yarn dev\" \"cd demo && yarn dev\" --names \"lib,demo\" --prefix-colors \"blue,green\"",
 		"build": "cd packages/schmancy && yarn build",
 		"build:demo": "cd demo && yarn build",
-		"preview": "cd demo && yarn preview"
+		"preview": "cd demo && yarn preview",
+		"publish:lib": "cd packages/schmancy && npm publish"
 	},
 	"devDependencies": {
 		"concurrently": "^9.2.1"
