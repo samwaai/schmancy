@@ -102,11 +102,6 @@ export abstract class BaseStore<T> {
 			// Initialize from storage for persistent stores
 			this.initializeFromStorage()
 		}
-
-		// Setup dev tools in development
-		if (import.meta.env.MODE === 'development') {
-			this.setupDevTools()
-		}
 	}
 
 	/**
