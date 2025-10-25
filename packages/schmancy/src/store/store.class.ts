@@ -104,7 +104,7 @@ export abstract class BaseStore<T> {
 		}
 
 		// Setup dev tools in development
-		if (typeof import.meta !== 'undefined' && import.meta.env?.MODE === 'development') {
+		if (import.meta.env.MODE === 'development') {
 			this.setupDevTools()
 		}
 	}
