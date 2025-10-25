@@ -37,7 +37,10 @@ export declare class SchmancySurface extends SchmancySurface_base {
      * Specifies the surface type for styling.
      * Provided to descendant components via context.
      * Options: 'surface', 'surfaceDim', 'surfaceBright', 'containerLowest',
-     * 'containerLow', 'container', 'containerHigh', 'containerHighest'.
+     * 'containerLow', 'container', 'containerHigh', 'containerHighest',
+     * 'glass', 'transparent', 'glassOforim', 'primary', 'primaryContainer',
+     * 'secondary', 'secondaryContainer', 'tertiary', 'tertiaryContainer',
+     * 'error', 'errorContainer'.
      * @default 'container'
      */
     type: TSurfaceColor;
