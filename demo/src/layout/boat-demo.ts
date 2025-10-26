@@ -13,7 +13,7 @@ import '@mhmo91/schmancy/badge'
 import '@mhmo91/schmancy/code-preview'
 
 @customElement('demo-boat')
-export class DemoBoat extends $LitElement() {
+export default class DemoBoat extends $LitElement() {
 	// Main demo boat states
 	@state() basicBoatState: 'hidden' | 'minimized' | 'expanded' = 'hidden'
 	@state() draggableBoatState: 'hidden' | 'minimized' | 'expanded' = 'hidden'
@@ -575,4 +575,3 @@ export class DemoBoat extends $LitElement() {
 	}
 }
 
-export default DemoBoat

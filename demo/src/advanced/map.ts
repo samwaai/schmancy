@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators.js'
 import '../shared/installation-section'
 
 @customElement('demo-map')
-export class DemoMap extends $LitElement() {
+export default class DemoMap extends $LitElement() {
   // Replace with your Google Maps API key
   // Get one at: https://console.cloud.google.com/google/maps-apis/credentials
   // Note: For testing, you may need to temporarily remove API key restrictions in Google Cloud Console

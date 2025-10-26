@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators.js'
 import './chips/chip-demos'
 
 @customElement('demo-chips')
-export class DemoChips extends $LitElement() {
+export default class DemoChips extends $LitElement() {
 	render() {
 		return html`<demo-chip-demos></demo-chip-demos>`
 	}

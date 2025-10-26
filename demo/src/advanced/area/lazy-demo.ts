@@ -114,10 +114,10 @@ export class DemoAreaLazy extends $LitElement() {
               </schmancy-list-item>
             </schmancy-list>
 
-          <schmancy-area name="lazy-main" .default=${lazy(()=>import('./lazy-components/dashboard'))}>
+          <schmancy-area name="lazy-main" .default=${lazy(()=>import('./dashboard'))}>
                 <schmancy-route
                   when="lazy-users"
-                  .component=${lazy(() => import('./lazy-components/users'))}
+                  .component=${lazy(() => import('./users'))}
                   .guard=${isAuthenticated$.pipe(
                     map(isAuth => {
                       console.log('Users route guard:', isAuth);
@@ -126,38 +126,38 @@ export class DemoAreaLazy extends $LitElement() {
                   )}
                   @redirect=${() => {
                     console.log('Access denied to Users');
-                    area.push({ area: 'lazy-main', component: lazy(() => import('./lazy-components/dashboard')) });
+                    area.push({ area: 'lazy-main', component: lazy(() => import('./dashboard')) });
                   }}
                 ></schmancy-route>
 
                 <schmancy-route
                   when="lazy-dashboard"
-                  .component=${lazy(() => import('./lazy-components/dashboard'))}
+                  .component=${lazy(() => import('./dashboard'))}
                 ></schmancy-route>
 
                 <schmancy-route
                   when="lazy-products"
-                  .component=${lazy(() => import('./lazy-components/products'))}
+                  .component=${lazy(() => import('./products'))}
                   .guard=${isAuthenticated$}
                   @redirect=${() => {
                     console.log('Access denied to Products');
-                    area.push({ area: 'lazy-main', component: lazy(() => import('./lazy-components/dashboard')) });
+                    area.push({ area: 'lazy-main', component: lazy(() => import('./dashboard')) });
                   }}
                 ></schmancy-route>
 
                 <schmancy-route
                   when="lazy-reports"
-                  .component=${lazy(() => import('./lazy-components/reports'))}
+                  .component=${lazy(() => import('./reports'))}
                   .guard=${isAuthenticated$}
                   @redirect=${() => {
                     console.log('Access denied to Reports');
-                    area.push({ area: 'lazy-main', component: lazy(() => import('./lazy-components/dashboard')) });
+                    area.push({ area: 'lazy-main', component: lazy(() => import('./dashboard')) });
                   }}
                 ></schmancy-route>
 
                 <schmancy-route
                   when="lazy-settings"
-                  .component=${lazy(() => import('./lazy-components/settings'))}
+                  .component=${lazy(() => import('./settings'))}
                   .guard=${of(true)}
                 ></schmancy-route>
           </schmancy-area>

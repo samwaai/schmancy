@@ -10,24 +10,8 @@ import '@mhmo91/schmancy/boat'
 import '@mhmo91/schmancy/navigation-rail'
 import '@mhmo91/schmancy/layout'
 
-// Import all demo modules to ensure they're registered
-import './features/index'
-import './demos/buttons'
-import './demos/typography'
-import './demos/surfaces'
-import './demos/icons'
-import './demos/cards'
-
-// Direct component imports for non-lazy loaded components
-import DemoAreaDemos from './features/area/area-demos'
-import { DemoContext } from './features/context'
-import { ThemeServiceDemo } from './features/theme-service-demo'
-import { DemoChips } from './features/chips'
-import { DemoMap } from './features/map'
-import { DemoBoat } from './features/boat'
-import { DemoSteps } from './features/steps'
-import DetailsShowcase from './features/details-showcase'
-import { DemoMailbox } from './features/mailbox'
+// All demo components are now lazy-loaded via the area router
+// No direct imports needed - components load on-demand when navigating
 
 type Theme = {
 	color: string
@@ -50,6 +34,15 @@ const UserContext = createContext<User>({ name: 'mo' }, 'memory', 'user-context'
 const compoundSelector = createCompoundSelector([ThemeContext, UserContext], [a => a, b => b], (_theme, user) => ({
 	name: user.name,
 }))
+
+// Demo item type - component can be either a string tag name or a lazy-loaded component
+type DemoItem = {
+	name: string
+	component: string | ReturnType<typeof lazy>
+	icon: string
+	value: string
+}
+
 @customElement('schmancy-demo')
 export default class SchmancyDemo extends $LitElement() {
 	@select(ThemeContext)
@@ -61,8 +54,6 @@ export default class SchmancyDemo extends $LitElement() {
 	}
 
 	@state() activeComponent: string = ''
-	@state() showGrid: boolean = false
-	@state() searchQuery: string = ''
 
 	connectedCallback(): void {
 		super.connectedCallback()
@@ -74,11 +65,13 @@ export default class SchmancyDemo extends $LitElement() {
 		}, 5000)
 	}
 
-	private navigate(demo: { name: string; component: any; value: string }) {
+	private navigate(demo: DemoItem) {
 		// Update active component for highlighting
 		this.activeComponent = demo.value
 
-		// Simple navigation - just use area.push with the component
+		// Navigate using area.push - component must be either:
+		// 1. A string tag name (e.g., 'demo-core-buttons')
+		// 2. A lazy-loaded component from lazy(() => import('./file'))
 		area.push({
 			area: 'main',
 			component: demo.component,
@@ -86,167 +79,89 @@ export default class SchmancyDemo extends $LitElement() {
 	}
 
 	render() {
-		// All components in a flat, alphabetical structure for easy discovery
-		const allDemos = [
-			// Core UI Components - Most commonly needed
-			{ name: 'Button', component: 'demo-core-buttons', icon: 'smart_button', value: 'button' },
-			{ name: 'Typography', component: 'demo-core-typography', icon: 'text_fields', value: 'typography' },
-			{ name: 'Card', component: 'demo-core-cards', icon: 'dashboard', value: 'card' },
-			{ name: 'Surface', component: 'demo-core-surfaces', icon: 'layers', value: 'surface' },
-			{ name: 'Icon', component: 'demo-core-icons', icon: 'palette', value: 'icon' },
-
-			// Input & Forms
+		const sections: Array<{
+			title: string
+			demos: Array<DemoItem>
+		}> = [
 			{
-				name: 'Text Input',
-				component: lazy(() => import('./demos/text-inputs')),
-				icon: 'text_fields',
-				value: 'text-input',
+				title: 'Core',
+				demos: [
+					{ name: 'Button', component: lazy(() => import('./core/buttons')), icon: 'smart_button', value: 'button' },
+					{ name: 'Typography', component: lazy(() => import('./core/typography')), icon: 'text_fields', value: 'typography' },
+					{ name: 'Card', component: lazy(() => import('./core/cards')), icon: 'dashboard', value: 'card' },
+					{ name: 'Surface', component: lazy(() => import('./core/surfaces')), icon: 'layers', value: 'surface' },
+					{ name: 'Icon', component: lazy(() => import('./core/icons')), icon: 'palette', value: 'icon' },
+				],
 			},
 			{
-				name: 'Autocomplete',
-				component: lazy(() => import('./demos/autocomplete')),
-				icon: 'search',
-				value: 'autocomplete',
+				title: 'Forms',
+				demos: [
+					{ name: 'Text Input', component: lazy(() => import('./forms/text-inputs')), icon: 'text_fields', value: 'text-input' },
+					{ name: 'Autocomplete', component: lazy(() => import('./forms/autocomplete')), icon: 'search', value: 'autocomplete' },
+					{ name: 'Form Validation', component: lazy(() => import('./forms/validation')), icon: 'fact_check', value: 'validation' },
+				],
 			},
 			{
-				name: 'Select/Checkbox',
-				component: lazy(() => import('./demos/selection')),
-				icon: 'check_box',
-				value: 'select',
+				title: 'Navigation',
+				demos: [
+					{ name: 'Navigation Bar', component: lazy(() => import('./navigation/navigation-bar')), icon: 'navigation', value: 'navbar' },
+					{ name: 'Tabs', component: lazy(() => import('./navigation/tabs')), icon: 'tab', value: 'tabs' },
+					{ name: 'Navigation Rail', component: lazy(() => import('./navigation/rail')), icon: 'view_sidebar', value: 'nav-rail' },
+					{ name: 'Drawer', component: lazy(() => import('./navigation/drawer')), icon: 'menu', value: 'drawer' },
+					{ name: 'Menu', component: lazy(() => import('./navigation/menu')), icon: 'more_vert', value: 'menu' },
+				],
 			},
 			{
-				name: 'Form Validation',
-				component: lazy(() => import('./demos/validation')),
-				icon: 'fact_check',
-				value: 'validation',
-			},
-
-			// Navigation Components
-			{
-				name: 'Navigation Bar',
-				component: lazy(() => import('./demos/navigation-bar')),
-				icon: 'navigation',
-				value: 'navbar',
-			},
-			{ name: 'Tabs', component: lazy(() => import('./demos/tabs')), icon: 'tab', value: 'tabs' },
-			{
-				name: 'Navigation Rail',
-				component: lazy(() => import('./demos/rail')),
-				icon: 'view_sidebar',
-				value: 'nav-rail',
+				title: 'Data',
+				demos: [
+					{ name: 'Table', component: lazy(() => import('./data/tables')), icon: 'table_chart', value: 'table' },
+					{ name: 'List', component: lazy(() => import('./data/lists')), icon: 'list', value: 'list' },
+					{ name: 'Tree View', component: lazy(() => import('./data/trees')), icon: 'account_tree', value: 'tree' },
+					{ name: 'Chips', component: lazy(() => import('./data/chips')), icon: 'label', value: 'chips' },
+				],
 			},
 			{
-				name: 'Drawer',
-				component: lazy(() => import('./demos/drawer')),
-				icon: 'menu',
-				value: 'drawer',
+				title: 'Feedback',
+				demos: [
+					{ name: 'Progress', component: lazy(() => import('./feedback/progress')), icon: 'pending', value: 'progress' },
+					{ name: 'Loading', component: lazy(() => import('./feedback/loading')), icon: 'hourglass_empty', value: 'loading' },
+					{ name: 'Notification', component: lazy(() => import('./feedback/notifications')), icon: 'notifications', value: 'notification' },
+				],
 			},
 			{
-				name: 'Menu',
-				component: lazy(() => import('./demos/menu')),
-				icon: 'more_vert',
-				value: 'menu',
-			},
-
-			// Data & Lists
-			{
-				name: 'Table',
-				component: lazy(() => import('./demos/tables')),
-				icon: 'table_chart',
-				value: 'table',
+				title: 'Overlays',
+				demos: [
+					{ name: 'Dialog', component: lazy(() => import('./overlays/dialog-showcase')), icon: 'web_asset', value: 'dialog' },
+					{ name: 'Sheet', component: lazy(() => import('./overlays/sheet')), icon: 'vertical_split', value: 'sheet' },
+					{ name: 'Details', component: lazy(() => import('./overlays/details-showcase')), icon: 'expand_more', value: 'details' },
+				],
 			},
 			{
-				name: 'List',
-				component: lazy(() => import('./demos/lists')),
-				icon: 'list',
-				value: 'list',
+				title: 'Layout',
+				demos: [
+					{ name: 'Boat', component: lazy(() => import('./layout/boat')), icon: 'sailing', value: 'boat' },
+					{ name: 'Steps', component: lazy(() => import('./layout/steps')), icon: 'linear_scale', value: 'steps' },
+					{ name: 'Content Drawer', component: lazy(() => import('./layout/content-drawer-users')), icon: 'view_sidebar', value: 'content-drawer' },
+				],
 			},
 			{
-				name: 'Tree View',
-				component: lazy(() => import('./demos/trees')),
-				icon: 'account_tree',
-				value: 'tree',
+				title: 'Advanced',
+				demos: [
+					{ name: 'Context State', component: lazy(() => import('./advanced/context')), icon: 'hub', value: 'context' },
+					{ name: 'Theme Service', component: lazy(() => import('./advanced/theme-service-demo')), icon: 'palette', value: 'theme' },
+					{ name: 'Area Router', component: lazy(() => import('./advanced/area/area-demos')), icon: 'view_carousel', value: 'area' },
+					{ name: 'Map', component: lazy(() => import('./advanced/map')), icon: 'map', value: 'map' },
+					{ name: 'Mailbox', component: lazy(() => import('./advanced/mailbox')), icon: 'mail', value: 'mailbox' },
+				],
 			},
-			{ name: 'Chips', component: DemoChips, icon: 'label', value: 'chips' },
-
-			// Feedback & Status
-			{
-				name: 'Progress',
-				component: lazy(() => import('./demos/progress')),
-				icon: 'pending',
-				value: 'progress',
-			},
-			{
-				name: 'Loading',
-				component: lazy(() => import('./demos/loading')),
-				icon: 'hourglass_empty',
-				value: 'loading',
-			},
-			{
-				name: 'Notification',
-				component: lazy(() => import('./demos/notifications')),
-				icon: 'notifications',
-				value: 'notification',
-			},
-
-			// Overlays
-			{
-				name: 'Dialog',
-				component: lazy(() => import('./demos/dialog-showcase')),
-				icon: 'web_asset',
-				value: 'dialog',
-			},
-			{
-				name: 'Sheet',
-				component: lazy(() => import('./demos/sheet')),
-				icon: 'vertical_split',
-				value: 'sheet',
-			},
-			{ name: 'Details', component: DetailsShowcase, icon: 'expand_more', value: 'details' },
-
-			// Layout Components
-			{ name: 'Boat', component: DemoBoat, icon: 'sailing', value: 'boat' },
-			{ name: 'Steps', component: DemoSteps, icon: 'linear_scale', value: 'steps' },
-			{
-				name: 'Content Drawer',
-				component: lazy(() => import('./demos/content-drawer-users')),
-				icon: 'view_sidebar',
-				value: 'content-drawer',
-			},
-
-			// Advanced Features (grouped at bottom)
-			{ name: 'Context State', component: DemoContext, icon: 'hub', value: 'context' },
-			{ name: 'Theme Service', component: ThemeServiceDemo, icon: 'palette', value: 'theme' },
-			{ name: 'Area Router', component: DemoAreaDemos, icon: 'view_carousel', value: 'area' },
-			{ name: 'Map', component: DemoMap, icon: 'map', value: 'map' },
-			{ name: 'Mailbox', component: DemoMailbox, icon: 'mail', value: 'mailbox' },
 		]
 
-		// Optional: Group demos by category for visual organization in the sidebar
-		// But still keep all demos visible and accessible
-		const sections = [
-			{ title: 'Core', demos: allDemos.slice(0, 5) },
-			{ title: 'Forms', demos: allDemos.slice(5, 9) },
-			{ title: 'Navigation', demos: allDemos.slice(9, 14) },
-			{ title: 'Data', demos: allDemos.slice(14, 18) },
-			{ title: 'Feedback', demos: allDemos.slice(18, 21) },
-			{ title: 'Overlays', demos: allDemos.slice(21, 24) },
-			{ title: 'Layout', demos: allDemos.slice(24, 27) },
-			{ title: 'Advanced', demos: allDemos.slice(27) },
-		]
+		const allDemos = sections.flatMap(s => s.demos)
 
 		return html`
 			<schmancy-theme root>
-				<!-- Toggle between grid and sidebar view -->
-				<div class="absolute top-4 right-4 z-10">
-					<schmancy-button variant="filled tonal" @click=${() => (this.showGrid = !this.showGrid)}>
-						<schmancy-icon slot="prefix"> ${this.showGrid ? 'view_sidebar' : 'grid_view'} </schmancy-icon>
-						${this.showGrid ? 'Sidebar View' : 'Grid View'}
-					</schmancy-button>
-				</div>
-
 				<!-- Flex container for navigation rail and content -->
-				<div class="flex h-screen" style="display: ${this.showGrid ? 'none' : 'flex'}">
+				<div class="grid grid-cols-[auto_1fr] h-screen">
 					<!-- Navigation rail on the left -->
 					<schmancy-navigation-rail
 						.activeValue=${this.activeComponent}
@@ -291,82 +206,9 @@ export default class SchmancyDemo extends $LitElement() {
 					<!-- Main content area - flex-1 to take remaining space, overflow-auto for scrolling -->
 					<div class="flex-1 overflow-auto">
 						<schmancy-surface type="container" fill="all" class="h-full">
-							<schmancy-area name="main" .default=${'demo-core-buttons'}>
-								<schmancy-route when="area" .component=${DemoAreaDemos}></schmancy-route>
-							</schmancy-area>
+							<schmancy-area name="main" .default=${'demo-core-buttons'}></schmancy-area>
 						</schmancy-surface>
 					</div>
-				</div>
-
-				<!-- Grid view - shows all components at once -->
-				<div class="h-screen flex flex-col" style="display: ${this.showGrid ? 'flex' : 'none'}">
-					<schmancy-surface type="container" fill="all" class="flex flex-col h-full">
-						<!-- Scrollable content area -->
-						<schmancy-scroll class="flex-1">
-							<div class="px-6 sm:px-8 pb-8">
-								<div class="max-w-7xl mx-auto">
-									<!-- Grid of all components -->
-									<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
-										${repeat(
-											allDemos,
-											demo => demo.value,
-											demo => html`
-												<schmancy-surface
-													type="containerLow"
-													rounded="all"
-													class="p-4 cursor-pointer hover:elevation-2 transition-all"
-													@click=${() => {
-														this.showGrid = false
-														this.navigate(demo)
-													}}
-												>
-													<div class="flex flex-col items-center gap-3 text-center">
-														<schmancy-icon size="lg" class="text-primary"> ${demo.icon} </schmancy-icon>
-														<schmancy-typography type="label" token="lg"> ${demo.name} </schmancy-typography>
-													</div>
-												</schmancy-surface>
-											`,
-										)}
-									</div>
-
-									<!-- Section divider -->
-									<schmancy-divider class="my-8"></schmancy-divider>
-
-									<!-- Grouped by sections for reference -->
-									${repeat(
-										sections,
-										section => section.title,
-										section => html`
-											<div class="mb-8">
-												<schmancy-typography type="headline" token="sm" class="mb-4 block">
-													${section.title}
-												</schmancy-typography>
-												<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-													${repeat(
-														section.demos,
-														demo => demo.value,
-														demo => html`
-															<schmancy-button
-																variant="outlined"
-																class="justify-start"
-																@click=${() => {
-																	this.showGrid = false
-																	this.navigate(demo)
-																}}
-															>
-																<schmancy-icon slot="prefix" size="sm"> ${demo.icon} </schmancy-icon>
-																${demo.name}
-															</schmancy-button>
-														`,
-													)}
-												</div>
-											</div>
-										`,
-									)}
-								</div>
-							</div>
-						</schmancy-scroll>
-					</schmancy-surface>
 				</div>
 
 				<sch-notification-container></sch-notification-container>

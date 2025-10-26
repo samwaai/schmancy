@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators.js'
 import '../shared/installation-section'
 
 @customElement('demo-core-icons')
-export class DemoCoreIcons extends $LitElement() {
+export default class DemoCoreIcons extends $LitElement() {
 	render() {
 		return html`
 			<schmancy-surface class="p-8">

@@ -6,7 +6,7 @@ import { $LitElement } from '@mhmo91/schmancy/mixins'
 import { repeat } from 'lit/directives/repeat.js'
 
 @customElement('theme-service-demo')
-export class ThemeServiceDemo extends $LitElement() {
+export default class ThemeServiceDemo extends $LitElement() {
 	@state() private currentScheme: 'dark' | 'light' | 'auto' = 'auto'
 	@state() private currentColor: string = '#6200ee'
 	@state() private resolvedScheme: 'dark' | 'light' = 'light'

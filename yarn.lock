@@ -1300,6 +1300,7 @@ __metadata:
   resolution: "@mhmo91/schmancy-demo@workspace:demo"
   dependencies:
     "@mhmo91/schmancy": "workspace:*"
+    "@tailwindcss/vite": "npm:^4.1.13"
     lit: "npm:^3.3.1"
     tailwindcss: "npm:^4.1.13"
     typescript: "npm:^5.9.2"

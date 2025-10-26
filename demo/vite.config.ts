@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import webfontDownload from 'vite-plugin-webfont-dl'
+import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -38,5 +39,8 @@ export default defineConfig({
 			},
 		},
 	},
-	plugins: [webfontDownload(['https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap'])],
+	plugins: [
+		tailwindcss(),
+		webfontDownload(['https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap']),
+	],
 })

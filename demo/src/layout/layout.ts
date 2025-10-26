@@ -1,7 +1,7 @@
 import { $LitElement } from '@mhmo91/schmancy/mixins'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import '../shared/installation-section'
+import './shared/installation-section'
 
 @customElement('layout-layout')
 export default class LayoutLayout extends $LitElement() {

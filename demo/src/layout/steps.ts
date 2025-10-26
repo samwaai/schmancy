@@ -1,10 +1,9 @@
 import { $LitElement } from '@mhmo91/schmancy/mixins'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import '../shared/installation-section'
 
 @customElement('demo-steps')
-export class DemoSteps extends $LitElement() {
+export default class DemoSteps extends $LitElement() {
 	@state() private currentStep = 1
 	@state() private formData = {
 		firstName: '',
@@ -392,7 +391,7 @@ export class DemoSteps extends $LitElement() {
 							</div>
 							<schmancy-code-preview language="html">
 								<schmancy-steps-container currentStep="2">
-									<schmancy-step position="1" title="Locked Step" lockBack="${this.lockBackDemo}">
+									<schmancy-step position="1" title="Locked Step" .lockBack="${this.lockBackDemo}">
 										<p>You ${this.lockBackDemo ? 'cannot' : 'can'} navigate back to this step</p>
 									</schmancy-step>
 									<schmancy-step position="2" title="Current Step">

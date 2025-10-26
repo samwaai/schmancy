@@ -5,14 +5,14 @@ import { area } from '@mhmo91/schmancy/area';
 import '@mhmo91/schmancy/nav-drawer';
 
 // Import all individual chip demo components and their classes
-import { DemoChipsOverview } from './overview';
-import { DemoChipsFilter } from './filter';
-import { DemoChipsAssist } from './assist';
-import { DemoChipsInput } from './input';
-import { DemoChipsSuggestion } from './suggestion';
-import { DemoChipsSelection } from './selection';
-import { DemoChipsInteractive } from './interactive';
-import { DemoChipsLegacy } from './legacy';
+import { DemoChipsOverview } from './overview'
+import { DemoChipsFilter } from './filter'
+import { DemoChipsAssist } from './assist'
+import { DemoChipsInput } from './input'
+import { DemoChipsSuggestion } from './suggestion'
+import { DemoChipsSelection } from './selection'
+import { DemoChipsInteractive } from './interactive'
+import { DemoChipsLegacy } from './legacy'
 
 // Main Demo Chips Component
 @customElement('demo-chip-demos')

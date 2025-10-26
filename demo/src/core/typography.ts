@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators.js'
 import '../shared/installation-section'
 
 @customElement('demo-core-typography')
-export class DemoCoreTypography extends $LitElement() {
+export default class DemoCoreTypography extends $LitElement() {
 	render() {
 		return html`
 			<schmancy-surface class="p-8">

@@ -3,7 +3,7 @@ import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 
 @customElement('demo-boat')
-export class DemoBoat extends $LitElement() {
+export default class DemoBoat extends $LitElement() {
 	@state() boatState: 'hidden' | 'minimized' | 'expanded' = 'minimized'
 	@state() boatWithChipsState: 'hidden' | 'minimized' | 'expanded' = 'hidden'
 	@state() selectedFilter: string = 'all'
@@ -244,4 +244,3 @@ export class DemoBoat extends $LitElement() {
 	}
 }
 
-export default DemoBoat

@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators.js'
 import '../shared/installation-section'
 
 @customElement('demo-mailbox')
-export class DemoMailbox extends $LitElement() {
+export default class DemoMailbox extends $LitElement() {
 	render() {
 		return html`
 			<schmancy-surface class="p-8">

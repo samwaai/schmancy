@@ -4,7 +4,7 @@ import { customElement, state } from 'lit/decorators.js'
 import '../shared/installation-section'
 
 @customElement('demo-core-surfaces')
-export class DemoCoreSurfaces extends $LitElement() {
+export default class DemoCoreSurfaces extends $LitElement() {
 	@state() private selectedOption: 'option1' | 'option2' | 'option3' | null = null
 	render() {
 		return html`

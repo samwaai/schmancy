@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators.js'
 import '../shared/installation-section'
 
 @customElement('demo-context')
-export class DemoContext extends TailwindElement() {
+export default class DemoContext extends TailwindElement() {
 	render() {
 		return html`
 			<schmancy-surface class="p-8">
