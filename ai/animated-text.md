@@ -65,6 +65,7 @@ rotate3d: number[]     // 3D rotation [x, y, z, angle] (default: [0, 0, 1, 45])
 ## Technical Details
 
 ### Animation Behavior
+
 - Text is split into individual letter spans
 - Each letter animates with the specified stagger delay
 - Uses Web Animations API for performance
