@@ -19,6 +19,7 @@ import '@schmancy/index'  // For all Schmancy components
 
 ## API Reference
 
+
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `address` | `string` | `''` | Simple address string that automatically geocodes to display the location. Takes precedence over latitude/longitude if both are provided. |
