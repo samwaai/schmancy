@@ -38,7 +38,7 @@ export declare class SchmancyContentDrawer extends SchmancyContentDrawer_base {
     private updateMode;
     private handleRender;
     getOffsetTop(element: HTMLElement | null): number;
-    protected render(): import("lit-html").TemplateResult<1> | typeof nothing;
+    protected render(): typeof nothing | import("lit-html").TemplateResult<1>;
 }
 declare global {
     interface HTMLElementTagNameMap {
