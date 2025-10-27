@@ -86,13 +86,7 @@ export class DialogService {
 			.pipe(
 				switchMap(target =>
 					forkJoin([
-						// First ask for existing dialog
-						fromEvent<DialogHereMortyEvent>(window, DialogHereMorty).pipe(
-							takeUntil(timer(50)),
-							map(e => e.detail),
-							defaultIfEmpty(undefined),
-						),
-						// Then find theme container
+						// Find theme container
 						fromEvent<ThemeHereIAmEvent>(window, ThemeHereIAm).pipe(
 							takeUntil(timer(50)),
 							map(e => e.detail.theme),
@@ -100,76 +94,41 @@ export class DialogService {
 						),
 						of(target).pipe(
 							tap(() => {
-								const uid = target.type === 'confirm' 
+								const uid = target.type === 'confirm'
 									? `confirm-dialog-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 									: `dialog-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
-								
-								// First ask for existing dialog
-								window.dispatchEvent(
-									new CustomEvent(DialogWhereAreYouRicky, {
-										detail: { uid },
-										bubbles: true,
-										composed: true,
-									}),
-								)
-								// Then ask for theme container
+
+								// Ask for theme container
 								window.dispatchEvent(
 									new CustomEvent(ThemeWhereAreYou, {
 										bubbles: true,
 										composed: true,
 									}),
 								)
-								
+
 								// Store uid in target for later use
 								;(target as any).uid = uid
 							}),
 						),
 					]),
 				),
-				map(([existingDialog, theme, target]) => {
-					let dialog = existingDialog?.dialog
-					let targetContainer: HTMLElement
-					
-					if (dialog) {
-						// Use existing dialog
-						targetContainer = dialog.parentElement as HTMLElement
+				map(([theme, target]) => {
+					// Determine container - use theme from discovery or fallback
+					const targetContainer = theme || target.options.targetContainer || (document.querySelector('schmancy-theme') as HTMLElement) || document.body
+
+					// Always create a fresh dialog
+					const uid = (target as any).uid
+					let dialog: any
+
+					if (target.type === 'confirm') {
+						dialog = document.createElement('confirm-dialog') as ConfirmDialog
 					} else {
-						// Determine container - use theme from discovery or fallback
-						targetContainer = theme || target.options.targetContainer || (document.querySelector('schmancy-theme') as HTMLElement) || document.body
-						
-						// Create appropriate dialog type
-						const uid = (target as any).uid
-						
-						if (target.type === 'confirm') {
-							dialog = document.createElement('confirm-dialog') as ConfirmDialog
-						} else {
-							dialog = document.createElement('schmancy-dialog')
-						}
-						
-						dialog.setAttribute('uid', uid)
-						targetContainer.appendChild(dialog)
+						dialog = document.createElement('schmancy-dialog')
 					}
-					
-					return { dialog, target, targetContainer }
-				}),
-				tap(({ dialog, target, targetContainer }) => {
-					if (!dialog) {
-						// Create appropriate dialog type
-						if (target.type === 'confirm') {
-							dialog = document.createElement('confirm-dialog') as ConfirmDialog
-						} else {
-							dialog = document.createElement('schmancy-dialog')
-						}
-						
-						dialog.setAttribute('uid', (target as any).uid)
-						targetContainer.appendChild(dialog)
-					}
-				}),
-				map(({ dialog, target, targetContainer }) => {
-					// Return the actual dialog element that was created
-					if (!dialog) {
-						dialog = targetContainer.querySelector(`[uid="${(target as any).uid}"]`)
-					}
+
+					dialog.setAttribute('uid', uid)
+					targetContainer.appendChild(dialog)
+
 					return { dialog, target, targetContainer }
 				}),
 				tap(({ dialog, target }) => {

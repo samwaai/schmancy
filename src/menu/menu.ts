@@ -46,9 +46,18 @@ export default class SchmancyMenu extends $LitElement(css`
 	private showMenu(event: MouseEvent) {
 		const menuItems = this.menuSlot?.assignedElements() || []
 
+		// Clone menu items to prevent them from being detached from their original slot
+		// This ensures subsequent dialog opens have fresh elements to render
+		const menuTemplate = html`
+			${menuItems.map(item => {
+				const clone = item.cloneNode(true) as HTMLElement
+				return clone
+			})}
+		`
+
 		// IMPORTANT: Pass ONLY the menu items, nothing else
 		// The dialog handles all positioning, styling, and behavior
-		$dialog.component(html`${menuItems}`, {
+		$dialog.component(menuTemplate, {
 			position: event,
 			hideActions: true,
 			width: 'auto',
