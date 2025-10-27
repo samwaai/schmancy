@@ -58,6 +58,7 @@ rotate3d: number[]     // 3D rotation [x, y, z, angle] (default: [0, 0, 1, 45])
 ```
 
 ## Related Components
+
 - **[Typography](./typography.md)**: Base text styling component
 - **[Typewriter](./typewriter.md)**: Alternative text animation with typing effect
 
