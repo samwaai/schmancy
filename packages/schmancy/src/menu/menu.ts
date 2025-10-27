@@ -10,12 +10,28 @@ import { $dialog } from '../dialog/dialog-service'
  * NO <ul> wrapper, NO classes, NO additional markup in the dialog call.
  * The dialog service handles positioning and display - we just pass the pure content.
  *
- * Usage:
+ * @example Basic menu with auto-dismiss
+ * ```typescript
  * <schmancy-menu>
- *   <schmancy-button slot="trigger">Open Menu</schmancy-button>
- *   <schmancy-menu-item>Item 1</schmancy-menu-item>
- *   <schmancy-menu-item>Item 2</schmancy-menu-item>
+ *   <schmancy-button slot="trigger">Actions</schmancy-button>
+ *   <schmancy-menu-item @click=${() => editItem()}>Edit</schmancy-menu-item>
+ *   <schmancy-menu-item @click=${() => deleteItem()}>Delete</schmancy-menu-item>
  * </schmancy-menu>
+ * ```
+ * Note: Dialog auto-dismisses when schmancy-menu-item is clicked
+ *
+ * @example Custom component (manual dismiss)
+ * ```typescript
+ * <schmancy-menu>
+ *   <schmancy-icon-button slot="trigger">settings</schmancy-icon-button>
+ *   <my-settings-form @submit=${() => $dialog.dismiss()}></my-settings-form>
+ * </schmancy-menu>
+ * ```
+ * Note: Custom components must call $dialog.dismiss() manually
+ *
+ * @slot trigger - Button to open menu (new naming)
+ * @slot button - Button to open menu (backward compatible)
+ * @slot default - Menu items or any custom component to display in dialog
  */
 @customElement('schmancy-menu')
 export default class SchmancyMenu extends $LitElement(css`
