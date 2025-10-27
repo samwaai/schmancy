@@ -1,5 +1,6 @@
 # schmancy-boat
 
+
 Floating, draggable bottom sheet component with three states: `hidden`, `minimized`, `expanded`.
 
 ## API
