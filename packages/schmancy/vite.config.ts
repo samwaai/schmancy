@@ -62,7 +62,7 @@ export default defineConfig({
 			plugins: [
 				strip({
 					include: '**/*.(ts|js)',
-					functions: ['console.log', 'assert.*', 'debug', 'alert'],
+					functions: ['console.log', 'assert.*', 'debug'],
 					sourceMap: true,
 				}),
 				terser({

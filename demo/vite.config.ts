@@ -7,6 +7,11 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
 	root: resolve(__dirname),
 	publicDir: resolve(__dirname, 'public'),
+	resolve: {
+		alias: {
+			'@mhmo91/schmancy': resolve(__dirname, '../packages/schmancy/dist'),
+		},
+	},
 	server: {
 		cors: true,
 		port: 5174,

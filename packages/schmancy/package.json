@@ -43,7 +43,7 @@
 		"access": "public"
 	},
 	"scripts": {
-		"dev": "tsc --watch --preserveWatchOutput",
+		"dev": "vite build --config vite.config.ts --watch",
 		"build": "tsc && vite build --config vite.config.ts",
 		"ncu": "ncu -u && npm i",
 		"test": "vitest run",

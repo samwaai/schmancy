@@ -42,7 +42,7 @@ export default class DemoMenu extends $LitElement() {
         </div>
 
         <!-- API Reference -->
-        <div class="mb-12">
+        <div class="mb-6">
           <schmancy-typography type="title" token="lg" class="mb-4 block">API Reference</schmancy-typography>
 
           <!-- Menu Component -->
@@ -127,7 +127,7 @@ export default class DemoMenu extends $LitElement() {
               <schmancy-code-preview language="html">
                 <div class="flex gap-4 items-start">
                   <schmancy-menu>
-                    <schmancy-button slot="button" variant="filled">
+                    <schmancy-button slot="trigger" variant="filled">
                       Actions
                     </schmancy-button>
                     <schmancy-menu-item @click=${() => this.handleMenuItemClick('Edit')}>
@@ -142,7 +142,7 @@ export default class DemoMenu extends $LitElement() {
                   </schmancy-menu>
 
                   <schmancy-menu>
-                    <schmancy-button slot="button" variant="outlined">
+                    <schmancy-button slot="trigger" variant="outlined">
                       Options
                     </schmancy-button>
                     <schmancy-menu-item @click=${() => this.handleMenuItemClick('Settings')}>
@@ -224,7 +224,7 @@ export default class DemoMenu extends $LitElement() {
               </schmancy-typography>
               <schmancy-code-preview language="html">
                 <schmancy-menu>
-                  <schmancy-button slot="button" variant="filled tonal">
+                  <schmancy-button slot="trigger" variant="filled tonal">
                     <schmancy-icon slot="prefix">edit</schmancy-icon>
                     Edit Menu
                   </schmancy-button>
@@ -253,7 +253,7 @@ export default class DemoMenu extends $LitElement() {
                 <div class="flex gap-4 flex-wrap">
                   <!-- File Menu -->
                   <schmancy-menu>
-                    <schmancy-button slot="button" variant="text">
+                    <schmancy-button slot="trigger" variant="text">
                       File
                     </schmancy-button>
                     <schmancy-menu-item @click=${() => this.handleMenuItemClick('New')}>
@@ -272,7 +272,7 @@ export default class DemoMenu extends $LitElement() {
 
                   <!-- Edit Menu -->
                   <schmancy-menu>
-                    <schmancy-button slot="button" variant="text">
+                    <schmancy-button slot="trigger" variant="text">
                       Edit
                     </schmancy-button>
                     <schmancy-menu-item @click=${() => this.handleMenuItemClick('Undo')}>
@@ -291,7 +291,7 @@ export default class DemoMenu extends $LitElement() {
 
                   <!-- View Menu -->
                   <schmancy-menu>
-                    <schmancy-button slot="button" variant="text">
+                    <schmancy-button slot="trigger" variant="text">
                       View
                     </schmancy-button>
                     <schmancy-menu-item @click=${() => this.handleMenuItemClick('Zoom In')}>

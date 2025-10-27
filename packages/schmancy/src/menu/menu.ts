@@ -1,9 +1,22 @@
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
-import { customElement, query, state } from 'lit/decorators.js'
-import { fromEvent, takeUntil, tap } from 'rxjs'
+import { customElement, query } from 'lit/decorators.js'
 import { $dialog } from '../dialog/dialog-service'
 
+/**
+ * Menu Component
+ *
+ * CRITICAL: The dialog ONLY renders the raw menu items passed via the default slot.
+ * NO <ul> wrapper, NO classes, NO additional markup in the dialog call.
+ * The dialog service handles positioning and display - we just pass the pure content.
+ *
+ * Usage:
+ * <schmancy-menu>
+ *   <schmancy-button slot="trigger">Open Menu</schmancy-button>
+ *   <schmancy-menu-item>Item 1</schmancy-menu-item>
+ *   <schmancy-menu-item>Item 2</schmancy-menu-item>
+ * </schmancy-menu>
+ */
 @customElement('schmancy-menu')
 export default class SchmancyMenu extends $LitElement(css`
 	:host {
@@ -11,99 +24,29 @@ export default class SchmancyMenu extends $LitElement(css`
 		display: inline-block;
 	}
 `) {
-	@query('[slot="button"]')
-	private buttonSlot!: HTMLSlotElement
-
-	@query('.menu-content-hidden slot')
+	@query('slot:not([name])')
 	private menuSlot!: HTMLSlotElement
 
-	@state() private isOpen = false
-
-	private get buttonElement(): HTMLElement | undefined {
-		return this.buttonSlot?.assignedElements()[0] as HTMLElement
-	}
-
-	private async showMenu(event: MouseEvent) {
-		if (this.isOpen) return
-		this.isOpen = true
-
-		// Create a container that will hold the menu items
-		const menuContainer = document.createElement('ul')
-		menuContainer.className =
-			'border-outlineVariant rounded-md min-w-[160px] max-w-[320px] w-max bg-surface-default max-h-[90vh] shadow-1 overflow-y-auto'
-		menuContainer.setAttribute('role', 'menu')
-		menuContainer.setAttribute('aria-orientation', 'vertical')
-
-		// Get the slotted menu items
+	private showMenu(event: MouseEvent) {
 		const menuItems = this.menuSlot?.assignedElements() || []
 
-		// Store their original parent for restoration
-		const originalParent = menuItems[0]?.parentElement
-
-		// Temporarily append items to menu container
-		menuItems.forEach(node => {
-			menuContainer.appendChild(node)
+		// IMPORTANT: Pass ONLY the menu items, nothing else
+		// The dialog handles all positioning, styling, and behavior
+		$dialog.component(html`${menuItems}`, {
+			position: event,
+			hideActions: true,
+			width: 'auto',
 		})
-
-		// Show in dialog
-		try {
-			await $dialog.component(menuContainer, {
-				position: event,
-				hideActions: true,
-				width: 'auto',
-			})
-		} finally {
-			// Move items back to their original location
-			if (originalParent) {
-				menuItems.forEach(node => {
-					originalParent.appendChild(node)
-				})
-			}
-			this.isOpen = false
-		}
-	}
-
-	private hideMenu() {
-		if (this.isOpen) {
-			$dialog.dismiss()
-			this.isOpen = false
-		}
-	}
-
-	firstUpdated(): void {
-		// Listen for clicks on the button slot
-		fromEvent<MouseEvent>(this, 'click')
-			.pipe(
-				tap(e => {
-					// Only handle clicks on the button element
-					const path = e.composedPath()
-					if (path.includes(this.buttonElement as EventTarget)) {
-						e.stopPropagation()
-						this.showMenu(e)
-					}
-				}),
-				takeUntil(this.disconnecting),
-			)
-			.subscribe()
-
-		// Listen for menu item clicks to auto-close
-		fromEvent(this, 'schmancy-menu-item-click')
-			.pipe(
-				tap(e => e.stopPropagation()),
-				takeUntil(this.disconnecting),
-			)
-			.subscribe(() => {
-				this.hideMenu()
-			})
 	}
 
 	render() {
 		return html`
-			<slot name="button">
-				<schmancy-icon-button> more_vert </schmancy-icon-button>
+			<slot name="trigger" @click=${this.showMenu}>
+				<slot name="button" @click=${this.showMenu}>
+					<schmancy-icon-button>more_vert</schmancy-icon-button>
+				</slot>
 			</slot>
-			<!-- Hidden container for menu items - they'll be moved to dialog when opened -->
-			<div class="menu-content-hidden" style="display: none;">
+			<div hidden>
 				<slot></slot>
 			</div>
 		`

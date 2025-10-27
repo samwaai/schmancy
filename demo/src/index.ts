@@ -164,6 +164,7 @@ export default class SchmancyDemo extends $LitElement() {
 				<div class="grid grid-cols-[auto_1fr] h-screen">
 					<!-- Navigation rail on the left -->
 					<schmancy-navigation-rail
+					class="overflow-y-auto border-r"
 						.activeValue=${this.activeComponent}
 						@navigate=${(e: CustomEvent<string>) => {
 							const demo = allDemos.find(d => d.value === e.detail)
