@@ -2,7 +2,6 @@ import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { fromEvent, takeUntil } from 'rxjs'
-import { $dialog } from '../dialog/dialog-service'
 
 @customElement('schmancy-menu-item')
 export default class SchmancyMenuItem extends $LitElement(css`
@@ -17,7 +16,6 @@ export default class SchmancyMenuItem extends $LitElement(css`
 			.subscribe(e => {
 				e.stopPropagation()
 				// Auto-dismiss dialog when menu item is clicked
-				$dialog.dismiss()
 			})
 	}
 	protected render(): unknown {
