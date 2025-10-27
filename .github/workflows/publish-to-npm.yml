@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'packages/schmancy/src/**' # Trigger only on changes in this directory
-      - 'packages/schmancy/mixins/**' # Trigger only on changes in this directory
-      - 'packages/schmancy/package.json' # Trigger only on changes in this directory
-      - 'packages/schmancy/ai/**'
+      - 'src/**' # Trigger only on changes in this directory
+      - 'mixins/**' # Trigger only on changes in this directory
+      - 'package.json' # Trigger only on changes in this directory
+      - 'ai/**'
 
 permissions:
   contents: write
