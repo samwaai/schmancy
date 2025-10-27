@@ -1,0 +1,71 @@
+name: Bump Version & Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/schmancy/src/**' # Trigger only on changes in this directory
+      - 'packages/schmancy/mixins/**' # Trigger only on changes in this directory
+      - 'packages/schmancy/package.json' # Trigger only on changes in this directory
+      - 'packages/schmancy/ai/**'
+
+permissions:
+  contents: write
+
+jobs:
+  bump-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Enable Corepack and prepare Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@4.6.0 --activate
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build project
+        run: yarn build
+
+      - name: Authenticate with npm
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Bump package version
+        run: |
+          cd packages/schmancy
+          yarn version patch
+
+      - name: Publish to npm
+        run: |
+          cd packages/schmancy
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit bumped version and Tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "ci: bump package version [skip ci]"
+          VERSION=$(node -p "require('./packages/schmancy/package.json').version")
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push origin --tags
+          git push

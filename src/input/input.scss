@@ -1,0 +1,186 @@
+  @reference "tailwindcss";
+
+:host {
+	@apply block w-full min-w-0;
+	/* Ensure no constraints on mobile */
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+/* Date input container needs special handling on mobile */
+.date-input-container {
+	@apply w-full;
+	/* Explicit width for mobile Safari */
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0;
+}
+
+/* Reset native input styles for consistency */
+input {
+	/* Remove all native styling */
+	@apply appearance-none rounded-[8px];
+	/* Prevent Safari zoom on focus */
+	font-size: 16px;
+	width: -webkit-fill-available;
+	/* Ensure border radius is applied */
+	border-radius: 8px;
+}
+
+/* Remove number input spinners */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	appearance: none;
+	@apply m-0;
+}
+
+input[type='number'] {
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+/* Autofill styling */
+@keyframes onAutoFillStart {
+	from {}
+	to {}
+}
+
+input:-webkit-autofill {
+	animation-name: onAutoFillStart;
+	/* Use box-shadow trick to override autofill background */
+	-webkit-box-shadow: 0 0 0 30px var(--schmancy-sys-color-surface-highest) inset !important;
+	-webkit-text-fill-color: var(--schmancy-sys-color-surface-on) !important;
+}
+
+/* Simplified autofill for all browsers */
+input:autofill {
+	background-color: var(--schmancy-sys-color-surface-highest) !important;
+	color: var(--schmancy-sys-color-surface-on) !important;
+}
+
+/* Date and datetime inputs need special handling */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+input[type="month"],
+input[type="week"] {
+	/* Ensure consistent height and padding */
+	@apply block w-full rounded-[8px];
+	/* Reset WebKit styling */
+	-webkit-appearance: none;
+	appearance: none;
+	/* Ensure text doesn't get cut off */
+	line-height: inherit;
+	/* Force full width on mobile */
+	width: 100% !important;
+	min-width: 100%;
+	max-width: 100%;
+	/* Remove any default margins */
+	margin: 0;
+	/* Force border radius */
+	border-radius: 8px !important;
+	overflow: hidden;
+}
+
+/* WebKit date/time edit container - this is what needs centering */
+input::-webkit-datetime-edit,
+input::-webkit-datetime-edit-fields-wrapper {
+	/* Center the date/time fields vertically */
+	display: flex;
+	align-items: center;
+	height: 100%;
+	/* Ensure full width on mobile */
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+input::-webkit-datetime-edit {
+	/* Ensure the edit container fills available space */
+	flex: 1;
+	width: 100%;
+}
+
+input::-webkit-datetime-edit-fields-wrapper {
+	/* Make fields wrapper expand */
+	flex: 1;
+	width: 100%;
+	justify-content: space-between;
+}
+
+input::-webkit-datetime-edit-text {
+	/* Ensure separators are also centered */
+	display: flex;
+	align-items: center;
+}
+
+/* Individual date fields */
+input::-webkit-datetime-edit-day-field,
+input::-webkit-datetime-edit-month-field,
+input::-webkit-datetime-edit-year-field,
+input::-webkit-datetime-edit-hour-field,
+input::-webkit-datetime-edit-minute-field,
+input::-webkit-datetime-edit-second-field,
+input::-webkit-datetime-edit-millisecond-field,
+input::-webkit-datetime-edit-meridiem-field {
+	/* Ensure fields don't shrink */
+	flex-shrink: 0;
+	padding: 0 2px;
+}
+
+/* Safari date input calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator,
+input[type="week"]::-webkit-calendar-picker-indicator {
+	/* Make the calendar icon more subtle */
+	opacity: 0.5;
+	cursor: pointer;
+}
+
+/* Firefox date input styling */
+@-moz-document url-prefix() {
+	input[type="date"],
+	input[type="datetime-local"],
+	input[type="time"] {
+		/* Firefox needs explicit height */
+		min-height: inherit;
+	}
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+	input[type="date"],
+	input[type="datetime-local"],
+	input[type="time"],
+	input[type="month"],
+	input[type="week"] {
+		/* iOS Safari needs explicit width */
+		width: -webkit-fill-available !important;
+		width: fill-available !important;
+		/* Remove default iOS styling */
+		-webkit-appearance: none;
+		appearance: none;
+		border-radius: 0;
+		/* Remove default padding that causes issues */
+		padding-left: 12px !important;
+		padding-right: 12px !important;
+	}
+	
+	/* Target shadow DOM elements on iOS */
+	input::-webkit-datetime-edit {
+		/* Force full width */
+		width: 100% !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+	
+	input::-webkit-datetime-edit-fields-wrapper {
+		/* Ensure proper spacing on mobile */
+		width: 100% !important;
+		padding: 0 !important;
+		margin: 0 !important;
+	}
+}

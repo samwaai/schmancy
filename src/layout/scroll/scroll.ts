@@ -1,0 +1,355 @@
+import { TailwindElement } from '@mixins/index'
+import { css, html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
+import { debounceTime, filter, fromEvent, takeUntil } from 'rxjs'
+
+/**
+ * Custom scroll event interface for the SchmancyScroll component.
+ * Contains detailed information about the scroll state.
+ */
+export interface SchmancyScrollEvent
+	extends CustomEvent<{
+		/** Current scroll position from the top */
+		scrollTop: number
+		/** Total scrollable height of the content */
+		scrollHeight: number
+		/** Visible height of the container */
+		clientHeight: number
+		/** Original scroll event */
+		e: Event
+		/** Current scroll position from the left (for horizontal scrolling) */
+		scrollLeft?: number
+		/** Total scrollable width of the content (for horizontal scrolling) */
+		scrollWidth?: number
+		/** Visible width of the container (for horizontal scrolling) */
+		clientWidth?: number
+	}> {}
+
+/**
+ * Command event interface for controlling SchmancyScroll components
+ */
+export interface SchmancyScrollCommandEvent
+	extends CustomEvent<{
+		/** Target component name */
+		name: string
+		/** Command action to perform */
+		action: 'scrollTo'
+		/** Scroll position for scrollTo action */
+		top: number
+		/** Horizontal scroll position for scrollTo action (optional) */
+		left?: number
+	}> {}
+
+// Augment the HTMLElementEventMap to include our custom events
+declare global {
+	interface HTMLElementEventMap {
+		scroll: SchmancyScrollEvent
+		'schmancy-scroll-command': SchmancyScrollCommandEvent
+	}
+}
+
+/**
+ * A custom scrollable container with enhanced features.
+ *
+ * @fires {SchmancyScrollEvent} scroll - Fired when scrolling occurs (with a configurable debounce)
+ * @slot - Default slot for content to be scrolled
+ * @csspart scroller - The inner scrollable div element
+ *
+ * @example
+ * ```html
+ * <schmancy-scroll hide name="main-content">
+ *   <div>Scrollable content goes here</div>
+ * </schmancy-scroll>
+ * ```
+ *
+ * @example
+ * ```html
+ * <schmancy-scroll direction="horizontal" hide name="image-carousel">
+ *   <div class="flex">
+ *     <img src="image1.jpg" alt="Image 1">
+ *     <img src="image2.jpg" alt="Image 2">
+ *   </div>
+ * </schmancy-scroll>
+ * ```
+ */
+@customElement('schmancy-scroll')
+export class SchmancyScroll extends TailwindElement(css`
+	:host {
+		/* Flexible sizing for different layout contexts */
+		width: 100%;
+		min-height: 0; /* Allow flex shrinking */
+		flex: 1; /* Grow in flex containers */
+		box-sizing: border-box; /* Ensures proper sizing */
+		display: block;
+		position: relative;
+		scroll-behavior: smooth;
+		overscroll-behavior-x: contain;
+		overscroll-behavior-y: auto;
+	}
+	/* Fallback for non-flex contexts */
+	:host(.explicit-height) {
+		height: 100%;
+		flex: none;
+	}
+	:host([hide]) {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+	:host([hide])::-webkit-scrollbar {
+		display: none; /* Chrome, Safari, and Opera */
+	}
+`) {
+	/**
+	 * Determines whether the scrollbar is hidden.
+	 *
+	 * When `hide` is true, the host element's scrollbars are hidden
+	 * in supported browsers using CSS.
+	 *
+	 * @attr hide
+	 * @example <schmancy-scroll hide></schmancy-scroll>
+	 */
+	@property({ type: Boolean, reflect: true })
+	public hide = false
+
+	/**
+	 * Optional name identifier for the component.
+	 * Used for targeting this specific component with global events.
+	 *
+	 * @attr name
+	 * @example <schmancy-scroll name="main-content"></schmancy-scroll>
+	 */
+	@property({ type: String, reflect: true })
+	public name?: string
+
+	/**
+	 * Direction of scrolling: vertical, horizontal, or both.
+	 * - vertical: Only allows vertical scrolling
+	 * - horizontal: Only allows horizontal scrolling
+	 * - both: Allows both horizontal and vertical scrolling (default)
+	 *
+	 * @attr direction
+	 * @example <schmancy-scroll direction="horizontal"></schmancy-scroll>
+	 */
+	@property({ type: String, reflect: true })
+	public direction: 'vertical' | 'horizontal' | 'both' = 'both'
+
+	/**
+	 * Reference to the scrollable element (the host element itself)
+	 * @public
+	 */
+	get scroller(): HTMLElement {
+		return this
+	}
+
+	/**
+	 * Debounce time in milliseconds for the scroll event.
+	 * Higher values reduce the frequency of scroll events being dispatched.
+	 *
+	 * @attr debounce
+	 * @example <schmancy-scroll debounce="50"></schmancy-scroll>
+	 */
+	@property({ type: Number })
+	public debounce = 10
+
+	/**
+	 * Scrolls the container to the specified position
+	 * @param options - ScrollToOptions or a number representing the top position
+	 * @param top - For backward compatibility, if options is a number, this is treated as "behavior"
+	 */
+	public override scrollTo(options?: ScrollToOptions | number, top?: number): void {
+		if (!this.scroller) return
+
+		if (typeof options === 'number') {
+			// Legacy support for scrollTo(top, behavior)
+			this.scroller.scrollTo({
+				top: options,
+				behavior: top ? 'smooth' : 'auto',
+			})
+		} else if (options) {
+			this.scroller.scrollTo(options)
+		} else {
+			this.scroller.scrollTo({
+				top: 0,
+				left: 0,
+				behavior: 'auto',
+			})
+		}
+	}
+
+	/**
+	 * Scrolls the container horizontally to the specified position
+	 * @param left - The horizontal position to scroll to (in pixels)
+	 * @param behavior - The scroll behavior ('auto' or 'smooth')
+	 */
+	public scrollToLeft(left: number, behavior: ScrollBehavior = 'auto'): void {
+		if (this.scroller) {
+			this.scroller.scrollTo({
+				left,
+				behavior,
+			})
+		}
+	}
+
+	/**
+	 * Called when the component is connected to the DOM
+	 * Applies scrolling styles directly to the host element
+	 * @protected
+	 */
+	connectedCallback(): void {
+		super.connectedCallback()
+		this.updateScrollingStyles()
+		this.updateLayoutContext()
+		// Set the part attribute on the host element
+		this.setAttribute('part', 'scroller')
+	}
+
+	/**
+	 * Updates the overflow styles based on the direction property
+	 * @private
+	 */
+	private updateScrollingStyles(): void {
+		// Apply overflow styles based on direction
+		if (this.direction === 'horizontal') {
+			this.style.setProperty('overflow-y', 'hidden')
+			this.style.setProperty('overflow-x', 'auto')
+		} else if (this.direction === 'vertical') {
+			this.style.setProperty('overflow-y', 'auto')
+			this.style.setProperty('overflow-x', 'hidden')
+		} else {
+			// both
+			this.style.setProperty('overflow-y', 'auto')
+			this.style.setProperty('overflow-x', 'auto')
+		}
+	}
+
+	/**
+	 * Updates the layout context based on parent container type
+	 * @private
+	 */
+	private updateLayoutContext(): void {
+		// Use requestAnimationFrame to ensure DOM is fully rendered
+		requestAnimationFrame(() => {
+			// Check if parent is a flex container
+			const parent = this.parentElement
+			if (parent) {
+				const parentStyles = getComputedStyle(parent)
+				const isFlexParent = parentStyles.display === 'flex' || parentStyles.display === 'inline-flex'
+
+				// For debugging - remove in production
+				console.debug('schmancy-scroll parent detection:', {
+					parent: parent.tagName,
+					display: parentStyles.display,
+					isFlexParent,
+				})
+
+				// Apply appropriate class based on parent layout
+				if (isFlexParent) {
+					this.classList.remove('explicit-height')
+				} else {
+					this.classList.add('explicit-height')
+				}
+			} else {
+				// Default to explicit height if no parent
+				this.classList.add('explicit-height')
+			}
+		})
+	}
+
+	/**
+	 * Called when properties change
+	 * @protected
+	 */
+	protected updated(changedProperties: Map<string | number | symbol, unknown>): void {
+		super.updated(changedProperties)
+		// Update styles if direction changes
+		if (changedProperties.has('direction')) {
+			this.updateScrollingStyles()
+		}
+		// Always update layout context in case parent layout changed
+		this.updateLayoutContext()
+	}
+
+	/**
+	 * Called after the component's first update
+	 * Sets up the scroll event listener with debouncing
+	 * @protected
+	 */
+	protected firstUpdated(): void {
+		// Set up scroll event listening with debounce
+		fromEvent(this.scroller, 'scroll', {
+			passive: true,
+		})
+			.pipe(
+				debounceTime(this.debounce),
+				takeUntil(this.disconnecting), // Unsubscribe when the element is destroyed
+			)
+			.subscribe(e => {
+				// Always include the original required properties for backward compatibility
+				const scrollTop = this.scroller.scrollTop
+				const scrollHeight = this.scroller.scrollHeight
+				const clientHeight = this.scroller.clientHeight
+
+				// Include horizontal scroll information as optional properties
+				const scrollLeft = this.scroller.scrollLeft
+				const scrollWidth = this.scroller.scrollWidth
+				const clientWidth = this.scroller.clientWidth
+
+				this.dispatchEvent(
+					new CustomEvent('scroll', {
+						detail: {
+							// Original required properties first
+							scrollTop,
+							scrollHeight,
+							clientHeight,
+							e,
+							// New optional properties last
+							scrollLeft,
+							scrollWidth,
+							clientWidth,
+						},
+						bubbles: true,
+						composed: true,
+					}) as SchmancyScrollEvent,
+				)
+			})
+
+		// Set up global command event listener
+		fromEvent<SchmancyScrollCommandEvent>(window, '@schmancy:scrollTo')
+			.pipe(
+				// Only process events targeting this component by name
+				filter(e => this.name !== undefined && e.detail.name === this.name),
+				takeUntil(this.disconnecting),
+			)
+			.subscribe(e => {
+				if (e.detail.action === 'scrollTo' && typeof e.detail.top === 'number') {
+					const options: ScrollToOptions = {
+						behavior: 'smooth',
+						top: e.detail.top, // Required for backward compatibility
+					}
+
+					// Add optional left position if provided
+					if (typeof e.detail.left === 'number') {
+						options.left = e.detail.left
+					}
+
+					this.scrollTo(options)
+				}
+			})
+	}
+
+	/**
+	 * Renders the component template
+	 * @returns {TemplateResult} The template to render
+	 * @protected
+	 */
+	protected render() {
+		// Only render the slot, all styling is applied to the host
+		return html`<slot></slot>`
+	}
+}
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'schmancy-scroll': SchmancyScroll
+	}
+}

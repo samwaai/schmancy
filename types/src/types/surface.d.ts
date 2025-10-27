@@ -1,0 +1,1 @@
+export type TSurfaceColor = 'surface' | 'surfaceDim' | 'surfaceBright' | 'containerLowest' | 'containerLow' | 'container' | 'containerHigh' | 'containerHighest' | 'glass' | 'transparent' | 'glassOforim' | 'primary' | 'primaryContainer' | 'secondary' | 'secondaryContainer' | 'tertiary' | 'tertiaryContainer' | 'error' | 'errorContainer';

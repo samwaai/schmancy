@@ -1,0 +1,33 @@
+{
+	"env": {
+		"browser": true,
+		"es2021": true
+	},
+	"extends": "standard-with-typescript",
+	"overrides": [],
+	"parserOptions": {
+		"ecmaVersion": "latest",
+		"sourceType": "module"
+	},
+	"rules": {
+		"no-restricted-syntax": [
+			"error",
+			{
+				"selector": "CallExpression[callee.name='customElement'] > Literal[value='schmancy-grid']",
+				"message": "schmancy-grid is deprecated. Use Tailwind CSS grid classes instead."
+			},
+			{
+				"selector": "CallExpression[callee.name='customElement'] > Literal[value='schmancy-flex']",
+				"message": "schmancy-flex is deprecated. Use Tailwind CSS flex classes instead."
+			},
+			{
+				"selector": "Literal[value='schmancy-grid']",
+				"message": "schmancy-grid is deprecated. Use <div class=\"grid ...\"> with Tailwind utilities instead."
+			},
+			{
+				"selector": "Literal[value='schmancy-flex']",
+				"message": "schmancy-flex is deprecated. Use <div class=\"flex ...\"> with Tailwind utilities instead."
+			}
+		]
+	}
+}
