@@ -46,18 +46,29 @@ export default class SchmancyMenu extends $LitElement(css`
 	private showMenu(event: MouseEvent) {
 		const menuItems = this.menuSlot?.assignedElements() || []
 
-		// Clone menu items to prevent them from being detached from their original slot
-		// This ensures subsequent dialog opens have fresh elements to render
-		const menuTemplate = html`
-			${menuItems.map(item => {
-				const clone = item.cloneNode(true) as HTMLElement
-				return clone
-			})}
-		`
+		// Clone items to preserve slot content for subsequent opens
+		const clones = menuItems.map(item => item.cloneNode(true) as HTMLElement)
 
-		// IMPORTANT: Pass ONLY the menu items, nothing else
+		// Create container for event delegation
+		const container = document.createElement('div')
+		clones.forEach(clone => container.appendChild(clone))
+
+		// Event delegation: when clone is clicked, trigger click on original
+		// This preserves all Lit @click handlers attached to the original elements
+		container.addEventListener('click', (e) => {
+			const clickedClone = (e.target as Element).closest('schmancy-menu-item')
+			if (clickedClone) {
+				const index = clones.findIndex(c => c.contains(clickedClone))
+				if (index >= 0) {
+					// Trigger click on the original element to fire its @click handler
+					;(menuItems[index] as HTMLElement).click()
+				}
+			}
+		})
+
+		// IMPORTANT: Pass ONLY the container with cloned items
 		// The dialog handles all positioning, styling, and behavior
-		$dialog.component(menuTemplate, {
+		$dialog.component(html`${container}`, {
 			position: event,
 			hideActions: true,
 			width: 'auto',

@@ -9,15 +9,7 @@ export default class SchmancyMenuItem extends $LitElement(css`
 		display: block;
 	}
 `) {
-	connectedCallback(): void {
-		super.connectedCallback()
-		fromEvent(this, 'click')
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe(e => {
-				e.stopPropagation()
-				// Auto-dismiss dialog when menu item is clicked
-			})
-	}
+
 	protected render(): unknown {
 		return html`
 			<schmancy-list-item>
