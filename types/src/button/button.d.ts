@@ -39,6 +39,14 @@ export declare class SchmancyButton extends SchmancyButton_base {
      */
     width: 'full' | 'auto';
     /**
+     * The size of the button.
+     * @attr
+     * @type {'sm' | 'md' | 'lg'}
+     * @default 'md'
+     * @public
+     */
+    size: 'sm' | 'md' | 'lg';
+    /**
      * The type of the button.
      * Defaults to 'button' (preventing accidental form submissions).
      * @attr

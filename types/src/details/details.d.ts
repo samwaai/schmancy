@@ -12,21 +12,12 @@ export default class SchmancyDetails extends SchmancyDetails_base {
     summary: string;
     get open(): boolean;
     set open(value: boolean);
-    variant: 'default' | 'outlined' | 'filled' | 'elevated';
-    private ripples;
-    private pressed;
-    private nextRippleId;
+    variant: 'outlined' | 'filled' | 'elevated';
     private _open$;
+    connectedCallback(): void;
     render(): import("lit-html").TemplateResult<1>;
     private _handleToggle;
-    private _toggleOpen;
     private _dispatchToggleEvent;
-    private _handleClick;
-    private _handleKeyDown;
-    private _handleKeyUp;
-    private _handleMouseDown;
-    private _handleMouseUp;
-    private _handleMouseLeave;
 }
 declare global {
     interface HTMLElementTagNameMap {

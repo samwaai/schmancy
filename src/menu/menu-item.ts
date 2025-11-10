@@ -1,7 +1,7 @@
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { fromEvent, takeUntil } from 'rxjs'
+import { $dialog } from '../dialog/dialog-service'
 
 @customElement('schmancy-menu-item')
 export default class SchmancyMenuItem extends $LitElement(css`
@@ -12,7 +12,7 @@ export default class SchmancyMenuItem extends $LitElement(css`
 
 	protected render(): unknown {
 		return html`
-			<schmancy-list-item>
+			<schmancy-list-item @click=${() => $dialog.dismiss()}>
 				<slot></slot>
 			</schmancy-list-item>
 		`

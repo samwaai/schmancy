@@ -8,7 +8,7 @@ export type ConditionTuple = [field: string, op: ComparisonOperator, expected: u
  * Type-safe condition object
  */
 export interface ConditionObject {
-    key: string;
+    key: string | string[];
     operator: ComparisonOperator;
     value: unknown;
     strict?: boolean;

@@ -21,7 +21,18 @@ export declare class TypewriterElement extends TypewriterElement_base {
      * Typing speed for deletions (ms per character).
      */
     deleteSpeed: number;
+    /**
+     * Only animate once per session.
+     */
     once: boolean;
+    /**
+     * Loop the animation infinitely (overrides once).
+     */
+    loop: boolean;
+    /**
+     * Default pause duration for cycling (ms).
+     */
+    cyclePause: number;
     /**
      * TypeIt instance.
      */
@@ -51,6 +62,10 @@ export declare class TypewriterElement extends TypewriterElement_base {
      * Processes a custom element for its typing behavior.
      */
     private _processCustomElement;
+    /**
+     * Processes cycling text with auto-calculated delete counts.
+     */
+    private _processCycle;
     /**
      * Renders the component's HTML.
      */

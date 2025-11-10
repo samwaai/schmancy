@@ -25,7 +25,7 @@ export type ConditionTuple = [field: string, op: ComparisonOperator, expected: u
  * Type-safe condition object
  */
 export interface ConditionObject {
-	key: string
+	key: string | string[] // Array of keys applies OR logic across fields
 	operator: ComparisonOperator
 	value: unknown
 	strict?: boolean
@@ -228,6 +228,18 @@ function applyQueryCondition<T extends Record<string, any>>(
 	if (Array.isArray(query)) {
 		;[field, op, expected, strict = false] = query
 	} else {
+		// Handle array of keys (OR logic)
+		if (Array.isArray(query.key)) {
+			const results = query.key.map(k =>
+				applyQueryCondition(item, { ...query, key: k }, fuzzyThreshold)
+			)
+			// Return best valid result, or invalid if none valid
+			return results.reduce(
+				(best, curr) => (curr.valid ? (curr.score > best.score ? curr : best) : best),
+				{ valid: false, score: 0 }
+			)
+		}
+
 		field = query.key
 		op = query.operator
 		expected = query.value

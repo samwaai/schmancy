@@ -13,6 +13,7 @@ export type RouteAction = {
 	props?: Record<string, unknown> // Alias for params
 	historyStrategy?: THistoryStrategy
 	clearQueryParams?: string[] | boolean | null
+	animationDuration?: number // Animation duration in milliseconds (0 = instant/no animation, default = 150ms)
 	_source?: 'programmatic' | 'browser' | 'initial' // Internal use only
 }
 

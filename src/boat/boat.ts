@@ -2,8 +2,8 @@ import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref.js'
-import { fromEvent, merge, race } from 'rxjs'
-import { filter, finalize, map, switchMap, take, takeUntil, tap } from 'rxjs/operators'
+import { fromEvent, interval, merge, race } from 'rxjs'
+import { filter, finalize, map, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators'
 
 type BoatState = 'hidden' | 'minimized' | 'expanded'
 
@@ -22,6 +22,8 @@ interface SavedPosition {
 export default class SchmancyBoat extends $LitElement(css`
 	:host {
 		display: contents;
+		position: relative;
+		z-index: 1000;
 	}
 `) {
 	@property({ type: String, reflect: true })
@@ -99,6 +101,55 @@ export default class SchmancyBoat extends $LitElement(css`
 					if (this.currentState === 'expanded') {
 						this.updateExpandedWidth()
 					}
+
+					// Validate viewport after resize to ensure boat stays visible
+					const container = this.containerRef.value
+					if (container) {
+						const rect = container.getBoundingClientRect()
+						// Only validate if dimensions are ready
+						if (rect.width > 0 && rect.height > 0) {
+							const vw = window.innerWidth
+							const vh = window.innerHeight
+
+							const actualLeft = this.anchor.includes('right') ? vw - this.position.x - rect.width : this.position.x
+
+							const actualTop = this.anchor.includes('bottom') ? vh - this.position.y - rect.height : this.position.y
+
+							let needsUpdate = false
+							let newLeft = actualLeft
+							let newTop = actualTop
+
+							if (actualLeft < 0) {
+								newLeft = 16
+								needsUpdate = true
+							}
+							if (actualLeft + rect.width > vw) {
+								newLeft = vw - rect.width - 16
+								needsUpdate = true
+							}
+							if (actualTop < 0) {
+								newTop = 16
+								needsUpdate = true
+							}
+							if (actualTop + rect.height > vh) {
+								newTop = vh - rect.height - 16
+								needsUpdate = true
+							}
+
+							if (needsUpdate) {
+								this.position.x = this.anchor.includes('right') ? vw - newLeft - rect.width : newLeft
+
+								this.position.y = this.anchor.includes('bottom') ? vh - newTop - rect.height : newTop
+
+								this.position.x = Math.max(0, this.position.x)
+								this.position.y = Math.max(0, this.position.y)
+
+								this.updateContainerPosition()
+								this.savePosition()
+								console.log(`✨ Boat "${this.id}" repositioned after resize:`, this.position)
+							}
+						}
+					}
 				})
 
 			// Keyboard shortcut - Escape key
@@ -118,23 +169,6 @@ export default class SchmancyBoat extends $LitElement(css`
 		}
 	}
 
-	private initializePosition() {
-		if (typeof window === 'undefined') return
-
-		const saved = localStorage.getItem(`schmancy-boat-${this.id}`)
-
-		if (saved) {
-			try {
-				const parsed: SavedPosition = JSON.parse(saved)
-				this.position = { x: parsed.x, y: parsed.y }
-				this.anchor = parsed.anchor
-				console.log('📍 Loaded position:', this.id, parsed)
-			} catch (e) {
-				// Use default position on parse error
-			}
-		}
-		// If no saved position, use default from @state initialization
-	}
 
 	private async animateToState(targetState: BoatState) {
 		if (this.isAnimating || targetState === this.currentState) return
@@ -187,6 +221,55 @@ export default class SchmancyBoat extends $LitElement(css`
 			// Hide content after minimize
 			if (toState !== 'expanded') {
 				this.isContentVisible = false
+			} else {
+				// CRITICAL: After expanding, validate viewport bounds
+				// The expanded boat is much larger and might go outside viewport
+				const container = this.containerRef.value
+				if (container) {
+					const rect = container.getBoundingClientRect()
+					if (rect.width > 0 && rect.height > 0) {
+						const vw = window.innerWidth
+						const vh = window.innerHeight
+
+						const actualLeft = this.anchor.includes('right') ? vw - this.position.x - rect.width : this.position.x
+
+						const actualTop = this.anchor.includes('bottom') ? vh - this.position.y - rect.height : this.position.y
+
+						let needsUpdate = false
+						let newLeft = actualLeft
+						let newTop = actualTop
+
+						if (actualLeft < 0) {
+							newLeft = 16
+							needsUpdate = true
+						}
+						if (actualLeft + rect.width > vw) {
+							newLeft = vw - rect.width - 16
+							needsUpdate = true
+						}
+						if (actualTop < 0) {
+							newTop = 16
+							needsUpdate = true
+						}
+						if (actualTop + rect.height > vh) {
+							newTop = vh - rect.height - 16
+							needsUpdate = true
+						}
+
+						if (needsUpdate) {
+							this.position.x = this.anchor.includes('right') ? vw - newLeft - rect.width : newLeft
+
+							this.position.y = this.anchor.includes('bottom') ? vh - newTop - rect.height : newTop
+
+							this.position.x = Math.max(0, this.position.x)
+							this.position.y = Math.max(0, this.position.y)
+
+							this.updateContainerPosition()
+							this.savePosition()
+							console.log(`✨ Boat "${this.id}" snapped after expand:`, this.position)
+						}
+					}
+				}
 			}
 		}
 	}
@@ -276,7 +359,7 @@ export default class SchmancyBoat extends $LitElement(css`
 	private getStyleForState(state: BoatState): Keyframe {
 		const { shadows } = this.ANIMATION_CONFIG
 		const baseStyles = {
-			maxWidth: '300px',
+			maxWidth: 'fit',
 			maxHeight: 'auto',
 			borderRadius: '16px',
 		}
@@ -331,9 +414,75 @@ export default class SchmancyBoat extends $LitElement(css`
 	}
 
 	firstUpdated() {
-		this.initializePosition()
 		this.applyInitialStyles()
 		this.updateContainerPosition()
+
+		// Wait for container to have actual dimensions before validation
+		// Uses pattern from animated-text.ts - poll until dimensions are ready
+		const container = this.containerRef.value
+		if (container) {
+			interval(10)
+				.pipe(
+					startWith(true),
+					filter(() => {
+						const rect = container.getBoundingClientRect()
+						return rect.width > 0 && rect.height > 0
+					}),
+					take(1),
+					takeUntil(this.disconnecting),
+				)
+				.subscribe(() => {
+					// Validate and snap to viewport if needed
+					const rect = container.getBoundingClientRect()
+					const vw = window.innerWidth
+					const vh = window.innerHeight
+
+					// Calculate actual position based on anchor
+					const actualLeft = this.anchor.includes('right') ? vw - this.position.x - rect.width : this.position.x
+
+					const actualTop = this.anchor.includes('bottom') ? vh - this.position.y - rect.height : this.position.y
+
+					// Check if boat is outside viewport bounds
+					let needsUpdate = false
+					let newLeft = actualLeft
+					let newTop = actualTop
+
+					// Snap to viewport edges if outside (16px padding)
+					if (actualLeft < 0) {
+						newLeft = 16
+						needsUpdate = true
+					}
+					if (actualLeft + rect.width > vw) {
+						newLeft = vw - rect.width - 16
+						needsUpdate = true
+					}
+					if (actualTop < 0) {
+						newTop = 16
+						needsUpdate = true
+					}
+					if (actualTop + rect.height > vh) {
+						newTop = vh - rect.height - 16
+						needsUpdate = true
+					}
+
+					// Update position if boat was outside viewport
+					if (needsUpdate) {
+						// Convert back to anchor-relative coordinates
+						this.position.x = this.anchor.includes('right') ? vw - newLeft - rect.width : newLeft
+
+						this.position.y = this.anchor.includes('bottom') ? vh - newTop - rect.height : newTop
+
+						// Ensure position is never negative
+						this.position.x = Math.max(0, this.position.x)
+						this.position.y = Math.max(0, this.position.y)
+
+						this.updateContainerPosition()
+						this.savePosition()
+						console.log(`✨ Boat "${this.id}" snapped to viewport edge:`, this.position, this.anchor)
+					}
+				})
+		}
+
 		this.setupDragPipeline()
 
 		// Check for deprecated header slot usage
@@ -667,7 +816,6 @@ export default class SchmancyBoat extends $LitElement(css`
 				: 'top left'
 
 		const containerClasses = {
-			'z-50': true,
 			fixed: true,
 			'overflow-y-auto': true,
 			flex: true,
@@ -689,7 +837,7 @@ export default class SchmancyBoat extends $LitElement(css`
 				${ref(this.containerRef)}
 			>
 				<!-- Header section -->
-				<section class="sticky top-0">
+				<section class="sticky top-0 z-100">
 					<schmancy-surface
 						elevation="${surfaceElevation}"
 						rounded="${isMinimized ? 'none' : 'top'}"

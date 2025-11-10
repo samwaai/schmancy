@@ -172,7 +172,7 @@ export default class SchmancySheet extends $LitElement(style) {
 		const contentClasses =
 			this.position === SchmancySheetPosition.Side
 				? 'content h-full min-w-[320px] max-w-[90vw] w-fit ml-auto overflow-hidden z-10'
-				: 'content w-fit max-w-full mt-auto rounded-t-2xl max-h-[90vh] overflow-hidden z-10'
+				: 'content w-full mt-auto rounded-t-2xl max-h-[90vh] overflow-hidden z-10'
 
 		const bodyClasses = this.position === SchmancySheetPosition.Side ? 'max-h-screen' : 'max-h-[90vh]'
 

@@ -11,6 +11,7 @@ export type RouteAction = {
     props?: Record<string, unknown>;
     historyStrategy?: THistoryStrategy;
     clearQueryParams?: string[] | boolean | null;
+    animationDuration?: number;
     _source?: 'programmatic' | 'browser' | 'initial';
 };
 export type ActiveRoute = {

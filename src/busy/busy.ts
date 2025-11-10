@@ -23,7 +23,7 @@ export default class SchmancyBusy extends TailwindElement(css`
 					<div class="relative z-10">
 						<slot>
 							<!-- Default spinner if no content provided -->
-							<schmancy-spinner size="32px"></schmancy-spinner>
+							<schmancy-spinner ></schmancy-spinner>
 						</slot>
 					</div>
 				</div>

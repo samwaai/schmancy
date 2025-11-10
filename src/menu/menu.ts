@@ -37,7 +37,7 @@ import { $dialog } from '../dialog/dialog-service'
 export default class SchmancyMenu extends $LitElement(css`
 	:host {
 		position: relative;
-		display: inline-block;
+		display: flex;
 	}
 `) {
 	@query('slot:not([name])')

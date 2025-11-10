@@ -1,6 +1,6 @@
 # Typewriter Component
 
-An engaging text animation component that simulates typing effects with customizable speed, delays, and advanced sequencing capabilities.
+An engaging text animation component that simulates typing effects with customizable speed, delays, and advanced sequencing capabilities. Features a simple API for cycling through text with automatic character deletion.
 
 ## Quick Start
 
@@ -10,18 +10,20 @@ An engaging text animation component that simulates typing effects with customiz
   Hello, World! This text will be typed out character by character.
 </schmancy-typewriter>
 
-<!-- With custom speed -->
-<schmancy-typewriter speed="30" delay="500">
-  Fast typing with a delay before starting.
+<!-- Cycling through words (auto-calculates delete counts) -->
+<schmancy-typewriter>
+  We are <span cycle="developers | designers | innovators"></span>
 </schmancy-typewriter>
 
-<!-- With actions -->
-<schmancy-typewriter>
-  Type this first.
-  <span action="pause" value="1000"></span>
-  Then type this after a pause.
-  <span action="delete" value="10"></span>
-  And finally this!
+<!-- With custom speed and cursor -->
+<schmancy-typewriter speed="30" delay="500" cursorChar="|">
+  Fast typing with a blinking cursor.
+</schmancy-typewriter>
+
+<!-- Infinite loop -->
+<schmancy-typewriter loop>
+  This will type and delete forever!
+  <span cycle="Amazing | Incredible | Fantastic"></span>
 </schmancy-typewriter>
 ```
 
@@ -32,9 +34,11 @@ An engaging text animation component that simulates typing effects with customiz
 | `speed` | `number` | `50` | Typing speed (ms per character) |
 | `delay` | `number` | `0` | Initial delay before typing starts |
 | `autoStart` | `boolean` | `true` | Start typing automatically |
-| `cursorChar` | `string` | `''` | Custom cursor character |
+| `cursorChar` | `string` | `''` | Custom cursor character (empty = no cursor) |
 | `deleteSpeed` | `number` | `25` | Speed for deletion (ms per character) |
+| `cyclePause` | `number` | `1500` | Default pause between cycle items (ms) |
 | `once` | `boolean` | `true` | Only animate once per session |
+| `loop` | `boolean` | `false` | Loop animation infinitely (overrides `once`) |
 
 ## Events
 
@@ -49,12 +53,12 @@ element.addEventListener('typeit-complete', () => {
 
 ## Examples
 
-### Hero Section
+### Hero Section with Cycling
 ```html
 <div class="hero">
   <h1>
     <schmancy-typewriter speed="100" delay="300">
-      Welcome to the Future
+      Welcome to the <span cycle="Future | Innovation | Revolution"></span>
     </schmancy-typewriter>
   </h1>
   <p>
@@ -63,6 +67,17 @@ element.addEventListener('typeit-complete', () => {
     </schmancy-typewriter>
   </p>
 </div>
+```
+
+### Rotating Value Propositions
+```html
+<schmancy-typewriter speed="80" cyclePause="1200">
+  Building systems that are
+  <br />
+  <span cycle="Trustless | Permissionless | Transparent | Borderless | Resilient" pause="1500"></span>
+  <br />
+  empowering everyone to operate freely.
+</schmancy-typewriter>
 ```
 
 ### Multi-line Typing
@@ -87,19 +102,18 @@ element.addEventListener('typeit-complete', () => {
 </div>
 ```
 
-### Dynamic Typing Sequence
+### Product Features Carousel
 ```html
-<schmancy-typewriter>
-  We are
-  <span action="pause" value="500"></span>
-  developers
-  <span action="delete" value="10"></span>
-  designers
-  <span action="delete" value="9"></span>
-  innovators
-  <span action="pause" value="1000"></span>
-  !
+<schmancy-typewriter loop cursorChar="_">
+  <span cycle="Lightning Fast ⚡ | Fully Typed 📘 | Zero Config 🎯 | Production Ready 🚀"></span>
 </schmancy-typewriter>
+```
+
+### Dynamic Job Titles
+```html
+<h2>
+  We're hiring <span cycle="Frontend Developers | Backend Engineers | UI/UX Designers | DevOps Specialists"></span>
+</h2>
 ```
 
 ### Code Tutorial
@@ -115,19 +129,71 @@ element.addEventListener('typeit-complete', () => {
 </schmancy-typewriter>
 ```
 
+## Cycling API (NEW!)
+
+The `cycle` attribute makes it effortless to rotate through text with **automatic character deletion**. No need to manually count characters!
+
+### Basic Usage
+
+```html
+<!-- Simple cycling -->
+<span cycle="Option 1 | Option 2 | Option 3"></span>
+
+<!-- With custom pause duration -->
+<span cycle="Fast | Quick | Rapid" pause="800"></span>
+
+<!-- In context -->
+<schmancy-typewriter>
+  We are <span cycle="developers | designers | innovators"></span>
+</schmancy-typewriter>
+```
+
+### Cycle Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `cycle` | `string` | Pipe-separated list of text items to cycle through |
+| `pause` | `number` | Override default pause between items (milliseconds) |
+
+### Benefits
+
+- ✅ **Auto-calculated deletes** - no manual character counting
+- ✅ **Clean syntax** - just list your items with `|` separator
+- ✅ **Consistent timing** - uses `cyclePause` property or custom `pause`
+- ✅ **Works with `loop`** - infinite cycling made simple
+
+### Advanced Cycling
+
+```html
+<!-- Hero headline that cycles forever -->
+<schmancy-typewriter loop cyclePause="2000">
+  <h1>Welcome to <span cycle="the Future | Innovation | Tomorrow"></span></h1>
+</schmancy-typewriter>
+
+<!-- Mixed static and cycling text -->
+<schmancy-typewriter>
+  Our product is
+  <span action="pause" value="500"></span>
+  <span cycle="Fast ⚡ | Secure 🔒 | Reliable ✅ | Modern 🚀" pause="1800"></span>
+  for your business.
+</schmancy-typewriter>
+```
+
 ## Actions System
 
-Special action elements control typing behavior:
+Special action elements for fine-grained control:
 
 | Action | Value | Description |
 |--------|-------|-------------|
 | `pause` | milliseconds | Pause typing for specified duration |
-| `delete` | character count | Delete specified number of characters |
+| `delete` | character count | Delete specified number of characters (manual) |
 
 ```html
 <span action="pause" value="1000"></span> <!-- 1 second pause -->
-<span action="delete" value="5"></span> <!-- Delete 5 characters -->
+<span action="delete" value="5"></span> <!-- Delete 5 characters manually -->
 ```
+
+**Note:** For cycling text with automatic deletion, use the `cycle` attribute instead!
 
 ## Features
 
@@ -210,8 +276,60 @@ const typeItOptions = {
 
 ## Use Cases
 
-1. **Landing Pages**: Engaging hero text
-2. **Tutorials**: Step-by-step code examples
-3. **Storytelling**: Narrative experiences
-4. **Loading States**: Entertaining wait messages
-5. **Terminal UIs**: Command-line interfaces
+### Perfect for:
+
+1. **Hero Headlines**: Rotating value propositions and key messages
+   ```html
+   <span cycle="Fast | Secure | Reliable"></span>
+   ```
+
+2. **Product Features**: Cycling through benefits and capabilities
+   ```html
+   <span cycle="Zero Config 🎯 | Type-Safe 📘 | Lightning Fast ⚡"></span>
+   ```
+
+3. **Job Postings**: Dynamic role descriptions
+   ```html
+   We're hiring <span cycle="Developers | Designers | Engineers"></span>
+   ```
+
+4. **Testimonials**: Rotating customer quotes
+   ```html
+   <span cycle="Amazing product! | Best tool ever! | Game changer!"></span>
+   ```
+
+5. **Tutorials**: Step-by-step code examples with timing
+6. **Storytelling**: Narrative experiences with dramatic pauses
+7. **Loading States**: Entertaining wait messages that cycle
+8. **Terminal UIs**: Command-line interface simulations
+
+## Migration Guide
+
+### From Manual Deletes to Cycle API
+
+**Before (Manual counting - error prone!):**
+```html
+<schmancy-typewriter>
+  We are
+  developers
+  <span action="delete" value="10"></span>
+  designers
+  <span action="delete" value="9"></span>
+  innovators
+</schmancy-typewriter>
+```
+
+**After (Automatic - clean & simple!):**
+```html
+<schmancy-typewriter>
+  We are <span cycle="developers | designers | innovators"></span>
+</schmancy-typewriter>
+```
+
+### Benefits of the New API
+
+- 🚫 **No more counting characters** - automatic deletion
+- ✨ **Cleaner markup** - one line instead of many
+- 🛡️ **Less error-prone** - no typos in character counts
+- 🔄 **Easy updates** - just add/remove words from the list
+- 🎨 **Better readability** - see all options at a glance

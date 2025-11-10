@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typewriter Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .example {
+      margin: 40px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .result {
+      min-height: 60px;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Typewriter Component Tests</h1>
+
+  <div class="example">
+    <h2>1. Basic Cycling (New API)</h2>
+    <div class="result">
+      <schmancy-typewriter speed="80">
+        We are <span cycle="developers | designers | innovators"></span>
+      </schmancy-typewriter>
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>2. Hero with Cycling Values</h2>
+    <div class="result">
+      <schmancy-typewriter speed="80" cyclePause="1200">
+        Building systems that are
+        <br />
+        <span cycle="Trustless | Permissionless | Transparent | Borderless | Resilient" pause="1500"></span>
+        <br />
+        empowering everyone to operate freely.
+      </schmancy-typewriter>
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>3. Infinite Loop</h2>
+    <div class="result">
+      <schmancy-typewriter loop cursorChar="|" speed="60">
+        <span cycle="Amazing | Incredible | Fantastic"></span>
+      </schmancy-typewriter>
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>4. Custom Pause per Cycle</h2>
+    <div class="result">
+      <schmancy-typewriter>
+        Our product is <span cycle="Fast ⚡ | Secure 🔒 | Reliable ✅" pause="800"></span>
+      </schmancy-typewriter>
+    </div>
+  </div>
+
+  <div class="example">
+    <h2>5. Mixed Actions (Old API still works)</h2>
+    <div class="result">
+      <schmancy-typewriter>
+        Type this first.
+        <span action="pause" value="1000"></span>
+        Then this after a pause.
+      </schmancy-typewriter>
+    </div>
+  </div>
+
+  <!-- Load your typewriter component here -->
+  <script type="module">
+    // Import your built typewriter component
+    // import './typewriter.js'
+
+    console.log('Typewriter test page loaded');
+    console.log('Make sure to build the component and import it above');
+  </script>
+</body>
+</html>

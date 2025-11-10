@@ -23,7 +23,6 @@ export default class SchmancyBoat extends SchmancyBoat_base {
     private position;
     private anchor;
     connectedCallback(): void;
-    private initializePosition;
     private animateToState;
     private performTransition;
     private createAnimations;

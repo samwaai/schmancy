@@ -3,17 +3,132 @@ import { $LitElement } from '@mixins/index'
 import { delayContext } from '@schmancy/delay'
 import hashContent from '@schmancy/utils/hashContent'
 import { intersection$ } from '@schmancy/utils/intersection'
-import { html, TemplateResult } from 'lit'
+import { css, html, TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements, queryAssignedNodes } from 'lit/decorators.js'
 import TypeIt, { Options as TypeItOptions } from 'typeit'
 
 @customElement('schmancy-typewriter')
-export class TypewriterElement extends $LitElement() {
+export class TypewriterElement extends $LitElement(css`
+	:host {
+		display: inline-block;
+	}
+
+	#typewriter {
+		position: relative;
+	}
+
+	/* Enhanced cursor with glow effect */
+	#typewriter :global(.ti-cursor) {
+		animation: cursor-pulse 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+		color: currentColor;
+		filter: drop-shadow(0 0 8px currentColor);
+	}
+
+	@keyframes cursor-pulse {
+		0%, 100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.3;
+			transform: scale(0.95);
+		}
+	}
+
+	/* Character entrance animation */
+	#typewriter :global(.ti-container *) {
+		animation: char-entrance 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+	}
+
+	@keyframes char-entrance {
+		0% {
+			opacity: 0;
+			transform: scale(0.3) translateY(10px);
+			filter: blur(4px);
+		}
+		50% {
+			opacity: 0.8;
+			transform: scale(1.1) translateY(-2px);
+		}
+		100% {
+			opacity: 1;
+			transform: scale(1) translateY(0);
+			filter: blur(0);
+		}
+	}
+
+	/* Subtle character wobble on appear */
+	#typewriter :global(.ti-container *:nth-child(odd)) {
+		animation: char-entrance 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) backwards,
+		           char-wobble 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s backwards;
+	}
+
+	@keyframes char-wobble {
+		0%, 100% {
+			transform: rotate(0deg);
+		}
+		25% {
+			transform: rotate(2deg);
+		}
+		75% {
+			transform: rotate(-2deg);
+		}
+	}
+
+	/* Deletion animation - fade out and scale down */
+	#typewriter :global(.ti-container .deleting) {
+		animation: char-delete 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
+	}
+
+	@keyframes char-delete {
+		0% {
+			opacity: 1;
+			transform: scale(1);
+			filter: blur(0);
+		}
+		50% {
+			opacity: 0.5;
+			transform: scale(0.8) translateY(-3px);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(0.4) translateY(-8px);
+			filter: blur(3px);
+		}
+	}
+
+	/* Gradient text effect on typed text */
+	#typewriter :global(.ti-container) {
+		background: linear-gradient(
+			90deg,
+			currentColor 0%,
+			currentColor 70%,
+			transparent 100%
+		);
+		-webkit-background-clip: text;
+		background-clip: text;
+		animation: gradient-shift 3s ease-in-out infinite;
+	}
+
+	@keyframes gradient-shift {
+		0%, 100% {
+			filter: brightness(1) saturate(1);
+		}
+		50% {
+			filter: brightness(1.15) saturate(1.2);
+		}
+	}
+
+	/* Smooth transitions for all text */
+	#typewriter * {
+		transition: opacity 0.15s ease-out, transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+`) {
 	/**
 	 * Typing speed in milliseconds per character.
 	 */
 	@property({ type: Number })
-	speed: number = 50
+	speed: number = 35
 
 	/**
 	 * Delay before typing starts (ms).
@@ -38,9 +153,22 @@ export class TypewriterElement extends $LitElement() {
 	 * Typing speed for deletions (ms per character).
 	 */
 	@property({ type: Number })
-	deleteSpeed: number = 25
+	deleteSpeed: number = 20
 
+	/**
+	 * Only animate once per session.
+	 */
 	@property({ type: Boolean }) once = true
+
+	/**
+	 * Loop the animation infinitely (overrides once).
+	 */
+	@property({ type: Boolean }) loop = false
+
+	/**
+	 * Default pause duration for cycling (ms).
+	 */
+	@property({ type: Number }) cyclePause = 1500
 	/**
 	 * TypeIt instance.
 	 */
@@ -99,8 +227,9 @@ export class TypewriterElement extends $LitElement() {
 			cursor: !!this.cursorChar,
 			cursorChar: this.cursorChar,
 			deleteSpeed: this.deleteSpeed,
+			loop: this.loop,
 			afterComplete: () => {
-				if (this.once) {
+				if (this.once && !this.loop) {
 					try {
 						sessionStorage.setItem(this.sessionKey, 'true')
 					} catch (error) {
@@ -110,8 +239,10 @@ export class TypewriterElement extends $LitElement() {
 				// Dispatch the custom event
 				this.dispatchEvent(new CustomEvent('typeit-complete', { bubbles: true, composed: true }))
 
-				// Hide the cursor
-				this.typewriterContainer.style.setProperty('--ti-cursor-display', 'none')
+				// Hide the cursor (unless looping)
+				if (!this.loop) {
+					this.typewriterContainer.style.setProperty('--ti-cursor-display', 'none')
+				}
 			},
 		}
 
@@ -122,8 +253,11 @@ export class TypewriterElement extends $LitElement() {
 		const slottedNodes = this._getSlottedNodes
 		slottedNodes.forEach(node => {
 			if (node.nodeType === Node.TEXT_NODE) {
-				// Handle plain text
-				this.typeItInstance?.type(node.textContent || '')
+				// Handle plain text - skip whitespace-only text nodes
+				const textContent = node.textContent || ''
+				if (textContent.trim()) {
+					this.typeItInstance?.type(textContent)
+				}
 			} else if (node instanceof HTMLElement) {
 				// Handle custom element
 				this._processCustomElement(node)
@@ -163,6 +297,15 @@ export class TypewriterElement extends $LitElement() {
 	private _processCustomElement(element: HTMLElement) {
 		const action = element.getAttribute('action')
 		const value = element.getAttribute('value')
+		const cycle = element.getAttribute('cycle')
+
+		// Handle cycle attribute - simple pipe-separated list
+		if (cycle) {
+			const items = cycle.split('|').map(item => item.trim())
+			this._processCycle(items, element)
+			return
+		}
+
 		switch (action) {
 			case 'pause':
 				this.typeItInstance?.pause(parseInt(value || '0', 10))
@@ -172,12 +315,41 @@ export class TypewriterElement extends $LitElement() {
 				break
 			default:
 				if (element.tagName === 'P') {
-					this.typeItInstance.break()
+					this.typeItInstance?.break()
 				}
 				// Treat as text if no action is defined
 				this.typeItInstance?.type(element.textContent || '')
 				break
 		}
+	}
+
+	/**
+	 * Processes cycling text with auto-calculated delete counts.
+	 */
+	private _processCycle(items: string[], element: HTMLElement) {
+		if (items.length === 0) return
+
+		const customPause = element.getAttribute('pause')
+		const pauseDuration = customPause ? parseInt(customPause, 10) : this.cyclePause
+
+		// Type each item with automatic deletion
+		items.forEach((item, index) => {
+			// Type the item
+			this.typeItInstance?.type(item)
+
+			// Pause after typing (except after last item when not looping)
+			if (index < items.length - 1 || this.loop) {
+				this.typeItInstance?.pause(pauseDuration)
+			}
+
+			// Delete back to start (except for last item when not looping)
+			if (index < items.length - 1) {
+				this.typeItInstance?.delete(item.length)
+			} else if (this.loop) {
+				// For looping, delete and start over
+				this.typeItInstance?.delete(item.length)
+			}
+		})
 	}
 
 	/**

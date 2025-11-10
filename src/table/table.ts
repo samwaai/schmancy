@@ -221,6 +221,13 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 								scroller
 								class="w-full h-full relative overflow-auto"
 								.items=${this.filteredData}
+								.keyFunction=${(item: T, index: number) => {
+									const keyValue = item?.[this.keyField]
+									if (keyValue === undefined || keyValue === null) {
+										return index
+									}
+									return typeof keyValue === 'string' || typeof keyValue === 'number' ? keyValue : String(keyValue)
+								}}
 								.renderItem=${(item: T, index: number) =>
 									html`
 										<schmancy-table-row

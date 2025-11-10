@@ -196,6 +196,30 @@ export class SchmancySurface extends TailwindElement(css`
 		background-color: var(--schmancy-sys-color-error-container);
 		color: var(--schmancy-sys-color-error-onContainer);
 	}
+	:host([type='success']) {
+		background-color: var(--schmancy-sys-color-success-default);
+		color: var(--schmancy-sys-color-success-on);
+	}
+	:host([type='successContainer']) {
+		background-color: var(--schmancy-sys-color-success-container);
+		color: var(--schmancy-sys-color-success-onContainer);
+	}
+	:host([type='warning']) {
+		background-color: var(--schmancy-sys-color-warning-default);
+		color: var(--schmancy-sys-color-warning-on);
+	}
+	:host([type='warningContainer']) {
+		background-color: var(--schmancy-sys-color-warning-container);
+		color: var(--schmancy-sys-color-warning-onContainer);
+	}
+	:host([type='info']) {
+		background-color: var(--schmancy-sys-color-info-default);
+		color: var(--schmancy-sys-color-info-on);
+	}
+	:host([type='infoContainer']) {
+		background-color: var(--schmancy-sys-color-info-container);
+		color: var(--schmancy-sys-color-info-onContainer);
+	}
 `) {
 	/**
 	 * Fill the width and/or height of the parent container.
@@ -220,7 +244,8 @@ export class SchmancySurface extends TailwindElement(css`
 	 * 'containerLow', 'container', 'containerHigh', 'containerHighest',
 	 * 'glass', 'transparent', 'glassOforim', 'primary', 'primaryContainer',
 	 * 'secondary', 'secondaryContainer', 'tertiary', 'tertiaryContainer',
-	 * 'error', 'errorContainer'.
+	 * 'error', 'errorContainer', 'success', 'successContainer',
+	 * 'warning', 'warningContainer', 'info', 'infoContainer'.
 	 * @default 'container'
 	 */
 	@provide({ context: SchmancySurfaceTypeContext })

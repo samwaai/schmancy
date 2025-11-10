@@ -40,7 +40,8 @@ export declare class SchmancySurface extends SchmancySurface_base {
      * 'containerLow', 'container', 'containerHigh', 'containerHighest',
      * 'glass', 'transparent', 'glassOforim', 'primary', 'primaryContainer',
      * 'secondary', 'secondaryContainer', 'tertiary', 'tertiaryContainer',
-     * 'error', 'errorContainer'.
+     * 'error', 'errorContainer', 'success', 'successContainer',
+     * 'warning', 'warningContainer', 'info', 'infoContainer'.
      * @default 'container'
      */
     type: TSurfaceColor;

@@ -343,17 +343,27 @@ export class SchmancyArea extends $LitElement(css`
 			return
 		}
 
-		// Animate transition
-		if (oldComponent) {
-			const fadeOut = oldComponent.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: 'ease-out' })
+		// Get animation duration (0 = instant, default = 150ms)
+		const duration = routeAction.animationDuration ?? 150
+
+		// Animate transition (or instant swap if duration is 0)
+		if (duration === 0) {
+			// Instant swap - no animation
+			oldComponent?.remove()
+			this.appendChild(newComponent)
+		} else if (oldComponent) {
+			// Animated swap - fade out old, then fade in new
+			const fadeOut = oldComponent.animate([{ opacity: 1 }, { opacity: 0 }], { duration, easing: 'ease-out' })
 			fadeOut.onfinish = () => {
 				oldComponent.remove()
 				this.appendChild(newComponent)
-				newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 150, easing: 'ease-in' })
+				newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: 'ease-in' })
 			}
 		} else {
+			// No old component - just fade in new
 			this.appendChild(newComponent)
-			newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 100, easing: 'ease-in' })
+			const fadeInDuration = duration > 100 ? Math.max(100, duration * 0.66) : duration
+			newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: fadeInDuration, easing: 'ease-in' })
 		}
 
 		// Update area state
@@ -381,6 +391,7 @@ export class SchmancyArea extends $LitElement(css`
 
 	disconnectedCallback() {
 		super.disconnectedCallback()
+		area.pop(this.name)
 	}
 
 	render() {

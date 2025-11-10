@@ -58,6 +58,16 @@ export class SchmancyButton extends $LitElement(
 	public width: 'full' | 'auto' = 'auto'
 
 	/**
+	 * The size of the button.
+	 * @attr
+	 * @type {'sm' | 'md' | 'lg'}
+	 * @default 'md'
+	 * @public
+	 */
+	@property({ type: String })
+	public size: 'sm' | 'md' | 'lg' = 'md'
+
+	/**
 	 * The type of the button.
 	 * Defaults to 'button' (preventing accidental form submissions).
 	 * @attr
@@ -155,8 +165,12 @@ export class SchmancyButton extends $LitElement(
 
 		// Compute classes for the interactive element.
 		const classes = {
-			'z-0 py-2 px-3 sm:py-1.5 sm:px-3 md:py-2 md:px-4 text-sm sm:text-base transition-all duration-200 relative rounded-full inline-flex justify-center items-center gap-1 sm:gap-1.5 md:gap-2 outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden w-[inherit] overflow-hidden':
+			'z-0 transition-all duration-200 relative rounded-full inline-flex justify-center items-center outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden w-[inherit] overflow-hidden':
 				true,
+			// Size-based padding and text sizing
+			'py-1 px-2 text-sm gap-1': this.size === 'sm',
+			'py-1.5 px-3 sm:py-2 sm:px-4 text-sm sm:text-base gap-1 sm:gap-1.5 md:gap-2': this.size === 'md',
+			'py-2 px-4 sm:py-3 sm:px-5 text-base sm:text-lg gap-1.5 sm:gap-2 md:gap-3': this.size === 'lg',
 			'cursor-pointer': !this.disabled,
 			'opacity-[0.38]': this.disabled,
 			'hover:shadow-xs':
