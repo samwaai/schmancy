@@ -14,9 +14,18 @@ export default class SchmancyDetails extends SchmancyDetails_base {
     set open(value: boolean);
     variant: 'outlined' | 'filled' | 'elevated';
     type?: 'success' | 'error' | 'warning';
+    summaryPadding: string;
+    contentPadding: string;
+    indicatorPlacement: 'start' | 'end';
+    hideIndicator: boolean;
     private _open$;
+    private _indicatorRef;
+    private _currentAnimation?;
     connectedCallback(): void;
     render(): import("lit-html").TemplateResult<1>;
+    private _renderIndicator;
+    private _renderDefaultIndicator;
+    private _animateIndicator;
     private _handleToggle;
     private _dispatchToggleEvent;
 }
