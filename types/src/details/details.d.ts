@@ -13,7 +13,6 @@ export default class SchmancyDetails extends SchmancyDetails_base {
     get open(): boolean;
     set open(value: boolean);
     variant: 'outlined' | 'filled' | 'elevated';
-    type?: 'success' | 'error' | 'warning';
     private _open$;
     connectedCallback(): void;
     render(): import("lit-html").TemplateResult<1>;

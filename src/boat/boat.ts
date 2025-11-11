@@ -2,6 +2,7 @@ import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref.js'
+import { cache } from 'lit/directives/cache.js'
 import { fromEvent, interval, merge, race } from 'rxjs'
 import { filter, finalize, map, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators'
 
@@ -205,9 +206,10 @@ export default class SchmancyBoat extends $LitElement(css`
 		const container = this.containerRef.value
 		if (!container) return
 
-		// Update content visibility before expand
+		// Update content visibility before expand and wait for render
 		if (toState === 'expanded') {
 			this.isContentVisible = true
+			await this.updateComplete
 		}
 
 		// Create animations
@@ -217,6 +219,11 @@ export default class SchmancyBoat extends $LitElement(css`
 		if (animations.container) {
 			this.currentAnimation = animations.container
 			await animations.container.finished
+
+			// Wait for content fade-out animation before removing from DOM
+			if (animations.content) {
+				await animations.content.finished
+			}
 
 			// Hide content after minimize
 			if (toState !== 'expanded') {
@@ -305,8 +312,8 @@ export default class SchmancyBoat extends $LitElement(css`
 
 		// Content animation (only for expand/minimize transitions)
 		if (content && fromState === 'expanded' && toState === 'minimized') {
-			// Fade out content before minimizing
-			content.animate(
+			// Fade out content before minimizing - MUST await this before removing from DOM
+			animations.content = content.animate(
 				[
 					{ opacity: 1, transform: 'translateY(0)' },
 					{ opacity: 0, transform: 'translateY(-8px)' },
@@ -892,7 +899,7 @@ export default class SchmancyBoat extends $LitElement(css`
 							</div>
 
 							<!-- Control buttons -->
-							<div class="flex items-center gap-1 flex-shrink-0">
+							<div class="flex items-center gap-1 shrink-0">
 								${isMinimized
 									? html`
 											<!-- Expand button (when minimized) -->
@@ -942,9 +949,15 @@ export default class SchmancyBoat extends $LitElement(css`
 				</section>
 
 				<!-- Content section -->
-				<schmancy-surface .hidden=${!this.isContentVisible} type="containerLow" class="flex-1" ${ref(this.contentRef)}>
-					<slot></slot>
-				</schmancy-surface>
+				${cache(
+					this.isContentVisible
+						? html`
+								<schmancy-surface type="containerLow" class="flex-1" ${ref(this.contentRef)}>
+									<slot></slot>
+								</schmancy-surface>
+						  `
+						: html``,
+				)}
 			</div>
 		`
 	}
