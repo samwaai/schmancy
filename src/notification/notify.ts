@@ -1,6 +1,5 @@
 import { Observable, tap, finalize, catchError } from 'rxjs'
-import { $notify } from './notification-service'
-import { NotificationOptions } from './notification-container'
+import { $notify, NotificationOptions } from './notification-service'
 
 export interface NotifyOptions {
 	/**

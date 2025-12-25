@@ -26,6 +26,8 @@ export default class SchmancyChips extends SchmancyChips_base {
     set value(value: string);
     chips: (SchmancyChip | HTMLElement)[];
     wrap: boolean;
+    required: boolean;
+    justify: 'start' | 'center' | 'end';
     connectedCallback(): void;
     private updateChipStates;
     change(e: CustomEvent<SchmancyChipChangeEvent>): Promise<void>;

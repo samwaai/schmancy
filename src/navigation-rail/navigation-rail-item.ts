@@ -245,8 +245,7 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 	}
 
 	protected render() {
-		const hasCustomIcon = this.querySelector('[slot="icon"]')
-		const hasCustomContent = this.querySelector(':not([slot])')
+		const hasCustomIcon = !!this.querySelector('[slot="icon"]')
 		const hasCustomBadge = this.querySelector('[slot="badge"]')
 
 		// M3 Navigation Rail Item classes with theme integration
@@ -359,10 +358,7 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 			>
 				<span class=${rippleClasses} aria-hidden="true"></span>
 
-				${when(hasCustomContent,
-					() => html`<slot></slot>`,
-					() => html`
-						<div class=${iconContainerClasses} part="icon">
+				<div class=${iconContainerClasses} part="icon">
 							<span class=${indicatorClasses} part="indicator" aria-hidden="true"></span>
 							${when(hasCustomIcon,
 								() => html`<slot name="icon"></slot>`,
@@ -383,8 +379,6 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 						${when(this.label,
 							() => html`<span class=${labelClasses} part="label">${this.label}</span>`
 						)}
-					`
-				)}
 
 				${when(this.badge,
 					() => html`

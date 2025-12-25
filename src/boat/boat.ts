@@ -848,7 +848,7 @@ export default class SchmancyBoat extends $LitElement(css`
 					<schmancy-surface
 						elevation="${surfaceElevation}"
 						rounded="${isMinimized ? 'none' : 'top'}"
-						type="containerLowest"
+						type="containerHigh"
 					>
 						<div
 							class="group sticky top-0 px-3 py-2 flex items-center justify-between gap-3 ${this.isDragging
@@ -952,7 +952,7 @@ export default class SchmancyBoat extends $LitElement(css`
 				${cache(
 					this.isContentVisible
 						? html`
-								<schmancy-surface type="containerLow" class="flex-1" ${ref(this.contentRef)}>
+								<schmancy-surface type="containerHigh" class="flex-1" ${ref(this.contentRef)}>
 									<slot></slot>
 								</schmancy-surface>
 						  `

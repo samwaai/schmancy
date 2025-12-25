@@ -67,7 +67,7 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
      */
     private setupPositioning;
     /**
-     * Update dialog position using Floating UI
+     * Update dialog position using Floating UI with smart height-aware repositioning
      */
     private updatePosition;
     /**
@@ -86,10 +86,6 @@ export declare class ConfirmDialog extends ConfirmDialog_base {
      * Handle cancel action
      */
     private handleCancel;
-    /**
-     * Get the CSS class for the confirm button based on variant
-     */
-    private getConfirmButtonClass;
     render(): import("lit-html").TemplateResult<1>;
     /**
      * Static helper for even simpler API

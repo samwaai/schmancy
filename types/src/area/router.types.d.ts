@@ -12,6 +12,7 @@ export type RouteAction = {
     historyStrategy?: THistoryStrategy;
     clearQueryParams?: string[] | boolean | null;
     animationDuration?: number;
+    path?: string;
     _source?: 'programmatic' | 'browser' | 'initial';
 };
 export type ActiveRoute = {

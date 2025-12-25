@@ -42,9 +42,9 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
     private presetRanges;
     private presetCategories;
     private memoizedPresets;
+    disconnectedCallback(): void;
     connectedCallback(): void;
     private setupEventHandlers;
-    disconnectedCallback(): void;
     updated(changedProps: PropertyValues): void;
     private initPresetRanges;
     private getDateFormat;

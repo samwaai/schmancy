@@ -341,45 +341,45 @@ class AreaService implements AreaSubscription {
 	/**
 	 * Update browser history state (called by area components)
 	 */
-	_updateBrowserHistory(areaName: string, route: ActiveRoute, historyStrategy?: string, clearQueryParams?: string[] | boolean | null) {
+	_updateBrowserHistory(areaName: string, route: ActiveRoute, historyStrategy?: string, clearQueryParams?: string[] | boolean | null, customPath?: string) {
 		if (!this.enableHistoryMode) return
-		
+
 		try {
 			// Get current browser state or create new one
 			const currentState = history.state || {}
 			const schmancyAreas = currentState.schmancyAreas || {}
-			
+
 			// Update the specific area - only include non-empty state/params/props
 			const areaData: any = {
 				component: route.component,
 				area: route.area
 			}
-			
+
 			// Only include state if it has content
 			if (route.state && Object.keys(route.state).length > 0) {
 				areaData.state = route.state
 			}
-			
+
 			// Only include params if it has content
 			if (route.params && Object.keys(route.params).length > 0) {
 				areaData.params = route.params
 			}
-			
+
 			// Only include props if it has content
 			if (route.props && Object.keys(route.props).length > 0) {
 				areaData.props = route.props
 			}
-			
+
 			schmancyAreas[areaName] = areaData
-			
+
 			const newState = {
 				...currentState,
 				schmancyAreas
 			}
-			
-			// Create clean URL
-			const url = this.createCleanURL(schmancyAreas, clearQueryParams)
-			
+
+			// Create clean URL with optional custom path
+			const url = this.createCleanURL(schmancyAreas, clearQueryParams, customPath)
+
 			// Update browser history
 			if (historyStrategy === 'replace' || historyStrategy === 'pop') {
 				history.replaceState(newState, '', url)
@@ -387,7 +387,7 @@ class AreaService implements AreaSubscription {
 				history.pushState(newState, '', url)
 			}
 			// 'silent' strategy doesn't update browser history
-			
+
 		} catch (error) {
 			console.error('Failed to update browser history:', error)
 		}
@@ -396,26 +396,40 @@ class AreaService implements AreaSubscription {
 	/**
 	 * Create a clean URL from area states
 	 */
-	private createCleanURL(areas: Record<string, ActiveRoute>, clearQueryParams?: string[] | boolean | null): string {
-		// Get the current base path (everything except the last segment which might be encoded state)
-		const currentPath = location.pathname
-		const pathSegments = currentPath.split('/')
+	private createCleanURL(areas: Record<string, ActiveRoute>, clearQueryParams?: string[] | boolean | null, customPath?: string): string {
 		let basePath = '/'
 
-		// Check if the last segment is encoded state (contains { or %7B)
-		const lastSegment = pathSegments[pathSegments.length - 1]
-		if (lastSegment && (lastSegment.includes('{') || lastSegment.includes('%7B'))) {
-			// Remove the encoded state segment to get the base path
-			pathSegments.pop()
-			basePath = pathSegments.join('/') || '/'
+		// If custom path is provided, use it directly (completely replaces the path)
+		if (customPath) {
+			basePath = customPath
+			// Ensure it starts with /
+			if (!basePath.startsWith('/')) {
+				basePath = '/' + basePath
+			}
+			// Ensure base path ends with / for appending encoded state
+			if (!basePath.endsWith('/')) {
+				basePath += '/'
+			}
 		} else {
-			// Keep the current path as base path
-			basePath = currentPath
-		}
+			// Get the current base path (everything except the last segment which might be encoded state)
+			const currentPath = location.pathname
+			const pathSegments = currentPath.split('/')
 
-		// Ensure base path ends properly
-		if (basePath !== '/' && !basePath.endsWith('/')) {
-			basePath += '/'
+			// Check if the last segment is encoded state (contains { or %7B)
+			const lastSegment = pathSegments[pathSegments.length - 1]
+			if (lastSegment && (lastSegment.includes('{') || lastSegment.includes('%7B'))) {
+				// Remove the encoded state segment to get the base path
+				pathSegments.pop()
+				basePath = pathSegments.join('/') || '/'
+			} else {
+				// Keep the current path as base path
+				basePath = currentPath
+			}
+
+			// Ensure base path ends properly
+			if (basePath !== '/' && !basePath.endsWith('/')) {
+				basePath += '/'
+			}
 		}
 
 		// Handle query parameters
@@ -424,6 +438,17 @@ class AreaService implements AreaSubscription {
 		if (clearQueryParams !== true) {
 			// Get current query params
 			const urlParams = new URLSearchParams(location.search)
+
+			// Add params from all areas to query string
+			Object.values(areas).forEach(route => {
+				if (route.params && Object.keys(route.params).length > 0) {
+					Object.entries(route.params).forEach(([key, value]) => {
+						if (value !== null && value !== undefined) {
+							urlParams.set(key, String(value))
+						}
+					})
+				}
+			})
 
 			// Clear specific params if provided
 			if (Array.isArray(clearQueryParams)) {

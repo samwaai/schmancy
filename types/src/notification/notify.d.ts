@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { NotificationOptions } from './notification-container';
+import { NotificationOptions } from './notification-service';
 export interface NotifyOptions {
     /**
      * Message to show while the operation is in progress

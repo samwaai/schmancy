@@ -230,7 +230,7 @@ export class SchmancyFilterChip extends TailwindElement(css`
 			'border-secondary-container': this._selected,
 			'bg-surface-container': !this._selected,
 			'text-surface-on': !this._selected,
-			'border-outline-variant': !this._selected,
+			'border-outline': !this._selected,
 
 			// Hover states
 			'hover:brightness-95': this._selected && !this.disabled,

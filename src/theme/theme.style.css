@@ -41,6 +41,10 @@
 	--color-success-on: var(--schmancy-sys-color-success-on);
 	--color-success-container: var(--schmancy-sys-color-success-container);
 	--color-success-onContainer: var(--schmancy-sys-color-success-onContainer);
+	--color-warning-default: var(--schmancy-sys-color-warning-default);
+	--color-warning-on: var(--schmancy-sys-color-warning-on);
+	--color-warning-container: var(--schmancy-sys-color-warning-container);
+	--color-warning-onContainer: var(--schmancy-sys-color-warning-onContainer);
 	--shadow-xs: var(--schmancy-sys-elevation-0);
 	--shadow-sm: var(--schmancy-sys-elevation-1);
 	--shadow-md: var(--schmancy-sys-elevation-2);

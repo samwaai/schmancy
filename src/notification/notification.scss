@@ -1,140 +1,114 @@
 :host {
 	display: block;
-	margin-bottom: 10px;
-
-	&:last-child {
-		margin-bottom: 0;
-	}
 }
 
 .notification {
-	width: 100%;
-	max-width: 400px;
-	border-radius: 12px;
-	box-shadow: var(--schmancy-sys-elevation-2);
-	overflow: hidden;
-	transform: translateX(0);
-	opacity: 1;
-	transition:
-		transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-		opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	background-color: var(--schmancy-sys-color-surface-container);
-	color: var(--schmancy-sys-color-surface-on);
-	border-radius: 16px;
 	position: relative;
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 12px;
+	padding-right: 32px;
+	background: var(--schmancy-sys-color-surface-container);
+	border-radius: var(--schmancy-sys-shape-corner-extraLarge, 16px);
+	box-shadow: var(--schmancy-sys-elevation-1);
+	color: var(--schmancy-sys-color-surface-on);
+	max-width: 320px;
+	overflow: hidden;
 
-	// Apply subtle gradient overlay as per Material 3
-	&::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		border-radius: inherit;
-		pointer-events: none;
-		background: linear-gradient(
-			180deg,
-			rgba(255, 255, 255, 0.08) 0%,
-			rgba(255, 255, 255, 0) 100%
-		);
-		z-index: 1;
+	transition: box-shadow 200ms ease;
+
+	&.hovered {
+		box-shadow: var(--schmancy-sys-elevation-2);
+	}
+}
+
+.emoji {
+	font-size: 20px;
+	line-height: 1;
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
+.content {
+	flex: 1;
+	min-width: 0;
+}
+
+.title {
+	font-weight: 500;
+	font-size: 13px;
+	line-height: 1.4;
+	margin-bottom: 2px;
+	letter-spacing: 0.01em;
+
+	.info & {
+		color: var(--schmancy-sys-color-primary-default);
+	}
+	.success & {
+		color: var(--schmancy-sys-color-success-default);
+	}
+	.warning & {
+		color: var(--schmancy-sys-color-tertiary-default);
+	}
+	.error & {
+		color: var(--schmancy-sys-color-error-default);
+	}
+}
+
+.message {
+	font-size: 13px;
+	line-height: 1.4;
+	opacity: 0.75;
+	letter-spacing: 0.01em;
+}
+
+.close {
+	position: absolute;
+	top: 8px;
+	right: 6px;
+	background: none;
+	border: none;
+	font-size: 16px;
+	font-weight: 300;
+	color: var(--schmancy-sys-color-surface-onVariant);
+	cursor: pointer;
+	padding: 4px 6px;
+	line-height: 1;
+	opacity: 0.4;
+	border-radius: var(--schmancy-sys-shape-corner-full, 50%);
+	transition: opacity 200ms ease;
+
+	&:hover {
+		opacity: 0.8;
 	}
 
-	&.info {
-		border-left: 4px solid var(--schmancy-sys-color-primary-default);
-		background-color: color-mix(in srgb, var(--schmancy-sys-color-surface-container) 90%, var(--schmancy-sys-color-primary-container) 10%);
+	&:focus-visible {
+		outline: none;
+		opacity: 1;
+		box-shadow: 0 0 0 2px var(--schmancy-sys-color-primary-default);
 	}
+}
 
-	&.success {
-		border-left: 4px solid var(--schmancy-sys-color-success-default);
-		background-color: color-mix(in srgb, var(--schmancy-sys-color-surface-container) 90%, var(--schmancy-sys-color-success-container) 10%);
+.progress {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	height: 2px;
+	transition: width 16ms linear;
+	border-radius: 2px;
+	opacity: 0.7;
+
+	.info & {
+		background: var(--schmancy-sys-color-primary-container);
 	}
-
-	&.warning {
-		border-left: 4px solid var(--schmancy-sys-color-tertiary-default);
-		background-color: color-mix(in srgb, var(--schmancy-sys-color-surface-container) 90%, var(--schmancy-sys-color-tertiary-container) 10%);
+	.success & {
+		background: var(--schmancy-sys-color-success-container);
 	}
-
-	&.error {
-		border-left: 4px solid var(--schmancy-sys-color-error-default);
-		background-color: color-mix(in srgb, var(--schmancy-sys-color-surface-container) 90%, var(--schmancy-sys-color-error-container) 10%);
+	.warning & {
+		background: var(--schmancy-sys-color-tertiary-container);
 	}
-
-	&.closing {
-		transform: translateX(120%);
-		opacity: 0;
+	.error & {
+		background: var(--schmancy-sys-color-error-container);
 	}
-
-	.notification-content {
-		display: flex;
-		padding: 18px 20px;
-		align-items: flex-start;
-		position: relative;
-		z-index: 2;
-	}
-
-	.icon-container {
-		flex-shrink: 0;
-		margin-right: 14px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 50%;
-		width: 28px;
-		height: 28px;
-		position: relative;
-	}
-
-	.content {
-		flex: 1;
-		min-width: 0;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.title {
-		font-weight: 500;
-		font-size: 16px;
-		line-height: 1.5;
-		margin-bottom: 2px;
-		word-break: break-word;
-		letter-spacing: 0.15px;
-	}
-
-	.message {
-		font-size: 14px;
-		line-height: 1.5;
-		word-break: break-word;
-		letter-spacing: 0.25px;
-		opacity: 0.92;
-	}
-
-	.close-button {
-		background: transparent;
-		border: none;
-		cursor: pointer;
-		color: var(--schmancy-sys-color-surface-onVariant);
-		padding: 8px;
-		margin-left: 8px;
-		margin-right: -4px;
-		margin-top: -4px;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		transition: background-color 0.2s ease, transform 0.2s ease;
-
-		&:hover {
-			background-color: color-mix(in srgb, var(--schmancy-sys-color-surface-onVariant) 8%, transparent);
-			transform: scale(1.05);
-		}
-
-		&:active {
-			transform: scale(0.95);
-		}
-
-		&:focus-visible {
-			outline: none;
-			box-shadow: 0 0 0 2px var(--schmancy-sys-color-primary-default);
-		}
-	}
-
 }

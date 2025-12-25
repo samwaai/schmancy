@@ -33,7 +33,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 	 * @default 'md'
 	 */
 	@property({ type: String })
-	public size: 'sm' | 'md' | 'lg' | 'xl' = 'md'
+	public size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md'
 
 	/**
 	 * The variant of the button.
@@ -146,10 +146,13 @@ export class SchmnacyIconButton extends $LitElement(css`
 			'bg-primary-default text-primary-on': effectiveVariant === 'filled',
 			'bg-secondary-container text-secondary-onContainer': effectiveVariant === 'filled tonal',
 			'text-primary-default': effectiveVariant === 'text',
-			'px-[6px] py-[6px]': this.size === 'sm',
-			'px-[8px] py-[8px]': this.size === 'md',
-			'px-[12px] py-[12px]': this.size === 'lg',
-			'px-[16px] py-[16px]': this.size === 'xl',
+			// M3 spec: 24dp (xxs) → 32dp (dense) → 40dp (default) → 48dp (standard) → 56dp (large)
+			'p-1.5': this.size === 'xxs',    // 6px padding  = 24px total (12px icon) - Ultra-compact
+			'p-2': this.size === 'xs',       // 8px padding  = 32px total (16px icon) - M3 dense
+			'p-2.5': this.size === 'sm',     // 10px padding = 40px total (20px icon) - M3 default
+			'p-3': this.size === 'md',       // 12px padding = 48px total (24px icon) - M3 standard
+			'p-4': this.size === 'lg',       // 16px padding = 56px total (24px icon) - M3 large
+			'p-5': this.size === 'xl',       // 20px padding = 80px total (40px icon) - custom XL
 		}
 
 		const stateLayerClasses = {
@@ -159,8 +162,8 @@ export class SchmnacyIconButton extends $LitElement(css`
 			'hover:bg-secondary-container': effectiveVariant === 'filled tonal',
 		}
 
-		// Icon size mapping
-		const iconSize = this.size === 'sm' ? '18px' : this.size === 'md' ? '24px' : this.size === 'lg' ? '32px' : '40px';
+		// Icon size mapping - M3 spec: 24dp standard, scaled for density
+		const iconSize = this.size === 'xxs' ? '12px' : this.size === 'xs' ? '16px' : this.size === 'sm' ? '20px' : this.size === 'md' ? '24px' : this.size === 'lg' ? '24px' : '40px';
 
 		// If href is provided, render an anchor element.
 		if (this.href) {

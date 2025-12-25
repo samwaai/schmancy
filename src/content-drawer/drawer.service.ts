@@ -104,36 +104,18 @@ class DrawerService {
 	/**
 	 * Push a component to the content drawer
 	 * @param options - Component configuration object with optional state/params/props
-	 * @deprecated Passing a raw ComponentType is deprecated. Use DrawerPushOptions object instead.
 	 * @example
-	 * // Recommended
 	 * schmancyContentDrawer.push({
 	 *   component: myComponent,
 	 *   props: { id: '123' }
 	 * })
-	 *
-	 * // Legacy (deprecated)
-	 * schmancyContentDrawer.push(myComponent)
 	 */
-	push(options: ComponentType | DrawerPushOptions) {
-		const normalized = this.normalizeOptions(options)
+	push(options: DrawerPushOptions): void {
 		this.$drawer.next({
 			action: 'push',
 			ref: window,
-			...normalized,
+			...options,
 		})
-	}
-
-	private normalizeOptions(options: ComponentType | DrawerPushOptions): {
-		component: ComponentType
-		state?: Record<string, unknown>
-		params?: Record<string, unknown>
-		props?: Record<string, unknown>
-	} {
-		if (typeof options === 'object' && options !== null && 'component' in options) {
-			return options
-		}
-		return { component: options as ComponentType }
 	}
 }
 

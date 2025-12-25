@@ -29,7 +29,7 @@ export declare class SchmancySelect extends SchmancySelect_base {
     label: string;
     hint: string;
     validateOn: 'always' | 'touched' | 'dirty' | 'submitted';
-    size: 'sm' | 'md' | 'lg';
+    size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
     private isOpen;
     private valueLabel;
     private isValid;

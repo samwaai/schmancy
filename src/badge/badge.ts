@@ -34,6 +34,7 @@ export type BadgeShape = 'rounded' | 'pill' | 'square'
 export class SchmancyBadgeV2 extends TailwindElement(css`
 	:host {
 		display: inline-flex;
+		width: fit-content;
 	}
 
 	/* Enhanced pulse animation for better attention-getting */

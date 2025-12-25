@@ -10,6 +10,7 @@ export interface SchmancyButtonEventMap {
 }
 
 export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'tonal' | 'outlined' | 'text'
+export type ButtonColor = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' | 'neutral'
 
 /**
  * A button component.
@@ -25,6 +26,11 @@ export class SchmancyButton extends $LitElement(
 		min-width: fit-content;
 		overflow: hidden;
 		position: relative;
+		touch-action: manipulation;
+	}
+	:host *,
+	* {
+		touch-action: manipulation;
 	}`
 ) {
 	protected static shadowRootOptions = {
@@ -48,6 +54,15 @@ export class SchmancyButton extends $LitElement(
 	public variant: ButtonVariant = 'text'
 
 	/**
+	 * The color of the button.
+	 * @attr
+	 * @default Depends on variant: 'primary' for filled/elevated/outlined/text, 'secondary' for tonal
+	 * @public
+	 */
+	@property({ reflect: true, type: String })
+	public color?: ButtonColor
+
+	/**
 	 * The width of the button.
 	 * @attr
 	 * @type {'full' | 'auto'}
@@ -60,12 +75,12 @@ export class SchmancyButton extends $LitElement(
 	/**
 	 * The size of the button.
 	 * @attr
-	 * @type {'sm' | 'md' | 'lg'}
+	 * @type {'xxs' | 'xs' | 'sm' | 'md' | 'lg'}
 	 * @default 'md'
 	 * @public
 	 */
 	@property({ type: String })
-	public size: 'sm' | 'md' | 'lg' = 'md'
+	public size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' = 'md'
 
 	/**
 	 * The type of the button.
@@ -129,8 +144,30 @@ export class SchmancyButton extends $LitElement(
 		this.nativeElement.blur()
 	}
 
+	/**
+	 * Get the effective color based on variant if not explicitly set
+	 * M3 spec: filled = primary, tonal = secondary, others = primary
+	 */
+	protected get effectiveColor(): ButtonColor {
+		if (this.color) return this.color
+
+		// Map 'tonal' to 'filled tonal' for checking
+		const effectiveVariant = this.variant === 'tonal' ? 'filled tonal' : this.variant
+
+		// M3 defaults: tonal uses secondary, others use primary
+		return effectiveVariant === 'filled tonal' ? 'secondary' : 'primary'
+	}
+
 	protected get imgClasses(): string[] {
-		return ['max-h-5', 'max-w-5', 'sm:max-h-6', 'sm:max-w-6', 'object-contain']
+		// M3 spec: icon sizes scale with button size
+		const sizeMap = {
+			xxs: 'w-3 h-3',    // 12px for 24px button (ultra-compact)
+			xs: 'w-4 h-4',     // 16px for 32px button (M3 dense)
+			sm: 'w-5 h-5',     // 20px for 40px button (M3 default)
+			md: 'w-6 h-6',     // 24px for 48px button (M3 large)
+			lg: 'w-7 h-7'      // 28px for 56px button (M3 extra large)
+		}
+		return [sizeMap[this.size], 'object-contain']
 	}
 
 	firstUpdated() {
@@ -167,32 +204,116 @@ export class SchmancyButton extends $LitElement(
 		const classes = {
 			'z-0 transition-all duration-200 relative rounded-full inline-flex justify-center items-center outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden w-[inherit] overflow-hidden':
 				true,
-			// Size-based padding and text sizing
-			'py-1 px-2 text-sm gap-1': this.size === 'sm',
-			'py-1.5 px-3 sm:py-2 sm:px-4 text-sm sm:text-base gap-1 sm:gap-1.5 md:gap-2': this.size === 'md',
-			'py-2 px-4 sm:py-3 sm:px-5 text-base sm:text-lg gap-1.5 sm:gap-2 md:gap-3': this.size === 'lg',
+			// Height - M3 spec: 24dp (xxs) → 32dp (dense) → 40dp (default) → 48dp (large) → 56dp (XL)
+			'h-6': this.size === 'xxs',   // 24px - Ultra-compact
+			'h-8': this.size === 'xs',    // 32px - M3 dense/compact
+			'h-10': this.size === 'sm',   // 40px - M3 default
+			'h-12': this.size === 'md',   // 48px - M3 large
+			'h-14': this.size === 'lg',   // 56px - M3 extra large
+			// Padding - M3 spec: horizontal padding 24dp default, scaled proportionally
+			'py-1 px-2': this.size === 'xxs',    // 4px/8px for 24px height
+			'py-2 px-4': this.size === 'xs',     // 8px/16px for 32px height
+			'py-2.5 px-5': this.size === 'sm',   // 10px/20px for 40px height
+			'py-3 px-6': this.size === 'md',     // 12px/24px for 48px height (M3 default)
+			'py-4 px-7': this.size === 'lg',     // 16px/28px for 56px height
+			// Typography - M3 spec: label-large (14px) default, scaled
+			'text-[10px] font-medium leading-3': this.size === 'xxs', // 10px
+			'text-xs font-medium leading-4': this.size === 'xs',   // 12px
+			'text-sm font-medium leading-5': this.size === 'sm' || this.size === 'md',   // 14px - M3 label-large
+			'text-base font-medium leading-6': this.size === 'lg', // 16px
+			// Letter spacing - M3 spec
+			'tracking-[0.1px]': true,
+			// Gap - Scaled with size
+			'gap-0.5': this.size === 'xxs', // 2px
+			'gap-1': this.size === 'xs',    // 4px
+			'gap-1.5': this.size === 'sm',  // 6px
+			'gap-2': this.size === 'md',    // 8px
+			'gap-2.5': this.size === 'lg',  // 10px
 			'cursor-pointer': !this.disabled,
 			'opacity-[0.38]': this.disabled,
-			'hover:shadow-xs':
-				!this.disabled &&
-				(effectiveVariant === 'outlined' ||
-					effectiveVariant === 'text' ||
-					effectiveVariant === 'filled' ||
-					effectiveVariant === 'filled tonal'),
 			'hover:shadow-sm': !this.disabled && effectiveVariant === 'elevated',
 			'w-full tex-center': this.width === 'full',
-			'bg-surface-low text-primary-default shadow-xs': effectiveVariant === 'elevated',
-			'bg-transparent text-primary-default border-1 border-solid border-outline': effectiveVariant === 'outlined',
-			'bg-primary-default text-primary-on': effectiveVariant === 'filled',
-			'bg-secondary-container text-secondary-onContainer': effectiveVariant === 'filled tonal',
-			'text-primary-default': effectiveVariant === 'text',
+			// Elevated variant
+			'bg-surface-low shadow-xs': effectiveVariant === 'elevated',
+			// Outlined variant
+			'bg-transparent border-1 border-solid': effectiveVariant === 'outlined',
+			'border-outline': effectiveVariant === 'outlined' && this.effectiveColor === 'primary',
+			'border-success-default': effectiveVariant === 'outlined' && this.effectiveColor === 'success',
+			'border-error-default': effectiveVariant === 'outlined' && this.effectiveColor === 'error',
+			'border-warning-default': effectiveVariant === 'outlined' && this.effectiveColor === 'warning',
+			'border-info-default': effectiveVariant === 'outlined' && this.effectiveColor === 'info',
+			'border-secondary-default': effectiveVariant === 'outlined' && this.effectiveColor === 'secondary',
+			'border-outline-variant': effectiveVariant === 'outlined' && this.effectiveColor === 'neutral',
+			// Filled variant - background colors
+			'bg-primary-default': effectiveVariant === 'filled' && this.effectiveColor === 'primary',
+			'bg-secondary-default': effectiveVariant === 'filled' && this.effectiveColor === 'secondary',
+			'bg-success-default': effectiveVariant === 'filled' && this.effectiveColor === 'success',
+			'bg-error-default': effectiveVariant === 'filled' && this.effectiveColor === 'error',
+			'bg-warning-default': effectiveVariant === 'filled' && this.effectiveColor === 'warning',
+			'bg-info-default': effectiveVariant === 'filled' && this.effectiveColor === 'info',
+			'bg-surface-containerHighest': effectiveVariant === 'filled' && this.effectiveColor === 'neutral',
+			// Filled variant - text colors
+			'text-primary-on': effectiveVariant === 'filled' && this.effectiveColor === 'primary',
+			'text-secondary-on': effectiveVariant === 'filled' && this.effectiveColor === 'secondary',
+			'text-success-on': effectiveVariant === 'filled' && this.effectiveColor === 'success',
+			'text-error-on': effectiveVariant === 'filled' && this.effectiveColor === 'error',
+			'text-warning-on': effectiveVariant === 'filled' && this.effectiveColor === 'warning',
+			'text-info-on': effectiveVariant === 'filled' && this.effectiveColor === 'info',
+			'text-surface-on': effectiveVariant === 'filled' && this.effectiveColor === 'neutral',
+			// Filled tonal variant - background colors
+			'bg-primary-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'primary',
+			'bg-secondary-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'secondary',
+			'bg-success-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'success',
+			'bg-error-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'error',
+			'bg-warning-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'warning',
+			'bg-info-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'info',
+			'bg-surface-containerLow': effectiveVariant === 'filled tonal' && this.effectiveColor === 'neutral',
+			// Filled tonal variant - text colors
+			'text-primary-onContainer': effectiveVariant === 'filled tonal' && this.effectiveColor === 'primary',
+			'text-secondary-onContainer': effectiveVariant === 'filled tonal' && this.effectiveColor === 'secondary',
+			'text-success-onContainer': effectiveVariant === 'filled tonal' && this.effectiveColor === 'success',
+			'text-error-onContainer': effectiveVariant === 'filled tonal' && this.effectiveColor === 'error',
+			'text-warning-onContainer': effectiveVariant === 'filled tonal' && this.effectiveColor === 'warning',
+			'text-info-onContainer': effectiveVariant === 'filled tonal' && this.effectiveColor === 'info',
+			// Text and elevated variants - text colors
+			'text-primary-default': (effectiveVariant === 'text' || effectiveVariant === 'elevated' || effectiveVariant === 'outlined') && this.effectiveColor === 'primary',
+			'text-secondary-default': (effectiveVariant === 'text' || effectiveVariant === 'elevated' || effectiveVariant === 'outlined') && this.effectiveColor === 'secondary',
+			'text-success-default': (effectiveVariant === 'text' || effectiveVariant === 'elevated' || effectiveVariant === 'outlined') && this.effectiveColor === 'success',
+			'text-error-default': (effectiveVariant === 'text' || effectiveVariant === 'elevated' || effectiveVariant === 'outlined') && this.effectiveColor === 'error',
+			'text-warning-default': (effectiveVariant === 'text' || effectiveVariant === 'elevated' || effectiveVariant === 'outlined') && this.effectiveColor === 'warning',
+			'text-info-default': (effectiveVariant === 'text' || effectiveVariant === 'elevated' || effectiveVariant === 'outlined') && this.effectiveColor === 'info',
+			'text-surface-onVariant': (effectiveVariant === 'text' || effectiveVariant === 'elevated' || effectiveVariant === 'outlined' || effectiveVariant === 'filled tonal') && this.effectiveColor === 'neutral',
 		}
 
 		const stateLayerClasses = {
 			'absolute inset-0 hover:opacity-[0.08] z-0 rounded-full': true,
-			'hover:bg-primary-on': effectiveVariant === 'filled',
-			'hover:bg-primary-default': effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text',
-			'hover:bg-secondary-container': effectiveVariant === 'filled tonal',
+			// M3 focus and pressed states
+			'focus-visible:opacity-[0.10]': true,  // M3 focus state
+			'active:opacity-[0.10]': true,         // M3 pressed state
+			// Filled variant hover
+			'hover:bg-primary-on': effectiveVariant === 'filled' && this.effectiveColor === 'primary',
+			'hover:bg-secondary-on': effectiveVariant === 'filled' && this.effectiveColor === 'secondary',
+			'hover:bg-success-on': effectiveVariant === 'filled' && this.effectiveColor === 'success',
+			'hover:bg-error-on': effectiveVariant === 'filled' && this.effectiveColor === 'error',
+			'hover:bg-warning-on': effectiveVariant === 'filled' && this.effectiveColor === 'warning',
+			'hover:bg-info-on': effectiveVariant === 'filled' && this.effectiveColor === 'info',
+			'hover:bg-surface-on': effectiveVariant === 'filled' && this.effectiveColor === 'neutral',
+			// Outlined, elevated, text variants hover
+			'hover:bg-primary-default': (effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text') && this.effectiveColor === 'primary',
+			'hover:bg-secondary-default': (effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text') && this.effectiveColor === 'secondary',
+			'hover:bg-success-default': (effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text') && this.effectiveColor === 'success',
+			'hover:bg-error-default': (effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text') && this.effectiveColor === 'error',
+			'hover:bg-warning-default': (effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text') && this.effectiveColor === 'warning',
+			'hover:bg-info-default': (effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text') && this.effectiveColor === 'info',
+			'hover:bg-surface-onVariant': (effectiveVariant === 'outlined' || effectiveVariant === 'elevated' || effectiveVariant === 'text') && this.effectiveColor === 'neutral',
+			// Filled tonal hover
+			'hover:bg-primary-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'primary',
+			'hover:bg-secondary-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'secondary',
+			'hover:bg-success-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'success',
+			'hover:bg-error-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'error',
+			'hover:bg-warning-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'warning',
+			'hover:bg-info-container': effectiveVariant === 'filled tonal' && this.effectiveColor === 'info',
+			'hover:bg-surface-containerLow': effectiveVariant === 'filled tonal' && this.effectiveColor === 'neutral',
 		}
 
 		// If href is provided, render an anchor element.

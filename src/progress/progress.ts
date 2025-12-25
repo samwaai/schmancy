@@ -1,11 +1,11 @@
-import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
+import { $LitElement } from '@mixins/index';
 
 @customElement('schmancy-progress')
-export default class SchmancyProgress extends TailwindElement(css`
+export default class SchmancyProgress extends $LitElement(css`
   :host {
     display: block;
   }
@@ -32,8 +32,9 @@ export default class SchmancyProgress extends TailwindElement(css`
   @property({ type: Boolean, reflect: true })
   indeterminate = false
 
+  // M3 aligned track heights: xs=1px, sm=2px, md=4px, lg=8px
   @property({ type: String, reflect: true })
-  size: 'sm' | 'md' | 'lg' = 'md'
+  size: 'xs' | 'sm' | 'md' | 'lg' = 'md'
 
   @property({ type: String, reflect: true })
   color: 'primary' | 'secondary' | 'tertiary' | 'error' | 'success' = 'primary'
@@ -52,9 +53,10 @@ export default class SchmancyProgress extends TailwindElement(css`
       'relative': true,
       'overflow-hidden': true,
       'rounded-full': true,
-      'h-0.5': this.size === 'sm',
-      'h-1': this.size === 'md',
-      'h-2': this.size === 'lg',
+      'h-px': this.size === 'xs',   // 1px - M3 linear indicator track
+      'h-0.5': this.size === 'sm',  // 2px
+      'h-1': this.size === 'md',    // 4px - M3 default
+      'h-2': this.size === 'lg',    // 8px
       // Glass effect background
       'backdrop-blur-xl': this.glass,
       'backdrop-saturate-150': this.glass,
@@ -110,7 +112,7 @@ export default class SchmancyProgress extends TailwindElement(css`
         >
           ${this.glass ? html`
             <!-- Glass shine effect -->
-            <div class="absolute inset-0 bg-gradient-to-b from-surface-on/20 to-transparent rounded-full"></div>
+            <div class="absolute inset-0 bg-linear-to-b from-surface-on/20 to-transparent rounded-full"></div>
           ` : ''}
         </div>
       </div>

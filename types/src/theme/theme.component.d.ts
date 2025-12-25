@@ -1,6 +1,6 @@
 import { TSchmancyTheme } from './theme.interface';
 export declare const tailwindStyles: import("lit").CSSResult;
-declare const SchmancyThemeComponent_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
+declare const SchmancyThemeComponent_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * SchmancyThemeComponent - Provides theming capabilities for Schmancy components.
  *

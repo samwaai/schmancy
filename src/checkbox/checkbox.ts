@@ -79,10 +79,11 @@ class SchmancyCheckboxElement extends TailwindElement() {
 	}
 
 	/**
-	 * @attr {sm | md | lg } size - The size of the checkbox.
+	 * @attr {xxs | xs | sm | md | lg } size - The size of the checkbox.
+	 * M3 aligned: 24dp (xxs) → 32dp (xs) → 40dp (sm) → 48dp (md) → 56dp (lg)
 	 */
 	@property({ type: String })
-	size: 'sm' | 'md' | 'lg' = 'md'
+	size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' = 'md'
 
 	render() {
 		return html`

@@ -12,26 +12,17 @@ export default class SchmancyDetails extends SchmancyDetails_base {
     summary: string;
     get open(): boolean;
     set open(value: boolean);
-    variant: 'outlined' | 'filled' | 'elevated';
-    type?: 'success' | 'error' | 'warning';
-    summaryPadding: string;
-    contentPadding: string;
     indicatorPlacement: 'start' | 'end';
     hideIndicator: boolean;
+    locked: boolean;
+    overlay: boolean;
     private _open$;
     private _indicatorRef;
     private _currentAnimation?;
     connectedCallback(): void;
     render(): import("lit-html").TemplateResult<1>;
-    private _renderIndicator;
-    private _renderDefaultIndicator;
     private _animateIndicator;
+    private _handleSummaryClick;
     private _handleToggle;
-    private _dispatchToggleEvent;
-}
-declare global {
-    interface HTMLElementTagNameMap {
-        'schmancy-details': SchmancyDetails;
-    }
 }
 export {};

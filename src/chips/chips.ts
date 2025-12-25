@@ -10,17 +10,12 @@ import { SchmancyFilterChip as SchmancyChip } from './filter-chip'
 export default class SchmancyChips extends $LitElement(
 
 css`
-	:host{
-		display:block;
-	}
-
-	.scrollbar-hide {
-		-ms-overflow-style: none; /* IE and Edge */
-		scrollbar-width: none; /* Firefox */
-	}
-	.scrollbar-hide::-webkit-scrollbar {
-		display: none; /* Chrome, Safari, and Opera */
-	}
+:host{
+	display:block;
+	height:fit-content;
+	width:fit-content;
+}
+	
 `
 ) {
 	// RxJS state streams - initialized with undefined to detect if properties were set
@@ -118,6 +113,18 @@ css`
 	})
 	wrap: boolean = false
 
+	@property({
+		type: Boolean,
+		reflect: true,
+	})
+	required: boolean = false
+
+	@property({
+		type: String,
+		reflect: true,
+	})
+	justify: 'start' | 'center' | 'end' = 'start'
+
 	connectedCallback() {
 		super.connectedCallback()
 
@@ -187,8 +194,15 @@ css`
 				this.values$.next(this._values)
 			}
 		} else if (this.mode === 'single') {
-			// Single selection mode
-			this._value = selected ? value : ''
+			if (selected) {
+				this._value = value
+			} else if (!this.required) {
+				// Allow deselection if not required
+				this._value = ''
+			} else {
+				// Required mode - ignore deselection
+				return
+			}
 			this.value$.next(this._value)
 		}
 
@@ -212,24 +226,21 @@ css`
 	}
 
 	protected render(): unknown {
-		const containerClasses = this.classMap({
-			"flex auto-cols-max": true,
-			'items-center': true,
-			'flex-wrap': this.wrap,
-			'overflow-x-auto': !this.wrap,
-			'scrollbar-hide': !this.wrap,
-			'gap-2':true,
-		})
+		const classes= {
+			"flex flex-nowrap justify-center gap-2 max-w-lvw":true,
+			"flex-wrap": this.wrap,
+			"justify-center": this.justify === 'center',
 
+		}
 		return html`
-			<section class=${containerClasses} @change=${this.change}>
+					<schmancy-scroll hide .direction=${this.wrap ?'vertical': 'horizontal'} class="${this.classMap(classes)}" @change=${this.change}>
 					<slot
 					@slotchange=${() => {
 						// When slot changes, trigger state update through reactive pipeline
 						this.updateChipStates(this.mode, this._value, this._values)
 					}}
 				></slot>
-			</section>
+			</schmancy-scroll>
 		`
 	}
 }

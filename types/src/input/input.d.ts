@@ -18,12 +18,14 @@ export type SchmancyInputInputEvent = CustomEvent<EventDetails>;
 export type SchmancyInputChangeEvent = CustomEvent<EventDetails>;
 export type SchmancyInputEnterEvent = CustomEvent<EventDetails>;
 /**
- * Size variants for the input.
- * - sm: Small, compact input (40px height)
- * - md: Medium input (50px height, default)
- * - lg: Large, spacious input (60px height)
+ * Size variants for the input - M3 spec aligned.
+ * - xxs: Ultra-compact (24dp) - for menu cards, compact UIs
+ * - xs: Dense/compact (32dp) - M3 density -3
+ * - sm: Default (40dp) - M3 density 0
+ * - md: Standard (48dp) - M3 large
+ * - lg: Extra large (56dp) - M3 extra large
  */
-export type InputSize = 'sm' | 'md' | 'lg';
+export type InputSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
 declare const SchmancyInput_base: import("@mixins/index").Constructor<import("@mixins/index").IFormFieldMixin> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * Enhanced version of the SchmancyInput component with improved form integration
@@ -68,7 +70,7 @@ export default class SchmancyInput extends SchmancyInput_base {
     maxlength?: number;
     min?: string;
     max?: string;
-    step?: number;
+    step?: string;
     /** If true, auto-focus this input on first render. */
     autofocus: boolean;
     /** Autocomplete/autofill hints. */
@@ -79,9 +81,11 @@ export default class SchmancyInput extends SchmancyInput_base {
     tabIndex: number;
     /**
      * The size of the input.
-     * - 'sm': Small, compact size
-     * - 'md': Medium size (default)
-     * - 'lg': Large size
+     * - 'xxs': Ultra-compact size (24px) - for menu cards
+     * - 'xs': Extra small, very compact size (32px)
+     * - 'sm': Small, compact size (40px)
+     * - 'md': Medium size (default) (48px)
+     * - 'lg': Large size (56px)
      */
     size: InputSize;
     /**

@@ -14,6 +14,7 @@ export type RouteAction = {
 	historyStrategy?: THistoryStrategy
 	clearQueryParams?: string[] | boolean | null
 	animationDuration?: number // Animation duration in milliseconds (0 = instant/no animation, default = 150ms)
+	path?: string // Override the URL path (e.g., '/hannah-order-tracking') - completely replaces the base path
 	_source?: 'programmatic' | 'browser' | 'initial' // Internal use only
 }
 

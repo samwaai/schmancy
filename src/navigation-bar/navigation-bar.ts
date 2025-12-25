@@ -2,7 +2,7 @@ import { TailwindElement } from '@mixins/tailwind.mixin'
 import { color } from '@schmancy/directives'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { SchmancyTheme } from '..'
+import { SchmancyEvents, SchmancyTheme } from '..'
 import { BehaviorSubject, fromEvent } from 'rxjs'
 import { takeUntil, throttleTime, tap, pairwise, map, filter } from 'rxjs/operators'
 import type { SchmancyNavigationBarItem } from './navigation-bar-item'
@@ -213,22 +213,34 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 		const clickedItem = event.target as HTMLElement
 		const index = items.indexOf(clickedItem as any)
 
-		if (index !== -1 && this.activeIndex !== index) {
-			const oldIndex = this.activeIndex
-			// Setting activeIndex will trigger the BehaviorSubject
-			this.activeIndex = index
+		if (index === -1) return
 
-			// Emit navigation change event
-			this.dispatchEvent(new CustomEvent('navigation-change', {
-				detail: {
-					oldIndex,
-					newIndex: index,
-					item: clickedItem
-				},
-				bubbles: true,
-				composed: true
-			}))
+		// Clicking the already-active item toggles the sidebar
+		if (this.activeIndex === index) {
+			this.dispatchEvent(
+				new CustomEvent(SchmancyEvents.NavDrawer_toggle, {
+					detail: { state: 'toggle' },
+					bubbles: true,
+					composed: true,
+				}),
+			)
+			return
 		}
+
+		const oldIndex = this.activeIndex
+		// Setting activeIndex will trigger the BehaviorSubject
+		this.activeIndex = index
+
+		// Emit navigation change event
+		this.dispatchEvent(new CustomEvent('navigation-change', {
+			detail: {
+				oldIndex,
+				newIndex: index,
+				item: clickedItem
+			},
+			bubbles: true,
+			composed: true
+		}))
 	}
 
 	/**

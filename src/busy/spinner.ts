@@ -85,18 +85,39 @@ export default class SchmnacySpinner extends TailwindElement(css`
 	        'tertiary' | 'on-tertiary' | 'error' | 'on-error' |
 	        'success' | 'on-success' | 'surface' | 'on-surface' |
 	        'surface-variant' | 'on-surface-variant'
-	@property({ type: Number }) size: number = 6
+
+	/**
+	 * Size of the spinner - M3 aligned tokens or numeric Tailwind units
+	 * Tokens: 'xxs' (12px), 'xs' (16px), 'sm' (20px), 'md' (24px), 'lg' (32px)
+	 * Numeric: Tailwind units where each unit = 4px (e.g., 6 = 24px)
+	 */
+	@property() size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | number = 'md'
 	@property({ type: Boolean }) glass: boolean = false
 
 	protected render(): unknown {
-		// Use Tailwind sizing system: size-4 = 1rem = 16px
-		// Each unit is 0.25rem, so size 4 = 1rem, size 6 = 1.5rem, etc.
-		// Fallback to size 6 (24px) if value is invalid
-		const validSize = typeof this.size === 'number' && !isNaN(this.size) ? this.size : 6
-		const sizeInRem = `${validSize * 0.25}rem`
+		// M3 aligned token sizes (fit inside buttons of same token)
+		const tokenSizes: Record<string, number> = {
+			xxs: 12, // fits in 24px button (ultra-compact)
+			xs: 16,  // fits in 32px button
+			sm: 20,  // fits in 40px button
+			md: 24,  // fits in 48px button (default)
+			lg: 32,  // fits in 56px button
+		}
+
+		// Support both token and numeric sizes for backward compatibility
+		let sizeInPx: number
+		if (typeof this.size === 'string' && this.size in tokenSizes) {
+			sizeInPx = tokenSizes[this.size]
+		} else if (typeof this.size === 'number' && !isNaN(this.size)) {
+			// Legacy numeric: Tailwind units (each unit = 4px)
+			sizeInPx = this.size * 4
+		} else {
+			sizeInPx = 24 // fallback to md
+		}
+
 		const style = {
-			width: sizeInRem,
-			height: sizeInRem,
+			width: `${sizeInPx}px`,
+			height: `${sizeInPx}px`,
 		}
 		
 		return this.glass ? html`

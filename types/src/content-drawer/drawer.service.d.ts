@@ -25,19 +25,13 @@ declare class DrawerService {
     /**
      * Push a component to the content drawer
      * @param options - Component configuration object with optional state/params/props
-     * @deprecated Passing a raw ComponentType is deprecated. Use DrawerPushOptions object instead.
      * @example
-     * // Recommended
      * schmancyContentDrawer.push({
      *   component: myComponent,
      *   props: { id: '123' }
      * })
-     *
-     * // Legacy (deprecated)
-     * schmancyContentDrawer.push(myComponent)
      */
-    push(options: ComponentType | DrawerPushOptions): void;
-    private normalizeOptions;
+    push(options: DrawerPushOptions): void;
 }
 export declare const schmancyContentDrawer: DrawerService;
 export {};

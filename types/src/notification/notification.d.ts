@@ -1,5 +1,3 @@
-import { PropertyValues } from 'lit';
-import '@schmancy/progress';
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 declare const SchmancyNotification_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
@@ -14,25 +12,28 @@ export default class SchmancyNotification extends SchmancyNotification_base {
     id: string;
     playSound: boolean;
     showProgress: boolean;
+    startPosition: {
+        x: number;
+        y: number;
+    };
     private _visible;
     private _progress;
     private _hovered;
     private _closing;
-    private _autoCloseTimer?;
-    private _progressTimer?;
+    private paused$;
+    private startTime;
+    private pausedAt;
+    private elapsedBeforePause;
     connectedCallback(): void;
-    disconnectedCallback(): void;
-    updated(changedProps: PropertyValues): void;
-    private _startAutoCloseTimer;
-    private _clearTimers;
-    private _pauseTimers;
-    private _resumeTimers;
+    private animateIn;
+    private setupAutoClose;
+    private setupProgressUpdates;
     private _playSound;
     private _handleMouseEnter;
     private _handleMouseLeave;
-    close(): void;
+    close(): Promise<void>;
+    private _getEmoji;
     render(): import("lit-html").TemplateResult<1>;
-    private _getTypeStyles;
 }
 declare global {
     interface HTMLElementTagNameMap {

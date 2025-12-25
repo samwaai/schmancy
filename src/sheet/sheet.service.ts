@@ -8,6 +8,7 @@ import {
 	take,
 	tap,
 } from 'rxjs'
+import { $sounds } from '../audio'
 import { ComponentType } from '../area/router.types'
 import { discoverComponent } from '@mixins/discovery.service'
 import SchmancySheet from './sheet'
@@ -116,6 +117,7 @@ class BottomSheetService {
 				delay(1),
 				tap(({ sheet, uid }) => {
 					sheet.setAttribute('open', 'true')
+					$sounds.play('curious')
 
 					// Add to active sheets tracking
 					this.activeSheets.add(uid)
@@ -179,6 +181,7 @@ class BottomSheetService {
 		}
 
 		if (uid) {
+			$sounds.play('atEase')
 			window.dispatchEvent(
 				new CustomEvent('schmancy-sheet-dismiss', {
 					detail: { uid },

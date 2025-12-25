@@ -4,6 +4,7 @@ export interface SchmancyButtonEventMap {
     SchmancyBlur: CustomEvent<void>;
 }
 export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'tonal' | 'outlined' | 'text';
+export type ButtonColor = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' | 'neutral';
 declare const SchmancyButton_base: CustomElementConstructor & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * A button component.
@@ -31,6 +32,13 @@ export declare class SchmancyButton extends SchmancyButton_base {
      */
     variant: ButtonVariant;
     /**
+     * The color of the button.
+     * @attr
+     * @default Depends on variant: 'primary' for filled/elevated/outlined/text, 'secondary' for tonal
+     * @public
+     */
+    color?: ButtonColor;
+    /**
      * The width of the button.
      * @attr
      * @type {'full' | 'auto'}
@@ -41,11 +49,11 @@ export declare class SchmancyButton extends SchmancyButton_base {
     /**
      * The size of the button.
      * @attr
-     * @type {'sm' | 'md' | 'lg'}
+     * @type {'xxs' | 'xs' | 'sm' | 'md' | 'lg'}
      * @default 'md'
      * @public
      */
-    size: 'sm' | 'md' | 'lg';
+    size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
     /**
      * The type of the button.
      * Defaults to 'button' (preventing accidental form submissions).
@@ -71,6 +79,11 @@ export declare class SchmancyButton extends SchmancyButton_base {
     focus(options?: FocusOptions): void;
     /** Removes focus from the button. */
     blur(): void;
+    /**
+     * Get the effective color based on variant if not explicitly set
+     * M3 spec: filled = primary, tonal = secondary, others = primary
+     */
+    protected get effectiveColor(): ButtonColor;
     protected get imgClasses(): string[];
     firstUpdated(): void;
     click(): void;

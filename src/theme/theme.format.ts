@@ -124,8 +124,8 @@ export function formateTheme(
 		onTertiaryFixed: 10,
 		onTertiaryFixedVariant: 30,
 
-		error: isDark ? 80 : 40,
-		onError: isDark ? 20 : 100,
+		error: isDark ? 50 : 40,
+		onError: isDark ? 100 : 100,
 		errorContainer: isDark ? 30 : 90,
 		onErrorContainer: isDark ? 90 : 10,
 
@@ -144,7 +144,7 @@ export function formateTheme(
 		inverseOnSurface: isDark ? 20 : 95,
 
 		outline: isDark ? 60 : 50,
-		outlineVariant: isDark ? 30 : 80,
+		outlineVariant: isDark ? 15 : 80,
 		shadow: 0,
 		scrim: 0,
 	}

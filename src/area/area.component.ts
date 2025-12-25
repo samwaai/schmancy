@@ -53,7 +53,7 @@ export class SchmancyArea extends $LitElement(css`
 		merge(
 			// Source 1: Programmatic navigation from area.request
 			area.request.pipe(
-				filter(({ area }) => area === this.name)
+				filter(({ area }) => area === this.name),
 			),
 
 			// Source 2: Initial page load - parse route from URL
@@ -384,7 +384,8 @@ export class SchmancyArea extends $LitElement(css`
 				this.name,
 				activeRoute,
 				routeAction.historyStrategy || HISTORY_STRATEGY.push,
-				routeAction.clearQueryParams
+				routeAction.clearQueryParams,
+				routeAction.path
 			)
 		}
 	}

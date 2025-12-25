@@ -33,12 +33,14 @@ export type SchmancyInputChangeEvent = CustomEvent<EventDetails>
 export type SchmancyInputEnterEvent = CustomEvent<EventDetails>
 
 /**
- * Size variants for the input.
- * - sm: Small, compact input (40px height)
- * - md: Medium input (50px height, default)
- * - lg: Large, spacious input (60px height)
+ * Size variants for the input - M3 spec aligned.
+ * - xxs: Ultra-compact (24dp) - for menu cards, compact UIs
+ * - xs: Dense/compact (32dp) - M3 density -3
+ * - sm: Default (40dp) - M3 density 0
+ * - md: Standard (48dp) - M3 large
+ * - lg: Extra large (56dp) - M3 extra large
  */
-export type InputSize = 'sm' | 'md' | 'lg'
+export type InputSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg'
 
 /**
  * Enhanced version of the SchmancyInput component with improved form integration
@@ -116,8 +118,8 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 	@property()
 	public max?: string
 
-	@property({ type: Number, reflect: true })
-	public step?: number
+	@property({ reflect: true })
+	public step?: string = 'any'
 
 	/** If true, auto-focus this input on first render. */
 	@property({ type: Boolean })
@@ -136,9 +138,11 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 
 	/**
 	 * The size of the input.
-	 * - 'sm': Small, compact size
-	 * - 'md': Medium size (default)
-	 * - 'lg': Large size
+	 * - 'xxs': Ultra-compact size (24px) - for menu cards
+	 * - 'xs': Extra small, very compact size (32px)
+	 * - 'sm': Small, compact size (40px)
+	 * - 'md': Medium size (default) (48px)
+	 * - 'lg': Large size (56px)
 	 */
 	@property({ type: String, reflect: true })
 	public size: InputSize = 'md'
@@ -767,27 +771,44 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 	//  G) Rendering
 	// ----------------------------
 	protected override render() {
-		// Determine height and padding based on size
+		// Determine height and padding based on size - M3 spec aligned
 		const getHeightAndPadding = () => {
 			switch (this.size) {
+				case 'xxs':
+					// Ultra-compact: 24dp height
+					return {
+						height: '24px',
+						padding: '0 8px',
+						fontSize: '0.625rem', // 10px
+					}
+				case 'xs':
+					// M3 dense: 32dp height
+					return {
+						height: '32px',
+						padding: '0 12px',
+						fontSize: '0.75rem', // 12px
+					}
 				case 'sm':
+					// M3 default: 40dp height
 					return {
 						height: '40px',
-						padding: '0 8px',
-						fontSize: '0.875rem', // 14px
+						padding: '0 16px',
+						fontSize: '0.875rem', // 14px - M3 body-large
 					}
 				case 'lg':
+					// M3 extra large: 56dp height
 					return {
-						height: '60px',
+						height: '56px',
 						padding: '0 20px',
-						fontSize: '1.125rem', // 18px
+						fontSize: '1rem', // 16px
 					}
 				case 'md':
 				default:
+					// M3 standard: 48dp height
 					return {
-						height: '50px',
+						height: '48px',
 						padding: '0 16px',
-						fontSize: '1rem', // 16px
+						fontSize: '0.875rem', // 14px - M3 body-large
 					}
 			}
 		}
@@ -825,6 +846,8 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 		const labelClasses = {
 			'block mb-1 font-medium': true,
 			'opacity-40': this.disabled,
+			'text-[10px]': this.size === 'xxs',
+			'text-xs': this.size === 'xs',
 			'text-sm': this.size === 'sm',
 			'text-base': this.size === 'md',
 			'text-lg': this.size === 'lg',
@@ -873,7 +896,7 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 					placeholder=${this.placeholder}
 					inputmode=${ifDefined(this.inputmode)}
 					pattern=${ifDefined(this.pattern)}
-					step=${ifDefined(this.step)}
+					.step=${this.step ?? ''}
 					minlength=${ifDefined(this.minlength)}
 					maxlength=${ifDefined(this.maxlength)}
 					min=${ifDefined(this.min)}

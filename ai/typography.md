@@ -62,10 +62,12 @@ import '@schmancy/index'  // For all Schmancy components
   Section Header
 </schmancy-typography>
 
-// 8. Clickable text
-<schmancy-typography type="body" token="md" class="cursor-pointer hover:text-primary" @click="${handleClick}">
-  Click me for more information
-</schmancy-typography>
+// 8. Clickable text (wrap in surface or use native link)
+<schmancy-surface type="primaryContainer" class="inline-block px-2 py-1 rounded cursor-pointer" @click="${handleClick}">
+  <schmancy-typography type="body" token="md">
+    Click me for more information
+  </schmancy-typography>
+</schmancy-surface>
 
 // 9. Truncated text with ellipsis
 <schmancy-typography type="body" token="md" maxLines="2">
@@ -80,9 +82,11 @@ import '@schmancy/index'  // For all Schmancy components
   <schmancy-typography type="body" token="md" class="block mb-4">
     This is a description that provides more context about the card content.
   </schmancy-typography>
-  <schmancy-typography type="label" token="lg" class="text-primary">
-    View Details →
-  </schmancy-typography>
+  <schmancy-surface type="primaryContainer" class="inline-block px-2 py-1 rounded">
+    <schmancy-typography type="label" token="lg">
+      View Details →
+    </schmancy-typography>
+  </schmancy-surface>
 </schmancy-card>
 ```
 
@@ -172,61 +176,81 @@ Typography automatically inherits colors from the theme:
 
 ### Color Inheritance
 
-**CRITICAL: Typography components automatically inherit the correct color from their parent surface.**
+## 🚨 ABSOLUTE RULE: NEVER PUT COLOR CLASSES ON SCHMANCY-TYPOGRAPHY
 
-#### ✅ CORRECT - Let Surface Handle Colors
+**Typography MUST inherit its color from the parent surface. NO EXCEPTIONS.**
+
+### Why This Rule Exists
+- `schmancy-typography` automatically gets the correct contrast color from its parent surface
+- Adding `text-*` classes breaks the design system's color inheritance
+- It causes visual inconsistency when themes change
+- It violates Material Design 3's surface/on-color relationship
+
+### ❌ FORBIDDEN - Color Classes on Typography
 ```html
-<!-- Typography inherits the correct on-color from the surface -->
-<schmancy-surface type="containerLow" class="p-4">
+<!-- ALL OF THESE ARE WRONG - NEVER DO THIS -->
+<schmancy-typography type="headline" token="md" class="text-error">Wrong</schmancy-typography>
+<schmancy-typography type="body" token="sm" class="text-success">Wrong</schmancy-typography>
+<schmancy-typography type="title" token="lg" class="text-primary">Wrong</schmancy-typography>
+<schmancy-typography type="label" token="md" class="text-warning">Wrong</schmancy-typography>
+<schmancy-typography class="text-surface-onVariant">Wrong</schmancy-typography>
+```
+
+### ✅ CORRECT - Use Surfaces to Control Color
+```html
+<!-- Need error text? Use error surface -->
+<schmancy-surface type="error" class="px-2 py-1 rounded">
+  <schmancy-typography type="body" token="sm">
+    Error message here (automatically gets on-error color)
+  </schmancy-typography>
+</schmancy-surface>
+
+<!-- Need primary-colored text? Use primary surface -->
+<schmancy-surface type="primary" class="px-2 py-1 rounded">
+  <schmancy-typography type="label" token="md">
+    Primary text (automatically gets on-primary color)
+  </schmancy-typography>
+</schmancy-surface>
+
+<!-- Normal text inside container -->
+<schmancy-surface type="container" class="p-4">
   <schmancy-typography type="headline" token="md">
     This text automatically uses the correct contrast color
   </schmancy-typography>
 </schmancy-surface>
-
-<!-- Different surface types provide different text colors automatically -->
-<schmancy-surface type="primary" class="p-4">
-  <schmancy-typography type="body" token="md">
-    White text on primary background (automatic)
-  </schmancy-typography>
-</schmancy-surface>
 ```
 
-#### ❌ WRONG - Explicit Color Classes Inside Surfaces
+### ❌ ALSO FORBIDDEN - Spans with Colors Inside Typography
 ```html
-<!-- BAD: Overriding the surface's automatic color selection -->
-<schmancy-surface type="containerLow" class="p-4">
-  <schmancy-typography type="headline" token="md" class="text-surface-onVariant">
-    Don't add color classes - the surface already provides the right color!
-  </schmancy-typography>
-</schmancy-surface>
-```
-
-#### When to Use Color Classes
-
-**ONLY add explicit color classes when:**
-1. Typography is used standalone (not inside a surface)
-2. You need a specific semantic color (e.g., `text-error` for errors)
-3. Creating interactive elements that change color on hover
-
-```html
-<!-- Standalone typography (not in a surface) - color class is appropriate -->
-<div class="p-4">
-  <schmancy-typography type="label" token="md" class="text-error">
-    Error: Invalid input
-  </schmancy-typography>
-</div>
-
-<!-- Interactive element with hover state -->
-<schmancy-typography type="body" token="md" class="cursor-pointer hover:text-primary">
-  Click for more info
+<!-- WRONG - No color classes inside typography either! -->
+<schmancy-typography type="body" token="md">
+  Total: <span class="text-error">-€338.89</span>  <!-- WRONG -->
 </schmancy-typography>
 ```
 
-**Key Rules:**
-- NEVER add `text-surface-onVariant` or similar classes inside surfaces
-- Surfaces automatically provide the correct contrast color
-- Each surface type (primary, secondary, tertiary, containerLow, etc.) knows its appropriate text color
-- Trust the component system - it handles accessibility and contrast automatically
+### ✅ CORRECT - Always Wrap with Surface
+```html
+<!-- For colored values, wrap the typography in a surface -->
+<schmancy-surface type="errorContainer" class="px-2 py-0.5 rounded inline-block">
+  <schmancy-typography type="body" token="md">-€338.89</schmancy-typography>
+</schmancy-surface>
+```
+
+### Available Surface Types for Colored Text
+| Need This Color | Use This Surface |
+|-----------------|------------------|
+| Error/Red text | `type="error"` or `type="errorContainer"` |
+| Success/Green text | `type="success"` or `type="successContainer"` |
+| Warning/Amber text | `type="warning"` or `type="warningContainer"` |
+| Primary accent | `type="primary"` or `type="primaryContainer"` |
+| Secondary accent | `type="secondary"` or `type="secondaryContainer"` |
+| Tertiary accent | `type="tertiary"` or `type="tertiaryContainer"` |
+
+### The Principle
+**Surfaces define the background AND automatically provide the correct text color.**
+- `schmancy-surface type="error"` → red background, white text (automatic)
+- `schmancy-surface type="errorContainer"` → light red background, dark red text (automatic)
+- Trust the design system - don't override it with color classes
 
 ### Implementation Details
 - Uses Shadow DOM with encapsulated styles
@@ -257,9 +281,11 @@ Typography automatically inherits colors from the theme:
 
 3. **Data Display**
    ```html
-   <schmancy-typography type="headline" token="md" class="block text-primary">
-     $1,234.56
-   </schmancy-typography>
+   <schmancy-surface type="primaryContainer" class="inline-block px-3 py-2 rounded">
+     <schmancy-typography type="headline" token="md" class="block">
+       $1,234.56
+     </schmancy-typography>
+   </schmancy-surface>
    <schmancy-typography type="label" token="sm">
      Total Revenue
    </schmancy-typography>

@@ -1,4 +1,40 @@
-import { NotificationOptions } from './notification-container'
+import { $sounds, type Feeling } from '../audio'
+import SchmancyNotification, { NotificationType } from './notification'
+
+export interface NotificationOptions {
+	id?: string
+	title?: string
+	message: string
+	type?: NotificationType
+	duration?: number
+	closable?: boolean
+	playSound?: boolean
+	showProgress?: boolean
+}
+
+const typeToFeeling: Record<NotificationType, Feeling> = {
+	info: 'curious',
+	success: 'content',
+	warning: 'anxious',
+	error: 'disappointed',
+}
+
+// Track last mouse position
+let lastClickPosition = { x: window.innerWidth - 100, y: 50 }
+
+// Global mousedown listener to track click position
+if (typeof window !== 'undefined') {
+	window.addEventListener(
+		'mousedown',
+		(e: MouseEvent) => {
+			lastClickPosition = { x: e.clientX, y: e.clientY }
+		},
+		{ capture: true, passive: true },
+	)
+}
+
+// Track current notification element
+let currentNotification: SchmancyNotification | null = null
 
 /**
  * Notification service for centralized notification management.
@@ -7,6 +43,7 @@ import { NotificationOptions } from './notification-container'
 export class NotificationService {
 	private static instance: NotificationService
 	private notificationStack: string[] = []
+	private audioVolume = 0.1
 
 	// Default notification options
 	private static DEFAULT_OPTIONS: Partial<NotificationOptions> = {
@@ -15,8 +52,18 @@ export class NotificationService {
 		playSound: true,
 	}
 
+	// Type-specific default durations (in milliseconds)
+	private static TYPE_DURATIONS: Record<NotificationType, number> = {
+		success: 1500, // 1.5 seconds - quick confirmation
+		info: 2000, // 2 seconds - informational
+		warning: 2500, // 2.5 seconds - needs attention
+		error: 2500, // 2.5 seconds - important
+	}
+
 	// Private constructor for singleton pattern
-	private constructor() {}
+	private constructor() {
+		$sounds.setVolume(this.audioVolume)
+	}
 
 	/**
 	 * Get the singleton instance
@@ -46,17 +93,45 @@ export class NotificationService {
 		// Add to stack for tracking
 		this.notificationStack.push(id)
 
-		// Create and dispatch event
-		const event = new CustomEvent('schmancy-notification', {
-			bubbles: true,
-			composed: true,
-			detail: {
-				...completeOptions,
-				id,
-			},
+		// Remove existing notification if any (only 1 at a time)
+		if (currentNotification) {
+			currentNotification.remove()
+			currentNotification = null
+		}
+
+		// Create the notification element directly
+		const notification = document.createElement('sch-notification') as SchmancyNotification
+		notification.id = id
+		notification.title = completeOptions.title || ''
+		notification.message = completeOptions.message
+		notification.type = completeOptions.type || 'info'
+		notification.duration = completeOptions.duration || 1000
+		notification.closable = completeOptions.closable !== false
+		notification.playSound = false // We handle sound here
+		notification.showProgress = completeOptions.showProgress || false
+		notification.startPosition = { ...lastClickPosition }
+
+		// Play sound if enabled
+		if (completeOptions.playSound !== false) {
+			$sounds.play(typeToFeeling[notification.type])
+		}
+
+		// Listen for close event
+		notification.addEventListener('close', () => {
+			const index = this.notificationStack.indexOf(id)
+			if (index > -1) {
+				this.notificationStack.splice(index, 1)
+			}
+			notification.remove()
+			if (currentNotification === notification) {
+				currentNotification = null
+			}
 		})
 
-		window.dispatchEvent(event)
+		// Append to body
+		document.body.appendChild(notification)
+		currentNotification = notification
+
 		return id
 	}
 
@@ -79,14 +154,8 @@ export class NotificationService {
 			targetId = this.notificationStack.pop()
 		}
 
-		if (targetId) {
-			// Dispatch dismiss event
-			const event = new CustomEvent('schmancy-notification-dismiss', {
-				bubbles: true,
-				composed: true,
-				detail: { id: targetId },
-			})
-			window.dispatchEvent(event)
+		if (targetId && currentNotification && currentNotification.id === targetId) {
+			currentNotification.close()
 		}
 	}
 
@@ -94,12 +163,11 @@ export class NotificationService {
 	 * Update a notification's content
 	 */
 	public update(id: string, options: Partial<NotificationOptions>): void {
-		const event = new CustomEvent('schmancy-notification-update', {
-			bubbles: true,
-			composed: true,
-			detail: { id, ...options },
-		})
-		window.dispatchEvent(event)
+		if (currentNotification && currentNotification.id === id) {
+			if (options.title !== undefined) currentNotification.title = options.title
+			if (options.message !== undefined) currentNotification.message = options.message
+			if (options.type !== undefined) currentNotification.type = options.type
+		}
 	}
 
 	/**
@@ -109,7 +177,7 @@ export class NotificationService {
 		return this.notify({
 			message: message ?? '',
 			type: 'info',
-			duration: message ? options.duration : 1,
+			duration: message ? (options.duration ?? NotificationService.TYPE_DURATIONS.info) : 1,
 			...options,
 		})
 	}
@@ -121,7 +189,7 @@ export class NotificationService {
 		return this.notify({
 			message: message ?? '',
 			type: 'success',
-			duration: message ? options.duration : 1,
+			duration: message ? (options.duration ?? NotificationService.TYPE_DURATIONS.success) : 1,
 			...options,
 		})
 	}
@@ -133,7 +201,7 @@ export class NotificationService {
 		return this.notify({
 			message: message ?? '',
 			type: 'warning',
-			duration: message ? options.duration : 1,
+			duration: message ? (options.duration ?? NotificationService.TYPE_DURATIONS.warning) : 1,
 			...options,
 		})
 	}
@@ -145,7 +213,7 @@ export class NotificationService {
 		return this.notify({
 			message: message ?? '',
 			type: 'error',
-			duration: message ? options.duration : 1,
+			duration: message ? (options.duration ?? NotificationService.TYPE_DURATIONS.error) : 1,
 			...options,
 		})
 	}
@@ -175,7 +243,6 @@ export class NotificationService {
 			...options,
 		})
 	}
-
 }
 
 /**

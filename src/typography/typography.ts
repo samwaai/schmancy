@@ -33,49 +33,6 @@ export class SchmancyTypography extends TailwindElement(css`
 		text-align: justify;
 	}
 
-	/* Max lines / line clamping */
-	:host([max-lines='1']) {
-		display: -webkit-box;
-		-webkit-line-clamp: 1;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	:host([max-lines='2']) {
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	:host([max-lines='3']) {
-		display: -webkit-box;
-		-webkit-line-clamp: 3;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	:host([max-lines='4']) {
-		display: -webkit-box;
-		-webkit-line-clamp: 4;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	:host([max-lines='5']) {
-		display: -webkit-box;
-		-webkit-line-clamp: 5;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	:host([max-lines='6']) {
-		display: -webkit-box;
-		-webkit-line-clamp: 6;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
 	/* Font weight */
 	:host([weight='bold']) {
 		font-weight: 700;
@@ -337,8 +294,20 @@ export class SchmancyTypography extends TailwindElement(css`
 	@property({ type: String, reflect: true }) 
 	transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined
 
-	@property({ type: Number, attribute: 'max-lines', reflect: true }) 
+	@property({ type: Number })
 	maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined
+
+	protected updated(changedProperties: Map<string, unknown>): void {
+		super.updated(changedProperties)
+		if (changedProperties.has('maxLines')) {
+			// Remove all line-clamp classes
+			this.classList.remove('line-clamp-1', 'line-clamp-2', 'line-clamp-3', 'line-clamp-4', 'line-clamp-5', 'line-clamp-6')
+			// Add the appropriate one
+			if (this.maxLines) {
+				this.classList.add(`line-clamp-${this.maxLines}`)
+			}
+		}
+	}
 
 	protected render(): unknown {
 		return html`<slot></slot>`

@@ -5,6 +5,17 @@ import { BehaviorSubject, combineLatest, takeUntil } from 'rxjs'
 import { tap } from 'rxjs/operators'
 
 /**
+ * Icon size tokens - M3 aligned with optical size optimization
+ * - xxs: 12px (opsz: 20) - fits in 24px buttons (ultra-compact)
+ * - xs: 16px (opsz: 20) - fits in 32px buttons
+ * - sm: 20px (opsz: 20) - fits in 40px buttons
+ * - md: 24px (opsz: 24) - fits in 48px buttons (default)
+ * - lg: 32px (opsz: 40) - fits in 56px buttons
+ * - Or custom string like '48px'
+ */
+export type IconSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | string
+
+/**
  * @element schmancy-icon
  * Material Symbols icon component with flexible font variation properties
  *
@@ -106,6 +117,23 @@ export default class SchmancyIcon extends TailwindElement(css`
 	@property({ type: String, reflect: true })
 	variant: 'outlined' | 'rounded' | 'sharp' = 'outlined'
 
+	/**
+	 * Size of the icon - M3 aligned tokens or custom string
+	 * Tokens: 'xxs' (12px), 'xs' (16px), 'sm' (20px), 'md' (24px), 'lg' (32px)
+	 * Custom: any CSS size string like '48px', '2rem'
+	 */
+	@property({ type: String, reflect: true })
+	size: IconSize = 'md'
+
+	// M3 aligned token sizes with optimal optical sizes
+	private static readonly tokenSizes: Record<string, { size: string; opsz: number }> = {
+		xxs: { size: '12px', opsz: 20 }, // fits in 24px buttons (ultra-compact)
+		xs: { size: '16px', opsz: 20 },  // fits in 32px buttons
+		sm: { size: '20px', opsz: 20 },  // fits in 40px buttons
+		md: { size: '24px', opsz: 24 },  // fits in 48px buttons (default)
+		lg: { size: '32px', opsz: 40 },  // fits in 56px buttons
+	}
+
 	// RxJS subjects for reactive property updates
 	private fill$ = new BehaviorSubject(this.fill)
 	private weight$ = new BehaviorSubject(this.weight)
@@ -177,11 +205,18 @@ export default class SchmancyIcon extends TailwindElement(css`
 			'sharp': 'Material Symbols Sharp'
 		}[this.variant] || 'Material Symbols Outlined'
 
+		// Resolve size token or use custom value
+		const sizeConfig = SchmancyIcon.tokenSizes[this.size]
+		const iconSize = sizeConfig?.size || this.size
+		const opticalSize = sizeConfig?.opsz || 24
+
 		const style = {
 			'--schmancy-icon-fill': this.fill,
 			'--schmancy-icon-weight': this.weight,
 			'--schmancy-icon-grade': this.grade,
-			'--schmancy-icon-font': fontFamily
+			'--schmancy-icon-font': fontFamily,
+			'--schmancy-icon-size': iconSize,
+			'--schmancy-icon-opsz': opticalSize,
 		}
 
 		return html`

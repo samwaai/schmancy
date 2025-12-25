@@ -1,6 +1,6 @@
 import { provide } from '@lit/context'
 import { argbFromHex, themeFromSourceColor } from '@material/material-color-utilities'
-import { TailwindElement } from '@mixins/tailwind.mixin'
+import { $LitElement } from '@mixins/index'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { Observable, of, switchMap, fromEvent, takeUntil } from 'rxjs'
@@ -52,7 +52,7 @@ const $colorScheme = new Observable<string>(subscriber => {
  * ```
  */
 @customElement('schmancy-theme')
-export class SchmancyThemeComponent extends TailwindElement(tailwindStyles) {
+export class SchmancyThemeComponent extends $LitElement(tailwindStyles) {
 	/**
 	 * Primary color for the theme in hex format.
 	 * @attr color

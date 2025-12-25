@@ -1,6 +1,7 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { SchmancyThemeController } from './theme-controller'
+import './theme-audio-player'
 
 /**
  * BOAT UX theme controller - Wraps the base theme controller in a schmancy-boat component.
@@ -29,8 +30,12 @@ export class SchmancyThemeControllerBoat extends SchmancyThemeController {
 			<schmancy-boat id="schmancy-theme-component">
 				<schmancy-icon slot="header">palette</schmancy-icon>
 
-				<div class="p-4">
+				<div class="p-4 space-y-6">
 					${super.render()}
+
+					<!-- Audio Player Section -->
+					<schmancy-divider></schmancy-divider>
+					<schmancy-theme-audio-player></schmancy-theme-audio-player>
 				</div>
 			</schmancy-boat>
 		`

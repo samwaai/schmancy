@@ -76,7 +76,8 @@ export class SchmancySelect extends $LitElement(css`
 	@property({ type: String }) label = ''
 	@property({ type: String }) hint = ''
 	@property({ type: String }) validateOn: 'always' | 'touched' | 'dirty' | 'submitted' = 'touched'
-	@property({ type: String }) size: 'sm' | 'md' | 'lg' = 'md'
+	// M3 aligned sizes: 24dp (xxs) → 32dp (xs) → 40dp (sm) → 48dp (md) → 56dp (lg)
+	@property({ type: String }) size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' = 'md'
 
 	// Internal states
 	@state() private isOpen = false

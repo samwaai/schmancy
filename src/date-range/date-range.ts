@@ -1,10 +1,11 @@
 import { $LitElement } from '@mixins/index'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
-import { html, PropertyValues } from 'lit'
+import { html, PropertyValues, render } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { debounceTime, fromEvent, takeUntil, timer } from 'rxjs'
 import { $dialog } from '../dialog/dialog-service'
+import { sheet } from '../sheet/sheet.service'
 import { detectDateRangeType, formatDateRange } from './date-range-helpers'
 import { DateRangePreset, generatePresetCategories, PresetCategory } from './date-range-presets'
 import { validateInitialDateRange } from './date-utils'
@@ -62,6 +63,12 @@ export class SchmancyDateRange extends $LitElement() {
 	// Memoization cache
 	private memoizedPresets = new Map<string, PresetCategory[]>()
 
+	disconnectedCallback(): void {
+		super.disconnectedCallback()
+		// Reset open state when element is moved/removed to prevent stale state
+		this.isOpen = false
+	}
+
 	connectedCallback(): void {
 		super.connectedCallback()
 		this.initPresetRanges()
@@ -103,10 +110,6 @@ export class SchmancyDateRange extends $LitElement() {
 			.subscribe(() => {
 				this.checkMobileView()
 			})
-	}
-
-	disconnectedCallback(): void {
-		super.disconnectedCallback()
 	}
 
 	updated(changedProps: PropertyValues) {
@@ -211,26 +214,23 @@ export class SchmancyDateRange extends $LitElement() {
 		)
 	}
 
-
-
-
-	private toggleDropdown(e: Event) {
+	private toggleDropdown(e: MouseEvent) {
 		e.stopPropagation()
 		if (this.disabled || this.step !== undefined) return
 
 		if (this.isOpen) {
 			this.closeDropdown()
 		} else {
-			this.openDropdown()
+			this.openDropdown(e)
 		}
 	}
 
-	private openDropdown() {
+	private openDropdown(e?: MouseEvent) {
 		if (this.disabled || this.step !== undefined) return
-		
+
+		this.dispatchEvent(new CustomEvent('beforeopen', { bubbles: true, composed: true }))
 		this.isOpen = true
-		
-		// Create dialog with the new component
+
 		const dialogContent = html`
 			<schmancy-date-range-dialog
 				.type="${this.type}"
@@ -243,6 +243,7 @@ export class SchmancyDateRange extends $LitElement() {
 				@preset-select="${(e: CustomEvent) => {
 					this.activePreset = e.detail.preset.label
 					this.setDateRange(e.detail.preset.range.dateFrom, e.detail.preset.range.dateTo)
+					this.closeDropdown()
 				}}"
 				@date-change="${() => this.updateSelectedDateRange()}"
 				@apply-dates="${(e: CustomEvent) => {
@@ -252,26 +253,39 @@ export class SchmancyDateRange extends $LitElement() {
 					} else {
 						this.setDateRange(dateFrom, dateTo)
 					}
+					this.closeDropdown()
 				}}"
 				@announce="${(e: CustomEvent) => this.announceToScreenReader(e.detail.message)}"
 			></schmancy-date-range-dialog>
 		`
-		
-		// Use the dialog service - it will automatically find the nearest schmancy-theme
-		$dialog.component(dialogContent, {
-			title: 'Select Date Range',
-			width: this.isMobile ? '100vw' : '800px',
-			hideActions: true
-		}).then(() => {
-			this.isOpen = false
-		})
+
+		if (this.isMobile) {
+			const container = document.createElement('div')
+			render(dialogContent, container)
+			sheet.push({
+				component: container,
+				uid: 'date-range-sheet',
+				close: () => { this.isOpen = false }
+			})
+		} else {
+			$dialog.component(dialogContent, {
+				title: 'Select Date Range',
+				hideActions: true,
+				position: e
+			}).then(() => {
+				this.isOpen = false
+			})
+		}
 	}
 
 	private closeDropdown() {
-		$dialog.dismiss()
+		if (this.isMobile) {
+			sheet.dismiss('date-range-sheet')
+		} else {
+			$dialog.dismiss()
+		}
 		this.isOpen = false
 	}
-
 
 	/**
 	 * Shifts the date range based on the step property
@@ -288,84 +302,47 @@ export class SchmancyDateRange extends $LitElement() {
 
 		const format = this.getDateFormat()
 		const dir = direction > 0 ? 1 : -1
+		const daysDiff = toDate.diff(fromDate, 'day') + 1
 
-		let newFromDate: dayjs.Dayjs
-		let newToDate: dayjs.Dayjs
+		// Determine shift amount and unit
+		let amount: number
+		let unit: dayjs.ManipulateType
 
-		// If step is explicitly provided, use it
 		if (this.step !== undefined) {
 			if (typeof this.step === 'number') {
-				// Numeric step means shift by that many days
-				newFromDate = dir > 0 ? fromDate.add(this.step, 'day') : fromDate.subtract(this.step, 'day')
-				newToDate = dir > 0 ? toDate.add(this.step, 'day') : toDate.subtract(this.step, 'day')
+				amount = dir * this.step
+				unit = 'day'
+			} else if (this.step === 'day') {
+				amount = dir * daysDiff
+				unit = 'day'
 			} else {
-				// String step means shift by the specified unit
-				switch (this.step) {
-					case 'day': {
-						const daysDiff = toDate.diff(fromDate, 'day') + 1
-						newFromDate = dir > 0 ? fromDate.add(daysDiff, 'day') : fromDate.subtract(daysDiff, 'day')
-						newToDate = dir > 0 ? toDate.add(daysDiff, 'day') : toDate.subtract(daysDiff, 'day')
-						break
-					}
-					case 'week': {
-						newFromDate = dir > 0 ? fromDate.add(1, 'week') : fromDate.subtract(1, 'week')
-						newToDate = dir > 0 ? toDate.add(1, 'week') : toDate.subtract(1, 'week')
-						break
-					}
-					case 'month': {
-						newFromDate = dir > 0 ? fromDate.add(1, 'month') : fromDate.subtract(1, 'month')
-						newToDate = dir > 0 ? toDate.add(1, 'month') : toDate.subtract(1, 'month')
-						break
-					}
-					case 'year': {
-						newFromDate = dir > 0 ? fromDate.add(1, 'year') : fromDate.subtract(1, 'year')
-						newToDate = dir > 0 ? toDate.add(1, 'year') : toDate.subtract(1, 'year')
-						break
-					}
-				}
+				amount = dir
+				unit = this.step
 			}
 		} else {
-			// Auto-detect the appropriate step based on the date range
+			// Auto-detect based on date range
 			const rangeType = detectDateRangeType(fromDate, toDate)
-			const daysDiff = toDate.diff(fromDate, 'day') + 1
-
 			if (rangeType.isFullYear) {
-				// Full year range - shift by year
-				newFromDate = dir > 0 ? fromDate.add(1, 'year') : fromDate.subtract(1, 'year')
-				newToDate = dir > 0 ? toDate.add(1, 'year') : toDate.subtract(1, 'year')
+				amount = dir
+				unit = 'year'
 			} else if (rangeType.isFullMonth) {
-				// Full month range - shift by month
-				newFromDate = dir > 0 ? fromDate.add(1, 'month') : fromDate.subtract(1, 'month')
-				newToDate = dir > 0 ? toDate.add(1, 'month') : toDate.subtract(1, 'month')
+				amount = dir
+				unit = 'month'
 			} else if (rangeType.isFullWeek) {
-				// Full week range - shift by week
-				newFromDate = dir > 0 ? fromDate.add(1, 'week') : fromDate.subtract(1, 'week')
-				newToDate = dir > 0 ? toDate.add(1, 'week') : toDate.subtract(1, 'week')
-			} else if (daysDiff === 1) {
-				// Single day - shift by 1 day
-				newFromDate = dir > 0 ? fromDate.add(1, 'day') : fromDate.subtract(1, 'day')
-				newToDate = dir > 0 ? toDate.add(1, 'day') : toDate.subtract(1, 'day')
+				amount = dir
+				unit = 'week'
 			} else {
-				// Custom range - shift by the range duration
-				newFromDate = dir > 0 ? fromDate.add(daysDiff, 'day') : fromDate.subtract(daysDiff, 'day')
-				newToDate = dir > 0 ? toDate.add(daysDiff, 'day') : toDate.subtract(daysDiff, 'day')
+				amount = dir * daysDiff
+				unit = 'day'
 			}
 		}
+
+		const newFromDate = fromDate.add(amount, unit)
+		const newToDate = toDate.add(amount, unit)
 
 		// Validate against min/max dates
-		if (this.minDate) {
-			const minDate = dayjs(this.minDate)
-			if (newFromDate.isBefore(minDate)) {
-				return // Don't shift if it would go before min date
-			}
-		}
-
-		if (this.maxDate) {
-			const maxDate = dayjs(this.maxDate)
-			if (newToDate.isAfter(maxDate)) {
-				return // Don't shift if it would go after max date
-			}
-		}
+		if (this.minDate && newFromDate.isBefore(dayjs(this.minDate))) return
+		if (this.maxDate && newToDate.isAfter(dayjs(this.maxDate))) return
 
 		// Update the date range
 		this.setDateRange(newFromDate.format(format), newToDate.format(format))
@@ -444,7 +421,6 @@ export class SchmancyDateRange extends $LitElement() {
 		}
 	}
 
-
 	/**
 	 * Check if view is mobile
 	 */
@@ -478,9 +454,6 @@ export class SchmancyDateRange extends $LitElement() {
 		return toDate.isBefore(maxDate)
 	}
 
-
-
-
 	/**
 	 * Announce messages to screen readers
 	 */
@@ -494,7 +467,6 @@ export class SchmancyDateRange extends $LitElement() {
 			})
 	}
 
-
 	render() {
 		return html`
 			<div class="relative ${this.disabled ? 'opacity-60 pointer-events-none' : ''}">
@@ -503,8 +475,7 @@ export class SchmancyDateRange extends $LitElement() {
 					${this.announceMessage}
 				</div>
 
-				<!-- Trigger using the preferred schmancy-grid pattern -->
-				<section @click=${(event: Event) => event.stopPropagation()} class="flex" >
+				<section @click=${(event: Event) => event.stopPropagation()} class="flex">
 						<schmancy-icon-button
 							type="button"
 							aria-label="Previous ${this.activePreset ? this.activePreset.toLowerCase() : 'date range'}"
@@ -522,7 +493,7 @@ export class SchmancyDateRange extends $LitElement() {
 							aria-expanded=${this.isOpen}
 							aria-label="Select date range. Current: ${this.selectedDateRange || 'No date selected'}"
 							aria-readonly="${this.step !== undefined}"
-							@click=${(e: Event) => this.toggleDropdown(e)}
+							@click=${(e: MouseEvent) => this.toggleDropdown(e)}
 							?disabled=${this.disabled}
 							style="${this.step !== undefined ? 'cursor: default;' : ''}"
 						>

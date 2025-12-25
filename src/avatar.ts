@@ -4,7 +4,16 @@ import { customElement, property } from 'lit/decorators.js'
 import { color } from '@schmancy/directives'
 import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 
-export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+/**
+ * M3 avatar sizes: 20dp → 24dp → 32dp → 40dp → 48dp → 64dp
+ * - xxs: Ultra-compact (20px) - for menu cards
+ * - xs: 24px - M3 compact
+ * - sm: 32px - M3 small
+ * - md: 40px - M3 medium (default)
+ * - lg: 48px - M3 large
+ * - xl: 64px - M3 extra large
+ */
+export type AvatarSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 export type AvatarColor = 'primary' | 'secondary' | 'tertiary' | 'success' | 'error' | 'neutral'
 export type AvatarShape = 'circle' | 'square'
 export type AvatarStatus = 'online' | 'offline' | 'busy' | 'away' | 'none'
@@ -55,13 +64,14 @@ export class SchmancyAvatar extends $LitElement() {
 			content = html`<schmancy-icon>person</schmancy-icon>`
 		}
 
-		// Size classes
+		// Size classes - M3 aligned: 20dp → 24dp → 32dp → 40dp → 48dp → 64dp
 		const sizeClasses = {
-			xs: 'w-6 h-6 text-xs',
-			sm: 'w-8 h-8 text-sm',
-			md: 'w-10 h-10 text-base',
-			lg: 'w-12 h-12 text-lg',
-			xl: 'w-16 h-16 text-xl',
+			xxs: 'w-5 h-5 text-[8px]', // 20px - Ultra-compact
+			xs: 'w-6 h-6 text-xs',     // 24px - M3 compact
+			sm: 'w-8 h-8 text-sm',     // 32px - M3 small
+			md: 'w-10 h-10 text-base', // 40px - M3 medium (default)
+			lg: 'w-12 h-12 text-lg',   // 48px - M3 large
+			xl: 'w-16 h-16 text-xl',   // 64px - M3 extra large
 		}
 
 		// Shape classes
@@ -128,6 +138,7 @@ export class SchmancyAvatar extends $LitElement() {
 		}
 
 		const sizeMap = {
+			xxs: 'w-1 h-1',
 			xs: 'w-1.5 h-1.5',
 			sm: 'w-2 h-2',
 			md: 'w-2.5 h-2.5',

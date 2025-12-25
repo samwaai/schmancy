@@ -38,6 +38,7 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
      */
     transform: 'uppercase' | 'lowercase' | 'capitalize' | 'normal' | undefined;
     maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined;
+    protected updated(changedProperties: Map<string, unknown>): void;
     protected render(): unknown;
 }
 declare global {

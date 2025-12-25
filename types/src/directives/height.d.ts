@@ -1,13 +1,18 @@
-import { Subject } from 'rxjs';
 import { PartInfo } from 'lit/directive.js';
 import { AsyncDirective } from 'lit/async-directive.js';
-import { LitElement } from 'lit';
+/**
+ * Directive that sets element height to fill remaining viewport space.
+ * Uses visualViewport for accurate mobile height (handles keyboard).
+ *
+ * @example
+ * html`<div ${fullHeight()}>Content</div>`
+ */
 declare class FullHeight extends AsyncDirective {
-    element: HTMLElement & LitElement;
-    disconnecting: Subject<boolean>;
+    private element;
+    private disconnecting$;
+    private updateHeight;
     render(): void;
-    constructor(_partInfo: PartInfo);
-    update(part: any): void;
+    update(part: PartInfo): void;
     disconnected(): void;
     reconnected(): void;
 }

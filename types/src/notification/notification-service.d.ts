@@ -1,4 +1,14 @@
-import { NotificationOptions } from './notification-container';
+import { NotificationType } from './notification';
+export interface NotificationOptions {
+    id?: string;
+    title?: string;
+    message: string;
+    type?: NotificationType;
+    duration?: number;
+    closable?: boolean;
+    playSound?: boolean;
+    showProgress?: boolean;
+}
 /**
  * Notification service for centralized notification management.
  * Provides a simple API for showing notifications.
@@ -6,7 +16,9 @@ import { NotificationOptions } from './notification-container';
 export declare class NotificationService {
     private static instance;
     private notificationStack;
+    private audioVolume;
     private static DEFAULT_OPTIONS;
+    private static TYPE_DURATIONS;
     private constructor();
     /**
      * Get the singleton instance

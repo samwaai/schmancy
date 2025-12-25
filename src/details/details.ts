@@ -3,7 +3,6 @@ import { css, html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
-import { classMap } from 'lit/directives/class-map.js'
 import { BehaviorSubject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
@@ -11,6 +10,10 @@ import { takeUntil } from 'rxjs/operators'
 export default class SchmancyDetails extends TailwindElement(css`
 	:host {
 		display: block;
+	}
+
+	:host([overlay]) {
+		position: relative;
 	}
 
 	summary::-webkit-details-marker {
@@ -28,7 +31,7 @@ export default class SchmancyDetails extends TailwindElement(css`
 	}
 
 	@property() summary = ''
-	
+
 	@property({ type: Boolean, reflect: true })
 	get open() {
 		return this._open$.value
@@ -40,19 +43,18 @@ export default class SchmancyDetails extends TailwindElement(css`
 		}
 	}
 
-	@property({ reflect: true }) variant: 'outlined' | 'filled' | 'elevated' = 'outlined'
-	@property({ reflect: true }) type?: 'success' | 'error' | 'warning'
-	
-	// Tailwind padding classes
-	@property({ attribute: 'summary-padding' }) summaryPadding = 'px-3 py-2'
-	@property({ attribute: 'content-padding' }) contentPadding = 'px-3 pb-2'
-	
 	// Indicator control
-	@property({ attribute: 'indicator-placement', reflect: true }) 
+	@property({ attribute: 'indicator-placement', reflect: true })
 	indicatorPlacement: 'start' | 'end' = 'end'
-	
-	@property({ type: Boolean, attribute: 'hide-indicator' }) 
+
+	@property({ type: Boolean, attribute: 'hide-indicator' })
 	hideIndicator = false
+
+	@property({ type: Boolean, reflect: true })
+	locked = false
+
+	@property({ type: Boolean, reflect: true })
+	overlay = false
 
 	private _open$ = new BehaviorSubject<boolean>(false)
 	private _indicatorRef: Ref<HTMLElement> = createRef()
@@ -69,29 +71,28 @@ export default class SchmancyDetails extends TailwindElement(css`
 	render() {
 		const isOpen = this._open$.value
 
-		const detailsClasses = classMap({
-			'w-full overflow-hidden rounded-xl': true,
-			// Variant styles
-			'border border-outline-variant bg-surface-default': this.variant === 'outlined',
-			'bg-surface-container': this.variant === 'filled',
-			'bg-surface-containerLow shadow-md': this.variant === 'elevated' && !isOpen,
-			'bg-surface-container shadow-lg': this.variant === 'elevated' && isOpen,
-			// Type styles
-			'border-l-4 border-l-success-default bg-success-container/10': this.type === 'success',
-			'border-l-4 border-l-error-default bg-error-container/10': this.type === 'error',
-			'border-l-4 border-l-warning-default bg-warning-container/10': this.type === 'warning',
+		// Neutral styling with subtle border - inherits from parent surface
+		// Add elevation when open, relative positioning for overlay mode
+		const detailsClasses = this.classMap({
+			'w-full rounded-xl border transition-all duration-200 ease-out': true,
+			'overflow-hidden': !this.overlay,
+			'overflow-visible relative': this.overlay,
+			'border-outline-variant': !isOpen,
+			'border-outline shadow-xl z-10': isOpen,
 		})
 
-		const summaryClasses = classMap({
-			'cursor-pointer select-none relative flex items-center gap-2 rounded-xl text-surface-on group focus-visible:outline-2 focus-visible:outline-primary-default focus-visible:outline-offset-2': true,
-			[this.summaryPadding]: true,
+		const summaryClasses = this.classMap({
+			'select-none relative flex items-center gap-2 rounded-xl text-surface-on transition-colors duration-200': true,
+			'cursor-pointer group hover:bg-surface-on/[0.08] focus-visible:ring-2 focus-visible:ring-primary-default/50 focus-visible:ring-offset-1': !this.locked,
+			'cursor-default': this.locked,
 			'flex-row': this.indicatorPlacement === 'start',
 			'flex-row-reverse': this.indicatorPlacement === 'end',
 		})
 
-		const contentClasses = classMap({
-			'text-surface-onVariant text-sm': true,
-			[this.contentPadding]: true,
+		const contentClasses = this.classMap({
+			'text-surface-on-variant text-sm': true,
+			// Overlay mode: glass effect with absolute positioning (like HannahOrderTracking pattern)
+			'absolute inset-x-0 bg-surface-container/80 backdrop-blur-2xl shadow-2xl rounded-b-xl z-20 border-x border-b border-outline-variant': this.overlay,
 		})
 
 		return html`
@@ -102,62 +103,35 @@ export default class SchmancyDetails extends TailwindElement(css`
 			>
 				<summary
 					class=${summaryClasses}
-					tabindex="0"
+					tabindex=${this.locked ? -1 : 0}
+					@click=${this._handleSummaryClick}
 				>
-					${when(
-						!this.hideIndicator,
-						() => this._renderIndicator()
-					)}
+					${when(!this.hideIndicator, () => html`
+					<span
+						${ref(this._indicatorRef)}
+						class="flex items-center justify-center w-5 h-5 rounded-full shrink-0 text-surface-on-variant group-hover:text-surface-on will-change-transform"
+					>
+						<slot name="indicator">
+							<svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="w-5 h-5" aria-hidden="true">
+								<path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</slot>
+					</span>
+				`)}
 
 					<span class="flex-1 font-medium text-base">
 						<slot name="summary">${this.summary}</slot>
 					</span>
 				</summary>
 
-				${when(
-					isOpen,
-					() => html`
-						<div class=${contentClasses}>
-							<slot></slot>
-						</div>
-					`
-				)}
+				${when(isOpen, () => html`
+					<div class=${contentClasses}>
+						<slot></slot>
+						<slot name="details"></slot>
+
+					</div>
+				`)}
 			</details>
-		`
-	}
-
-	private _renderIndicator() {
-		return html`
-			<span 
-				${ref(this._indicatorRef)}
-				class="flex items-center justify-center w-5 h-5 rounded-full shrink-0 text-surface-onVariant group-hover:text-surface-on will-change-transform"
-			>
-				<slot name="indicator">
-					${this._renderDefaultIndicator()}
-				</slot>
-			</span>
-		`
-	}
-
-	private _renderDefaultIndicator() {
-		return html`
-			<svg
-				width="20"
-				height="20"
-				viewBox="0 0 24 24"
-				fill="none"
-				xmlns="http://www.w3.org/2000/svg"
-				class="w-5 h-5"
-				aria-hidden="true"
-			>
-				<path
-					d="M9 6L15 12L9 18"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				/>
-			</svg>
 		`
 	}
 
@@ -182,25 +156,23 @@ export default class SchmancyDetails extends TailwindElement(css`
 		)
 	}
 
-	private _handleToggle(e: Event) {
-		const details = e.target as HTMLDetailsElement
-		const newState = details.open
-		
-		if (this._open$.value !== newState) {
-			this._open$.next(newState)
-			this._animateIndicator(newState)
-			this._dispatchToggleEvent(newState)
+	private _handleSummaryClick(e: MouseEvent) {
+		// Prevent toggle when locked
+		if (this.locked) {
+			e.preventDefault()
 		}
 	}
 
-	private _dispatchToggleEvent(open: boolean) {
-		this.dispatchEvent(
-			new CustomEvent('toggle', {
-				detail: { open },
-				bubbles: true,
-				composed: true,
-			})
-		)
+	private _handleToggle(e: Event) {
+		// Locked state is handled by _handleSummaryClick preventing the event
+		const details = e.target as HTMLDetailsElement
+		const newState = details.open
+
+		if (this._open$.value !== newState) {
+			this._open$.next(newState)
+			this._animateIndicator(newState)
+			this.dispatchEvent(new CustomEvent('toggle', { detail: { open: newState }, bubbles: true, composed: true }))
+		}
 	}
 }
 

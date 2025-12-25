@@ -22,7 +22,7 @@ export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
      * @attr
      * @default 'md'
      */
-    size: 'sm' | 'md' | 'lg' | 'xl';
+    size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     /**
      * The variant of the button.
      * @attr

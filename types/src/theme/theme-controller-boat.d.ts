@@ -1,4 +1,5 @@
 import { SchmancyThemeController } from './theme-controller';
+import './theme-audio-player';
 /**
  * BOAT UX theme controller - Wraps the base theme controller in a schmancy-boat component.
  * Provides a floating, draggable container for theme controls.

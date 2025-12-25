@@ -12,3 +12,4 @@ export * from './theme-controller';
 export * from './theme-controller-boat';
 export * from './theme.events';
 export * from './context';
+export * from './theme-audio-player';

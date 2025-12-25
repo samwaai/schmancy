@@ -1,4 +1,13 @@
-export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+/**
+ * M3 avatar sizes: 20dp → 24dp → 32dp → 40dp → 48dp → 64dp
+ * - xxs: Ultra-compact (20px) - for menu cards
+ * - xs: 24px - M3 compact
+ * - sm: 32px - M3 small
+ * - md: 40px - M3 medium (default)
+ * - lg: 48px - M3 large
+ * - xl: 64px - M3 extra large
+ */
+export type AvatarSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type AvatarColor = 'primary' | 'secondary' | 'tertiary' | 'success' | 'error' | 'neutral';
 export type AvatarShape = 'circle' | 'square';
 export type AvatarStatus = 'online' | 'offline' | 'busy' | 'away' | 'none';

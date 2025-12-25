@@ -45,21 +45,21 @@ export default class SchmancyMenu extends $LitElement(css`
 
 	private showMenu(event: MouseEvent) {
 		const menuItems = this.menuSlot?.assignedElements() || []
+		if (menuItems.length === 0) return
 
-		// Clone items and proxy clicks to originals
-		const menuTemplate = html`
-			${menuItems.map((item, index) => {
-				const clone = item.cloneNode(true) as HTMLElement
-				clone.onclick = () => (menuItems[index] as HTMLElement).click()
-				return clone
-			})}
-		`
+		// Create container and move actual elements to preserve full functionality
+		const dialogContainer = document.createElement('div')
+		menuItems.forEach(item => dialogContainer.appendChild(item))
 
-		$dialog.component(menuTemplate, {
-			position: event,
-			hideActions: true,
-			width: 'auto',
+		$dialog
+			.component(dialogContainer, {
+				position: event,
+				hideActions: true,
 		})
+			.finally(() => {
+				// Restore elements as light DOM children (will be projected via slot)
+				menuItems.forEach(item => this.appendChild(item))
+			})
 	}
 
 	render() {

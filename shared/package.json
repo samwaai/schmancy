@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "name": "shared",
+  "version": "1.0.6",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "big.js": "^7.0.1",
+    "dayjs": "^1.11.19",
+    "file-type": "^21.1.1",
+    "js-sha256": "^0.11.1",
+    "typescript": "^5.9.3",
+    "uuid": "^13.0.0",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "rxjs": "^7.8.2",
+    "vitest": "^4.0.16"
+  }
+}

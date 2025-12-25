@@ -78,7 +78,7 @@ declare class AreaService implements AreaSubscription {
     /**
      * Update browser history state (called by area components)
      */
-    _updateBrowserHistory(areaName: string, route: ActiveRoute, historyStrategy?: string, clearQueryParams?: string[] | boolean | null): void;
+    _updateBrowserHistory(areaName: string, route: ActiveRoute, historyStrategy?: string, clearQueryParams?: string[] | boolean | null, customPath?: string): void;
     /**
      * Create a clean URL from area states
      */

@@ -28,6 +28,7 @@ export class SchmancySurface extends TailwindElement(css`
 	:host {
 		display: block;
 		box-sizing: border-box;
+  overflow: visible;
 	}
 	
 	/* Fill styles */
@@ -189,8 +190,8 @@ export class SchmancySurface extends TailwindElement(css`
 		color: var(--schmancy-sys-color-tertiary-onContainer);
 	}
 	:host([type='error']) {
-		background-color: var(--schmancy-sys-color-error-default);
-		color: var(--schmancy-sys-color-error-on);
+		background-color: var(--schmancy-sys-color-error-container);
+		color: var(--schmancy-sys-color-error-onContainer);
 	}
 	:host([type='errorContainer']) {
 		background-color: var(--schmancy-sys-color-error-container);

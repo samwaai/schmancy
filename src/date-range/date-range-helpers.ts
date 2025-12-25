@@ -27,21 +27,21 @@ export function formatDateRange(
 
 	// Check if same day
 	if (fromDate.isSame(toDate, 'day')) {
-		return `${fromDate.format('MMM D, YYYY')}${fromTime}`
+		return `${fromDate.format('ddd, MMM D, YYYY')}${fromTime}`
 	}
 
 	// Check if same month and year
 	if (fromDate.isSame(toDate, 'month') && fromDate.isSame(toDate, 'year')) {
-		return `${fromDate.format('MMM D')}-${toDate.format('D, YYYY')}${toTime}`
+		return `${fromDate.format('ddd MMM D')} - ${toDate.format('ddd D, YYYY')}${toTime}`
 	}
 
 	// Check if same year
 	if (fromDate.isSame(toDate, 'year')) {
-		return `${fromDate.format('MMM D')} - ${toDate.format('MMM D, YYYY')}${toTime}`
+		return `${fromDate.format('ddd MMM D')} - ${toDate.format('ddd MMM D, YYYY')}${toTime}`
 	}
 
 	// Different years
-	return `${fromDate.format('MMM D, YYYY')}${fromTime} - ${toDate.format('MMM D, YYYY')}${toTime}`
+	return `${fromDate.format('ddd MMM D, YYYY')}${fromTime} - ${toDate.format('ddd MMM D, YYYY')}${toTime}`
 }
 
 /**

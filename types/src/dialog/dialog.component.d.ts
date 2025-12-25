@@ -1,9 +1,27 @@
-declare const SchmancyDialog_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyDialog_base: import("@mixins/index").Constructor<import("./dialog-base.mixin").IDialogBaseMixin> & CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * A basic dialog web component without title or actions
+ * Unified dialog component that handles both content-only and confirm modes.
  *
  * @element schmancy-dialog
- * @slot default - Content slot for dialog body
+ * @slot default - Content slot for dialog body (used in content mode)
+ * @slot content - Named slot for custom content in confirm mode
+ *
+ * @example Content mode (no buttons):
+ * ```html
+ * <schmancy-dialog>
+ *   <my-custom-content></my-custom-content>
+ * </schmancy-dialog>
+ * ```
+ *
+ * @example Confirm mode (with buttons):
+ * ```html
+ * <schmancy-dialog
+ *   title="Confirm Action"
+ *   message="Are you sure?"
+ *   confirm-text="Yes"
+ *   cancel-text="No"
+ * ></schmancy-dialog>
+ * ```
  */
 export declare class SchmancyDialog extends SchmancyDialog_base {
     /**
@@ -11,46 +29,41 @@ export declare class SchmancyDialog extends SchmancyDialog_base {
      */
     uid: string;
     /**
-     * Current position of the dialog
+     * Dialog title (enables confirm mode when set)
      */
-    private position;
+    title: string | undefined;
     /**
-     * Current active promise resolver
+     * Dialog subtitle
      */
-    private resolvePromise?;
+    subtitle: string | undefined;
     /**
-     * Store cleanup function for position auto-updates
+     * Dialog message
      */
-    private cleanupAutoUpdate?;
+    message: string | undefined;
     /**
-     * Virtual element to use as reference for positioning
+     * Text for confirm button (enables confirm mode when set with cancelText)
      */
-    private virtualReference?;
+    confirmText: string | undefined;
     /**
-     * Simple API: Show the dialog at a specific position
-     * @returns Promise that resolves when dialog is closed
+     * Text for cancel button
      */
-    show(positionOrEvent?: {
-        x: number;
-        y: number;
-    } | MouseEvent | TouchEvent): Promise<boolean>;
+    cancelText: string | undefined;
     /**
-     * Simple API: Hide the dialog
+     * Dialog variant (affects button colors in confirm mode)
      */
-    hide(result?: boolean): void;
+    variant: 'default' | 'danger';
     /**
-     * Set up position auto-updating when dialog content changes or window resizes
+     * Whether to hide action buttons (force content mode)
      */
-    private setupPositioning;
+    hideActions: boolean;
     /**
-     * Update dialog position using Floating UI
+     * Return the dialog element for positioning
      */
-    private updatePosition;
-    private resizeSubscription?;
+    protected getDialogElement(): HTMLElement | null;
     /**
-     * Handle component disconnection from DOM
+     * Check if dialog is in confirm mode (has buttons)
      */
-    disconnectedCallback(): void;
+    private get isConfirmMode();
     /**
      * Handle component connection to DOM
      */
@@ -60,18 +73,38 @@ export declare class SchmancyDialog extends SchmancyDialog_base {
      */
     private announcePresence;
     /**
-     * Handle lifecycle callback when dialog is first rendered
+     * Handle confirm action
      */
-    firstUpdated(): void;
+    private handleConfirm;
     /**
-     * Handle close action
+     * Handle cancel/close action
      */
     private handleClose;
     render(): import("lit-html").TemplateResult<1>;
+    /**
+     * Static helper for confirm dialogs
+     */
+    static confirm(options: {
+        title?: string;
+        subtitle?: string;
+        message?: string;
+        confirmText?: string;
+        cancelText?: string;
+        variant?: 'default' | 'danger';
+        position?: {
+            x: number;
+            y: number;
+        } | MouseEvent | TouchEvent;
+        width?: string;
+    }): Promise<boolean>;
+    /**
+     * Simple shorthand - just pass message and optionally an event
+     */
+    static ask(message: string, event?: MouseEvent | TouchEvent): Promise<boolean>;
 }
+export { SchmancyDialog as ConfirmDialog };
 declare global {
     interface HTMLElementTagNameMap {
         'schmancy-dialog': SchmancyDialog;
     }
 }
-export {};

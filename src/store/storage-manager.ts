@@ -1,6 +1,79 @@
 import { IStorageManager, StorageType, StoreError } from './types'
 
 /**
+ * Custom JSON replacer to handle Map and Set serialization
+ *
+ * LIMITATIONS:
+ * - Only supports Maps with string/number/primitive keys
+ * - Object keys will be stringified and may collide (e.g., {id: 1} and {id: 2} both become "[object Object]")
+ * - Circular references are not supported (JSON.stringify limitation)
+ *
+ * @example
+ * ```typescript
+ * // ✅ Supported
+ * new Map([['key', 'value'], [123, 'number-key']])
+ *
+ * // ❌ Not supported (object keys will become strings)
+ * new Map([[{id: 1}, 'value']])
+ * ```
+ */
+function mapSetReplacer(_key: string, value: unknown): unknown {
+	if (value instanceof Map) {
+		return {
+			__type: 'Map',
+			entries: Array.from(value.entries()),
+		}
+	}
+	if (value instanceof Set) {
+		return {
+			__type: 'Set',
+			values: Array.from(value.values()),
+		}
+	}
+	return value
+}
+
+/**
+ * Custom JSON reviver to handle Map and Set deserialization
+ *
+ * Includes validation to prevent malformed data or __type injection attacks.
+ * Invalid structures are ignored and returned as-is.
+ */
+function mapSetReviver(_key: string, value: unknown): unknown {
+	if (value && typeof value === 'object' && '__type' in value) {
+		const typed = value as { __type: string; entries?: unknown[]; values?: unknown[] }
+
+		// Validate and reconstruct Map
+		if (typed.__type === 'Map') {
+			if (!Array.isArray(typed.entries)) {
+				console.warn('Invalid Map structure in storage (entries not an array), ignoring')
+				return value
+			}
+			// Validate all entries are [key, value] pairs
+			const isValid = typed.entries.every(e => Array.isArray(e) && e.length === 2)
+			if (!isValid) {
+				console.warn('Invalid Map structure in storage (malformed entries), ignoring')
+				return value
+			}
+			return new Map(typed.entries as Iterable<readonly [unknown, unknown]>)
+		}
+
+		// Validate and reconstruct Set
+		if (typed.__type === 'Set') {
+			if (!Array.isArray(typed.values)) {
+				console.warn('Invalid Set structure in storage (values not an array), ignoring')
+				return value
+			}
+			return new Set(typed.values)
+		}
+
+		// Unknown __type marker, log warning and ignore
+		console.warn(`Unknown __type "${typed.__type}" in storage, ignoring`)
+	}
+	return value
+}
+
+/**
  * Memory storage manager implementation
  */
 export class MemoryStorageManager<T> implements IStorageManager<T> {
@@ -28,7 +101,7 @@ export class LocalStorageManager<T> implements IStorageManager<T> {
 	async load(): Promise<T | null> {
 		try {
 			const data = localStorage.getItem(this.key)
-			return data ? JSON.parse(data) : null
+			return data ? JSON.parse(data, mapSetReviver) : null
 		} catch (err) {
 			console.error(`Failed to load from localStorage (${this.key}):`, err)
 			return null
@@ -37,7 +110,7 @@ export class LocalStorageManager<T> implements IStorageManager<T> {
 
 	async save(state: T): Promise<void> {
 		try {
-			localStorage.setItem(this.key, JSON.stringify(state))
+			localStorage.setItem(this.key, JSON.stringify(state, mapSetReplacer))
 		} catch (err) {
 			console.error(`Failed to save to localStorage (${this.key}):`, err)
 			throw new StoreError<unknown>(`Failed to save to localStorage (${this.key})`, err)
@@ -58,7 +131,7 @@ export class SessionStorageManager<T> implements IStorageManager<T> {
 	async load(): Promise<T | null> {
 		try {
 			const data = sessionStorage.getItem(this.key)
-			return data ? JSON.parse(data) : null
+			return data ? JSON.parse(data, mapSetReviver) : null
 		} catch (err) {
 			console.error(`Failed to load from sessionStorage (${this.key}):`, err)
 			return null
@@ -67,7 +140,7 @@ export class SessionStorageManager<T> implements IStorageManager<T> {
 
 	async save(state: T): Promise<void> {
 		try {
-			sessionStorage.setItem(this.key, JSON.stringify(state))
+			sessionStorage.setItem(this.key, JSON.stringify(state, mapSetReplacer))
 		} catch (err) {
 			console.error(`Failed to save to sessionStorage (${this.key}):`, err)
 			throw new StoreError<unknown>(`Failed to save to sessionStorage (${this.key})`, err)
