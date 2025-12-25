@@ -1,8 +1,8 @@
+import { $LitElement } from '@mixins/litElement.mixin'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
-import { $LitElement } from '@mixins/index';
 
 @customElement('schmancy-progress')
 export default class SchmancyProgress extends $LitElement(css`

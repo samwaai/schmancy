@@ -87,6 +87,7 @@ export declare class SchmancyNavigationRail extends SchmancyNavigationRail_base 
      */
     expanded: boolean;
     private focusedIndex;
+    private hasHeaderContent;
     private isFullscreen;
     private allElements;
     private get navigationItems();
@@ -122,6 +123,7 @@ export declare class SchmancyNavigationRail extends SchmancyNavigationRail_base 
     private handleMenuClick;
     protected render(): import("lit-html").TemplateResult<1>;
     private setupNavigateListener;
+    private handleHeaderSlotChange;
     private handleSlotChange;
 }
 declare global {

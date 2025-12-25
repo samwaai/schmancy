@@ -151,7 +151,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 
 	protected render() {
 		const sidebarClasses = {
-			'p-2 max-w-[360px] w-fit h-full overflow-auto': true,
+			'max-w-[360px] w-fit h-full overflow-auto': true,
 			block: this.mode === 'push',
 			'fixed inset-0 z-50': this.mode === 'overlay',
 		}

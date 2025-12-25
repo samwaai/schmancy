@@ -452,7 +452,7 @@ export default class SchmancyMap extends TailwindElement(css`
         this.loading,
         () => html`
           <div class="loading-container">
-            <schmancy-spinner size="32px"></schmancy-spinner>
+            <schmancy-spinner></schmancy-spinner>
           </div>
         `,
         () => when(

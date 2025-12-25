@@ -38,7 +38,7 @@ export class SchmancyListItem extends TailwindElement() {
 	private trailing!: HTMLElement[]
 
 	protected get imgClasses(): string[] {
-		return ['h-5', 'w-5', 'sm:h-6', 'sm:w-6', 'object-contain']
+		return ['h-4', 'w-4', 'sm:h-5', 'sm:w-5', 'object-contain']
 	}
 
 	firstUpdated() {
@@ -54,7 +54,7 @@ export class SchmancyListItem extends TailwindElement() {
 		const classes = {
 			'rounded-none': this.rounded === false,
 			'rounded-full': this.rounded,
-			'relative inset-0 w-full flex items-center min-h-[44px] sm:min-h-[48px] md:min-h-[56px] py-1 px-2 sm:py-2 sm:px-3 md:py-2 md:px-4 text-sm sm:text-base duration-500 transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:z-1 outline-secondary-default outline-hidden':
+			'relative inset-0 w-full flex items-center min-h-[36px] sm:min-h-[40px] py-1 px-2 sm:px-3 text-sm duration-500 transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:z-1 outline-secondary-default outline-hidden':
 				true,
 			'bg-secondary-container text-secondery-onContainer': this.selected,
 		}

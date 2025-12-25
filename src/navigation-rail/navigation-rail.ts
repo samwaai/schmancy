@@ -129,6 +129,9 @@ export class SchmancyNavigationRail extends $LitElement() {
 	private focusedIndex = -1
 
 	@state()
+	private hasHeaderContent = false
+
+	@state()
 	private isFullscreen = false
 
 	// Queries
@@ -395,12 +398,10 @@ export class SchmancyNavigationRail extends $LitElement() {
 			'shadow-lg': this.expanded, // M3 elevation 3 shadow when expanded
 		})
 
-		// Header section classes
+		// Header section classes - hidden when no content
 		const headerClasses = this.classMap({
-			'flex flex-col items-center gap-1 mb-2': true,
-			// FAB and menu button spacing
-			'[&_[slot="fab"]]:mb-2': true,
-			'[&_[slot="menu"]]:mb-3': true,
+			'flex flex-col items-center gap-1': true,
+			'hidden': !this.hasHeaderContent,
 		})
 
 		// Navigation container classes with alignment
@@ -424,9 +425,9 @@ export class SchmancyNavigationRail extends $LitElement() {
 			>
 				<div class=${railClasses} part="rail">
 					<div class=${headerClasses} part="header">
-						<slot name="fab" @click=${this.handleFabClick}></slot>
-						<slot name="menu" @click=${this.handleMenuClick}></slot>
-						<slot name="header"></slot>
+						<slot name="fab" @click=${this.handleFabClick} @slotchange=${this.handleHeaderSlotChange}></slot>
+						<slot name="menu" @click=${this.handleMenuClick} @slotchange=${this.handleHeaderSlotChange}></slot>
+						<slot name="header" @slotchange=${this.handleHeaderSlotChange}></slot>
 					</div>
 
 					<nav class=${navClasses} part="nav" role="list">
@@ -456,6 +457,17 @@ export class SchmancyNavigationRail extends $LitElement() {
 				}
 			}
 		})
+	}
+
+	private handleHeaderSlotChange() {
+		// Check if any header slot has content
+		const headerDiv = this.shadowRoot?.querySelector('[part="header"]')
+		if (headerDiv) {
+			const allSlots = headerDiv.querySelectorAll('slot')
+			this.hasHeaderContent = Array.from(allSlots).some(s =>
+				s.assignedNodes({ flatten: true }).length > 0
+			)
+		}
 	}
 
 	private handleSlotChange() {

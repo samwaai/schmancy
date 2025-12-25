@@ -4,7 +4,7 @@ import { when } from 'lit/directives/when.js'
 import { ref, createRef, Ref } from 'lit/directives/ref.js'
 import { fromEvent } from 'rxjs'
 import { filter, takeUntil, tap, switchMap, map, first } from 'rxjs/operators'
-import { $LitElement } from '@mixins/index';
+import { $LitElement } from '@mixins/index'
 
 @customElement('schmancy-lightbox')
 export class SchmancyLightbox extends $LitElement(css`
