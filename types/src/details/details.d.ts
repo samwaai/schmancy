@@ -25,4 +25,9 @@ export default class SchmancyDetails extends SchmancyDetails_base {
     private _handleSummaryClick;
     private _handleToggle;
 }
+declare global {
+    interface HTMLElementTagNameMap {
+        'schmancy-details': SchmancyDetails;
+    }
+}
 export {};
