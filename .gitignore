@@ -7,6 +7,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# npm lock file (this project uses Yarn)
+package-lock.json
+
 # Build outputs
 dist/
 dist-ssr/
