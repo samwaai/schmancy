@@ -30,8 +30,8 @@ interface ComponentWithLifecycle {
 	[INITIALIZED]?: Set<string>
 	[CONNECTED_CALLED]?: boolean
 
-	// Value storage
-	[key: string]: any
+	// Value storage - index signature for dynamic property access
+	[key: string]: unknown
 }
 
 /**
@@ -60,7 +60,7 @@ interface SelectOptions {
 	deepClone?: boolean
 
 	/** Custom equality function to determine when to update */
-	equals?: (a: any, b: any) => boolean
+	equals?: (a: unknown, b: unknown) => boolean
 
 	/** Debug mode - logs selector activity */
 	debug?: boolean
@@ -125,7 +125,7 @@ function cleanupSelectorResources(component: ComponentWithLifecycle): void {
  */
 export function select<T, R>(
 	store: IStore<T> | ICollectionStore<T>,
-	selectorFn: (state: any) => R = (state: R) => state,
+	selectorFn: (state: T | Map<string, T>) => R = (state) => state as unknown as R,
 	options: SelectOptions = { required: true },
 ) {
 	return function (proto: Record<string, any>, propName: string, _descriptor?: PropertyDescriptor<R>) {
@@ -242,15 +242,15 @@ export function select<T, R>(
  */
 export function selectItem<T>(
 	store: ICollectionStore<T>,
-	keyGetter: (component: any) => string,
+	keyGetter: (component: ComponentWithLifecycle) => string,
 	options: SelectOptions = { required: true },
 ) {
-	return function (proto: Record<string, any>, propName: string, _descriptor?: PropertyDescriptor<T | undefined>) {
-		select(
+	return function (proto: Record<string, unknown>, propName: string, _descriptor?: PropertyDescriptor<T | undefined>) {
+		select<T, T | undefined>(
 			store,
-			function (state) {
+			function (state: Map<string, T>) {
 				// This will be evaluated during subscription, when 'this' is available
-				const itemKey = keyGetter(this)
+				const itemKey = keyGetter(this as unknown as ComponentWithLifecycle)
 				return itemKey ? state.get(itemKey) : undefined
 			},
 			options,

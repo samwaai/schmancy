@@ -1,4 +1,4 @@
-import { directive, PartType } from 'lit/directive.js'
+import { directive, ElementPart, PartType } from 'lit/directive.js'
 import { AsyncDirective } from 'lit/async-directive.js'
 import { fromEvent, Subscription } from 'rxjs'
 
@@ -18,7 +18,7 @@ const rippleStyle = `.ripple {
 }
 `
 class RippleDirective extends AsyncDirective {
-	element: HTMLElement
+	element!: HTMLElement
 	private subscription?: Subscription
 
 	render() {
@@ -43,12 +43,12 @@ class RippleDirective extends AsyncDirective {
 		element.appendChild(circle)
 	}
 
-	update(part: any) {
+	update(part: ElementPart) {
 		if (part.type !== PartType.ELEMENT) {
 			throw new Error('The `ripple` directive can only be used on elements')
 		}
 
-		this.element = part.element
+		this.element = part.element as HTMLElement
 		const style = document.createElement('style')
 		style.append(rippleStyle)
 		this.element.append(style)

@@ -17,12 +17,12 @@ interface WatchOptions {
 }
 
 export function on(propName: string, options?: WatchOptions) {
-	return (protoOrDescriptor: any, name: string): any => {
-		const { willUpdate } = protoOrDescriptor
+	return (protoOrDescriptor: Record<string, unknown>, name: string): void => {
+		const { willUpdate } = protoOrDescriptor as { willUpdate: (changedProps: Map<string, unknown>) => void }
 
-		options = Object.assign({ waitUntilFirstUpdate: false }, options) as WatchOptions
+		const mergedOptions = Object.assign({ waitUntilFirstUpdate: false }, options) as WatchOptions
 
-		protoOrDescriptor.willUpdate = function (changedProps: Map<string, any>) {
+		protoOrDescriptor.willUpdate = function (this: Record<string, unknown> & { hasUpdated?: boolean }, changedProps: Map<string, unknown>) {
 			willUpdate.call(this, changedProps)
 
 			if (changedProps.has(propName)) {
@@ -30,8 +30,8 @@ export function on(propName: string, options?: WatchOptions) {
 				const newValue = this[propName]
 
 				if (oldValue !== newValue) {
-					if (!options?.waitUntilFirstUpdate || this.hasUpdated) {
-						this[name].call(this, oldValue, newValue)
+					if (!mergedOptions.waitUntilFirstUpdate || this.hasUpdated) {
+						(this[name] as (oldValue: unknown, newValue: unknown) => void).call(this, oldValue, newValue)
 					}
 				}
 			}

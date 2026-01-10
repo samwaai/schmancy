@@ -29,7 +29,7 @@ export interface IFormFieldMixin extends Element {
 	setCustomValidity(message: string): void
 
 	// Event emitter helper
-	emitChange(detail: any): void
+	emitChange(detail: unknown): void
 }
 
 /**
@@ -111,6 +111,7 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		@property({ reflect: true })
 		override id: string = `schmancy-field-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		constructor(...args: any[]) {
 			super(...args)
 			try {
@@ -130,7 +131,7 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		/**
 		 * Lifecycle method called when properties change
 		 */
-		protected willUpdate(changedProps: PropertyValueMap<any>): void {
+		protected willUpdate(changedProps: PropertyValueMap<this>): void {
 			super.willUpdate(changedProps)
 
 			// Update form value when value changes
@@ -190,7 +191,7 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		/**
 		 * Helper method to emit change events
 		 */
-		emitChange(detail: any): void {
+		emitChange(detail: unknown): void {
 			this.dispatchEvent(
 				new CustomEvent('change', {
 					detail,

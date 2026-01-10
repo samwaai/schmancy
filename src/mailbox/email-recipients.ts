@@ -9,12 +9,30 @@ import { $notify } from '../notification'
 import type { BoatState } from './types'
 
 /**
+ * CSV parser configuration
+ */
+interface CSVParserConfig {
+	header?: boolean
+	skipEmptyLines?: boolean
+	dynamicTyping?: boolean
+	delimiter?: string
+	transformHeader?: (header: string) => string
+}
+
+/**
+ * CSV parser result row
+ */
+interface CSVParseRow {
+	[key: string]: string | number | boolean | null | undefined
+}
+
+/**
  * CSV parser interface (optional dependency)
  * Can be provided via global window object or imported
  */
 interface CSVParser {
-	parse(csvContent: string, config: any): {
-		data: any[]
+	parse(csvContent: string, config: CSVParserConfig): {
+		data: CSVParseRow[]
 		meta: { fields?: string[] }
 	}
 }
@@ -93,7 +111,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 		// Listen for emails-imported events to ensure UI updates using RxJS
 		fromEvent(this, 'emails-imported').pipe(
 			takeUntil(this.disconnecting)
-		).subscribe(this.handleEmailsImported as any)
+		).subscribe(() => this.handleEmailsImported())
 	}
 
 	private handleEmailsImported = () => {
@@ -102,7 +120,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 		this.requestUpdate()
 	}
 
-	updated(changedProperties: Map<string, any>) {
+	updated(changedProperties: Map<PropertyKey, unknown>) {
 		super.updated(changedProperties)
 		
 		// Sync selection state when selectedRecipients prop changes
@@ -187,7 +205,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 	private parseCSV(csvContent: string): string[] {
 		const emails: string[] = []
 
-		let parseResult: { data: any[], meta: { fields?: string[] } }
+		let parseResult: { data: CSVParseRow[], meta: { fields?: string[] } }
 
 		// Try to use provided parser or fallback to simple parsing
 		if (this.csvParser) {
@@ -240,7 +258,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 	}
 
 	/** Simple CSV parsing fallback */
-	private simpleCSVParse(csvContent: string): { data: any[], meta: { fields?: string[] } } {
+	private simpleCSVParse(csvContent: string): { data: CSVParseRow[], meta: { fields?: string[] } } {
 		const lines = csvContent.split('\n').filter(line => line.trim())
 		if (lines.length === 0) {
 			return { data: [], meta: {} }
@@ -248,12 +266,12 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 
 		// Parse headers
 		const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''))
-		const data: any[] = []
+		const data: CSVParseRow[] = []
 
 		// Parse rows
 		for (let i = 1; i < lines.length; i++) {
 			const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''))
-			const row: any = {}
+			const row: CSVParseRow = {}
 			headers.forEach((header, index) => {
 				row[header] = values[index] || ''
 			})

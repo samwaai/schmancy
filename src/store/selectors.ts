@@ -208,9 +208,9 @@ export function createOptimizedSelector<T, R>(store: IStore<T>, selectorFn: (sta
  * @returns A store-compatible object to use with @select
  */
 export function createCompoundSelector<R>(
-	stores: Array<IStore<any> | ICollectionStore<any>>,
-	selectorFns: Array<(state: any) => any>,
-	combinerFn: (...values: any[]) => R,
+	stores: Array<IStore<Record<string, unknown>> | ICollectionStore<unknown>>,
+	selectorFns: Array<(state: unknown) => unknown>,
+	combinerFn: (...values: unknown[]) => R,
 ): IStore<R> {
 	// Calculate initial value
 	const initialValues = stores.map((store, index) => selectorFns[index](store.value))

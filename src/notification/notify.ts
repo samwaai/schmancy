@@ -13,7 +13,7 @@ export interface NotifyOptions {
 	/**
 	 * Message to show when the operation fails (can be a function to format error)
 	 */
-	errorMessage?: string | ((error: any) => string)
+	errorMessage?: string | ((error: Error | unknown) => string)
 	/**
 	 * Type of notification for loading state
 	 */
@@ -102,13 +102,16 @@ export function notify<T>(options: NotifyOptions) {
 				// Common patterns: { progress: number }, { loaded: number, total: number }, etc.
 				if (loadingNotificationId && typeof value === 'object' && value !== null) {
 					let progress: number | undefined
-					
+
+					// Type guard helpers for progress patterns
+					const valueRecord = value as Record<string, unknown>
+
 					// Check for different progress patterns
-					if ('progress' in value && typeof (value as any).progress === 'number') {
-						progress = (value as any).progress
-					} else if ('loaded' in value && 'total' in value) {
-						const loaded = (value as any).loaded
-						const total = (value as any).total
+					if ('progress' in valueRecord && typeof valueRecord.progress === 'number') {
+						progress = valueRecord.progress
+					} else if ('loaded' in valueRecord && 'total' in valueRecord) {
+						const loaded = valueRecord.loaded
+						const total = valueRecord.total
 						if (typeof loaded === 'number' && typeof total === 'number' && total > 0) {
 							progress = (loaded / total) * 100
 						}

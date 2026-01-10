@@ -350,7 +350,7 @@ class AreaService implements AreaSubscription {
 			const schmancyAreas = currentState.schmancyAreas || {}
 
 			// Update the specific area - only include non-empty state/params/props
-			const areaData: any = {
+			const areaData: Partial<ActiveRoute> & { component: string; area: string } = {
 				component: route.component,
 				area: route.area
 			}
@@ -485,9 +485,9 @@ class AreaService implements AreaSubscription {
 		// Fallback to encoded state in URL (original behavior)
 		try {
 			// Clean up empty objects before encoding
-			const cleanedAreas: Record<string, any> = {}
+			const cleanedAreas: Record<string, Partial<ActiveRoute>> = {}
 			Object.entries(areas).forEach(([areaName, route]) => {
-				const cleanRoute: any = { component: route.component }
+				const cleanRoute: Partial<ActiveRoute> & { component: string } = { component: route.component }
 
 				// Only include state if it has content
 				if (route.state && Object.keys(route.state).length > 0) {
@@ -525,7 +525,7 @@ class AreaService implements AreaSubscription {
 	/**
 	 * Restore state from browser history state
 	 */
-	restoreFromBrowserState(browserState: any): Record<string, ActiveRoute> {
+	restoreFromBrowserState(browserState: { schmancyAreas?: Record<string, ActiveRoute> } | null): Record<string, ActiveRoute> {
 		try {
 			if (browserState && browserState.schmancyAreas) {
 				return browserState.schmancyAreas
@@ -591,9 +591,9 @@ class AreaService implements AreaSubscription {
 		// This notifies the area component to clear itself
 		const areaSubject = this.areaSubjects.get(name)
 		if (areaSubject && !areaSubject.closed) {
-			// Send a route with null component to signal clearing
+			// Send a route with empty component to signal clearing
 			areaSubject.next({
-				component: null as any,
+				component: '',
 				state: {},
 				area: name,
 				params: {},
@@ -605,11 +605,11 @@ class AreaService implements AreaSubscription {
 		// This ensures the area component receives the signal to clear
 		this.request.next({
 			area: name,
-			component: null as any,
+			component: '',
 			state: {},
 			params: {},
 			props: {},
-			historyStrategy: 'silent' as any,
+			historyStrategy: 'silent',
 			_source: 'programmatic' as NavigationSource
 		})
 

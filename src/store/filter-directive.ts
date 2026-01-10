@@ -48,15 +48,15 @@ export interface ScoredItem<T> {
  * Get a nested value from an object using a dot-separated path.
  * Checks explicitly for null/undefined so falsy values like 0 or false are preserved.
  */
-export const getFieldValue = <T = any>(item: Record<string, any>, path: string): T => {
+export const getFieldValue = <T = unknown>(item: Record<string, unknown>, path: string): T => {
 	if (!path) return item as unknown as T
 
 	const parts = path.split('.')
-	let value: any = item
+	let value: unknown = item
 
 	for (const part of parts) {
 		if (value == null) return undefined as unknown as T
-		value = value[part]
+		value = (value as Record<string, unknown>)[part]
 	}
 
 	return value as T

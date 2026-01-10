@@ -107,15 +107,14 @@ export abstract class BaseStore<T> {
 	/**
 	 * Check if a value can be safely used with Immer's produce
 	 */
-	protected isImmerDraftable(value: any): boolean {
+	protected isImmerDraftable(value: unknown): boolean {
+		if (value === null || typeof value !== 'object') return false
 		return (
-			value !== null &&
-			typeof value === 'object' &&
-			(Array.isArray(value) ||
-				value instanceof Map ||
-				value instanceof Set ||
-				Object.getPrototypeOf(value) === Object.prototype ||
-				value[immerable] === true)
+			Array.isArray(value) ||
+			value instanceof Map ||
+			value instanceof Set ||
+			Object.getPrototypeOf(value) === Object.prototype ||
+			(value as Record<symbol, unknown>)[immerable] === true
 		)
 	}
 

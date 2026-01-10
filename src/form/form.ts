@@ -9,6 +9,22 @@ export interface FormEventMap {
 }
 
 /**
+ * Interface for form elements that can be used with SchmancyForm
+ */
+interface FormElement extends HTMLElement {
+	name?: string
+	value?: string | string[] | boolean | number
+	checked?: boolean
+	disabled?: boolean
+	type?: string
+	defaultValue?: string
+	options?: HTMLOptionsCollection
+	reportValidity?: () => boolean
+	hasAttribute: (name: string) => boolean
+	getAttribute: (name: string) => string | null
+}
+
+/**
  * The form is a component used to collect user input from
  * interactive controls.
  *
@@ -120,15 +136,18 @@ export default class SchmancyForm extends TailwindElement() {
 		this.dispatchEvent(new CustomEvent('reset'))
 	}
 
-	private getFormElements(): any[] {
+	private getFormElements(): FormElement[] {
 		const slot = this.shadowRoot?.querySelector('slot')
 		const assignedElements = slot?.assignedElements({ flatten: true })
-		const formElements: any[] = []
-		assignedElements?.forEach((element: any) => {
-			if (!element.disabled) {
-				formElements.push(element)
+		const formElements: FormElement[] = []
+		assignedElements?.forEach((element) => {
+			const el = element as FormElement
+			if (!el.disabled) {
+				formElements.push(el)
 			}
-			const children = Array.from(element.getElementsByTagName('*')).filter((element: any) => !element.disabled)
+			const children = Array.from(element.getElementsByTagName('*')).filter(
+				(child) => !(child as FormElement).disabled
+			) as FormElement[]
 			formElements.push(...children)
 		})
 
@@ -149,14 +168,14 @@ export default class SchmancyForm extends TailwindElement() {
 					}
 				}
 			} else if (this._controlsWithChecked.includes(tagName) && element.checked) {
-				formData.append(element.name, element.value || 'on')
+				formData.append(element.name, String(element.value ?? 'on'))
 			} else if (
 				this._controlsWithValue.includes(tagName) &&
 				element.type !== 'checkbox' &&
 				element.type !== 'radio' &&
 				element.type !== 'submit'
 			) {
-				formData.append(element.name, element.value)
+				formData.append(element.name, String(element.value ?? ''))
 			}
 		})
 
@@ -172,7 +191,7 @@ export default class SchmancyForm extends TailwindElement() {
 	}
 
 	private handleSubmitRequest(event: MouseEvent | KeyboardEvent) {
-		const targetElement: any = event.target as HTMLElement
+		const targetElement = event.target as HTMLElement & { type?: string }
 		if (this._controlsThatSubmit.includes(targetElement.tagName.toLowerCase())) {
 			this.submit()
 		} else if (targetElement.type?.toLowerCase() === 'reset') {

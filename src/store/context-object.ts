@@ -158,7 +158,7 @@ export class SchmancyStoreObject<T extends Record<string, any>> extends BaseStor
 	 * @param path Dot-separated path to the property (e.g., 'user.profile.name')
 	 * @param value New value to set
 	 */
-	public setPath(path: string, value: any): void {
+	public setPath(path: string, value: unknown): void {
 		try {
 			if (!path) {
 				console.warn('[SchmancyStoreObject] Empty path provided to setPath')
@@ -168,8 +168,8 @@ export class SchmancyStoreObject<T extends Record<string, any>> extends BaseStor
 			if (!this.isImmerDraftable(this.value)) {
 				// Handle non-draftable objects with direct modification
 				const parts = path.split('.')
-				const nextState = { ...this.value }
-				let current: any = nextState
+				const nextState = { ...this.value } as Record<string, unknown>
+				let current: Record<string, unknown> = nextState
 
 				for (let i = 0; i < parts.length - 1; i++) {
 					const part = parts[i]
@@ -178,18 +178,18 @@ export class SchmancyStoreObject<T extends Record<string, any>> extends BaseStor
 					} else if (typeof current[part] !== 'object' || current[part] === null) {
 						current[part] = {}
 					}
-					current = current[part]
+					current = current[part] as Record<string, unknown>
 				}
 
 				current[parts[parts.length - 1]] = value
-				this.updateState(nextState)
+				this.updateState(nextState as T)
 				return
 			}
 
 			// Use Immer for immutable deep updates
 			const nextState = produce(this.value, draft => {
 				const parts = path.split('.')
-				let current: any = draft
+				let current: Record<string, unknown> = draft as unknown as Record<string, unknown>
 
 				// Navigate to the parent of the property we want to update
 				for (let i = 0; i < parts.length - 1; i++) {
@@ -203,7 +203,7 @@ export class SchmancyStoreObject<T extends Record<string, any>> extends BaseStor
 						current[part] = {}
 					}
 
-					current = current[part]
+					current = current[part] as Record<string, unknown>
 				}
 
 				// Set the value at the final path segment
@@ -226,8 +226,8 @@ export class SchmancyStoreObject<T extends Record<string, any>> extends BaseStor
 			// Fallback to direct path setting
 			try {
 				const parts = path.split('.')
-				const nextState = { ...this.value }
-				let current: any = nextState
+				const nextState = { ...this.value } as Record<string, unknown>
+				let current: Record<string, unknown> = nextState
 
 				for (let i = 0; i < parts.length - 1; i++) {
 					const part = parts[i]
@@ -236,11 +236,11 @@ export class SchmancyStoreObject<T extends Record<string, any>> extends BaseStor
 					} else if (typeof current[part] !== 'object' || current[part] === null) {
 						current[part] = {}
 					}
-					current = current[part]
+					current = current[part] as Record<string, unknown>
 				}
 
 				current[parts[parts.length - 1]] = value
-				this.updateState(nextState)
+				this.updateState(nextState as T)
 			} catch (fallbackErr) {
 				console.error('Failed fallback setPath:', fallbackErr)
 			}
@@ -291,8 +291,9 @@ export class SchmancyStoreObject<T extends Record<string, any>> extends BaseStor
 	/**
 	 * Inherit isImmerDraftable from BaseStore, but also check for [immerable]
 	 */
-	protected isImmerDraftable(value: any): boolean {
+	protected override isImmerDraftable(value: unknown): boolean {
 		// Use the parent implementation and add our own checks
-		return value !== null && typeof value === 'object' && (super.isImmerDraftable(value) || value[immerable] === true)
+		if (value === null || typeof value !== 'object') return false
+		return super.isImmerDraftable(value) || (value as Record<symbol, unknown>)[immerable] === true
 	}
 }

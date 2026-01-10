@@ -27,8 +27,8 @@ export function compareCustomElementConstructors(
 	}
 
 	// Compare observed attributes if available
-	const obs1 = (constructor1 as any).observedAttributes
-	const obs2 = (constructor2 as any).observedAttributes
+	const obs1 = (constructor1 as { observedAttributes?: string[] }).observedAttributes
+	const obs2 = (constructor2 as { observedAttributes?: string[] }).observedAttributes
 
 	if (obs1 && obs2) {
 		if (Array.isArray(obs1) && Array.isArray(obs2)) {
@@ -125,11 +125,11 @@ export function deepMerge<T extends Record<string, any>>(target: T, source: Part
  * @param obj Value to check
  * @returns true if value is a plain object
  */
-export function isObject(obj: any): obj is Record<string, any> {
+export function isObject(obj: unknown): obj is Record<string, unknown> {
 	return (
 		obj !== null &&
 		typeof obj === 'object' &&
-		obj.constructor === Object &&
+		(obj as object).constructor === Object &&
 		Object.prototype.toString.call(obj) === '[object Object]'
 	)
 }
@@ -140,10 +140,10 @@ export function isObject(obj: any): obj is Record<string, any> {
  * @param wait Wait time in milliseconds
  * @returns Debounced function
  */
-export function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
+export function debounce<T extends (...args: unknown[]) => unknown>(func: T, wait: number): (...args: Parameters<T>) => void {
 	let timeout: ReturnType<typeof setTimeout> | null = null
 
-	return function (this: any, ...args: Parameters<T>) {
+	return function (this: unknown, ...args: Parameters<T>) {
 		const context = this
 
 		if (timeout !== null) {

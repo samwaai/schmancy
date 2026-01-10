@@ -105,7 +105,7 @@ export class SchmancyDelay extends $LitElement() {
 		return this.once ? hashContent(slotContent) : ''
 	}
 
-	private get motionLit(): any {
+	private get motionLit(): typeof fadeIn | typeof flyBelow | typeof flyAbove {
 		return this.motion === 'flyBelow' ? flyBelow : this.motion === 'flyAbove' ? flyAbove : fadeIn
 	}
 

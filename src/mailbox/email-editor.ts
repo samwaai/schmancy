@@ -63,7 +63,7 @@ export class SchmancyEmailEditor extends $LitElement(css`
 
 	/** Element references */
 	private subjectInputRef = createRef<HTMLInputElement>()
-	private bodyTextAreaRef = createRef<any>()
+	private bodyTextAreaRef = createRef<HTMLElement & { shadowRoot: ShadowRoot | null }>()
 	private fileInputRef = createRef<HTMLInputElement>()
 	private imageInputRef = createRef<HTMLInputElement>()
 
@@ -402,7 +402,7 @@ The Fulfillment Team`
 	}
 
 	/** Handle body textarea changes */
-	private handleBodyChange = (event: any) => {
+	private handleBodyChange = (event: CustomEvent<{ value: string }>) => {
 		this.body = event.detail.value
 		this.dispatchChange()
 	}

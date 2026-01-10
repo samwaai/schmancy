@@ -6,12 +6,62 @@ import { when } from 'lit/directives/when.js'
 import { of, EMPTY, Observable } from 'rxjs'
 import { switchMap, tap, catchError, takeUntil, finalize, shareReplay } from 'rxjs/operators'
 
+/** Google Maps coordinate type */
+interface LatLng {
+  lat(): number
+  lng(): number
+}
+
+/** Google Maps options */
+interface GoogleMapOptions {
+  center: { lat: number; lng: number }
+  zoom: number
+  mapTypeId?: string
+  disableDefaultUI?: boolean
+  gestureHandling?: string
+  zoomControl?: boolean
+  mapTypeControl?: boolean
+  scaleControl?: boolean
+  streetViewControl?: boolean
+  rotateControl?: boolean
+  fullscreenControl?: boolean
+  styles?: Array<{ featureType?: string; stylers: Array<Record<string, unknown>> }>
+}
+
+/** Google Maps Map instance */
+interface GoogleMap {
+  setCenter(latLng: { lat: number; lng: number }): void
+  setZoom(zoom: number): void
+}
+
+/** Google Maps Marker instance */
+interface GoogleMarker {
+  setPosition(latLng: { lat: number; lng: number }): void
+  setTitle(title: string): void
+  setMap(map: GoogleMap | null): void
+}
+
+/** Google Maps Geocoder result */
+interface GeocoderResult {
+  geometry: {
+    location: LatLng
+  }
+}
+
+/** Google Maps Geocoder instance */
+interface GoogleGeocoder {
+  geocode(
+    request: { address: string },
+    callback: (results: GeocoderResult[] | null, status: string) => void
+  ): void
+}
+
 interface GoogleMapsAPI {
   maps: {
-    Map: new (element: HTMLElement, options: any) => any
-    Marker: new (options: any) => any
-    Geocoder: new () => any
-    LatLng: new (lat: number, lng: number) => any
+    Map: new (element: HTMLElement, options: GoogleMapOptions) => GoogleMap
+    Marker: new (options: { position: { lat: number; lng: number }; map: GoogleMap; title?: string }) => GoogleMarker
+    Geocoder: new () => GoogleGeocoder
+    LatLng: new (lat: number, lng: number) => LatLng
     MapTypeId: {
       ROADMAP: string
       SATELLITE: string
@@ -246,9 +296,9 @@ export default class SchmancyMap extends TailwindElement(css`
   @state() private error: string = ''
 
   private mapRef = createRef<HTMLDivElement>()
-  private map?: any
-  private mapMarker?: any
-  private geocoder?: any
+  private map?: GoogleMap
+  private mapMarker?: GoogleMarker
+  private geocoder?: GoogleGeocoder
   private intersectionObserver?: IntersectionObserver
   private hasLoadedMap = false
 
@@ -341,8 +391,8 @@ export default class SchmancyMap extends TailwindElement(css`
     }
 
     return new Promise<{ lat: number; lng: number }>((resolve, reject) => {
-      this.geocoder.geocode({ address }, (results: any[], status: string) => {
-        if (status === 'OK' && results[0]) {
+      this.geocoder!.geocode({ address }, (results: GeocoderResult[] | null, status: string) => {
+        if (status === 'OK' && results && results[0]) {
           const location = results[0].geometry.location
           resolve({
             lat: location.lat(),

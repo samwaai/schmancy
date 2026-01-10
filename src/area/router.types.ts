@@ -3,7 +3,7 @@ import { LazyComponent } from './lazy'
 /**
  * Component type accepted by area router, drawer, and sheet services
  */
-export type ComponentType = CustomElementConstructor | string | HTMLElement | LazyComponent<any>
+export type ComponentType = CustomElementConstructor | string | HTMLElement | LazyComponent
 
 export type RouteAction = {
 	component: ComponentType
@@ -97,5 +97,6 @@ export enum HISTORY_STRATEGY {
  */
 export interface SchmancyHistoryState {
 	schmancyAreas: Record<string, ActiveRoute>
-	[key: string]: any // Allow other apps to store additional state
+	/** Allow other apps to store additional state */
+	[key: string]: Record<string, ActiveRoute> | unknown
 }

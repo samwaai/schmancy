@@ -2,17 +2,19 @@ import { arrow, autoUpdate, computePosition, flip, offset, Placement, shift, Str
 import { Directive, directive, ElementPart, ElementPartInfo, PartType } from 'lit/directive.js'
 import { fromEvent, Subscription } from 'rxjs'
 
+/**
+ * Tooltip data structure stored in the WeakMap
+ */
+interface TooltipData {
+	tooltipElement: HTMLElement
+	arrowElement?: HTMLElement
+	cleanup?: () => void
+	showTimeout?: number
+	subscriptions?: Subscription[]
+}
+
 // Store tooltip data for elements
-const tooltipMap = new WeakMap<
-	Element,
-	{
-		tooltipElement: HTMLElement
-		arrowElement?: HTMLElement
-		cleanup?: () => void
-		showTimeout?: number
-		subscriptions?: Subscription[]
-	}
->()
+const tooltipMap = new WeakMap<Element, TooltipData>()
 
 class TooltipDirective extends Directive {
 	constructor(partInfo: ElementPartInfo) {
@@ -222,7 +224,7 @@ class TooltipDirective extends Directive {
 }
 
 // Separate positioning function for clarity and reuse
-async function updatePosition(element: HTMLElement, tooltipData: any, position: string, showArrow: boolean) {
+async function updatePosition(element: HTMLElement, tooltipData: TooltipData, position: string, showArrow: boolean) {
 	// Use floating-ui to compute position
 	const middleware = [
 		offset(8), // Distance from the element

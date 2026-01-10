@@ -6,14 +6,14 @@ import './row' // Import the schmancy-table-row component
 
 // Define a generic TableColumn interface.
 // The `key` is now a key of T, and the render function accepts T.
-export interface TableColumn<T extends Record<string, any> = any> {
+export interface TableColumn<T extends Record<string, unknown> = Record<string, unknown>> {
 	name: string
 	key?: keyof T // Key to access the property on the data object.
 	align?: 'left' | 'right' | 'center'
 	weight?: 'normal' | 'bold'
 	render?: (item: T) => TemplateResult | string | number // Custom render function for complex content
 	sortable?: boolean // Whether this column is sortable
-	value?: (item: T) => any // Custom value function for sorting
+	value?: (item: T) => string | number | boolean | Date | null | undefined // Custom value function for sorting
 }
 
 // Define an event detail interface for row events.
@@ -31,7 +31,7 @@ export type SortDirection = 'asc' | 'desc' | null
  *
  */
 @customElement('schmancy-table')
-export class SchmancyDataTable<T extends Record<string, any> = any> extends $LitElement() {
+export class SchmancyDataTable<T extends Record<string, unknown> = Record<string, unknown>> extends $LitElement() {
 	@property({ type: Array, attribute: false })
 	columns: TableColumn<T>[] = []
 
@@ -73,8 +73,8 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 	/**
 	 * Helper function to check if a value is a Date object in a type-safe way
 	 */
-	private isDate(value: any): value is Date {
-		return value && typeof value === 'object' && Object.prototype.toString.call(value) === '[object Date]'
+	private isDate(value: unknown): value is Date {
+		return value !== null && typeof value === 'object' && Object.prototype.toString.call(value) === '[object Date]'
 	}
 
 	private processData(): void {
