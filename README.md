@@ -13,6 +13,16 @@ import '@mhmo91/schmancy'
 import { magnetic, cursorGlow, gravity } from '@mhmo91/schmancy/directives'
 ```
 
+## Use with Claude Code
+
+Schmancy ships a Claude Code plugin. In any Claude Code session, run:
+
+```
+/plugin install https://github.com/samwaai/schmancy
+```
+
+Claude now knows every Schmancy component, foundation pattern, and convention in your project. The skill activates automatically when you work on schmancy code — no CLAUDE.md edits, no symlinks.
+
 ## Quick Start
 
 ```html
@@ -38,12 +48,12 @@ import { magnetic, cursorGlow, gravity } from '@mhmo91/schmancy/directives'
 
 Schmancy is organized in four layers:
 
-- **Foundations** — [Area](./ai/area.md) · [Store](./ai/store.md) · [Mixins ($LitElement)](./ai/mixins.md) · [Theme](./ai/theme.md) · [Directives](./ai/directives.md)
-- **Atoms** — [Typography](./ai/typography.md) · [Icons](./ai/icons.md) · [Button](./ai/button.md) · [Surface](./ai/surface.md) · [Divider](./ai/divider.md) · [Avatar](./ai/avatar.md)
+- **Foundations** — [Area](./skills/schmancy/area.md) · [Store](./skills/schmancy/store.md) · [Mixins ($LitElement)](./skills/schmancy/mixins.md) · [Theme](./skills/schmancy/theme.md) · [Directives](./skills/schmancy/directives.md)
+- **Atoms** — [Typography](./skills/schmancy/typography.md) · [Icons](./skills/schmancy/icons.md) · [Button](./skills/schmancy/button.md) · [Surface](./skills/schmancy/surface.md) · [Divider](./skills/schmancy/divider.md) · [Avatar](./skills/schmancy/avatar.md)
 - **Composites (by job)** — Forms, Navigation, Overlays, Interaction, Feedback, Display
-- **Utilities** — [Animation](./ai/animation.md) · [Audio](./ai/audio.md) · [Discovery](./ai/discovery.md) · [RxJS Utils](./ai/rxjs-utils.md) · [Utils](./ai/utils.md)
+- **Utilities** — [Animation](./skills/schmancy/animation.md) · [Audio](./skills/schmancy/audio.md) · [Discovery](./skills/schmancy/discovery.md) · [RxJS Utils](./skills/schmancy/rxjs-utils.md) · [Utils](./skills/schmancy/utils.md)
 
-**Full component index:** [ai/INDEX.md](./ai/INDEX.md) — the single-file map with every tag, service, and convention. Written primarily for AI agents; humans welcome.
+**Full component index:** [skills/schmancy/INDEX.md](./skills/schmancy/INDEX.md) — the single-file map with every tag, service, and convention. Written primarily for AI agents; humans welcome.
 
 ## Tech Stack
 

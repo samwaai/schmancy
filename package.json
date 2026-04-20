@@ -13,7 +13,6 @@
 			"types": "./types/mixins/index.d.ts",
 			"default": "./mixins/index.ts"
 		},
-		"./ai/*": "./ai/*",
 		"./*": {
 			"types": "./types/src/*/index.d.ts",
 			"default": "./dist/*.js"
@@ -37,7 +36,8 @@
 		"types",
 		"src",
 		"mixins",
-		"ai",
+		".claude-plugin",
+		"skills",
 		"custom-elements.json",
 		"README.md"
 	],

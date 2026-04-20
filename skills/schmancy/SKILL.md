@@ -1,0 +1,120 @@
+---
+name: schmancy
+description: UI patterns, component APIs, and conventions for the @mhmo91/schmancy web-component library (Lit + RxJS + Tailwind). Activate whenever the user works on any <schmancy-*> tag, routing with schmancy-area, state with createContext/@select, the $LitElement base class, theme, directives, or overlay services ($dialog, $notify, schmancyContentDrawer, sheet).
+---
+
+# Schmancy
+
+Web-component UI library on Lit + RxJS + Tailwind CSS. This skill bundles the full library reference as supporting files alongside this SKILL.md.
+
+## How to use this skill
+
+All reference files live in this directory. Read by filename.
+
+1. **Start with `INDEX.md`** for the full catalog organized by job (foundations / atoms / forms / navigation / overlays / interaction / feedback / display).
+2. **Before writing any `<schmancy-X>` tag**, read `X.md`. Example: `<schmancy-button>` → `button.md`.
+3. **Before editing foundations** (routing, state, base class, theme), read the matching foundation file below.
+4. **Apply the conventions** at the end of this file.
+
+## Foundations (the framework pieces — touch first)
+
+| Piece | Read |
+|-------|------|
+| Routing (`<schmancy-area>`, `<schmancy-route>`, `area.push()`, `lazy()`) | `area.md` |
+| State (`createContext`, `@select`, `@selectItem`) | `store.md` |
+| Base class (`$LitElement`) | `mixins.md` |
+| Theme (`<schmancy-theme>`, `theme` service) | `theme.md` |
+| Directives (`magnetic`, `cursorGlow`, `gravity`, `reveal`, `animateText`, …) | `directives.md` |
+| Spring physics presets | `animation.md` |
+
+## Overlay services (prefer over tags)
+
+For modals, toasts, sheets, side drawers — reach for the **imperative service API** first:
+
+```typescript
+import { $dialog, $notify, schmancyContentDrawer, sheet, SchmancySheetPosition } from '@mhmo91/schmancy'
+
+$dialog.component(new EditForm())                       // modal
+$dialog.component(new QuickPicker(), { position: e })    // anchored modal
+$notify.success('Saved'); $notify.error('Failed')        // toast
+schmancyContentDrawer.open({ component: new Detail() })  // side panel
+sheet.open({ component: new Picker(), position: SchmancySheetPosition.BOTTOM })  // bottom sheet
+```
+
+References: `dialog.md`, `notification.md`, `content-drawer.md`, `sheet.md`.
+
+Use component tags (`<schmancy-menu>`, `<schmancy-dropdown>`, `<schmancy-tooltip>`, `<schmancy-lightbox>`, `<schmancy-expand>`) only when the tag is the natural fit (anchored panels, tooltips, galleries).
+
+## Non-negotiable conventions
+
+**Component authoring**
+- Every component extends `$LitElement(style?)`. Never raw `LitElement`.
+- Every RxJS subscription ends with `.pipe(takeUntil(this.disconnecting))`.
+- Register the tag in `HTMLElementTagNameMap` for TypeScript.
+
+**State**
+- Contexts live at module scope. Many small contexts beat one monolith.
+- Gate subscriptions with `filter(() => ctx.ready)` when reading persisted contexts.
+- Storage tiers: `'memory'` (regenerable) · `'session'` (per-tab) · `'local'` (user prefs) · `'indexeddb'` (>100-entry collections).
+
+**Routing**
+- Route guards are `Observable<boolean>`, never cached booleans.
+- `when="tag-name"` must exactly match `@customElement('tag-name')`.
+- Lazy-load route components: `lazy(() => import('./page'))`.
+- After auth/permission guards, use `historyStrategy: 'replace'` or `'pop'` — never `'push'`.
+
+**Templates**
+- Lists: `repeat(items, i => i.id, tpl)`. Never `.map()`.
+- View switching: `cache(...)`.
+- Expensive work: `guard([deps], () => expensive())`.
+- Conditionals: `when(...)` / `choose(...)` / `ifDefined(...)`.
+- DOM access: `ref(createRef())`.
+- `classMap(this.classMap({...}))` must be the sole expression in `class=` — never mix with string interpolation.
+
+**Styling**
+- Colors: `--schmancy-sys-color-*` CSS vars or Tailwind theme classes. Never hardcoded hex.
+- No `setTimeout` / `setInterval` / `addEventListener` — use RxJS (`timer`, `interval`, `fromEvent`).
+
+**Accessibility (combobox forms)**
+```typescript
+role="combobox"
+aria-haspopup="listbox"
+aria-expanded=${this._open}
+aria-controls="listbox-id"
+```
+Plus a live region: `<div id="live-status" role="status" aria-live="polite" class="sr-only"></div>`.
+
+## Minimal app skeleton
+
+```typescript
+<schmancy-theme root scheme="dark">
+  <schmancy-surface type="solid" fill="all">
+    <schmancy-scroll>
+      <schmancy-area
+        name="root"
+        .default=${lazy(() => import('./home.page'))}
+      >
+        <schmancy-route when="home-page"
+          .component=${lazy(() => import('./home.page'))}></schmancy-route>
+
+        <schmancy-route when="app-index"
+          .component=${lazy(() => import('./app.page'))}
+          .guard=${authState$.pipe(
+            map(u => !!u),
+            takeUntil(this.disconnecting),
+          )}
+          @redirect=${() => area.push({
+            component: 'home-page', area: 'root', historyStrategy: 'replace',
+          })}></schmancy-route>
+      </schmancy-area>
+    </schmancy-scroll>
+  </schmancy-surface>
+</schmancy-theme>
+```
+
+## Workflow
+
+1. User describes a UI task.
+2. Read `INDEX.md` to find the relevant components or foundations.
+3. Read the specific `.md` files for the APIs involved.
+4. Write code that follows the conventions above.

@@ -75,11 +75,15 @@ export default defineConfig({
 					},
 				}),
 				copy({
-					// Copy the ai folder into dist
+					// Copy Claude Code plugin assets + docs into dist
 					targets: [
 						{
-							src: resolve(__dirname, 'ai') + '/**/*',
-							dest: resolve(__dirname, 'dist/ai'),
+							src: resolve(__dirname, '.claude-plugin') + '/**/*',
+							dest: resolve(__dirname, 'dist/.claude-plugin'),
+						},
+						{
+							src: resolve(__dirname, 'skills') + '/**/*',
+							dest: resolve(__dirname, 'dist/skills'),
 						},
 					],
 					// Ensures it runs after everything else is bundled

@@ -1,0 +1,13 @@
+{
+  "name": "schmancy",
+  "description": "Claude Code support for the @mhmo91/schmancy web-component UI library. Provides foundations (routing, store, base class, theme, directives), component API lookup for 60+ tags, and overlay service patterns ($dialog, $notify, schmancyContentDrawer).",
+  "version": "0.1.0",
+  "author": {
+    "name": "samwaai",
+    "url": "https://github.com/samwaai"
+  },
+  "homepage": "https://github.com/samwaai/schmancy",
+  "repository": "https://github.com/samwaai/schmancy",
+  "license": "Apache-2.0",
+  "keywords": ["lit", "web-components", "ui", "schmancy", "tailwind", "rxjs"]
+}

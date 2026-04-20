@@ -5,10 +5,11 @@ on:
     branches:
       - main
     paths:
-      - 'src/**' # Trigger only on changes in this directory
-      - 'mixins/**' # Trigger only on changes in this directory
-      - 'package.json' # Trigger only on changes in this directory
-      - 'ai/**'
+      - 'src/**'
+      - 'mixins/**'
+      - 'package.json'
+      - 'skills/**'
+      - '.claude-plugin/**'
 
 permissions:
   contents: write
