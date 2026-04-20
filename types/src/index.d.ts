@@ -24,6 +24,7 @@ export * from './divider';
 export * from './dropdown';
 export * from './expand';
 export * from './float';
+export * from './window';
 export * from './extra';
 export * from './form';
 export * from './icons';

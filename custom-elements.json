@@ -3770,6 +3770,11 @@
           "type": "string | undefined"
         },
         {
+          "name": "expandedHeight",
+          "description": "Override the expanded panel height (e.g. '400px', '50vh').",
+          "type": "string | undefined"
+        },
+        {
           "name": "lowered",
           "description": "When true, uses a lower elevation shadow in the collapsed state.",
           "type": "boolean",
@@ -3777,9 +3782,39 @@
         },
         {
           "name": "corner",
-          "description": "Corner the float is anchored to.",
-          "type": "Corner",
+          "description": "Corner the window is anchored to.",
+          "type": "SnapCorner",
           "default": "\"bottom-right\""
+        },
+        {
+          "name": "resizable",
+          "description": "When true, window can be resized by the user.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "freePosition",
+          "description": "When true, window stays at its dragged position instead of snapping to a corner.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "visualState",
+          "description": "Visual state of the window (minimized, normal, maximized).",
+          "type": "WindowVisualState",
+          "default": "\"normal\""
+        },
+        {
+          "name": "minWidth",
+          "description": "Minimum width in pixels.",
+          "type": "number",
+          "default": "280"
+        },
+        {
+          "name": "minHeight",
+          "description": "Minimum height in pixels.",
+          "type": "number",
+          "default": "200"
         },
         {
           "name": "open",
@@ -3802,6 +3837,12 @@
           "type": "string | undefined"
         },
         {
+          "name": "expandedHeight",
+          "attribute": "expandedHeight",
+          "description": "Override the expanded panel height (e.g. '400px', '50vh').",
+          "type": "string | undefined"
+        },
+        {
           "name": "lowered",
           "attribute": "lowered",
           "description": "When true, uses a lower elevation shadow in the collapsed state.",
@@ -3811,9 +3852,44 @@
         {
           "name": "corner",
           "attribute": "corner",
-          "description": "Corner the float is anchored to.",
-          "type": "Corner",
+          "description": "Corner the window is anchored to.",
+          "type": "SnapCorner",
           "default": "\"bottom-right\""
+        },
+        {
+          "name": "resizable",
+          "attribute": "resizable",
+          "description": "When true, window can be resized by the user.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "freePosition",
+          "attribute": "freePosition",
+          "description": "When true, window stays at its dragged position instead of snapping to a corner.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "visualState",
+          "attribute": "visualState",
+          "description": "Visual state of the window (minimized, normal, maximized).",
+          "type": "WindowVisualState",
+          "default": "\"normal\""
+        },
+        {
+          "name": "minWidth",
+          "attribute": "minWidth",
+          "description": "Minimum width in pixels.",
+          "type": "number",
+          "default": "280"
+        },
+        {
+          "name": "minHeight",
+          "attribute": "minHeight",
+          "description": "Minimum height in pixels.",
+          "type": "number",
+          "default": "200"
         },
         {
           "name": "open",
@@ -10727,6 +10803,151 @@
         {
           "name": "",
           "description": "The text for the typography."
+        }
+      ]
+    },
+    {
+      "name": "schmancy-window",
+      "path": "./src/window/window.ts",
+      "attributes": [
+        {
+          "name": "id",
+          "type": "string",
+          "default": "\"default\""
+        },
+        {
+          "name": "expandedWidth",
+          "description": "Override the expanded panel width (e.g. '320px', '24rem'). Defaults to responsive sizing.",
+          "type": "string | undefined"
+        },
+        {
+          "name": "expandedHeight",
+          "description": "Override the expanded panel height (e.g. '400px', '50vh').",
+          "type": "string | undefined"
+        },
+        {
+          "name": "lowered",
+          "description": "When true, uses a lower elevation shadow in the collapsed state.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "corner",
+          "description": "Corner the window is anchored to.",
+          "type": "SnapCorner",
+          "default": "\"bottom-right\""
+        },
+        {
+          "name": "resizable",
+          "description": "When true, window can be resized by the user.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "freePosition",
+          "description": "When true, window stays at its dragged position instead of snapping to a corner.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "visualState",
+          "description": "Visual state of the window (minimized, normal, maximized).",
+          "type": "WindowVisualState",
+          "default": "\"normal\""
+        },
+        {
+          "name": "minWidth",
+          "description": "Minimum width in pixels.",
+          "type": "number",
+          "default": "280"
+        },
+        {
+          "name": "minHeight",
+          "description": "Minimum height in pixels.",
+          "type": "number",
+          "default": "200"
+        },
+        {
+          "name": "open",
+          "description": "Whether the body is expanded.",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "properties": [
+        {
+          "name": "id",
+          "attribute": "id",
+          "type": "string",
+          "default": "\"default\""
+        },
+        {
+          "name": "expandedWidth",
+          "attribute": "expandedWidth",
+          "description": "Override the expanded panel width (e.g. '320px', '24rem'). Defaults to responsive sizing.",
+          "type": "string | undefined"
+        },
+        {
+          "name": "expandedHeight",
+          "attribute": "expandedHeight",
+          "description": "Override the expanded panel height (e.g. '400px', '50vh').",
+          "type": "string | undefined"
+        },
+        {
+          "name": "lowered",
+          "attribute": "lowered",
+          "description": "When true, uses a lower elevation shadow in the collapsed state.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "corner",
+          "attribute": "corner",
+          "description": "Corner the window is anchored to.",
+          "type": "SnapCorner",
+          "default": "\"bottom-right\""
+        },
+        {
+          "name": "resizable",
+          "attribute": "resizable",
+          "description": "When true, window can be resized by the user.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "freePosition",
+          "attribute": "freePosition",
+          "description": "When true, window stays at its dragged position instead of snapping to a corner.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "visualState",
+          "attribute": "visualState",
+          "description": "Visual state of the window (minimized, normal, maximized).",
+          "type": "WindowVisualState",
+          "default": "\"normal\""
+        },
+        {
+          "name": "minWidth",
+          "attribute": "minWidth",
+          "description": "Minimum width in pixels.",
+          "type": "number",
+          "default": "280"
+        },
+        {
+          "name": "minHeight",
+          "attribute": "minHeight",
+          "description": "Minimum height in pixels.",
+          "type": "number",
+          "default": "200"
+        },
+        {
+          "name": "open",
+          "attribute": "open",
+          "description": "Whether the body is expanded.",
+          "type": "boolean",
+          "default": "false"
         }
       ]
     }

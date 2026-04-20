@@ -22,7 +22,7 @@
 	"packageManager": "yarn@4.9.2",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/mhmo91/schmancy.git"
+		"url": "https://github.com/samwaai/schmancy.git"
 	},
 	"keywords": [
 		"lit",
@@ -58,9 +58,9 @@
 	"author": "@mhmo91",
 	"license": "Apache-2.0",
 	"bugs": {
-		"url": "https://github.com/mhmo91/schmancy/issues"
+		"url": "https://github.com/samwaai/schmancy/issues"
 	},
-	"homepage": "https://github.com/mhmo91/schmancy#readme",
+	"homepage": "https://github.com/samwaai/schmancy#readme",
 	"dependencies": {
 		"@floating-ui/dom": "^1.7.6",
 		"@lit-labs/motion": "^1.1.0",
