@@ -25,6 +25,31 @@ input {
 	width: -webkit-fill-available;
 	/* Ensure border radius is applied */
 	border-radius: 8px;
+	/* Smooth transitions for luminous focus */
+	transition:
+		box-shadow 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+		border-color 200ms ease;
+}
+
+/* Luminous focus glow — light-based depth on focus */
+input:focus {
+	box-shadow:
+		0 0 0 1px var(--schmancy-sys-color-secondary-default),
+		0 0 16px -4px color-mix(in srgb, var(--schmancy-sys-color-secondary-default) 20%, transparent);
+}
+
+/* Luminous error glow — red glow on error focus */
+input[aria-invalid="true"] {
+	box-shadow: 0 0 12px -4px color-mix(in srgb, var(--schmancy-sys-color-error-default) 15%, transparent);
+}
+input[aria-invalid="true"]:focus {
+	box-shadow:
+		0 0 0 1px var(--schmancy-sys-color-error-default),
+		0 0 16px -4px color-mix(in srgb, var(--schmancy-sys-color-error-default) 25%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	input { transition: none; }
 }
 
 /* Remove number input spinners */

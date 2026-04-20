@@ -1,145 +1,49 @@
-# Schmancy Form - AI Reference
+# schmancy-form
 
-```js
-// Form Container
-<schmancy-form
-  novalidate?                              // Skip form validation on submit
-  @submit=${handleSubmit}                  // Form submission event
-  @reset=${handleReset}>                   // Form reset event
-  <!-- Form fields go here -->
-</schmancy-form>
+> Form container that collects data from child controls, validates, and emits submit/reset events.
 
-// Form Methods
-form.submit() -> boolean                   // Submit the form programmatically
-form.reset() -> void                       // Reset all form fields to default values
-form.getFormData() -> FormData            // Get form data as FormData object
-form.reportValidity() -> boolean          // Check validity and show validation messages
-form.checkValidity() -> boolean           // Check validity without showing messages
-
-// Events
-@submit // CustomEvent<FormData>          // Fired when form is submitted
-@reset  // CustomEvent                    // Fired when form is reset
-
-// Examples
-// 1. Basic form with validation
-<schmancy-form @submit=${(e) => {
-  const formData = e.detail;
-  console.log('Form submitted:', formData);
-  // Convert FormData to object if needed
-  const values = Object.fromEntries(formData);
-  console.log('Values:', values);
-}}>
-  <schmancy-input 
-    name="email"
-    label="Email Address"
-    type="email"
-    required>
-  </schmancy-input>
-  
+## Usage
+```html
+<schmancy-form @submit=${(e) => handleSubmit(e.detail)}>
+  <schmancy-input name="email" label="Email" required></schmancy-input>
   <schmancy-button type="submit">Submit</schmancy-button>
 </schmancy-form>
+```
 
-// 2. Form with multiple fields and validation
-<schmancy-form 
-  @submit=${async (e) => {
-    const formData = e.detail;
-    // Send to server
-    await fetch('/api/submit', {
-      method: 'POST',
-      body: formData
-    });
-  }}>
-  
-  <schmancy-input name="username" label="Username" required></schmancy-input>
-  <schmancy-input name="password" label="Password" type="password" required></schmancy-input>
-  <schmancy-checkbox name="remember" label="Remember me"></schmancy-checkbox>
-  
-  <schmancy-button type="submit">Login</schmancy-button>
+## Properties
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| novalidate | boolean | `false` | Skip validation on submit |
+
+## Events
+| Event | Detail | Description |
+|-------|--------|-------------|
+| submit | FormData | Form data from all child controls |
+| reset | - | When the form is reset |
+
+## Methods
+| Method | Returns | Description |
+|--------|---------|-------------|
+| submit() | boolean | Validates and dispatches submit event. Returns false if invalid. |
+| reset() | void | Resets all child controls to default values |
+| getFormData() | FormData | Collects current form data without submitting |
+| reportValidity() | boolean | Checks and shows validation on all controls |
+
+## Examples
+```html
+<!-- Form with validation -->
+<schmancy-form @submit=${(e) => save(e.detail)} @reset=${() => clearForm()}>
+  <schmancy-input name="name" label="Name" required></schmancy-input>
+  <schmancy-select name="role" label="Role" required>
+    <schmancy-option value="admin" label="Admin"></schmancy-option>
+    <schmancy-option value="user" label="User"></schmancy-option>
+  </schmancy-select>
+  <schmancy-checkbox name="active" label="Active"></schmancy-checkbox>
+  <div class="flex gap-2">
+    <schmancy-button type="submit">Save</schmancy-button>
+    <schmancy-button type="reset">Reset</schmancy-button>
+  </div>
 </schmancy-form>
 ```
 
-## Related Components
-- **[Input](./input.md)**: Form input fields for text entry
-- **[Textarea](./textarea.md)**: Multi-line text input fields
-- **[Select](./select.md)**: Dropdown selection fields
-- **[Checkbox](./checkbox.md)**: Boolean selection controls
-- **[Radio-Group](./radio-group.md)**: Exclusive option selection controls
-- **[Button](./button.md)**: Action triggers for form submission
-
-## Technical Details
-
-### Form Field Common Attributes
-All form fields (input, textarea, select, checkbox, radio) support these attributes:
-```js
-name="field-name"       // Field identifier
-label="Field Label"     // Display label
-required?               // Makes field required
-disabled?               // Disables the field
-readonly?               // Makes field read-only
-value="initial value"   // Sets initial value
-error="Error message"   // Shows validation error
-success?                // Shows success state
-placeholder="Text"      // Placeholder text (where applicable)
-```
-
-### Form Behavior
-- Submits when Enter key is pressed in input fields
-- Submits when submit button is clicked
-- Automatically collects data from all form controls
-- Supports native HTML5 validation
-- Works with custom Schmancy form components
-
-### Common Use Cases
-
-1. **Multi-step forms**: Create wizard-like experiences
-   ```html
-   <schmancy-form id="step1" @submit=${nextStep}>
-     <!-- Step 1 fields -->
-   </schmancy-form>
-   
-   <schmancy-form id="step2" @submit=${submitAll} style="display: none;">
-     <!-- Step 2 fields -->
-   </schmancy-form>
-   ```
-
-2. **Programmatic form submission**
-   ```js
-   const form = document.querySelector('schmancy-form');
-   
-   // Check validity before submitting
-   if (form.checkValidity()) {
-     form.submit();
-   } else {
-     // Show validation messages
-     form.reportValidity();
-   }
-   ```
-
-3. **Form with server validation**: Handle backend validation errors
-   ```js
-   async function submitForm(e) {
-     const formData = e.detail;
-     
-     try {
-       const response = await fetch('/api/submit', {
-         method: 'POST',
-         body: formData
-       });
-       
-       if (!response.ok) {
-         // Handle server errors
-         const errors = await response.json();
-         // Update form fields with errors
-         Object.entries(errors).forEach(([field, message]) => {
-           const input = form.querySelector(`[name="${field}"]`);
-           if (input) {
-             input.error = true;
-             input.hint = message;
-           }
-         });
-       }
-     } catch (error) {
-       console.error('Submission failed:', error);
-     }
-   }
-   ```
+Submit triggers on Enter key in inputs or clicking a submit-type button.

@@ -34,6 +34,8 @@ export declare class SchmancyDateRange extends SchmancyDateRange_base {
     placeholder: string;
     clearable: boolean;
     step?: 'day' | 'week' | 'month' | 'year' | number;
+    /** When true, collapses to just an icon button on mobile screens */
+    collapse: boolean;
     private isOpen;
     private selectedDateRange;
     private activePreset;

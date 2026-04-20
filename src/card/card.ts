@@ -1,6 +1,7 @@
 import { TailwindElement } from '@mixins/index'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
+import { cursorGlow } from '../directives/cursor-glow'
 import { ifDefined } from 'lit/directives/if-defined.js'
 
 @customElement('schmancy-card')
@@ -9,7 +10,9 @@ export default class SchmancyCard extends TailwindElement(css`
 		display: block;
 		position: relative;
 		border-radius: var(--schmancy-sys-shape-corner-medium);
-		transition: box-shadow var(--schmancy-sys-motion-duration-short4) var(--schmancy-sys-motion-easing-standard);
+		transition:
+			box-shadow var(--schmancy-sys-motion-duration-short4) var(--schmancy-sys-motion-easing-standard),
+			transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
 		outline: none;
 	}
 
@@ -42,18 +45,41 @@ export default class SchmancyCard extends TailwindElement(css`
 		opacity: var(--schmancy-sys-state-disabled-opacity);
 	}
 
-	/* Hover elevations */
+	/* Hover elevations — luminous glow + lift */
 	:host([type='elevated'][interactive]:hover:not([disabled])) {
-		box-shadow: var(--schmancy-sys-elevation-2);
+		box-shadow:
+			var(--schmancy-sys-elevation-2),
+			0 4px 24px -6px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 12%, transparent);
+		transform: translateY(-2px);
 	}
 	:host([type='filled'][interactive]:hover:not([disabled])),
 	:host([type='outlined'][interactive]:hover:not([disabled])) {
-		box-shadow: var(--schmancy-sys-elevation-1);
+		box-shadow:
+			var(--schmancy-sys-elevation-1),
+			0 4px 20px -6px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 10%, transparent);
+		transform: translateY(-1px);
+	}
+
+	/* Active state — kinetic compress */
+	:host([interactive]:active:not([disabled])) {
+		transform: scale(0.98);
+		transition-duration: 100ms;
 	}
 
 	/* Dragged state */
 	:host([dragged]) {
-		box-shadow: var(--schmancy-sys-elevation-3);
+		box-shadow:
+			var(--schmancy-sys-elevation-3),
+			0 8px 32px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent);
+		transform: translateY(-4px);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:host([interactive]:hover:not([disabled])),
+		:host([interactive]:active:not([disabled])),
+		:host([dragged]) {
+			transform: none;
+		}
 	}
 
 	@keyframes ripple {
@@ -241,6 +267,7 @@ export default class SchmancyCard extends TailwindElement(css`
 
 		return html`
 			<div
+				${isInteractive ? cursorGlow({ radius: 200, intensity: 0.1 }) : ''}
 				class="relative w-full h-full rounded-xl ${isInteractive ? 'cursor-pointer' : ''}"
 				@click=${this.handleClick}
 				@keydown=${this.handleKeyDown}

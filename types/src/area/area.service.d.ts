@@ -46,6 +46,8 @@ declare class AreaService implements AreaSubscription {
     getState<T = unknown>(areaName: string): Observable<T>;
     /**
      * Get params from an area with type safety
+     * Emits current value immediately on subscription via startWith
+     * URL query params are MERGED with route params (URL takes precedence for redirects like _rp_oid)
      */
     params<T extends Record<string, unknown> = Record<string, unknown>>(areaName: string): Observable<T>;
     /**

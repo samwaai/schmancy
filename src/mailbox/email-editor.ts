@@ -845,7 +845,7 @@ Your primary content goes here. This area takes up most of the width while the s
 	render() {
 		return html`
 			<schmancy-surface 
-				type="surface" 
+				type="solid"
 				rounded="all"
 				class=${this.classMap({
 					'border-2 border-dashed border-primary': this.dragOver,
@@ -858,7 +858,7 @@ Your primary content goes here. This area takes up most of the width while the s
 				<div class="flex flex-col h-full gap-4">
 
 					<!-- Header Section with Subject -->
-					<div class="flex-shrink-0 p-4 pb-0 space-y-4">
+					<div class="shrink-0 p-4 pb-0 space-y-4">
 						<!-- Subject Field -->
 						<div class="space-y-2">
 							<schmancy-typography type="label" token="md">
@@ -876,8 +876,8 @@ Your primary content goes here. This area takes up most of the width while the s
 					</div>
 
 					<!-- Formatting Toolbar -->
-					<div class="flex-shrink-0 px-4">
-						<schmancy-surface type="container" rounded="all" class="p-3">
+					<div class="shrink-0 px-4">
+						<schmancy-surface type="subtle" rounded="all" class="p-3">
 							<div class="flex flex-wrap gap-2 items-center">
 								<!-- Text Formatting Group -->
 								<div class="flex gap-1">
@@ -997,7 +997,7 @@ Tab key inserts 2 spaces for better formatting."
 						<!-- Upload Progress Overlay -->
 						${when(this.isUploading, () => html`
 							<div class="absolute top-3 right-3 z-10">
-								<schmancy-surface type="container" rounded="all" class="p-2">
+								<schmancy-surface type="subtle" rounded="all" class="p-2">
 									<div class="flex items-center gap-2">
 										<schmancy-progress size="sm" class="w-4 h-4"></schmancy-progress>
 										<schmancy-typography type="body" token="xs">Uploading...</schmancy-typography>
@@ -1008,7 +1008,7 @@ Tab key inserts 2 spaces for better formatting."
 					</div>
 
 					<!-- Footer Section -->
-					<div class="flex-shrink-0 p-4 pt-0 space-y-2">
+					<div class="shrink-0 p-4 pt-0 space-y-2">
 						<!-- Character/Word Counter -->
 						<div class="text-center">
 							<schmancy-typography type="body" token="xs">

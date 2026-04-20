@@ -1,7 +1,7 @@
 /**
  * Badge color types for predefined styles
  */
-export type BadgeColor = 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning' | 'error' | 'neutral';
+export type BadgeColor = 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning' | 'error' | 'neutral' | 'surface';
 /**
  * Badge size variants
  */

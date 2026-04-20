@@ -1,7 +1,7 @@
 :host,
 :root {
-	--md-ref-typeface-brand: 'Josefin Sans', sans-serif;
-	--md-ref-typeface-plain: 'Josefin Sans', sans-serif;
+	--md-ref-typeface-brand: var(--schmancy-font-family, sans-serif);
+	--md-ref-typeface-plain: var(--schmancy-font-family, sans-serif);
 	--md-sys-color-primary: var(--schmancy-sys-color-primary-default);
 	--md-sys-color-secondary: var(--schmancy-sys-color-secondary-default);
 
@@ -9,8 +9,10 @@
 	--border-style: solid;
 	--spacing: 4px;
 	--color-scrim: var(--schmancy-sys-color-scrim);
+	--color-shadow: var(--schmancy-sys-color-shadow);
 	--color-outline: var(--schmancy-sys-color-outline);
 	--color-outlineVariant: var(--schmancy-sys-color-outlineVariant);
+	--color-outline-variant: var(--schmancy-sys-color-outlineVariant);
 	--color-surface-default: var(--schmancy-sys-color-surface-default);
 	--color-surface-dim: var(--schmancy-sys-color-surface-dim);
 	--color-surface-bright: var(--schmancy-sys-color-surface-bright);
@@ -19,32 +21,77 @@
 	--color-surface-high: var(--schmancy-sys-color-surface-high);
 	--color-surface-highest: var(--schmancy-sys-color-surface-highest);
 	--color-surface-lowest: var(--schmancy-sys-color-surface-lowest);
+	/* CamelCase variants for Tailwind compatibility */
+	--color-surface-containerLow: var(--schmancy-sys-color-surface-containerLow);
+	--color-surface-containerHigh: var(--schmancy-sys-color-surface-containerHigh);
+	--color-surface-containerLowest: var(--schmancy-sys-color-surface-containerLowest);
+	--color-surface-containerHighest: var(--schmancy-sys-color-surface-containerHighest);
 	--color-surface-on: var(--schmancy-sys-color-surface-on);
 	--color-surface-onVariant: var(--schmancy-sys-color-surface-onVariant);
+	--color-surface-on-variant: var(--schmancy-sys-color-surface-onVariant);
+	--color-surface-tint: var(--schmancy-sys-color-surface-tint);
+	--color-surface-inverse: var(--schmancy-sys-color-inverse-surface);
+	--color-surface-inverseOn: var(--schmancy-sys-color-inverse-onSurface);
+	--color-inverse-surface: var(--schmancy-sys-color-inverse-surface);
+	--color-inverse-on-surface: var(--schmancy-sys-color-inverse-onSurface);
 	--color-primary-default: var(--schmancy-sys-color-primary-default);
 	--color-primary-on: var(--schmancy-sys-color-primary-on);
 	--color-primary-container: var(--schmancy-sys-color-primary-container);
 	--color-primary-onContainer: var(--schmancy-sys-color-primary-onContainer);
+	--color-primary-on-container: var(--schmancy-sys-color-primary-onContainer);
+	--color-primary-fixed: var(--schmancy-sys-color-primary-fixed);
+	--color-primary-fixedDim: var(--schmancy-sys-color-primary-fixedDim);
+	--color-primary-fixed-dim: var(--schmancy-sys-color-primary-fixedDim);
+	--color-primary-onFixed: var(--schmancy-sys-color-primary-onFixed);
+	--color-primary-on-fixed: var(--schmancy-sys-color-primary-onFixed);
+	--color-primary-onFixedVariant: var(--schmancy-sys-color-primary-onFixedVariant);
+	--color-primary-on-fixed-variant: var(--schmancy-sys-color-primary-onFixedVariant);
+	--color-primary-inverse: var(--schmancy-sys-color-inverse-primary);
+	--color-inverse-primary: var(--schmancy-sys-color-inverse-primary);
 	--color-secondary-default: var(--schmancy-sys-color-secondary-default);
 	--color-secondary-on: var(--schmancy-sys-color-secondary-on);
 	--color-secondary-container: var(--schmancy-sys-color-secondary-container);
 	--color-secondary-onContainer: var(--schmancy-sys-color-secondary-onContainer);
+	--color-secondary-on-container: var(--schmancy-sys-color-secondary-onContainer);
+	--color-secondary-fixed: var(--schmancy-sys-color-secondary-fixed);
+	--color-secondary-fixedDim: var(--schmancy-sys-color-secondary-fixedDim);
+	--color-secondary-fixed-dim: var(--schmancy-sys-color-secondary-fixedDim);
+	--color-secondary-onFixed: var(--schmancy-sys-color-secondary-onFixed);
+	--color-secondary-on-fixed: var(--schmancy-sys-color-secondary-onFixed);
+	--color-secondary-onFixedVariant: var(--schmancy-sys-color-secondary-onFixedVariant);
+	--color-secondary-on-fixed-variant: var(--schmancy-sys-color-secondary-onFixedVariant);
 	--color-tertiary-default: var(--schmancy-sys-color-tertiary-default);
 	--color-tertiary-on: var(--schmancy-sys-color-tertiary-on);
 	--color-tertiary-container: var(--schmancy-sys-color-tertiary-container);
 	--color-tertiary-onContainer: var(--schmancy-sys-color-tertiary-onContainer);
+	--color-tertiary-on-container: var(--schmancy-sys-color-tertiary-onContainer);
+	--color-tertiary-fixed: var(--schmancy-sys-color-tertiary-fixed);
+	--color-tertiary-fixedDim: var(--schmancy-sys-color-tertiary-fixedDim);
+	--color-tertiary-fixed-dim: var(--schmancy-sys-color-tertiary-fixedDim);
+	--color-tertiary-onFixed: var(--schmancy-sys-color-tertiary-onFixed);
+	--color-tertiary-on-fixed: var(--schmancy-sys-color-tertiary-onFixed);
+	--color-tertiary-onFixedVariant: var(--schmancy-sys-color-tertiary-onFixedVariant);
+	--color-tertiary-on-fixed-variant: var(--schmancy-sys-color-tertiary-onFixedVariant);
 	--color-error-default: var(--schmancy-sys-color-error-default);
 	--color-error-on: var(--schmancy-sys-color-error-on);
 	--color-error-container: var(--schmancy-sys-color-error-container);
 	--color-error-onContainer: var(--schmancy-sys-color-error-onContainer);
+	--color-error-on-container: var(--schmancy-sys-color-error-onContainer);
 	--color-success-default: var(--schmancy-sys-color-success-default);
 	--color-success-on: var(--schmancy-sys-color-success-on);
 	--color-success-container: var(--schmancy-sys-color-success-container);
 	--color-success-onContainer: var(--schmancy-sys-color-success-onContainer);
+	--color-success-on-container: var(--schmancy-sys-color-success-onContainer);
 	--color-warning-default: var(--schmancy-sys-color-warning-default);
 	--color-warning-on: var(--schmancy-sys-color-warning-on);
 	--color-warning-container: var(--schmancy-sys-color-warning-container);
 	--color-warning-onContainer: var(--schmancy-sys-color-warning-onContainer);
+	--color-warning-on-container: var(--schmancy-sys-color-warning-onContainer);
+	--color-info-default: var(--schmancy-sys-color-info-default);
+	--color-info-on: var(--schmancy-sys-color-info-on);
+	--color-info-container: var(--schmancy-sys-color-info-container);
+	--color-info-onContainer: var(--schmancy-sys-color-info-onContainer);
+	--color-info-on-container: var(--schmancy-sys-color-info-onContainer);
 	--shadow-xs: var(--schmancy-sys-elevation-0);
 	--shadow-sm: var(--schmancy-sys-elevation-1);
 	--shadow-md: var(--schmancy-sys-elevation-2);
@@ -409,34 +456,19 @@
 	--animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 	--animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 	--animate-bounce: bounce 1s infinite;
-	@keyframes spin {
-		to {
-			transform: rotate(360deg);
-		}
-	}
-	@keyframes ping {
-		75%,
-		100% {
-			transform: scale(2);
-			opacity: 0;
-		}
-	}
-	@keyframes pulse {
-		50% {
-			opacity: 0.5;
-		}
-	}
-	@keyframes bounce {
-		0%,
-		100% {
-			transform: translateY(-25%);
-			animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-		}
-		50% {
-			transform: none;
-			animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-		}
-	}
+	/* Presentation animations */
+	--animate-float-1: float-drift 20s ease-in-out infinite;
+	--animate-float-2: float-drift-alt 25s ease-in-out infinite;
+	--animate-float-3: float-drift 30s ease-in-out infinite reverse;
+	--animate-pulse-glow: pulse-glow 8s ease-in-out infinite;
+	--animate-spin-slow: slow-spin 120s linear infinite;
+
+	/* Scene nebula layers */
+	--animate-aurora-drift: aurora-drift 30s ease-in-out infinite;
+	--animate-scene-enter: scene-enter 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+
+
 	/* Color System */
 	--md-sys-color-scrim: var(--schmancy-sys-color-scrim);
 	--md-sys-color-outline: var(--schmancy-sys-color-outline);
@@ -518,4 +550,70 @@
 	--md-checkbox-pressed-outline-width: 2px;
 	--md-checkbox-disabled-outline-color: var(--schmancy-sys-color-surface-on);
 	--md-checkbox-disabled-outline-width: 2px;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+@keyframes ping {
+	75%,
+	100% {
+		transform: scale(2);
+		opacity: 0;
+	}
+}
+@keyframes pulse {
+	50% {
+		opacity: 0.5;
+	}
+}
+@keyframes bounce {
+	0%,
+	100% {
+		transform: translateY(-25%);
+		animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+	}
+	50% {
+		transform: none;
+		animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+	}
+}
+@keyframes float-drift {
+	0%, 100% { transform: translate(0, 0) rotate(0deg); }
+	25% { transform: translate(20px, -30px) rotate(2deg); }
+	50% { transform: translate(-10px, -50px) rotate(-1deg); }
+	75% { transform: translate(15px, -20px) rotate(1deg); }
+}
+@keyframes float-drift-alt {
+	0%, 100% { transform: translate(0, 0) rotate(0deg); }
+	25% { transform: translate(-25px, 20px) rotate(-2deg); }
+	50% { transform: translate(15px, 40px) rotate(1deg); }
+	75% { transform: translate(-20px, 15px) rotate(-1deg); }
+}
+@keyframes pulse-glow {
+	0%, 100% { opacity: 0.15; transform: scale(1); }
+	50% { opacity: 0.25; transform: scale(1.05); }
+}
+@keyframes slow-spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+@keyframes aurora-drift {
+	0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+	33% { transform: translate(3%, -5%) scale(1.05) rotate(1deg); }
+	66% { transform: translate(-3%, 3%) scale(0.95) rotate(-1deg); }
+}
+@keyframes scene-enter {
+	from { opacity: 0; transform: scale(0.92); filter: blur(12px); }
+	to { opacity: 1; transform: scale(1); filter: blur(0px); }
+}
+@keyframes star-appear {
+	from { opacity: 0; transform: scale(0.5); }
+	to { opacity: 1; transform: scale(1); }
+}
+@keyframes star-twinkle {
+	0%, 100% { opacity: 1; transform: scale(1); }
+	50% { opacity: 0.4; transform: scale(0.92); }
 }

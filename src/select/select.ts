@@ -49,8 +49,8 @@ export class SchmancySelect extends $LitElement(css`
 	@property({ type: String, reflect: true })
 	get value() {
 		return this.multi
-			? this._selectedValues$.value.join(',')
-			: this._selectedValue$.value
+			? this._selectedValues$.value  // Return array for multi-select
+			: this._selectedValue$.value   // Return string for single-select
 	}
 	set value(val: string | string[]) {
 		if (this.multi) {
@@ -59,7 +59,7 @@ export class SchmancySelect extends $LitElement(css`
 				: val ? String(val).split(',').map(v => v.trim()).filter(Boolean) : []
 			this._selectedValues$.next(values)
 		} else {
-			this._selectedValue$.next(String(val || ''))
+			this._selectedValue$.next(val == null ? '' : String(val))
 		}
 	}
 
@@ -156,11 +156,6 @@ export class SchmancySelect extends $LitElement(css`
 				.pipe(takeUntil(this.disconnecting))
 				.subscribe(this.formResetHandler)
 		}
-
-		// Initially hide any validation errors until user interacts
-		if (this.inputRef) {
-			this.inputRef.error = false
-		}
 	}
 
 	disconnectedCallback() {
@@ -172,6 +167,11 @@ export class SchmancySelect extends $LitElement(css`
 	firstUpdated() {
 		this.syncSelection()
 		this.setupOptionsAccessibility()
+
+		// Initially hide any validation errors until user interacts
+		if (this.inputRef) {
+			this.inputRef.error = false
+		}
 	}
 
 	updated(changedProps: PropertyValues) {
@@ -179,7 +179,9 @@ export class SchmancySelect extends $LitElement(css`
 
 		if (changedProps.has('value')) {
 			// Update form value when component value changes
-			const formValue = Array.isArray(this.value) ? this.value.join(',') : this.value
+			const formValue = this.multi
+				? this._selectedValues$.value.join(',')
+				: this._selectedValue$.value
 			this.internals?.setFormValue(formValue)
 
 			// Mark as dirty if value changes from initial value
@@ -257,11 +259,10 @@ export class SchmancySelect extends $LitElement(css`
 
 			// Set tabindex to -1 so they're focusable programmatically but not in the tab order
 			option.tabIndex = -1
-			const selectedValues = Array.isArray(this.value) ? this.value : this.value ? this.value.split(',') : []
 
 			option.setAttribute(
 				'aria-selected',
-				String(this.multi ? selectedValues.includes(option.value) : option.value === this.value),
+				String(this.multi ? this._selectedValues$.value.includes(option.value) : option.value === this._selectedValue$.value),
 			)
 		})
 	}
@@ -401,7 +402,7 @@ export class SchmancySelect extends $LitElement(css`
 
 		// Focus first or selected option
 		const options = Array.from(this.options || [])
-		const selectedIndex = this.multi ? 0 : options.findIndex(o => o.value === String(this.value))
+		const selectedIndex = this.multi ? 0 : options.findIndex(o => o.value === this._selectedValue$.value)
 
 		this.focusOption(options, Math.max(selectedIndex, 0))
 
@@ -465,6 +466,9 @@ export class SchmancySelect extends $LitElement(css`
 							: [...currentValues, option.value]
 						this._selectedValues$.next(newValues)
 
+						// Update form value
+						this.internals?.setFormValue(newValues.join(','))
+
 						// Update display label
 						this.valueLabel = newValues.length > 0
 							? this.options
@@ -475,6 +479,10 @@ export class SchmancySelect extends $LitElement(css`
 					} else {
 						// Single select
 						this._selectedValue$.next(option.value)
+
+						// Update form value
+						this.internals?.setFormValue(option.value)
+
 						this.valueLabel = option.label || option.textContent || this.placeholder
 						this.closeDropdown()
 					}
@@ -570,7 +578,9 @@ export class SchmancySelect extends $LitElement(css`
 		}
 
 		// Determine if the select is empty based on whether it's multi-select or single-select
-		const isEmpty = this.multi ? (Array.isArray(this.value) ? this.value.length === 0 : !this.value) : !this.value
+		const isEmpty = this.multi
+			? this._selectedValues$.value.length === 0
+			: !this._selectedValue$.value
 
 		// Check if the value is valid (not empty when required)
 		const isValid = !(this.required && isEmpty)

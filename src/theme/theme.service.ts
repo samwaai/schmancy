@@ -67,6 +67,7 @@ class ThemeService {
   private _theme$ = new BehaviorSubject<Partial<TSchmancyTheme>>({})
   private _themeComponent$ = new BehaviorSubject<SchmancyThemeComponent | null>(null)
   private _fullscreen$ = new BehaviorSubject<boolean>(false)
+  private _bottomOffset$ = new BehaviorSubject<number>(0)
 
   // Public observables derived from context
   public readonly scheme$ = ThemeContext.$.pipe(
@@ -96,6 +97,11 @@ class ThemeService {
     shareReplay(1)
   )
 
+  public readonly bottomOffset$ = this._bottomOffset$.asObservable().pipe(
+    distinctUntilChanged(),
+    shareReplay(1)
+  )
+
   // Getters for synchronous access to current values
   get scheme(): 'dark' | 'light' | 'auto' {
     return ThemeContext.value.scheme
@@ -115,6 +121,10 @@ class ThemeService {
 
   get fullscreen(): boolean {
     return this._fullscreen$.getValue()
+  }
+
+  get bottomOffset(): number {
+    return this._bottomOffset$.getValue()
   }
 
   // Computed observable for actual scheme (resolving 'auto')
@@ -431,6 +441,25 @@ class ThemeService {
    */
   public toggleFullscreen(): void {
     this.setFullscreen(!this.fullscreen)
+  }
+
+  /**
+   * Set the bottom offset for viewport calculations.
+   * Used by navigation bars to inform fullHeight directive of reserved space.
+   *
+   * @param {number} value - Bottom offset in pixels
+   *
+   * @example
+   * ```typescript
+   * // Set bottom offset when nav bar is visible
+   * theme.setBottomOffset(80)
+   *
+   * // Clear bottom offset when nav bar is hidden
+   * theme.setBottomOffset(0)
+   * ```
+   */
+  public setBottomOffset(value: number): void {
+    this._bottomOffset$.next(value)
   }
 
   /**

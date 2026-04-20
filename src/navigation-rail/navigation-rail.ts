@@ -383,7 +383,7 @@ export class SchmancyNavigationRail extends $LitElement() {
 
 
 			// M3 Colors & Theme
-			'bg-surface-default text-surface-on': true,
+			'bg-container-lowest text-surface-on': true,
 
 			// M3 Motion - smooth transitions for width and shadow
 			'transition-all duration-300 ease-emphasized': true,

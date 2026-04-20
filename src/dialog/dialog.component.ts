@@ -1,6 +1,8 @@
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
+import { cursorGlow } from '../directives/cursor-glow'
+import { createRef, ref, type Ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
 import { fromEvent, tap } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
@@ -36,7 +38,7 @@ export class SchmancyDialog extends DialogBase(
 	$LitElement(css`
 		:host {
 			position: fixed;
-			z-index: 10000;
+			z-index: var(--schmancy-overlay-z, 10000);
 			inset: 0;
 			display: none;
 			--dialog-width: fit-content;
@@ -44,6 +46,17 @@ export class SchmancyDialog extends DialogBase(
 
 		:host([active]) {
 			display: block;
+		}
+
+
+		/* Luminous glow around the dialog container */
+		.dialog {
+			box-shadow: 0 8px 40px -8px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent);
+			border-radius: var(--schmancy-sys-shape-corner-large);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.dialog { box-shadow: var(--schmancy-sys-elevation-2); }
 		}
 	`),
 ) {
@@ -88,10 +101,55 @@ export class SchmancyDialog extends DialogBase(
 	@property({ type: Boolean, attribute: 'hide-actions' }) hideActions = false
 
 	/**
-	 * Return the dialog element for positioning
+	 * Slotted children in the named "content" slot (confirm mode custom content)
+	 */
+	@queryAssignedElements({ slot: 'content', flatten: true })
+	private _contentSlotElements!: HTMLElement[]
+
+	/**
+	 * Ref to the confirm mode wrapper div
+	 */
+	private _confirmDialogRef: Ref<HTMLElement> = createRef()
+
+	/**
+	 * Ref to the content mode section element
+	 */
+	private _contentDialogRef: Ref<HTMLElement> = createRef()
+
+	/**
+	 * Ref to the backdrop element for animations
+	 */
+	private _backdropRef: Ref<HTMLElement> = createRef()
+
+	/**
+	 * Ref to the drag handle element for swipe gestures
+	 */
+	private _dragHandleRef: Ref<HTMLElement> = createRef()
+
+	/**
+	 * Return the dialog element for positioning/size measurement.
+	 * In content mode, returns the first slotted child (the actual component).
+	 * In confirm mode, returns the wrapper div.
 	 */
 	protected getDialogElement(): HTMLElement | null {
-		return this.shadowRoot?.querySelector('[role="dialog"], [role="alertdialog"]') as HTMLElement
+		// Content mode: use the section wrapper (slotted content may be display:contents)
+		if (this._contentDialogRef.value) return this._contentDialogRef.value
+		// Confirm mode: use the wrapper div
+		return this._confirmDialogRef.value ?? null
+	}
+
+	/**
+	 * Return the backdrop element for animations
+	 */
+	protected getBackdropElement(): HTMLElement | null {
+		return this._backdropRef.value ?? null
+	}
+
+	/**
+	 * Return the drag handle element for swipe gestures
+	 */
+	protected getDragHandleElement(): HTMLElement | null {
+		return this._dragHandleRef.value ?? null
 	}
 
 	/**
@@ -149,6 +207,7 @@ export class SchmancyDialog extends DialogBase(
 	 * Handle cancel/close action
 	 */
 	private handleClose(): void {
+		if (this.isAnimating()) return
 		this.hide(false)
 		this.dispatchEvent(
 			new CustomEvent(this.isConfirmMode ? 'cancel' : 'close', {
@@ -158,11 +217,36 @@ export class SchmancyDialog extends DialogBase(
 		)
 	}
 
+	/**
+	 * Render drag handle for mobile bottom sheet
+	 */
+	private renderDragHandle() {
+		return html`
+			<div ${ref(this._dragHandleRef)} class="dialog-drag-handle flex justify-center pt-2 pb-1 cursor-grab active:cursor-grabbing touch-none">
+				<div class="w-10 h-1 rounded-full bg-outline-variant"></div>
+			</div>
+		`
+	}
+
 	render() {
 		const isCentered = this.isCentered()
-		const hasCustomContent = this.querySelectorAll('[slot="content"]').length > 0
+		const hasCustomContent = this._contentSlotElements?.length > 0
 
-		const dialogClasses = {
+		// Mobile bottom sheet classes
+		const mobileDialogClasses = {
+			dialog: true,
+			fixed: true,
+			'inset-x-0': true,
+			'bottom-0': true,
+			'w-full': true,
+			'max-h-[90dvh]': true,
+			'overflow-hidden': true,
+			// Safe area padding for notched devices
+			'pb-[env(safe-area-inset-bottom)]': true,
+		}
+
+		// Desktop dialog classes
+		const desktopDialogClasses = {
 			dialog: true,
 			fixed: true,
 			'w-[var(--dialog-width)]': true,
@@ -175,14 +259,28 @@ export class SchmancyDialog extends DialogBase(
 			'-translate-y-1/2': isCentered,
 		}
 
+		const dialogClasses = this.isMobile ? mobileDialogClasses : desktopDialogClasses
+
+		// Button classes - stack vertically on mobile
+		const buttonContainerClasses = this.isMobile
+			? 'flex flex-col-reverse gap-2 w-full'
+			: 'flex justify-end gap-3'
+
 		// Confirm mode: with title/buttons
 		if (this.isConfirmMode) {
 			return html`
-				<div class="fixed inset-0 bg-scrim/40" @click=${this.handleClose}></div>
+				<div ${ref(this._backdropRef)} class="fixed inset-0 bg-surface-container/10 backdrop-blur-lg backdrop-saturate-150 backdrop-brightness-105" @click=${this.handleClose}></div>
 
-				<div class=${this.classMap(dialogClasses)} role="alertdialog" aria-modal="true">
-					<schmancy-surface rounded="all" elevation="3" type="containerHigh" fill="all" class="overflow-hidden">
-						<schmancy-scroll direction="vertical" hide class="p-4">
+				<div ${ref(this._confirmDialogRef)} class=${this.classMap(dialogClasses)} role="alertdialog" aria-modal="true">
+					<schmancy-surface
+						${cursorGlow({ radius: 250, intensity: 0.1 })}
+						rounded=${this.isMobile ? 'top' : 'all'}
+						type="glass"
+						fill="all"
+						class="overflow-hidden"
+					>
+						${this.isMobile ? this.renderDragHandle() : null}
+						<schmancy-scroll direction="vertical" hide class="p-4 pt-2">
 							<schmancy-form @submit=${this.handleConfirm}>
 								${when(
 									this.title?.trim(),
@@ -204,9 +302,21 @@ export class SchmancyDialog extends DialogBase(
 											this.message?.trim(),
 											() => html`<schmancy-typography type="body" class="mb-4">${this.message}</schmancy-typography>`,
 										)}
-								<div class="flex justify-end gap-3">
-									<schmancy-button variant="outlined" @click=${this.handleClose}>${this.cancelText}</schmancy-button>
-									<schmancy-button type="submit" variant="filled">${this.confirmText}</schmancy-button>
+								<div class=${buttonContainerClasses}>
+									<schmancy-button
+										variant="outlined"
+										@click=${this.handleClose}
+										class=${this.isMobile ? 'w-full' : ''}
+									>
+										${this.cancelText}
+									</schmancy-button>
+									<schmancy-button
+										type="submit"
+										variant="filled"
+										class=${this.isMobile ? 'w-full' : ''}
+									>
+										${this.confirmText}
+									</schmancy-button>
 								</div>
 							</schmancy-form>
 						</schmancy-scroll>
@@ -217,11 +327,12 @@ export class SchmancyDialog extends DialogBase(
 
 		// Content mode: minimal, just slot
 		return html`
-			<div class="fixed inset-0 bg-surface-container/10 backdrop-blur-xs" @click=${this.handleClose}></div>
+			<div ${ref(this._backdropRef)} class="fixed inset-0 bg-surface-container/10 backdrop-blur-lg backdrop-saturate-150 backdrop-brightness-105" @click=${this.handleClose}></div>
 
-			<section class=${this.classMap(dialogClasses)} role="dialog" aria-modal="true">
-				<schmancy-surface rounded="all" type="surface" elevation="2" fill="all" class="overflow-hidden">
-					<schmancy-scroll direction="vertical" hide class="p-2 md:p-4 max-h-[90dvh]">
+			<section ${ref(this._contentDialogRef)} class=${this.classMap(dialogClasses)} role="dialog" aria-modal="true">
+				<schmancy-surface ${cursorGlow({ radius: 250, intensity: 0.1 })} rounded=${this.isMobile ? 'top' : 'all'} type="glass" fill="all">
+					${this.isMobile ? this.renderDragHandle() : null}
+					<schmancy-scroll direction="vertical" hide class="max-h-[85dvh]">
 						<slot></slot>
 					</schmancy-scroll>
 				</schmancy-surface>

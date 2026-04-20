@@ -11,15 +11,32 @@
 	padding-right: 32px;
 	background: var(--schmancy-sys-color-surface-container);
 	border-radius: var(--schmancy-sys-shape-corner-extraLarge, 16px);
-	box-shadow: var(--schmancy-sys-elevation-1);
 	color: var(--schmancy-sys-color-surface-on);
 	max-width: 320px;
 	overflow: hidden;
 
-	transition: box-shadow 200ms ease;
+	/* Type-colored luminous glow */
+	--notification-glow-color: var(--schmancy-sys-color-primary-default);
+	box-shadow: 0 4px 24px -6px color-mix(in srgb, var(--notification-glow-color) 18%, transparent);
+	border-left: 2px solid color-mix(in srgb, var(--notification-glow-color) 50%, transparent);
+
+	transition:
+		box-shadow 300ms ease,
+		transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+	&.info { --notification-glow-color: var(--schmancy-sys-color-primary-default); }
+	&.success { --notification-glow-color: var(--schmancy-sys-color-success-default); }
+	&.warning { --notification-glow-color: var(--schmancy-sys-color-warning-default); }
+	&.error { --notification-glow-color: var(--schmancy-sys-color-error-default); }
 
 	&.hovered {
-		box-shadow: var(--schmancy-sys-elevation-2);
+		box-shadow: 0 8px 32px -4px color-mix(in srgb, var(--notification-glow-color) 28%, transparent);
+		transform: translateY(-2px);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: box-shadow 200ms ease;
+		&.hovered { transform: none; }
 	}
 }
 
@@ -86,7 +103,9 @@
 	&:focus-visible {
 		outline: none;
 		opacity: 1;
-		box-shadow: 0 0 0 2px var(--schmancy-sys-color-primary-default);
+		box-shadow:
+			0 0 0 2px var(--schmancy-sys-color-primary-default),
+			0 0 8px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 25%, transparent);
 	}
 }
 
@@ -94,21 +113,5 @@
 	position: absolute;
 	bottom: 0;
 	left: 0;
-	height: 2px;
-	transition: width 16ms linear;
-	border-radius: 2px;
-	opacity: 0.7;
-
-	.info & {
-		background: var(--schmancy-sys-color-primary-container);
-	}
-	.success & {
-		background: var(--schmancy-sys-color-success-container);
-	}
-	.warning & {
-		background: var(--schmancy-sys-color-tertiary-container);
-	}
-	.error & {
-		background: var(--schmancy-sys-color-error-container);
-	}
+	right: 0;
 }

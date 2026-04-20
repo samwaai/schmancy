@@ -51,12 +51,26 @@ export default class SchmancyIcon extends SchmancyIcon_base {
      * Custom: any CSS size string like '48px', '2rem'
      */
     size: IconSize;
+    /**
+     * Icon name - use this instead of slot content to prevent translation breaking icons.
+     * When set, this takes precedence over slot content.
+     * Example: <schmancy-icon icon="delete"></schmancy-icon>
+     */
+    icon?: string;
     private static readonly tokenSizes;
+    /** Extract pixel value from a custom size string for optical size */
+    private static computeOpticalSize;
     private fill$;
     private weight$;
     private grade$;
     private variant$;
+    private _capturedIcon?;
+    private _observer?;
     connectedCallback(): void;
+    /**
+     * Update captured icon from current text content
+     */
+    private _updateCapturedIcon;
     protected updated(changedProperties: Map<string | number | symbol, unknown>): void;
     protected render(): unknown;
 }

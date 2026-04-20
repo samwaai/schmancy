@@ -477,7 +477,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                                             <schmancy-input-chip
                                                 .value=${value}
                                                 @remove=${(e: CustomEvent) => this.handleChipRemove(e.detail.value)}
-                                                class="flex-shrink-0 my-0.5"
+                                                class="shrink-0 my-0.5"
                                             >
                                                 ${this._getChipLabel(value)}
                                             </schmancy-input-chip>

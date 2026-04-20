@@ -49,9 +49,9 @@ export default defineConfig({
 				},
 			),
 		},
-		sourcemap: true,
+		sourcemap: 'hidden',
 		rollupOptions: {
-			external: /^(lit|rxjs|animejs|moment|@floating-ui)/,
+			external: /^(lit|rxjs|animejs|moment|@floating-ui|highlight\.js|jsqr)/,
 			output: {
 				dir: resolve(__dirname, './dist'),
 				globals: {

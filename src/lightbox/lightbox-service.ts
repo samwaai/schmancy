@@ -3,6 +3,7 @@ import { html, render } from 'lit'
 import { styleMap } from 'lit/directives/style-map.js'
 import { ComponentType } from '../area/router.types'
 import { discoverComponent } from '@mixins/discovery.service'
+import { overlayStack } from '../utils/overlay-stack'
 import { lightbox as lightboxDirective, type LightboxOptions } from './lightbox.directive'
 
 export type LightboxConfig = {
@@ -71,7 +72,7 @@ class LightboxService {
 							// Create overlay element
 							const overlay = document.createElement('div')
 							overlay.className = 'fixed inset-0 flex items-center justify-center opacity-0 bg-black/95 backdrop-blur-sm'
-							overlay.style.zIndex = '1000'
+							overlay.style.zIndex = String(overlayStack.getNextZIndex())
 
 							container.appendChild(overlay)
 							document.body.style.overflow = 'hidden'
@@ -160,6 +161,7 @@ class LightboxService {
 					animation.onfinish = () => {
 						element.remove()
 						document.body.style.overflow = ''
+						overlayStack.release()
 					}
 
 					this.activeLightbox = undefined

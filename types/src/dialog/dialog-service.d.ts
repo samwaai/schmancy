@@ -20,6 +20,23 @@ export interface DialogOptions {
     targetContainer?: HTMLElement;
 }
 /**
+ * Prompt dialog options
+ */
+export interface PromptOptions {
+    title?: string;
+    message?: string;
+    label?: string;
+    placeholder?: string;
+    defaultValue?: string;
+    inputType?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
+    confirmText?: string;
+    cancelText?: string;
+    position?: {
+        x: number;
+        y: number;
+    } | MouseEvent | TouchEvent;
+}
+/**
  * Dialog service for centralized dialog management.
  * Uses a single unified SchmancyDialog component for all dialog types.
  */
@@ -29,7 +46,10 @@ export declare class DialogService {
     private activeDialogs;
     private dialogSubject;
     private dismissSubject;
+    private lastClickPosition;
+    private clickTrackingInitialized;
     private constructor();
+    private setupClickPositionTracking;
     static getInstance(): DialogService;
     private setupDialogOpeningLogic;
     private setupDialogDismissLogic;
@@ -39,7 +59,12 @@ export declare class DialogService {
     close(): boolean;
     ask(message: string, event?: MouseEvent | TouchEvent): Promise<boolean>;
     danger(options: Omit<DialogOptions, 'variant'>): Promise<boolean>;
-    private getCenteredPosition;
+    /**
+     * Shows a prompt dialog with an input field.
+     * Returns the input value if confirmed, null if cancelled.
+     */
+    prompt(options: PromptOptions): Promise<string | null>;
+    private getDefaultPosition;
 }
 /**
  * Global dialog utility
@@ -48,6 +73,7 @@ export declare const $dialog: {
     confirm: (options: DialogOptions) => Promise<boolean>;
     ask: (message: string, event?: MouseEvent | TouchEvent) => Promise<boolean>;
     danger: (options: Omit<DialogOptions, "variant">) => Promise<boolean>;
+    prompt: (options: PromptOptions) => Promise<string | null>;
     component: (content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult), options?: Omit<DialogOptions, "content" | "message">) => Promise<boolean>;
     dismiss: () => boolean;
     close: () => boolean;

@@ -167,7 +167,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 				style=${this.styleMap(styleMap)}
 				class="${this.classMap({ ...sidebarClasses })}"
 				${color({
-					bgColor: SchmancyTheme.sys.color.surface.container,
+					bgColor: SchmancyTheme.sys.color.surface.containerLowest,
 				})}
 			>
 				<slot></slot>

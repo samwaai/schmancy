@@ -217,10 +217,17 @@ export class SchmancyQRScanner extends $LitElement(css`
 				<!-- Success Flash -->
 				${when(this.showSuccess, () => html`<div class="absolute inset-0 bg-green-400/30 pointer-events-none"></div>`)}
 
-				<!-- Glassmorphism guide - centered -->
-				<div
-					class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-white/5 backdrop-blur-sm rounded-3xl pointer-events-none"
-				></div>
+				<!-- Minimal corner brackets - Apple style -->
+				<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] pointer-events-none animate-pulse">
+					<!-- Top-left corner -->
+					<div class="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-white rounded-tl-2xl"></div>
+					<!-- Top-right corner -->
+					<div class="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-white rounded-tr-2xl"></div>
+					<!-- Bottom-left corner -->
+					<div class="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-white rounded-bl-2xl"></div>
+					<!-- Bottom-right corner -->
+					<div class="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-white rounded-br-2xl"></div>
+				</div>
 			</div>
 		`
 	}

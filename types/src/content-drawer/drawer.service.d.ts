@@ -16,6 +16,8 @@ export type DrawerPushOptions = {
 };
 declare class DrawerService {
     private $drawer;
+    private pushCounter;
+    private isDismissing$;
     constructor();
     private dispatchToggleEvent;
     private dispatchRenderEvent;
@@ -24,6 +26,7 @@ declare class DrawerService {
     private handlePush;
     /**
      * Push a component to the content drawer
+     * Every push is guaranteed to render (auto-incremented unique ID prevents deduplication)
      * @param options - Component configuration object with optional state/params/props
      * @example
      * schmancyContentDrawer.push({

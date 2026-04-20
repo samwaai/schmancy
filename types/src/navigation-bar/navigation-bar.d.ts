@@ -79,7 +79,24 @@ export declare class SchmancyNavigationBar extends SchmancyNavigationBar_base {
      * Minimum scroll threshold before triggering hide/show
      */
     private readonly SCROLL_THRESHOLD;
+    /**
+     * Media query for mobile detection
+     */
+    private mobileMediaQuery;
+    /**
+     * Subject to track visibility state changes
+     */
+    private visibility$;
+    /**
+     * Check if on mobile viewport
+     */
+    private isMobileViewport;
+    /**
+     * Update bottom offset for schmancy-page/fullHeight consumers
+     */
+    private updateBottomOffset;
     connectedCallback(): void;
+    disconnectedCallback(): void;
     /**
      * Set up RxJS-based scroll listener
      */

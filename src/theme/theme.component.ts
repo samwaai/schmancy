@@ -1,11 +1,11 @@
 import { provide } from '@lit/context'
 import { argbFromHex, themeFromSourceColor } from '@material/material-color-utilities'
-import { $LitElement } from '@mixins/index'
+import { $LitElement } from '../../mixins/index'
 import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { Observable, of, switchMap, fromEvent, takeUntil } from 'rxjs'
 import { themeContext } from './context'
-import { formateTheme } from './theme.format'
+import { formatTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
 import { ThemeHereIAm, ThemeWhereAreYou, ThemeWhereAreYouEvent } from './theme.events'
 import style from './theme.style.css?inline'
@@ -17,11 +17,10 @@ const $colorScheme = new Observable<string>(subscriber => {
 	subscriber.next(initialColorScheme)
 
 	// Subscribe to media query changes using RxJS
-	const subscription = fromEvent<MediaQueryListEvent>(mediaQuery, 'change')
-		.subscribe(e => {
-			const newColorScheme = e.matches ? 'dark' : 'light'
-			subscriber.next(newColorScheme)
-		})
+	const subscription = fromEvent<MediaQueryListEvent>(mediaQuery, 'change').subscribe(e => {
+		const newColorScheme = e.matches ? 'dark' : 'light'
+		subscriber.next(newColorScheme)
+	})
 
 	// On unsubscribe, unsubscribe from the RxJS subscription
 	return () => subscription.unsubscribe()
@@ -80,6 +79,15 @@ export class SchmancyThemeComponent extends $LitElement(tailwindStyles) {
 	@property({ type: Boolean }) root = false
 
 	/**
+	 * Locale for number/date formatting. Overrides navigator.language when set.
+	 * @attr locale
+	 * @type {string}
+	 * @default navigator.language
+	 * @example "de-DE", "en-US", "ar-SA"
+	 */
+	@property({ type: String }) locale: string = typeof navigator !== 'undefined' ? navigator.language : 'de-DE'
+
+	/**
 	 * Unique name for this theme instance (used for session storage).
 	 * If not provided, will be generated from DOM path.
 	 * @attr name
@@ -121,33 +129,38 @@ export class SchmancyThemeComponent extends $LitElement(tailwindStyles) {
 		}
 
 		// Watch only OWN scheme property (independent per instance)
-		of(this.scheme).pipe(
-			switchMap(scheme => {
-				if (scheme === 'auto') return $colorScheme
-				return of(scheme)
-			}),
-			takeUntil(this.disconnecting)
-		).subscribe(scheme => {
-			this.scheme = scheme as 'dark' | 'light'
-			this.registerTheme()
-			// Save to session storage with unique theme name
-			sessionStorage.setItem(`schmancy-theme-${themeName}-scheme`, this.scheme)
-		})
+		of(this.scheme)
+			.pipe(
+				switchMap(scheme => {
+					if (scheme === 'auto') return $colorScheme
+					return of(scheme)
+				}),
+				takeUntil(this.disconnecting),
+			)
+			.subscribe(scheme => {
+				this.scheme = scheme as 'dark' | 'light'
+				// Defer registerTheme() to next microtask to prevent scheduling update during update
+				queueMicrotask(() => {
+					this.registerTheme()
+					// Save to session storage with unique theme name
+					sessionStorage.setItem(`schmancy-theme-${themeName}-scheme`, this.scheme)
+				})
+			})
 
 		// Listen for generic theme discovery events
-		fromEvent<ThemeWhereAreYouEvent>(this, ThemeWhereAreYou).pipe(
-			takeUntil(this.disconnecting)
-		).subscribe((e) => {
-			e.stopPropagation()
-			e.preventDefault()
-			window.dispatchEvent(
-				new CustomEvent(ThemeHereIAm, {
-					detail: { theme: this },
-					bubbles: true,
-					composed: true,
-				})
-			)
-		})
+		fromEvent<ThemeWhereAreYouEvent>(this, ThemeWhereAreYou)
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(e => {
+				e.stopPropagation()
+				e.preventDefault()
+				window.dispatchEvent(
+					new CustomEvent(ThemeHereIAm, {
+						detail: { theme: this },
+						bubbles: true,
+						composed: true,
+					}),
+				)
+			})
 	}
 
 	updated(changedProperties: Map<string | number | symbol, unknown>): void {
@@ -167,36 +180,55 @@ export class SchmancyThemeComponent extends $LitElement(tailwindStyles) {
 			this.registerTheme()
 		}
 
-		if (changedProperties.has('theme')) {
+		// Note: Don't call registerTheme() when 'theme' changes because
+		// registerTheme() sets this.theme - would cause infinite loop
+
+		if (changedProperties.has('locale')) {
 			this.registerTheme()
 		}
 	}
+
 	registerTheme() {
 		// Ensure color is a valid hex string
 		const colorHex = typeof this.color === 'string' ? this.color : '#6200ee'
 
-		let theme = formateTheme(
+		const formattedTheme = formatTheme(
 			themeFromSourceColor(argbFromHex(colorHex)),
 			this.scheme === 'dark' ? true : false,
 			{
-				success: argbFromHex('#34B334'),
-				warning: argbFromHex('#FFA726'),
-				info: argbFromHex('#29B6F6')
-			}
+				success: argbFromHex('#4CAF50'), // Material Green 500 - vibrant but balanced
+				warning: argbFromHex('#FF9800'), // Material Orange 500 - better contrast than amber
+				info: argbFromHex('#2196F3'), // Material Blue 500 - classic info blue
+			},
 		)
-		theme = { ...theme, ...this.theme }
 
-		this.registerThemeValues('schmancy', '', theme)
+		// Update the provided context with locale included
+		// This ensures consumers get the locale via @consume
+		this.theme = { ...formattedTheme, ...this.theme, locale: this.locale }
+
+		this.registerThemeValues('schmancy', '', this.theme)
 
 		// Backward compatibility: Map old variable names to new ones
 		const hostElement = this.root ? document.body : (this.shadowRoot.host as HTMLElement)
 		const getVar = (name: string) => hostElement.style.getPropertyValue(name)
 
 		// Map old surface container names to new M3 names
-		hostElement.style.setProperty('--schmancy-sys-color-surface-low', getVar('--schmancy-sys-color-surface-containerLow'))
-		hostElement.style.setProperty('--schmancy-sys-color-surface-high', getVar('--schmancy-sys-color-surface-containerHigh'))
-		hostElement.style.setProperty('--schmancy-sys-color-surface-highest', getVar('--schmancy-sys-color-surface-containerHighest'))
-		hostElement.style.setProperty('--schmancy-sys-color-surface-lowest', getVar('--schmancy-sys-color-surface-containerLowest'))
+		hostElement.style.setProperty(
+			'--schmancy-sys-color-surface-low',
+			getVar('--schmancy-sys-color-surface-containerLow'),
+		)
+		hostElement.style.setProperty(
+			'--schmancy-sys-color-surface-high',
+			getVar('--schmancy-sys-color-surface-containerHigh'),
+		)
+		hostElement.style.setProperty(
+			'--schmancy-sys-color-surface-highest',
+			getVar('--schmancy-sys-color-surface-containerHighest'),
+		)
+		hostElement.style.setProperty(
+			'--schmancy-sys-color-surface-lowest',
+			getVar('--schmancy-sys-color-surface-containerLowest'),
+		)
 
 		// Set the color-scheme CSS property on the host element
 		hostElement.style.colorScheme = this.scheme === 'dark' ? 'dark' : 'light'
@@ -258,7 +290,11 @@ export class SchmancyThemeComponent extends $LitElement(tailwindStyles) {
 	}
 
 	protected render(): unknown {
-		return html`<slot></slot>`
+		return html`
+			<schmancy-container type="containerLowest">
+				<slot></slot>
+			</schmancy-container>
+		`
 	}
 }
 

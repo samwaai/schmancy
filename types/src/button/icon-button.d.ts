@@ -59,6 +59,16 @@ export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
      * @attr
      */
     text: boolean;
+    /**
+     * Icon name - use this instead of slot content to prevent translation breaking icons.
+     * Example: <schmancy-icon-button icon="add"></schmancy-icon-button>
+     * @attr
+     */
+    icon?: string;
+    private _capturedIcon?;
+    connectedCallback(): void;
+    private _captureIconFromChildren;
+    private _handleSlotChange;
     set ariaLabel(value: string);
     get ariaLabel(): string;
     /** Sets focus in the button. */

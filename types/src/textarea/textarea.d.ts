@@ -76,12 +76,13 @@ export default class SchmancyTextarea extends SchmancyTextarea_base {
     cols: number;
     /**
      * The number of rows (height) of the control.
+     * When not set, the textarea auto-sizes to fit its content via field-sizing: content.
      * @attr rows
      * @type {number}
-     * @default 2
+     * @default undefined
      * @public
      */
-    rows: number;
+    rows: number | undefined;
     /**
      * Makes the textarea fill the height of its container.
      * @attr fillHeight

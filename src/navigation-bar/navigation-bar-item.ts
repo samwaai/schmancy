@@ -281,7 +281,7 @@ export class SchmancyNavigationBarItem extends TailwindElement(css`
 			'flex-1 min-w-[48px] max-w-[168px]': true,  // Fill available space
 			'py-2 px-1 cursor-pointer': !this.disabled,
 			'transition-all duration-200': true,
-			'hover:bg-surface-container-high': !this.disabled && !this.active,
+			'hover:bg-surface-containerHigh': !this.disabled && !this.active,
 			'cursor-not-allowed opacity-38': this.disabled,
 			'outline-none': true,
 			'focus-visible:outline-2 focus-visible:outline-offset-2': true
@@ -293,7 +293,7 @@ export class SchmancyNavigationBarItem extends TailwindElement(css`
 			'flex items-center justify-center': true,
 			'transition-all duration-200': true,
 			'bg-secondary-container': this.active,
-			'group-hover:bg-surface-container-highest': !this.active && !this.disabled,
+			'group-hover:bg-surface-containerHighest': !this.active && !this.disabled,
 			'relative overflow-hidden': true
 		}
 

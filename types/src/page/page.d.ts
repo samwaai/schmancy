@@ -3,6 +3,7 @@ declare const SchmancyPage_base: CustomElementConstructor & import("@mixins/inde
 /**
  * Native mobile-like page container.
  * Prevents double-tap zoom, pull-to-refresh, rubber-banding.
+ * Automatically fills remaining viewport height.
  *
  * @element schmancy-page
  *
@@ -20,7 +21,12 @@ export declare class SchmancyPage extends SchmancyPage_base {
     rows: string;
     showScrollbar: boolean;
     noSelect: boolean;
+    private heightDisconnecting$;
+    private calculateHeight;
+    private applyHeight;
+    private setupHeightStream;
     connectedCallback(): void;
+    disconnectedCallback(): void;
     protected render(): import("lit-html").TemplateResult<1>;
 }
 declare global {

@@ -409,7 +409,7 @@ export class SchmancyThemeAudioPlayer extends $LitElement(css`
 				${when(
 					this.audioSequence,
 					() => html`
-						<schmancy-surface type="containerLow" rounded="all" class="p-4 space-y-3">
+						<schmancy-surface type="subtle" rounded="all" class="p-4 space-y-3">
 							<div class="flex items-center justify-between">
 								<div>
 									<schmancy-typography type="label" token="lg"> ${this.detectedMood} </schmancy-typography>

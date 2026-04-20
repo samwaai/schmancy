@@ -1,4 +1,21 @@
+/**
+ * Gets the user's system locale from browser settings.
+ * Falls back to 'de-DE' if not available (e.g., in Node.js environment).
+ */
+const getSystemLocale = (): string => {
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language
+  }
+  return 'de-DE'
+}
+
 export class Numbers {
+  /**
+   * The system locale detected from user's browser/OS settings.
+   * Use this for display formatting. For exports, use explicit locale like 'de-DE'.
+   */
+  readonly systemLocale = getSystemLocale()
+
   /**
    * Rounds a number to the specified number of decimal places.
    * @param {number} number - The number to round.
@@ -12,14 +29,23 @@ export class Numbers {
 
   /**
    * Formats a number according to the specified locale and options.
+   * Uses the user's system locale by default for display formatting.
+   *
    * @param {number} number - The number to format.
-   * @param {string} [locale='de-DE'] - The locale string (e.g., 'de-DE' for German).
+   * @param {string} [locale] - The locale string (e.g., 'de-DE'). Defaults to system locale.
    * @param {Intl.NumberFormatOptions} [options={}] - Additional formatting options.
    * @returns {string} - The formatted number as a string.
+   *
+   * @example
+   * // Uses system locale (e.g., user's browser setting)
+   * numbers.formatNumber(1234.56)
+   *
+   * // Explicit locale for exports (bank systems expect German format)
+   * numbers.formatNumber(1234.56, 'de-DE', { useGrouping: false })
    */
   formatNumber(
     number: number,
-    locale: string = "de-DE",
+    locale: string = this.systemLocale,
     options: Intl.NumberFormatOptions = {},
   ): string {
     return new Intl.NumberFormat(locale, options).format(number);
@@ -41,16 +67,18 @@ export class Numbers {
 
   /**
    * Rounds a number to the specified decimal places and formats it according to the specified locale and options.
+   * Uses the user's system locale by default.
+   *
    * @param {number} number - The number to process.
    * @param {number} [decimalPlaces=2] - The number of decimal places to round to.
-   * @param {string} [locale='de-DE'] - The locale string.
+   * @param {string} [locale] - The locale string. Defaults to system locale.
    * @param {Intl.NumberFormatOptions} [options={}] - Additional formatting options.
    * @returns {string} - The formatted number as a string.
    */
   doIt(
     number: number,
     decimalPlaces: number = 2,
-    locale: string = "de-DE",
+    locale: string = this.systemLocale,
     options: Intl.NumberFormatOptions = {},
   ): string {
     const roundedNumber = this.roundNumber(number, decimalPlaces);

@@ -197,7 +197,7 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 		})
 		return html`
 			<schmancy-grid class="h-full w-full" cols="1fr" rows="auto 1fr">
-				<schmancy-surface rounded="top" elevation="1" type="containerHighest" class="sticky top-0 z-10">
+				<schmancy-surface rounded="top" elevation="1" type="glass" class="sticky top-0 z-10">
 					<schmancy-grid align="center" class="px-4 py-3" .cols=${this.cols} gap="md" rows="1fr">
 						${this.columns.map(
 							column => html`

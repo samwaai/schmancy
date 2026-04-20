@@ -46,7 +46,7 @@ export class SchmancyTree extends TailwindElement(css`
 			tap(e => {
 				e.preventDefault()
 				e.stopPropagation()
-				this.dispatchEvent(new CustomEvent('toggle', { bubbles: true, composed: true }))
+				this.dispatchEvent(new CustomEvent('toggle', { bubbles: false, composed: true }))
 			}),
 		)
 

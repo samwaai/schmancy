@@ -5,6 +5,7 @@ import { ref, createRef, Ref } from 'lit/directives/ref.js'
 import { fromEvent } from 'rxjs'
 import { filter, takeUntil, tap, switchMap, map, first } from 'rxjs/operators'
 import { $LitElement } from '@mixins/index'
+import { overlayStack } from '../utils/overlay-stack'
 
 @customElement('schmancy-lightbox')
 export class SchmancyLightbox extends $LitElement(css`
@@ -19,6 +20,7 @@ export class SchmancyLightbox extends $LitElement(css`
 
 	@state() private currentIndex: number = 0
 	@state() private isLoading: boolean = false
+	@state() private zIndex: number = 10000
 
 	private readonly swipeThreshold = 50
 	private overlayRef: Ref<HTMLDivElement> = createRef()
@@ -46,6 +48,8 @@ export class SchmancyLightbox extends $LitElement(css`
 
 		if (changedProperties.has('open')) {
 			if (this.open) {
+				// Set dynamic z-index for proper stacking with sheets/dialogs
+				this.zIndex = overlayStack.getNextZIndex()
 				document.body.style.overflow = 'hidden'
 				this.animateIn()
 				this.setupEventListeners()
@@ -174,6 +178,7 @@ export class SchmancyLightbox extends $LitElement(css`
 			animation.onfinish = () => {
 				// Reset background color
 				overlay.style.backgroundColor = 'rgba(0, 0, 0, 0)'
+				overlayStack.release()
 				this.dispatchEvent(new CustomEvent('close', { bubbles: true, composed: true }))
 			}
 		}
@@ -311,7 +316,8 @@ export class SchmancyLightbox extends $LitElement(css`
 		return html`
 			<div
 				${ref(this.overlayRef)}
-				class="fixed inset-0 z-9999 flex items-center justify-center backdrop-blur-sm"
+				class="fixed inset-0 flex items-center justify-center backdrop-blur-sm"
+				style="z-index: ${this.zIndex}"
 				@click=${this.handleOverlayClick}
 			>
 				<div

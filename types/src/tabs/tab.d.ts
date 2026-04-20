@@ -4,6 +4,7 @@ export default class SchmancyTab extends SchmancyTab_base {
     value: any;
     active: boolean;
     mode: any;
+    protected updated(changedProperties: Map<PropertyKey, unknown>): void;
     protected render(): unknown;
 }
 declare global {

@@ -1,45 +1,52 @@
-type BoatState = 'hidden' | 'minimized' | 'expanded';
+type Corner = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+type BoatState = 'collapsed' | 'expanded';
 declare const SchmancyBoat_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 export default class SchmancyBoat extends SchmancyBoat_base {
-    get state(): BoatState;
-    set state(value: BoatState);
     id: string;
-    get lowered(): boolean;
-    set lowered(value: boolean);
     icon?: string;
     label?: string;
-    badge?: string | number;
-    private containerRef;
-    private contentRef;
-    private iconRef;
-    private headerRef;
-    private currentAnimation?;
-    private readonly ANIMATION_CONFIG;
-    private currentState;
-    private isContentVisible;
-    private isAnimating;
-    private isLowered;
+    /** Override the expanded panel width (e.g. '320px', '24rem'). Defaults to responsive sizing. */
+    expandedWidth?: string;
+    /** When true, uses a lower elevation shadow in the minimized (FAB) state. */
+    lowered: boolean;
+    /** Corner the boat is anchored to. */
+    corner: Corner;
+    /** Whether the panel is open. */
+    open: boolean;
+    /**
+     * State property.
+     * Maps 'expanded' → open=true, 'collapsed' → open=false (FAB visible).
+     */
+    get state(): BoatState;
+    set state(val: BoatState);
     private isDragging;
-    private position;
-    private anchor;
+    private _position;
+    private _currentCorner;
+    private _containerRef;
+    private _contentRef;
+    private _headerRef;
+    private _currentAnimation?;
+    private get panelWidth();
+    private get isBottomCorner();
+    private get closedClipPath();
+    private get openClipPath();
+    private get elevation();
+    private _applyContainerPosition;
+    private _loadPosition;
+    private _savePosition;
+    private _validateBounds;
+    private _reorientToNearestCorner;
+    private _setupDrag;
     connectedCallback(): void;
-    private animateToState;
-    private performTransition;
-    private createAnimations;
-    private getStyleForState;
-    private getResponsiveWidth;
-    private updateExpandedWidth;
     firstUpdated(): void;
-    private applyInitialStyles;
-    toggleState(): void;
-    close(): void;
-    private closeAndAddToNav;
-    private calculateDragPosition;
-    private savePosition;
-    private setupDragPipeline;
-    private updateContainerPosition;
-    private updateAnchor;
     disconnectedCallback(): void;
+    private _animateOpen;
+    private _animateClose;
+    toggle(): void;
+    expand(): void;
+    /** Alias for expand() — kept for backwards compatibility. */
+    show(): void;
+    close(): void;
     protected render(): unknown;
 }
 declare global {

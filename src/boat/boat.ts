@@ -1,22 +1,24 @@
 import { $LitElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { createRef, ref, Ref } from 'lit/directives/ref.js'
-import { cache } from 'lit/directives/cache.js'
-import { fromEvent, interval, merge, race } from 'rxjs'
-import { filter, finalize, map, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators'
+import { classMap } from 'lit/directives/class-map.js'
+import { createRef, ref } from 'lit/directives/ref.js'
+import { styleMap } from 'lit/directives/style-map.js'
+import { when } from 'lit/directives/when.js'
+import { filter, finalize, fromEvent, map, merge, switchMap, takeUntil, tap } from 'rxjs'
+import { SPRING_SMOOTH, SPRING_SNAPPY } from '../utils/animation.js'
+import { reducedMotion$ } from '../directives/reduced-motion'
+import { theme } from '../theme/theme.service.js'
 
-type BoatState = 'hidden' | 'minimized' | 'expanded'
+const FAB_HEIGHT = 44
+const DRAG_THRESHOLD = 5
+const POSITION_STORAGE_KEY_PREFIX = 'schmancy-boat-'
 
+type Corner = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
+type BoatState = 'collapsed' | 'expanded'
 interface Position {
 	x: number
 	y: number
-}
-
-interface SavedPosition {
-	x: number
-	y: number
-	anchor: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
 }
 
 @customElement('schmancy-boat')
@@ -26,638 +28,219 @@ export default class SchmancyBoat extends $LitElement(css`
 		position: relative;
 		z-index: 1000;
 	}
+	:host([hidden]) {
+		display: none !important;
+	}
 `) {
-	@property({ type: String, reflect: true })
-	get state(): BoatState {
-		return this.currentState
-	}
-	set state(value: BoatState) {
-		if (this.isAnimating || value === this.currentState) return
-		this.animateToState(value)
-	}
-
 	@property({ type: String }) id: string = 'default'
-
-	@property({ type: Boolean, reflect: true })
-	get lowered(): boolean {
-		return this.isLowered
-	}
-	set lowered(value: boolean) {
-		this.isLowered = value
-		this.requestUpdate()
-	}
-
-	// New properties for simplified API
 	@property({ type: String }) icon?: string
 	@property({ type: String }) label?: string
-	@property() badge?: string | number
+	/** Override the expanded panel width (e.g. '320px', '24rem'). Defaults to responsive sizing. */
+	@property({ type: String }) expandedWidth?: string
+	/** When true, uses a lower elevation shadow in the minimized (FAB) state. */
+	@property({ type: Boolean, reflect: true }) lowered: boolean = false
+	/** Corner the boat is anchored to. */
+	@property({ type: String }) corner: Corner = 'bottom-right'
+	/** Whether the panel is open. */
+	@property({ type: Boolean, reflect: true }) open: boolean = false
 
-	// Element references
-	private containerRef: Ref<HTMLDivElement> = createRef()
-	private contentRef: Ref<HTMLElement> = createRef()
-	private iconRef: Ref<HTMLElement> = createRef()
-	private headerRef: Ref<HTMLElement> = createRef()
-
-	// Current animation reference
-	private currentAnimation?: Animation
-
-	// Animation configuration
-	private readonly ANIMATION_CONFIG = {
-		durations: {
-			expand: 350,
-			minimize: 250,
-			hide: 200,
-			content: 300,
-		},
-		easing: {
-			emphasized: 'cubic-bezier(0.2, 0.0, 0, 1.0)',
-			decelerate: 'cubic-bezier(0.05, 0.7, 0.1, 1.0)',
-			accelerate: 'cubic-bezier(0.3, 0.0, 0.8, 0.15)',
-			standard: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
-		},
-		shadows: {
-			fab: '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12)',
-			fabLowered:
-				'0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12)',
-			expanded: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-		},
+	/**
+	 * State property.
+	 * Maps 'expanded' → open=true, 'collapsed' → open=false (FAB visible).
+	 */
+	get state(): BoatState {
+		return this.open ? 'expanded' : 'collapsed'
 	}
-
-	// Reactive state for template
-	@state() private currentState: BoatState = 'minimized'
-	@state() private isContentVisible: boolean = false
-	@state() private isAnimating: boolean = false
-	@state() private isLowered: boolean = false
-	@state() private isDragging: boolean = false
-	@state() private position: Position = { x: 16, y: 16 }
-	@state() private anchor: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' = 'bottom-right'
-
-	connectedCallback() {
-		super.connectedCallback()
-
-		if (typeof window !== 'undefined') {
-			fromEvent(window, 'resize')
-				.pipe(takeUntil(this.disconnecting))
-				.subscribe(() => {
-					if (this.currentState === 'expanded') {
-						this.updateExpandedWidth()
-					}
-
-					// Validate viewport after resize to ensure boat stays visible
-					const container = this.containerRef.value
-					if (container) {
-						const rect = container.getBoundingClientRect()
-						// Only validate if dimensions are ready
-						if (rect.width > 0 && rect.height > 0) {
-							const vw = window.innerWidth
-							const vh = window.innerHeight
-
-							const actualLeft = this.anchor.includes('right') ? vw - this.position.x - rect.width : this.position.x
-
-							const actualTop = this.anchor.includes('bottom') ? vh - this.position.y - rect.height : this.position.y
-
-							let needsUpdate = false
-							let newLeft = actualLeft
-							let newTop = actualTop
-
-							if (actualLeft < 0) {
-								newLeft = 16
-								needsUpdate = true
-							}
-							if (actualLeft + rect.width > vw) {
-								newLeft = vw - rect.width - 16
-								needsUpdate = true
-							}
-							if (actualTop < 0) {
-								newTop = 16
-								needsUpdate = true
-							}
-							if (actualTop + rect.height > vh) {
-								newTop = vh - rect.height - 16
-								needsUpdate = true
-							}
-
-							if (needsUpdate) {
-								this.position.x = this.anchor.includes('right') ? vw - newLeft - rect.width : newLeft
-
-								this.position.y = this.anchor.includes('bottom') ? vh - newTop - rect.height : newTop
-
-								this.position.x = Math.max(0, this.position.x)
-								this.position.y = Math.max(0, this.position.y)
-
-								this.updateContainerPosition()
-								this.savePosition()
-								console.log(`✨ Boat "${this.id}" repositioned after resize:`, this.position)
-							}
-						}
-					}
-				})
-
-			// Keyboard shortcut - Escape key
-			fromEvent<KeyboardEvent>(window, 'keydown')
-				.pipe(
-					filter(e => e.key === 'Escape' && this.currentState !== 'hidden'),
-					tap(e => e.preventDefault()),
-					takeUntil(this.disconnecting),
-				)
-				.subscribe(() => {
-					if (this.currentState === 'expanded') {
-						this.toggleState() // Minimize on Esc if expanded
-					} else {
-						this.close() // Hide on Esc if minimized
-					}
-				})
-		}
-	}
-
-
-	private async animateToState(targetState: BoatState) {
-		if (this.isAnimating || targetState === this.currentState) return
-
-		const previousState = this.currentState
-		this.isAnimating = true
-
-		try {
-			await this.performTransition(previousState, targetState)
-			this.currentState = targetState
-			this.isContentVisible = targetState === 'expanded'
-
-			// Dispatch event
-			this.dispatchEvent(
-				new CustomEvent('toggle', {
-					detail: targetState,
-					bubbles: true,
-					composed: true,
-				}),
-			)
-		} catch (err) {
-			console.warn('Animation error:', err)
-			this.currentState = targetState
-			this.isContentVisible = targetState === 'expanded'
-		} finally {
-			this.isAnimating = false
-		}
-	}
-
-	// Simplified animation transition
-	private async performTransition(fromState: BoatState, toState: BoatState): Promise<void> {
-		this.currentAnimation?.cancel()
-
-		const container = this.containerRef.value
-		if (!container) return
-
-		// Update content visibility before expand and wait for render
-		if (toState === 'expanded') {
-			this.isContentVisible = true
-			await this.updateComplete
-		}
-
-		// Create animations
-		const animations = this.createAnimations(fromState, toState)
-
-		// Wait for main animation to complete
-		if (animations.container) {
-			this.currentAnimation = animations.container
-			await animations.container.finished
-
-			// Wait for content fade-out animation before removing from DOM
-			if (animations.content) {
-				await animations.content.finished
-			}
-
-			// Hide content after minimize
-			if (toState !== 'expanded') {
-				this.isContentVisible = false
-			} else {
-				// CRITICAL: After expanding, validate viewport bounds
-				// The expanded boat is much larger and might go outside viewport
-				const container = this.containerRef.value
-				if (container) {
-					const rect = container.getBoundingClientRect()
-					if (rect.width > 0 && rect.height > 0) {
-						const vw = window.innerWidth
-						const vh = window.innerHeight
-
-						const actualLeft = this.anchor.includes('right') ? vw - this.position.x - rect.width : this.position.x
-
-						const actualTop = this.anchor.includes('bottom') ? vh - this.position.y - rect.height : this.position.y
-
-						let needsUpdate = false
-						let newLeft = actualLeft
-						let newTop = actualTop
-
-						if (actualLeft < 0) {
-							newLeft = 16
-							needsUpdate = true
-						}
-						if (actualLeft + rect.width > vw) {
-							newLeft = vw - rect.width - 16
-							needsUpdate = true
-						}
-						if (actualTop < 0) {
-							newTop = 16
-							needsUpdate = true
-						}
-						if (actualTop + rect.height > vh) {
-							newTop = vh - rect.height - 16
-							needsUpdate = true
-						}
-
-						if (needsUpdate) {
-							this.position.x = this.anchor.includes('right') ? vw - newLeft - rect.width : newLeft
-
-							this.position.y = this.anchor.includes('bottom') ? vh - newTop - rect.height : newTop
-
-							this.position.x = Math.max(0, this.position.x)
-							this.position.y = Math.max(0, this.position.y)
-
-							this.updateContainerPosition()
-							this.savePosition()
-							console.log(`✨ Boat "${this.id}" snapped after expand:`, this.position)
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// Create animations for state transition
-	private createAnimations(fromState: BoatState, toState: BoatState) {
-		const container = this.containerRef.value
-		const content = this.contentRef.value
-		const icon = this.iconRef.value
-		const animations: { container?: Animation; content?: Animation; icon?: Animation } = {}
-
-		if (!container) return animations
-
-		const config = this.ANIMATION_CONFIG
-		const fromStyles = this.getStyleForState(fromState)
-		const toStyles = this.getStyleForState(toState)
-
-		// Container animation
-		if (toState === 'expanded') {
-			// Expand animation without transform
-			animations.container = container.animate([fromStyles, toStyles], {
-				duration: config.durations.expand,
-				easing: config.easing.decelerate,
-				fill: 'forwards',
-			})
+	set state(val: BoatState) {
+		if (val === 'expanded') {
+			this.expand()
 		} else {
-			animations.container = container.animate([fromStyles, toStyles], {
-				duration: toState === 'hidden' ? config.durations.hide : config.durations.minimize,
-				easing: config.easing.accelerate,
-				fill: 'forwards',
-			})
+			// collapsed
+			this.close()
 		}
+	}
 
-		// Content animation (only for expand/minimize transitions)
-		if (content && fromState === 'expanded' && toState === 'minimized') {
-			// Fade out content before minimizing - MUST await this before removing from DOM
-			animations.content = content.animate(
-				[
-					{ opacity: 1, transform: 'translateY(0)' },
-					{ opacity: 0, transform: 'translateY(-8px)' },
-				],
-				{
-					duration: 150,
-					easing: config.easing.standard,
-					fill: 'forwards',
-				},
-			)
-		} else if (content && toState === 'expanded') {
-			// Fade in content when expanding
-			content.animate(
-				[
-					{ opacity: 0, transform: 'translateY(8px)' },
-					{ opacity: 1, transform: 'translateY(0)' },
-				],
-				{
-					duration: config.durations.content,
-					easing: config.easing.standard,
-					fill: 'forwards',
-				},
-			)
+	// Internal drag state (triggers re-render for cursor class)
+	@state() private isDragging = false
+
+	// Internal position — plain fields, updated directly during drag (no re-render needed)
+	private _position: Position = { x: 16, y: 16 }
+	@state() private _currentCorner: Corner = 'bottom-right'
+
+	// Refs
+	private _containerRef = createRef<HTMLElement>()
+	private _contentRef = createRef<HTMLElement>()
+	private _headerRef = createRef<HTMLElement>()
+	private _currentAnimation?: Animation
+
+	// ============================================
+	// COMPUTED
+	// ============================================
+
+	private get panelWidth(): string {
+		return this.expandedWidth ?? 'min(360px, calc(100vw - 32px))'
+	}
+
+	private get isBottomCorner(): boolean {
+		return this._currentCorner.startsWith('bottom')
+	}
+
+	private get closedClipPath(): string {
+		return this.isBottomCorner
+			? `inset(calc(100% - ${FAB_HEIGHT}px) 0px 0px 0px round 22px)`
+			: `inset(0px 0px calc(100% - ${FAB_HEIGHT}px) 0px round 22px)`
+	}
+
+	private get openClipPath(): string {
+		return 'inset(0px 0px 0px 0px round 12px)'
+	}
+
+	private get elevation(): string {
+		if (this.open) return '4'
+		return this.lowered ? '1' : '3'
+	}
+
+	// ============================================
+	// POSITION MANAGEMENT
+	// ============================================
+
+	private _applyContainerPosition() {
+		const container = this._containerRef.value
+		if (!container) return
+		container.style.removeProperty('left')
+		container.style.removeProperty('right')
+		container.style.removeProperty('top')
+		container.style.removeProperty('bottom')
+		const { x, y } = this._position
+		if (this._currentCorner.includes('right')) {
+			container.style.right = `${x}px`
+		} else {
+			container.style.left = `${x}px`
 		}
+		if (this._currentCorner.includes('bottom')) {
+			container.style.bottom = `${y + theme.bottomOffset}px`
+		} else {
+			container.style.top = `${y}px`
+		}
+	}
 
-		// Icon rotation animation
-		if (icon) {
-			const isExpanding = toState === 'expanded'
-			const isCollapsing = fromState === 'expanded' && toState === 'minimized'
-
-			if (isExpanding || isCollapsing) {
-				icon.animate(
-					[
-						{ transform: isExpanding ? 'rotate(0deg)' : 'rotate(180deg)' },
-						{ transform: isExpanding ? 'rotate(180deg)' : 'rotate(0deg)' },
-					],
-					{
-						duration: 250,
-						easing: config.easing.emphasized,
-						fill: 'forwards',
-					},
-				)
+	private _loadPosition() {
+		try {
+			const saved = localStorage.getItem(POSITION_STORAGE_KEY_PREFIX + this.id)
+			if (saved) {
+				const parsed = JSON.parse(saved) as { x: number; y: number; anchor: Corner }
+				this._position = { x: parsed.x, y: parsed.y }
+				this._currentCorner = parsed.anchor
 			}
-		}
-
-		return animations
-	}
-
-	// Get styles for a specific state
-	private getStyleForState(state: BoatState): Keyframe {
-		const { shadows } = this.ANIMATION_CONFIG
-		const baseStyles = {
-			maxWidth: 'fit',
-			maxHeight: 'auto',
-			borderRadius: '16px',
-		}
-
-		const stateStyles: Record<BoatState, Keyframe> = {
-			hidden: {
-				...baseStyles,
-				opacity: '0',
-				pointerEvents: 'none',
-				boxShadow: 'none',
-				backdropFilter: 'none',
-			},
-			minimized: {
-				...baseStyles,
-				opacity: '1',
-				pointerEvents: 'auto',
-				boxShadow: this.isLowered ? shadows.fabLowered : shadows.fab,
-				backdropFilter: 'none',
-			},
-			expanded: {
-				opacity: '1',
-				pointerEvents: 'auto',
-				width: this.getResponsiveWidth(),
-				maxWidth: '100%',
-				maxHeight: '80vh',
-				boxShadow: shadows.expanded,
-				borderRadius: '8px 8px 0 0',
-				backdropFilter: 'blur(12px)',
-			},
-		}
-
-		return stateStyles[state] as Keyframe
-	}
-
-	// Calculate responsive width based on viewport
-	private getResponsiveWidth(): string {
-		if (typeof window === 'undefined') return '40vw'
-
-		const vw = window.innerWidth
-		if (vw < 768) return 'calc(100vw - 32px)'
-		if (vw < 1024) return '70vw'
-		if (vw < 1280) return '60vw'
-		return '40vw'
-	}
-
-	// Update expanded width on window resize
-	private updateExpandedWidth() {
-		const container = this.containerRef.value
-		if (container && this.currentState === 'expanded') {
-			container.style.width = this.getResponsiveWidth()
+		} catch {
+			// ignore localStorage errors
 		}
 	}
 
-	firstUpdated() {
-		this.applyInitialStyles()
-		this.updateContainerPosition()
-
-		// Wait for container to have actual dimensions before validation
-		// Uses pattern from animated-text.ts - poll until dimensions are ready
-		const container = this.containerRef.value
-		if (container) {
-			interval(10)
-				.pipe(
-					startWith(true),
-					filter(() => {
-						const rect = container.getBoundingClientRect()
-						return rect.width > 0 && rect.height > 0
-					}),
-					take(1),
-					takeUntil(this.disconnecting),
-				)
-				.subscribe(() => {
-					// Validate and snap to viewport if needed
-					const rect = container.getBoundingClientRect()
-					const vw = window.innerWidth
-					const vh = window.innerHeight
-
-					// Calculate actual position based on anchor
-					const actualLeft = this.anchor.includes('right') ? vw - this.position.x - rect.width : this.position.x
-
-					const actualTop = this.anchor.includes('bottom') ? vh - this.position.y - rect.height : this.position.y
-
-					// Check if boat is outside viewport bounds
-					let needsUpdate = false
-					let newLeft = actualLeft
-					let newTop = actualTop
-
-					// Snap to viewport edges if outside (16px padding)
-					if (actualLeft < 0) {
-						newLeft = 16
-						needsUpdate = true
-					}
-					if (actualLeft + rect.width > vw) {
-						newLeft = vw - rect.width - 16
-						needsUpdate = true
-					}
-					if (actualTop < 0) {
-						newTop = 16
-						needsUpdate = true
-					}
-					if (actualTop + rect.height > vh) {
-						newTop = vh - rect.height - 16
-						needsUpdate = true
-					}
-
-					// Update position if boat was outside viewport
-					if (needsUpdate) {
-						// Convert back to anchor-relative coordinates
-						this.position.x = this.anchor.includes('right') ? vw - newLeft - rect.width : newLeft
-
-						this.position.y = this.anchor.includes('bottom') ? vh - newTop - rect.height : newTop
-
-						// Ensure position is never negative
-						this.position.x = Math.max(0, this.position.x)
-						this.position.y = Math.max(0, this.position.y)
-
-						this.updateContainerPosition()
-						this.savePosition()
-						console.log(`✨ Boat "${this.id}" snapped to viewport edge:`, this.position, this.anchor)
-					}
-				})
-		}
-
-		this.setupDragPipeline()
-
-		// Check for deprecated header slot usage
-		const hasHeaderSlot = this.querySelector('[slot="header"]')
-		if (hasHeaderSlot && !this.icon && !this.label) {
-			console.warn(
-				'[schmancy-boat] Using slot="header" is deprecated. ' +
-					'Please use the icon, label, and badge properties instead. ' +
-					'Example: <schmancy-boat icon="info" label="Title" badge="5">',
+	private _savePosition() {
+		try {
+			localStorage.setItem(
+				POSITION_STORAGE_KEY_PREFIX + this.id,
+				JSON.stringify({ ...this._position, anchor: this._currentCorner }),
 			)
+		} catch {
+			// ignore localStorage errors
 		}
 	}
 
-	// Apply initial styles to elements
-	private applyInitialStyles() {
-		const container = this.containerRef.value
-		const content = this.contentRef.value
-		const icon = this.iconRef.value
-
-		if (container) {
-			const initialStyle = this.getStyleForState(this.currentState)
-			Object.assign(container.style, initialStyle)
-
-			// Safari compatibility for backdrop filter
-			if ('webkitBackdropFilter' in container.style) {
-				;(container.style as any).webkitBackdropFilter = initialStyle.backdropFilter
-			}
-		}
-
-		// Set initial content opacity
-		if (content) {
-			content.style.opacity = this.isContentVisible ? '1' : '0'
-		}
-
-		// Set initial icon rotation
-		if (icon && this.currentState === 'expanded') {
-			icon.style.transform = 'rotate(180deg)'
-		}
-	}
-
-	// Public method to toggle between minimized and expanded
-	toggleState() {
-		const newState = this.currentState === 'minimized' ? 'expanded' : 'minimized'
-		this.animateToState(newState)
-	}
-
-	// Public method to close (hide) the boat
-	close() {
-		this.animateToState('hidden')
-	}
-
-	private closeAndAddToNav() {
-		race(
-			this.discover<any>('schmancy-navigation-rail'),
-			this.discover<any>('schmancy-navigation-bar'),
-			this.discover<any>('schmancy-nav-drawer'),
-			this.discover<any>('app-navigation-rail'),
-			this.discover<any>('app-navigation-bar'),
-			this.discover<any>('app-nav-drawer'),
-		)
-			.pipe(
-				take(1),
-				tap(navComponent => {
-					if (navComponent && typeof navComponent.addBoatItem === 'function') {
-						// Use properties first, fall back to slot parsing
-						const icon =
-							this.icon ||
-							(() => {
-								const headerSlot = this.querySelector('[slot="header"]')
-								const iconElement = headerSlot?.querySelector('schmancy-icon')
-								return iconElement?.textContent?.trim() || 'widgets'
-							})()
-
-						const label =
-							this.label ||
-							(() => {
-								const headerSlot = this.querySelector('[slot="header"]')
-								let title = headerSlot?.textContent?.trim() || 'Boat'
-								if (icon && title.includes(icon)) {
-									title = title.replace(icon, '').trim()
-								}
-								return title || this.id
-							})()
-
-						// Add the boat to navigation
-						const navItem = navComponent.addBoatItem({
-							id: `boat-${this.id}`,
-							title: label,
-							icon: icon,
-						})
-
-						if (navItem) {
-							// Simple fade out then hide
-							const container = this.containerRef.value
-							if (container) {
-								container
-									.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, easing: 'ease-out', fill: 'forwards' })
-									.finished.then(() => {
-										this.currentState = 'hidden'
-										this.isContentVisible = false
-									})
-							} else {
-								this.currentState = 'hidden'
-								this.isContentVisible = false
-							}
-
-							// Set up click listener to reopen - using RxJS pattern
-							fromEvent(navItem, 'click')
-								.pipe(
-									tap(() => (this.state = 'expanded')),
-									takeUntil(this.disconnecting),
-								)
-								.subscribe()
-						}
-					} else {
-						// No nav component found, just hide
-						this.close()
-					}
-				}),
-			)
-			.subscribe()
-	}
-
-	private calculateDragPosition(
-		clientX: number,
-		clientY: number,
-		offsetX: number,
-		offsetY: number,
-		initialRect: DOMRect,
-	): Position {
-		const targetLeft = clientX - offsetX
-		const targetTop = clientY - offsetY
+	private _validateBounds() {
+		const container = this._containerRef.value
+		if (!container) return
+		const rect = container.getBoundingClientRect()
+		if (rect.width === 0) return
 		const vw = window.innerWidth
 		const vh = window.innerHeight
-		const clampedLeft = Math.max(0, Math.min(targetLeft, vw - initialRect.width))
-		const clampedTop = Math.max(0, Math.min(targetTop, vh - initialRect.height))
-
-		const newX = this.anchor.includes('right') ? vw - (clampedLeft + initialRect.width) : clampedLeft
-
-		const newY = this.anchor.includes('bottom') ? vh - (clampedTop + initialRect.height) : clampedTop
-
-		return { x: Math.max(0, newX), y: Math.max(0, newY) }
-	}
-
-	private savePosition() {
-		if (typeof window === 'undefined') return
-
-		const toSave: SavedPosition = {
-			x: this.position.x,
-			y: this.position.y,
-			anchor: this.anchor,
+		const isRight = this._currentCorner.includes('right')
+		const isBottom = this._currentCorner.includes('bottom')
+		const actualLeft = isRight ? vw - this._position.x - rect.width : this._position.x
+		const actualTop = isBottom ? vh - this._position.y - rect.height : this._position.y
+		const newLeft = Math.max(0, Math.min(actualLeft, vw - rect.width))
+		const newTop = Math.max(0, Math.min(actualTop, vh - rect.height))
+		this._position = {
+			x: isRight ? vw - newLeft - rect.width : newLeft,
+			y: isBottom ? vh - newTop - rect.height : newTop,
 		}
-		const key = `schmancy-boat-${this.id}`
-		localStorage.setItem(key, JSON.stringify(toSave))
-		console.log('💾 Saved position:', key, toSave)
+		this._applyContainerPosition()
 	}
 
-	private setupDragPipeline() {
-		if (typeof window === 'undefined') return
 
-		const header = this.headerRef.value
-		const container = this.containerRef.value
+	// ============================================
+	// CORNER SNAPPING
+	// ============================================
+
+	private _reorientToNearestCorner(skipAnimation = false): void {
+		const container = this._containerRef.value
+		if (!container) return
+
+		// F — record current screen position before DOM mutation
+		const rect = container.getBoundingClientRect()
+
+		// L — calculate nearest corner using FAB visual center (container is always collapsed during drag)
+		const currentIsBottom = this._currentCorner.includes('bottom')
+		const fabCenterX = rect.left + rect.width / 2
+		const fabCenterY = currentIsBottom
+			? rect.bottom - FAB_HEIGHT / 2
+			: rect.top + FAB_HEIGHT / 2
+		const side = fabCenterX > window.innerWidth / 2 ? 'right' : 'left'
+		const vert = fabCenterY > window.innerHeight / 2 ? 'bottom' : 'top'
+		const newCorner: Corner = `${vert}-${side}` as Corner
+
+		// Snap corner and reset offset to standard edge gap
+		this._currentCorner = newCorner
+		this._position = { x: 16, y: 16 }
+		this._applyContainerPosition()
+		// Sync clip-path to new corner — managed imperatively, not via styleMap
+		if (!this.open) {
+			container.style.clipPath = this.closedClipPath
+		}
+
+		if (skipAnimation || reducedMotion$.value) {
+			this._savePosition()
+			return
+		}
+
+		// I — invert: shift element back to its original visual position
+		const newRect = container.getBoundingClientRect()
+		const dx = rect.left - newRect.left
+		const dy = rect.top - newRect.top
+		container.style.transform = `translate(${dx}px, ${dy}px)`
+
+		// P — play: animate from the inverse offset to natural resting position
+		this._currentAnimation?.cancel()
+		const anim = container.animate(
+			[{ transform: container.style.transform }, { transform: 'translate(0,0)' }],
+			{
+				duration: SPRING_SMOOTH.duration,
+				easing: SPRING_SMOOTH.easingFallback,
+				fill: 'forwards',
+			},
+		)
+		this._currentAnimation = anim
+		anim.finished.then(() => {
+			if (container.isConnected) {
+				container.style.transform = ''
+			}
+		})
+
+		this._savePosition()
+	}
+
+	// ============================================
+	// DRAG PIPELINE
+	// ============================================
+
+	private _setupDrag() {
+		const header = this._headerRef.value
+		const container = this._containerRef.value
 		if (!header || !container) return
 
-		let hasDragged = false
-		const DRAG_THRESHOLD = 5
+		let didDrag = false
 
-		// Merge mouse and touch start events
 		merge(
 			fromEvent<MouseEvent>(header, 'mousedown').pipe(
 				filter(e => e.button === 0),
@@ -665,11 +248,7 @@ export default class SchmancyBoat extends $LitElement(css`
 					e.preventDefault()
 					e.stopPropagation()
 				}),
-				map(e => ({
-					clientX: e.clientX,
-					clientY: e.clientY,
-					type: 'mouse' as const,
-				})),
+				map(e => ({ clientX: e.clientX, clientY: e.clientY, type: 'mouse' as const })),
 			),
 			fromEvent<TouchEvent>(header, 'touchstart').pipe(
 				map(e => ({
@@ -682,283 +261,398 @@ export default class SchmancyBoat extends $LitElement(css`
 			.pipe(
 				map(({ clientX, clientY, type }) => {
 					const rect = container.getBoundingClientRect()
-					hasDragged = false
+					const isBottom = this._currentCorner.includes('bottom')
+					const wasOpen = this.open
+					didDrag = false
 					return {
 						startX: clientX,
 						startY: clientY,
 						offsetX: clientX - rect.left,
 						offsetY: clientY - rect.top,
-						initialRect: rect,
+						rect,
+						isBottom,
+						wasOpen,
 						type,
 					}
 				}),
-			)
-			.pipe(
-				switchMap(({ startX, startY, offsetX, offsetY, initialRect, type }) => {
+				switchMap(({ startX, startY, offsetX, offsetY, rect, isBottom, wasOpen, type }) => {
 					const move$ =
 						type === 'mouse'
-							? fromEvent<MouseEvent>(window, 'mousemove').pipe(map(e => ({ clientX: e.clientX, clientY: e.clientY })))
+							? fromEvent<MouseEvent>(window, 'mousemove').pipe(
+									map(e => ({ clientX: e.clientX, clientY: e.clientY })),
+								)
 							: fromEvent<TouchEvent>(window, 'touchmove').pipe(
 									map(e => ({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })),
 								)
-
 					const end$ = type === 'mouse' ? fromEvent(window, 'mouseup') : fromEvent(window, 'touchend')
 
 					return move$.pipe(
-						map(({ clientX, clientY }) => {
-							const deltaX = clientX - startX
-							const deltaY = clientY - startY
-							const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
-
-							if (distance > DRAG_THRESHOLD && !hasDragged) {
-								hasDragged = true
+						tap(({ clientX, clientY }) => {
+							const dx = clientX - startX
+							const dy = clientY - startY
+							if (Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD && !didDrag) {
+								didDrag = true
 								this.isDragging = true
+								// Collapse on first confirmed drag move (not on click)
+								if (wasOpen) {
+									this._currentAnimation?.cancel()
+									this.open = false
+									container.style.clipPath = this.closedClipPath
+									container.style.overflow = 'hidden'
+									const content = this._contentRef.value
+									if (content) {
+										content.inert = true
+										content.style.visibility = 'hidden'
+									}
+								}
 							}
+							if (!didDrag) return
 
-							if (!hasDragged) return null
+							const vw = window.innerWidth
+							const vh = window.innerHeight
+							const left = Math.max(0, Math.min(clientX - offsetX, vw - rect.width))
+							// Allow container to go partially off-screen so FAB stays reachable at all edges
+							const minTop = isBottom ? FAB_HEIGHT - rect.height : 0
+							const maxTop = isBottom ? vh - rect.height : vh - FAB_HEIGHT
+							const top = Math.max(minTop, Math.min(clientY - offsetY, maxTop))
 
-							return this.calculateDragPosition(clientX, clientY, offsetX, offsetY, initialRect)
-						}),
-						filter(position => position !== null),
-						tap(position => {
-							if (position) {
-								this.position = position
-								this.updateContainerPosition()
+							this._position = {
+								x: this._currentCorner.includes('right') ? vw - left - rect.width : left,
+								y: isBottom ? vh - top - rect.height : top,
 							}
+							this._applyContainerPosition()
 						}),
 						takeUntil(end$),
+						finalize(() => {
+							if (didDrag) {
+								this._reorientToNearestCorner()
+								this.isDragging = false
+								didDrag = false
+							} else {
+								this.isDragging = false
+								didDrag = false
+								this.toggle()
+							}
+						}),
 					)
-				}),
-				finalize(() => {
-					if (hasDragged) {
-						this.updateAnchor()
-						this.savePosition()
-					} else {
-						this.toggleState()
-					}
-					this.isDragging = false
-					hasDragged = false
 				}),
 				takeUntil(this.disconnecting),
 			)
 			.subscribe()
 	}
 
-	// Update container position based on anchor and position values
-	private updateContainerPosition() {
-		const container = this.containerRef.value
-		if (!container) return
+	// ============================================
+	// LIFECYCLE
+	// ============================================
 
-		// Reset all position styles
-		container.style.removeProperty('left')
-		container.style.removeProperty('right')
-		container.style.removeProperty('top')
-		container.style.removeProperty('bottom')
+	connectedCallback() {
+		super.connectedCallback()
 
-		// Apply new position based on anchor
-		if (this.anchor.includes('right')) {
-			container.style.right = `${this.position.x}px`
-		} else {
-			container.style.left = `${this.position.x}px`
-		}
+		fromEvent(window, 'resize')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(() => this._validateBounds())
 
-		if (this.anchor.includes('bottom')) {
-			container.style.bottom = `${this.position.y}px`
-		} else {
-			container.style.top = `${this.position.y}px`
-		}
+		theme.bottomOffset$.pipe(
+			tap(() => this._applyContainerPosition()),
+			takeUntil(this.disconnecting),
+		).subscribe()
 	}
 
-	// Update anchor based on current position
-	private updateAnchor() {
-		if (typeof window === 'undefined') return
+	firstUpdated() {
+		// Initialize corner from property
+		this._currentCorner = this.corner
 
-		const container = this.containerRef.value
+		// Load saved drag position from localStorage
+		this._loadPosition()
+
+		const container = this._containerRef.value
+		const content = this._contentRef.value
 		if (!container) return
 
-		const rect = container.getBoundingClientRect()
-		const vw = window.innerWidth
-		const vh = window.innerHeight
+		// Apply initial position
+		this._applyContainerPosition()
 
-		const isRight = rect.left > vw / 2
-		const isBottom = rect.top > vh / 2
-
-		const newAnchor = `${isBottom ? 'bottom' : 'top'}-${isRight ? 'right' : 'left'}` as typeof this.anchor
-
-		if (newAnchor !== this.anchor) {
-			// Calculate new position values for the new anchor
-			if (isRight) {
-				this.position.x = vw - rect.right
-			} else {
-				this.position.x = rect.left
+		// Set initial open/closed visual state
+		if (this.open) {
+			container.style.overflow = ''
+			if (content) {
+				content.inert = false
+				content.style.visibility = 'visible'
 			}
-
-			if (isBottom) {
-				this.position.y = vh - rect.bottom
-			} else {
-				this.position.y = rect.top
+		} else {
+			container.style.clipPath = this.closedClipPath
+			container.style.overflow = 'hidden'
+			if (content) {
+				content.inert = true
+				content.style.visibility = 'hidden'
 			}
-
-			this.anchor = newAnchor
 		}
+
+		// Set up drag
+		this._setupDrag()
 	}
 
-	// Cleanup on component disconnect
 	disconnectedCallback() {
 		super.disconnectedCallback()
-		this.currentAnimation?.cancel()
+		this._currentAnimation?.cancel()
 	}
 
-	protected render(): unknown {
-		const surfaceElevation = this.currentState === 'minimized' ? (this.isLowered ? '1' : '3') : '4'
-		const isMinimized = this.currentState === 'minimized'
+	// ============================================
+	// ANIMATION
+	// ============================================
 
-		// Set transform origin based on anchor for proper expansion
-		const transformOrigin = this.anchor.includes('bottom')
-			? this.anchor.includes('right')
-				? 'bottom right'
-				: 'bottom left'
-			: this.anchor.includes('right')
-				? 'top right'
-				: 'top left'
+	private async _animateOpen(): Promise<void> {
+		const container = this._containerRef.value
+		const content = this._contentRef.value
+		if (!container) return
 
-		const containerClasses = {
-			fixed: true,
-			'overflow-y-auto': true,
-			flex: true,
-			'flex-col': true,
-			'select-none': true,
-			'will-change-transform': true,
-			'[contain:layout_style]': true,
-			'[transform:translate3d(0,0,0)]': true,
-			'[backface-visibility:hidden]': true,
-			'transition-shadow': true,
-			'opacity-95': this.isDragging,
-			'shadow-[0_24px_48px_-8px_rgba(0,0,0,0.2),0_12px_24px_-4px_rgba(0,0,0,0.12)]': this.isDragging,
+		if (content) {
+			content.style.visibility = 'visible'
+			content.inert = false
 		}
 
+		this.open = true
+		await this.updateComplete
+
+		if (reducedMotion$.value) {
+			container.style.clipPath = ''
+			container.style.overflow = ''
+			this.dispatchScopedEvent('toggle', 'expanded')
+			return
+		}
+
+		this._currentAnimation?.cancel()
+		container.style.overflow = 'hidden'
+
+		const openKeyframes: Keyframe[] = [
+			{ clipPath: this.closedClipPath, opacity: 0.95 },
+			{ clipPath: this.openClipPath, opacity: 1 },
+		]
+		const anim = container.animate(openKeyframes, {
+			duration: SPRING_SMOOTH.duration,
+			easing: SPRING_SMOOTH.easingFallback,
+			fill: 'forwards',
+		})
+		this._currentAnimation = anim
+
+		// Clear clip-path so overflow/scroll work normally after animation
+		anim.finished.then(() => {
+			if (container.isConnected) {
+				container.style.clipPath = ''
+				container.style.overflow = ''
+			}
+		})
+
+		this.dispatchScopedEvent('toggle', 'expanded')
+	}
+
+	private async _animateClose(): Promise<void> {
+		const container = this._containerRef.value
+		if (!container) return
+
+		if (reducedMotion$.value) {
+			container.style.clipPath = this.closedClipPath
+			container.style.overflow = 'hidden'
+			this.open = false
+			const content = this._contentRef.value
+			if (content) {
+				content.inert = true
+				content.style.visibility = 'hidden'
+			}
+			this.dispatchScopedEvent('toggle', 'collapsed')
+			return
+		}
+
+		this._currentAnimation?.cancel()
+		container.style.overflow = 'hidden'
+
+		const closeKeyframes: Keyframe[] = [
+			{ clipPath: this.openClipPath, opacity: 1 },
+			{ clipPath: this.closedClipPath, opacity: 0.95 },
+		]
+		const anim = container.animate(closeKeyframes, {
+			duration: Math.round(SPRING_SNAPPY.duration * 0.9),
+			easing: 'cubic-bezier(0.4, 0, 0.8, 0.15)',
+			fill: 'forwards',
+		})
+		this._currentAnimation = anim
+
+		await anim.finished
+
+		this.open = false
+
+		const content = this._contentRef.value
+		if (content) {
+			content.inert = true
+			content.style.visibility = 'hidden'
+		}
+
+		this.dispatchScopedEvent('toggle', 'collapsed')
+	}
+
+	// ============================================
+	// PUBLIC API
+	// ============================================
+
+	toggle() {
+		if (this.open) this._animateClose()
+		else this._animateOpen()
+	}
+
+	expand() {
+		if (this.open) return
+		this.removeAttribute('hidden')
+		if (!this._containerRef.value) {
+			this.open = true
+			return
+		}
+		this._animateOpen()
+	}
+
+	/** Alias for expand() — kept for backwards compatibility. */
+	show() {
+		this.expand()
+	}
+
+	close() {
+		if (!this.open) return
+		if (!this._containerRef.value) {
+			this.open = false
+			return
+		}
+		this._animateClose()
+	}
+
+	// ============================================
+	// RENDER
+	// ============================================
+
+	protected render(): unknown {
+		const isBottom = this._currentCorner.startsWith('bottom')
+
+		const containerClasses = classMap({
+			flex: true,
+			'flex-col': isBottom,
+			'flex-col-reverse': !isBottom,
+			'will-change-[clip-path]': true,
+			'z-1000': true,
+			'ring-1': true,
+			'ring-primary-default/15': this.open,
+			'rounded-2xl': this.open,
+			'ring-outline-variant/40': !this.open,
+			'rounded-[22px]': !this.open,
+			'overflow-hidden': true,
+			'opacity-95': this.isDragging,
+		})
+
+		const containerStyles = styleMap({
+			position: 'fixed',
+			width: this.panelWidth,
+			'max-height': 'calc(100vh - 32px)',
+			'pointer-events': 'none',
+		})
+
+		const contentStyles = styleMap({
+			'pointer-events': this.open ? 'auto' : 'none',
+		})
+
+		const headerClasses = classMap({
+			'h-full': true,
+			'px-3': true,
+			flex: true,
+			'items-center': true,
+			'gap-2': true,
+			'select-none': true,
+			'cursor-grabbing': this.isDragging,
+			'cursor-move': !this.isDragging,
+			'transition-opacity': true,
+			'duration-200': true,
+		})
+
 		return html`
-			<div
-				class=${this.classMap(containerClasses)}
-				style="transform-origin: ${transformOrigin}"
-				${ref(this.containerRef)}
+			<!-- schmancy-surface owns background color and elevation-based shadow.
+			     Position is managed imperatively via _applyContainerPosition(). -->
+			<schmancy-surface
+				${ref(this._containerRef)}
+				type="glass"
+				elevation="${this.elevation}"
+				class=${containerClasses}
+				style=${containerStyles}
+				aria-expanded=${this.open}
 			>
-				<!-- Header section -->
-				<section class="sticky top-0 z-100">
-					<schmancy-surface
-						elevation="${surfaceElevation}"
-						rounded="${isMinimized ? 'none' : 'top'}"
-						type="containerHigh"
-					>
-						<div
-							class="group sticky top-0 px-3 py-2 flex items-center justify-between gap-3 ${this.isDragging
-								? 'cursor-grabbing'
-								: 'cursor-move'}"
-							${ref(this.headerRef)}
-							title="Drag to move, double-click to toggle"
-							@dblclick=${(e: Event) => {
-								e.preventDefault()
-								e.stopPropagation()
-								this.toggleState()
-							}}
-						>
-							<!-- Drag handle indicator -->
-							<div
-								class="flex items-center text-surface-onVariant opacity-40 transition-opacity duration-200 group-hover:opacity-100"
-							>
-								<schmancy-icon style="font-size: 20px">drag_indicator</schmancy-icon>
-							</div>
-
-							<!-- Header content - use properties if provided, else fallback to slot -->
-							<div
-								class="flex-1 min-w-fit items-center flex justify-start ${isMinimized ? 'cursor-pointer' : ''}"
-								
-								@dblclick=${(e: Event) => {
-									if (isMinimized) {
-										e.preventDefault()
-										e.stopPropagation()
-										this.state = 'expanded'
-									}
-								}}
-								title="${isMinimized ? 'Click to expand' : ''}"
-							>
-								${this.icon || this.label
-									? html`
-											<div
-											class="flex gap-2 items-center">
-												${this.icon ? html`<schmancy-icon>${this.icon}</schmancy-icon>` : ''}
-												${this.label
-													? html`<schmancy-typography type="title" token="md">${this.label}</schmancy-typography>`
-													: ''}
-												${this.badge !== undefined && this.badge !== null && this.badge !== ''
-													? html`<schmancy-badge>${this.badge}</schmancy-badge>`
-													: ''}
-											</div>
-										`
-									: html`<slot name="header"></slot>`}
-							</div>
-
-							<!-- Control buttons -->
-							<div class="flex items-center gap-1 shrink-0">
-								${isMinimized
-									? html`
-											<!-- Expand button (when minimized) -->
-											<schmancy-icon-button
-												size="sm"
-												variant="text"
-												@click=${(e: Event) => {
-													e.stopPropagation()
-													this.state = 'expanded'
-												}}
-												title="Expand"
-												${ref(this.iconRef)}
-											>
-												fullscreen
-											</schmancy-icon-button>
-										`
-									: html`
-											<!-- Minimize button (when expanded) -->
-											<schmancy-icon-button
-												size="sm"
-												variant="filled tonal"
-												@click=${(e: Event) => {
-													e.stopPropagation()
-													this.state = 'minimized'
-												}}
-												title="Minimize"
-												${ref(this.iconRef)}
-											>
-												close_fullscreen
-											</schmancy-icon-button>
-										`}
-
-								<!-- Close button -->
-								<schmancy-icon-button
-									size="sm"
-									@click=${(e: Event) => {
-										e.stopPropagation()
-										this.closeAndAddToNav()
-									}}
-									title="Close and add to navigation"
-								>
-									remove
-								</schmancy-icon-button>
-							</div>
-						</div>
+				<!-- Content section (visually above header for bottom corners) -->
+				<section
+					${ref(this._contentRef)}
+					class="flex-1 min-h-0 overflow-hidden flex flex-col"
+					style=${contentStyles}
+					role="dialog"
+					aria-label="${this.label ?? 'Floating panel'}"
+				>
+					<schmancy-surface type="solid" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+						<schmancy-scroll hide class="flex-1">
+							<slot></slot>
+						</schmancy-scroll>
 					</schmancy-surface>
 				</section>
 
-				<!-- Content section -->
-				${cache(
-					this.isContentVisible
-						? html`
-								<schmancy-surface type="containerHigh" class="flex-1" ${ref(this.contentRef)}>
-									<slot></slot>
-								</schmancy-surface>
-						  `
-						: html``,
+				<!-- Gradient separator between header and content — only when open -->
+				${when(
+					this.open,
+					() =>
+						html`<div
+							class="h-px shrink-0 bg-linear-to-r from-transparent via-primary-default/30 to-transparent"
+						></div>`,
 				)}
-			</div>
+
+				<!-- Header / FAB section — always interactive, always visible -->
+				<section
+					class="shrink-0 bg-surface-containerLowest"
+					style=${styleMap({ 'pointer-events': 'auto', height: `${FAB_HEIGHT}px` })}
+				>
+					<div
+						${ref(this._headerRef)}
+						class=${headerClasses}
+						title="Drag to move"
+						aria-label="Drag to reposition panel"
+					>
+						<!-- Summary slot rendered once — avoids DOM teardown on toggle -->
+						<div class="flex-1 min-w-0">
+							<slot name="summary"></slot>
+						</div>
+
+						<!-- Toggle button: collapse when open, expand when closed -->
+						${when(
+							this.open,
+							() => html`
+								<schmancy-icon-button
+									size="sm"
+									variant="text"
+									@click=${(e: Event) => {
+										e.stopPropagation()
+										this.close()
+									}}
+									title="Collapse"
+								>
+									close_fullscreen
+								</schmancy-icon-button>
+							`,
+							() => html`
+								<schmancy-icon-button
+									size="sm"
+									variant="text"
+									@click=${(e: Event) => {
+										e.stopPropagation()
+										this.expand()
+									}}
+									title="Expand"
+								>
+									fullscreen
+								</schmancy-icon-button>
+							`,
+						)}
+					</div>
+				</section>
+			</schmancy-surface>
 		`
 	}
 }

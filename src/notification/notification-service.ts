@@ -105,7 +105,7 @@ export class NotificationService {
 		notification.title = completeOptions.title || ''
 		notification.message = completeOptions.message
 		notification.type = completeOptions.type || 'info'
-		notification.duration = completeOptions.duration || 1000
+		notification.duration = completeOptions.duration ?? 1000
 		notification.closable = completeOptions.closable !== false
 		notification.playSound = false // We handle sound here
 		notification.showProgress = completeOptions.showProgress || false

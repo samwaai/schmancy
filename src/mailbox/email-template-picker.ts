@@ -200,7 +200,7 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 								template => template.id,
 								template => html`
 									<schmancy-surface
-										type="containerLow"
+										type="subtle"
 										elevation="1"
 										rounded="all"
 										class="group cursor-pointer hover:elevation-3 transition-all duration-200 overflow-hidden"

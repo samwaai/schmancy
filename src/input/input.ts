@@ -495,6 +495,9 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 		fromEvent<InputEvent>(this.inputElement, 'input')
 			.pipe(
 				map(ev => {
+					// Stop native event from bubbling - we'll dispatch our own custom event
+					ev.stopPropagation()
+
 					// Capture all input event properties for complete event forwarding
 					const inputEvent = ev as InputEvent
 					const target = ev.target as HTMLInputElement
@@ -531,7 +534,6 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 
 				this.dispatchEvent(customEvent)
 
-				// REMOVED: Duplicate change event dispatch that was here
 				// Run validation like native inputs do on input, but respect the validation strategy
 				this.validateInput()
 			})
@@ -539,7 +541,11 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 		// Subscribe to native change events (usually on blur)
 		fromEvent<Event>(this.inputElement, 'change')
 			.pipe(
-				map(ev => (ev.target as HTMLInputElement).value),
+				map(ev => {
+					// Stop native event from bubbling - we'll dispatch our own custom event
+					ev.stopPropagation()
+					return (ev.target as HTMLInputElement).value
+				}),
 				distinctUntilChanged(),
 				takeUntil(this.disconnecting),
 			)
@@ -819,19 +825,22 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 		const isDateType = ['date', 'datetime-local', 'time', 'month', 'week'].includes(this.type)
 
 		const inputClasses = {
-			// Base styles
-			'block w-full min-w-0 rounded-[8px] border-0 bg-surface-highest text-surface-on': true,
+			// Base styles - outlined style matching Revolut card field
+			'block w-full min-w-0 rounded-2xl border bg-surface-containerLowest text-surface-on': true,
+			// Border color
+			'border-outline': !this.error,
+			'border-error-default': this.error,
 			// Focus styles
-			'outline-secondary-default focus:outline-1': true,
+			'outline-secondary-default focus:outline-1 focus:border-secondary-default': true,
 			// Disabled styles
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
 			// Placeholder
 			'placeholder:text-muted': true,
-			// Ring styles
-			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
+			// Ring styles (subtle focus ring)
+			'ring-0 focus:ring-1 focus:ring-inset': true,
 			// Ring colors based on error state
-			'ring-secondary-default ring-outline focus:ring-secondary-default': !this.error,
-			'ring-error-default focus:ring-error-default': this.error,
+			'focus:ring-secondary-default': !this.error,
+			'focus:ring-error-default': this.error,
 			// Readonly styles
 			'caret-transparent focus:outline-hidden cursor-pointer select-none': this.readonly,
 			'cursor-pointer': this.clickable,

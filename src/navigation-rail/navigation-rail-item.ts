@@ -89,7 +89,9 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 	 * @default false
 	 */
 	@property({ type: Boolean, reflect: true })
-	get active() { return this.active$.value }
+	get active() {
+		return this.active$.value
+	}
 	set active(value: boolean) {
 		this.active$.next(value)
 	}
@@ -99,8 +101,12 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 	 * @default false
 	 */
 	@property({ type: Boolean, reflect: true })
-	get selected() { return this.active }
-	set selected(value: boolean) { this.active = value }
+	get selected() {
+		return this.active
+	}
+	set selected(value: boolean) {
+		this.active = value
+	}
 
 	/**
 	 * Badge text or number to display
@@ -146,48 +152,54 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 	@state()
 	private showRipple = false
 
-
 	connectedCallback() {
 		super.connectedCallback()
 
 		// Set up hover tracking
 		merge(
 			fromEvent(this, 'mouseenter').pipe(tap(() => this.hovering$.next(true))),
-			fromEvent(this, 'mouseleave').pipe(tap(() => this.hovering$.next(false)))
-		).pipe(takeUntil(this.disconnecting)).subscribe()
+			fromEvent(this, 'mouseleave').pipe(tap(() => this.hovering$.next(false))),
+		)
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe()
 
 		// Set up press tracking
 		merge(
 			fromEvent(this, 'mousedown').pipe(tap(() => this.pressing$.next(true))),
 			fromEvent(this, 'mouseup').pipe(tap(() => this.pressing$.next(false))),
-			fromEvent(this, 'mouseleave').pipe(tap(() => this.pressing$.next(false)))
-		).pipe(takeUntil(this.disconnecting)).subscribe()
-
+			fromEvent(this, 'mouseleave').pipe(tap(() => this.pressing$.next(false))),
+		)
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe()
 
 		// Ripple effect with M3 timing
-		this.pressing$.pipe(
-			tap(pressing => {
-				if (pressing && !this.disabled) {
-					this.showRipple = true
-				}
-			}),
-			// M3 standard ripple duration
-			delay(600),
-			tap(() => this.showRipple = false),
-			takeUntil(this.disconnecting)
-		).subscribe()
+		this.pressing$
+			.pipe(
+				tap(pressing => {
+					if (pressing && !this.disabled) {
+						this.showRipple = true
+					}
+				}),
+				// M3 standard ripple duration
+				delay(600),
+				tap(() => (this.showRipple = false)),
+				takeUntil(this.disconnecting),
+			)
+			.subscribe()
 
 		// Subscribe to active state changes for reactive updates
-		this.active$.pipe(
-			distinctUntilChanged(),
-			tap((isActive) => {
-				this.requestUpdate()
-				// Update ARIA attributes reactively
-				this.setAttribute('aria-selected', String(isActive))
-				this.setAttribute('tabindex', isActive ? '0' : '-1')
-			}),
-			takeUntil(this.disconnecting)
-		).subscribe()
+		this.active$
+			.pipe(
+				distinctUntilChanged(),
+				tap(isActive => {
+					this.requestUpdate()
+					// Update ARIA attributes reactively
+					this.setAttribute('aria-selected', String(isActive))
+					this.setAttribute('tabindex', isActive ? '0' : '-1')
+				}),
+				takeUntil(this.disconnecting),
+			)
+			.subscribe()
 
 		// Set ARIA attributes
 		this.setAttribute('role', 'listitem')
@@ -222,11 +234,13 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 		}
 
 		// Emit navigate event with the value
-		this.dispatchEvent(new CustomEvent('navigate', {
-			detail: this.value || this.label,
-			bubbles: true,
-			composed: true
-		}))
+		this.dispatchEvent(
+			new CustomEvent('navigate', {
+				detail: this.value || this.label,
+				bubbles: true,
+				composed: true,
+			}),
+		)
 
 		// Visual feedback is handled by the ripple effect in connectedCallback
 		// The parent rail will confirm and update via activeIndex
@@ -259,7 +273,7 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 			// M3 Shape & Interaction
 			'rounded-lg': true, // M3 large corner radius
 			'cursor-pointer': true,
-			'relative': true,
+			relative: true,
 			'select-none': true,
 			'box-border': true,
 
@@ -281,24 +295,24 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 			'min-h-12 pl-8': this.nested, // 48px height, 32px left padding for nested
 
 			// Group separator
-			'mb-2 after:absolute after:bottom-[-4px] after:left-3 after:right-3 after:h-px after:bg-outline-variant after:opacity-12': this.group,
+			'mb-2 after:absolute after:bottom-[-4px] after:left-3 after:right-3 after:h-px after:bg-outline-variant after:opacity-12':
+				this.group,
 		})
 
 		// Icon container with active indicator
 		const iconContainerClasses = this.classMap({
 			'flex items-center justify-center': true,
 			'w-auto min-w-14 h-8': true, // 56px min-width, 32px height
-			'flex-shrink-0 relative z-10': true,
+			'shrink-0 relative z-10': true,
 		})
 
 		// Active indicator behind icon
 		const indicatorClasses = this.classMap({
-			'absolute top-1/2 left-1/2 opacity-50': true,
+			'absolute top-1/2 left-1/2 opacity-30': true,
 			'w-14 h-8': true, // 56px x 32px
 			'rounded-lg': true, // M3 large corner radius
 			'bg-secondary-container': true,
 			'transition-transform duration-150 ease-out': true,
-			'z-0': true,
 			// Transform based on active state
 			'scale-0 -translate-x-1/2 -translate-y-1/2': !this.active,
 			'scale-100 -translate-x-1/2 -translate-y-1/2': this.active,
@@ -306,9 +320,9 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 
 		// Icon styling
 		const iconClasses = this.classMap({
+			'relative z-100': true,
 			'text-2xl leading-none': !this.nested, // 24px icon for normal
 			'text-xl leading-none': this.nested, // 20px icon for nested
-			'relative z-10': true,
 			// Material Symbols font variations handled via CSS custom properties
 		})
 
@@ -318,7 +332,7 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 			'text-center': true,
 			'overflow-hidden text-ellipsis whitespace-nowrap': true,
 			'z-10 max-w-14 px-1': true, // max 56px width, 4px horizontal padding
-			'hidden': !this.showLabel && !this.label, // Hide if not shown or no label
+			hidden: !this.showLabel && !this.label, // Hide if not shown or no label
 		})
 
 		// Badge styling with dynamic colors
@@ -354,64 +368,68 @@ export class SchmancyNavigationRailItem extends $LitElement() {
 				part="container"
 				@click=${this.handleClick}
 				@keydown=${this.handleKeyDown}
-				style="outline: ${this.matches(':focus-visible') ? '2px solid var(--schmancy-sys-color-primary-default)' : 'none'}; outline-offset: 2px;"
+				style="outline: ${this.matches(':focus-visible')
+					? '2px solid var(--schmancy-sys-color-primary-default)'
+					: 'none'}; outline-offset: 2px;"
 			>
 				<span class=${rippleClasses} aria-hidden="true"></span>
 
 				<div class=${iconContainerClasses} part="icon">
-							<span class=${indicatorClasses} part="indicator" aria-hidden="true"></span>
-							${when(hasCustomIcon,
-								() => html`<slot name="icon"></slot>`,
-								() => when(this.icon,
-									() => html`
-										<span
-											class=${iconClasses}
-											part="icon-text"
-											style="font-family: 'Material Symbols Outlined'; font-variation-settings: 'FILL' ${this.active ? '1' : '0'}, 'wght' 400, 'GRAD' 0, 'opsz' ${this.nested ? '20' : '24'};"
-										>
-											${this.icon}
-										</span>
-									`
-								)
-							)}
-						</div>
+					<span class=${indicatorClasses} part="indicator" aria-hidden="true"></span>
+					${when(
+						hasCustomIcon,
+						() => html`<slot class="relative" name="icon"></slot>`,
+						() =>
+							when(
+								this.icon,
+								() => html`
+									<span
+										class=${iconClasses}
+										part="icon-text"
+										style="font-family: 'Material Symbols Outlined'; font-variation-settings: 'FILL' ${this.active
+											? '1'
+											: '0'}, 'wght' 400, 'GRAD' 0, 'opsz' ${this.nested ? '20' : '24'};"
+									>
+										${this.icon}
+									</span>
+								`,
+							),
+					)}
+				</div>
 
-						${when(this.label,
-							() => html`<span class=${labelClasses} part="label">${this.label}</span>`
-						)}
-
-				${when(this.badge,
+				${when(this.label, () => html`<span class=${labelClasses} part="label">${this.label}</span>`)}
+				${when(
+					this.badge,
 					() => html`
-						${when(hasCustomBadge,
+						${when(
+							hasCustomBadge,
 							() => html`<slot name="badge"></slot>`,
 							() => html`
-								<span
-									class=${badgeClasses}
-									part="badge"
-									aria-label="${this.badge} notifications"
-								>
-									${this.badge}
-								</span>
-							`
+								<span class=${badgeClasses} part="badge" aria-label="${this.badge} notifications"> ${this.badge} </span>
+							`,
 						)}
-					`
+					`,
 				)}
 
 				<!-- Tooltip shown via title attribute -->
-				${when(this.hasAttribute('title'),
+				${when(
+					this.hasAttribute('title'),
 					() => html`
-						<div class="
+						<div
+							class="
 							absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2
 							bg-surface-inverse text-surface-inverseOn
 							px-2 py-1 rounded-sm text-xs whitespace-nowrap
-							z-[1000] pointer-events-none opacity-0
+							z-1000 pointer-events-none opacity-0
 							hover:opacity-100 hover:translate-x-0
 							transition-all duration-150 ease-out
 							-translate-x-1
-						" aria-hidden="true">
+						"
+							aria-hidden="true"
+						>
 							${this.getAttribute('title')}
 						</div>
-					`
+					`,
 				)}
 			</div>
 		`

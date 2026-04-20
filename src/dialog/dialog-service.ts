@@ -1,6 +1,19 @@
 import { render, TemplateResult } from 'lit'
-import { defaultIfEmpty, forkJoin, fromEvent, map, of, Subject, Subscription, switchMap, takeUntil, tap, timer } from 'rxjs'
+import {
+	defaultIfEmpty,
+	forkJoin,
+	fromEvent,
+	map,
+	of,
+	Subject,
+	Subscription,
+	switchMap,
+	takeUntil,
+	tap,
+	timer,
+} from 'rxjs'
 import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from '../theme/theme.events'
+import { overlayStack } from '../utils/overlay-stack'
 import { SchmancyDialog } from './dialog.component'
 import { DialogHereMorty, DialogHereMortyEvent, DialogWhereAreYouRicky } from './dialog-events'
 
@@ -20,6 +33,21 @@ export interface DialogOptions {
 	onCancel?: () => void
 	hideActions?: boolean
 	targetContainer?: HTMLElement
+}
+
+/**
+ * Prompt dialog options
+ */
+export interface PromptOptions {
+	title?: string
+	message?: string
+	label?: string
+	placeholder?: string
+	defaultValue?: string
+	inputType?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url'
+	confirmText?: string
+	cancelText?: string
+	position?: { x: number; y: number } | MouseEvent | TouchEvent
 }
 
 interface DialogTarget {
@@ -51,9 +79,27 @@ export class DialogService {
 	private dialogSubject = new Subject<DialogTarget>()
 	private dismissSubject = new Subject<string>()
 
+	// Lazy click position tracking - only initialized when first dialog opens
+	private lastClickPosition: { x: number; y: number } | null = null
+	private clickTrackingInitialized = false
+
 	private constructor() {
 		this.setupDialogOpeningLogic()
 		this.setupDialogDismissLogic()
+		this.setupClickPositionTracking()
+	}
+
+	private setupClickPositionTracking() {
+		if (this.clickTrackingInitialized || typeof document === 'undefined') return
+		this.clickTrackingInitialized = true
+
+		fromEvent<PointerEvent>(document, 'pointerdown', { capture: true, passive: true })
+			.pipe(
+				tap(event => {
+					this.lastClickPosition = { x: event.clientX, y: event.clientY }
+				}),
+			)
+			.subscribe()
 	}
 
 	public static getInstance(): DialogService {
@@ -97,6 +143,7 @@ export class DialogService {
 					const uid = (target as { uid?: string }).uid!
 					const dialog = document.createElement('schmancy-dialog') as SchmancyDialog
 					dialog.setAttribute('uid', uid)
+					dialog.style.setProperty('--schmancy-overlay-z', String(overlayStack.getNextZIndex()))
 					targetContainer.appendChild(dialog)
 
 					return { dialog, target }
@@ -139,8 +186,8 @@ export class DialogService {
 
 						if (target.content) {
 							const contentContainer = document.createElement('div')
-							contentContainer.style.height = '100%'
-							contentContainer.style.width = '100%'
+							
+							contentContainer.style.display = 'contents'
 							contentContainer.classList.add('schmancy-dialog-content-container')
 
 							if (typeof target.content === 'function') {
@@ -163,7 +210,7 @@ export class DialogService {
 					this.activeDialogs.push(dialog)
 				}),
 				tap(({ dialog, target }) => {
-					const position = target.options.position || this.getCenteredPosition()
+					const position = target.options.position || this.getDefaultPosition()
 
 					dialog
 						.show(position)
@@ -175,6 +222,7 @@ export class DialogService {
 							if (index !== -1) {
 								this.activeDialogs.splice(index, 1)
 							}
+							overlayStack.release()
 
 							// Clean up content
 							const contentEl = dialog.querySelector('[slot="content"]')
@@ -257,6 +305,7 @@ export class DialogService {
 						if (index !== -1) {
 							this.activeDialogs.splice(index, 1)
 						}
+						overlayStack.release()
 
 						response.dialog.parentElement?.removeChild(response.dialog)
 					}
@@ -273,7 +322,7 @@ export class DialogService {
 			}
 
 			if (!completeOptions.position) {
-				completeOptions.position = this.getCenteredPosition()
+				completeOptions.position = this.getDefaultPosition()
 			}
 
 			this.dialogSubject.next({
@@ -292,7 +341,7 @@ export class DialogService {
 	): Promise<boolean> {
 		return new Promise((resolve, reject) => {
 			if (!options.position) {
-				options.position = this.getCenteredPosition()
+				options.position = this.getDefaultPosition()
 			}
 
 			this.dialogSubject.next({
@@ -338,7 +387,49 @@ export class DialogService {
 		})
 	}
 
-	private getCenteredPosition(): { x: number; y: number } {
+	/**
+	 * Shows a prompt dialog with an input field.
+	 * Returns the input value if confirmed, null if cancelled.
+	 */
+	public prompt(options: PromptOptions): Promise<string | null> {
+		return new Promise(resolve => {
+			let inputValue = options.defaultValue || ''
+
+			// Create container for input
+			const container = document.createElement('div')
+			container.style.width = '100%'
+			container.style.minWidth = '280px'
+
+			const input = document.createElement('schmancy-input') as HTMLElement
+			input.setAttribute('type', options.inputType || 'text')
+			if (options.label) input.setAttribute('label', options.label)
+			if (options.placeholder) input.setAttribute('placeholder', options.placeholder)
+			if (options.defaultValue) input.setAttribute('value', options.defaultValue)
+
+			input.addEventListener('input', (e: Event) => {
+				inputValue = (e.target as HTMLInputElement).value
+			})
+
+			container.appendChild(input)
+
+			this.confirm({
+				title: options.title,
+				message: options.message,
+				confirmText: options.confirmText ?? 'OK',
+				cancelText: options.cancelText ?? 'Cancel',
+				position: options.position,
+				content: container,
+			}).then(confirmed => {
+				resolve(confirmed ? inputValue : null)
+			})
+		})
+	}
+
+	private getDefaultPosition(): { x: number; y: number } {
+		// Use last click position if available, otherwise center of screen
+		if (this.lastClickPosition) {
+			return { ...this.lastClickPosition }
+		}
 		return {
 			x: window.innerWidth / 2,
 			y: window.innerHeight / 2,
@@ -347,34 +438,44 @@ export class DialogService {
 }
 
 /**
+ * Eagerly instantiate so click tracking starts immediately on import,
+ * not on first dialog open (which would miss the triggering click).
+ */
+const service = DialogService.getInstance()
+
+/**
  * Global dialog utility
  */
 export const $dialog = {
 	confirm: (options: DialogOptions): Promise<boolean> => {
-		return DialogService.getInstance().confirm(options)
+		return service.confirm(options)
 	},
 
 	ask: (message: string, event?: MouseEvent | TouchEvent): Promise<boolean> => {
-		return DialogService.getInstance().ask(message, event)
+		return service.ask(message, event)
 	},
 
 	danger: (options: Omit<DialogOptions, 'variant'>): Promise<boolean> => {
-		return DialogService.getInstance().danger(options)
+		return service.danger(options)
+	},
+
+	prompt: (options: PromptOptions): Promise<string | null> => {
+		return service.prompt(options)
 	},
 
 	component: (
 		content: TemplateResult | HTMLElement | (() => HTMLElement | TemplateResult),
 		options?: Omit<DialogOptions, 'content' | 'message'>,
 	): Promise<boolean> => {
-		return DialogService.getInstance().component(content, options)
+		return service.component(content, options)
 	},
 
 	dismiss: (): boolean => {
-		return DialogService.getInstance().dismiss()
+		return service.dismiss()
 	},
 
 	close: (): boolean => {
-		return DialogService.getInstance().close()
+		return service.close()
 	},
 }
 

@@ -309,7 +309,14 @@ declare const theme: {
  * }
  * ```
  */
-export type TSchmancyTheme = (typeof theme)[keyof typeof theme];
+export type TSchmancyTheme = (typeof theme)[keyof typeof theme] & {
+    /**
+     * Locale for number/date formatting (BCP 47 language tag).
+     * Defaults to navigator.language, can be overridden via schmancy-theme locale attribute.
+     * @example "de-DE", "en-US", "ar-SA"
+     */
+    locale: string;
+};
 /**
  * Default Schmancy theme configuration object.
  * Provides access to all theme CSS variables through JavaScript.

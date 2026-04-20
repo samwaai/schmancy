@@ -1,67 +1,101 @@
-import { directive, PartType } from 'lit/directive.js'
+import { directive, type ElementPart, PartType } from 'lit/directive.js'
 import { AsyncDirective } from 'lit/async-directive.js'
-import { fromEvent, Subscription } from 'rxjs'
+import { fromEvent, Subject } from 'rxjs'
+import { take, takeUntil } from 'rxjs/operators'
 
-const rippleStyle = `.ripple {
-    position: absolute;
-    border-radius: 50%;
-    background: var(--schmancy-sys-color-surface-high);
-    transform: scale(0);
-    animation: ripple 600ms linear;
+// Shared style — single injection for all ripple instances
+let rippleStyleInjected = false
+function ensureRippleStyle() {
+	if (rippleStyleInjected) return
+	const style = document.createElement('style')
+	style.id = 'schmancy-ripple-shared'
+	style.textContent = `
+		.schmancy-ripple-effect {
+			position: absolute;
+			border-radius: 50%;
+			background: var(--schmancy-sys-color-surface-on);
+			opacity: 0.12;
+			transform: scale(0);
+			animation: schmancy-ripple-expand 600ms linear forwards;
+			pointer-events: none;
+			aria-hidden: true;
+		}
+		@keyframes schmancy-ripple-expand {
+			to { transform: scale(4); opacity: 0; }
+		}
+	`
+	document.head.appendChild(style)
+	rippleStyleInjected = true
 }
 
-@keyframes ripple {
-    to {
-        transform: scale(4);
-        opacity: 0;
-    }
-}
-`
+/**
+ * Ripple directive — Material-style ink ripple on click.
+ *
+ * @example
+ * ```html
+ * <div ${ripple()}>Click me</div>
+ * ```
+ */
 class RippleDirective extends AsyncDirective {
-	element: HTMLElement
-	private subscription?: Subscription
+	private element!: HTMLElement
+	private readonly teardown$ = new Subject<void>()
 
 	render() {
-		return
+		return undefined
 	}
 
-	addRippleEffect = (event: MouseEvent) => {
-		const element = event.target as HTMLElement
-		const circle = document.createElement('span')
-		const diameter = Math.max(element.clientWidth, element.clientHeight)
-		const radius = diameter / 2
-		circle.style.width = circle.style.height = `${diameter}px`
-		circle.style.left = `${event.clientX - element.getBoundingClientRect().left - radius}px`
-		circle.style.top = `${event.clientY - element.getBoundingClientRect().top - radius}px`
-		circle.classList.add('ripple')
-
-		const ripple = element.getElementsByClassName('ripple')[0]
-		if (ripple) {
-			ripple.remove()
-		}
-
-		element.appendChild(circle)
-	}
-
-	update(part: any) {
+	override update(part: ElementPart) {
 		if (part.type !== PartType.ELEMENT) {
-			throw new Error('The `ripple` directive can only be used on elements')
+			throw new Error('ripple directive must be used on an element')
 		}
 
-		this.element = part.element
-		const style = document.createElement('style')
-		style.append(rippleStyle)
-		this.element.append(style)
+		this.element = part.element as HTMLElement
+		ensureRippleStyle()
 
-		// Clean up existing subscription
-		this.subscription?.unsubscribe()
+		// Ensure positioning context
+		const pos = getComputedStyle(this.element).position
+		if (pos === 'static') {
+			this.element.style.position = 'relative'
+		}
+		this.element.style.overflow = 'hidden'
 
-		// Create new subscription
-		this.subscription = fromEvent<MouseEvent>(this.element, 'click').subscribe(this.addRippleEffect)
+		this.teardown$.next()
+
+		fromEvent<MouseEvent>(this.element, 'click').pipe(
+			takeUntil(this.teardown$),
+		).subscribe(e => this.addRipple(e))
+
+		return undefined
 	}
 
-	disconnected() {
-		this.subscription?.unsubscribe()
+	override reconnected() {
+		this.teardown$.next()
+		fromEvent<MouseEvent>(this.element, 'click').pipe(
+			takeUntil(this.teardown$),
+		).subscribe(e => this.addRipple(e))
+	}
+
+	private addRipple(event: MouseEvent) {
+		const rect = this.element.getBoundingClientRect()
+		const diameter = Math.max(rect.width, rect.height)
+		const radius = diameter / 2
+
+		const circle = document.createElement('span')
+		circle.className = 'schmancy-ripple-effect'
+		circle.setAttribute('aria-hidden', 'true')
+		circle.style.width = `${diameter}px`
+		circle.style.height = `${diameter}px`
+		circle.style.left = `${event.clientX - rect.left - radius}px`
+		circle.style.top = `${event.clientY - rect.top - radius}px`
+
+		this.element.appendChild(circle)
+
+		// Remove after animation completes
+		fromEvent(circle, 'animationend').pipe(take(1)).subscribe(() => circle.remove())
+	}
+
+	override disconnected() {
+		this.teardown$.next()
 	}
 }
 

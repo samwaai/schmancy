@@ -7,6 +7,7 @@ export declare class SchmancyLightbox extends SchmancyLightbox_base {
     open: boolean;
     private currentIndex;
     private isLoading;
+    private zIndex;
     private readonly swipeThreshold;
     private overlayRef;
     private contentRef;

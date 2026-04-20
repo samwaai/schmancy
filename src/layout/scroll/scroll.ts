@@ -71,6 +71,17 @@ declare global {
  *   </div>
  * </schmancy-scroll>
  * ```
+ *
+ * @example Programmatic scroll with Lit ref
+ * ```typescript
+ * private scrollRef = createRef<HTMLElement>()
+ *
+ * // In template:
+ * html`<schmancy-scroll ${ref(this.scrollRef)}>...</schmancy-scroll>`
+ *
+ * // Scroll to top (smooth — host has scroll-behavior: smooth):
+ * this.scrollRef.value?.scrollTo({ top: 0 })
+ * ```
  */
 @customElement('schmancy-scroll')
 export class SchmancyScroll extends TailwindElement(css`
@@ -157,22 +168,12 @@ export class SchmancyScroll extends TailwindElement(css`
 	 * @param top - For backward compatibility, if options is a number, this is treated as "behavior"
 	 */
 	public override scrollTo(options?: ScrollToOptions | number, top?: number): void {
-		if (!this.scroller) return
-
 		if (typeof options === 'number') {
-			// Legacy support for scrollTo(top, behavior)
-			this.scroller.scrollTo({
-				top: options,
-				behavior: top ? 'smooth' : 'auto',
-			})
+			super.scrollTo({ top: options, behavior: top ? 'smooth' : 'auto' })
 		} else if (options) {
-			this.scroller.scrollTo(options)
+			super.scrollTo(options)
 		} else {
-			this.scroller.scrollTo({
-				top: 0,
-				left: 0,
-				behavior: 'auto',
-			})
+			super.scrollTo({ top: 0, left: 0, behavior: 'auto' })
 		}
 	}
 
@@ -182,12 +183,7 @@ export class SchmancyScroll extends TailwindElement(css`
 	 * @param behavior - The scroll behavior ('auto' or 'smooth')
 	 */
 	public scrollToLeft(left: number, behavior: ScrollBehavior = 'auto'): void {
-		if (this.scroller) {
-			this.scroller.scrollTo({
-				left,
-				behavior,
-			})
-		}
+		super.scrollTo({ left, behavior })
 	}
 
 	/**

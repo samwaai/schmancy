@@ -1,5 +1,10 @@
 export declare class Numbers {
     /**
+     * The system locale detected from user's browser/OS settings.
+     * Use this for display formatting. For exports, use explicit locale like 'de-DE'.
+     */
+    readonly systemLocale: string;
+    /**
      * Rounds a number to the specified number of decimal places.
      * @param {number} number - The number to round.
      * @param {number} [decimalPlaces=2] - The number of decimal places to round to.
@@ -8,10 +13,19 @@ export declare class Numbers {
     roundNumber(number: number, decimalPlaces?: number): number;
     /**
      * Formats a number according to the specified locale and options.
+     * Uses the user's system locale by default for display formatting.
+     *
      * @param {number} number - The number to format.
-     * @param {string} [locale='de-DE'] - The locale string (e.g., 'de-DE' for German).
+     * @param {string} [locale] - The locale string (e.g., 'de-DE'). Defaults to system locale.
      * @param {Intl.NumberFormatOptions} [options={}] - Additional formatting options.
      * @returns {string} - The formatted number as a string.
+     *
+     * @example
+     * // Uses system locale (e.g., user's browser setting)
+     * numbers.formatNumber(1234.56)
+     *
+     * // Explicit locale for exports (bank systems expect German format)
+     * numbers.formatNumber(1234.56, 'de-DE', { useGrouping: false })
      */
     formatNumber(number: number, locale?: string, options?: Intl.NumberFormatOptions): string;
     /**
@@ -23,9 +37,11 @@ export declare class Numbers {
     parseToPureNumber(numberString: string, decimalSeparator?: string): number;
     /**
      * Rounds a number to the specified decimal places and formats it according to the specified locale and options.
+     * Uses the user's system locale by default.
+     *
      * @param {number} number - The number to process.
      * @param {number} [decimalPlaces=2] - The number of decimal places to round to.
-     * @param {string} [locale='de-DE'] - The locale string.
+     * @param {string} [locale] - The locale string. Defaults to system locale.
      * @param {Intl.NumberFormatOptions} [options={}] - Additional formatting options.
      * @returns {string} - The formatted number as a string.
      */

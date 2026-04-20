@@ -11,6 +11,7 @@ import {
 import { $sounds } from '../audio'
 import { ComponentType } from '../area/router.types'
 import { discoverComponent } from '@mixins/discovery.service'
+import { overlayStack } from '../utils/overlay-stack'
 import SchmancySheet from './sheet'
 
 export enum SchmancySheetPosition {
@@ -97,6 +98,9 @@ class BottomSheetService {
 
 					if (target.persist) sheet.setAttribute('persist', String(target.persist))
 
+					// Set dynamic z-index for proper stacking with dialogs
+					sheet.style.setProperty('--schmancy-overlay-z', String(overlayStack.getNextZIndex()))
+
 					document.body.style.overflow = 'hidden' // lock the scroll of the host
 				}),
 				delay(20),
@@ -128,6 +132,7 @@ class BottomSheetService {
 						.subscribe(() => {
 							// Remove from active sheets tracking
 							this.activeSheets.delete(uid)
+							overlayStack.release()
 
 							// Only keep sheet if persist is explicitly set to a truthy value
 							const persistAttr = sheet.getAttribute('persist')

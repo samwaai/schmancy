@@ -1,445 +1,298 @@
-# Schmancy Directives - AI Reference
+# Schmancy Directives — AI Reference
 
-## Quick Start
+## What Are Directives?
+
+Lit directives that snap onto any element to add behavior. No components to wrap, no CSS to write — just `${directiveName()}` in your template.
 
 ```typescript
-import { ripple, color, height, visibility, drag, drop } from '@schmancy/index'
-// Or specific import: import { ripple, color, height, visibility, drag, drop } from '@schmancy/directives'
-
-// Import types
-import type { SchmancyDropEvent } from '@schmancy/index'
+import { magnetic, cursorGlow, gravity, reveal } from '@mhmo91/schmancy/directives'
 ```
 
-## Directives Overview
+---
 
-Lit directives that add common UI behaviors and styling capabilities to any element.
+## Physics & Interaction (6 directives)
 
-## API
-
-### Ripple Directive
-
-```typescript
-// Add Material Design ripple effect to any element
-<div ${ripple()}></div>
-
-// Ripple automatically triggers on click
-// Uses theme color: var(--schmancy-sys-color-surface-high)
+### `magnetic` — Elements lean toward the cursor
+```html
+<schmancy-button ${magnetic()}>Submit</schmancy-button>
+<schmancy-icon-button ${magnetic({ strength: 6, radius: 120 })}>add</schmancy-icon-button>
 ```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `strength` | 4 | Max displacement in px |
+| `radius` | 100 | Activation radius in px |
 
-### Color Directive
+Embedded in: `schmancy-button`, `schmancy-icon-button`, `schmancy-filter-chip`, `schmancy-details` (summary)
 
-```typescript
-// Apply dynamic colors to elements
-<div ${color({ 
-  bgColor?: string,  // Background color
-  color?: string     // Text color
-})}></div>
-
-// Examples
-<div ${color({ bgColor: '#ff0000' })}></div>
-<div ${color({ color: 'blue' })}></div>
-<div ${color({ bgColor: 'var(--schmancy-sys-color-primary)', color: 'white' })}></div>
-```
-
-### Height Directive
-
-```typescript
-// Dynamically set element height
-<div ${height(value: string | number)}></div>
-
-// Examples
-<div ${height(200)}></div>           // 200px
-<div ${height('50vh')}></div>        // 50% viewport height
-<div ${height('calc(100% - 64px)')}></div>  // Calculated height
-```
-
-### Visibility Directive
-
-```typescript
-// Control element visibility
-<div ${visibility(isVisible: boolean)}></div>
-
-// When false, sets display: none
-// When true, removes display style
-```
-
-### Drag & Drop Directives
-
-```typescript
-// Make element draggable
-<div ${drag(id: string)}></div>
-
-// Make element a drop zone
-<div ${drop(destinationId: string)} @drop=${handleDrop}></div>
-
-// Drop event type
-export type SchmancyDropEvent = CustomEvent<{
-  source: string;      // ID of dragged element
-  destination: string; // ID of drop zone
-}>
-
-// Handle drop event
-const handleDrop = (e: SchmancyDropEvent) => {
-  const { source, destination } = e.detail
-  // Handle the drop...
-}
-```
-
-## Examples
-
-### Basic Usage
-
-```typescript
-// Button with ripple effect
-<button ${ripple()} class="px-4 py-2 rounded">
-  Click Me
-</button>
-
-// Colored container
-<div ${color({ bgColor: 'var(--schmancy-sys-color-primary-container)' })} class="p-4">
-  Primary Container
-</div>
-
-// Conditional visibility
-<div ${visibility(showContent)} class="alert">
-  This content is conditionally visible
-</div>
-
-// Dynamic height
-<div ${height(collapsed ? 0 : 'auto')} class="transition-all">
-  Collapsible content
+### `cursorGlow` — Light follows cursor across a surface
+```html
+<schmancy-surface type="glass" ${cursorGlow()}>content</schmancy-surface>
+<div ${cursorGlow({ radius: 300, intensity: 0.2, color: 'var(--schmancy-sys-color-secondary-default)' })}>
+  hero panel
 </div>
 ```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `radius` | 200 | Glow radius in px |
+| `color` | primary | CSS color value |
+| `intensity` | 0.12 | Opacity 0-1 |
 
-### Combined Directives
+Embedded in: `schmancy-card` (interactive), `schmancy-dialog`
 
-```typescript
-// Interactive card with multiple directives
-<div 
-  ${ripple()}
-  ${color({ bgColor: 'var(--schmancy-sys-color-surface-container)' })}
-  ${visibility(isActive)}
-  class="p-4 rounded-lg cursor-pointer"
-  @click=${handleClick}>
-  Interactive Card
-</div>
-
-// Animated drawer
-<div
-  ${height(isOpen ? '300px' : '0')}
-  ${visibility(isOpen)}
-  class="transition-all duration-300 overflow-hidden">
-  Drawer Content
-</div>
-
-// Drag and drop list items
-<div class="space-y-2">
-  ${items.map(item => html`
-    <div
-      ${drag(item.id)}
-      ${drop(item.id)}
-      @drop=${handleReorder}
-      class="p-4 bg-surface-container rounded cursor-grab">
-      ${item.name}
-    </div>
-  `)}
+### `livingBorder` — Animated gradient light traces element edges
+```html
+<schmancy-card ${livingBorder()}>content</schmancy-card>
+<div ${livingBorder({ duration: 4000, onHover: true, color: 'var(--schmancy-sys-color-secondary-default)' })}>
+  hero panel
 </div>
 ```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `duration` | 3000 | Rotation speed in ms |
+| `width` | 1 | Border width in px |
+| `color` | primary | Glow color |
+| `spread` | 6 | Glow spread in px |
+| `onHover` | false | Only animate on hover |
 
-### Real-World Examples
+### `gravity` — Elements fall into place with mass-based bounce
+```html
+<!-- Single element drops in -->
+<schmancy-card ${gravity()}>content</schmancy-card>
 
-```typescript
-// Custom button component
-render() {
-  return html`
-    <button
-      ${ripple()}
-      ${color({ 
-        bgColor: this.variant === 'primary' 
-          ? 'var(--schmancy-sys-color-primary)' 
-          : 'var(--schmancy-sys-color-surface-container)'
-      })}
-      class="px-4 py-2 rounded-full relative overflow-hidden"
-      ?disabled=${this.disabled}>
-      <slot></slot>
-    </button>
-  `
-}
+<!-- Staggered list — each item falls 50ms after the previous -->
+${repeat(items, item => item.id, (item, i) => html`
+  <div ${gravity({ stagger: 50 * i, mass: 0.8 })}>...</div>
+`)}
+```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `mass` | 1.0 | 0.5 (bouncy) to 2.0 (heavy) |
+| `distance` | 30 | Fall distance in px |
+| `delay` | 0 | Delay before falling in ms |
+| `stagger` | 0 | Per-item stagger in ms |
 
-// Expandable panel
-render() {
-  return html`
-    <div class="border rounded-lg overflow-hidden">
-      <div 
-        ${ripple()}
-        class="p-4 cursor-pointer relative"
-        @click=${() => this.expanded = !this.expanded}>
-        <schmancy-typography type="title" token="md">
-          Panel Header
-        </schmancy-typography>
-      </div>
-      <div 
-        ${height(this.expanded ? 'auto' : '0')}
-        class="transition-all duration-300">
-        <div class="p-4">
-          Panel content goes here...
-        </div>
-      </div>
-    </div>
-  `
-}
+Only animates once. Re-triggers on reconnect (route change, cache toggle).
 
-// Theme-aware container
-render() {
-  const isDark = this.theme === 'dark'
-  return html`
-    <div
-      ${color({
-        bgColor: isDark
-          ? 'var(--schmancy-sys-color-surface-dim)'
-          : 'var(--schmancy-sys-color-surface-bright)',
-        color: 'var(--schmancy-sys-color-on-surface)'
-      })}
-      class="p-6 rounded-lg">
-      <slot></slot>
-    </div>
-  `
-}
+### `depthOfField` — Progressive blur on background content
+```html
+<main ${depthOfField({ active: this.dialogOpen, maxBlur: 8 })}>
+  page content that blurs when dialog opens
+</main>
+```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `active` | required | Boolean — blur when true |
+| `maxBlur` | 8 | Max blur radius in px |
+| `duration` | 400 | Transition duration in ms |
 
-// Warehouse hierarchy management with drag & drop
-@customElement('warehouse-manager')
-class WarehouseManager extends $LitElement() {
-  @state()
-  warehouses: Warehouse[] = []
+### `longPress` — Press-and-hold gesture detection
+```html
+<div ${longPress(() => this.showContextMenu())}>Hold me</div>
+<div ${longPress(() => this.showMenu(), { duration: 800, movementThreshold: 15 })}>
+  Custom timing
+</div>
+```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `duration` | 500 | Time before trigger in ms |
+| `movementThreshold` | 10 | Max movement in px before cancel |
 
-  private handleWarehouseReparent = (e: SchmancyDropEvent) => {
-    const { source, destination } = e.detail
+---
 
-    // Find the warehouse being dragged and the new parent
-    const warehouse = this.warehouses.find(w => w.id === source)
-    const newParent = this.warehouses.find(w => w.id === destination)
+## Visual Effects (3 directives)
 
-    if (!warehouse || !newParent) return
+### `nebula` — Surreal dimensional rift loading effect
+```html
+<div ${nebula()}>Content with cosmic loading effect</div>
+<div ${nebula({ active: this.loading, temperature: -0.5, speed: 1.5 })}>
+  Cool-toned, faster nebula
+</div>
+```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `active` | true | Show/hide the effect |
+| `intensity` | 1 | Brightness 0-1 |
+| `speed` | 1 | Animation speed multiplier |
+| `temperature` | 0 | -1 (cool/blue) to 1 (warm/pink) |
+| `particleCount` | 30 | Quantum particle count |
+| `autoHideDuration` | 3000 | Auto-dim after ms (0 = never) |
+| `background` | true | Render behind content |
 
-    // Update the warehouse's parent
-    warehouse.parentID = newParent.id
+### `liquid` — Apple Liquid Glass effect (pure CSS)
+```html
+<div ${liquid()}>Glass panel</div>
+<div ${liquid({ intensity: 'strong', active: this.isActive })}>
+  Thick glass
+</div>
+```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `active` | true | Toggle effect on/off |
+| `intensity` | 'medium' | 'light', 'medium', or 'strong' |
 
-    // Save to database
-    this.saveWarehouse(warehouse)
+Zero DOM mutation — applies only inline styles.
 
-    // Notify user
-    this.dispatchEvent(new CustomEvent('warehouse-moved', {
-      detail: { warehouse, newParent }
-    }))
-  }
+### `ripple` — Material-style ink ripple on click
+```html
+<div ${ripple()}>Click me</div>
+```
+No options. Ripple appears at click position, fades out in 600ms.
 
-  render() {
-    return html`
-      <div class="space-y-2">
-        ${repeat(
-          this.warehouses,
-          w => w.id,
-          w => html`
-            <schmancy-surface
-              ${drag(w.id)}
-              ${drop(w.id)}
-              @drop=${this.handleWarehouseReparent}
-              type="containerLow"
-              class="p-4 cursor-grab active:cursor-grabbing">
-              <div class="flex items-center gap-3">
-                <span>${w.emoji || '📦'}</span>
-                <span>${w.name}</span>
-              </div>
-            </schmancy-surface>
-          `
-        )}
-      </div>
-    `
-  }
-}
+---
 
-// Sortable task list
-@customElement('task-list')
-class TaskList extends $LitElement() {
-  @state()
-  tasks: Task[] = []
+## Text Animation (3 directives)
 
-  private handleTaskReorder = (e: SchmancyDropEvent) => {
-    const { source, destination } = e.detail
+### `animateText` — 5 text animation modes
+```html
+<span ${animateText({ animation: 'blur-reveal', stagger: 60 })}>Hello world</span>
+<span ${animateText({ animation: 'cyber-glitch', preset: 'snappy' })}>GLITCH</span>
+<span ${animateText({ animation: 'fade-up' })}>Fade up</span>
+```
+| Animation | Description |
+|-----------|-------------|
+| `typewriter` | Characters appear one by one |
+| `fade-up` | Whole element fades up |
+| `word-reveal` | Words appear one by one from below |
+| `blur-reveal` | Words deblur + scale in |
+| `cyber-glitch` | Characters pop in with overshoot |
 
-    // Find indices
-    const sourceIndex = this.tasks.findIndex(t => t.id === source)
-    const destIndex = this.tasks.findIndex(t => t.id === destination)
+| Option | Default | Description |
+|--------|---------|-------------|
+| `animation` | required | Animation type |
+| `preset` | 'snappy' | Spring preset: smooth, snappy, bouncy, gentle |
+| `stagger` | 50 | Ms between characters/words |
+| `text` | element content | Explicit text (for Lit bindings) |
+| `restart` | false | Re-animate on viewport re-entry |
 
-    if (sourceIndex === -1 || destIndex === -1) return
+Waits for element visibility before starting.
 
-    // Reorder array
-    const [movedTask] = this.tasks.splice(sourceIndex, 1)
-    this.tasks.splice(destIndex, 0, movedTask)
+### `cycleText` — Cycle through child elements with transitions
+```html
+<span ${cycleText({ transition: 'slide', hold: 1500 })}>
+  <span>First</span>
+  <span>Second</span>
+  <span>Third</span>
+</span>
 
-    // Trigger re-render
-    this.tasks = [...this.tasks]
+<!-- Add mode: accumulates items -->
+<span ${cycleText({ mode: 'add', transition: 'typewriter' })}>
+  <span>guests</span>
+  <span>kitchen</span>
+  <span>team</span>
+</span>
+<!-- Shows: "guests" → "guests, kitchen" → "guests, kitchen, team" → clears → repeat -->
+```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `transition` | 'fade' | 'fade', 'slide', or 'typewriter' |
+| `hold` | 2000 | Display time per item in ms |
+| `mode` | 'replace' | 'replace' or 'add' (accumulate) |
+| `separator` | ', ' | Separator in add mode |
 
-    // Persist order
-    this.saveTasks()
-  }
+### `typewriter` — Phrase cycling with typing/deleting + sound
+```html
+<div ${typewriter(['Trustless', 'Permissionless', 'Transparent'])}>
+  <span class="typed"></span>
+</div>
+<div ${typewriter(['Fast', 'Typing'], { typeSpeed: 50, sound: true })}>
+  <span class="typed"></span>
+</div>
+```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `typeSpeed` | 50 | Ms per character typed |
+| `deleteSpeed` | 30 | Ms per character deleted |
+| `pauseDuration` | 1500 | Pause after typing in ms |
+| `loop` | true | Loop through phrases |
+| `sound` | true | Web Audio typing sounds |
+| `cursor` | false | Show blinking cursor |
 
-  render() {
-    return html`
-      <div class="space-y-2">
-        ${repeat(
-          this.tasks,
-          t => t.id,
-          t => html`
-            <div
-              ${drag(t.id)}
-              ${drop(t.id)}
-              @drop=${this.handleTaskReorder}
-              class="p-4 bg-surface-container rounded cursor-grab hover:bg-surface-containerHigh transition-colors">
-              <schmancy-checkbox
-                ?checked=${t.completed}
-                @change=${() => this.toggleTask(t)}>
-                ${t.title}
-              </schmancy-checkbox>
-            </div>
-          `
-        )}
-      </div>
-    `
-  }
-}
+---
+
+## Show/Hide (2 directives)
+
+### `reveal` — Spring-physics show/hide with zero layout shift
+```html
+<div ${reveal(this.isVisible)}>Content</div>
+<div ${reveal(this.isOpen, { preset: 'bouncy', maxHeight: '200px' })}>
+  Bouncy reveal
+</div>
+```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `preset` | 'smooth' | smooth, snappy, bouncy, gentle |
+| `maxHeight` | '10rem' | Max height when revealed |
+
+Element stays in DOM (no layout shift). Uses Blackbird spring physics.
+
+### `intersect` — Simplified IntersectionObserver
+```html
+<!-- Fire once when visible (lazy load) -->
+<img ${intersect(() => this.loadImage(), { once: true })} />
+
+<!-- Enter/exit callbacks -->
+<video ${intersect({ onEnter: () => this.play(), onExit: () => this.pause() })}>
+```
+| Option | Default | Description |
+|--------|---------|-------------|
+| `once` | false | Fire only once then disconnect |
+| `threshold` | 0 | Visibility threshold |
+| `rootMargin` | '0px' | Observer root margin |
+| `delay` | 0 | Delay before callback in ms |
+
+---
+
+## Interaction (3 directives)
+
+### `drag` & `drop` — HTML5 drag and drop with FLIP animations
+```html
+${repeat(items, item => item.id, item => html`
+  <div ${drag(item.id)} ${drop(item.id)} @drop=${this.handleReorder}>
+    ${item.name}
+  </div>
+`)}
 ```
 
-## Implementation Details
-
-### Ripple Directive
-- Creates span element with ripple animation
-- Calculates position relative to click coordinates
-- Auto-removes previous ripple before adding new one
-- Uses CSS keyframe animation (600ms duration)
-- Scales from 0 to 4x size while fading out
-
-### Color Directive
-- Directly sets style.backgroundColor and style.color
-- Accepts any valid CSS color value
-- Supports CSS variables
-- Updates immediately on value change
-
-### Height Directive
-- Sets style.height property
-- Accepts numbers (converted to px) or strings
-- Useful for animations and transitions
-- Works with calc() expressions
-
-### Visibility Directive
-- Controls display property
-- When false: display = 'none'
-- When true: removes display style
-- Preserves other display values
-
-### Drag & Drop Directives
-
-**Drag Directive:**
-- Sets `draggable="true"` on the element
-- Sets cursor to `grab` (changes to `grabbing` during drag)
-- Uses HTML5 Drag and Drop API
-- Stores dragged element ID in global variable for access by drop zones
-- Transfers data via `dataTransfer` API
-- Implements `dragstart` and `dragend` event handlers
-- Uses RxJS for event handling with automatic cleanup
-- Prevents event bubbling with `stopPropagation()`
-
-**Drop Directive:**
-- Enables element as a drop zone
-- Provides visual feedback during drag-over:
-  - Dashed outline in tertiary color
-  - Drop shadow effect for emphasis
-- Prevents dropping element onto itself
-- Cleans up visual feedback on drag leave
-- Dispatches custom `SchmancyDropEvent` with source and destination IDs
-- Event bubbles up for easy handling
-- Uses RxJS to manage `dragover`, `dragleave`, and `drop` events
-- Automatically calls `preventDefault()` to enable dropping
-
-**Global State Management:**
-- Uses module-level `currentDragSourceId` variable
-- Tracks which element is being dragged
-- Allows drop zones to prevent self-drop
-- Cleared automatically when drag ends
-
-**RxJS Integration:**
-- All event listeners use RxJS `fromEvent()`
-- Cleanup via `takeUntil(this.destroy$)` in `disconnected()`
-- Combines multiple event streams with `merge()`
-- Proper memory management and no event listener leaks
-
-## Best Practices
-
-1. **Ripple Usage**: Best on interactive elements (buttons, cards, list items)
-2. **Color Variables**: Prefer theme CSS variables over hardcoded colors
-3. **Height Animations**: Combine with CSS transitions for smooth effects
-4. **Visibility**: Use for simple show/hide; consider v-show for more control
-5. **Performance**: Directives are lightweight but avoid excessive updates
-6. **Drag IDs**: Always use unique, stable IDs (not array indices that can change)
-7. **Drop Zones**: Make drop zones visually distinct so users know where to drop
-8. **Accessibility**: Drag & drop isn't accessible - provide alternative keyboard navigation
-9. **Touch Devices**: HTML5 drag/drop has limited mobile support - consider alternatives for mobile
-10. **Visual Feedback**: Use cursor changes and hover states to indicate draggable elements
-11. **Prevent Self-Drop**: Both directives automatically prevent dropping onto self
-12. **Event Bubbling**: Drop events bubble up - handle at parent level if needed
-
-## Common Pitfalls
-
-- **Ripple Overflow**: Parent element needs `position: relative` and `overflow: hidden`
-- **Color Specificity**: Inline styles from color directive override CSS classes
-- **Height Auto**: Transitioning to/from 'auto' requires special handling
-- **Visibility vs Display**: Visibility directive uses display, not visibility property
-- **Drag Ghost Image**: Browser creates default ghost image - customize with `setDragImage()`
-- **Mobile Support**: Touch events don't trigger HTML5 drag/drop - polyfill required
-- **Z-Index Issues**: Dragged element may appear behind other elements
-- **Drop Validation**: Always validate source/destination IDs before processing
-- **Memory Leaks**: Directives handle cleanup automatically via RxJS `takeUntil()`
-- **Multiple Drops**: If element has both `drag()` and `drop()`, ensure IDs match intent
-- **Event Order**: `dragstart` → `dragover` (repeated) → `drop` → `dragend`
-- **DataTransfer**: Data is only accessible in `drop` event, not `dragover`
-
-## Related Components
-
-- **[Button](./button.md)**: Could use ripple directive
-- **[Card](./card.md)**: Interactive cards benefit from ripple
-- **[Surface](./surface.md)**: Color directive for dynamic theming
-- **[Theme](./theme.md)**: Use theme variables with color directive
-
-## TypeScript Types
-
-```typescript
-// Ripple directive
-ripple(): DirectiveResult
-
-// Color directive
-color(config: {
-  bgColor?: string;
-  color?: string;
-}): DirectiveResult
-
-// Height directive
-height(value: string | number): DirectiveResult
-
-// Visibility directive
-visibility(isVisible: boolean): DirectiveResult
-
-// Drag directive
-drag(id: string): DirectiveResult
-
-// Drop directive
-drop(destinationId: string): DirectiveResult
-
-// Drop event type
-export type SchmancyDropEvent = CustomEvent<{
-  source: string;      // ID of the dragged element
-  destination: string; // ID of the drop zone
-}>
-
-// Example event handler signature
-type DropHandler = (e: SchmancyDropEvent) => void
+### `color` — Dynamic background/text color
+```html
+<div ${color({ bgColor: '#ff0000', color: 'white' })}>Colored</div>
 ```
+
+---
+
+## Reactive Utilities
+
+### `reducedMotion$` — Reactive reduced-motion preference
+```typescript
+import { reducedMotion$ } from '@mhmo91/schmancy/directives'
+
+if (reducedMotion$.value) return // skip animation
+
+// Or subscribe reactively
+reducedMotion$.subscribe(reduced => {
+  // User toggled reduced motion mid-session
+})
+```
+
+### `fromResizeObserver` — RxJS wrapper for ResizeObserver
+```typescript
+import { fromResizeObserver } from '@mhmo91/schmancy/directives'
+
+fromResizeObserver(element).pipe(
+  takeUntil(this.disconnecting)
+).subscribe(entries => {
+  const { width, height } = entries[0].contentRect
+})
+```
+
+---
+
+## Performance Notes
+
+- All physics directives respect `prefers-reduced-motion` reactively
+- `magnetic` and `cursorGlow` cache `getBoundingClientRect` on mouseenter (not per-frame)
+- `gravity` only animates once — parent re-renders don't re-trigger
+- `livingBorder` shares a single `<style>` element across all instances
+- `nebula` uses a singleton IntersectionObserver + pauses off-screen animations
+- All directives use `Subject` + `takeUntil` for subscription cleanup
+- All directives implement `reconnected()` for cache/conditional rendering survival

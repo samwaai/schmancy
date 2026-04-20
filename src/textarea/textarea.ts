@@ -1,5 +1,3 @@
-import { color } from '@schmancy/directives'
-import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { LitElement, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
@@ -93,12 +91,13 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 
 	/**
 	 * The number of rows (height) of the control.
+	 * When not set, the textarea auto-sizes to fit its content via field-sizing: content.
 	 * @attr rows
 	 * @type {number}
-	 * @default 2
+	 * @default undefined
 	 * @public
 	 */
-	@property({ type: Number }) rows = 2
+	@property({ type: Number }) rows: number | undefined
 
 	/**
 	 * Makes the textarea fill the height of its container.
@@ -334,81 +333,85 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 	}
 
 	protected render(): unknown {
-		const classes = {
-			'w-full rounded-[8px] border-0 px-[8px] sm:px-[12px] md:px-[16px] py-[8px]': true,
+		const textareaClasses = {
+			// Base styles - matching input component
+			'block w-full min-w-0 rounded-2xl border bg-surface-containerLowest text-surface-on': true,
+			// Border color
+			'border-outline': !this.error,
+			'border-error-default': this.error,
+			// Focus styles
+			'outline-secondary-default focus:outline-1 focus:border-secondary-default': true,
+			// Disabled styles
 			'disabled:opacity-40 disabled:cursor-not-allowed': true,
+			// Placeholder
 			'placeholder:text-muted': true,
-			'ring-0 ring-inset focus:ring-1 focus:ring-inset': true,
-			'ring-primary-default ring-outline focus:ring-primary-default': !this.error,
-			'ring-error-default focus:ring-error-default': this.error,
+			// Ring styles (subtle focus ring)
+			'ring-0 focus:ring-1 focus:ring-inset': true,
+			'focus:ring-secondary-default': !this.error,
+			'focus:ring-error-default': this.error,
+			// Readonly styles
+			'caret-transparent focus:outline-hidden cursor-pointer select-none': this.readonly,
+			// Text alignment
+			'text-left': this.align === 'left',
 			'text-center': this.align === 'center',
 			'text-right': this.align === 'right',
+			// Textarea specific
 			'h-full': this.fillHeight,
 			'resize-none': this.resize === 'none',
 			'resize-y': this.resize === 'vertical',
 			'resize-x': this.resize === 'horizontal',
 			'resize': this.resize === 'both',
+			// Padding matching input
+			'px-4 py-3': true,
 		}
+		const fieldSizing = this.rows == null ? 'field-sizing: content;' : ''
 		const labelClasses = {
+			'block mb-1 font-medium text-sm': true,
 			'opacity-40': this.disabled,
-			'block mb-[4px]': true,
+			'text-primary-default': !this.error,
+			'text-error-default': this.error,
 		}
 		const containerClasses = {
+			'w-full min-w-0': true,
 			'flex flex-col h-full': this.fillHeight,
 		}
 		return html`
 		<div class="${this.classMap(containerClasses)}">
 			${when(
 				this.label,
-				() =>
-					html`<label
-						${color({
-							color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
-						})}
-						class="${this.classMap(labelClasses)}"
-						for=${this.id}
-					>
-						<schmancy-typography type="label" token="lg">${this.label}</schmancy-typography>
-					</label>`,
+				() => html`
+					<label class="${this.classMap(labelClasses)}" for=${this.id}>
+						${this.label}
+					</label>
+				`,
 			)}
 
-			<schmancy-typography type="body" token="lg" class="${this.fillHeight ? 'flex-grow flex flex-col' : ''}">
-				<textarea
-					${color({
-						bgColor: SchmancyTheme.sys.color.surface.highest,
-						color: SchmancyTheme.sys.color.surface.on,
-					})}
-					${ref(this.textareaRef)}
-					.value=${this.value}
-					.id=${this.id}
-					.name=${this.name}
-					.placeholder=${this.placeholder}
-					.required=${this.required}
-					class=${this.classMap(classes)}
-					.disabled=${this.disabled}
-					minlength=${ifDefined(this.minlength)}
-					maxlength=${ifDefined(this.maxlength)}
-					.readonly=${this.readonly}
-					.spellcheck=${this.spellcheck}
-					cols=${ifDefined(this.cols)}
-					rows=${ifDefined(this.rows)}
-					wrap=${ifDefined(this.wrap)}
-					dirname=${ifDefined(this.dirname)}
-				></textarea>
-			</schmancy-typography>
+			<textarea
+				${ref(this.textareaRef)}
+				.value=${this.value}
+				.id=${this.id}
+				.name=${this.name}
+				.placeholder=${this.placeholder}
+				.required=${this.required}
+				class=${this.classMap(textareaClasses)}
+				style=${fieldSizing}
+				.disabled=${this.disabled}
+				minlength=${ifDefined(this.minlength)}
+				maxlength=${ifDefined(this.maxlength)}
+				.readonly=${this.readonly}
+				.spellcheck=${this.spellcheck}
+				cols=${ifDefined(this.cols)}
+				rows=${ifDefined(this.rows)}
+				wrap=${ifDefined(this.wrap)}
+				dirname=${ifDefined(this.dirname)}
+			></textarea>
+
 			${when(
 				this.hint,
 				() => html`
-					<schmancy-typography
-						${color({
-							color: this.error ? SchmancyTheme.sys.color.error.default : SchmancyTheme.sys.color.primary.default,
-						})}
-						class="pt-[4px]"
-						type="body"
-						token="sm"
-					>
+					<div class="mt-1 text-sm ${this.error ? 'text-error-default' : 'text-surface-onVariant'}">
 						${this.hint}
-					</schmancy-typography>
+					</div>
 				`,
 			)}
 		</div>

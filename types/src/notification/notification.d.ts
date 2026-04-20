@@ -1,3 +1,4 @@
+import '../progress/progress';
 export type NotificationType = 'info' | 'success' | 'warning' | 'error';
 declare const SchmancyNotification_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**

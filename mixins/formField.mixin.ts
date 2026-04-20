@@ -188,16 +188,21 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		}
 
 		/**
-		 * Helper method to emit change events
+		 * Helper method to emit change events using dispatchScopedEvent for instance isolation
 		 */
 		emitChange(detail: any): void {
-			this.dispatchEvent(
-				new CustomEvent('change', {
-					detail,
-					bubbles: true,
-					composed: true,
-				}),
-			)
+			// Use dispatchScopedEvent if available (from BaseElement mixin)
+			if ('dispatchScopedEvent' in this && typeof this.dispatchScopedEvent === 'function') {
+				this.dispatchScopedEvent('change', detail, { bubbles: true })
+			} else {
+				this.dispatchEvent(
+					new CustomEvent('change', {
+						detail,
+						bubbles: true,
+						composed: true,
+					}),
+				)
+			}
 		}
 	}
 

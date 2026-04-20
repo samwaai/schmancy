@@ -1,8 +1,9 @@
 import { $LitElement } from '@mixins/index'
 import { css, html, LitElement, PropertyValueMap } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
+import { magnetic } from '../directives/magnetic'
 import { ButtonVariant } from './button'
 
 /**
@@ -14,6 +15,23 @@ import { ButtonVariant } from './button'
 export class SchmnacyIconButton extends $LitElement(css`
 	:host {
 		display: block;
+		border-radius: 9999px;
+		transition:
+			box-shadow 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+			transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+	:host(:hover:not([disabled])) {
+		box-shadow: 0 2px 12px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 18%, transparent);
+	}
+	:host(:active:not([disabled])) {
+		transform: scale(0.92);
+		box-shadow: none;
+		transition-duration: 100ms;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		:host { transition: none; }
+		:host(:hover:not([disabled])) { box-shadow: none; }
+		:host(:active:not([disabled])) { transform: none; box-shadow: none; }
 	}
 `) {
 	protected static shadowRootOptions = {
@@ -82,6 +100,54 @@ export class SchmnacyIconButton extends $LitElement(css`
 	 */
 	@property({ type: Boolean, reflect: true })
 	public text = false
+
+	/**
+	 * Icon name - use this instead of slot content to prevent translation breaking icons.
+	 * Example: <schmancy-icon-button icon="add"></schmancy-icon-button>
+	 * @attr
+	 */
+	@property({ type: String })
+	public icon?: string
+
+	// Reactively captured icon name from slot content (translation-proof)
+	@state()
+	private _capturedIcon?: string
+
+	connectedCallback(): void {
+		super.connectedCallback()
+		// Pre-capture icon from children to avoid double render flash
+		this._captureIconFromChildren()
+	}
+
+	// Capture icon from direct children (for initial render)
+	private _captureIconFromChildren(): void {
+		if (this.icon || this.text) return
+		for (const node of this.childNodes) {
+			if (node.nodeType === Node.TEXT_NODE) {
+				const text = node.textContent?.trim()
+				if (text) {
+					this._capturedIcon = text
+					return
+				}
+			}
+		}
+	}
+
+	// Handle slot content changes reactively (for dynamic updates)
+	private _handleSlotChange(e: Event): void {
+		if (this.icon || this.text) return
+		const slot = e.target as HTMLSlotElement
+		const nodes = slot.assignedNodes({ flatten: true })
+		for (const node of nodes) {
+			if (node.nodeType === Node.TEXT_NODE) {
+				const text = node.textContent?.trim()
+				if (text) {
+					this._capturedIcon = text
+					return
+				}
+			}
+		}
+	}
 
 	// Manage aria-label manually so that we can always use our internal property.
 	public override set ariaLabel(value: string) {
@@ -169,6 +235,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 		if (this.href) {
 			return html`
 				<a
+					${magnetic({ strength: 3, radius: 50 })}
 					part="base"
 					href=${ifDefined(this.disabled ? undefined : this.href)}
 					aria-label=${ifDefined(this.ariaLabel)}
@@ -180,7 +247,10 @@ export class SchmnacyIconButton extends $LitElement(css`
 					${when(!this.disabled, () => html`<div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div>`)}
 					${this.text
 						? html`<slot></slot>`
-						: html`<schmancy-icon size=${iconSize}><slot></slot></schmancy-icon>`
+						: html`
+							<slot style="display:none" @slotchange=${this._handleSlotChange}></slot>
+							<schmancy-icon size=${iconSize} icon=${this.icon || this._capturedIcon}></schmancy-icon>
+						`
 					}
 				</a>
 			`
@@ -189,6 +259,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 		// Otherwise, render a native button element.
 		return html`
 			<button
+				${magnetic({ strength: 3, radius: 50 })}
 				part="base"
 				aria-label=${ifDefined(this.ariaLabel)}
 				?disabled=${this.disabled}
@@ -199,7 +270,10 @@ export class SchmnacyIconButton extends $LitElement(css`
 				${when(!this.disabled, () => html`<div class="absolute inset-0 ${this.classMap(stateLayerClasses)}"></div>`)}
 				${this.text
 					? html`<slot></slot>`
-					: html`<schmancy-icon size=${iconSize}><slot></slot></schmancy-icon>`
+					: html`
+						<slot style="display:none" @slotchange=${this._handleSlotChange}></slot>
+						<schmancy-icon size=${iconSize} icon=${this.icon || this._capturedIcon}></schmancy-icon>
+					`
 				}
 			</button>
 		`

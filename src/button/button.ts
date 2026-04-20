@@ -3,6 +3,7 @@ import { css, html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
+import { magnetic } from '../directives/magnetic'
 
 export interface SchmancyButtonEventMap {
 	SchmancyFocus: CustomEvent<void>
@@ -27,6 +28,23 @@ export class SchmancyButton extends $LitElement(
 		overflow: hidden;
 		position: relative;
 		touch-action: manipulation;
+		border-radius: 1rem;
+		transition:
+			box-shadow 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+			transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+	:host(:hover:not([disabled])) {
+		box-shadow: 0 4px 16px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 20%, transparent);
+	}
+	:host(:active:not([disabled])) {
+		transform: scale(0.97);
+		box-shadow: 0 1px 4px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 10%, transparent);
+		transition-duration: 100ms;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		:host { transition: none; }
+		:host(:hover:not([disabled])) { box-shadow: none; }
+		:host(:active:not([disabled])) { transform: none; box-shadow: none; }
 	}
 	:host *,
 	* {
@@ -202,7 +220,7 @@ export class SchmancyButton extends $LitElement(
 
 		// Compute classes for the interactive element.
 		const classes = {
-			'z-0 transition-all duration-200 relative rounded-full inline-flex justify-center items-center outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden w-[inherit] overflow-hidden':
+			'z-0 transition-all duration-200 relative rounded-2xl inline-flex justify-center items-center outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden w-[inherit] overflow-hidden':
 				true,
 			// Height - M3 spec: 24dp (xxs) → 32dp (dense) → 40dp (default) → 48dp (large) → 56dp (XL)
 			'h-6': this.size === 'xxs',   // 24px - Ultra-compact
@@ -286,7 +304,7 @@ export class SchmancyButton extends $LitElement(
 		}
 
 		const stateLayerClasses = {
-			'absolute inset-0 hover:opacity-[0.08] z-0 rounded-full': true,
+			'absolute inset-0 hover:opacity-[0.08] z-0 rounded-2xl': true,
 			// M3 focus and pressed states
 			'focus-visible:opacity-[0.10]': true,  // M3 focus state
 			'active:opacity-[0.10]': true,         // M3 pressed state
@@ -320,6 +338,7 @@ export class SchmancyButton extends $LitElement(
 		if (this.href) {
 			return html`
 				<a
+					${magnetic({ strength: 3, radius: 60 })}
 					part="base"
 					href=${ifDefined(this.disabled ? undefined : this.href)}
 					aria-label=${ifDefined(this.ariaLabel)}
@@ -339,6 +358,7 @@ export class SchmancyButton extends $LitElement(
 		// Otherwise, render a native button element.
 		return html`
 			<button
+				${magnetic({ strength: 3, radius: 60 })}
 				part="base"
 				aria-label=${ifDefined(this.ariaLabel)}
 				?disabled=${this.disabled}

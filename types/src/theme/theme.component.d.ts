@@ -1,6 +1,6 @@
 import { TSchmancyTheme } from './theme.interface';
 export declare const tailwindStyles: import("lit").CSSResult;
-declare const SchmancyThemeComponent_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
+declare const SchmancyThemeComponent_base: CustomElementConstructor & import("../../mixins/constructor").Constructor<import("lit").LitElement> & import("../../mixins/constructor").Constructor<import("../../mixins/baseElement").IBaseMixin>;
 /**
  * SchmancyThemeComponent - Provides theming capabilities for Schmancy components.
  *
@@ -48,6 +48,14 @@ export declare class SchmancyThemeComponent extends SchmancyThemeComponent_base 
      * @default false
      */
     root: boolean;
+    /**
+     * Locale for number/date formatting. Overrides navigator.language when set.
+     * @attr locale
+     * @type {string}
+     * @default navigator.language
+     * @example "de-DE", "en-US", "ar-SA"
+     */
+    locale: string;
     /**
      * Unique name for this theme instance (used for session storage).
      * If not provided, will be generated from DOM path.

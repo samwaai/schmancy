@@ -15,6 +15,7 @@ import SchmancyTab from './tab'
 export default class SchmancyTabGroup extends TailwindElement(css`
 	:host {
 		display: block;
+		height: 100%;
 	}
 `) {
 	@provide({ context: SchmancyTabsModeContext })
@@ -169,7 +170,7 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 					`,
 				)}
 			</section>
-			<section id="tabsContent">
+			<section id="tabsContent" class="h-full">
 				<slot @slotchange=${() => this.hydrateTabs()}></slot>
 			</section>
 		`

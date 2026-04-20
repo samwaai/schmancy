@@ -78,7 +78,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 	@state() private localSelectedRecipients: Set<string> = new Set()
 	@state() private searchQuery = ''
 	@state() private filteredRecipients: string[] = []
-	@state() private boatState: BoatState = 'minimized'
+	@state() private boatState: BoatState = 'collapsed'
 
 	/** File input reference */
 	private fileInputRef = createRef<HTMLInputElement>()
@@ -370,14 +370,14 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 		this.requestUpdate()
 	}
 
-	/** Show boat */
+	/** Show boat (collapsed) */
 	public showBoat() {
-		this.boatState = 'minimized'
+		this.boatState = 'collapsed'
 	}
 
-	/** Hide boat */
+	/** Hide boat (collapse) */
 	public hideBoat() {
-		this.boatState = 'hidden'
+		this.boatState = 'collapsed'
 	}
 
 	/** Expand boat */
@@ -387,8 +387,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 
 	/** Toggle boat state */
 	public toggleBoat() {
-		this.boatState = this.boatState === 'hidden' ? 'minimized' : 
-						this.boatState === 'minimized' ? 'expanded' : 'hidden'
+		this.boatState = this.boatState === 'collapsed' ? 'expanded' : 'collapsed'
 	}
 
 	render() {
@@ -575,7 +574,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 						@dragleave=${() => (this.dragOver = false)}
 						@drop=${this.handleDrop}
 					>
-						<schmancy-surface type="surfaceDim" rounded="all" class="p-6 text-center">
+						<schmancy-surface type="solid" rounded="all" class="p-6 text-center">
 							<schmancy-icon size="48px" class="mb-2">upload</schmancy-icon>
 							<schmancy-typography type="body" token="md">
 								Drop CSV file here

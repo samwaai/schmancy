@@ -1,6 +1,9 @@
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { createRef, ref } from 'lit/directives/ref.js'
+import { fromEvent } from 'rxjs'
+import { filter, tap, takeUntil } from 'rxjs/operators'
 
 // Material Design 3 typography - https://m3.material.io/styles/typography/type-scale-tokens
 
@@ -61,6 +64,19 @@ export class SchmancyTypography extends TailwindElement(css`
 
 	:host([transform='normal']) {
 		text-transform: none;
+	}
+
+	/* Type-based weight defaults (when using Tailwind classes without token) */
+	:host([type='display']),
+	:host([type='headline']),
+	:host([type='body']) {
+		font-weight: 400;
+	}
+
+	:host([type='label']),
+	:host([type='subtitle']),
+	:host([type='title']) {
+		font-weight: 500;
 	}
 
 	/* Display typography variants - Material Design 3 + Extended */
@@ -250,7 +266,34 @@ export class SchmancyTypography extends TailwindElement(css`
 	}
 
 	/* Note: Custom letter-spacing, font-size, and line-height should be applied via inline styles or Tailwind classes */
+
+	:host([editable]) {
+		cursor: text;
+		border-radius: 4px;
+		transition: background 150ms;
+		min-height: 1em;
+	}
+	/* Editable div lives in shadow DOM so light DOM (Lit markers) is untouched */
+	.edit {
+		outline: none;
+		min-height: 1em;
+		font: inherit;
+		color: inherit;
+		letter-spacing: inherit;
+		line-height: inherit;
+	}
+	.edit:empty::before {
+		content: attr(data-placeholder);
+		pointer-events: none;
+		display: block;
+		opacity: 0.35;
+	}
 `) {
+	static shadowRootOptions: ShadowRootInit = {
+		mode: 'open',
+		delegatesFocus: true,
+	}
+
 	/**
 	 * @attr type - The type of the typography.
 	 * @default 'body'
@@ -260,12 +303,15 @@ export class SchmancyTypography extends TailwindElement(css`
 	type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' = 'body'
 
 	/**
-	 * @attr token - The token of the typography.
+	 * @attr token - The size token.
+	 * @deprecated Prefer using Tailwind responsive text classes for better responsive design.
+	 * Set token="" and use class="text-sm md:text-base lg:text-lg" instead.
+	 * Example: <schmancy-typography type="display" token="" class="text-2xl sm:text-3xl md:text-4xl">
 	 * @default 'md'
-	 * @type {'xs' | 'sm' | 'md' | 'lg' | 'xl'}
+	 * @type {'xs' | 'sm' | 'md' | 'lg' | 'xl' | ''}
 	 */
 	@property({ type: String, reflect: true })
-	token: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md'
+	token: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '' = 'md'
 
 	/**
 	 * @attr
@@ -297,6 +343,69 @@ export class SchmancyTypography extends TailwindElement(css`
 	@property({ type: Number })
 	maxLines: 1 | 2 | 3 | 4 | 5 | 6 | undefined
 
+	/** When true, the element becomes contenteditable and dispatches 'change' events on blur/Enter */
+	@property({ type: Boolean, reflect: true }) editable = false
+	/** The text value when in editable mode. Set via property binding: .value=${...} */
+	@property({ type: String }) value = ''
+	/** Placeholder shown when editable and empty */
+	@property({ type: String }) placeholder = ''
+
+	private _editRef = createRef<HTMLDivElement>()
+
+	/** Focus and select all text in editable mode */
+	selectAll() {
+		const el = this._editRef.value
+		if (!el) return
+		el.focus()
+		const sel = window.getSelection()
+		if (sel && el.textContent) {
+			const range = document.createRange()
+			range.selectNodeContents(el)
+			sel.removeAllRanges()
+			sel.addRange(range)
+		}
+	}
+
+	connectedCallback() {
+		super.connectedCallback()
+
+		fromEvent<FocusEvent>(this, 'focusout').pipe(
+			filter(() => this.editable),
+			tap(() => {
+				const el = this._editRef.value
+				if (!el) return
+				const newValue = el.innerText.trim()
+				if (newValue !== this.value) {
+					this.dispatchEvent(new CustomEvent('change', {
+						detail: { value: newValue },
+						bubbles: true,
+						composed: true,
+					}))
+				}
+				// Ensure truly empty so :empty CSS placeholder works
+				if (!newValue) el.textContent = ''
+			}),
+			takeUntil(this.disconnecting),
+		).subscribe()
+
+		// Clean stray <br> / whitespace nodes so :empty CSS matches
+		fromEvent(this, 'input').pipe(
+			filter(() => this.editable),
+			tap(() => {
+				const el = this._editRef.value
+				if (el && !el.innerText.trim()) el.textContent = ''
+			}),
+			takeUntil(this.disconnecting),
+		).subscribe()
+
+		fromEvent<KeyboardEvent>(this, 'keydown').pipe(
+			filter(() => this.editable),
+			filter(e => e.key === 'Enter'),
+			tap(e => { e.preventDefault(); (this._editRef.value ?? this).blur() }),
+			takeUntil(this.disconnecting),
+		).subscribe()
+	}
+
 	protected updated(changedProperties: Map<string, unknown>): void {
 		super.updated(changedProperties)
 		if (changedProperties.has('maxLines')) {
@@ -307,9 +416,27 @@ export class SchmancyTypography extends TailwindElement(css`
 				this.classList.add(`line-clamp-${this.maxLines}`)
 			}
 		}
+		if ((changedProperties.has('value') || changedProperties.has('editable')) && this.editable) {
+			const el = this._editRef.value
+			if (el && document.activeElement !== el) {
+				if (this.value) {
+					el.innerText = this.value
+				} else {
+					el.textContent = ''
+				}
+			}
+		}
 	}
 
 	protected render(): unknown {
+		if (this.editable) {
+			return html`<div
+				${ref(this._editRef)}
+				class="edit"
+				contenteditable="true"
+				data-placeholder=${this.placeholder ?? ''}
+			></div>`
+		}
 		return html`<slot></slot>`
 	}
 }

@@ -6,7 +6,7 @@ import { TSchmancyTheme } from './theme.interface';
  * @param isDark Whether to generate a dark theme
  * @param extendedColors Optional extended colors (success, warning, info)
  */
-export declare function formateTheme(originalTheme: Theme, isDark?: boolean, extendedColors?: {
+export declare function formatTheme(originalTheme: Theme, isDark?: boolean, extendedColors?: {
     success?: number;
     warning?: number;
     info?: number;

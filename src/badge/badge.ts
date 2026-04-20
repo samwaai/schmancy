@@ -7,7 +7,7 @@ import { SchmancyTheme } from '..'
 /**
  * Badge color types for predefined styles
  */
-export type BadgeColor = 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning' | 'error' | 'neutral'
+export type BadgeColor = 'primary' | 'secondary' | 'tertiary' | 'success' | 'warning' | 'error' | 'neutral' | 'surface'
 
 /**
  * Badge size variants
@@ -204,6 +204,11 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 				text: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.surface.on} 95%, ${SchmancyTheme.sys.color.surface.default} 5%)` : SchmancyTheme.sys.color.surface.on,
 				border: this.outlined ? `color-mix(in srgb, ${SchmancyTheme.sys.color.outline} 85%, ${SchmancyTheme.sys.color.surface.highest} 15%)` : undefined,
 			},
+			surface: {
+				bg: this.outlined ? 'transparent' : SchmancyTheme.sys.color.surface.high,
+				text: SchmancyTheme.sys.color.surface.on,
+				border: this.outlined ? SchmancyTheme.sys.color.outline : undefined,
+			},
 		}
 
 		return colors[this.color]
@@ -252,7 +257,7 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 				<slot name="icon">
 					${this.icon
 						? html`
-								<div part="icon" class="flex-shrink-0 flex items-center justify-center leading-none">
+								<div part="icon" class="shrink-0 flex items-center justify-center leading-none">
 									<schmancy-icon .size=${iconSize} class="flex items-center justify-center">${this.icon}</schmancy-icon>
 								</div>
 							`

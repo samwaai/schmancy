@@ -44,7 +44,7 @@ function createTonalPalette(sourceColor: number): Record<string, string> {
  * @param isDark Whether to generate a dark theme
  * @param extendedColors Optional extended colors (success, warning, info)
  */
-export function formateTheme(
+export function formatTheme(
 	originalTheme: Theme,
 	isDark = false,
 	extendedColors?: {
@@ -88,7 +88,7 @@ export function formateTheme(
 
 	const warningPalette = extendedColors?.warning
 		? createTonalPalette(extendedColors.warning)
-		: createTonalPalette(argbFromHex('#FFD600')) // Amber A700
+		: createTonalPalette(argbFromHex('#FFCA28')) // Amber 400 - softer golden yellow
 
 	const infoPalette = extendedColors?.info
 		? createTonalPalette(extendedColors.info)
@@ -225,26 +225,26 @@ export function formateTheme(
 					onContainer: argbToHex(errorPalette.tone(tones.onErrorContainer)),
 				},
 
-				// Extended color roles - Success
+				// Extended color roles - Success (M3 spec: same tones as error)
 				success: {
 					default: successPalette[isDark ? '80' : '40'],
-					on: successPalette[isDark ? '20' : '100'],
+					on: successPalette['100'],
 					container: successPalette[isDark ? '30' : '90'],
 					onContainer: successPalette[isDark ? '90' : '10'],
 				},
 
-				// Extended color roles - Warning
+				// Extended color roles - Warning (M3 spec: same tones as error)
 				warning: {
 					default: warningPalette[isDark ? '80' : '40'],
-					on: warningPalette[isDark ? '20' : '100'],
+					on: warningPalette['100'],
 					container: warningPalette[isDark ? '30' : '90'],
 					onContainer: warningPalette[isDark ? '90' : '10'],
 				},
 
-				// Extended color roles - Info
+				// Extended color roles - Info (M3 spec: same tones as error)
 				info: {
 					default: infoPalette[isDark ? '80' : '40'],
-					on: infoPalette[isDark ? '20' : '100'],
+					on: infoPalette['100'],
 					container: infoPalette[isDark ? '30' : '90'],
 					onContainer: infoPalette[isDark ? '90' : '10'],
 				},
@@ -292,14 +292,14 @@ export function formateTheme(
 				},
 			},
 
-			// M3 Elevation System with tinted shadows
+			// Luminous Glow Elevation — primary-colored glow replaces dark M3 shadows
 			elevation: {
 				0: '0 0 0 0 rgba(0, 0, 0, 0)',
-				1: `0px 1px 2px rgba(0, 0, 0, ${isDark ? '0.3' : '0.15'}), 0px 1px 3px 1px rgba(0, 0, 0, ${isDark ? '0.15' : '0.1'})`,
-				2: `0px 1px 2px rgba(0, 0, 0, ${isDark ? '0.3' : '0.15'}), 0px 2px 6px 2px rgba(0, 0, 0, ${isDark ? '0.15' : '0.1'})`,
-				3: `0px 1px 3px rgba(0, 0, 0, ${isDark ? '0.3' : '0.15'}), 0px 4px 8px 3px rgba(0, 0, 0, ${isDark ? '0.15' : '0.1'})`,
-				4: `0px 2px 3px rgba(0, 0, 0, ${isDark ? '0.3' : '0.15'}), 0px 6px 10px 4px rgba(0, 0, 0, ${isDark ? '0.15' : '0.1'})`,
-				5: `0px 4px 4px rgba(0, 0, 0, ${isDark ? '0.3' : '0.15'}), 0px 8px 12px 6px rgba(0, 0, 0, ${isDark ? '0.15' : '0.1'})`,
+				1: `0 2px 12px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) ${isDark ? '18%' : '15%'}, transparent)`,
+				2: `0 4px 20px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) ${isDark ? '26%' : '22%'}, transparent)`,
+				3: `0 8px 32px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) ${isDark ? '32%' : '28%'}, transparent)`,
+				4: `0 12px 44px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) ${isDark ? '40%' : '35%'}, transparent)`,
+				5: `0 20px 60px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) ${isDark ? '48%' : '42%'}, transparent)`,
 			},
 
 			// M3 Motion System

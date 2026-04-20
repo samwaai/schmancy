@@ -46,6 +46,8 @@ export class SchmancyDateRange extends $LitElement() {
 	@property({ type: String }) placeholder = 'Select date range'
 	@property({ type: Boolean }) clearable = true
 	@property() step?: 'day' | 'week' | 'month' | 'year' | number
+	/** When true, collapses to just an icon button on mobile screens */
+	@property({ type: Boolean }) collapse = false
 
 	// Internal states
 	@state() private isOpen = false
@@ -475,7 +477,20 @@ export class SchmancyDateRange extends $LitElement() {
 					${this.announceMessage}
 				</div>
 
-				<section @click=${(event: Event) => event.stopPropagation()} class="flex">
+				<!-- Collapsed: icon-only on mobile when collapse=true -->
+				<schmancy-icon-button
+					class="${this.collapse ? 'lg:hidden' : 'hidden'}"
+					variant="outlined"
+					type="button"
+					aria-label="Select date range. Current: ${this.selectedDateRange || 'No date selected'}"
+					@click=${(e: MouseEvent) => this.toggleDropdown(e)}
+					?disabled=${this.disabled}
+				>
+					date_range
+				</schmancy-icon-button>
+
+				<!-- Full UI: always visible when collapse=false, or lg+ when collapse=true -->
+				<section @click=${(event: Event) => event.stopPropagation()} class="${this.collapse ? 'hidden lg:flex' : 'flex'}">
 						<schmancy-icon-button
 							type="button"
 							aria-label="Previous ${this.activePreset ? this.activePreset.toLowerCase() : 'date range'}"

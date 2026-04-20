@@ -26,6 +26,7 @@ export class SchmancyArea extends $LitElement(css`
 		position: relative;
 		display: block;
 		inset: 0;
+		contain: layout style;
 	}
 `) {
 	/**
@@ -180,10 +181,13 @@ export class SchmancyArea extends $LitElement(css`
 			// Filter out null routes
 			filter((route): route is RouteAction => route !== null),
 
-			// Step 1: Resolve route definition from component
-			map(action => {
+			// Performance: mark navigation start
+			tap(() => performance.mark(`area-${this.name}-nav-start`)),
+
+			// Step 1: Find matching route (resolve lazy only if needed for route matching)
+			switchMap(async action => {
+				let component: RouteComponent | null = action.component
 				let matchedRoute: SchmancyRoute | undefined
-				let component = action.component
 
 				// If component is a string, find the matching route
 				if (typeof component === 'string' && this.routes) {
@@ -192,12 +196,30 @@ export class SchmancyArea extends $LitElement(css`
 						component = matchedRoute.component
 					}
 				}
-				// If component is a function, find matching route
-				else if (typeof component === 'function' && this.routes) {
-					matchedRoute = this.routes.find(r => r.component === component)
+
+				// If component is a lazy function and we don't have a matched route yet,
+				// resolve it to find the route by tag name
+				if (
+					!matchedRoute &&
+					typeof component === 'function' &&
+					('preload' in component || '_promise' in component || '_module' in component)
+				) {
+					try {
+						const module = await (component as unknown as () => Promise<{ default: CustomElementConstructor }>)()
+						component = module.default
+						// Now find route by tag name
+						const tagName = customElements.getName(component as CustomElementConstructor)
+						if (tagName && this.routes) {
+							matchedRoute = this.routes.find(r => r.when === tagName)
+						}
+					} catch (e) {
+						console.error(`[${this.name}] Lazy load failed:`, e)
+						return { ...action, component: null, matchedRoute: undefined }
+					}
 				}
+
 				// If component is HTMLElement, find by tag name
-				else if (component instanceof HTMLElement && this.routes) {
+				if (!matchedRoute && component instanceof HTMLElement && this.routes) {
 					const tagName = component.tagName.toLowerCase()
 					matchedRoute = this.routes.find(r => r.when === tagName)
 				}
@@ -236,7 +258,7 @@ export class SchmancyArea extends $LitElement(css`
 				)
 			}),
 
-			// Step 3: Load lazy components if needed
+			// Step 3: Load lazy components (after guard check for performance)
 			switchMap(async route => {
 				let component = route.component
 
@@ -245,7 +267,7 @@ export class SchmancyArea extends $LitElement(css`
 					('preload' in component || '_promise' in component || '_module' in component)
 				) {
 					try {
-						const module = await (component as () => Promise<{ default: CustomElementConstructor }>)()
+						const module = await (component as unknown as () => Promise<{ default: CustomElementConstructor }>)()
 						component = module.default
 					} catch (e) {
 						console.error(`[${this.name}] Lazy load failed:`, e)
@@ -317,6 +339,12 @@ export class SchmancyArea extends $LitElement(css`
 			// Step 7: Swap components in DOM and update history
 			tap(({ element, route }) => this.swapComponents(element, route)),
 
+			// Performance: measure navigation duration
+			tap(() => {
+				performance.mark(`area-${this.name}-nav-end`)
+				performance.measure(`area-${this.name}-navigation`, `area-${this.name}-nav-start`, `area-${this.name}-nav-end`)
+			}),
+
 			catchError(error => {
 				console.error(`[${this.name}] Navigation error:`, error)
 				return EMPTY
@@ -352,18 +380,32 @@ export class SchmancyArea extends $LitElement(css`
 			oldComponent?.remove()
 			this.appendChild(newComponent)
 		} else if (oldComponent) {
+			// GPU optimization: promote layers before animation
+			oldComponent.style.willChange = 'opacity'
+			newComponent.style.willChange = 'opacity'
+			// Skip paint for outgoing component
+			oldComponent.style.contentVisibility = 'hidden'
+
 			// Animated swap - fade out old, then fade in new
 			const fadeOut = oldComponent.animate([{ opacity: 1 }, { opacity: 0 }], { duration, easing: 'ease-out' })
 			fadeOut.onfinish = () => {
 				oldComponent.remove()
 				this.appendChild(newComponent)
-				newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: 'ease-in' })
+				const fadeIn = newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: 'ease-in' })
+				fadeIn.onfinish = () => {
+					// Clean up GPU layer promotion
+					newComponent.style.willChange = 'auto'
+				}
 			}
 		} else {
 			// No old component - just fade in new
+			newComponent.style.willChange = 'opacity'
 			this.appendChild(newComponent)
 			const fadeInDuration = duration > 100 ? Math.max(100, duration * 0.66) : duration
-			newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: fadeInDuration, easing: 'ease-in' })
+			const fadeIn = newComponent.animate([{ opacity: 0 }, { opacity: 1 }], { duration: fadeInDuration, easing: 'ease-in' })
+			fadeIn.onfinish = () => {
+				newComponent.style.willChange = 'auto'
+			}
 		}
 
 		// Update area state

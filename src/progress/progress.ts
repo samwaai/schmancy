@@ -10,17 +10,34 @@ export default class SchmancyProgress extends $LitElement(css`
     display: block;
   }
 
+  /* Blackbird-style indeterminate animation with organic easing */
   @keyframes indeterminate {
     0% {
       left: -30%;
+      width: 20%;
+      opacity: 0.6;
+    }
+    25% {
+      width: 35%;
+      opacity: 1;
+    }
+    50% {
+      left: 40%;
+      width: 30%;
+    }
+    75% {
+      width: 25%;
+      opacity: 0.9;
     }
     100% {
       left: 100%;
+      width: 20%;
+      opacity: 0.6;
     }
   }
 
   .indeterminate-animation {
-    animation: indeterminate 1.5s infinite ease-in-out;
+    animation: indeterminate 1.8s cubic-bezier(0.34, 1.2, 0.64, 1) infinite;
   }
 `) {
   @property({ type: Number, reflect: true })
@@ -79,7 +96,6 @@ export default class SchmancyProgress extends $LitElement(css`
       'bg-tertiary-default': this.color === 'tertiary' && !this.glass,
       'bg-error-default': this.color === 'error' && !this.glass,
       'bg-success-default': this.color === 'success' && !this.glass,
-      'w-[30%]': this.indeterminate,
       'absolute': this.indeterminate,
       'indeterminate-animation': this.indeterminate
     }

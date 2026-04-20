@@ -3,6 +3,7 @@ import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { BehaviorSubject, timer, interval, NEVER } from 'rxjs'
 import { switchMap, takeUntil, map, tap, distinctUntilChanged } from 'rxjs/operators'
+import '../progress/progress'
 import style from './notification.scss?inline'
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error'
@@ -243,7 +244,12 @@ export default class SchmancyNotification extends $LitElement(style) {
 						`
 					: ''}
 				${this.showProgress || this.duration > 0
-					? html`<div class="progress" style="width: ${this._progress}%"></div>`
+					? html`<schmancy-progress
+						class="progress"
+						size="xs"
+						.value=${this._progress}
+						?indeterminate=${this.showProgress && this.duration === 0}
+					></schmancy-progress>`
 					: ''}
 			</div>
 		`

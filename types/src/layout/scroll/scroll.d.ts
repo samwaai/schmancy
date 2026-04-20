@@ -63,6 +63,17 @@ declare const SchmancyScroll_base: import("@mixins/index").Constructor<CustomEle
  *   </div>
  * </schmancy-scroll>
  * ```
+ *
+ * @example Programmatic scroll with Lit ref
+ * ```typescript
+ * private scrollRef = createRef<HTMLElement>()
+ *
+ * // In template:
+ * html`<schmancy-scroll ${ref(this.scrollRef)}>...</schmancy-scroll>`
+ *
+ * // Scroll to top (smooth — host has scroll-behavior: smooth):
+ * this.scrollRef.value?.scrollTo({ top: 0 })
+ * ```
  */
 export declare class SchmancyScroll extends SchmancyScroll_base {
     /**

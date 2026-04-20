@@ -11,6 +11,7 @@ import {
 	ReplaySubject,
 	shareReplay,
 	skip,
+	startWith,
 	Subject,
 	Subscription,
 	tap,
@@ -189,19 +190,29 @@ class AreaService implements AreaSubscription {
 	
 	/**
 	 * Get params from an area with type safety
+	 * Emits current value immediately on subscription via startWith
+	 * URL query params are MERGED with route params (URL takes precedence for redirects like _rp_oid)
 	 */
 	params<T extends Record<string, unknown> = Record<string, unknown>>(areaName: string): Observable<T> {
 		if (!areaName) {
 			throw new Error('Area name is required')
 		}
-		
+
+		const routeParams = (this.current.get(areaName)?.params ?? {}) as Record<string, unknown>
+
+		// ALWAYS merge URL query params - they take precedence (handles redirects like Revolut _rp_oid)
+		let currentParams = { ...routeParams }
+		if (typeof window !== 'undefined' && window.location.search) {
+			const urlParams = new URLSearchParams(window.location.search)
+			urlParams.forEach((value, key) => {
+				currentParams[key] = value
+			})
+		}
+
 		return this.on(areaName).pipe(
-			map(route => route.params),
-			filter((params): params is NonNullable<Record<string, unknown>> => 
-				params !== undefined && params !== null
-			),
+			map(route => (route.params ?? {}) as T),
+			startWith(currentParams as T),
 			distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-			map(params => params as T),
 			catchError(err => {
 				console.error(`Error getting params for area "${areaName}":`, err)
 				return EMPTY

@@ -100,7 +100,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 				{ opacity: 1, transform: 'translateX(0%)' },
 			],
 			{
-				duration: 500,
+				duration: 250,
 				easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
 			},
 		)
@@ -137,7 +137,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 					{ opacity: 1, transform: 'translateX(100%)' },
 				],
 				{
-					duration: 500,
+					duration: 250,
 					easing: 'cubic-bezier(0.5, 0.01, 0.25, 1)',
 				},
 			)
@@ -153,7 +153,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 
 	protected render() {
 		const sheetClasses = {
-			block: this.mode === 'push',
+			"block h-full w-full": this.mode === 'push',
 			'absolute z-50': this.mode === 'overlay',
 			'opacity-1': this.mode === 'overlay' && this.state === 'open',
 		}
@@ -165,7 +165,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 
 		return html`
 			<section id="sheet" class="${this.classMap(sheetClasses)}" style=${this.styleMap(styles)}>
-				<schmancy-area name="${this.schmancyContentDrawerID}">
+				<schmancy-area class="h-full w-full" name="${this.schmancyContentDrawerID}">
 					<slot name="placeholder"></slot>
 				</schmancy-area>
 			</section>

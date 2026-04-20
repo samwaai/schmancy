@@ -23,18 +23,12 @@ export declare class SchmancyFilterChip extends SchmancyFilterChip_base {
     private _selected;
     get selected(): boolean;
     set selected(value: boolean);
-    /** Optional icon to display (Material Symbols name) */
-    icon: string;
     /** Whether to show a remove button */
     removable: boolean;
     /** Whether the chip is disabled */
     disabled: boolean;
     /** Whether to use elevated style with shadow */
     elevated: boolean;
-    private hover$;
-    private pressed$;
-    private focused$;
-    iconSlotElements: Element[];
     constructor();
     protected static shadowRootOptions: {
         delegatesFocus: boolean;
@@ -51,12 +45,6 @@ export declare class SchmancyFilterChip extends SchmancyFilterChip_base {
     private handleClick;
     private handleRemove;
     private handleKeyDown;
-    private handleMouseEnter;
-    private handleMouseLeave;
-    private handleMouseDown;
-    private handleMouseUp;
-    private handleFocus;
-    private handleBlur;
     protected render(): unknown;
 }
 export { SchmancyFilterChip as SchmancyChip };

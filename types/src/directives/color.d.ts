@@ -1,5 +1,4 @@
-import { Part } from 'lit';
-import { Directive, PartInfo } from 'lit/directive.js';
+import { Directive, ElementPart, PartInfo } from 'lit/directive.js';
 export type ColorConfig = {
     bgColor?: string;
     color?: string;
@@ -7,7 +6,7 @@ export type ColorConfig = {
 declare class ColorDirective extends Directive {
     private config;
     constructor(partInfo: PartInfo);
-    update(part: Part, [config]: [ColorConfig]): void;
+    update(part: ElementPart, [config]: [ColorConfig]): void;
     render(config: ColorConfig): unknown;
 }
 declare const color: (config: ColorConfig) => import("lit-html/directive").DirectiveResult<typeof ColorDirective>;

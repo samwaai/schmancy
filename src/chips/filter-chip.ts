@@ -1,9 +1,7 @@
 import { TailwindElement } from '@mixins/tailwind.mixin'
 import { css, html, LitElement } from 'lit'
-import { property, queryAssignedElements } from 'lit/decorators.js'
-import { when } from 'lit/directives/when.js'
-import { BehaviorSubject, combineLatest } from 'rxjs'
-import { takeUntil } from 'rxjs/operators'
+import { property } from 'lit/decorators.js'
+import { magnetic } from '../directives/magnetic'
 
 /**
  * Filter chip component for content filtering.
@@ -25,37 +23,40 @@ export class SchmancyFilterChip extends TailwindElement(css`
 	:host {
 		display: inline-block;
 		outline: none;
-		min-width:fit-content
+		min-width: fit-content;
+		border-radius: 0.5rem;
+		transition:
+			box-shadow 300ms ease,
+			transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	:host(:hover:not([disabled])) {
+		box-shadow: 0 2px 8px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent);
+	}
+
+	:host(:active:not([disabled])) {
+		transform: scale(0.95);
+		transition-duration: 100ms;
+	}
+
+	:host([selected]) {
+		box-shadow: 0 0 12px -2px color-mix(in srgb, var(--schmancy-sys-color-secondary-default) 20%, transparent);
 	}
 
 	:host([disabled]) {
 		pointer-events: none;
-		/* M3 disabled state opacity */
 		opacity: var(--schmancy-sys-state-disabled-opacity);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:host { transition: none; }
+		:host(:hover:not([disabled])) { box-shadow: none; }
+		:host(:active:not([disabled])) { transform: none; }
+		:host([selected]) { box-shadow: none; }
 	}
 
 	button {
 		font-family: inherit;
-	}
-
-	/* Material Symbols font for icons */
-	.material-symbols-outlined {
-		font-family: 'Material Symbols Outlined';
-		font-weight: normal;
-		font-style: normal;
-		font-size: 18px;
-		line-height: 1;
-		letter-spacing: normal;
-		text-transform: none;
-		display: inline-block;
-		white-space: nowrap;
-		word-wrap: normal;
-		direction: ltr;
-		-webkit-font-smoothing: antialiased;
-		text-rendering: optimizeLegibility;
-		-moz-osx-font-smoothing: grayscale;
-		font-feature-settings: 'liga';
-		vertical-align: middle;
 	}
 `) {
 	/** Unique identifier for this filter chip */
@@ -75,10 +76,6 @@ export class SchmancyFilterChip extends TailwindElement(css`
 		this.requestUpdate('selected', oldValue)
 	}
 
-	/** Optional icon to display (Material Symbols name) */
-	@property({ type: String, reflect: true })
-	icon: string = ''
-
 	/** Whether to show a remove button */
 	@property({ type: Boolean, reflect: true })
 	removable: boolean = false
@@ -91,13 +88,6 @@ export class SchmancyFilterChip extends TailwindElement(css`
 	@property({ type: Boolean, reflect: true })
 	elevated: boolean = false
 
-	// Reactive state management with RxJS
-	private hover$ = new BehaviorSubject<boolean>(false)
-	private pressed$ = new BehaviorSubject<boolean>(false)
-	private focused$ = new BehaviorSubject<boolean>(false)
-
-	// Query assigned elements in the icon slot
-	@queryAssignedElements({ slot: 'icon' }) iconSlotElements!: Element[]
 
 	constructor() {
 		super()
@@ -121,25 +111,11 @@ export class SchmancyFilterChip extends TailwindElement(css`
 
 	connectedCallback() {
 		super.connectedCallback()
-
-		// RxJS streams are maintained for potential future use
-		// Currently state is handled directly through event handlers
-		combineLatest([
-			this.hover$,
-			this.pressed$,
-			this.focused$,
-		]).pipe(
-			// States are managed through event handlers directly
-			// This pipeline is kept for potential future state combinations
-			takeUntil(this.disconnecting),
-		).subscribe()
 	}
 
 	private handleClick = () => {
 		if (this.disabled) return
 
-		// Don't modify this.selected - let the parent container control it
-		// Dispatch change event with the INTENDED state
 		this.dispatchEvent(
 			new CustomEvent('change', {
 				detail: { value: this.value, selected: !this._selected },
@@ -154,7 +130,6 @@ export class SchmancyFilterChip extends TailwindElement(css`
 
 		e.stopPropagation()
 
-		// Dispatch remove event
 		this.dispatchEvent(
 			new CustomEvent('remove', {
 				detail: { value: this.value },
@@ -169,7 +144,6 @@ export class SchmancyFilterChip extends TailwindElement(css`
 
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault()
-			// Dispatch event directly rather than calling handleClick to be explicit
 			this.dispatchEvent(
 				new CustomEvent('change', {
 					detail: { value: this.value, selected: !this._selected },
@@ -180,42 +154,16 @@ export class SchmancyFilterChip extends TailwindElement(css`
 		}
 	}
 
-	private handleMouseEnter = () => {
-		this.hover$.next(true)
-	}
-
-	private handleMouseLeave = () => {
-		this.hover$.next(false)
-		this.pressed$.next(false)
-	}
-
-	private handleMouseDown = () => {
-		this.pressed$.next(true)
-	}
-
-	private handleMouseUp = () => {
-		this.pressed$.next(false)
-	}
-
-	private handleFocus = () => {
-		this.focused$.next(true)
-	}
-
-	private handleBlur = () => {
-		this.focused$.next(false)
-	}
 
 	protected render(): unknown {
 		const chipClasses = {
 			'inline-flex': true,
 			'items-center': true,
 			'gap-2': true,
-			/* M3 shape: small for chips */
 			'rounded-lg': true,
 			'h-8 px-4': true,
 			'cursor-pointer': !this.disabled,
 			'transition-all': true,
-			/* M3 motion: short duration */
 			'duration-200': true,
 			'select-none': true,
 			'text-sm': true,
@@ -234,12 +182,12 @@ export class SchmancyFilterChip extends TailwindElement(css`
 
 			// Hover states
 			'hover:brightness-95': this._selected && !this.disabled,
-			'hover:bg-surface-container-high': !this._selected && !this.disabled,
+			'hover:bg-surface-containerHigh': !this._selected && !this.disabled,
 
-			// M3 pressed state (no scale transformation in M3)
+			// Pressed state
 			'active:brightness-90': !this.disabled,
 
-			// Focus-visible state for better UX
+			// Focus-visible state
 			'focus-visible:outline': !this.disabled,
 			'focus-visible:outline-2': !this.disabled,
 			'focus-visible:outline-offset-2': !this.disabled,
@@ -249,82 +197,50 @@ export class SchmancyFilterChip extends TailwindElement(css`
 			'shadow-md': this.elevated && !this.disabled,
 			'hover:shadow-lg': this.elevated && !this.disabled,
 
-			// M3 disabled state
+			// Disabled state
 			'opacity-[var(--schmancy-sys-state-disabled-opacity)]': this.disabled,
-			'cursor-not-allowed': this.disabled
+			'cursor-not-allowed': this.disabled,
 		}
 
 		return html`
 			<button
+				${magnetic({ strength: 2, radius: 40 })}
 				class=${this.classMap(chipClasses)}
 				@click=${this.handleClick}
 				@keydown=${this.handleKeyDown}
-				@mouseenter=${this.handleMouseEnter}
-				@mouseleave=${this.handleMouseLeave}
-				@mousedown=${this.handleMouseDown}
-				@mouseup=${this.handleMouseUp}
-				@focus=${this.handleFocus}
-				@blur=${this.handleBlur}
 				?disabled=${this.disabled}
 				aria-pressed=${this._selected ? 'true' : 'false'}
 				role="checkbox"
 				tabindex="0"
 			>
-				<!-- Icon container - conditionally shown using when directive -->
-				${when(
-					this._selected || this.icon || this.iconSlotElements?.length > 0,
-					() => html`
-						<span class="inline-flex w-[18px] h-[18px] items-center justify-center shrink-0">
-							${this._selected ? html`
-								<span class="material-symbols-outlined text-[18px]">
-									check
-								</span>
-							` : this.icon ? html`
-								<span class="material-symbols-outlined text-[18px]">
-									${this.icon}
-								</span>
-							` : html`
-								<slot name="icon"></slot>
-							`}
-						</span>
-					`
-				)}
-
-				<!-- Chip content -->
 				<slot></slot>
 
-				<!-- Remove button (if removable) -->
-				${this.removable ? html`
-					<button
-						class="ml-1 -mr-1 p-0.5 rounded-full hover:bg-surface-container-highest transition-colors duration-200"
-						@click=${this.handleRemove}
-						aria-label="Remove filter"
-						tabindex="-1"
-					>
-						<span class="material-symbols-outlined text-sm sm:text-[16px]">
-							close
-						</span>
-					</button>
-				` : ''}
+				${this.removable
+					? html`
+							<button
+								class="ml-1 -mr-1 p-0.5 rounded-full hover:bg-surface-containerHighest transition-colors duration-200"
+								@click=${this.handleRemove}
+								aria-label="Remove filter"
+								tabindex="-1"
+							>
+								<span class="material-symbols-outlined text-sm">close</span>
+							</button>
+						`
+					: ''}
 			</button>
 		`
 	}
 }
 
-// Register the element with both names for backward compatibility
-// Check if not already registered to prevent duplicate registration errors
 if (!customElements.get('schmancy-filter-chip')) {
 	customElements.define('schmancy-filter-chip', SchmancyFilterChip)
 }
 
-// For backward compatibility, register 'schmancy-chip' with a subclass
-// to avoid duplicate constructor registration error
 if (!customElements.get('schmancy-chip')) {
 	class SchmancyChipCompat extends SchmancyFilterChip {}
 	customElements.define('schmancy-chip', SchmancyChipCompat)
 }
 
-// Export alias for backward compatibility
 export { SchmancyFilterChip as SchmancyChip }
 
 declare global {
@@ -336,5 +252,4 @@ declare global {
 
 export type FilterChipChangeEvent = { value: string; selected: boolean }
 export type FilterChipRemoveEvent = { value: string }
-// Alias for backward compatibility
 export type SchmancyChipChangeEvent = FilterChipChangeEvent

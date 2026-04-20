@@ -170,7 +170,7 @@ export type EmailComposeEvents = {
 /**
  * Boat state options for recipients panel
  */
-export type BoatState = 'hidden' | 'minimized' | 'expanded';
+export type BoatState = 'collapsed' | 'expanded';
 /**
  * Email preview view modes
  */

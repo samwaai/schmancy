@@ -57,9 +57,39 @@ export declare class SchmancyDialog extends SchmancyDialog_base {
      */
     hideActions: boolean;
     /**
-     * Return the dialog element for positioning
+     * Slotted children in the named "content" slot (confirm mode custom content)
+     */
+    private _contentSlotElements;
+    /**
+     * Ref to the confirm mode wrapper div
+     */
+    private _confirmDialogRef;
+    /**
+     * Ref to the content mode section element
+     */
+    private _contentDialogRef;
+    /**
+     * Ref to the backdrop element for animations
+     */
+    private _backdropRef;
+    /**
+     * Ref to the drag handle element for swipe gestures
+     */
+    private _dragHandleRef;
+    /**
+     * Return the dialog element for positioning/size measurement.
+     * In content mode, returns the first slotted child (the actual component).
+     * In confirm mode, returns the wrapper div.
      */
     protected getDialogElement(): HTMLElement | null;
+    /**
+     * Return the backdrop element for animations
+     */
+    protected getBackdropElement(): HTMLElement | null;
+    /**
+     * Return the drag handle element for swipe gestures
+     */
+    protected getDragHandleElement(): HTMLElement | null;
     /**
      * Check if dialog is in confirm mode (has buttons)
      */
@@ -80,6 +110,10 @@ export declare class SchmancyDialog extends SchmancyDialog_base {
      * Handle cancel/close action
      */
     private handleClose;
+    /**
+     * Render drag handle for mobile bottom sheet
+     */
+    private renderDragHandle;
     render(): import("lit-html").TemplateResult<1>;
     /**
      * Static helper for confirm dialogs

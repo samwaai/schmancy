@@ -3,9 +3,16 @@ import { color } from '@schmancy/directives'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { SchmancyEvents, SchmancyTheme } from '..'
-import { BehaviorSubject, fromEvent } from 'rxjs'
+import { BehaviorSubject, fromEvent, Subject } from 'rxjs'
 import { takeUntil, throttleTime, tap, pairwise, map, filter } from 'rxjs/operators'
 import type { SchmancyNavigationBarItem } from './navigation-bar-item'
+import { theme } from '../theme/theme.service'
+
+/** Height of the navigation bar in pixels */
+const NAV_BAR_HEIGHT = 80
+
+/** Mobile breakpoint - matches md: in Tailwind (max-width for mobile) */
+const MOBILE_BREAKPOINT = '(max-width: 767px)'
 
 /**
  * `<schmancy-navigation-bar>` component
@@ -134,8 +141,55 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	 */
 	private readonly SCROLL_THRESHOLD = 10
 
+	/**
+	 * Media query for mobile detection
+	 */
+	private mobileMediaQuery: MediaQueryList | null = null
+
+	/**
+	 * Subject to track visibility state changes
+	 */
+	private visibility$ = new Subject<boolean>()
+
+	/**
+	 * Check if on mobile viewport
+	 */
+	private isMobileViewport(): boolean {
+		return this.mobileMediaQuery?.matches ?? false
+	}
+
+	/**
+	 * Update bottom offset for schmancy-page/fullHeight consumers
+	 */
+	private updateBottomOffset() {
+		const shouldSetOffset = !this.isFullscreen && this.isMobileViewport()
+		theme.setBottomOffset(shouldSetOffset ? NAV_BAR_HEIGHT : 0)
+	}
+
 	connectedCallback() {
 		super.connectedCallback()
+
+		// Set up mobile media query
+		this.mobileMediaQuery = window.matchMedia(MOBILE_BREAKPOINT)
+
+		// Listen to viewport changes
+		fromEvent<MediaQueryListEvent>(this.mobileMediaQuery, 'change').pipe(
+			tap(() => this.updateBottomOffset()),
+			takeUntil(this.disconnecting)
+		).subscribe()
+
+		// Subscribe to fullscreen observable
+		theme.fullscreen$.pipe(
+			tap(isFullscreen => {
+				this.isFullscreen = isFullscreen
+				this.visibility$.next(!this.isFullscreen && !this.isHiddenByScroll)
+				this.updateBottomOffset()
+			}),
+			takeUntil(this.disconnecting)
+		).subscribe()
+
+		// Initial offset update
+		this.updateBottomOffset()
 
 		// Listen to bar-item-click events using RxJS
 		fromEvent(this, 'bar-item-click').pipe(
@@ -156,21 +210,19 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			this.updateActiveStates(index)
 		})
 
-		// Listen to fullscreen events
-		fromEvent(window, 'fullscreen').pipe(
-			tap((event: Event) => {
-				const customEvent = event as CustomEvent
-				this.isFullscreen = customEvent.detail
-			}),
-			takeUntil(this.disconnecting)
-		).subscribe()
-
 		// Set up scroll listener if hideOnScroll is enabled
 		if (this.hideOnScroll) {
 			this.setupScrollListener()
 		}
 
 		this.updateItems()
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback()
+		// Clear offset when nav bar is removed
+		theme.setBottomOffset(0)
+		this.mobileMediaQuery = null
 	}
 
 	/**
@@ -186,6 +238,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			tap(([prev, curr]) => {
 				const scrollingDown = curr > prev
 				const scrollingUp = curr < prev
+				const previousHiddenState = this.isHiddenByScroll
 
 				// Hide when scrolling down, show when scrolling up
 				if (scrollingDown && !this.isHiddenByScroll) {
@@ -199,6 +252,10 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 					this.isHiddenByScroll = false
 				}
 
+				// Update visibility if scroll state changed
+				if (previousHiddenState !== this.isHiddenByScroll) {
+					this.visibility$.next(!this.isHiddenByScroll && !this.isFullscreen)
+				}
 			}),
 			takeUntil(this.disconnecting)
 		).subscribe()
@@ -372,6 +429,8 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			} else if (!this.hideOnScroll) {
 				// hideOnScroll was disabled, reset hidden state
 				this.isHiddenByScroll = false
+				// Update visibility since we're now visible
+				this.visibility$.next(!this.isFullscreen)
 			}
 		}
 	}

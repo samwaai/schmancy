@@ -1,15 +1,38 @@
 import { $LitElement } from '@mixins/index'
 import { area } from '../area'
-import { html } from 'lit'
+import { html, css } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { fromEvent, merge, takeUntil, tap, filter } from 'rxjs'
 import { on } from './hook'
-import style from './sheet.scss?inline'
 import { SchmancySheetPosition, sheet } from './sheet.service'
+import { BLACKBIRD_EASING, DURATION_ENTER, DURATION_EXIT, DURATION_BACKDROP, EASE_OUT, EASE_IN } from '../utils/animation'
 
 @customElement('schmancy-sheet')
-export default class SchmancySheet extends $LitElement(style) {
-	@property({ type: String, reflect: true }) uid!: string
+export default class SchmancySheet extends $LitElement(css`
+	:host {
+		position: fixed;
+		inset: 0;
+		z-index: var(--schmancy-overlay-z, 999);
+		display: none;
+	}
+	:host([open]) {
+		display: block;
+	}
+
+	/* Luminous edge glow on sheet panel */
+	.content {
+		box-shadow: -8px 0 40px -8px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent);
+	}
+
+	:host([position='bottom']) .content {
+		box-shadow: 0 -8px 40px -8px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.content { box-shadow: var(--schmancy-sys-elevation-3); }
+	}
+`) {
+	// uid is inherited from $LitElement mixin - auto-generated or set via attribute
 	@property({ type: Boolean, reflect: true }) open = false
 	@property({ type: String, reflect: true }) position: SchmancySheetPosition = SchmancySheetPosition.Side
 	@property({ type: Boolean, reflect: true }) persist = false
@@ -38,43 +61,55 @@ export default class SchmancySheet extends $LitElement(style) {
 	private animateIn() {
 		if (!this.overlayEl || !this.contentEl) return
 
-		const timing = {
-			duration: 250,
-			easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-			fill: 'forwards' as FillMode,
-		}
+		this.overlayEl.animate([{ opacity: 0 }, { opacity: 1 }], {
+			duration: DURATION_BACKDROP,
+			easing: EASE_OUT,
+			fill: 'forwards',
+		})
 
-		// Animate overlay
-		this.overlayEl.animate([{ opacity: 0 }, { opacity: 0.8 }], timing)
-
-		// Animate content based on position
-		const transform =
+		const animation =
 			this.position === SchmancySheetPosition.Side
-				? [{ transform: 'translateX(100%)' }, { transform: 'translateX(0)' }]
-				: [{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }]
+				? [
+						{ opacity: 0, transform: 'translateX(100%) scale(0.95)' },
+						{ opacity: 1, transform: 'translateX(0) scale(1)' },
+					]
+				: [
+						{ opacity: 0, transform: 'translateY(100%) scale(0.95)' },
+						{ opacity: 1, transform: 'translateY(0) scale(1)' },
+					]
 
-		this.contentEl.animate(transform, timing)
+		this.contentEl.animate(animation, {
+			duration: DURATION_ENTER,
+			easing: BLACKBIRD_EASING,
+			fill: 'forwards',
+		})
 	}
 
 	private animateOut() {
 		if (!this.overlayEl || !this.contentEl) return
 
-		const timing = {
-			duration: 250,
-			easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-			fill: 'forwards' as FillMode,
-		}
+		this.overlayEl.animate([{ opacity: 1 }, { opacity: 0 }], {
+			duration: DURATION_EXIT,
+			easing: EASE_OUT,
+			fill: 'forwards',
+		})
 
-		// Animate overlay
-		this.overlayEl.animate([{ opacity: 0.8 }, { opacity: 0 }], timing)
-
-		// Animate content based on position
-		const transform =
+		const animation =
 			this.position === SchmancySheetPosition.Side
-				? [{ transform: 'translateX(0)' }, { transform: 'translateX(100%)' }]
-				: [{ transform: 'translateY(0)' }, { transform: 'translateY(100%)' }]
+				? [
+						{ opacity: 1, transform: 'translateX(0) scale(1)' },
+						{ opacity: 0, transform: 'translateX(100%) scale(0.98)' },
+					]
+				: [
+						{ opacity: 1, transform: 'translateY(0) scale(1)' },
+						{ opacity: 0, transform: 'translateY(100%) scale(0.98)' },
+					]
 
-		this.contentEl.animate(transform, timing)
+		this.contentEl.animate(animation, {
+			duration: DURATION_EXIT,
+			easing: EASE_IN,
+			fill: 'forwards',
+		})
 	}
 
 	connectedCallback() {
@@ -165,27 +200,28 @@ export default class SchmancySheet extends $LitElement(style) {
 	}
 
 	render() {
-		const sheetClasses = `fixed inset-0 z-[999] flex ${this.open ? '' : 'invisible pointer-events-none'}`
+		const sheetClasses = `absolute inset-0 flex h-full`
 
-		const overlayClasses = `overlay absolute inset-0 bg-surface-container/10 backdrop-blur-xs ${this.lock ? '' : 'cursor-pointer'}`
+		const overlayClasses = `overlay absolute inset-0 bg-surface-container/10 backdrop-blur-lg backdrop-saturate-150 ${this.lock ? '' : 'cursor-pointer'}`
 
 		const contentClasses =
 			this.position === SchmancySheetPosition.Side
-				? 'content h-full min-w-[320px] max-w-[90vw] w-fit ml-auto overflow-hidden z-10'
-				: 'content w-full mt-auto rounded-t-2xl max-h-[90vh] overflow-hidden z-10'
+				? 'content h-full min-w-[320px] max-w-[90vw] w-fit ml-auto z-10'
+				: 'content w-full mt-auto rounded-t-2xl max-h-[90vh] z-10'
 
-		const bodyClasses = this.position === SchmancySheetPosition.Side ? 'max-h-screen' : 'max-h-[90vh]'
+		const surfaceClasses =
+			this.position === SchmancySheetPosition.Side
+				? 'h-full overflow-auto'
+				: 'max-h-[90vh] overflow-auto'
 
 		return html`
 			<div class=${sheetClasses} role="dialog" aria-hidden=${!this.open} aria-modal=${this.open} tabindex="0">
 				<div class=${overlayClasses} @click=${this.handleOverlayClick}></div>
 				<div class=${contentClasses}>
-					<schmancy-surface rounded="left" fill="all" id="body" class="overflow-auto ${bodyClasses}" type="surface">
-						<schmancy-scroll>
-							<schmancy-area class="h-full" name=${this.uid}>
-								<slot></slot>
-							</schmancy-area>
-						</schmancy-scroll>
+					<schmancy-surface rounded="left" fill="all" id="body" class=${surfaceClasses} type="solid">
+						<schmancy-area class="size-full overflow-auto" name=${this.uid}>
+							<slot></slot>
+						</schmancy-area>
 					</schmancy-surface>
 				</div>
 			</div>

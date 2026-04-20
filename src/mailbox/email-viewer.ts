@@ -498,10 +498,10 @@ export class SchmancyEmailViewer extends $LitElement(css`
 		const displayToAddress = this.recipients[0] || this.toAddress
 
 		return html`
-			<schmancy-surface type="surface" rounded="all" class="h-full flex flex-col">
+			<schmancy-surface type="solid" rounded="all" class="h-full flex flex-col">
 				
 				<!-- Header Section -->
-				<div class="flex-shrink-0 p-4 border-b border-outline-variant">
+				<div class="shrink-0 p-4 border-b border-outline-variant">
 					<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 						<schmancy-typography type="title" token="md" class="flex items-center gap-2">
 							<schmancy-icon size="20px">preview</schmancy-icon>
@@ -538,16 +538,16 @@ export class SchmancyEmailViewer extends $LitElement(css`
 					<!-- Email Mock Container -->
 					<div class="flex-1 flex flex-col min-h-0">
 						<schmancy-surface 
-							type="container" 
-							rounded="all" 
+							type="subtle"
+							rounded="all"
 							class="flex-1 flex flex-col overflow-hidden shadow-sm"
 						>
 							<!-- Email Header -->
-							<div class="flex-shrink-0 p-4 bg-surface-containerLow border-b border-outline-variant">
+							<div class="shrink-0 p-4 bg-surface-containerLow border-b border-outline-variant">
 								<div class="space-y-3">
 									<!-- From Field -->
 									<div class="flex items-start gap-3">
-										<div class="flex items-center gap-2 min-w-0 flex-shrink-0 w-16">
+										<div class="flex items-center gap-2 min-w-0 shrink-0 w-16">
 											<schmancy-icon size="16px">account_circle</schmancy-icon>
 											<schmancy-typography type="body" token="sm" class="font-medium">
 												From
@@ -560,7 +560,7 @@ export class SchmancyEmailViewer extends $LitElement(css`
 									
 									<!-- To Field -->
 									<div class="flex items-start gap-3">
-										<div class="flex items-center gap-2 min-w-0 flex-shrink-0 w-16">
+										<div class="flex items-center gap-2 min-w-0 shrink-0 w-16">
 											<schmancy-icon size="16px">person</schmancy-icon>
 											<schmancy-typography type="body" token="sm" class="font-medium">
 												To
@@ -573,7 +573,7 @@ export class SchmancyEmailViewer extends $LitElement(css`
 									
 									<!-- Subject Field -->
 									<div class="flex items-start gap-3">
-										<div class="flex items-center gap-2 min-w-0 flex-shrink-0 w-16">
+										<div class="flex items-center gap-2 min-w-0 shrink-0 w-16">
 											<schmancy-icon size="16px">subject</schmancy-icon>
 											<schmancy-typography type="body" token="sm" class="font-medium">
 												Subject
@@ -622,7 +622,7 @@ export class SchmancyEmailViewer extends $LitElement(css`
 
 							<!-- Attachments Section -->
 							${when(this.attachments.length > 0, () => html`
-								<div class="flex-shrink-0 p-4 border-t border-outline-variant bg-surface-containerLowest">
+								<div class="shrink-0 p-4 border-t border-outline-variant bg-surface-containerLowest">
 									<div class="space-y-3">
 										<!-- Attachments Header -->
 										<div class="flex items-center gap-2">
@@ -635,12 +635,12 @@ export class SchmancyEmailViewer extends $LitElement(css`
 										<!-- Attachments List -->
 										<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
 											${repeat(this.attachments, attachment => attachment.id, (attachment) => html`
-												<schmancy-surface type="container" rounded="all" class="p-3">
+												<schmancy-surface type="subtle" rounded="all" class="p-3">
 													<div class="flex items-center gap-3">
 														<!-- File Icon -->
-														<schmancy-icon size="20px" class="text-surface-onVariant flex-shrink-0">
-															${attachment.type.startsWith('image/') ? 'image' : 
-															  attachment.type.includes('pdf') ? 'picture_as_pdf' : 
+														<schmancy-icon size="20px" class="text-surface-onVariant shrink-0">
+															${attachment.type.startsWith('image/') ? 'image' :
+															  attachment.type.includes('pdf') ? 'picture_as_pdf' :
 															  attachment.type.includes('text') ? 'description' :
 															  'attach_file'}
 														</schmancy-icon>
@@ -666,8 +666,8 @@ export class SchmancyEmailViewer extends $LitElement(css`
 					
 					<!-- Preview Stats -->
 					${when(this.body, () => html`
-						<div class="flex-shrink-0">
-							<schmancy-surface type="container" rounded="all" class="p-3">
+						<div class="shrink-0">
+							<schmancy-surface type="subtle" rounded="all" class="p-3">
 								<div class="flex items-center justify-center gap-6 text-center">
 									<div>
 										<schmancy-typography type="body" token="xs" class="text-surface-onVariant">

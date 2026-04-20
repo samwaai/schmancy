@@ -96,9 +96,9 @@ export declare class SchmancyEmailRecipients extends SchmancyEmailRecipients_bas
     private handleBoatStateChange;
     /** Add recipients programmatically */
     addRecipients(emails: string[]): void;
-    /** Show boat */
+    /** Show boat (collapsed) */
     showBoat(): void;
-    /** Hide boat */
+    /** Hide boat (collapse) */
     hideBoat(): void;
     /** Expand boat */
     expandBoat(): void;

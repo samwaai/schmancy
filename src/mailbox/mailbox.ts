@@ -300,10 +300,10 @@ export class SchmancyMailbox extends $LitElement(css`
 				</div>
 
 				<!-- Send Section - Sticky bottom bar -->
-				<div class="flex-shrink-0">
+				<div class="shrink-0">
 					<schmancy-surface 
-						type="container" 
-						rounded="all" 
+						type="subtle"
+						rounded="all"
 						class="p-4"
 					>
 						<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -13,14 +13,18 @@ export interface VirtualReference {
  */
 export interface IDialogBaseMixin {
     position: DialogPosition;
+    isMobile: boolean;
+    dragOffset: number;
     show(positionOrEvent?: DialogPosition | MouseEvent | TouchEvent): Promise<boolean>;
-    hide(result?: boolean): void;
+    hide(result?: boolean): Promise<void>;
     isCentered(): boolean;
+    isAnimating(): boolean;
 }
 /**
  * Dialog mixin with smart positioning using Floating UI.
  *
- * Uses autoPlacement to find the position with MOST available space,
- * minimizing the need for content scrolling.
+ * On mobile (< 640px), automatically switches to bottom sheet mode
+ * with swipe-to-dismiss gesture. On tablet/desktop, if content exceeds
+ * a viewport-dependent threshold, also opens as bottom sheet.
  */
 export declare const DialogBase: <T extends Constructor<LitElement & IBaseMixin>>(superClass: T) => Constructor<IDialogBaseMixin> & T;

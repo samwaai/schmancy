@@ -3,6 +3,7 @@ import { css, html, PropertyValues } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { BehaviorSubject, combineLatest } from 'rxjs'
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
+import { fullWidth } from '../directives/layout'
 import type { FilterChipChangeEvent as SchmancyChipChangeEvent } from './filter-chip'
 import { SchmancyFilterChip as SchmancyChip } from './filter-chip'
 
@@ -226,15 +227,20 @@ css`
 	}
 
 	protected render(): unknown {
-		const classes= {
-			"flex flex-nowrap justify-center gap-2 max-w-lvw":true,
-			"flex-wrap": this.wrap,
-			"justify-center": this.justify === 'center',
-
+		const classes = {
+			'flex flex-nowrap justify-center gap-2': true,
+			'flex-wrap': this.wrap,
+			'justify-center': this.justify === 'center',
 		}
 		return html`
-					<schmancy-scroll hide .direction=${this.wrap ?'vertical': 'horizontal'} class="${this.classMap(classes)}" @change=${this.change}>
-					<slot
+			<schmancy-scroll
+				hide
+				.direction=${this.wrap ? 'vertical' : 'horizontal'}
+				class="${this.classMap(classes)}"
+				${fullWidth()}
+				@change=${this.change}
+			>
+				<slot
 					@slotchange=${() => {
 						// When slot changes, trigger state update through reactive pipeline
 						this.updateChipStates(this.mode, this._value, this._values)

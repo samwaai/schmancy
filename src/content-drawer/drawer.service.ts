@@ -1,5 +1,5 @@
 import { SchmancyEvents } from '@schmancy/types/events'
-import { Subject } from 'rxjs'
+import { BehaviorSubject, Subject, concatMap, delay, of, tap } from 'rxjs'
 import { ComponentType } from '../area/router.types'
 
 // type DrawerAction = 'dismiss' | 'render' | 'push'
@@ -27,22 +27,40 @@ type DrawerCommand =
 
 class DrawerService {
 	private $drawer = new Subject<DrawerCommand>()
+	private pushCounter = 0
+	private isDismissing$ = new BehaviorSubject<boolean>(false)
 
 	constructor() {
-		this.$drawer.pipe().subscribe(command => {
-			switch (command.action) {
-				case 'dismiss':
-					this.dispatchToggleEvent(command.ref, 'close')
-					break
-				case 'render':
-					this.dispatchToggleEvent(command.ref, 'open')
-					this.dispatchRenderEvent(command.ref, command.component, command.title)
-					break
-				case 'push':
-					this.handlePush(command.ref, command.component, command.state, command.params, command.props)
-					break
-			}
-		})
+		// Use concatMap to queue commands and process them sequentially
+		this.$drawer.pipe(
+			concatMap(command => {
+				switch (command.action) {
+					case 'dismiss':
+						return of(command).pipe(
+							tap(() => {
+								this.isDismissing$.next(true)
+								this.dispatchToggleEvent(command.ref, 'close')
+							}),
+							// Wait for dismiss animation (250ms from sheet.ts)
+							delay(300),
+							tap(() => this.isDismissing$.next(false))
+						)
+					case 'render':
+						return of(command).pipe(
+							tap(() => {
+								this.dispatchToggleEvent(command.ref, 'open')
+								this.dispatchRenderEvent(command.ref, command.component, command.title)
+							})
+						)
+					case 'push':
+						return of(command).pipe(
+							tap(() => this.handlePush(command.ref, command.component, command.state, command.params, command.props))
+						)
+					default:
+						return of(null)
+				}
+			})
+		).subscribe()
 	}
 
 	private dispatchToggleEvent(ref: TRef, state: 'open' | 'close') {
@@ -96,13 +114,21 @@ class DrawerService {
 		params?: Record<string, unknown>,
 		props?: Record<string, unknown>
 	) {
-		// Simply pass through to drawer component - it will call area.push() which handles all component resolution
+		// Auto-increment counter to make every push unique
+		// Area router uses distinctUntilChanged on component+state+params+props
+		// Without this, pushing same component with same props gets silently blocked
+		const enhancedState = {
+			...state,
+			_drawerPushId: ++this.pushCounter
+		}
+
 		this.dispatchToggleEvent(ref, 'open')
-		this.dispatchRenderEvent(ref, component, undefined, state, params, props)
+		this.dispatchRenderEvent(ref, component, undefined, enhancedState, params, props)
 	}
 
 	/**
 	 * Push a component to the content drawer
+	 * Every push is guaranteed to render (auto-incremented unique ID prevents deduplication)
 	 * @param options - Component configuration object with optional state/params/props
 	 * @example
 	 * schmancyContentDrawer.push({

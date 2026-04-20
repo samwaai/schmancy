@@ -1,6 +1,6 @@
 import { TailwindElement } from '@mixins/index'
 import { css, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { BehaviorSubject, combineLatest, takeUntil } from 'rxjs'
 import { tap } from 'rxjs/operators'
 
@@ -69,6 +69,11 @@ export default class SchmancyIcon extends TailwindElement(css`
 		align-items: center;
 		justify-content: center;
 	}
+
+	/* CSS-generated content is NOT translated by Google Translate */
+	.material-symbols[data-icon]::before {
+		content: attr(data-icon);
+	}
 `) {
 	// Static flag to track if Google Fonts have been loaded
 	private static fontsLoaded = false
@@ -125,6 +130,14 @@ export default class SchmancyIcon extends TailwindElement(css`
 	@property({ type: String, reflect: true })
 	size: IconSize = 'md'
 
+	/**
+	 * Icon name - use this instead of slot content to prevent translation breaking icons.
+	 * When set, this takes precedence over slot content.
+	 * Example: <schmancy-icon icon="delete"></schmancy-icon>
+	 */
+	@property({ type: String })
+	icon?: string
+
 	// M3 aligned token sizes with optimal optical sizes
 	private static readonly tokenSizes: Record<string, { size: string; opsz: number }> = {
 		xxs: { size: '12px', opsz: 20 }, // fits in 24px buttons (ultra-compact)
@@ -134,17 +147,44 @@ export default class SchmancyIcon extends TailwindElement(css`
 		lg: { size: '32px', opsz: 40 },  // fits in 56px buttons
 	}
 
+	/** Extract pixel value from a custom size string for optical size */
+	private static computeOpticalSize(size: string): number {
+		const px = parseFloat(size)
+		return isNaN(px) ? 24 : Math.max(20, Math.min(48, Math.round(px)))
+	}
+
 	// RxJS subjects for reactive property updates
 	private fill$ = new BehaviorSubject(this.fill)
 	private weight$ = new BehaviorSubject(this.weight)
 	private grade$ = new BehaviorSubject(this.grade)
 	private variant$ = new BehaviorSubject(this.variant)
 
+	// Captured icon name from slot content (translation-proof)
+	@state()
+	private _capturedIcon?: string
+
+	// Observer for text content changes (ternaries update text nodes, not DOM structure)
+	private _observer?: MutationObserver
+
 	connectedCallback(): void {
 		super.connectedCallback()
 
+		// Capture initial icon name
+		this._updateCapturedIcon()
+
+		// Watch for text content changes (characterData) for dynamic icon updates
+		this._observer = new MutationObserver(() => this._updateCapturedIcon())
+		this._observer.observe(this, { childList: true, characterData: true, subtree: true })
+
 		// Load Google Fonts if not already loaded
 		SchmancyIcon.loadFonts()
+
+		// Prevent browser translation from breaking icon ligatures
+		// Using multiple methods for maximum compatibility:
+		// - translate="no" (HTML5 standard)
+		// - class="notranslate" (Google Translate specific)
+		this.setAttribute('translate', 'no')
+		this.classList.add('notranslate')
 
 		// Set accessibility attributes for decorative icons
 		if (!this.hasAttribute('aria-label') &&
@@ -178,6 +218,19 @@ export default class SchmancyIcon extends TailwindElement(css`
 			}),
 			takeUntil(this.disconnecting)
 		).subscribe()
+
+	}
+
+	/**
+	 * Update captured icon from current text content
+	 */
+	private _updateCapturedIcon(): void {
+		if (!this.icon) {
+			const textContent = this.textContent?.trim()
+			if (textContent && textContent !== this._capturedIcon) {
+				this._capturedIcon = textContent
+			}
+		}
 	}
 
 	protected updated(changedProperties: Map<string | number | symbol, unknown>): void {
@@ -205,24 +258,30 @@ export default class SchmancyIcon extends TailwindElement(css`
 			'sharp': 'Material Symbols Sharp'
 		}[this.variant] || 'Material Symbols Outlined'
 
-		// Resolve size token or use custom value
+		// Resolve size: token → px, bare number → px, or pass through as-is
 		const sizeConfig = SchmancyIcon.tokenSizes[this.size]
-		const iconSize = sizeConfig?.size || this.size
-		const opticalSize = sizeConfig?.opsz || 24
+		const isNumeric = !sizeConfig && /^\d+(\.\d+)?$/.test(this.size)
+		const iconSize = sizeConfig?.size || (isNumeric ? `${this.size}px` : this.size)
+		const opticalSize = sizeConfig?.opsz || SchmancyIcon.computeOpticalSize(iconSize)
+
+		// Set size on HOST so :host CSS picks it up
+		this.style.setProperty('--schmancy-icon-size', iconSize)
+		this.style.setProperty('--schmancy-icon-opsz', String(opticalSize))
 
 		const style = {
 			'--schmancy-icon-fill': this.fill,
 			'--schmancy-icon-weight': this.weight,
 			'--schmancy-icon-grade': this.grade,
 			'--schmancy-icon-font': fontFamily,
-			'--schmancy-icon-size': iconSize,
-			'--schmancy-icon-opsz': opticalSize,
 		}
 
+		// Priority: icon property > captured icon (for dynamic content)
+		const iconName = this.icon || this._capturedIcon
+
+		// Always render slot (hidden) to observe content changes, display via data-icon
 		return html`
-			<span class="material-symbols" part="icon" style=${this.styleMap(style)}>
-				<slot></slot>
-			</span>
+			<span class="material-symbols notranslate" part="icon" translate="no" data-icon=${iconName || ''} style=${this.styleMap(style)}></span>
+			<slot style="display:none"></slot>
 		`
 	}
 }

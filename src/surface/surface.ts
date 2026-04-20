@@ -1,12 +1,15 @@
 import { createContext, provide } from '@lit/context'
 import { TailwindElement } from '@mixins/tailwind.mixin'
+import { SurfaceMixin } from '@mixins/surface.mixin'
 import { TSurfaceColor } from '@schmancy/types'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 export const SchmancySurfaceTypeContext = createContext<TSurfaceColor>('surface')
 
-export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto'
+// Re-export types for backwards compatibility
+export type { SchmancySurfaceFill, SchmancySurfaceRounded, SchmancySurfaceElevation } from '@mixins/surface.mixin'
+
 /**
  * `<schmancy-surface>` component
  *
@@ -14,6 +17,8 @@ export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto'
  * It supports various rounding options, elevation levels, and applies background and text color classes
  * based on the specified surface variant. Additionally, when the `scroller` property is true, the component
  * enables internal scrolling by applying overflow and scroll-behavior styles.
+ *
+ * SurfaceMixin automatically provides surfaceStyles CSS.
  *
  * @element schmancy-surface
  * @slot - Default slot for projecting child content.
@@ -24,242 +29,23 @@ export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto'
  * </schmancy-surface>
  */
 @customElement('schmancy-surface')
-export class SchmancySurface extends TailwindElement(css`
-	:host {
-		display: block;
-		box-sizing: border-box;
-  overflow: visible;
-	}
-	
-	/* Fill styles */
-	:host([fill='all']) {
-		height: 100%;
-		width: 100%;
-	}
-	:host([fill='width']) {
-		width: 100%;
-	}
-	:host([fill='height']) {
-		height: 100%;
-	}
-	
-	/* Rounded corner styles using M3 shape tokens */
-	:host([rounded='none']) {
-		border-radius: 0;
-	}
-	:host([rounded='top']) {
-		border-radius: var(--schmancy-sys-shape-corner-small) var(--schmancy-sys-shape-corner-small) 0 0;
-	}
-	:host([rounded='left']) {
-		border-radius: var(--schmancy-sys-shape-corner-small) 0 0 var(--schmancy-sys-shape-corner-small);
-	}
-	:host([rounded='right']) {
-		border-radius: 0 var(--schmancy-sys-shape-corner-small) var(--schmancy-sys-shape-corner-small) 0;
-	}
-	:host([rounded='bottom']) {
-		border-radius: 0 0 var(--schmancy-sys-shape-corner-small) var(--schmancy-sys-shape-corner-small);
-	}
-	:host([rounded='all']) {
-		border-radius: var(--schmancy-sys-shape-corner-small);
-	}
-	
-	/* Elevation styles with M3 surface tint support */
-	:host([elevation='1']) {
-		box-shadow: var(--schmancy-sys-elevation-1);
-		/* Apply surface tint for elevated surfaces */
-		position: relative;
-	}
-	:host([elevation='2']) {
-		box-shadow: var(--schmancy-sys-elevation-2);
-		position: relative;
-	}
-	:host([elevation='3']) {
-		box-shadow: var(--schmancy-sys-elevation-3);
-		position: relative;
-	}
-	:host([elevation='4']) {
-		box-shadow: var(--schmancy-sys-elevation-4);
-		position: relative;
-	}
-	:host([elevation='5']) {
-		box-shadow: var(--schmancy-sys-elevation-5);
-		position: relative;
-	}
-
-	/* M3 Surface tint overlay for elevated surfaces */
-	:host([elevation]:not([elevation='0']))::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		border-radius: inherit;
-		pointer-events: none;
-		background: var(--schmancy-sys-color-surface-tint);
-		/* Tint opacity increases with elevation */
-		opacity: calc(var(--elevation, 0) * 0.02);
-	}
-	:host([elevation='1'])::after { --elevation: 1; }
-	:host([elevation='2'])::after { --elevation: 2; }
-	:host([elevation='3'])::after { --elevation: 3; }
-	:host([elevation='4'])::after { --elevation: 4; }
-	:host([elevation='5'])::after { --elevation: 5; }
-	
-	/* Surface type styles - background and text colors */
-	/* Note: surface-low/high/lowest/highest map to M3 containerLow/High/Lowest/Highest */
-	:host([type='surface']) {
-		background-color: var(--schmancy-sys-color-surface-default);
-		color: var(--schmancy-sys-color-surface-on);
-	}
-	:host([type='surfaceDim']) {
-		background-color: var(--schmancy-sys-color-surface-dim);
-		color: var(--schmancy-sys-color-surface-on);
-	}
-	:host([type='surfaceBright']) {
-		background-color: var(--schmancy-sys-color-surface-bright);
-		color: var(--schmancy-sys-color-surface-on);
-	}
-	:host([type='containerLowest']) {
-		/* M3 containerLowest */
-		background-color: var(--schmancy-sys-color-surface-lowest);
-		color: var(--schmancy-sys-color-surface-on);
-	}
-	:host([type='containerLow']) {
-		/* M3 containerLow */
-		background-color: var(--schmancy-sys-color-surface-low);
-		color: var(--schmancy-sys-color-surface-on);
-	}
-	:host([type='container']) {
-		/* M3 container */
-		background-color: var(--schmancy-sys-color-surface-container);
-		color: var(--schmancy-sys-color-surface-on);
-	}
-	:host([type='containerHigh']) {
-		/* M3 containerHigh */
-		background-color: var(--schmancy-sys-color-surface-high);
-		color: var(--schmancy-sys-color-surface-on);
-	}
-	:host([type='containerHighest']) {
-		/* M3 containerHighest */
-		background-color: var(--schmancy-sys-color-surface-highest);
-		color: var(--schmancy-sys-color-surface-on);
-	}
-	:host([type='glass']) {
-		/* Glassmorphism effect with theme-aware colors */
-		background-color: color-mix(in srgb, var(--schmancy-sys-color-surface-container) 70%, transparent);
-		backdrop-filter: blur(10px) saturate(180%);
-		-webkit-backdrop-filter: blur(10px) saturate(180%);
-		color: var(--schmancy-sys-color-surface-on);
-		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-surface-on) 10%, transparent);
-	}
-	:host([type='transparent']) {
-		/* Fully transparent background */
-		background-color: transparent;
-		color: var(--schmancy-sys-color-surface-on);
-	}
-	:host([type='glassOforim']) {
-		/* Oforim-specific glass variant with enhanced blur */
-		background-color: color-mix(in srgb, var(--schmancy-sys-color-surface-container) 60%, transparent);
-		backdrop-filter: blur(16px) saturate(200%) brightness(1.1);
-		-webkit-backdrop-filter: blur(16px) saturate(200%) brightness(1.1);
-		color: var(--schmancy-sys-color-surface-on);
-		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-primary-default) 20%, transparent);
-	}
-
-	/* State-based surface types for selection/active states */
-	:host([type='primary']) {
-		background-color: var(--schmancy-sys-color-primary-default);
-		color: var(--schmancy-sys-color-primary-on);
-	}
-	:host([type='primaryContainer']) {
-		background-color: var(--schmancy-sys-color-primary-container);
-		color: var(--schmancy-sys-color-primary-onContainer);
-	}
-	:host([type='secondary']) {
-		background-color: var(--schmancy-sys-color-secondary-default);
-		color: var(--schmancy-sys-color-secondary-on);
-	}
-	:host([type='secondaryContainer']) {
-		background-color: var(--schmancy-sys-color-secondary-container);
-		color: var(--schmancy-sys-color-secondary-onContainer);
-	}
-	:host([type='tertiary']) {
-		background-color: var(--schmancy-sys-color-tertiary-default);
-		color: var(--schmancy-sys-color-tertiary-on);
-	}
-	:host([type='tertiaryContainer']) {
-		background-color: var(--schmancy-sys-color-tertiary-container);
-		color: var(--schmancy-sys-color-tertiary-onContainer);
-	}
-	:host([type='error']) {
-		background-color: var(--schmancy-sys-color-error-container);
-		color: var(--schmancy-sys-color-error-onContainer);
-	}
-	:host([type='errorContainer']) {
-		background-color: var(--schmancy-sys-color-error-container);
-		color: var(--schmancy-sys-color-error-onContainer);
-	}
-	:host([type='success']) {
-		background-color: var(--schmancy-sys-color-success-default);
-		color: var(--schmancy-sys-color-success-on);
-	}
-	:host([type='successContainer']) {
-		background-color: var(--schmancy-sys-color-success-container);
-		color: var(--schmancy-sys-color-success-onContainer);
-	}
-	:host([type='warning']) {
-		background-color: var(--schmancy-sys-color-warning-default);
-		color: var(--schmancy-sys-color-warning-on);
-	}
-	:host([type='warningContainer']) {
-		background-color: var(--schmancy-sys-color-warning-container);
-		color: var(--schmancy-sys-color-warning-onContainer);
-	}
-	:host([type='info']) {
-		background-color: var(--schmancy-sys-color-info-default);
-		color: var(--schmancy-sys-color-info-on);
-	}
-	:host([type='infoContainer']) {
-		background-color: var(--schmancy-sys-color-info-container);
-		color: var(--schmancy-sys-color-info-onContainer);
-	}
-`) {
-	/**
-	 * Fill the width and/or height of the parent container.
-	 * Options: 'all', 'width', 'height', 'auto'.
-	 * @default 'auto'
-	 */
-	@property({ type: String, reflect: true })
-	fill: 'all' | 'width' | 'height' | 'auto' = 'auto'
-
-	/**
-	 * Specifies the rounding style of the component's corners.
-	 * Options: 'none', 'top', 'left', 'right', 'bottom', 'all'.
-	 * @default 'none'
-	 */
-	@property({ reflect: true })
-	rounded: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' = 'none'
-
+export class SchmancySurface extends SurfaceMixin(
+	TailwindElement(css`
+		:host {
+			display: block;
+			box-sizing: border-box;
+			overflow: visible;
+		}
+	`),
+) {
 	/**
 	 * Specifies the surface type for styling.
 	 * Provided to descendant components via context.
-	 * Options: 'surface', 'surfaceDim', 'surfaceBright', 'containerLowest',
-	 * 'containerLow', 'container', 'containerHigh', 'containerHighest',
-	 * 'glass', 'transparent', 'glassOforim', 'primary', 'primaryContainer',
-	 * 'secondary', 'secondaryContainer', 'tertiary', 'tertiaryContainer',
-	 * 'error', 'errorContainer', 'success', 'successContainer',
-	 * 'warning', 'warningContainer', 'info', 'infoContainer'.
 	 * @default 'container'
 	 */
 	@provide({ context: SchmancySurfaceTypeContext })
 	@property({ reflect: true })
-	type: TSurfaceColor = 'container'
-
-	/**
-	 * Defines the elevation level (shadow depth) of the surface.
-	 * Valid values: 0, 1, 2, 3, 4, 5.
-	 * @default 0
-	 */
-	@property({ type: Number, reflect: true })
-	elevation: 0 | 1 | 2 | 3 | 4 | 5 = 0
+	override type: TSurfaceColor = 'subtle'
 
 	protected render(): unknown {
 		return html`<slot></slot>`

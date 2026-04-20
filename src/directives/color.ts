@@ -1,6 +1,6 @@
 // color.ts
-import { Part, nothing } from 'lit'
-import { Directive, PartInfo, PartType, directive } from 'lit/directive.js'
+import { nothing } from 'lit'
+import { Directive, ElementPart, PartInfo, PartType, directive } from 'lit/directive.js'
 
 export type ColorConfig = {
 	bgColor?: string
@@ -15,7 +15,7 @@ class ColorDirective extends Directive {
 		this.config = {}
 	}
 
-	update(part: Part, [config]: [ColorConfig]) {
+	update(part: ElementPart, [config]: [ColorConfig]) {
 		if (part.type !== PartType.ELEMENT) {
 			throw new Error('The `classMap` directive must be used in the `class` attribute')
 		}

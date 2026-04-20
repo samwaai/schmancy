@@ -6,7 +6,32 @@
 :host,
 :host *,
 * {
-	touch-action: manipulation;
+	/* pan-x pan-y allows scrolling but disables pinch-zoom */
+	touch-action: pan-x pan-y;
+}
+
+/* Interactive: luminous lift on hover, spring compress on active */
+.interactive {
+	transition:
+		transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
+		box-shadow 400ms ease,
+		filter 200ms ease;
+}
+.interactive:hover {
+	transform: translateY(-1px);
+	filter: brightness(1.03);
+	box-shadow: 0 4px 20px -6px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 18%, transparent);
+}
+.interactive:active {
+	transform: scale(0.97);
+	filter: brightness(0.96);
+	box-shadow: none;
+	transition-duration: 100ms;
+}
+@media (prefers-reduced-motion: reduce) {
+	.interactive { transition: filter 150ms ease; }
+	.interactive:hover { transform: none; box-shadow: none; }
+	.interactive:active { transform: none; }
 }
 @theme inline {
 	--md-ref-typeface-brand: var(--schmancy-font-family);
@@ -30,6 +55,11 @@
 	--color-surface-high: var(--schmancy-sys-color-surface-high);
 	--color-surface-highest: var(--schmancy-sys-color-surface-highest);
 	--color-surface-lowest: var(--schmancy-sys-color-surface-lowest);
+	/* CamelCase variants for Tailwind compatibility */
+	--color-surface-containerLow: var(--schmancy-sys-color-surface-containerLow);
+	--color-surface-containerHigh: var(--schmancy-sys-color-surface-containerHigh);
+	--color-surface-containerLowest: var(--schmancy-sys-color-surface-containerLowest);
+	--color-surface-containerHighest: var(--schmancy-sys-color-surface-containerHighest);
 	--color-surface-on: var(--schmancy-sys-color-surface-on);
 	--color-surface-on-variant: var(--schmancy-sys-color-surface-onVariant);
 	--color-primary-default: var(--schmancy-sys-color-primary-default);
@@ -56,6 +86,10 @@
 	--color-warning-on: var(--schmancy-sys-color-warning-on);
 	--color-warning-container: var(--schmancy-sys-color-warning-container);
 	--color-warning-on-container: var(--schmancy-sys-color-warning-onContainer);
+	--color-info-default: var(--schmancy-sys-color-info-default);
+	--color-info-on: var(--schmancy-sys-color-info-on);
+	--color-info-container: var(--schmancy-sys-color-info-container);
+	--color-info-on-container: var(--schmancy-sys-color-info-onContainer);
 
 	/* DEPRECATED: camelCase aliases for backward compatibility - use hyphenated format instead */
 	--color-outlineVariant: var(--schmancy-sys-color-outlineVariant);
@@ -66,6 +100,7 @@
 	--color-error-onContainer: var(--schmancy-sys-color-error-onContainer);
 	--color-success-onContainer: var(--schmancy-sys-color-success-onContainer);
 	--color-warning-onContainer: var(--schmancy-sys-color-warning-onContainer);
+	--color-info-onContainer: var(--schmancy-sys-color-info-onContainer);
 
 	/* Shorthand aliases (maps to -default variant) */
 	--color-primary: var(--schmancy-sys-color-primary-default);
@@ -74,6 +109,7 @@
 	--color-error: var(--schmancy-sys-color-error-default);
 	--color-success: var(--schmancy-sys-color-success-default);
 	--color-warning: var(--schmancy-sys-color-warning-default);
+	--color-info: var(--schmancy-sys-color-info-default);
 	--color-surface: var(--schmancy-sys-color-surface-default);
 
 	--shadow-0: var(--schmancy-sys-elevation-0);
@@ -83,6 +119,14 @@
 	--shadow-4: var(--schmancy-sys-elevation-4);
 	--shadow-5: var(--schmancy-sys-elevation-5);
 	--outline-1: var(--schmancy-sys-outline-1);
+
+	/* Luminous glow elevation — light-based depth for futuristic UI
+	   Use shadow-glow-{1-5} classes. Glow intensifies with level. */
+	--shadow-glow-1: 0 2px 12px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent);
+	--shadow-glow-2: 0 4px 20px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 22%, transparent);
+	--shadow-glow-3: 0 8px 32px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 28%, transparent);
+	--shadow-glow-4: 0 12px 44px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 35%, transparent);
+	--shadow-glow-5: 0 20px 60px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 42%, transparent);
 	--font-sans:
 		var(--schmancy-font-family), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
 		'Segoe UI Symbol', 'Noto Color Emoji';
@@ -201,26 +245,38 @@
 	--animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 	--animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 	--animate-bounce: bounce 1s infinite;
+	/* ========================================================================
+	   ANIMATION SYSTEM
+
+	   A comprehensive, reusable animation library organized by category.
+	   All animations use CSS custom properties for easy customization.
+
+	   NAMING CONVENTION:
+	   - Entrance animations: *-in (fade-in, slide-in, pop-in)
+	   - Exit animations: *-out (fade-out, slide-out)
+	   - Looping animations: descriptive name (float, pulse, shimmer)
+
+	   USAGE:
+	   - Use `animate-{name}` class in Tailwind
+	   - Combine with `opacity-0` for entrance animations
+	   - Use `animation-delay` via style attribute for staggered effects
+	   ======================================================================== */
+
+	/* ------------------------------------------------------------------------
+	   TAILWIND DEFAULT ANIMATIONS
+	   Standard animations from Tailwind CSS
+	   ------------------------------------------------------------------------ */
 	@keyframes spin {
-		to {
-			transform: rotate(360deg);
-		}
+		to { transform: rotate(360deg); }
 	}
 	@keyframes ping {
-		75%,
-		100% {
-			transform: scale(2);
-			opacity: 0;
-		}
+		75%, 100% { transform: scale(2); opacity: 0; }
 	}
 	@keyframes pulse {
-		50% {
-			opacity: 0.5;
-		}
+		50% { opacity: 0.5; }
 	}
 	@keyframes bounce {
-		0%,
-		100% {
+		0%, 100% {
 			transform: translateY(-25%);
 			animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
 		}
@@ -229,4 +285,265 @@
 			animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
 		}
 	}
+
+	/* ------------------------------------------------------------------------
+	   ENTRANCE ANIMATIONS
+	   One-shot animations for elements entering the viewport.
+	   All use `forwards` fill-mode to maintain end state.
+	   ------------------------------------------------------------------------ */
+
+	/* Fade In - Simple opacity transition */
+	--animate-fade-in: fade-in 0.5s ease forwards;
+	@keyframes fade-in {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	/* Fade In Up - Fade with upward movement (subtle) */
+	--animate-fade-in-up: fade-in-up 0.5s ease forwards;
+	@keyframes fade-in-up {
+		from { opacity: 0; transform: translateY(20px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	/* Fade In Up Large - Fade with larger upward movement + scale */
+	--animate-fade-in-up-lg: fade-in-up-lg 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+	@keyframes fade-in-up-lg {
+		from { opacity: 0; transform: translateY(30px) scale(0.95); }
+		to { opacity: 1; transform: translateY(0) scale(1); }
+	}
+
+	/* Slide In Left - Enter from left side */
+	--animate-slide-in-left: slide-in-left 0.5s ease forwards;
+	@keyframes slide-in-left {
+		from { opacity: 0; transform: translateX(-30px); }
+		to { opacity: 1; transform: translateX(0); }
+	}
+
+	/* Slide In Right - Enter from right side */
+	--animate-slide-in-right: slide-in-right 0.5s ease forwards;
+	@keyframes slide-in-right {
+		from { opacity: 0; transform: translateX(30px); }
+		to { opacity: 1; transform: translateX(0); }
+	}
+
+	/* Pop In - Scale up with bounce easing */
+	--animate-pop-in: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+	@keyframes pop-in {
+		from { opacity: 0; transform: scale(0.8); }
+		to { opacity: 1; transform: scale(1); }
+	}
+
+	/* Expand In - Subtle scale + translate entrance */
+	--animate-expand-in: expand-in 0.5s ease forwards;
+	@keyframes expand-in {
+		from { opacity: 0; transform: scale(0.95) translateY(10px); }
+		to { opacity: 1; transform: scale(1) translateY(0); }
+	}
+
+	/* Converge In - Dramatic entrance with overshoot */
+	--animate-converge-in: converge-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+	@keyframes converge-in {
+		0% { opacity: 0; transform: scale(0) translateY(50px); }
+		60% { opacity: 1; transform: scale(1.1) translateY(-10px); }
+		100% { opacity: 1; transform: scale(1) translateY(0); }
+	}
+
+	/* Spin In - Rotate + scale entrance */
+	--animate-spin-in: spin-in 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+	@keyframes spin-in {
+		from { opacity: 0; transform: scale(0) rotate(-180deg); }
+		to { opacity: 1; transform: scale(1) rotate(0deg); }
+	}
+
+	/* Scatter In - Scale from 0 to partial opacity (for decorative elements) */
+	--animate-scatter-in: scatter-in 1s ease forwards;
+	@keyframes scatter-in {
+		from { opacity: 0; transform: scale(0); }
+		to { opacity: 0.2; transform: scale(1); }
+	}
+
+	/* ------------------------------------------------------------------------
+	   LOOPING ANIMATIONS - PULSE VARIANTS
+	   Continuous pulsing effects for attention/status indicators.
+	   ------------------------------------------------------------------------ */
+
+	/* Pulse Opacity - Simple opacity pulse */
+	--animate-pulse-opacity: pulse-opacity 2s ease-in-out infinite;
+	@keyframes pulse-opacity {
+		0%, 100% { opacity: 1; }
+		50% { opacity: 0.5; }
+	}
+
+	/* Pulse Scale - Scale + opacity pulse (for status dots) */
+	--animate-pulse-scale: pulse-scale 1.5s ease infinite;
+	@keyframes pulse-scale {
+		0%, 100% { transform: scale(1); opacity: 1; }
+		50% { transform: scale(1.3); opacity: 0.6; }
+	}
+
+	/* Pulse Glow - Scale + dynamic box-shadow (for highlighted elements) */
+	--animate-pulse-glow: pulse-glow 2s ease infinite;
+	@keyframes pulse-glow {
+		0%, 100% {
+			transform: scale(1);
+			box-shadow: 0 0 20px var(--schmancy-sys-color-primary-default);
+		}
+		50% {
+			transform: scale(1.05);
+			box-shadow: 0 0 40px var(--schmancy-sys-color-primary-default);
+		}
+	}
+
+	/* Pulse Ring - Expanding ring effect (for ripples) */
+	--animate-pulse-ring: pulse-ring 2s ease-out infinite;
+	@keyframes pulse-ring {
+		0% { transform: scale(0.8); opacity: 0.6; }
+		100% { transform: scale(2); opacity: 0; }
+	}
+
+	/* ------------------------------------------------------------------------
+	   LOOPING ANIMATIONS - FLOAT VARIANTS
+	   Gentle floating/hovering effects for ambient motion.
+	   ------------------------------------------------------------------------ */
+
+	/* Float - Simple vertical float */
+	--animate-float: float 3s ease-in-out infinite;
+	@keyframes float {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-8px); }
+	}
+
+	/* Float Particle - Vertical float with scale + opacity (for particles) */
+	--animate-float-particle: float-particle 4s ease-in-out infinite;
+	@keyframes float-particle {
+		0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+		50% { transform: translateY(-30px) scale(1.2); opacity: 0.3; }
+	}
+
+	/* Float Chaos - Multi-axis chaotic movement (for scattered elements) */
+	--animate-float-chaos: float-chaos 8s ease-in-out infinite;
+	@keyframes float-chaos {
+		0% { transform: translateY(0) rotate(0deg) scale(1); }
+		25% { transform: translateY(-30px) rotate(15deg) scale(1.1); }
+		50% { transform: translateY(-10px) rotate(-10deg) scale(0.95); }
+		75% { transform: translateY(-40px) rotate(8deg) scale(1.05); }
+		100% { transform: translateY(0) rotate(0deg) scale(1); }
+	}
+
+	/* ------------------------------------------------------------------------
+	   LOOPING ANIMATIONS - ROTATION
+	   Continuous rotation effects.
+	   ------------------------------------------------------------------------ */
+
+	/* Rotate Orbit - Slow continuous rotation (for orbital elements) */
+	--animate-rotate-orbit: rotate-orbit 20s linear infinite;
+	@keyframes rotate-orbit {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
+	}
+
+	/* ------------------------------------------------------------------------
+	   LOOPING ANIMATIONS - MOVEMENT EFFECTS
+	   Horizontal/directional movement for progress/flow indicators.
+	   ------------------------------------------------------------------------ */
+
+	/* Shimmer - Left-to-right shine effect (use with overflow:hidden) */
+	--animate-shimmer: shimmer 2s ease-in-out infinite;
+	@keyframes shimmer {
+		0% { left: -100%; }
+		50%, 100% { left: 100%; }
+	}
+
+	/* Scan Vertical - Top-to-bottom scanning line */
+	--animate-scan-vertical: scan-vertical 2s ease-in-out infinite;
+	@keyframes scan-vertical {
+		0% { top: 0; opacity: 0; }
+		10% { opacity: 1; }
+		90% { opacity: 1; }
+		100% { top: 100%; opacity: 0; }
+	}
+
+	/* Scan Horizontal - Left-to-right scanning */
+	--animate-scan-horizontal: scan-horizontal 2s ease-in-out infinite;
+	@keyframes scan-horizontal {
+		0% { left: -100%; }
+		100% { left: 100%; }
+	}
+
+	/* Flow - Continuous left-to-right flow (for progress connectors) */
+	--animate-flow: flow 2s ease-in-out infinite;
+	@keyframes flow {
+		0% { left: -50%; }
+		100% { left: 150%; }
+	}
+
+	/* Line Float - Horizontal line traversal with opacity (for decorative lines) */
+	--animate-line-float: line-float 4s ease-in-out infinite;
+	@keyframes line-float {
+		0%, 100% { transform: translateX(-100%) scaleX(0.5); opacity: 0; }
+		50% { transform: translateX(100%) scaleX(1); opacity: 0.3; }
+	}
+
+	/* ------------------------------------------------------------------------
+	   KINETIC STATE — Physics-based feedback animations.
+	   UI communicates through motion, not icons.
+	   ------------------------------------------------------------------------ */
+
+	/* Breathe — gentle living pulse for loading/active states */
+	--animate-breathe: breathe 2.5s ease-in-out infinite;
+	@keyframes breathe {
+		0%, 100% { transform: scale(1); opacity: 1; }
+		50% { transform: scale(1.015); opacity: 0.88; }
+	}
+
+	/* Glow Pulse — luminous throb for highlighted elements */
+	--animate-glow-pulse: glow-pulse 2s ease-in-out infinite;
+	@keyframes glow-pulse {
+		0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--schmancy-sys-color-primary-default) 30%, transparent); }
+		50% { box-shadow: 0 0 24px 4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent); }
+	}
+
+	/* Kinetic Shake — physics-damped error feedback */
+	--animate-kinetic-shake: kinetic-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+	@keyframes kinetic-shake {
+		0%, 100% { transform: translateX(0); }
+		10% { transform: translateX(-6px); }
+		20% { transform: translateX(5px); }
+		30% { transform: translateX(-4px); }
+		40% { transform: translateX(3px); }
+		50% { transform: translateX(-2px); }
+		60% { transform: translateX(1px); }
+	}
+
+	/* Scale Tap — spring-physics tap response */
+	--animate-scale-tap: scale-tap 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+	@keyframes scale-tap {
+		0% { transform: scale(1); }
+		40% { transform: scale(0.94); }
+		100% { transform: scale(1); }
+	}
+
+	/* Glow In — luminous entrance with depth */
+	--animate-glow-in: glow-in 0.6s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+	@keyframes glow-in {
+		from {
+			box-shadow: 0 0 0 0 transparent;
+			opacity: 0;
+			transform: scale(0.96);
+		}
+		to {
+			box-shadow: 0 8px 32px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 20%, transparent);
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	/* ------------------------------------------------------------------------
+	   CUSTOM EASING CURVES
+	   Reusable timing functions for consistent animation feel.
+	   ------------------------------------------------------------------------ */
+	--ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+	--ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+	--ease-snap: cubic-bezier(0.34, 1.2, 0.64, 1);
 }
