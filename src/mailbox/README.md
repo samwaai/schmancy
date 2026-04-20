@@ -1,6 +1,6 @@
 # Schmancy Mailbox Components
 
-A comprehensive email composition and management system extracted from funkhaus-events and generalized for reusability.
+A comprehensive email composition and management system.
 
 ## Components
 
@@ -113,16 +113,13 @@ All components dispatch standard CustomEvents:
 - `send-email`: When send button is clicked
 - `send-error`: When validation or sending fails
 
-## Migration from funkhaus-events
+## Design Notes
 
-Key changes made for generalization:
-
-1. **Removed Firebase Dependencies**: No direct Firebase imports
-2. **Configurable Upload Handlers**: Custom upload logic via props
-3. **Optional CSV Parser**: Can use Papa Parse or custom parser
-4. **Theme Integration**: Uses Schmancy design system
-5. **Host Styling**: Follows Schmancy component patterns
-6. **Type Safety**: Comprehensive TypeScript interfaces
+- **No Firebase coupling** — framework-agnostic
+- **Configurable upload handlers** — custom upload logic via props
+- **Optional CSV parser** — use Papa Parse or a custom parser
+- **Theme integration** — uses the Schmancy design system
+- **Type safety** — comprehensive TypeScript interfaces
 
 ## Dependencies
 

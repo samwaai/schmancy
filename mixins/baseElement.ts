@@ -144,7 +144,7 @@ export const BaseElement = <T extends Constructor<LitElement>>(superClass: T) =>
 					)
 				})
 
-			// 2. CSS selector discovery (e.g., '#app-card-melanie', '.my-class', '[uid="xyz"]')
+			// 2. CSS selector discovery (e.g., '#app-card', '.my-class', '[uid="xyz"]')
 			fromEvent<CustomEvent<DiscoverRequest>>(window, DISCOVER_EVENT)
 				.pipe(takeUntil(this.disconnecting))
 				.subscribe(({ detail: { selector, requestId } }) => {

@@ -200,7 +200,7 @@ class AreaService implements AreaSubscription {
 
 		const routeParams = (this.current.get(areaName)?.params ?? {}) as Record<string, unknown>
 
-		// ALWAYS merge URL query params - they take precedence (handles redirects like Revolut _rp_oid)
+		// ALWAYS merge URL query params - they take precedence (handles external OAuth-style redirects)
 		let currentParams = { ...routeParams }
 		if (typeof window !== 'undefined' && window.location.search) {
 			const urlParams = new URLSearchParams(window.location.search)

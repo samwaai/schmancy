@@ -50,7 +50,7 @@ export declare function discoverAnyComponent<T extends HTMLElement>(...component
  * @example
  * ```typescript
  * // Find element by ID across shadow boundaries
- * discoverElement('#app-card-melanie').subscribe(el => {
+ * discoverElement('#app-card').subscribe(el => {
  *   if (el) console.log('Found:', el)
  * })
  *

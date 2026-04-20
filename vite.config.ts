@@ -4,7 +4,6 @@ import { readdir } from 'fs/promises'
 import { resolve } from 'path'
 import copy from 'rollup-plugin-copy'
 import { defineConfig } from 'vite'
-import webfontDownload from 'vite-plugin-webfont-dl'
 import tailwindcss from '@tailwindcss/vite'
 
 const getDirectories = async (source: string) =>
@@ -32,10 +31,7 @@ export default defineConfig({
 		},
 		exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**'],
 	},
-	plugins: [
-		webfontDownload(['https://ticket.funkhaus-berlin.net/assets/GT-Eesti-Pro-Display-Regular-Czpp09nv.woff']),
-		tailwindcss(),
-	],
+	plugins: [tailwindcss()],
 	build: {
 		lib: {
 			entry: components.reduce(

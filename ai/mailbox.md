@@ -1,6 +1,6 @@
 # Schmancy Mailbox
 
-> Full email composition + campaign management system. Orchestrates recipients, templates, editor, attachments, and preview. Extracted from funkhaus-events and generalized.
+> Full email composition + campaign management system. Orchestrates recipients, templates, editor, attachments, and preview.
 
 ## Components
 

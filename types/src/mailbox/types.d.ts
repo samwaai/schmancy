@@ -1,6 +1,5 @@
 /**
  * Mailbox component types and interfaces
- * Extracted from funkhaus-events and generalized for reusability
  */
 /**
  * Email template definition

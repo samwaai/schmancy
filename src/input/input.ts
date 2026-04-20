@@ -825,7 +825,7 @@ export default class SchmancyInput extends SchmancyFormField(style) {
 		const isDateType = ['date', 'datetime-local', 'time', 'month', 'week'].includes(this.type)
 
 		const inputClasses = {
-			// Base styles - outlined style matching Revolut card field
+			// Base styles - outlined rounded input
 			'block w-full min-w-0 rounded-2xl border bg-surface-containerLowest text-surface-on': true,
 			// Border color
 			'border-outline': !this.error,

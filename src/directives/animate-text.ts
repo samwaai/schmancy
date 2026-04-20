@@ -3,7 +3,7 @@
  *
  * Usage:
  *   <span ${animateText({ animation: 'blur-reveal', stagger: 60 })}>Hello world</span>
- *   <span ${animateText({ animation: 'cyber-glitch', preset: 'snappy' })}>SAMWA</span>
+ *   <span ${animateText({ animation: 'cyber-glitch', preset: 'snappy' })}>GLITCH</span>
  *
  * Supports: typewriter, fade-up, word-reveal, blur-reveal, cyber-glitch
  * Presets: 'smooth' (default), 'snappy', 'bouncy', 'gentle'
