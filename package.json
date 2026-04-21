@@ -7,11 +7,15 @@
 	"exports": {
 		".": {
 			"types": "./types/src/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs",
 			"default": "./dist/index.js"
 		},
 		"./mixins": {
 			"types": "./types/mixins/index.d.ts",
-			"default": "./mixins/index.ts"
+			"import": "./dist/mixins.js",
+			"require": "./dist/mixins.cjs",
+			"default": "./dist/mixins.js"
 		},
 		"./*": {
 			"types": "./types/src/*/index.d.ts",
@@ -35,7 +39,6 @@
 		"dist",
 		"types",
 		"src",
-		"mixins",
 		".claude-plugin",
 		"skills",
 		"custom-elements.json",
