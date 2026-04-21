@@ -13,9 +13,7 @@
 		},
 		"./mixins": {
 			"types": "./types/mixins/index.d.ts",
-			"import": "./dist/mixins.js",
-			"require": "./dist/mixins.cjs",
-			"default": "./dist/mixins.js"
+			"default": "./mixins/index.ts"
 		},
 		"./*": {
 			"types": "./types/src/*/index.d.ts",
