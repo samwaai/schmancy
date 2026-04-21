@@ -42,6 +42,9 @@ export declare class SchmancyFilterChip extends SchmancyFilterChip_base {
     internals: ElementInternals | undefined;
     get form(): HTMLFormElement;
     connectedCallback(): void;
+    protected updated(changed: Map<string, unknown>): void;
+    formResetCallback(): void;
+    formDisabledCallback(disabled: boolean): void;
     private handleClick;
     private handleRemove;
     private handleKeyDown;

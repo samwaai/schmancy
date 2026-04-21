@@ -77,6 +77,15 @@ export const DialogBase = <T extends Constructor<LitElement & IBaseMixin>>(super
 		// Animation guard
 		private animating = false
 
+		/** ElementInternals — used for broadcasting `:state(open)` to consumers. */
+		protected dialogInternals: ElementInternals | undefined = (() => {
+			try {
+				return this.attachInternals()
+			} catch {
+				return undefined
+			}
+		})()
+
 		/**
 		 * Check if the dialog is currently animating
 		 */
@@ -285,6 +294,7 @@ export const DialogBase = <T extends Constructor<LitElement & IBaseMixin>>(super
 			await this.updateComplete
 
 			this.setAttribute('active', '')
+			this.dialogInternals?.states.add('open')
 			await this.updateComplete
 
 			// Save focus and set siblings to inert for focus trap
@@ -443,6 +453,7 @@ export const DialogBase = <T extends Constructor<LitElement & IBaseMixin>>(super
 			this.animating = false
 
 			this.removeAttribute('active')
+			this.dialogInternals?.states.delete('open')
 
 			// Restore inert siblings
 			for (const el of this.inertSiblings) {

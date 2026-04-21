@@ -17,6 +17,12 @@ declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mix
  * @prop {string[]} values - Selected values (multi-select mode)
  */
 export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
+    static formAssociated: boolean;
+    internals: ElementInternals | undefined;
+    constructor();
+    get form(): HTMLFormElement | null;
+    formResetCallback(): void;
+    formDisabledCallback(disabled: boolean): void;
     _valueSet: boolean;
     _valuesSet: boolean;
     required: boolean;

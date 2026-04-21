@@ -6,7 +6,9 @@ import { customElement, property } from 'lit/decorators.js'
  * Content container for the schmancy-dropdown component.
  *
  * @element schmancy-dropdown-content
- * @slot - Default slot for dropdown content
+ * @slot - Default slot for dropdown content.
+ * @csspart content - The inner wrapper element; style to override panel
+ *   backgrounds, shadows, padding, or borders without shadow-root piercing.
  */
 @customElement('schmancy-dropdown-content')
 export class SchmancyDropdownContent extends TailwindElement(css`

@@ -169,6 +169,19 @@
       ],
       "properties": [
         {
+          "name": "formAssociated",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "internals",
+          "type": "ElementInternals | undefined"
+        },
+        {
+          "name": "form",
+          "type": "HTMLFormElement | null"
+        },
+        {
           "name": "maxHeight",
           "attribute": "maxHeight",
           "type": "string",
@@ -696,6 +709,81 @@
       ]
     },
     {
+      "name": "schmancy-breadcrumb",
+      "path": "./src/breadcrumb/breadcrumb.ts",
+      "description": "Breadcrumb navigation container. Wraps a list of `schmancy-breadcrumb-item`\nelements with the correct ARIA landmark and semantics.",
+      "attributes": [
+        {
+          "name": "separator",
+          "description": "Character or string rendered between items. Default `/`.",
+          "type": "string",
+          "default": "\"/\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "separator",
+          "attribute": "separator",
+          "description": "Character or string rendered between items. Default `/`.",
+          "type": "string",
+          "default": "\"/\""
+        }
+      ],
+      "slots": [
+        {
+          "name": "",
+          "description": "Default slot for `<schmancy-breadcrumb-item>` children."
+        }
+      ],
+      "cssParts": [
+        {
+          "name": "separator",
+          "description": "The separator element."
+        }
+      ]
+    },
+    {
+      "name": "schmancy-breadcrumb-item",
+      "path": "./src/breadcrumb/breadcrumb.ts",
+      "description": "Individual breadcrumb item. Renders as a link when `href` is provided,\notherwise as a plain span (represents the current page).",
+      "attributes": [
+        {
+          "name": "href",
+          "description": "If set, renders as an anchor.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "current",
+          "description": "Marks as `aria-current=\"page\"`.",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "properties": [
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "If set, renders as an anchor.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "current",
+          "attribute": "current",
+          "description": "Marks as `aria-current=\"page\"`.",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "slots": [
+        {
+          "name": "",
+          "description": "Label content."
+        }
+      ]
+    },
+    {
       "name": "schmancy-busy",
       "path": "./src/busy/busy.ts"
     },
@@ -793,6 +881,16 @@
       ],
       "properties": [
         {
+          "name": "formAssociated",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "form",
+          "description": "Associated form, when placed inside a <form>.",
+          "type": "HTMLFormElement | null"
+        },
+        {
           "name": "variant",
           "attribute": "variant",
           "description": "The variant of the button.",
@@ -863,6 +961,12 @@
         {
           "name": "suffix",
           "description": "The suffix slot."
+        }
+      ],
+      "cssParts": [
+        {
+          "name": "base",
+          "description": "The underlying native `<button>` (or `<a>` when `href` is set)."
         }
       ]
     },
@@ -991,7 +1095,13 @@
       "slots": [
         {
           "name": "",
-          "description": "The default slot."
+          "description": "The default slot (usually an icon or glyph)."
+        }
+      ],
+      "cssParts": [
+        {
+          "name": "base",
+          "description": "The underlying native `<button>` (or `<a>` when `href` is set)."
         }
       ]
     },
@@ -3440,7 +3550,13 @@
       "slots": [
         {
           "name": "",
-          "description": "Default slot for dropdown content"
+          "description": "Default slot for dropdown content."
+        }
+      ],
+      "cssParts": [
+        {
+          "name": "content",
+          "description": "The inner wrapper element; style to override panel\nbackgrounds, shadows, padding, or borders without shadow-root piercing."
         }
       ]
     },
@@ -3903,15 +4019,7 @@
     {
       "name": "schmancy-form",
       "path": "./src/form/form.ts",
-      "description": "The form component collects user input from interactive controls.\n\nDiscovery priority:\n1. **FormFieldMixin brand** — any descendant that extends `FormFieldMixin`\n   is auto-discovered and contributes via its `toFormEntries()` override.\n2. **Native form-associated custom elements** — detected via\n   `constructor.formAssociated === true` and read by duck type.\n3. **Legacy registry + optional user overrides** — for controls that do\n   not yet extend FormFieldMixin. Seeded with every existing Schmancy\n   control for zero-config back-compat.\n4. **Native HTML form elements** (`<input>`, `<select>`, `<textarea>`,\n   `<button>`) — read via standard DOM APIs.\n\nNew form components should extend `FormFieldMixin` and override\n`toFormEntries()` / `resetForm()` as needed — they will be picked up\nautomatically without touching schmancy-form.",
-      "attributes": [
-        {
-          "name": "novalidate",
-          "description": "Skip form validation on submit.",
-          "type": "boolean",
-          "default": "false"
-        }
-      ],
+      "description": "A thin ergonomic wrapper around a native `<form>` element. Its children are\nreparented into a `<form>` element in light DOM on connection, so:\n\n- Form-associated custom elements (FACE) resolve their `internals.form`\n  correctly via native DOM ancestry.\n- `new FormData(form)` collects values from every FACE + native control\n  without any manual walking.\n- `form.reset()` triggers `formResetCallback()` on every FACE.\n- `form.reportValidity()` runs native validation UI.\n- `<button type=\"submit\">` and `<schmancy-button type=\"submit\">` both\n  submit the form via the native submitter pipeline.\n\nThis component exists only to translate the native `submit` / `reset`\nevents into the Schmancy event shape (`detail: FormData`). All heavy\nlifting is the platform's.",
       "properties": [
         {
           "name": "tagName",
@@ -3920,26 +4028,23 @@
         },
         {
           "name": "novalidate",
-          "attribute": "novalidate",
-          "description": "Skip form validation on submit.",
-          "type": "boolean",
-          "default": "false"
+          "description": "Skip built-in constraint validation on submit. Mirrors `<form novalidate>`.",
+          "type": "boolean"
+        },
+        {
+          "name": "form",
+          "description": "The underlying `<form>` element (escape hatch for advanced integration).",
+          "type": "HTMLFormElement | null"
         }
       ],
       "events": [
         {
           "name": "submit",
-          "description": "FormData emitted when the form is submitted."
+          "description": "`CustomEvent<FormData>` emitted when the form is submitted."
         },
         {
           "name": "reset",
-          "description": "Emitted when the form is reset."
-        }
-      ],
-      "slots": [
-        {
-          "name": "",
-          "description": "Default slot for form content."
+          "description": "Emitted after the underlying form resets."
         }
       ]
     },
@@ -4046,6 +4151,12 @@
         {
           "name": "--schmancy-icon-opsz",
           "description": "Optical size (default: 24)"
+        }
+      ],
+      "cssParts": [
+        {
+          "name": "icon",
+          "description": "The inner `<span>` carrying the Material Symbols glyph."
         }
       ]
     },
@@ -4789,6 +4900,40 @@
           "attribute": "compact",
           "type": "boolean",
           "default": "false"
+        }
+      ]
+    },
+    {
+      "name": "schmancy-kbd",
+      "path": "./src/kbd/kbd.ts",
+      "description": "Renders a keyboard shortcut hint (e.g. `⌘ K`, `Ctrl+C`). Semantically a\n`<kbd>` element for screen readers; visually styled as a pressed key.\n\nCompose multiple instances for combinations:\n```html\n<schmancy-kbd>⌘</schmancy-kbd> + <schmancy-kbd>K</schmancy-kbd>\n```",
+      "attributes": [
+        {
+          "name": "size",
+          "description": "'sm' | 'md'. Default 'md'.",
+          "type": "\"sm\" | \"md\"",
+          "default": "\"md\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "size",
+          "attribute": "size",
+          "description": "'sm' | 'md'. Default 'md'.",
+          "type": "\"sm\" | \"md\"",
+          "default": "\"md\""
+        }
+      ],
+      "slots": [
+        {
+          "name": "",
+          "description": "The key label (e.g. `⌘`, `Shift`, `K`)."
+        }
+      ],
+      "cssParts": [
+        {
+          "name": "base",
+          "description": "The inner native `<kbd>` element."
         }
       ]
     },
@@ -6342,503 +6487,6 @@
       ],
       "deprecated": true,
       "deprecatedMessage": "Use Tailwind CSS flex classes directly instead of this component.\nThis component will be removed in a future version.\n\nMigration guide:\n- Replace <sch-flex> with <div class=\"flex ...\">\n- Use Tailwind's flex utilities: flex-row, flex-col, gap-*, items-*, justify-*, etc.\n\nOriginal documentation:\n\nSchmancyFlex exposes a flex container with all the Tailwind CSS 4 options:\n\n- **Display**: By default uses `flex` but can be set to inline using the `inline` property.\n- **Flow**: Accepts 'row', 'row-reverse', 'col', 'col-reverse' as well as grid‐like dense variants:\n- Dense variants (`row-dense`, `col-dense`) force wrapping.\n- **Wrap**: 'wrap', 'nowrap', or 'wrap-reverse'\n- **Align Items**: 'start', 'center', 'end', 'stretch', or 'baseline'\n- **Justify Content**: 'start', 'center', 'end', 'between', 'around', or 'evenly'\n- **Align Content** (for multi-line flex containers): 'start', 'center', 'end', 'between', 'around', or 'evenly'\n- **Gap**: Supports Tailwind’s spacing scale (e.g. 'none', '0', '1', '2', …, '64')"
-    },
-    {
-      "name": "sch-grid",
-      "path": "./src/layout/v2/grid.ts",
-      "attributes": [
-        {
-          "name": "columns",
-          "description": "Grid template columns.\nExamples: '1', '2', '3', 'none', 'subgrid', '[200px_minmax(900px,_1fr)_100px]'",
-          "type": "string",
-          "default": "\"none\""
-        },
-        {
-          "name": "rows",
-          "description": "Grid template rows.\nExamples: '1', '2', '3', 'none', 'subgrid', '[200px_minmax(900px,_1fr)_100px]'",
-          "type": "string",
-          "default": "\"none\""
-        },
-        {
-          "name": "flow",
-          "description": "Grid auto flow.\nOptions: 'row', 'column', 'dense', 'row-dense', 'column-dense'",
-          "type": "\"row\" | \"dense\" | \"row-dense\" | \"column\" | \"column-dense\"",
-          "default": "\"row\""
-        },
-        {
-          "name": "gap",
-          "description": "Gap between grid items.\nExamples: '0', '1', '2', '4', '8', '16', '32', '64'",
-          "type": "string",
-          "default": "\"0\""
-        },
-        {
-          "name": "gapX",
-          "description": "Gap between columns.\nOverrides the general gap if specified.",
-          "type": "string | undefined"
-        },
-        {
-          "name": "gapY",
-          "description": "Gap between rows.\nOverrides the general gap if specified.",
-          "type": "string | undefined"
-        },
-        {
-          "name": "responsive",
-          "description": "Responsive variants.\nExample: { sm: 'grid-cols-2', md: 'grid-cols-4' }",
-          "type": "{ [key: string]: string; }",
-          "default": "{}"
-        },
-        {
-          "name": "center",
-          "type": "boolean | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "padding",
-          "type": "string | undefined"
-        },
-        {
-          "name": "margin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "width",
-          "type": "string | undefined"
-        },
-        {
-          "name": "height",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "display",
-          "description": "Display mode: 'grid' or 'inline-grid'.",
-          "type": "\"grid\" | \"inline-grid\"",
-          "default": "\"grid\""
-        },
-        {
-          "name": "overflow",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowX",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowY",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "position",
-          "type": "\"static\" | \"relative\" | \"absolute\" | \"fixed\" | \"sticky\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "top",
-          "type": "string | undefined"
-        },
-        {
-          "name": "right",
-          "type": "string | undefined"
-        },
-        {
-          "name": "bottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "left",
-          "type": "string | undefined"
-        },
-        {
-          "name": "inset",
-          "type": "string | undefined"
-        },
-        {
-          "name": "zIndex",
-          "type": "string | undefined"
-        },
-        {
-          "name": "border",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderTop",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderBottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderLeft",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRadius",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "boxShadow",
-          "type": "string | undefined"
-        },
-        {
-          "name": "opacity",
-          "type": "string | undefined"
-        },
-        {
-          "name": "background",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundImage",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundPosition",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundSize",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundRepeat",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundAttachment",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundClip",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundOrigin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundBlendMode",
-          "type": "string | undefined"
-        },
-        {
-          "name": "filter",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backdropFilter",
-          "type": "string | undefined"
-        }
-      ],
-      "properties": [
-        {
-          "name": "columns",
-          "attribute": "columns",
-          "description": "Grid template columns.\nExamples: '1', '2', '3', 'none', 'subgrid', '[200px_minmax(900px,_1fr)_100px]'",
-          "type": "string",
-          "default": "\"none\""
-        },
-        {
-          "name": "rows",
-          "attribute": "rows",
-          "description": "Grid template rows.\nExamples: '1', '2', '3', 'none', 'subgrid', '[200px_minmax(900px,_1fr)_100px]'",
-          "type": "string",
-          "default": "\"none\""
-        },
-        {
-          "name": "flow",
-          "attribute": "flow",
-          "description": "Grid auto flow.\nOptions: 'row', 'column', 'dense', 'row-dense', 'column-dense'",
-          "type": "\"row\" | \"dense\" | \"row-dense\" | \"column\" | \"column-dense\"",
-          "default": "\"row\""
-        },
-        {
-          "name": "gap",
-          "attribute": "gap",
-          "description": "Gap between grid items.\nExamples: '0', '1', '2', '4', '8', '16', '32', '64'",
-          "type": "string",
-          "default": "\"0\""
-        },
-        {
-          "name": "gapX",
-          "attribute": "gapX",
-          "description": "Gap between columns.\nOverrides the general gap if specified.",
-          "type": "string | undefined"
-        },
-        {
-          "name": "gapY",
-          "attribute": "gapY",
-          "description": "Gap between rows.\nOverrides the general gap if specified.",
-          "type": "string | undefined"
-        },
-        {
-          "name": "responsive",
-          "attribute": "responsive",
-          "description": "Responsive variants.\nExample: { sm: 'grid-cols-2', md: 'grid-cols-4' }",
-          "type": "{ [key: string]: string; }",
-          "default": "{}"
-        },
-        {
-          "name": "styles",
-          "type": "array",
-          "default": "[\"styles\",null]"
-        },
-        {
-          "name": "layout",
-          "type": "boolean",
-          "default": "true"
-        },
-        {
-          "name": "center",
-          "attribute": "center",
-          "type": "boolean | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "padding",
-          "attribute": "padding",
-          "type": "string | undefined"
-        },
-        {
-          "name": "margin",
-          "attribute": "margin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "width",
-          "attribute": "width",
-          "type": "string | undefined"
-        },
-        {
-          "name": "height",
-          "attribute": "height",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minWidth",
-          "attribute": "minWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minHeight",
-          "attribute": "minHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxWidth",
-          "attribute": "maxWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxHeight",
-          "attribute": "maxHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "display",
-          "attribute": "display",
-          "description": "Display mode: 'grid' or 'inline-grid'.",
-          "type": "\"grid\" | \"inline-grid\"",
-          "default": "\"grid\""
-        },
-        {
-          "name": "overflow",
-          "attribute": "overflow",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowX",
-          "attribute": "overflowX",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowY",
-          "attribute": "overflowY",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "position",
-          "attribute": "position",
-          "type": "\"static\" | \"relative\" | \"absolute\" | \"fixed\" | \"sticky\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "top",
-          "attribute": "top",
-          "type": "string | undefined"
-        },
-        {
-          "name": "right",
-          "attribute": "right",
-          "type": "string | undefined"
-        },
-        {
-          "name": "bottom",
-          "attribute": "bottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "left",
-          "attribute": "left",
-          "type": "string | undefined"
-        },
-        {
-          "name": "inset",
-          "attribute": "inset",
-          "type": "string | undefined"
-        },
-        {
-          "name": "zIndex",
-          "attribute": "zIndex",
-          "type": "string | undefined"
-        },
-        {
-          "name": "border",
-          "attribute": "border",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderTop",
-          "attribute": "borderTop",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRight",
-          "attribute": "borderRight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderBottom",
-          "attribute": "borderBottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderLeft",
-          "attribute": "borderLeft",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderColor",
-          "attribute": "borderColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRadius",
-          "attribute": "borderRadius",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderWidth",
-          "attribute": "borderWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "boxShadow",
-          "attribute": "boxShadow",
-          "type": "string | undefined"
-        },
-        {
-          "name": "opacity",
-          "attribute": "opacity",
-          "type": "string | undefined"
-        },
-        {
-          "name": "background",
-          "attribute": "background",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundImage",
-          "attribute": "backgroundImage",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundPosition",
-          "attribute": "backgroundPosition",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundSize",
-          "attribute": "backgroundSize",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundRepeat",
-          "attribute": "backgroundRepeat",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundAttachment",
-          "attribute": "backgroundAttachment",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundColor",
-          "attribute": "backgroundColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundClip",
-          "attribute": "backgroundClip",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundOrigin",
-          "attribute": "backgroundOrigin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundBlendMode",
-          "attribute": "backgroundBlendMode",
-          "type": "string | undefined"
-        },
-        {
-          "name": "filter",
-          "attribute": "filter",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backdropFilter",
-          "attribute": "backdropFilter",
-          "type": "string | undefined"
-        }
-      ]
     },
     {
       "name": "schmancy-lightbox",
@@ -8454,10 +8102,6 @@
       ]
     },
     {
-      "name": "schmancy-notification-outlet",
-      "path": "./src/notification/outlet.ts"
-    },
-    {
       "name": "schmancy-option",
       "path": "./src/option/option.ts",
       "description": "`schmancy-option` is an option element for schmancy-select and schmancy-autocomplete components.",
@@ -9309,6 +8953,73 @@
       ]
     },
     {
+      "name": "schmancy-skeleton",
+      "path": "./src/skeleton/skeleton.ts",
+      "description": "Placeholder shimmer surface shown while content loads. Renders a\nshape-configurable rectangle with a reduced-motion-aware shimmer.",
+      "attributes": [
+        {
+          "name": "shape",
+          "description": "'rect' | 'circle' | 'text'. Default 'rect'.",
+          "type": "\"text\" | \"rect\" | \"circle\"",
+          "default": "\"rect\""
+        },
+        {
+          "name": "width",
+          "description": "CSS length (e.g. `100%`, `12rem`).",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "height",
+          "description": "CSS length; for `shape=text` defaults to 1em.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "radius",
+          "description": "CSS length for corner radius; ignored for `shape=circle`.",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "shape",
+          "attribute": "shape",
+          "description": "'rect' | 'circle' | 'text'. Default 'rect'.",
+          "type": "\"text\" | \"rect\" | \"circle\"",
+          "default": "\"rect\""
+        },
+        {
+          "name": "width",
+          "attribute": "width",
+          "description": "CSS length (e.g. `100%`, `12rem`).",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "height",
+          "attribute": "height",
+          "description": "CSS length; for `shape=text` defaults to 1em.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "radius",
+          "attribute": "radius",
+          "description": "CSS length for corner radius; ignored for `shape=circle`.",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "cssParts": [
+        {
+          "name": "surface",
+          "description": "The shimmering surface element."
+        }
+      ]
+    },
+    {
       "name": "schmancy-slide",
       "path": "./src/slider/slide.ts",
       "attributes": [
@@ -9447,6 +9158,73 @@
       ]
     },
     {
+      "name": "schmancy-splash-screen",
+      "path": "./src/splash-screen/splash-screen.ts",
+      "description": "Full-viewport splash overlay that dismisses once a minimum duration has\nelapsed and (optionally) an external `ready` signal has fired. The splash\nfades out while the underlying app content fades in.\n\nBring-your-own visuals: the `splash` slot is empty by default so the\ncomponent pulls in no dependencies. Provide a logo, spinner, or\nanimation from the consumer side.",
+      "attributes": [
+        {
+          "name": "min-duration",
+          "description": "Minimum duration (ms) the splash layer stays visible. Prevents a flash\nwhen the app loads faster than expected.",
+          "type": "number",
+          "default": "1500"
+        },
+        {
+          "name": "auto",
+          "description": "When true, the splash dismisses on the `minDuration` timer alone.\nWhen false (default), it additionally waits for an external ready signal\n(a `ready` event on this element, or a call to `this.ready()`).",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "initially-hidden",
+          "description": "When true, the splash starts hidden. Use this for imperative control.",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "properties": [
+        {
+          "name": "minDuration",
+          "attribute": "min-duration",
+          "description": "Minimum duration (ms) the splash layer stays visible. Prevents a flash\nwhen the app loads faster than expected.",
+          "type": "number",
+          "default": "1500"
+        },
+        {
+          "name": "auto",
+          "attribute": "auto",
+          "description": "When true, the splash dismisses on the `minDuration` timer alone.\nWhen false (default), it additionally waits for an external ready signal\n(a `ready` event on this element, or a call to `this.ready()`).",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "initiallyHidden",
+          "attribute": "initially-hidden",
+          "description": "When true, the splash starts hidden. Use this for imperative control.",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "events": [
+        {
+          "name": "schmancy-splash-done",
+          "description": "`CustomEvent<void>` when the splash dismisses."
+        },
+        {
+          "name": "ready"
+        }
+      ],
+      "slots": [
+        {
+          "name": "splash",
+          "description": "Content rendered on the splash layer (logo, spinner, etc.)."
+        },
+        {
+          "name": "",
+          "description": "Default slot for the actual app content, revealed once dismissed."
+        }
+      ]
+    },
+    {
       "name": "schmancy-step",
       "path": "./src/steps/schmancy-step.ts",
       "attributes": [
@@ -9578,6 +9356,114 @@
         {
           "name": "",
           "description": "Default slot for projecting child content."
+        }
+      ]
+    },
+    {
+      "name": "schmancy-switch",
+      "path": "./src/switch/switch.ts",
+      "description": "Binary on/off control. Form-associated, keyboard-accessible, semantically a\nswitch (ARIA role=\"switch\"). Distinct from `schmancy-checkbox`: a switch\nrepresents an immediate state change, a checkbox represents a selection in\na form to be submitted.",
+      "attributes": [
+        {
+          "name": "value",
+          "type": "string",
+          "default": "\"on\""
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "checked",
+          "description": "Initial checked state (also reflected via `value`).",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabled",
+          "description": "Disables interaction.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "required",
+          "description": "Requires the switch to be on for form validity.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "name",
+          "description": "Form field name for submission.",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "formAssociated",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "value",
+          "attribute": "value",
+          "type": "string",
+          "default": "\"on\""
+        },
+        {
+          "name": "label",
+          "attribute": "label",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "form",
+          "type": "HTMLFormElement | null"
+        },
+        {
+          "name": "checked",
+          "attribute": "checked",
+          "description": "Initial checked state (also reflected via `value`).",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "Disables interaction.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "required",
+          "attribute": "required",
+          "description": "Requires the switch to be on for form validity.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "name",
+          "attribute": "name",
+          "description": "Form field name for submission.",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "events": [
+        {
+          "name": "change",
+          "description": "`CustomEvent<{ value: boolean }>` when the state changes."
+        }
+      ],
+      "cssParts": [
+        {
+          "name": "track",
+          "description": "The background track."
+        },
+        {
+          "name": "thumb",
+          "description": "The moving thumb."
         }
       ]
     },
@@ -10391,59 +10277,6 @@
       ]
     },
     {
-      "name": "schmancy-tooltip",
-      "path": "./src/tooltip/tooltip.ts",
-      "description": "A tooltip component that displays a text tooltip when hovering over content.\nAddresses shadow DOM limitations by teleporting the tooltip to document.body.",
-      "attributes": [
-        {
-          "name": "text",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "position",
-          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
-          "default": "\"top\""
-        },
-        {
-          "name": "delay",
-          "type": "number",
-          "default": "50"
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false"
-        }
-      ],
-      "properties": [
-        {
-          "name": "text",
-          "attribute": "text",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "position",
-          "attribute": "position",
-          "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
-          "default": "\"top\""
-        },
-        {
-          "name": "delay",
-          "attribute": "delay",
-          "type": "number",
-          "default": "50"
-        },
-        {
-          "name": "disabled",
-          "attribute": "disabled",
-          "type": "boolean",
-          "default": "false"
-        }
-      ]
-    },
-    {
       "name": "schmancy-tree",
       "path": "./src/tree/tree.ts",
       "attributes": [
@@ -10734,6 +10567,17 @@
         {
           "name": "",
           "description": "The text for the typography."
+        }
+      ]
+    },
+    {
+      "name": "schmancy-visually-hidden",
+      "path": "./src/visually-hidden/visually-hidden.ts",
+      "description": "Hides content visually while keeping it in the accessibility tree. Use for\nscreen-reader-only labels, supplemental descriptions, and live-region text\nthat sighted users don't need to see.\n\nUses the WCAG-recommended clip pattern rather than `display: none` or\n`visibility: hidden` so assistive tech still reads the content.",
+      "slots": [
+        {
+          "name": "",
+          "description": "Content hidden from sighted users but exposed to assistive tech."
         }
       ]
     },

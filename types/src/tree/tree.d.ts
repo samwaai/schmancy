@@ -14,6 +14,9 @@ export declare class SchmancyTree extends SchmancyTree_base {
     chevron: HTMLElement;
     private readonly _a11yId;
     private get _contentId();
+    /** ElementInternals — broadcasts `:state(open)` for consumer CSS. */
+    private readonly _internals;
+    updated(changed: Map<string, unknown>): void;
     firstUpdated(): void;
     render(): import("lit-html").TemplateResult<1>;
 }

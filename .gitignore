@@ -53,3 +53,7 @@ functions/node_modules/ # This is also important.
 
 # Demo directory (local development only, not part of the library)
 demo/
+
+# Vitest browser-mode artifacts (screenshot diffs, snapshots from failed runs)
+.vitest-attachments/
+**/__screenshots__/

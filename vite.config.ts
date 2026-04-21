@@ -6,8 +6,16 @@ import copy from 'rollup-plugin-copy'
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 
+/** Directories under src/ that are developer/test scaffolding, not shipped
+ *  in dist. Kept out of the entry map so the library build doesn't fail on
+ *  missing index files. */
+const NON_SHIPPED = new Set(['test-utils'])
+
 const getDirectories = async (source: string) =>
-	(await readdir(source, { withFileTypes: true })).filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
+	(await readdir(source, { withFileTypes: true }))
+		.filter(dirent => dirent.isDirectory())
+		.map(dirent => dirent.name)
+		.filter(name => !NON_SHIPPED.has(name))
 
 const components = await getDirectories(resolve(__dirname, './src/'))
 
@@ -19,17 +27,6 @@ export default defineConfig({
 			'@schmancy': resolve(__dirname, '/src'),
 			'@mixins': resolve(__dirname, '/mixins'),
 		},
-	},
-	// @ts-ignore
-	test: {
-		// Vitest configuration options
-		globals: true,
-		environment: 'happy-dom',
-		coverage: {
-			provider: 'c8',
-			reporter: ['text', 'json', 'html'],
-		},
-		exclude: ['**/node_modules/**', '**/dist/**', '**/cypress/**'],
 	},
 	plugins: [tailwindcss()],
 	build: {

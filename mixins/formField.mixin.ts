@@ -134,6 +134,25 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 					this.internals?.setValidity({})
 				}
 			}
+
+			// Broadcast standard field states for consumer CSS: :state(invalid),
+			// :state(required), :state(disabled), :state(readonly).
+			if (changedProps.has('error')) {
+				if (this.error) this.internals?.states.add('invalid')
+				else this.internals?.states.delete('invalid')
+			}
+			if (changedProps.has('required')) {
+				if (this.required) this.internals?.states.add('required')
+				else this.internals?.states.delete('required')
+			}
+			if (changedProps.has('disabled')) {
+				if (this.disabled) this.internals?.states.add('disabled')
+				else this.internals?.states.delete('disabled')
+			}
+			if (changedProps.has('readonly')) {
+				if (this.readonly) this.internals?.states.add('readonly')
+				else this.internals?.states.delete('readonly')
+			}
 		}
 
 		/**

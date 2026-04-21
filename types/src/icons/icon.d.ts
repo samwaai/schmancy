@@ -18,6 +18,7 @@ declare const SchmancyIcon_base: import("@mixins/index").Constructor<CustomEleme
  * @cssprop --schmancy-icon-weight - Weight value for icon (100-700)
  * @cssprop --schmancy-icon-grade - Grade value for icon (-50-200)
  * @cssprop --schmancy-icon-opsz - Optical size (default: 24)
+ * @csspart icon - The inner `<span>` carrying the Material Symbols glyph.
  */
 export default class SchmancyIcon extends SchmancyIcon_base {
     private static fontsLoaded;

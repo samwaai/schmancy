@@ -9,7 +9,8 @@ import { ButtonVariant } from './button'
 /**
  * An icon button component.
  * @element schmancy-icon-button
- * @slot - The default slot.
+ * @slot - The default slot (usually an icon or glyph).
+ * @csspart base - The underlying native `<button>` (or `<a>` when `href` is set).
  */
 @customElement('schmancy-icon-button')
 export class SchmnacyIconButton extends $LitElement(css`

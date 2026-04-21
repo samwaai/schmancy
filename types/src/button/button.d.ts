@@ -12,6 +12,7 @@ declare const SchmancyButton_base: CustomElementConstructor & import("@mixins/in
  * @slot - The default slot.
  * @slot prefix - The prefix slot.
  * @slot suffix - The suffix slot.
+ * @csspart base - The underlying native `<button>` (or `<a>` when `href` is set).
  */
 export declare class SchmancyButton extends SchmancyButton_base {
     protected static shadowRootOptions: {
@@ -22,6 +23,12 @@ export declare class SchmancyButton extends SchmancyButton_base {
         serializable?: boolean;
         slotAssignment?: SlotAssignmentMode;
     };
+    static formAssociated: boolean;
+    private internals;
+    constructor();
+    /** Associated form, when placed inside a <form>. */
+    get form(): HTMLFormElement | null;
+    formDisabledCallback(disabled: boolean): void;
     private nativeElement;
     private _ariaLabel;
     /**

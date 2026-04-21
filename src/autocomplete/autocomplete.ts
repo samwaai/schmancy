@@ -48,6 +48,40 @@ interface FilteredOption {
  */
 @customElement('schmancy-autocomplete')
 export default class SchmancyAutocomplete extends $LitElement(style) {
+    static formAssociated = true
+    internals: ElementInternals | undefined
+
+    constructor() {
+        super()
+        try {
+            this.internals = this.attachInternals()
+        } catch {
+            this.internals = undefined
+        }
+    }
+
+    get form(): HTMLFormElement | null {
+        return this.internals?.form ?? null
+    }
+
+    formResetCallback(): void {
+        if (this.multi) {
+            this._selectedValues$.next([])
+        } else {
+            this._selectedValue$.next('')
+        }
+        this._inputValue = ''
+        this._inputValue$.next('')
+        this.error = false
+        this.validationMessage = ''
+    }
+
+    formDisabledCallback(disabled: boolean): void {
+        // The component does not expose a disabled prop directly; propagate via attribute.
+        if (disabled) this.setAttribute('disabled', '')
+        else this.removeAttribute('disabled')
+    }
+
     // Track whether value/values have been explicitly set
      _valueSet: boolean = false
      _valuesSet: boolean = false
@@ -141,6 +175,16 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         ]).pipe(
             tap(([selectedValue, selectedValues]) => {
                 this._updateOptionSelection(selectedValue, selectedValues)
+                // Keep ElementInternals form value in sync with selection (single and multi).
+                const formValue = this.multi ? selectedValues.join(',') : selectedValue
+                this.internals?.setFormValue(formValue || null)
+                if (this.required) {
+                    const missing = this.multi ? selectedValues.length === 0 : !selectedValue
+                    this.internals?.setValidity(
+                        missing ? { valueMissing: true } : {},
+                        missing ? this.validationMessage || 'Please select an option.' : undefined,
+                    )
+                }
             }),
             takeUntil(this.disconnecting)
         ).subscribe()

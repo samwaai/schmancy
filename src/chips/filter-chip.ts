@@ -113,6 +113,21 @@ export class SchmancyFilterChip extends TailwindElement(css`
 		super.connectedCallback()
 	}
 
+	protected updated(changed: Map<string, unknown>) {
+		super.updated?.(changed)
+		if (changed.has('value') || changed.has('selected')) {
+			this.internals?.setFormValue(this._selected ? (this.value || 'on') : null)
+		}
+	}
+
+	formResetCallback(): void {
+		this._selected = this.hasAttribute('selected')
+	}
+
+	formDisabledCallback(disabled: boolean): void {
+		this.disabled = disabled
+	}
+
 	private handleClick = () => {
 		if (this.disabled) return
 

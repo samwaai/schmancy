@@ -41,8 +41,6 @@ export type ConnectedFeeling = 'connected' | 'accepted' | 'included' | 'belongin
 export type MixedFeeling = 'conflicted' | 'confused' | 'ambivalent' | 'nostalgic' | 'guilty' | 'embarrassed' | 'surprised' | 'shocked' | 'awestruck' | 'skeptical';
 /** All feelings */
 export type Feeling = HappyFeeling | SadFeeling | AnxiousFeeling | AngryFeeling | TiredFeeling | CalmFeeling | ConnectedFeeling | MixedFeeling;
-/** Feeling category */
-export type FeelingCategory = 'happy' | 'sad' | 'anxious' | 'angry' | 'tired' | 'calm' | 'connected' | 'mixed';
 /**
  * Emotional Sound Generator
  * Creates soft, beautiful sounds using Web Audio API

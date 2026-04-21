@@ -37,6 +37,19 @@ export class SchmancyTree extends TailwindElement(css`
 	private readonly _a11yId = `schmancy-tree-${Math.random().toString(36).slice(2, 10)}`
 	private get _contentId() { return `${this._a11yId}-content` }
 
+	/** ElementInternals — broadcasts `:state(open)` for consumer CSS. */
+	private readonly _internals: ElementInternals | undefined = (() => {
+		try { return this.attachInternals() } catch { return undefined }
+	})()
+
+	updated(changed: Map<string, unknown>) {
+		super.updated?.(changed)
+		if (changed.has('open')) {
+			if (this.open) this._internals?.states.add('open')
+			else this._internals?.states.delete('open')
+		}
+	}
+
 	firstUpdated() {
 		// Hide or show the slot initially based on `open`
 		if (!this.open) {

@@ -1,0 +1,13 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"entry": [
+		"src/index.ts",
+		"src/**/*.{test,spec}.ts"
+	],
+	"project": ["src/**/*.ts", "mixins/**/*.ts"],
+	"ignoreBinaries": ["ncu"],
+	"ignoreDependencies": [
+		"tailwindcss"
+	],
+	"ignoreExportsUsedInFile": true
+}

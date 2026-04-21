@@ -60,6 +60,7 @@ export declare class SchmancyInputChip extends SchmancyInputChip_base {
     static formAssociated: boolean;
     internals: ElementInternals | undefined;
     get form(): HTMLFormElement;
+    protected updated(changed: Map<string, unknown>): void;
     connectedCallback(): void;
     private handleChipClick;
     private handleRemove;

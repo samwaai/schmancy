@@ -1,7 +1,17 @@
 @import 'tailwindcss';
+
+/* Cascade-layer order contract. Consumer (unlayered) CSS always overrides
+   library styles regardless of specificity. Library-internal tokens and
+   components live in named layers so consumers can target them precisely. */
+@layer schmancy.tokens, schmancy.base, schmancy.components;
+
+@layer schmancy.base {
 :host,
 :root {
 	font-family: var(--schmancy-font-family);
+	/* Advertise both schemes so UA form controls, scrollbars, and
+	   `light-dark()` all render correctly until a theme resolves it. */
+	color-scheme: light dark;
 }
 :host,
 :host *,
@@ -547,3 +557,4 @@
 	--ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 	--ease-snap: cubic-bezier(0.34, 1.2, 0.64, 1);
 }
+}  /* end @layer schmancy.base */

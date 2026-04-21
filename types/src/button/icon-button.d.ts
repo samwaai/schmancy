@@ -4,7 +4,8 @@ declare const SchmnacyIconButton_base: CustomElementConstructor & import("@mixin
 /**
  * An icon button component.
  * @element schmancy-icon-button
- * @slot - The default slot.
+ * @slot - The default slot (usually an icon or glyph).
+ * @csspart base - The underlying native `<button>` (or `<a>` when `href` is set).
  */
 export declare class SchmnacyIconButton extends SchmnacyIconButton_base {
     protected static shadowRootOptions: {

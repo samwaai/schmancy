@@ -92,6 +92,10 @@ class SchmancyCheckboxElement extends TailwindElement() {
 		super.updated?.(changed)
 		if (changed.has('value') || changed.has('name')) this._syncFormValue()
 		if (changed.has('required') || changed.has('value')) this._syncValidity()
+		if (changed.has('value')) {
+			if (this.value) this.internals?.states.add('checked')
+			else this.internals?.states.delete('checked')
+		}
 	}
 
 	private _syncFormValue() {

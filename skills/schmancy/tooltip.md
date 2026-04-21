@@ -1,6 +1,6 @@
 # tooltip (directive)
 
-> Lit directive that adds a positioned tooltip to any element on hover/focus.
+> Lit directive that adds a positioned tooltip to any element on hover/focus. The `<schmancy-tooltip>` component was removed — use this directive.
 
 ## Usage
 ```typescript

@@ -19,6 +19,7 @@ export type ButtonColor = 'primary' | 'secondary' | 'success' | 'error' | 'warni
  * @slot - The default slot.
  * @slot prefix - The prefix slot.
  * @slot suffix - The suffix slot.
+ * @csspart base - The underlying native `<button>` (or `<a>` when `href` is set).
  */
 @customElement('schmancy-button')
 export class SchmancyButton extends $LitElement(
@@ -55,6 +56,45 @@ export class SchmancyButton extends $LitElement(
 		...LitElement.shadowRootOptions,
 		mode: 'open',
 		delegatesFocus: true,
+	}
+
+	static formAssociated = true
+	private internals: ElementInternals | undefined
+
+	constructor() {
+		super()
+		try {
+			this.internals = this.attachInternals()
+		} catch {
+			this.internals = undefined
+		}
+		// Translate clicks into native form semantics so the button works
+		// inside any <form>, not just inside <schmancy-form>.
+		this.addEventListener('click', (e: MouseEvent) => {
+			if (this.disabled) {
+				e.preventDefault()
+				e.stopImmediatePropagation()
+				return
+			}
+			const form = this.internals?.form
+			if (!form) return
+			if (this.type === 'submit') {
+				e.preventDefault()
+				form.requestSubmit()
+			} else if (this.type === 'reset') {
+				e.preventDefault()
+				form.reset()
+			}
+		})
+	}
+
+	/** Associated form, when placed inside a <form>. */
+	get form(): HTMLFormElement | null {
+		return this.internals?.form ?? null
+	}
+
+	formDisabledCallback(disabled: boolean): void {
+		this.disabled = disabled
 	}
 
 	@query('[part="base"]', true)

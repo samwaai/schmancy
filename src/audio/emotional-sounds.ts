@@ -78,10 +78,8 @@ export type Feeling =
   | HappyFeeling | SadFeeling | AnxiousFeeling | AngryFeeling
   | TiredFeeling | CalmFeeling | ConnectedFeeling | MixedFeeling
 
-/** Feeling category */
-export type FeelingCategory =
-  | 'happy' | 'sad' | 'anxious' | 'angry'
-  | 'tired' | 'calm' | 'connected' | 'mixed'
+// FeelingCategory is defined in ../types/mood-audio.types.ts and re-exported
+// from ./index.ts — the canonical source.
 
 // ============================================================================
 // SOUND GENERATOR

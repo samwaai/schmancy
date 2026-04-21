@@ -1,4 +1,4 @@
-import { LitElement } from 'lit';
+import { LitElement, type PropertyValues } from 'lit';
 declare const SchmancyTextarea_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
  * Textarea component with auto-resize and form integration.
@@ -142,6 +142,9 @@ export default class SchmancyTextarea extends SchmancyTextarea_base {
     hint: string | undefined;
     error: boolean;
     constructor();
+    protected willUpdate(changed: PropertyValues): void;
+    formResetCallback(): void;
+    formDisabledCallback(disabled: boolean): void;
     firstUpdated(): void;
     get form(): HTMLFormElement;
     /** Checks for validity of the control and shows the browser message if it's invalid. */

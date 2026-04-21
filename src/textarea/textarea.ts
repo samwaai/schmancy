@@ -1,4 +1,4 @@
-import { LitElement, html, nothing } from 'lit'
+import { LitElement, html, nothing, type PropertyValues } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -179,6 +179,29 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 		} catch {
 			this.internals = undefined
 		}
+	}
+
+	protected willUpdate(changed: PropertyValues): void {
+		super.willUpdate?.(changed)
+		if (changed.has('value') || changed.has('name')) {
+			this.internals?.setFormValue(this.value ?? '')
+		}
+		if (changed.has('required') || changed.has('value')) {
+			if (this.required && !this.value) {
+				this.internals?.setValidity({ valueMissing: true }, 'Please fill out this field.')
+			} else {
+				this.internals?.setValidity({})
+			}
+		}
+	}
+
+	formResetCallback(): void {
+		this.value = this.getAttribute('value') ?? ''
+		this.error = false
+	}
+
+	formDisabledCallback(disabled: boolean): void {
+		this.disabled = disabled
 	}
 
 	firstUpdated() {

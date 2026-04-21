@@ -172,6 +172,13 @@ export class SchmancyInputChip extends TailwindElement(css`
 		return this.internals?.form
 	}
 
+	protected updated(changed: Map<string, unknown>) {
+		super.updated?.(changed)
+		if (changed.has('value')) {
+			this.internals?.setFormValue(this.value || null)
+		}
+	}
+
 	connectedCallback() {
 		super.connectedCallback()
 

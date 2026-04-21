@@ -3,7 +3,9 @@ declare const SchmancyDropdownContent_base: import("@mixins/index").Constructor<
  * Content container for the schmancy-dropdown component.
  *
  * @element schmancy-dropdown-content
- * @slot - Default slot for dropdown content
+ * @slot - Default slot for dropdown content.
+ * @csspart content - The inner wrapper element; style to override panel
+ *   backgrounds, shadows, padding, or borders without shadow-root piercing.
  */
 export declare class SchmancyDropdownContent extends SchmancyDropdownContent_base {
     /**
