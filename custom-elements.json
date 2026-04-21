@@ -3901,56 +3901,13 @@
       ]
     },
     {
-      "name": "sch-form",
-      "path": "./src/form/form-v2.ts",
-      "description": "The form is a component used to collect user input from\ninteractive controls.",
-      "attributes": [
-        {
-          "name": "novalidate",
-          "description": "Specifies if form data validation should be skipped on submit.",
-          "type": "boolean",
-          "default": "false"
-        }
-      ],
-      "properties": [
-        {
-          "name": "tagName",
-          "type": "\"sch-form\"",
-          "default": "\"sch-form\""
-        },
-        {
-          "name": "novalidate",
-          "attribute": "novalidate",
-          "description": "Specifies if form data validation should be skipped on submit.",
-          "type": "boolean",
-          "default": "false"
-        }
-      ],
-      "events": [
-        {
-          "name": "submit",
-          "description": "Emitted when the form is submitted."
-        },
-        {
-          "name": "reset",
-          "description": "Emitted when the form is reset."
-        }
-      ],
-      "slots": [
-        {
-          "name": "",
-          "description": "Default slot for the form."
-        }
-      ]
-    },
-    {
       "name": "schmancy-form",
       "path": "./src/form/form.ts",
-      "description": "The form is a component used to collect user input from\ninteractive controls.",
+      "description": "The form component collects user input from interactive controls.\n\nDiscovery priority:\n1. **FormFieldMixin brand** — any descendant that extends `FormFieldMixin`\n   is auto-discovered and contributes via its `toFormEntries()` override.\n2. **Native form-associated custom elements** — detected via\n   `constructor.formAssociated === true` and read by duck type.\n3. **Legacy registry + optional user overrides** — for controls that do\n   not yet extend FormFieldMixin. Seeded with every existing Schmancy\n   control for zero-config back-compat.\n4. **Native HTML form elements** (`<input>`, `<select>`, `<textarea>`,\n   `<button>`) — read via standard DOM APIs.\n\nNew form components should extend `FormFieldMixin` and override\n`toFormEntries()` / `resetForm()` as needed — they will be picked up\nautomatically without touching schmancy-form.",
       "attributes": [
         {
           "name": "novalidate",
-          "description": "Specifies if form data validation should be skipped on submit.",
+          "description": "Skip form validation on submit.",
           "type": "boolean",
           "default": "false"
         }
@@ -3958,13 +3915,13 @@
       "properties": [
         {
           "name": "tagName",
-          "type": "\"schmancy-form\"",
+          "type": "string",
           "default": "\"schmancy-form\""
         },
         {
           "name": "novalidate",
           "attribute": "novalidate",
-          "description": "Specifies if form data validation should be skipped on submit.",
+          "description": "Skip form validation on submit.",
           "type": "boolean",
           "default": "false"
         }
@@ -3972,7 +3929,7 @@
       "events": [
         {
           "name": "submit",
-          "description": "Emitted when the form is submitted."
+          "description": "FormData emitted when the form is submitted."
         },
         {
           "name": "reset",
@@ -3982,7 +3939,7 @@
       "slots": [
         {
           "name": "",
-          "description": "Default slot for the form."
+          "description": "Default slot for form content."
         }
       ]
     },
@@ -8763,13 +8720,11 @@
         },
         {
           "name": "label",
-          "description": "Label text for the form field",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "required",
-          "description": "Whether the field is required",
           "type": "boolean",
           "default": "false"
         },
@@ -8781,30 +8736,25 @@
         },
         {
           "name": "readonly",
-          "description": "Whether the field is read-only",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "error",
-          "description": "Whether the field is in an error state",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "validationMessage",
-          "description": "The validation message to display",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "hint",
-          "description": "Optional hint text to display below the field",
           "type": "string | undefined"
         },
         {
           "name": "id",
-          "description": "Unique identifier for the field",
           "type": "string",
           "default": "\"`schmancy-field-${Date.now()}-${Math.floor(Math.random() * 1000)}`\""
         }
@@ -8823,6 +8773,10 @@
           "default": "true"
         },
         {
+          "name": "internals",
+          "type": "ElementInternals | undefined"
+        },
+        {
           "name": "name",
           "attribute": "name",
           "description": "Name attribute for grouping radio buttons",
@@ -8839,14 +8793,12 @@
         {
           "name": "label",
           "attribute": "label",
-          "description": "Label text for the form field",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "required",
           "attribute": "required",
-          "description": "Whether the field is required",
           "type": "boolean",
           "default": "false"
         },
@@ -8860,40 +8812,35 @@
         {
           "name": "readonly",
           "attribute": "readonly",
-          "description": "Whether the field is read-only",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "error",
           "attribute": "error",
-          "description": "Whether the field is in an error state",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "validationMessage",
           "attribute": "validationMessage",
-          "description": "The validation message to display",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "hint",
           "attribute": "hint",
-          "description": "Optional hint text to display below the field",
           "type": "string | undefined"
         },
         {
           "name": "id",
           "attribute": "id",
-          "description": "Unique identifier for the field",
           "type": "string",
           "default": "\"`schmancy-field-${Date.now()}-${Math.floor(Math.random() * 1000)}`\""
         },
         {
           "name": "form",
-          "description": "Gets the form this element is associated with",
+          "description": "The form this element is associated with (native FACE behavior).",
           "type": "HTMLFormElement | null"
         }
       ],
@@ -8917,60 +8864,50 @@
         },
         {
           "name": "name",
-          "description": "The name of the form field (used for form submission)",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "value",
-          "description": "The current value of the form field",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "label",
-          "description": "Label text for the form field",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "required",
-          "description": "Whether the field is required",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "disabled",
-          "description": "Whether the field is disabled",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "readonly",
-          "description": "Whether the field is read-only",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "error",
-          "description": "Whether the field is in an error state",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "validationMessage",
-          "description": "The validation message to display",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "hint",
-          "description": "Optional hint text to display below the field",
           "type": "string | undefined"
         },
         {
           "name": "id",
-          "description": "Unique identifier for the field",
           "type": "string",
           "default": "\"`schmancy-field-${Date.now()}-${Math.floor(Math.random() * 1000)}`\""
         }
@@ -8988,77 +8925,71 @@
           "default": "true"
         },
         {
+          "name": "internals",
+          "type": "ElementInternals | undefined"
+        },
+        {
           "name": "name",
           "attribute": "name",
-          "description": "The name of the form field (used for form submission)",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "value",
           "attribute": "value",
-          "description": "The current value of the form field",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "label",
           "attribute": "label",
-          "description": "Label text for the form field",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "required",
           "attribute": "required",
-          "description": "Whether the field is required",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "disabled",
           "attribute": "disabled",
-          "description": "Whether the field is disabled",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "readonly",
           "attribute": "readonly",
-          "description": "Whether the field is read-only",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "error",
           "attribute": "error",
-          "description": "Whether the field is in an error state",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "validationMessage",
           "attribute": "validationMessage",
-          "description": "The validation message to display",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "hint",
           "attribute": "hint",
-          "description": "Optional hint text to display below the field",
           "type": "string | undefined"
         },
         {
           "name": "id",
           "attribute": "id",
-          "description": "Unique identifier for the field",
           "type": "string",
           "default": "\"`schmancy-field-${Date.now()}-${Math.floor(Math.random() * 1000)}`\""
         },
         {
           "name": "form",
-          "description": "Gets the form this element is associated with",
+          "description": "The form this element is associated with (native FACE behavior).",
           "type": "HTMLFormElement | null"
         }
       ],

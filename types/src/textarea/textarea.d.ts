@@ -24,6 +24,7 @@ export default class SchmancyTextarea extends SchmancyTextarea_base {
     static formAssociated: boolean;
     internals: ElementInternals | undefined;
     textareaRef: import("lit-html/directives/ref").Ref<HTMLTextAreaElement>;
+    private readonly _a11yId;
     /**
      * The label of the control.
      * @attr

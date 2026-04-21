@@ -20,6 +20,7 @@ declare class SchmancyCheckboxElement extends SchmancyCheckboxElement_base {
     };
     static formAssociated: boolean;
     internals: ElementInternals | undefined;
+    constructor();
     get form(): HTMLFormElement;
     /**
      * @attr {boolean} value - The value of the checkbox.
@@ -51,6 +52,11 @@ declare class SchmancyCheckboxElement extends SchmancyCheckboxElement_base {
      */
     label?: string;
     connectedCallback(): void;
+    updated(changed: Map<string, unknown>): void;
+    private _syncFormValue;
+    private _syncValidity;
+    checkValidity(): boolean;
+    reportValidity(): boolean;
     /**
      * @attr {xxs | xs | sm | md | lg } size - The size of the checkbox.
      * M3 aligned: 24dp (xxs) → 32dp (xs) → 40dp (sm) → 48dp (md) → 56dp (lg)

@@ -1,7 +1,7 @@
 import { $LitElement } from '@mixins/index'
 import { InputSize, SchmancyInput } from '@schmancy/input'
 import SchmancyOption from '@schmancy/option/option'
-import { html } from 'lit'
+import { html, nothing } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -66,6 +66,8 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
     @property({ type: Number }) similarityThreshold = 0.3 // Minimum similarity score to show option
     @property({ type: Boolean }) error = false
     @property({ type: String }) validationMessage = ''
+
+    private readonly _a11yId = `schmancy-autocomplete-${Math.random().toString(36).slice(2, 10)}`
 
     // Values property for multi-select mode
     @property({ type: Array })
@@ -494,6 +496,10 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                                         .placeholder=${this._selectedValues$.value.length > 0 ? 'Add more...' : this.placeholder}
                                         .value=${this._inputValue}
                                         .autocomplete=${this.autocomplete}
+                                        aria-invalid=${this.error ? 'true' : 'false'}
+                                        aria-required=${this.required ? 'true' : 'false'}
+                                        aria-describedby=${this.error && this.validationMessage ? `${this._a11yId}-err` : nothing}
+                                        aria-label=${!this.label && this.placeholder ? this.placeholder : nothing}
                                         @input=${(e: Event) => {
                                             const value = (e.target as HTMLInputElement).value
                                             this._inputValue = value
@@ -517,7 +523,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
 
                                 <!-- Validation message -->
                                 ${when(this.error && this.validationMessage, () => html`
-                                    <div class="mt-1 text-sm text-error-default">
+                                    <div id="${this._a11yId}-err" class="mt-1 text-sm text-error-default" role="alert">
                                         ${this.validationMessage}
                                     </div>
                                 `)}

@@ -77,6 +77,12 @@ export declare class SchmancyDialog extends SchmancyDialog_base {
      */
     private _dragHandleRef;
     /**
+     * Stable per-instance id used for ARIA labelledby/describedby wiring
+     */
+    private readonly _a11yId;
+    private get _titleId();
+    private get _descId();
+    /**
      * Return the dialog element for positioning/size measurement.
      * In content mode, returns the first slotted child (the actual component).
      * In confirm mode, returns the wrapper div.

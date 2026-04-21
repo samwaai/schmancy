@@ -1,5 +1,5 @@
 import { $LitElement } from '@mixins/index'
-import { css, html } from 'lit'
+import { css, html, nothing } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { cursorGlow } from '../directives/cursor-glow'
 import { createRef, ref, type Ref } from 'lit/directives/ref.js'
@@ -125,6 +125,13 @@ export class SchmancyDialog extends DialogBase(
 	 * Ref to the drag handle element for swipe gestures
 	 */
 	private _dragHandleRef: Ref<HTMLElement> = createRef()
+
+	/**
+	 * Stable per-instance id used for ARIA labelledby/describedby wiring
+	 */
+	private readonly _a11yId = `schmancy-dialog-${Math.random().toString(36).slice(2, 10)}`
+	private get _titleId() { return `${this._a11yId}-title` }
+	private get _descId() { return `${this._a11yId}-desc` }
 
 	/**
 	 * Return the dialog element for positioning/size measurement.
@@ -268,10 +275,23 @@ export class SchmancyDialog extends DialogBase(
 
 		// Confirm mode: with title/buttons
 		if (this.isConfirmMode) {
+			const hasTitle = !!this.title?.trim()
+			const hasSubtitle = !!this.subtitle?.trim()
+			const hasMessage = !!this.message?.trim()
+			const describedBy = [hasSubtitle && this._descId + '-sub', hasMessage && this._descId + '-msg']
+				.filter(Boolean)
+				.join(' ') || ''
 			return html`
 				<div ${ref(this._backdropRef)} class="fixed inset-0 bg-surface-container/10 backdrop-blur-lg backdrop-saturate-150 backdrop-brightness-105" @click=${this.handleClose}></div>
 
-				<div ${ref(this._confirmDialogRef)} class=${this.classMap(dialogClasses)} role="alertdialog" aria-modal="true">
+				<div
+					${ref(this._confirmDialogRef)}
+					class=${this.classMap(dialogClasses)}
+					role="alertdialog"
+					aria-modal="true"
+					aria-labelledby=${hasTitle ? this._titleId : nothing}
+					aria-describedby=${describedBy || nothing}
+				>
 					<schmancy-surface
 						${cursorGlow({ radius: 250, intensity: 0.1 })}
 						rounded=${this.isMobile ? 'top' : 'all'}
@@ -283,13 +303,13 @@ export class SchmancyDialog extends DialogBase(
 						<schmancy-scroll direction="vertical" hide class="p-4 pt-2">
 							<schmancy-form @submit=${this.handleConfirm}>
 								${when(
-									this.title?.trim(),
+									hasTitle,
 									() => html`
-										<schmancy-typography type="title" token="md" class="mb-1">${this.title}</schmancy-typography>
+										<schmancy-typography id=${this._titleId} type="title" token="md" class="mb-1">${this.title}</schmancy-typography>
 										${when(
-											this.subtitle?.trim(),
+											hasSubtitle,
 											() => html`
-												<schmancy-typography type="subtitle" token="xs" class="mb-2">
+												<schmancy-typography id="${this._descId}-sub" type="subtitle" token="xs" class="mb-2">
 													${this.subtitle}
 												</schmancy-typography>
 											`,
@@ -299,8 +319,8 @@ export class SchmancyDialog extends DialogBase(
 								${hasCustomContent
 									? html`<div class="mb-4"><slot name="content"></slot></div>`
 									: when(
-											this.message?.trim(),
-											() => html`<schmancy-typography type="body" class="mb-4">${this.message}</schmancy-typography>`,
+											hasMessage,
+											() => html`<schmancy-typography id="${this._descId}-msg" type="body" class="mb-4">${this.message}</schmancy-typography>`,
 										)}
 								<div class=${buttonContainerClasses}>
 									<schmancy-button

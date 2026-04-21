@@ -21,8 +21,17 @@ class SchmancyCheckboxElement extends TailwindElement() {
 		delegatesFocus: true,
 	}
 	static formAssociated = true
-	// private internals
 	internals: ElementInternals | undefined
+
+	constructor() {
+		super()
+		try {
+			this.internals = this.attachInternals()
+		} catch {
+			// attachInternals can throw if the element does not support form association
+		}
+	}
+
 	get form() {
 		return this.internals?.form
 	}
@@ -76,6 +85,33 @@ class SchmancyCheckboxElement extends TailwindElement() {
 
 	connectedCallback() {
 		super.connectedCallback()
+		this._syncFormValue()
+	}
+
+	updated(changed: Map<string, unknown>) {
+		super.updated?.(changed)
+		if (changed.has('value') || changed.has('name')) this._syncFormValue()
+		if (changed.has('required') || changed.has('value')) this._syncValidity()
+	}
+
+	private _syncFormValue() {
+		this.internals?.setFormValue(this.value ? (this.getAttribute('true-value') ?? 'on') : null)
+	}
+
+	private _syncValidity() {
+		if (this.required && !this.value) {
+			this.internals?.setValidity({ valueMissing: true }, 'Please check this box if you want to proceed.')
+		} else {
+			this.internals?.setValidity({})
+		}
+	}
+
+	public checkValidity(): boolean {
+		return this.internals?.checkValidity() ?? true
+	}
+
+	public reportValidity(): boolean {
+		return this.internals?.reportValidity() ?? true
 	}
 
 	/**

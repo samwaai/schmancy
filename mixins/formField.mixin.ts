@@ -5,10 +5,16 @@ import { Constructor } from './constructor'
 import { ITailwindElementMixin, TailwindElement } from './tailwind.mixin'
 
 /**
+ * Cross-realm brand used by `<schmancy-form>` to discover form fields by
+ * inheritance rather than tag-name allowlists. `Symbol.for` puts the symbol in
+ * the global registry so detection works across module realms/bundles.
+ */
+export const SCHMANCY_FORM_FIELD = Symbol.for('schmancy.form-field')
+
+/**
  * Interface defining the properties and methods that the FormFieldMixin adds.
  */
 export interface IFormFieldMixin extends Element {
-	// Properties
 	name: string
 	value: string | string[] | boolean | number | undefined
 	label: string
@@ -20,21 +26,30 @@ export interface IFormFieldMixin extends Element {
 	hint?: string
 	id: string
 
-	// Form association
 	form: HTMLFormElement | null
 
-	// Methods
 	checkValidity(): boolean
 	reportValidity(): boolean
 	setCustomValidity(message: string): void
 
-	// Event emitter helper
+	toFormEntries(): Array<[string, FormDataEntryValue]>
+	resetForm(): void
+
 	emitChange(detail: any): void
+}
+
+/** Predicate used by `<schmancy-form>` to detect mixin descendants. */
+export function isSchmancyFormField(el: unknown): el is IFormFieldMixin {
+	return !!el && typeof el === 'object' && (el as any).constructor?.[SCHMANCY_FORM_FIELD] === true
 }
 
 /**
  * A mixin that adds form field capabilities to a LitElement class.
- * This provides common form field properties, validation, and form association.
+ * Components that extend this mixin are automatically discovered and
+ * collected by `<schmancy-form>` — no tag-name registration needed.
+ *
+ * Subclasses may override `toFormEntries()` to contribute multiple
+ * name/value pairs to FormData (e.g. date-range, tag-input).
  *
  * @example
  * ```ts
@@ -47,67 +62,42 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 	class FormFieldMixinClass extends superClass {
 		static formAssociated = true
 
-		// Element internals for form association
-		private internals: ElementInternals | undefined
+		/** Brand for cross-realm detection by `<schmancy-form>`. */
+		static readonly [SCHMANCY_FORM_FIELD] = true
 
-		// Properties common to form fields
-		/**
-		 * The name of the form field (used for form submission)
-		 */
+		// Element internals for form association
+		internals: ElementInternals | undefined
+
+		/** Value snapshot captured at first render, used by `resetForm()`. */
+		protected _defaultValue: string | string[] | boolean | number | undefined = undefined
+
 		@property({ type: String })
 		name: string = ''
 
-		/**
-		 * The current value of the form field
-		 */
 		@property({ reflect: true })
 		value: string | string[] | boolean | number | undefined = ''
 
-		/**
-		 * Label text for the form field
-		 */
 		@property({ type: String })
 		label: string = ''
 
-		/**
-		 * Whether the field is required
-		 */
 		@property({ type: Boolean, reflect: true })
 		required: boolean = false
 
-		/**
-		 * Whether the field is disabled
-		 */
 		@property({ type: Boolean, reflect: true })
 		disabled: boolean = false
 
-		/**
-		 * Whether the field is read-only
-		 */
 		@property({ type: Boolean, reflect: true })
 		readonly: boolean = false
 
-		/**
-		 * Whether the field is in an error state
-		 */
 		@property({ type: Boolean, reflect: true })
 		error: boolean = false
 
-		/**
-		 * The validation message to display
-		 */
 		@property({ type: String })
 		validationMessage: string = ''
 
-		/**
-		 * Optional hint text to display below the field
-		 */
 		@property({ type: String })
 		hint?: string
 
-		/**
-		 * Unique identifier for the field
-		 */
 		@property({ reflect: true })
 		override id: string = `schmancy-field-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
@@ -120,25 +110,23 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 			}
 		}
 
-		/**
-		 * Gets the form this element is associated with
-		 */
+		/** The form this element is associated with (native FACE behavior). */
 		get form(): HTMLFormElement | null {
 			return this.internals?.form ?? null
 		}
 
-		/**
-		 * Lifecycle method called when properties change
-		 */
+		protected firstUpdated(changedProps: PropertyValueMap<any>): void {
+			super.firstUpdated?.(changedProps)
+			if (this._defaultValue === undefined) this._defaultValue = this.value
+		}
+
 		protected willUpdate(changedProps: PropertyValueMap<any>): void {
 			super.willUpdate(changedProps)
 
-			// Update form value when value changes
 			if (changedProps.has('value')) {
 				this.internals?.setFormValue(this.value as string | File | FormData | null)
 			}
 
-			// Update validation state when error or validation message changes
 			if (changedProps.has('error') || changedProps.has('validationMessage')) {
 				if (this.error && this.validationMessage) {
 					this.internals?.setValidity({ customError: true }, this.validationMessage)
@@ -149,34 +137,65 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		}
 
 		/**
-		 * Checks if the field is valid without showing validation UI
+		 * Native FACE lifecycle — called by the browser when the owning form
+		 * is reset. Delegates to `resetForm()` so subclasses have one
+		 * override point for both programmatic and user-initiated resets.
 		 */
+		formResetCallback(): void {
+			this.resetForm()
+		}
+
+		/** Native FACE lifecycle — called when the form's disabled state changes. */
+		formDisabledCallback(disabled: boolean): void {
+			this.disabled = disabled
+		}
+
+		/**
+		 * Native FACE lifecycle — restore value after bfcache / form autofill.
+		 */
+		formStateRestoreCallback(state: string | File | FormData | null): void {
+			if (state == null) return
+			this.value = state as any
+		}
+
+		/** Override to customize reset behavior; default restores `_defaultValue`. */
+		resetForm(): void {
+			this.value = this._defaultValue ?? ''
+			this.error = false
+			this.validationMessage = ''
+			this.internals?.setValidity({})
+		}
+
+		/**
+		 * Contribute entries to a parent FormData. Default: a single
+		 * `[name, value]` pair when `name` is set and value is meaningful.
+		 * Override for multi-entry controls (e.g. date range).
+		 */
+		toFormEntries(): Array<[string, FormDataEntryValue]> {
+			if (!this.name || this.disabled) return []
+			const v = this.value
+			if (v === undefined || v === null || v === '') return []
+			if (Array.isArray(v)) return v.map(item => [this.name, String(item)] as [string, FormDataEntryValue])
+			if (typeof v === 'boolean') return v ? [[this.name, 'on']] : []
+			return [[this.name, String(v)]]
+		}
+
 		checkValidity(): boolean {
 			if (this.disabled) return true
-
 			if (this.required && (this.value === '' || this.value === undefined || this.value === null)) {
 				this.error = true
 				this.validationMessage = 'This field is required'
 				return false
 			}
-
-			return true
+			return this.internals?.checkValidity() ?? true
 		}
 
-		/**
-		 * Reports validity and shows validation UI if invalid
-		 */
 		reportValidity(): boolean {
 			const isValid = this.checkValidity()
-			if (!isValid) {
-				this.internals?.reportValidity()
-			}
+			if (!isValid) this.internals?.reportValidity()
 			return isValid
 		}
 
-		/**
-		 * Sets a custom validation message
-		 */
 		setCustomValidity(message: string): void {
 			this.validationMessage = message
 			this.error = message !== ''
@@ -187,11 +206,7 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 			}
 		}
 
-		/**
-		 * Helper method to emit change events using dispatchScopedEvent for instance isolation
-		 */
 		emitChange(detail: any): void {
-			// Use dispatchScopedEvent if available (from BaseElement mixin)
 			if ('dispatchScopedEvent' in this && typeof this.dispatchScopedEvent === 'function') {
 				this.dispatchScopedEvent('change', detail, { bubbles: true })
 			} else {
@@ -212,13 +227,6 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 /**
  * A convenience function that composes FormFieldMixin with TailwindElement
  * to create a base class for Schmancy form components.
- *
- * @example
- * ```ts
- * class MyInput extends SchmancyFormField(css`...`) {
- *   // Your component code here
- * }
- * ```
  */
 export function SchmancyFormField<T extends CSSResult>(componentStyle?: T) {
 	return FormFieldMixin(TailwindElement(componentStyle)) as Constructor<IFormFieldMixin> &

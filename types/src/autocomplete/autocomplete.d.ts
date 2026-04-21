@@ -32,6 +32,7 @@ export default class SchmancyAutocomplete extends SchmancyAutocomplete_base {
     similarityThreshold: number;
     error: boolean;
     validationMessage: string;
+    private readonly _a11yId;
     get values(): string[];
     set values(vals: string[]);
     get value(): string;

@@ -12,6 +12,8 @@ export declare class SchmancyTree extends SchmancyTree_base {
     toggler: HTMLSlotElement;
     defaultSlot: HTMLSlotElement;
     chevron: HTMLElement;
+    private readonly _a11yId;
+    private get _contentId();
     firstUpdated(): void;
     render(): import("lit-html").TemplateResult<1>;
 }

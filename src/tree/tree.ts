@@ -34,6 +34,9 @@ export class SchmancyTree extends TailwindElement(css`
 	// Since it's actually a <schmancy-button>, use HTMLElement or a custom type
 	@query('#chevron') chevron!: HTMLElement
 
+	private readonly _a11yId = `schmancy-tree-${Math.random().toString(36).slice(2, 10)}`
+	private get _contentId() { return `${this._a11yId}-content` }
+
 	firstUpdated() {
 		// Hide or show the slot initially based on `open`
 		if (!this.open) {
@@ -116,11 +119,20 @@ export class SchmancyTree extends TailwindElement(css`
 
 				<!-- The chevron or arrow symbol -->
 				<!-- Stop propagation on the schmancy-button itself just to avoid double triggers -->
-				<schmancy-button slot="trailing" id="chevron" @click=${(e: Event) => e.stopPropagation()}> ⌅ </schmancy-button>
+				<schmancy-button
+					slot="trailing"
+					id="chevron"
+					aria-expanded=${this.open ? 'true' : 'false'}
+					aria-controls=${this._contentId}
+					aria-label=${this.open ? 'Collapse' : 'Expand'}
+					@click=${(e: Event) => e.stopPropagation()}
+				>
+					⌅
+				</schmancy-button>
 			</div>
 
 			<!-- The default slot: tree children -->
-			<slot></slot>
+			<slot id=${this._contentId}></slot>
 		`
 	}
 }

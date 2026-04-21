@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit'
+import { LitElement, html, nothing } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -29,6 +29,8 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 	// private internals
 	internals: ElementInternals | undefined
 	textareaRef = createRef<HTMLTextAreaElement>()
+
+	private readonly _a11yId = `schmancy-textarea-${Math.random().toString(36).slice(2, 10)}`
 
 	/**
 	 * The label of the control.
@@ -375,6 +377,7 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 			'w-full min-w-0': true,
 			'flex flex-col h-full': this.fillHeight,
 		}
+		const hintId = `${this._a11yId}-hint`
 		return html`
 		<div class="${this.classMap(containerClasses)}">
 			${when(
@@ -404,12 +407,16 @@ export default class SchmancyTextarea extends TailwindElement(style) {
 				rows=${ifDefined(this.rows)}
 				wrap=${ifDefined(this.wrap)}
 				dirname=${ifDefined(this.dirname)}
+				aria-invalid=${this.error ? 'true' : 'false'}
+				aria-required=${this.required ? 'true' : 'false'}
+				aria-describedby=${this.hint ? hintId : nothing}
+				aria-label=${!this.label && this.placeholder ? this.placeholder : nothing}
 			></textarea>
 
 			${when(
 				this.hint,
 				() => html`
-					<div class="mt-1 text-sm ${this.error ? 'text-error-default' : 'text-surface-onVariant'}">
+					<div id=${hintId} class="mt-1 text-sm ${this.error ? 'text-error-default' : 'text-surface-onVariant'}">
 						${this.hint}
 					</div>
 				`,
