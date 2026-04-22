@@ -1,4 +1,5 @@
 import { LitElement } from 'lit';
+import { type SchmancyButtonSize } from './context';
 export interface SchmancyButtonEventMap {
     SchmancyFocus: CustomEvent<void>;
     SchmancyBlur: CustomEvent<void>;
@@ -55,12 +56,14 @@ export declare class SchmancyButton extends SchmancyButton_base {
     width: 'full' | 'auto';
     /**
      * The size of the button.
+     * Provided as `SchmancyButtonSizeContext` to descendant elements so children
+     * (e.g. `<schmancy-icon>`) can auto-size against the enclosing button.
      * @attr
      * @type {'xxs' | 'xs' | 'sm' | 'md' | 'lg'}
      * @default 'md'
      * @public
      */
-    size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
+    size: SchmancyButtonSize;
     /**
      * The type of the button.
      * Defaults to 'button' (preventing accidental form submissions).

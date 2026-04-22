@@ -50,8 +50,17 @@ export default class SchmancyIcon extends SchmancyIcon_base {
      * Size of the icon - M3 aligned tokens or custom string
      * Tokens: 'xxs' (12px), 'xs' (16px), 'sm' (20px), 'md' (24px), 'lg' (32px)
      * Custom: any CSS size string like '48px', '2rem'
+     *
+     * When this icon is a descendant of `<schmancy-button>`, the button's
+     * `size` wins (via `SchmancyButtonSizeContext`). The local `size` only
+     * applies when there is no ancestor button.
      */
     size: IconSize;
+    /**
+     * Size inherited from an ancestor `<schmancy-button>` via context.
+     * Undefined when the icon is not nested in a button.
+     */
+    private _buttonSize?;
     /**
      * Icon name - use this instead of slot content to prevent translation breaking icons.
      * When set, this takes precedence over slot content.

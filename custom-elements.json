@@ -853,7 +853,7 @@
         },
         {
           "name": "size",
-          "description": "The size of the button.",
+          "description": "The size of the button.\nProvided as `SchmancyButtonSizeContext` to descendant elements so children\n(e.g. `<schmancy-icon>`) can auto-size against the enclosing button.",
           "type": "'xxs' | 'xs' | 'sm' | 'md' | 'lg'",
           "default": "\"'md'\""
         },
@@ -914,7 +914,7 @@
         {
           "name": "size",
           "attribute": "size",
-          "description": "The size of the button.",
+          "description": "The size of the button.\nProvided as `SchmancyButtonSizeContext` to descendant elements so children\n(e.g. `<schmancy-icon>`) can auto-size against the enclosing button.",
           "type": "'xxs' | 'xs' | 'sm' | 'md' | 'lg'",
           "default": "\"'md'\""
         },
@@ -4078,7 +4078,7 @@
         },
         {
           "name": "size",
-          "description": "Size of the icon - M3 aligned tokens or custom string\nTokens: 'xxs' (12px), 'xs' (16px), 'sm' (20px), 'md' (24px), 'lg' (32px)\nCustom: any CSS size string like '48px', '2rem'",
+          "description": "Size of the icon - M3 aligned tokens or custom string\nTokens: 'xxs' (12px), 'xs' (16px), 'sm' (20px), 'md' (24px), 'lg' (32px)\nCustom: any CSS size string like '48px', '2rem'\n\nWhen this icon is a descendant of `<schmancy-button>`, the button's\n`size` wins (via `SchmancyButtonSizeContext`). The local `size` only\napplies when there is no ancestor button.",
           "type": "string",
           "default": "\"md\""
         },
@@ -4120,7 +4120,7 @@
         {
           "name": "size",
           "attribute": "size",
-          "description": "Size of the icon - M3 aligned tokens or custom string\nTokens: 'xxs' (12px), 'xs' (16px), 'sm' (20px), 'md' (24px), 'lg' (32px)\nCustom: any CSS size string like '48px', '2rem'",
+          "description": "Size of the icon - M3 aligned tokens or custom string\nTokens: 'xxs' (12px), 'xs' (16px), 'sm' (20px), 'md' (24px), 'lg' (32px)\nCustom: any CSS size string like '48px', '2rem'\n\nWhen this icon is a descendant of `<schmancy-button>`, the button's\n`size` wins (via `SchmancyButtonSizeContext`). The local `size` only\napplies when there is no ancestor button.",
           "type": "string",
           "default": "\"md\""
         },
