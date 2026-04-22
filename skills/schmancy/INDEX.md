@@ -69,5 +69,5 @@ The framework pieces — touch before components.
 - Conditionals use `when(...)`, `choose(...)`, `ifDefined(...)`.
 - All RxJS subscriptions end with `.pipe(takeUntil(this.disconnecting))`.
 - Don't use `setTimeout` / `setInterval` / `addEventListener` — use RxJS (`timer`, `interval`, `fromEvent`).
-- Colors come from `--schmancy-sys-color-*` CSS vars or Tailwind theme classes.
+- Colors: prefer Tailwind shortcut utilities (`bg-surface-default`, `text-error-default`, `border-outline-variant`) over `bg-[var(--schmancy-sys-color-X)]`. Token map in [theme.md § Tailwind utilities](./theme.md#tailwind-utilities).
 - `classMap(...)` must be the sole expression in `class=`; never mix with string interpolation.

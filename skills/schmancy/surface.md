@@ -10,6 +10,20 @@
 </schmancy-surface>
 ```
 
+## Theme vs. Surface
+
+A `<schmancy-theme>` only defines the palette (the `--schmancy-sys-color-*` values). It does not paint a background and does not set the inherited text color. `<schmancy-surface>` is what paints the background **and** establishes the `color` that descendant typography inherits.
+
+Without a surface under the theme, typography reads the browser's default color and the app looks broken (white-on-white or black-on-black). The minimal correct app skeleton is always:
+
+```html
+<schmancy-theme root scheme="auto">
+  <schmancy-surface type="solid" fill="all">
+    <!-- your app -->
+  </schmancy-surface>
+</schmancy-theme>
+```
+
 ## Properties
 
 | Property | Type | Default | Description |

@@ -72,7 +72,7 @@ Use component tags (`<schmancy-menu>`, `<schmancy-dropdown>`, `<schmancy-tooltip
 - `classMap(this.classMap({...}))` must be the sole expression in `class=` — never mix with string interpolation.
 
 **Styling**
-- Colors: `--schmancy-sys-color-*` CSS vars or Tailwind theme classes. Never hardcoded hex.
+- Colors: prefer Tailwind shortcut utilities (`bg-surface-default`, `text-error-default`, `border-outline-variant`) over the arbitrary-value form (`bg-[var(--schmancy-sys-color-X)]`). Every `--schmancy-sys-color-*` token is aliased to `--color-*`, which Tailwind v4 auto-generates into `bg-*`/`text-*`/`border-*`/etc. Full token map: [theme.md § Tailwind utilities](./theme.md#tailwind-utilities). Use the arbitrary-value form only when the token isn't aliased. Never hardcoded hex.
 - No `setTimeout` / `setInterval` / `addEventListener` — use RxJS (`timer`, `interval`, `fromEvent`).
 
 **Accessibility (combobox forms)**
