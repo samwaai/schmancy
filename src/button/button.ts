@@ -1,9 +1,11 @@
 import { $LitElement } from '@mixins/index'
+import { provide } from '@lit/context'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { when } from 'lit/directives/when.js'
 import { magnetic } from '../directives/magnetic'
+import { SchmancyButtonSizeContext, type SchmancyButtonSize } from './context'
 
 export interface SchmancyButtonEventMap {
 	SchmancyFocus: CustomEvent<void>
@@ -132,13 +134,16 @@ export class SchmancyButton extends $LitElement(
 
 	/**
 	 * The size of the button.
+	 * Provided as `SchmancyButtonSizeContext` to descendant elements so children
+	 * (e.g. `<schmancy-icon>`) can auto-size against the enclosing button.
 	 * @attr
 	 * @type {'xxs' | 'xs' | 'sm' | 'md' | 'lg'}
 	 * @default 'md'
 	 * @public
 	 */
+	@provide({ context: SchmancyButtonSizeContext })
 	@property({ type: String })
-	public size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' = 'md'
+	public size: SchmancyButtonSize = 'md'
 
 	/**
 	 * The type of the button.

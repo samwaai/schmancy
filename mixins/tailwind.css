@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+/* Tell Tailwind's content scanner to also look at the library source,
+   which lives one level up from this file. Without this, consumers whose
+   Vite root sits outside the library (e.g. the demo at `/demo/`) only get
+   utilities for classes typed in their own source — library classes like
+   `bg-primary-default`, `border-outline`, `text-primary-on` silently no-op. */
+@source "../src/**/*.{ts,tsx,js,jsx,html}";
+
 /* Cascade-layer order contract. Consumer (unlayered) CSS always overrides
    library styles regardless of specificity. Library-internal tokens and
    components live in named layers so consumers can target them precisely. */

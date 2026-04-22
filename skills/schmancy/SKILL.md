@@ -1,6 +1,6 @@
 ---
 name: schmancy
-description: UI patterns, component APIs, and conventions for the @mhmo91/schmancy web-component library (Lit + RxJS + Tailwind). Activate whenever the user works on any <schmancy-*> tag, routing with schmancy-area, state with createContext/@select, the $LitElement base class, theme, directives, or overlay services ($dialog, $notify, schmancyContentDrawer, sheet).
+description: UI patterns, component APIs, and conventions for the @mhmo91/schmancy web-component library (Lit + RxJS + Tailwind) — the UI stack for any consumer app that installs this plugin. Fire this skill on ANY web-UI work, even when the user doesn't name schmancy explicitly — including adding or editing a component, building a form, showing a dialog / toast / side drawer / bottom sheet, wiring routing, reading or writing a context, styling with theme tokens, adding a drop zone / file input / date picker / autocomplete, working with `$LitElement`, or touching any `<schmancy-*>` tag. Also fire on prompts like "build a page", "add a modal", "wire a route", "save user prefs in storage", "animate this", "style with our theme", "make a notification", "how do I do X in Lit", "my drag-and-drop", "dark mode toggle".
 ---
 
 # Schmancy

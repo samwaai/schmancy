@@ -1,8 +1,10 @@
 import { TailwindElement } from '@mixins/index'
+import { consume } from '@lit/context'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { BehaviorSubject, combineLatest, takeUntil } from 'rxjs'
 import { tap } from 'rxjs/operators'
+import { SchmancyButtonSizeContext, type SchmancyButtonSize } from '../button/context'
 
 /**
  * Icon size tokens - M3 aligned with optical size optimization
@@ -127,9 +129,21 @@ export default class SchmancyIcon extends TailwindElement(css`
 	 * Size of the icon - M3 aligned tokens or custom string
 	 * Tokens: 'xxs' (12px), 'xs' (16px), 'sm' (20px), 'md' (24px), 'lg' (32px)
 	 * Custom: any CSS size string like '48px', '2rem'
+	 *
+	 * When this icon is a descendant of `<schmancy-button>`, the button's
+	 * `size` wins (via `SchmancyButtonSizeContext`). The local `size` only
+	 * applies when there is no ancestor button.
 	 */
 	@property({ type: String, reflect: true })
 	size: IconSize = 'md'
+
+	/**
+	 * Size inherited from an ancestor `<schmancy-button>` via context.
+	 * Undefined when the icon is not nested in a button.
+	 */
+	@consume({ context: SchmancyButtonSizeContext, subscribe: true })
+	@state()
+	private _buttonSize?: SchmancyButtonSize
 
 	/**
 	 * Icon name - use this instead of slot content to prevent translation breaking icons.
@@ -259,10 +273,12 @@ export default class SchmancyIcon extends TailwindElement(css`
 			'sharp': 'Material Symbols Sharp'
 		}[this.variant] || 'Material Symbols Outlined'
 
+		// Effective size: ancestor `<schmancy-button>` wins via context, else local `size`.
+		const effectiveSize: IconSize = this._buttonSize ?? this.size
 		// Resolve size: token → px, bare number → px, or pass through as-is
-		const sizeConfig = SchmancyIcon.tokenSizes[this.size]
-		const isNumeric = !sizeConfig && /^\d+(\.\d+)?$/.test(this.size)
-		const iconSize = sizeConfig?.size || (isNumeric ? `${this.size}px` : this.size)
+		const sizeConfig = SchmancyIcon.tokenSizes[effectiveSize]
+		const isNumeric = !sizeConfig && /^\d+(\.\d+)?$/.test(effectiveSize)
+		const iconSize = sizeConfig?.size || (isNumeric ? `${effectiveSize}px` : effectiveSize)
 		const opticalSize = sizeConfig?.opsz || SchmancyIcon.computeOpticalSize(iconSize)
 
 		// Set size on HOST so :host CSS picks it up
