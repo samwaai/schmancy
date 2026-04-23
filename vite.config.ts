@@ -19,6 +19,11 @@ const getDirectories = async (source: string) =>
 
 const components = await getDirectories(resolve(__dirname, './src/'))
 
+// Watch mode keeps existing dist/ files so consumers (e.g. the parent
+// monorepo's web vite server) never see a missing dist/index.js between
+// rebuilds. Full builds still wipe to avoid stale outputs.
+const isWatch = process.argv.includes('--watch') || process.argv.includes('-w')
+
 export default defineConfig({
 	root: resolve(__dirname),
 	publicDir: resolve(__dirname, './public'),
@@ -30,6 +35,7 @@ export default defineConfig({
 	},
 	plugins: [tailwindcss()],
 	build: {
+		emptyOutDir: !isWatch,
 		lib: {
 			entry: components.reduce(
 				(acc, current) => ({
