@@ -1,6 +1,6 @@
 ---
 name: schmancy
-description: UI patterns, component APIs, and conventions for the @mhmo91/schmancy web-component library (Lit + RxJS + Tailwind) — the UI stack for any consumer app that installs this plugin. Fire this skill on ANY web-UI work, even when the user doesn't name schmancy explicitly — including adding or editing a component, building a form, showing a dialog / toast / side drawer / bottom sheet, wiring routing, reading or writing a context, styling with theme tokens, adding a drop zone / file input / date picker / autocomplete, working with `$LitElement`, or touching any `<schmancy-*>` tag. Also fire on prompts like "build a page", "add a modal", "wire a route", "save user prefs in storage", "animate this", "style with our theme", "make a notification", "how do I do X in Lit", "my drag-and-drop", "dark mode toggle".
+description: UI patterns, component APIs, and conventions for the @mhmo91/schmancy web-component library (Lit + RxJS + Tailwind) — the exclusive UI stack in this repo's `web/` workspace. Fire this skill on ANY web-UI work, even when the user doesn't name schmancy explicitly — including adding or editing a component, building a form, showing a dialog / toast / side drawer / bottom sheet, wiring routing, reading or writing a context, styling with theme tokens, adding a drop zone / file input / date picker / autocomplete, working with `$LitElement`, or touching any `<schmancy-*>` tag. Also fire on prompts like "build a page", "add a modal", "wire a route", "save user prefs in storage", "animate this", "style with our theme", "make a notification", "how do I do X in Lit", "my drag-and-drop", "dark mode toggle".
 ---
 
 # Schmancy
@@ -67,12 +67,14 @@ Use component tags (`<schmancy-menu>`, `<schmancy-dropdown>`, `<schmancy-tooltip
 - Lists: `repeat(items, i => i.id, tpl)`. Never `.map()`.
 - View switching: `cache(...)`.
 - Expensive work: `guard([deps], () => expensive())`.
-- Conditionals: `when(...)` / `choose(...)` / `ifDefined(...)`.
+- Conditionals: every `${...}` placeholder whose value is a `TemplateResult` or `nothing` uses a directive imported from `lit/directives/` — `when(condition, () => html\`...\`, () => html\`...\`?)` for a two-way branch, `choose(value, [['case', () => html\`...\`], …])` for a three-or-more-way dispatch, `ifDefined(maybeUndef)` for nullable attribute values. A chain of `?:` or `&&` expressions whose else-arm is `nothing` evaluates every branch on every render and defeats lit's directive-aware diffing; the pre-edit hook flags this as `NO_TERNARY_NOTHING_DISPATCH`.
 - DOM access: `ref(createRef())`.
 - `classMap(this.classMap({...}))` must be the sole expression in `class=` — never mix with string interpolation.
 
 **Styling**
-- Colors: prefer Tailwind shortcut utilities (`bg-surface-default`, `text-error-default`, `border-outline-variant`) over the arbitrary-value form (`bg-[var(--schmancy-sys-color-X)]`). Every `--schmancy-sys-color-*` token is aliased to `--color-*`, which Tailwind v4 auto-generates into `bg-*`/`text-*`/`border-*`/etc. Full token map: [theme.md § Tailwind utilities](./theme.md#tailwind-utilities). Use the arbitrary-value form only when the token isn't aliased. Never hardcoded hex.
+- Styling uses Tailwind and schmancy tokens. The `css` template passed to `$LitElement` contains only `:host` rules, `@keyframes`, and selectors targeting vendor pseudo-elements (`::-webkit-*`, `::-moz-*`). Other styling is set through Tailwind utility classes and schmancy theme tokens on the `class=` attribute. The `style=` attribute holds per-instance dynamic values only (e.g. `style="--tide: ${value}"`).
+  Remediation: move declarations to Tailwind on the `class=` attribute (`backdrop-filter: blur(20px)` → `backdrop-blur-xl`; `color-mix(in oklch, Canvas 72%, transparent)` → `bg-surface/70`; `border-radius: 14px` → `rounded-2xl`; `transition: opacity 80ms linear` → `transition-opacity duration-75 ease-linear`). When a visual pattern seems to want its own class (like `.glass`), check `INDEX.md` — schmancy likely ships the component.
+- Colors: `--schmancy-sys-color-*` CSS vars or Tailwind theme classes. Never hardcoded hex.
 - No `setTimeout` / `setInterval` / `addEventListener` — use RxJS (`timer`, `interval`, `fromEvent`).
 
 **Accessibility (combobox forms)**
