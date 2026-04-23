@@ -36,6 +36,37 @@ export default defineConfig({
 	plugins: [tailwindcss()],
 	build: {
 		emptyOutDir: !isWatch,
+		// Constrain rollup's watch scope so writes to dist/ (sourcemaps,
+		// in-place overwrites) and copy-plugin source touches don't
+		// re-trigger the build in an infinite loop. Both rollup's
+		// include/exclude and chokidar's lower-level ignored list are
+		// set — rollup filters which file events trigger a rebuild,
+		// chokidar prevents the events from being emitted at all.
+		watch: isWatch
+			? {
+					include: ['src/**', 'mixins/**'],
+					exclude: [
+						'dist/**',
+						'types/**',
+						'node_modules/**',
+						'.claude-plugin/**',
+						'skills/**',
+						'public/**',
+						'**/.git/**',
+					],
+					chokidar: {
+						ignored: [
+							'**/dist/**',
+							'**/types/**',
+							'**/node_modules/**',
+							'**/.claude-plugin/**',
+							'**/skills/**',
+							'**/public/**',
+							'**/.git/**',
+						],
+					},
+				}
+			: null,
 		lib: {
 			entry: components.reduce(
 				(acc, current) => ({
