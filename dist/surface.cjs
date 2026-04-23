@@ -1,0 +1,1 @@
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./surface-B-y5Zzmz.cjs`);Object.defineProperty(exports,`SchmancySurface`,{enumerable:!0,get:function(){return e.t}}),exports.SchmancySurfaceTypeContext=e.n;

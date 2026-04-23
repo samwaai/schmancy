@@ -1,0 +1,1 @@
+require(`./splash-screen-BUKRc46i.cjs`);

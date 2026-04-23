@@ -1,0 +1,276 @@
+var e = {
+	sys: {
+		color: {
+			scrim: "var(--schmancy-sys-color-scrim)",
+			outline: "var(--schmancy-sys-color-outline)",
+			outlineVariant: "var(--schmancy-sys-color-outlineVariant)",
+			shadow: "var(--schmancy-sys-color-shadow)",
+			surface: {
+				default: "var(--schmancy-sys-color-surface-default)",
+				dim: "var(--schmancy-sys-color-surface-dim)",
+				bright: "var(--schmancy-sys-color-surface-bright)",
+				container: "var(--schmancy-sys-color-surface-container)",
+				containerLow: "var(--schmancy-sys-color-surface-containerLow)",
+				containerLowest: "var(--schmancy-sys-color-surface-containerLowest)",
+				containerHigh: "var(--schmancy-sys-color-surface-containerHigh)",
+				containerHighest: "var(--schmancy-sys-color-surface-containerHighest)",
+				on: "var(--schmancy-sys-color-surface-on)",
+				onVariant: "var(--schmancy-sys-color-surface-onVariant)",
+				tint: "var(--schmancy-sys-color-surface-tint)",
+				inverse: "var(--schmancy-sys-color-inverse-surface)",
+				inverseOn: "var(--schmancy-sys-color-inverse-onSurface)",
+				low: "var(--schmancy-sys-color-surface-containerLow)",
+				high: "var(--schmancy-sys-color-surface-containerHigh)",
+				highest: "var(--schmancy-sys-color-surface-containerHighest)",
+				lowest: "var(--schmancy-sys-color-surface-containerLowest)"
+			},
+			primary: {
+				default: "var(--schmancy-sys-color-primary-default)",
+				on: "var(--schmancy-sys-color-primary-on)",
+				container: "var(--schmancy-sys-color-primary-container)",
+				onContainer: "var(--schmancy-sys-color-primary-onContainer)",
+				fixed: "var(--schmancy-sys-color-primary-fixed)",
+				fixedDim: "var(--schmancy-sys-color-primary-fixedDim)",
+				onFixed: "var(--schmancy-sys-color-primary-onFixed)",
+				onFixedVariant: "var(--schmancy-sys-color-primary-onFixedVariant)",
+				inverse: "var(--schmancy-sys-color-inverse-primary)"
+			},
+			secondary: {
+				default: "var(--schmancy-sys-color-secondary-default)",
+				on: "var(--schmancy-sys-color-secondary-on)",
+				container: "var(--schmancy-sys-color-secondary-container)",
+				onContainer: "var(--schmancy-sys-color-secondary-onContainer)",
+				fixed: "var(--schmancy-sys-color-secondary-fixed)",
+				fixedDim: "var(--schmancy-sys-color-secondary-fixedDim)",
+				onFixed: "var(--schmancy-sys-color-secondary-onFixed)",
+				onFixedVariant: "var(--schmancy-sys-color-secondary-onFixedVariant)"
+			},
+			tertiary: {
+				default: "var(--schmancy-sys-color-tertiary-default)",
+				on: "var(--schmancy-sys-color-tertiary-on)",
+				container: "var(--schmancy-sys-color-tertiary-container)",
+				onContainer: "var(--schmancy-sys-color-tertiary-onContainer)",
+				fixed: "var(--schmancy-sys-color-tertiary-fixed)",
+				fixedDim: "var(--schmancy-sys-color-tertiary-fixedDim)",
+				onFixed: "var(--schmancy-sys-color-tertiary-onFixed)",
+				onFixedVariant: "var(--schmancy-sys-color-tertiary-onFixedVariant)"
+			},
+			error: {
+				default: "var(--schmancy-sys-color-error-default)",
+				on: "var(--schmancy-sys-color-error-on)",
+				container: "var(--schmancy-sys-color-error-container)",
+				onContainer: "var(--schmancy-sys-color-error-onContainer)"
+			},
+			success: {
+				default: "var(--schmancy-sys-color-success-default)",
+				on: "var(--schmancy-sys-color-success-on)",
+				container: "var(--schmancy-sys-color-success-container)",
+				onContainer: "var(--schmancy-sys-color-success-onContainer)"
+			},
+			warning: {
+				default: "var(--schmancy-sys-color-warning-default)",
+				on: "var(--schmancy-sys-color-warning-on)",
+				container: "var(--schmancy-sys-color-warning-container)",
+				onContainer: "var(--schmancy-sys-color-warning-onContainer)"
+			},
+			info: {
+				default: "var(--schmancy-sys-color-info-default)",
+				on: "var(--schmancy-sys-color-info-on)",
+				container: "var(--schmancy-sys-color-info-container)",
+				onContainer: "var(--schmancy-sys-color-info-onContainer)"
+			}
+		},
+		typography: {
+			display: {
+				large: "var(--schmancy-sys-typescale-display-large)",
+				medium: "var(--schmancy-sys-typescale-display-medium)",
+				small: "var(--schmancy-sys-typescale-display-small)"
+			},
+			headline: {
+				large: "var(--schmancy-sys-typescale-headline-large)",
+				medium: "var(--schmancy-sys-typescale-headline-medium)",
+				small: "var(--schmancy-sys-typescale-headline-small)"
+			},
+			title: {
+				large: "var(--schmancy-sys-typescale-title-large)",
+				medium: "var(--schmancy-sys-typescale-title-medium)",
+				small: "var(--schmancy-sys-typescale-title-small)"
+			},
+			body: {
+				large: "var(--schmancy-sys-typescale-body-large)",
+				medium: "var(--schmancy-sys-typescale-body-medium)",
+				small: "var(--schmancy-sys-typescale-body-small)"
+			},
+			label: {
+				large: "var(--schmancy-sys-typescale-label-large)",
+				medium: "var(--schmancy-sys-typescale-label-medium)",
+				small: "var(--schmancy-sys-typescale-label-small)"
+			}
+		},
+		shape: { corner: {
+			none: "var(--schmancy-sys-shape-corner-none)",
+			extraSmall: "var(--schmancy-sys-shape-corner-extraSmall)",
+			small: "var(--schmancy-sys-shape-corner-small)",
+			medium: "var(--schmancy-sys-shape-corner-medium)",
+			large: "var(--schmancy-sys-shape-corner-large)",
+			extraLarge: "var(--schmancy-sys-shape-corner-extraLarge)",
+			full: "var(--schmancy-sys-shape-corner-full)"
+		} },
+		elevation: {
+			0: "var(--schmancy-sys-elevation-0)",
+			1: "var(--schmancy-sys-elevation-1)",
+			2: "var(--schmancy-sys-elevation-2)",
+			3: "var(--schmancy-sys-elevation-3)",
+			4: "var(--schmancy-sys-elevation-4)",
+			5: "var(--schmancy-sys-elevation-5)"
+		},
+		motion: {
+			easing: {
+				emphasized: "var(--schmancy-sys-motion-easing-emphasized)",
+				emphasizedDecelerate: "var(--schmancy-sys-motion-easing-emphasized-decelerate)",
+				emphasizedAccelerate: "var(--schmancy-sys-motion-easing-emphasized-accelerate)",
+				standard: "var(--schmancy-sys-motion-easing-standard)",
+				standardDecelerate: "var(--schmancy-sys-motion-easing-standard-decelerate)",
+				standardAccelerate: "var(--schmancy-sys-motion-easing-standard-accelerate)",
+				legacy: "var(--schmancy-sys-motion-easing-legacy)",
+				linear: "var(--schmancy-sys-motion-easing-linear)"
+			},
+			duration: {
+				short1: "var(--schmancy-sys-motion-duration-short1)",
+				short2: "var(--schmancy-sys-motion-duration-short2)",
+				short3: "var(--schmancy-sys-motion-duration-short3)",
+				short4: "var(--schmancy-sys-motion-duration-short4)",
+				medium1: "var(--schmancy-sys-motion-duration-medium1)",
+				medium2: "var(--schmancy-sys-motion-duration-medium2)",
+				medium3: "var(--schmancy-sys-motion-duration-medium3)",
+				medium4: "var(--schmancy-sys-motion-duration-medium4)",
+				long1: "var(--schmancy-sys-motion-duration-long1)",
+				long2: "var(--schmancy-sys-motion-duration-long2)",
+				long3: "var(--schmancy-sys-motion-duration-long3)",
+				long4: "var(--schmancy-sys-motion-duration-long4)",
+				extraLong1: "var(--schmancy-sys-motion-duration-extraLong1)",
+				extraLong2: "var(--schmancy-sys-motion-duration-extraLong2)",
+				extraLong3: "var(--schmancy-sys-motion-duration-extraLong3)",
+				extraLong4: "var(--schmancy-sys-motion-duration-extraLong4)"
+			}
+		},
+		state: { opacity: {
+			hover: "var(--schmancy-sys-state-hover-opacity)",
+			focus: "var(--schmancy-sys-state-focus-opacity)",
+			pressed: "var(--schmancy-sys-state-pressed-opacity)",
+			dragged: "var(--schmancy-sys-state-dragged-opacity)",
+			disabled: "var(--schmancy-sys-state-disabled-opacity)",
+			disabledContainer: "var(--schmancy-sys-state-disabled-container-opacity)"
+		} },
+		spacing: {
+			0: "var(--schmancy-sys-spacing-0)",
+			1: "var(--schmancy-sys-spacing-1)",
+			2: "var(--schmancy-sys-spacing-2)",
+			3: "var(--schmancy-sys-spacing-3)",
+			4: "var(--schmancy-sys-spacing-4)",
+			5: "var(--schmancy-sys-spacing-5)",
+			6: "var(--schmancy-sys-spacing-6)",
+			7: "var(--schmancy-sys-spacing-7)",
+			8: "var(--schmancy-sys-spacing-8)",
+			9: "var(--schmancy-sys-spacing-9)",
+			10: "var(--schmancy-sys-spacing-10)",
+			11: "var(--schmancy-sys-spacing-11)",
+			12: "var(--schmancy-sys-spacing-12)"
+		},
+		outline: { 1: "var(--schmancy-sys-outline-1)" }
+	},
+	ref: { palette: {
+		primary: {
+			0: "var(--schmancy-ref-palette-primary-0)",
+			10: "var(--schmancy-ref-palette-primary-10)",
+			20: "var(--schmancy-ref-palette-primary-20)",
+			30: "var(--schmancy-ref-palette-primary-30)",
+			40: "var(--schmancy-ref-palette-primary-40)",
+			50: "var(--schmancy-ref-palette-primary-50)",
+			60: "var(--schmancy-ref-palette-primary-60)",
+			70: "var(--schmancy-ref-palette-primary-70)",
+			80: "var(--schmancy-ref-palette-primary-80)",
+			90: "var(--schmancy-ref-palette-primary-90)",
+			95: "var(--schmancy-ref-palette-primary-95)",
+			99: "var(--schmancy-ref-palette-primary-99)",
+			100: "var(--schmancy-ref-palette-primary-100)"
+		},
+		secondary: {
+			0: "var(--schmancy-ref-palette-secondary-0)",
+			10: "var(--schmancy-ref-palette-secondary-10)",
+			20: "var(--schmancy-ref-palette-secondary-20)",
+			30: "var(--schmancy-ref-palette-secondary-30)",
+			40: "var(--schmancy-ref-palette-secondary-40)",
+			50: "var(--schmancy-ref-palette-secondary-50)",
+			60: "var(--schmancy-ref-palette-secondary-60)",
+			70: "var(--schmancy-ref-palette-secondary-70)",
+			80: "var(--schmancy-ref-palette-secondary-80)",
+			90: "var(--schmancy-ref-palette-secondary-90)",
+			95: "var(--schmancy-ref-palette-secondary-95)",
+			99: "var(--schmancy-ref-palette-secondary-99)",
+			100: "var(--schmancy-ref-palette-secondary-100)"
+		},
+		tertiary: {
+			0: "var(--schmancy-ref-palette-tertiary-0)",
+			10: "var(--schmancy-ref-palette-tertiary-10)",
+			20: "var(--schmancy-ref-palette-tertiary-20)",
+			30: "var(--schmancy-ref-palette-tertiary-30)",
+			40: "var(--schmancy-ref-palette-tertiary-40)",
+			50: "var(--schmancy-ref-palette-tertiary-50)",
+			60: "var(--schmancy-ref-palette-tertiary-60)",
+			70: "var(--schmancy-ref-palette-tertiary-70)",
+			80: "var(--schmancy-ref-palette-tertiary-80)",
+			90: "var(--schmancy-ref-palette-tertiary-90)",
+			95: "var(--schmancy-ref-palette-tertiary-95)",
+			99: "var(--schmancy-ref-palette-tertiary-99)",
+			100: "var(--schmancy-ref-palette-tertiary-100)"
+		},
+		neutral: {
+			0: "var(--schmancy-ref-palette-neutral-0)",
+			10: "var(--schmancy-ref-palette-neutral-10)",
+			20: "var(--schmancy-ref-palette-neutral-20)",
+			30: "var(--schmancy-ref-palette-neutral-30)",
+			40: "var(--schmancy-ref-palette-neutral-40)",
+			50: "var(--schmancy-ref-palette-neutral-50)",
+			60: "var(--schmancy-ref-palette-neutral-60)",
+			70: "var(--schmancy-ref-palette-neutral-70)",
+			80: "var(--schmancy-ref-palette-neutral-80)",
+			90: "var(--schmancy-ref-palette-neutral-90)",
+			95: "var(--schmancy-ref-palette-neutral-95)",
+			99: "var(--schmancy-ref-palette-neutral-99)",
+			100: "var(--schmancy-ref-palette-neutral-100)"
+		},
+		neutralVariant: {
+			0: "var(--schmancy-ref-palette-neutralVariant-0)",
+			10: "var(--schmancy-ref-palette-neutralVariant-10)",
+			20: "var(--schmancy-ref-palette-neutralVariant-20)",
+			30: "var(--schmancy-ref-palette-neutralVariant-30)",
+			40: "var(--schmancy-ref-palette-neutralVariant-40)",
+			50: "var(--schmancy-ref-palette-neutralVariant-50)",
+			60: "var(--schmancy-ref-palette-neutralVariant-60)",
+			70: "var(--schmancy-ref-palette-neutralVariant-70)",
+			80: "var(--schmancy-ref-palette-neutralVariant-80)",
+			90: "var(--schmancy-ref-palette-neutralVariant-90)",
+			95: "var(--schmancy-ref-palette-neutralVariant-95)",
+			99: "var(--schmancy-ref-palette-neutralVariant-99)",
+			100: "var(--schmancy-ref-palette-neutralVariant-100)"
+		},
+		error: {
+			0: "var(--schmancy-ref-palette-error-0)",
+			10: "var(--schmancy-ref-palette-error-10)",
+			20: "var(--schmancy-ref-palette-error-20)",
+			30: "var(--schmancy-ref-palette-error-30)",
+			40: "var(--schmancy-ref-palette-error-40)",
+			50: "var(--schmancy-ref-palette-error-50)",
+			60: "var(--schmancy-ref-palette-error-60)",
+			70: "var(--schmancy-ref-palette-error-70)",
+			80: "var(--schmancy-ref-palette-error-80)",
+			90: "var(--schmancy-ref-palette-error-90)",
+			95: "var(--schmancy-ref-palette-error-95)",
+			99: "var(--schmancy-ref-palette-error-99)",
+			100: "var(--schmancy-ref-palette-error-100)"
+		}
+	} },
+	locale: typeof navigator < "u" ? navigator.language : "de-DE"
+};
+export { e as t };

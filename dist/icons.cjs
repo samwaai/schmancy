@@ -1,0 +1,1 @@
+require(`./icons-UOqapID2.cjs`);

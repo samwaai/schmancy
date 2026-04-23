@@ -1,0 +1,1 @@
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./input-DIuyi3Gm.cjs`);exports.SchmancyInput=e.n,Object.defineProperty(exports,`SchmancyInputCompat`,{enumerable:!0,get:function(){return e.t}});

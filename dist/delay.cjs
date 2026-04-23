@@ -1,0 +1,1 @@
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./delay-aQRihOO4.cjs`);Object.defineProperty(exports,`SchmancyDelay`,{enumerable:!0,get:function(){return e.t}}),exports.delayContext=e.n;

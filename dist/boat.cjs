@@ -1,0 +1,1 @@
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./boat-C-T9RDiG.cjs`);exports.SchmancyBoat=e.t;

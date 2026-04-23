@@ -1,0 +1,1 @@
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./table-CzcIcVFc.cjs`);Object.defineProperty(exports,`SchmancyDataTable`,{enumerable:!0,get:function(){return e.t}}),Object.defineProperty(exports,`SchmancyTableRow`,{enumerable:!0,get:function(){return e.n}});

@@ -1,0 +1,1 @@
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./notification-BT84PlwC.cjs`);exports.$notify=e.r,exports.SchmancyNotification=e.i,exports.notify=e.t,exports.notifyProgress=e.n;

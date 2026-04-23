@@ -1,0 +1,1 @@
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./details-Cs8yStsJ.cjs`);exports.SchmancyDetails=e.t;

@@ -1,0 +1,1 @@
+require(`./tabs-CzC8kJyY.cjs`);

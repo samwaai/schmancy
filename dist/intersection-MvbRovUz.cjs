@@ -1,0 +1,1 @@
+require(`./chunk-BCfY8kxB.cjs`);let e=require(`rxjs`);function t(t,n={threshold:.5}){return new e.Observable(e=>{let r=new IntersectionObserver(t=>{e.next(t)},n);return Array.isArray(t)?t.forEach(e=>r.observe(e)):r.observe(t),()=>{r.disconnect()}})}Object.defineProperty(exports,`t`,{enumerable:!0,get:function(){return t}});

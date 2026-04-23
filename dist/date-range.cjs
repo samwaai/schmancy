@@ -1,0 +1,1 @@
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./date-range-DF5ROfrb.cjs`);Object.defineProperty(exports,`SchmancyDateRange`,{enumerable:!0,get:function(){return e.t}}),exports.validateInitialDateRange=e.n;
