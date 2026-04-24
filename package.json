@@ -15,6 +15,12 @@
 			"types": "./types/mixins/index.d.ts",
 			"default": "./mixins/index.ts"
 		},
+		"./agent": {
+			"types": "./types/src/agent/agent-entry.d.ts",
+			"import": "./dist/agent/schmancy.agent.js",
+			"default": "./dist/agent/schmancy.agent.js"
+		},
+		"./agent/manifest": "./dist/agent/schmancy.manifest.json",
 		"./*": {
 			"types": "./types/src/*/index.d.ts",
 			"default": "./dist/*.js"
@@ -48,7 +54,8 @@
 	},
 	"scripts": {
 		"dev": "vite build --config vite.config.ts --watch",
-		"build": "tsc && vite build --config vite.config.ts && yarn manifest",
+		"build": "tsc && vite build --config vite.config.ts && yarn manifest && yarn build:agent",
+		"build:agent": "vite build --config vite.config.agent.ts",
 		"manifest": "wca 'src/**/*.ts' --outFile custom-elements.json --format json",
 		"ncu": "ncu -u && npm i",
 		"test": "vitest run",
@@ -102,6 +109,7 @@
 		"sass": "^1.98.0",
 		"tailwindcss": "^4.2.1",
 		"ts-lit-plugin": "^2.0.2",
+		"ts-morph": "^28.0.0",
 		"typescript": "^5.9.3",
 		"vite": "^8.0.0",
 		"vitest": "^4.1.0",

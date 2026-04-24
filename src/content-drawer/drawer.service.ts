@@ -145,4 +145,13 @@ class DrawerService {
 	}
 }
 
+/**
+ * Content-drawer service. Mounts any element inside the right-hand content
+ * drawer of a `<schmancy-content-drawer>` layout.
+ *
+ * @service
+ * @summary Imperative content-drawer (right-side navigation panel).
+ * @method render({ component, ...options }) - Mount an element in the drawer.
+ * @method close() - Close the drawer.
+ */
 export const schmancyContentDrawer = new DrawerService()

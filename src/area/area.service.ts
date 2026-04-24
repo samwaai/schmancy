@@ -744,5 +744,16 @@ class AreaService implements AreaSubscription {
 	}
 }
 
+/**
+ * Area router singleton. Drives named `<schmancy-area>` outlets in the DOM
+ * — imperative push / pop, URL-synced, state-restoring. Pair with
+ * `lazy(() => import('./view'))` for code-split routes.
+ *
+ * @service
+ * @summary Imperative outlet-based router for `<schmancy-area>` elements.
+ * @method push({ area, component, params?, state? }) - Navigate an area to a component.
+ * @method pop(areaName) - Pop the top entry off an area's stack.
+ * @method current$(areaName) - Observable of the active route state for an area.
+ */
 export const area = AreaService.getInstance()
 export default area

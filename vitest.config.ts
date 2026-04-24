@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config'
 import { resolve } from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import { playwright } from '@vitest/browser-playwright'
+import schmancyManifestPlugin from './plugins/vite-plugin-schmancy-manifest'
 
 /**
  * Test runner config — decoupled from the library build config so test
@@ -22,7 +23,7 @@ export default defineConfig({
 			'@mixins': resolve(__dirname, './mixins'),
 		},
 	},
-	plugins: [tailwindcss()],
+	plugins: [tailwindcss(), schmancyManifestPlugin({ root: __dirname })],
 	test: {
 		include: ['src/**/*.{test,spec}.ts', 'mixins/**/*.{test,spec}.ts'],
 		// area.service.test.ts is a legacy Node-environment suite that patches

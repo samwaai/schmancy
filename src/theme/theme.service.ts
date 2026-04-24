@@ -514,7 +514,17 @@ class ThemeService {
   }
 }
 
-// Export singleton instance
+/**
+ * Theme singleton. Reads and mutates the active theme (scheme, source color,
+ * locale); persists the user's scheme choice. Components subscribe via
+ * `theme.theme$` for changes.
+ *
+ * @service
+ * @summary Theme service — active scheme, source color, locale.
+ * @method next({ scheme?, source?, locale? }) - Update theme state.
+ * @method theme$ - Observable<TSchmancyTheme>; emits on every theme change.
+ * @method toggle() - Toggle between light and dark schemes.
+ */
 export const theme = ThemeService.getInstance()
 export const schmancyTheme = theme // Alias for convenience
 export default theme

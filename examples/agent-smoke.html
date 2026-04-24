@@ -1,0 +1,40 @@
+<!doctype html>
+<!--
+  Handover §3.1 acceptance test fixture.
+
+  Drop this file onto any static server (or open it relative to a
+  built dist/agent/schmancy.agent.js) and the dark-themed button
+  must render with zero other setup.
+
+  Swap the bundle URL below for the esm.sh / jsdelivr pinned URL once
+  the package is published:
+
+    https://esm.sh/@mhmo91/schmancy/agent@<version>
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>schmancy/agent — acceptance smoke</title>
+  <script type="module" src="../dist/agent/schmancy.agent.js"></script>
+</head>
+<body style="margin:0">
+  <schmancy-theme root scheme="dark">
+    <schmancy-surface type="solid" fill="all" style="display:block;min-height:100vh;padding:2rem">
+      <schmancy-typography type="headline" token="lg">schmancy/agent is live</schmancy-typography>
+      <p style="margin-top:1rem">
+        <schmancy-button variant="filled">Hi</schmancy-button>
+      </p>
+      <!--
+        <schmancy-skill> installs window.schmancy on connect.
+        Open DevTools and try:
+
+          window.schmancy.help('schmancy-button')
+          window.schmancy.tokens()
+          window.schmancy.capabilities()
+      -->
+      <schmancy-skill></schmancy-skill>
+    </schmancy-surface>
+  </schmancy-theme>
+</body>
+</html>

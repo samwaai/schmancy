@@ -2,6 +2,40 @@
 
 A Web Component UI library built on Lit, RxJS, and Tailwind CSS. Surfaces are glass. Depth is light. Interactions are physics.
 
+## Agent runtime
+
+For sandboxed-iframe agents (Claude Design, Claude Artifacts, any LLM that can
+only write HTML), schmancy ships a single-URL runtime at `@mhmo91/schmancy/agent`.
+Drop one `<script type="module">` tag and every `<schmancy-*>` element is
+registered. No bundler, no bare specifiers, no npm install.
+
+```html
+<script type="module">
+  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent';
+</script>
+<schmancy-theme root scheme="dark">
+  <schmancy-surface type="solid" fill="all">
+    <schmancy-button>Hi</schmancy-button>
+    <schmancy-skill></schmancy-skill>
+  </schmancy-surface>
+</schmancy-theme>
+```
+
+The `<schmancy-skill>` tag installs `window.schmancy` for runtime discovery:
+
+- `window.schmancy.help()` — full manifest (CEM v1 shape).
+- `window.schmancy.help('schmancy-button')` — one tag's attributes, events, slots, CSS parts.
+- `window.schmancy.tokens()` — build-time-extracted list of `--schmancy-*` theme tokens.
+- `window.schmancy.manifestUrl` — Blob URL; `fetch()` it for the same data.
+- `window.schmancy.a11yAudit()` — walks the live DOM and reports ARIA / shadow-root / form-association status per instance.
+- `window.schmancy.platformPrimitive('schmancy-dialog')` — map to the native element a component wraps (present when the component's JSDoc has `@platform`).
+- `window.schmancy.capabilities()` — runtime feature probe (`popover`, `declarativeShadowDom`, `scopedRegistries`, `trustedTypes`, `cssRegisteredProperties`, `elementInternalsAria`, `formAssociated`, `adoptedStyleSheets`). Agents use this to adapt to the sandbox they're in rather than the one they expect.
+
+Every enum-typed attribute carries a `values` array — e.g. `schmancy-button`'s `variant` ships `["elevated", "filled", "filled tonal", "tonal", "outlined", "text"]` so agents never have to parse `"'filled' | 'tonal' | ..."` strings.
+
+The manifest is also emitted as a sibling file at `@mhmo91/schmancy/agent/manifest`
+for tooling that prefers reading JSON from disk.
+
 ## Install
 
 ```bash
