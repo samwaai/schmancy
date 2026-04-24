@@ -10,28 +10,28 @@ import { DialogBase } from './dialog-base.mixin'
 import { DialogHereMorty, DialogWhereAreYouRicky, DialogWhereAreYouRickyEvent } from './dialog-events'
 
 /**
- * Unified dialog component that handles both content-only and confirm modes.
+ * Modal dialog — content-only (just a styled panel) or confirm mode (title + message + confirm/cancel buttons). Prefer the imperative `$dialog` service for most use cases; use the element directly only when you want a declaratively-positioned dialog.
  *
  * @element schmancy-dialog
+ * @summary Blocks interaction with the rest of the page until dismissed. For quick confirmations, prefer `$dialog.confirm({ ... })` over this element. For arbitrary dialog content driven imperatively, prefer `$dialog.component(MyComponent)`.
+ * @platform dialog close - Positioned overlay in light DOM. Degrades to a styled `<dialog>` if the tag never registers — loses custom animations but keeps focus trap + ESC close.
  * @slot default - Content slot for dialog body (used in content mode)
  * @slot content - Named slot for custom content in confirm mode
+ * @fires confirm - In confirm mode, when the confirm button is clicked.
+ * @fires cancel - In confirm mode, when the cancel button or ESC is activated.
  *
  * @example Content mode (no buttons):
- * ```html
  * <schmancy-dialog>
  *   <my-custom-content></my-custom-content>
  * </schmancy-dialog>
- * ```
  *
  * @example Confirm mode (with buttons):
- * ```html
  * <schmancy-dialog
- *   title="Confirm Action"
- *   message="Are you sure?"
- *   confirm-text="Yes"
- *   cancel-text="No"
+ *   title="Delete item?"
+ *   message="This action cannot be undone."
+ *   confirm-text="Delete"
+ *   cancel-text="Keep"
  * ></schmancy-dialog>
- * ```
  */
 @customElement('schmancy-dialog')
 export class SchmancyDialog extends DialogBase(

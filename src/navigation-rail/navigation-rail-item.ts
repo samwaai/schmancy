@@ -13,15 +13,11 @@ export type NavigationRailItemClickEvent = CustomEvent<{
 }>
 
 /**
- * Material Design 3 Navigation Rail Item Component
- * @see https://m3.material.io/components/navigation-rail/overview
- *
- * `<schmancy-navigation-rail-item>` component
- *
- * Individual navigation item for use within a navigation rail.
- * Represents a single destination or action with an icon and optional label.
+ * Single destination inside schmancy-navigation-rail — vertically-stacked icon + optional label. @see https://m3.material.io/components/navigation-rail/overview
  *
  * @element schmancy-navigation-rail-item
+ * @summary Always nested inside schmancy-navigation-rail. Use `icon` attr for a Material Symbols glyph, or slot=icon for custom content. Supports a `badge` slot for notification dots / counts.
+ * @platform button click - Styled vertical navigation target. Degrades to a plain `<button>` if the tag never registers.
  * @slot icon - Slot for the navigation item icon (e.g., schmancy-icon)
  * @slot - Default slot for custom content
  * @slot badge - Custom badge content

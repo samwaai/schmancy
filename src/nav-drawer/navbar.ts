@@ -16,6 +16,20 @@ const OVERLAY_ANIM_DURATION_OPEN = 200
 const OVERLAY_ANIM_DURATION_CLOSE = 150
 const NAV_ANIM_DURATION = 200
 
+/**
+ * Sidebar region inside schmancy-nav-drawer — the persistent-on-desktop / modal-on-mobile nav rail.
+ *
+ * @element schmancy-nav-drawer-navbar
+ * @summary Always nested inside schmancy-nav-drawer. On desktop: pinned left sidebar. On mobile: modal overlay triggered by the hamburger button in schmancy-nav-drawer-appbar.
+ * @example
+ * <schmancy-nav-drawer-navbar>
+ *   <schmancy-list>
+ *     <schmancy-list-item href="/dashboard">Dashboard</schmancy-list-item>
+ *     <schmancy-list-item href="/settings">Settings</schmancy-list-item>
+ *   </schmancy-list>
+ * </schmancy-nav-drawer-navbar>
+ * @platform nav - Sidebar `<nav>` with responsive open/close behavior. Degrades to a plain sidebar div if the tag never registers.
+ */
 @customElement('schmancy-nav-drawer-navbar')
 export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 	// Consume context values. Renamed from "state" to "drawerState" to avoid confusion.
