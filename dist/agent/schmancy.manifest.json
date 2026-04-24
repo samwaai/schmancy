@@ -524,7 +524,13 @@
           "kind": "class",
           "name": "SchmancyBreadcrumb",
           "tagName": "schmancy-breadcrumb",
-          "description": "Breadcrumb navigation container. Wraps a list of `schmancy-breadcrumb-item` elements with the correct ARIA landmark and semantics.",
+          "description": "Breadcrumb trail — navigation history from root to current page. Renders schmancy-breadcrumb-item children with separators between.",
+          "summary": "Use for deep hierarchical navigation (file explorer paths, e-commerce category chains, admin settings trees). Last item is styled as the current page automatically.",
+          "platformPrimitive": {
+            "tag": "nav",
+            "mode": "-",
+            "note": "Styled `<nav aria-label=\"Breadcrumb\">`. Degrades to a plain nav if the tag never registers."
+          },
           "attributes": [
             {
               "name": "separator",
@@ -545,13 +551,22 @@
               "name": "separator",
               "description": "The separator element."
             }
+          ],
+          "examples": [
+            "<schmancy-breadcrumb separator=\"›\">\n  <schmancy-breadcrumb-item href=\"/\">Home</schmancy-breadcrumb-item>\n  <schmancy-breadcrumb-item href=\"/docs\">Docs</schmancy-breadcrumb-item>\n  <schmancy-breadcrumb-item>Getting started</schmancy-breadcrumb-item>\n</schmancy-breadcrumb>"
           ]
         },
         {
           "kind": "class",
           "name": "SchmancyBreadcrumbItem",
           "tagName": "schmancy-breadcrumb-item",
-          "description": "Individual breadcrumb item. Renders as a link when `href` is provided, otherwise as a plain span (represents the current page).",
+          "description": "Single segment in a schmancy-breadcrumb trail — a link when `href` is set, or a plain span (the current page) when omitted.",
+          "summary": "Always nested inside schmancy-breadcrumb. Omit `href` on the current page — it gets aria-current=\"page\" automatically.",
+          "platformPrimitive": {
+            "tag": "a",
+            "mode": "-",
+            "note": "Renders an `<a>` or `<span>` depending on href. Degrades to a plain anchor/span if the tag never registers."
+          },
           "attributes": [
             {
               "name": "href",
@@ -573,6 +588,9 @@
               "name": "",
               "description": "Label content."
             }
+          ],
+          "examples": [
+            "<schmancy-breadcrumb-item href=\"/products\">Products</schmancy-breadcrumb-item>"
           ]
         }
       ]
@@ -2367,7 +2385,13 @@
           "kind": "class",
           "name": "SchmancyDialog",
           "tagName": "schmancy-dialog",
-          "description": "Unified dialog component that handles both content-only and confirm modes.",
+          "description": "Modal dialog — content-only (just a styled panel) or confirm mode (title + message + confirm/cancel buttons). Prefer the imperative `$dialog` service for most use cases; use the element directly only when you want a declaratively-positioned dialog.",
+          "summary": "Blocks interaction with the rest of the page until dismissed. For quick confirmations, prefer `$dialog.confirm({ ... })` over this element. For arbitrary dialog content driven imperatively, prefer `$dialog.component(MyComponent)`.",
+          "platformPrimitive": {
+            "tag": "dialog",
+            "mode": "close",
+            "note": "Positioned overlay in light DOM. Degrades to a styled `<dialog>` if the tag never registers — loses custom animations but keeps focus trap + ESC close."
+          },
           "attributes": [
             {
               "name": "uid",
@@ -2437,6 +2461,16 @@
               "description": "Whether to hide action buttons (force content mode)"
             }
           ],
+          "events": [
+            {
+              "name": "confirm",
+              "description": "In confirm mode, when the confirm button is clicked."
+            },
+            {
+              "name": "cancel",
+              "description": "In confirm mode, when the cancel button or ESC is activated."
+            }
+          ],
           "slots": [
             {
               "name": "default",
@@ -2448,8 +2482,8 @@
             }
           ],
           "examples": [
-            "Content mode (no buttons):\n\n<schmancy-dialog>\n  <my-custom-content></my-custom-content>\n</schmancy-dialog>",
-            "Confirm mode (with buttons):\n\n<schmancy-dialog\n  title=\"Confirm Action\"\n  message=\"Are you sure?\"\n  confirm-text=\"Yes\"\n  cancel-text=\"No\"\n></schmancy-dialog>"
+            "Content mode (no buttons):\n<schmancy-dialog>\n  <my-custom-content></my-custom-content>\n</schmancy-dialog>",
+            "Confirm mode (with buttons):\n<schmancy-dialog\n  title=\"Delete item?\"\n  message=\"This action cannot be undone.\"\n  confirm-text=\"Delete\"\n  cancel-text=\"Keep\"\n></schmancy-dialog>"
           ]
         }
       ]
@@ -2515,7 +2549,13 @@
           "kind": "class",
           "name": "SchmancyDropdown",
           "tagName": "schmancy-dropdown",
-          "description": "A dropdown component that displays content when triggered.",
+          "description": "Anchored floating dropdown — a generic \"show this content relative to that trigger\" primitive. Unlike schmancy-menu (which uses the dialog service and is list-shaped), dropdown is a low-level popover anchored with Floating UI. Use when you want a custom-shaped overlay tied to a specific trigger element without the menu semantics.",
+          "summary": "Prefer schmancy-menu for action lists, schmancy-autocomplete for type-ahead, schmancy-tooltip for hover hints. Reach for schmancy-dropdown when none of those fit — custom filters, color pickers, inline forms anchored to a trigger.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Anchored via Floating UI (autoUpdate, flip, shift). Degrades to inline content if the tag never registers — loses positioning but content stays accessible."
+          },
           "attributes": [
             {
               "name": "open",
@@ -2556,6 +2596,16 @@
               "description": "Offset distance in pixels"
             }
           ],
+          "events": [
+            {
+              "name": "open",
+              "description": "When the dropdown opens."
+            },
+            {
+              "name": "close",
+              "description": "When the dropdown closes."
+            }
+          ],
           "slots": [
             {
               "name": "trigger",
@@ -2565,6 +2615,9 @@
               "name": "",
               "description": "Default slot for the dropdown content"
             }
+          ],
+          "examples": [
+            "<schmancy-dropdown>\n  <schmancy-button slot=\"trigger\">Filters</schmancy-button>\n  <schmancy-dropdown-content>\n    <schmancy-form>…</schmancy-form>\n  </schmancy-dropdown-content>\n</schmancy-dropdown>"
           ]
         }
       ]
@@ -2577,7 +2630,13 @@
           "kind": "class",
           "name": "SchmancyDropdownContent",
           "tagName": "schmancy-dropdown-content",
-          "description": "Content container for the schmancy-dropdown component.",
+          "description": "Content panel for a schmancy-dropdown — a styled positioned surface. Always nested inside schmancy-dropdown and placed alongside the trigger slot.",
+          "summary": "Nest this inside schmancy-dropdown (not in the trigger slot). Use the `content` CSS part to customize backgrounds / shadows / padding without shadow-root piercing.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Positioned panel with theme-aware styling. Degrades to an inline div if the tag never registers."
+          },
           "attributes": [
             {
               "name": "width",
@@ -2630,6 +2689,9 @@
               "name": "content",
               "description": "The inner wrapper element; style to override panel backgrounds, shadows, padding, or borders without shadow-root piercing."
             }
+          ],
+          "examples": [
+            "<schmancy-dropdown>\n  <schmancy-button slot=\"trigger\">Open</schmancy-button>\n  <schmancy-dropdown-content>\n    Panel contents…\n  </schmancy-dropdown-content>\n</schmancy-dropdown>"
           ]
         }
       ]
@@ -3313,6 +3375,13 @@
           "kind": "class",
           "name": "SchmancyListItem",
           "tagName": "schmancy-list-item",
+          "description": "Single row in a schmancy-list — supports leading icon/avatar, main content, trailing actions. Clickable via click event, or used as a schmancy-menu-item's visual base.",
+          "summary": "Prefer nesting inside schmancy-list for consistent spacing/surface. Use `href` to make the row a navigation target (renders as `<a>`), or a click handler for in-app actions.",
+          "platformPrimitive": {
+            "tag": "li",
+            "mode": "click",
+            "note": "Styled `<li>` or `<a>` depending on `href`. Degrades to a plain list item if the tag never registers."
+          },
           "attributes": [
             {
               "name": "variant",
@@ -3378,6 +3447,9 @@
               "description": "default content"
             }
           ],
+          "examples": [
+            "<schmancy-list-item href=\"/profile\">\n  <schmancy-icon slot=\"leading\">person</schmancy-icon>\n  Profile\n  <schmancy-icon slot=\"trailing\">chevron_right</schmancy-icon>\n</schmancy-list-item>"
+          ],
           "contexts": [
             {
               "name": "SchmancySurfaceTypeContext",
@@ -3395,7 +3467,13 @@
           "kind": "class",
           "name": "List",
           "tagName": "schmancy-list",
-          "description": "`<schmancy-list>` component.  A list component that wraps its content within a customizable surface. It allows you to set the surface type and fill style, and can optionally enable scrolling behavior by delegating the scroller attribute to the surface.",
+          "description": "Wrapped list container — holds schmancy-list-item children on a themed surface. Optionally scrollable.",
+          "summary": "Use for vertical lists of similarly-shaped items: settings entries, menu items, contact lists, notification lists. Pair with schmancy-list-item children.",
+          "platformPrimitive": {
+            "tag": "ul",
+            "mode": "-",
+            "note": "Styled list container. Degrades to a plain ul/div if the tag never registers."
+          },
           "attributes": [
             {
               "name": "surface",
@@ -3458,7 +3536,7 @@
             }
           ],
           "examples": [
-            "<schmancy-list surface=\"container\" scroller>\n  <schmancy-list-item>List Item 1</schmancy-list-item>\n</schmancy-list>"
+            "<schmancy-list surface=\"container\" scroller>\n  <schmancy-list-item>First</schmancy-list-item>\n  <schmancy-list-item>Second</schmancy-list-item>\n  <schmancy-list-item>Third</schmancy-list-item>\n</schmancy-list>"
           ],
           "contexts": [
             {
@@ -3938,7 +4016,23 @@
         {
           "kind": "class",
           "name": "SchmancyMenuItem",
-          "tagName": "schmancy-menu-item"
+          "tagName": "schmancy-menu-item",
+          "description": "Single item inside a schmancy-menu. Auto-dismisses the menu dialog on click — attach your action handler to `@click` and it just works.",
+          "summary": "Always nested inside schmancy-menu. The click handler runs before the dialog closes, so `@click=${() => doThing()}` is the full pattern.",
+          "platformPrimitive": {
+            "tag": "menuitem",
+            "mode": "click",
+            "note": "Wraps schmancy-list-item with auto-dismiss. Degrades to a styled `<button role=\"menuitem\">` if the tag never registers."
+          },
+          "slots": [
+            {
+              "name": "",
+              "description": "The item label and optional icons."
+            }
+          ],
+          "examples": [
+            "<schmancy-menu-item @click=${() => archive()}>\n  <schmancy-icon slot=\"leading\">archive</schmancy-icon>\n  Archive\n</schmancy-menu-item>"
+          ]
         }
       ]
     },
@@ -3950,7 +4044,13 @@
           "kind": "class",
           "name": "SchmancyMenu",
           "tagName": "schmancy-menu",
-          "description": "Menu Component  CRITICAL: The dialog ONLY renders the raw menu items passed via the default slot. NO <ul> wrapper, NO classes, NO additional markup in the dialog call. The dialog service handles positioning and display - we just pass the pure content.",
+          "description": "Floating menu — a trigger button + a list of schmancy-menu-item children that open as a positioned dialog on click.",
+          "summary": "Use for dropdown menus attached to a button or icon — \"More actions\", \"Account\", row overflow menus in tables. Clicking a schmancy-menu-item inside auto-dismisses; custom components slotted inside must call `$dialog.dismiss()` themselves.",
+          "platformPrimitive": {
+            "tag": "menu",
+            "mode": "close",
+            "note": "Trigger + floating listbox dialog. Degrades to a native `<select>` or inline list if the tag never registers."
+          },
           "slots": [
             {
               "name": "trigger",
@@ -3966,8 +4066,7 @@
             }
           ],
           "examples": [
-            "Basic menu with auto-dismiss\n\n<schmancy-menu>\n  <schmancy-button slot=\"trigger\">Actions</schmancy-button>\n  <schmancy-menu-item @click=${() => editItem()}>Edit</schmancy-menu-item>\n  <schmancy-menu-item @click=${() => deleteItem()}>Delete</schmancy-menu-item>\n</schmancy-menu>\n\nNote: Dialog auto-dismisses when schmancy-menu-item is clicked",
-            "Custom component (manual dismiss)\n\n<schmancy-menu>\n  <schmancy-icon-button slot=\"trigger\">settings</schmancy-icon-button>\n  <my-settings-form @submit=${() => $dialog.dismiss()}></my-settings-form>\n</schmancy-menu>\n\nNote: Custom components must call $dialog.dismiss() manually"
+            "<schmancy-menu>\n  <schmancy-icon-button slot=\"trigger\" aria-label=\"Actions\">\n    <schmancy-icon>more_vert</schmancy-icon>\n  </schmancy-icon-button>\n  <schmancy-menu-item @click=${() => edit()}>Edit</schmancy-menu-item>\n  <schmancy-menu-item @click=${() => remove()}>Delete</schmancy-menu-item>\n</schmancy-menu>"
           ]
         }
       ]
@@ -3980,11 +4079,21 @@
           "kind": "class",
           "name": "SchmancyDrawerAppbar",
           "tagName": "schmancy-nav-drawer-appbar",
+          "description": "Top app bar region inside schmancy-nav-drawer — the horizontal strip above the content area that typically holds the page title, hamburger trigger, and contextual actions.",
+          "summary": "Always nested inside schmancy-nav-drawer. Holds the page-level title + top-right actions. On mobile, the drawer's hamburger button renders inside this region.",
+          "platformPrimitive": {
+            "tag": "header",
+            "mode": "-",
+            "note": "Styled horizontal bar. Degrades to a plain header element if the tag never registers."
+          },
           "slots": [
             {
               "name": "",
               "description": "The default slot"
             }
+          ],
+          "examples": [
+            "<schmancy-nav-drawer-appbar>\n  <schmancy-typography type=\"title\" token=\"lg\">Dashboard</schmancy-typography>\n  <schmancy-icon-button slot=\"trailing\" aria-label=\"Notifications\">\n    <schmancy-icon>notifications</schmancy-icon>\n  </schmancy-icon-button>\n</schmancy-nav-drawer-appbar>"
           ]
         }
       ]
@@ -3996,7 +4105,17 @@
         {
           "kind": "class",
           "name": "SchmancyNavigationDrawerContent",
-          "tagName": "schmancy-nav-drawer-content"
+          "tagName": "schmancy-nav-drawer-content",
+          "description": "Main content region inside schmancy-nav-drawer — typically hosts the router outlet or the page's body content.",
+          "summary": "Always nested inside schmancy-nav-drawer. Scrollable by default; propagates scroll events up so the drawer can collapse app-bar on scroll.",
+          "platformPrimitive": {
+            "tag": "main",
+            "mode": "scroll",
+            "note": "Scrollable `<main>`. Degrades to a plain scrollable div if the tag never registers."
+          },
+          "examples": [
+            "<schmancy-nav-drawer-content>\n  <schmancy-area name=\"main\"></schmancy-area>\n</schmancy-nav-drawer-content>"
+          ]
         }
       ]
     },
@@ -4008,6 +4127,13 @@
           "kind": "class",
           "name": "SchmancyNavigationDrawer",
           "tagName": "schmancy-nav-drawer",
+          "description": "Responsive navigation drawer — a left sidebar that becomes a hamburger-triggered modal overlay on narrow viewports. Composes schmancy-nav-drawer-navbar (the nav rail), schmancy-nav-drawer-appbar (the top bar), and schmancy-nav-drawer-content (the main region).",
+          "summary": "The app-shell layout primitive. Wrap your whole app in this when you want \"persistent sidebar on desktop, drawer on mobile\" behavior. Mode auto-switches at the breakpoint.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Flex layout with viewport-width mode switching. Degrades to a stack of plain divs if the tag never registers."
+          },
           "attributes": [
             {
               "name": "fullscreen",
@@ -4041,11 +4167,20 @@
               ]
             }
           ],
+          "events": [
+            {
+              "name": "schmancy-drawer-state",
+              "description": "When the drawer open/close state changes on mobile."
+            }
+          ],
           "slots": [
             {
               "name": "",
               "description": "The content slot"
             }
+          ],
+          "examples": [
+            "<schmancy-nav-drawer>\n  <schmancy-nav-drawer-navbar>\n    <!-- nav items, typically schmancy-list-item links -->\n  </schmancy-nav-drawer-navbar>\n  <schmancy-nav-drawer-appbar>App title</schmancy-nav-drawer-appbar>\n  <schmancy-nav-drawer-content>\n    <!-- router outlet / page content -->\n  </schmancy-nav-drawer-content>\n</schmancy-nav-drawer>"
           ],
           "contexts": [
             {
@@ -4068,6 +4203,13 @@
           "kind": "class",
           "name": "SchmancyNavigationDrawerSidebar",
           "tagName": "schmancy-nav-drawer-navbar",
+          "description": "Sidebar region inside schmancy-nav-drawer — the persistent-on-desktop / modal-on-mobile nav rail.",
+          "summary": "Always nested inside schmancy-nav-drawer. On desktop: pinned left sidebar. On mobile: modal overlay triggered by the hamburger button in schmancy-nav-drawer-appbar.",
+          "platformPrimitive": {
+            "tag": "nav",
+            "mode": "-",
+            "note": "Sidebar `<nav>` with responsive open/close behavior. Degrades to a plain sidebar div if the tag never registers."
+          },
           "attributes": [
             {
               "name": "width",
@@ -4076,6 +4218,9 @@
               },
               "default": "'220px'"
             }
+          ],
+          "examples": [
+            "<schmancy-nav-drawer-navbar>\n  <schmancy-list>\n    <schmancy-list-item href=\"/dashboard\">Dashboard</schmancy-list-item>\n    <schmancy-list-item href=\"/settings\">Settings</schmancy-list-item>\n  </schmancy-list>\n</schmancy-nav-drawer-navbar>"
           ],
           "contexts": [
             {
@@ -4098,7 +4243,13 @@
           "kind": "class",
           "name": "SchmancyNavigationBarItem",
           "tagName": "schmancy-navigation-bar-item",
-          "description": "`<schmancy-navigation-bar-item>` component  Individual navigation item for use within a navigation bar. Represents a single destination with an icon and optional label following Material Design 3 specifications.",
+          "description": "Single destination inside schmancy-navigation-bar — an icon + optional label representing one primary app destination.",
+          "summary": "Always nested inside schmancy-navigation-bar. Use `icon` attr for a Material Symbols glyph or slot=icon for custom content.",
+          "platformPrimitive": {
+            "tag": "button",
+            "mode": "click",
+            "note": "Styled navigation target. Degrades to a plain `<button>` if the tag never registers."
+          },
           "attributes": [
             {
               "name": "icon",
@@ -4180,7 +4331,13 @@
           "kind": "class",
           "name": "SchmancyNavigationBar",
           "tagName": "schmancy-navigation-bar",
-          "description": "`<schmancy-navigation-bar>` component  A horizontal navigation component following Material Design 3 specifications. Navigation bars provide access to between 3-7 primary destinations. Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).  **IMPORTANT**: This component includes `z-10` by default (consistent with navigation-rail). The consumer is responsible for positioning the navigation bar in their layout. For typical bottom-fixed positioning, add: `class=\"fixed bottom-0 left-0 right-0\"`.",
+          "description": "Bottom navigation bar — Material Design 3 horizontal nav for mobile primary destinations (3–7 items). Auto-hides in fullscreen mode.",
+          "summary": "Use for mobile primary navigation (home, search, favorites, settings). For persistent desktop nav, prefer schmancy-navigation-rail or schmancy-nav-drawer. Consumer is responsible for fixed-bottom positioning via class.",
+          "platformPrimitive": {
+            "tag": "nav",
+            "mode": "-",
+            "note": "Styled horizontal nav with schmancy-navigation-bar-item children. Degrades to a plain flex container if the tag never registers."
+          },
           "attributes": [
             {
               "name": "hideLabels",
@@ -4234,7 +4391,13 @@
           "kind": "class",
           "name": "SchmancyNavigationRailItem",
           "tagName": "schmancy-navigation-rail-item",
-          "description": "Material Design 3 Navigation Rail Item Component",
+          "description": "Single destination inside schmancy-navigation-rail — vertically-stacked icon + optional label. @see https://m3.material.io/components/navigation-rail/overview",
+          "summary": "Always nested inside schmancy-navigation-rail. Use `icon` attr for a Material Symbols glyph, or slot=icon for custom content. Supports a `badge` slot for notification dots / counts.",
+          "platformPrimitive": {
+            "tag": "button",
+            "mode": "click",
+            "note": "Styled vertical navigation target. Degrades to a plain `<button>` if the tag never registers."
+          },
           "attributes": [
             {
               "name": "icon",
@@ -4372,7 +4535,7 @@
           "kind": "class",
           "name": "SchmancyNavigationRail",
           "tagName": "schmancy-navigation-rail",
-          "description": "Material Design 3 Navigation Rail Component\r @see https://m3.material.io/components/navigation-rail/overview\r  `<schmancy-navigation-rail>` component\r  A Material Design 3 vertical navigation component positioned on the left side of an application.\r Navigation rails provide access to between 3-7 primary destinations with a compact footprint.\r Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).\r  @element schmancy-navigation-rail\r @slot fab - Slot for a floating action button at the top\r @slot menu - Slot for a menu icon or button below the FAB\r @slot header - Custom header content slot\r @slot footer - Custom footer content slot\r @slot - Default slot for navigation rail items\r  @fires navigate - When a navigation item is selected\r @fires menu-click - When the menu button is clicked\r @fires fab-click - When the FAB is clicked\r  @csspart rail - The main rail container\r @csspart header - The header section\r @csspart nav - The navigation items container\r @csspart footer - The footer section",
+          "description": "Vertical navigation rail — Material Design 3 compact left-side nav for desktop / tablet layouts with 3–7 primary destinations. Auto-hides in fullscreen mode. @see https://m3.material.io/components/navigation-rail/overview\r  @element schmancy-navigation-rail\r @summary Use as the desktop counterpart of schmancy-navigation-bar: same destinations, different form factor. Prefer schmancy-nav-drawer when you also want a drawer + app-bar combo.",
           "attributes": [
             {
               "name": "label-visibility",
@@ -4426,6 +4589,7 @@
             }
           ],
           "examples": [
+            "<schmancy-navigation-rail activeIndex=\"0\">\r\n  <schmancy-icon-button slot=\"fab\" variant=\"filled\">\r\n    <schmancy-icon>add</schmancy-icon>\r\n  </schmancy-icon-button>\r\n  <schmancy-navigation-rail-item icon=\"home\" label=\"Home\"></schmancy-navigation-rail-item>\r\n  <schmancy-navigation-rail-item icon=\"search\" label=\"Search\"></schmancy-navigation-rail-item>\r\n  <schmancy-navigation-rail-item icon=\"settings\" label=\"Settings\"></schmancy-navigation-rail-item>\r\n</schmancy-navigation-rail>\r\n@platform nav - Vertical styled nav. Degrades to a plain vertical flex container if the tag never registers.\r\n@slot fab - Slot for a floating action button at the top\r\n@slot menu - Slot for a menu icon or button below the FAB\r\n@slot header - Custom header content slot\r\n@slot footer - Custom footer content slot\r\n@slot - Default slot for navigation rail items\r\n\n@fires navigate - When a navigation item is selected\r\n@fires menu-click - When the menu button is clicked\r\n@fires fab-click - When the FAB is clicked\r\n\n@csspart rail - The main rail container\r\n@csspart header - The header section\r\n@csspart nav - The navigation items container\r\n@csspart footer - The footer section",
             "<schmancy-navigation-rail activeIndex=\"0\">\r\n  <schmancy-button slot=\"fab\" variant=\"filled\" aria-label=\"Compose\">\r\n    <schmancy-icon>add</schmancy-icon>\r\n  </schmancy-button>\r\n  <schmancy-button slot=\"menu\" variant=\"text\" aria-label=\"Menu\">\r\n    <schmancy-icon>menu</schmancy-icon>\r\n  </schmancy-button>\r\n  <schmancy-navigation-rail-item icon=\"home\" label=\"Home\"></schmancy-navigation-rail-item>\r\n  <schmancy-navigation-rail-item icon=\"search\" label=\"Search\"></schmancy-navigation-rail-item>\r\n  <schmancy-navigation-rail-item icon=\"favorite\" label=\"Favorites\" badge=\"3\"></schmancy-navigation-rail-item>\r\n  <schmancy-navigation-rail-item icon=\"settings\" label=\"Settings\"></schmancy-navigation-rail-item>\r\n</schmancy-navigation-rail>"
           ]
         }
@@ -5220,6 +5384,13 @@
           "kind": "class",
           "name": "SchmancySheet",
           "tagName": "schmancy-sheet",
+          "description": "Side-docked or bottom-docked panel — a dialog variant that slides in from an edge. Driven imperatively by the `sheet` service; rarely instantiated directly.",
+          "summary": "Prefer `sheet.open({ component, position })` over placing this element declaratively — the service handles stacking, focus, close on outside-click, ESC, and router integration.",
+          "platformPrimitive": {
+            "tag": "dialog",
+            "mode": "close",
+            "note": "Positioned-fixed panel with backdrop. Degrades to a `<dialog>` if the tag never registers — loses slide animation, keeps focus trap + dismiss."
+          },
           "attributes": [
             {
               "name": "open",
@@ -5260,6 +5431,15 @@
               },
               "default": "true"
             }
+          ],
+          "events": [
+            {
+              "name": "close",
+              "description": "When the sheet is dismissed (backdrop click, close button, ESC)."
+            }
+          ],
+          "examples": [
+            "import { sheet, SchmancySheetPosition } from '@mhmo91/schmancy'\nsheet.open({\n  component: new MyEditorElement(),\n  position: SchmancySheetPosition.Side,\n  title: 'Edit item',\n})"
           ]
         }
       ]

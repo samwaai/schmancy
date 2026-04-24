@@ -1,16 +1,10 @@
 declare const SchmancyNavigationBar_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 /**
- * `<schmancy-navigation-bar>` component
- *
- * A horizontal navigation component following Material Design 3 specifications.
- * Navigation bars provide access to between 3-7 primary destinations.
- * Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).
- *
- * **IMPORTANT**: This component includes `z-10` by default (consistent with navigation-rail).
- * The consumer is responsible for positioning the navigation bar in their layout.
- * For typical bottom-fixed positioning, add: `class="fixed bottom-0 left-0 right-0"`.
+ * Bottom navigation bar — Material Design 3 horizontal nav for mobile primary destinations (3–7 items). Auto-hides in fullscreen mode.
  *
  * @element schmancy-navigation-bar
+ * @summary Use for mobile primary navigation (home, search, favorites, settings). For persistent desktop nav, prefer schmancy-navigation-rail or schmancy-nav-drawer. Consumer is responsible for fixed-bottom positioning via class.
+ * @platform nav - Styled horizontal nav with schmancy-navigation-bar-item children. Degrades to a plain flex container if the tag never registers.
  * @slot - Default slot for navigation bar items
  *
  * @fires navigation-change - When an item is selected

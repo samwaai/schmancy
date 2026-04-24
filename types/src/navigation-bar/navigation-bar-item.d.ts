@@ -1,11 +1,10 @@
 declare const SchmancyNavigationBarItem_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 /**
- * `<schmancy-navigation-bar-item>` component
- *
- * Individual navigation item for use within a navigation bar.
- * Represents a single destination with an icon and optional label following Material Design 3 specifications.
+ * Single destination inside schmancy-navigation-bar — an icon + optional label representing one primary app destination.
  *
  * @element schmancy-navigation-bar-item
+ * @summary Always nested inside schmancy-navigation-bar. Use `icon` attr for a Material Symbols glyph or slot=icon for custom content.
+ * @platform button click - Styled navigation target. Degrades to a plain `<button>` if the tag never registers.
  * @slot icon - Slot for custom icon content
  * @slot - Default slot for custom content
  *

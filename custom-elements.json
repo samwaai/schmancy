@@ -754,7 +754,7 @@
     {
       "name": "schmancy-breadcrumb",
       "path": "./src/breadcrumb/breadcrumb.ts",
-      "description": "Breadcrumb navigation container. Wraps a list of `schmancy-breadcrumb-item`\nelements with the correct ARIA landmark and semantics.",
+      "description": "Breadcrumb trail — navigation history from root to current page. Renders schmancy-breadcrumb-item children with separators between.",
       "attributes": [
         {
           "name": "separator",
@@ -788,7 +788,7 @@
     {
       "name": "schmancy-breadcrumb-item",
       "path": "./src/breadcrumb/breadcrumb.ts",
-      "description": "Individual breadcrumb item. Renders as a link when `href` is provided,\notherwise as a plain span (represents the current page).",
+      "description": "Single segment in a schmancy-breadcrumb trail — a link when `href` is set, or a plain span (the current page) when omitted.",
       "attributes": [
         {
           "name": "href",
@@ -3277,7 +3277,7 @@
     {
       "name": "schmancy-dialog",
       "path": "./src/dialog/dialog.component.ts",
-      "description": "Unified dialog component that handles both content-only and confirm modes.",
+      "description": "Modal dialog — content-only (just a styled panel) or confirm mode (title + message + confirm/cancel buttons). Prefer the imperative `$dialog` service for most use cases; use the element directly only when you want a declaratively-positioned dialog.",
       "attributes": [
         {
           "name": "uid",
@@ -3401,10 +3401,15 @@
       ],
       "events": [
         {
-          "name": "yes-dialog-here"
+          "name": "confirm",
+          "description": "In confirm mode, when the confirm button is clicked."
         },
         {
-          "name": "confirm"
+          "name": "cancel",
+          "description": "In confirm mode, when the cancel button or ESC is activated."
+        },
+        {
+          "name": "yes-dialog-here"
         }
       ],
       "slots": [
@@ -3474,14 +3479,8 @@
     {
       "name": "schmancy-dropdown",
       "path": "./src/dropdown/dropdown-component.ts",
-      "description": "A dropdown component that displays content when triggered.",
+      "description": "Anchored floating dropdown — a generic \"show this content relative to that trigger\" primitive. Unlike schmancy-menu (which uses the dialog service and is list-shaped), dropdown is a low-level popover anchored with Floating UI. Use when you want a custom-shaped overlay tied to a specific trigger element without the menu semantics.",
       "attributes": [
-        {
-          "name": "open",
-          "description": "Whether the dropdown is currently open",
-          "type": "boolean",
-          "default": "false"
-        },
         {
           "name": "placement",
           "description": "Placement of the dropdown relative to the trigger",
@@ -3493,16 +3492,15 @@
           "description": "Offset distance in pixels",
           "type": "number",
           "default": "8"
-        }
-      ],
-      "properties": [
+        },
         {
           "name": "open",
-          "attribute": "open",
           "description": "Whether the dropdown is currently open",
           "type": "boolean",
           "default": "false"
-        },
+        }
+      ],
+      "properties": [
         {
           "name": "placement",
           "attribute": "placement",
@@ -3532,6 +3530,23 @@
         {
           "name": "triggerElements",
           "type": "HTMLElement[]"
+        },
+        {
+          "name": "open",
+          "attribute": "open",
+          "description": "Whether the dropdown is currently open",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "events": [
+        {
+          "name": "open",
+          "description": "When the dropdown opens."
+        },
+        {
+          "name": "close",
+          "description": "When the dropdown closes."
         }
       ],
       "slots": [
@@ -3548,7 +3563,7 @@
     {
       "name": "schmancy-dropdown-content",
       "path": "./src/dropdown/dropdown-content.ts",
-      "description": "Content container for the schmancy-dropdown component.",
+      "description": "Content panel for a schmancy-dropdown — a styled positioned surface. Always nested inside schmancy-dropdown and placed alongside the trigger slot.",
       "attributes": [
         {
           "name": "width",
@@ -3614,7 +3629,7 @@
       "cssParts": [
         {
           "name": "content",
-          "description": "The inner wrapper element; style to override panel\nbackgrounds, shadows, padding, or borders without shadow-root piercing."
+          "description": "The inner wrapper element; style to override panel backgrounds, shadows, padding, or borders without shadow-root piercing."
         }
       ]
     },
@@ -6632,6 +6647,7 @@
     {
       "name": "schmancy-list-item",
       "path": "./src/list/list-item.ts",
+      "description": "Single row in a schmancy-list — supports leading icon/avatar, main content, trailing actions. Clickable via click event, or used as a schmancy-menu-item's visual base.",
       "attributes": [
         {
           "name": "variant",
@@ -6692,7 +6708,7 @@
     {
       "name": "schmancy-list",
       "path": "./src/list/list.ts",
-      "description": "`<schmancy-list>` component.\n\nA list component that wraps its content within a customizable surface.\nIt allows you to set the surface type and fill style, and can optionally\nenable scrolling behavior by delegating the scroller attribute to the surface.",
+      "description": "Wrapped list container — holds schmancy-list-item children on a themed surface. Optionally scrollable.",
       "attributes": [
         {
           "name": "surface",
@@ -7402,12 +7418,19 @@
     },
     {
       "name": "schmancy-menu-item",
-      "path": "./src/menu/menu-item.ts"
+      "path": "./src/menu/menu-item.ts",
+      "description": "Single item inside a schmancy-menu. Auto-dismisses the menu dialog on click — attach your action handler to `@click` and it just works.",
+      "slots": [
+        {
+          "name": "",
+          "description": "The item label and optional icons."
+        }
+      ]
     },
     {
       "name": "schmancy-menu",
       "path": "./src/menu/menu.ts",
-      "description": "Menu Component\n\nCRITICAL: The dialog ONLY renders the raw menu items passed via the default slot.\nNO <ul> wrapper, NO classes, NO additional markup in the dialog call.\nThe dialog service handles positioning and display - we just pass the pure content.",
+      "description": "Floating menu — a trigger button + a list of schmancy-menu-item children that open as a positioned dialog on click.",
       "slots": [
         {
           "name": "trigger",
@@ -7426,6 +7449,7 @@
     {
       "name": "schmancy-nav-drawer-appbar",
       "path": "./src/nav-drawer/appbar.ts",
+      "description": "Top app bar region inside schmancy-nav-drawer — the horizontal strip above the content area that typically holds the page title, hamburger trigger, and contextual actions.",
       "slots": [
         {
           "name": "",
@@ -7436,6 +7460,7 @@
     {
       "name": "schmancy-nav-drawer-content",
       "path": "./src/nav-drawer/content.ts",
+      "description": "Main content region inside schmancy-nav-drawer — typically hosts the router outlet or the page's body content.",
       "events": [
         {
           "name": "scroll"
@@ -7445,6 +7470,7 @@
     {
       "name": "schmancy-nav-drawer",
       "path": "./src/nav-drawer/drawer.ts",
+      "description": "Responsive navigation drawer — a left sidebar that becomes a hamburger-triggered modal overlay on narrow viewports. Composes schmancy-nav-drawer-navbar (the nav rail), schmancy-nav-drawer-appbar (the top bar), and schmancy-nav-drawer-content (the main region).",
       "attributes": [
         {
           "name": "fullscreen",
@@ -7486,6 +7512,12 @@
           "type": "TSchmancyDrawerNavbarState"
         }
       ],
+      "events": [
+        {
+          "name": "schmancy-drawer-state",
+          "description": "When the drawer open/close state changes on mobile."
+        }
+      ],
       "slots": [
         {
           "name": "",
@@ -7496,6 +7528,7 @@
     {
       "name": "schmancy-nav-drawer-navbar",
       "path": "./src/nav-drawer/navbar.ts",
+      "description": "Sidebar region inside schmancy-nav-drawer — the persistent-on-desktop / modal-on-mobile nav rail.",
       "attributes": [
         {
           "name": "width",
@@ -7536,7 +7569,7 @@
     {
       "name": "schmancy-navigation-bar-item",
       "path": "./src/navigation-bar/navigation-bar-item.ts",
-      "description": "`<schmancy-navigation-bar-item>` component\n\nIndividual navigation item for use within a navigation bar.\nRepresents a single destination with an icon and optional label following Material Design 3 specifications.",
+      "description": "Single destination inside schmancy-navigation-bar — an icon + optional label representing one primary app destination.",
       "attributes": [
         {
           "name": "icon",
@@ -7647,7 +7680,7 @@
     {
       "name": "schmancy-navigation-bar",
       "path": "./src/navigation-bar/navigation-bar.ts",
-      "description": "`<schmancy-navigation-bar>` component\n\nA horizontal navigation component following Material Design 3 specifications.\nNavigation bars provide access to between 3-7 primary destinations.\nAutomatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).\n\n**IMPORTANT**: This component includes `z-10` by default (consistent with navigation-rail).\nThe consumer is responsible for positioning the navigation bar in their layout.\nFor typical bottom-fixed positioning, add: `class=\"fixed bottom-0 left-0 right-0\"`.",
+      "description": "Bottom navigation bar — Material Design 3 horizontal nav for mobile primary destinations (3–7 items). Auto-hides in fullscreen mode.",
       "attributes": [
         {
           "name": "activeIndex",
@@ -7723,7 +7756,7 @@
     {
       "name": "schmancy-navigation-rail-item",
       "path": "./src/navigation-rail/navigation-rail-item.ts",
-      "description": "Material Design 3 Navigation Rail Item Component",
+      "description": "Single destination inside schmancy-navigation-rail — vertically-stacked icon + optional label.",
       "attributes": [
         {
           "name": "icon",
@@ -7917,7 +7950,7 @@
     {
       "name": "schmancy-navigation-rail",
       "path": "./src/navigation-rail/navigation-rail.ts",
-      "description": "Material Design 3 Navigation Rail Component",
+      "description": "Vertical navigation rail — Material Design 3 compact left-side nav for desktop / tablet layouts with 3–7 primary destinations. Auto-hides in fullscreen mode.",
       "attributes": [
         {
           "name": "activeIndex",
@@ -9165,17 +9198,8 @@
     {
       "name": "schmancy-sheet",
       "path": "./src/sheet/sheet.ts",
+      "description": "Side-docked or bottom-docked panel — a dialog variant that slides in from an edge. Driven imperatively by the `sheet` service; rarely instantiated directly.",
       "attributes": [
-        {
-          "name": "open",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "position",
-          "type": "SchmancySheetPosition",
-          "default": "\"side\""
-        },
         {
           "name": "persist",
           "type": "boolean",
@@ -9190,21 +9214,21 @@
           "name": "handleHistory",
           "type": "boolean",
           "default": "true"
-        }
-      ],
-      "properties": [
-        {
-          "name": "open",
-          "attribute": "open",
-          "type": "boolean",
-          "default": "false"
         },
         {
           "name": "position",
-          "attribute": "position",
+          "description": "`'side' | 'bottom'`. Which edge the sheet docks to.",
           "type": "SchmancySheetPosition",
           "default": "\"side\""
         },
+        {
+          "name": "open",
+          "description": "Boolean; sheet is visible when true.",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "properties": [
         {
           "name": "persist",
           "attribute": "persist",
@@ -9222,11 +9246,26 @@
           "attribute": "handleHistory",
           "type": "boolean",
           "default": "true"
+        },
+        {
+          "name": "position",
+          "attribute": "position",
+          "description": "`'side' | 'bottom'`. Which edge the sheet docks to.",
+          "type": "SchmancySheetPosition",
+          "default": "\"side\""
+        },
+        {
+          "name": "open",
+          "attribute": "open",
+          "description": "Boolean; sheet is visible when true.",
+          "type": "boolean",
+          "default": "false"
         }
       ],
       "events": [
         {
-          "name": "close"
+          "name": "close",
+          "description": "When the sheet is dismissed (backdrop click, close button, ESC)."
         }
       ]
     },

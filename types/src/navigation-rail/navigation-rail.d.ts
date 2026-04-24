@@ -5,16 +5,20 @@ export type NavigationRailFabClickEvent = CustomEvent<void>;
 export type LabelVisibility = 'all' | 'selected' | 'none';
 declare const SchmancyNavigationRail_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * Material Design 3 Navigation Rail Component
- * @see https://m3.material.io/components/navigation-rail/overview
- *
- * `<schmancy-navigation-rail>` component
- *
- * A Material Design 3 vertical navigation component positioned on the left side of an application.
- * Navigation rails provide access to between 3-7 primary destinations with a compact footprint.
- * Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).
+ * Vertical navigation rail — Material Design 3 compact left-side nav for desktop / tablet layouts with 3–7 primary destinations. Auto-hides in fullscreen mode. @see https://m3.material.io/components/navigation-rail/overview
  *
  * @element schmancy-navigation-rail
+ * @summary Use as the desktop counterpart of schmancy-navigation-bar: same destinations, different form factor. Prefer schmancy-nav-drawer when you also want a drawer + app-bar combo.
+ * @example
+ * <schmancy-navigation-rail activeIndex="0">
+ *   <schmancy-icon-button slot="fab" variant="filled">
+ *     <schmancy-icon>add</schmancy-icon>
+ *   </schmancy-icon-button>
+ *   <schmancy-navigation-rail-item icon="home" label="Home"></schmancy-navigation-rail-item>
+ *   <schmancy-navigation-rail-item icon="search" label="Search"></schmancy-navigation-rail-item>
+ *   <schmancy-navigation-rail-item icon="settings" label="Settings"></schmancy-navigation-rail-item>
+ * </schmancy-navigation-rail>
+ * @platform nav - Vertical styled nav. Degrades to a plain vertical flex container if the tag never registers.
  * @slot fab - Slot for a floating action button at the top
  * @slot menu - Slot for a menu icon or button below the FAB
  * @slot header - Custom header content slot
