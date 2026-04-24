@@ -7,9 +7,11 @@ import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 
 /** Directories under src/ that are developer/test scaffolding, not shipped
- *  in dist. Kept out of the entry map so the library build doesn't fail on
- *  missing index files. */
-const NON_SHIPPED = new Set(['test-utils'])
+ *  in dist by the main library build. `agent/` has its own self-contained
+ *  build produced by vite.config.agent.ts and must stay out of the main
+ *  build — its entry file imports `virtual:schmancy-manifest`, resolvable
+ *  only when the manifest plugin is loaded. */
+const NON_SHIPPED = new Set(['test-utils', 'agent'])
 
 const getDirectories = async (source: string) =>
 	(await readdir(source, { withFileTypes: true }))
