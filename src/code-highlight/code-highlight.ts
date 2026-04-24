@@ -1,21 +1,37 @@
 import { TailwindElement } from '@mixins/index'
-import hljs from 'highlight.js/lib/core'
-import bash from 'highlight.js/lib/languages/bash'
-import javascript from 'highlight.js/lib/languages/javascript'
-import markdown from 'highlight.js/lib/languages/markdown'
-import typescript from 'highlight.js/lib/languages/typescript'
-import xml from 'highlight.js/lib/languages/xml'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 
-// Register only the languages we need
-hljs.registerLanguage('javascript', javascript)
-hljs.registerLanguage('typescript', typescript)
-hljs.registerLanguage('html', xml)
-hljs.registerLanguage('xml', xml)
-hljs.registerLanguage('markdown', markdown)
-hljs.registerLanguage('bash', bash)
+// highlight.js + all 6 language grammars are loaded lazily on first render.
+// Static imports were previously responsible for ~15 KB gzipped (vendor-
+// highlight chunk) being eagerly fetched on every agent-bundle first paint,
+// even for pages that never rendered <schmancy-code>. See ADR 0014 in the
+// parent monorepo.
+type Hljs = typeof import('highlight.js/lib/core').default
+
+let hljsPromise: Promise<Hljs> | null = null
+function loadHljs(): Promise<Hljs> {
+	if (hljsPromise) return hljsPromise
+	hljsPromise = Promise.all([
+		import('highlight.js/lib/core'),
+		import('highlight.js/lib/languages/bash'),
+		import('highlight.js/lib/languages/javascript'),
+		import('highlight.js/lib/languages/markdown'),
+		import('highlight.js/lib/languages/typescript'),
+		import('highlight.js/lib/languages/xml'),
+	]).then(([core, bash, javascript, markdown, typescript, xml]) => {
+		const hljs = core.default
+		hljs.registerLanguage('javascript', javascript.default)
+		hljs.registerLanguage('typescript', typescript.default)
+		hljs.registerLanguage('html', xml.default)
+		hljs.registerLanguage('xml', xml.default)
+		hljs.registerLanguage('markdown', markdown.default)
+		hljs.registerLanguage('bash', bash.default)
+		return hljs
+	})
+	return hljsPromise
+}
 
 /**
  * @element schmancy-code
@@ -188,32 +204,48 @@ export class SchmancyCode extends TailwindElement(css`
 	@state()
 	private copied: boolean = false
 
-	private get highlightedCode(): string {
-		if (!this.code) return ''
+	/**
+	 * Fully-rendered highlighted HTML — populated asynchronously after
+	 * `loadHljs()` resolves. Empty on first render (one microtask) for a
+	 * cold component; non-empty from then on.
+	 */
+	@state()
+	private _highlightedCode: string = ''
+
+	protected override updated(changed: Map<string, unknown>): void {
+		super.updated?.(changed)
+		if (changed.has('code') || changed.has('language') || changed.has('lineNumbers') || changed.has('highlightLines')) {
+			void this._rehighlight()
+		}
+	}
+
+	private async _rehighlight(): Promise<void> {
+		if (!this.code) {
+			this._highlightedCode = ''
+			return
+		}
+		const hljs = await loadHljs()
+		// Guard against unmount + racing property changes.
+		if (!this.isConnected) return
 
 		let highlightedHtml = ''
-
 		try {
-			// Use highlight.js to get highlighted code
 			const result = hljs.highlight(this.code.trim(), { language: this.language })
 			highlightedHtml = result.value
 		} catch {
-			// Fallback to auto-detection if language is not supported
 			try {
 				const result = hljs.highlightAuto(this.code.trim())
 				highlightedHtml = result.value
 			} catch {
-				// Final fallback to escaped plain text
 				highlightedHtml = this.escapeHtml(this.code.trim())
 			}
 		}
 
-		// Process for line numbers and highlighting if needed
 		if (this.lineNumbers || this.highlightLines) {
-			return this.addLineFeatures(highlightedHtml)
+			this._highlightedCode = this.addLineFeatures(highlightedHtml)
+		} else {
+			this._highlightedCode = highlightedHtml
 		}
-
-		return highlightedHtml
 	}
 
 	private escapeHtml(text: string): string {
@@ -330,7 +362,7 @@ export class SchmancyCode extends TailwindElement(css`
 				</section>
 				<!-- Code -->
 				<div class="overflow-auto" style="${this.maxHeight ? `max-height: ${this.maxHeight}` : ''}">
-					<pre class="m-0"><code class="${codeClass}">${unsafeHTML(this.highlightedCode)}</code></pre>
+					<pre class="m-0"><code class="${codeClass}">${unsafeHTML(this._highlightedCode)}</code></pre>
 				</div>
 			</schmancy-details>
 		`
