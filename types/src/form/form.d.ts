@@ -1,6 +1,5 @@
 /**
- * A thin ergonomic wrapper around a native `<form>` element. Its children are
- * reparented into a `<form>` element in light DOM on connection, so:
+ * Ergonomic wrapper around a native `<form>`. Children are reparented into a light-DOM `<form>` on connection so form-associated custom elements resolve `internals.form` via native DOM ancestry.
  *
  * - Form-associated custom elements (FACE) resolve their `internals.form`
  *   correctly via native DOM ancestry.
@@ -16,6 +15,14 @@
  * lifting is the platform's.
  *
  * @element schmancy-form
+ * @summary Always wrap form-associated schmancy components in schmancy-form (or a native `<form>`) so `new FormData(form)` just works.
+ * @example
+ * <schmancy-form @submit=${(e) => console.log(Object.fromEntries(e.detail))}>
+ *   <schmancy-input name="email" type="email" required></schmancy-input>
+ *   <schmancy-input name="password" type="password" required></schmancy-input>
+ *   <schmancy-button type="submit" variant="filled">Sign in</schmancy-button>
+ * </schmancy-form>
+ * @platform form submit - Light-DOM native `<form>` element. Degrades to a `<form>` if the tag never registers — same semantics, just no CustomEvent translation.
  * @fires submit - `CustomEvent<FormData>` emitted when the form is submitted.
  * @fires reset - Emitted after the underlying form resets.
  */

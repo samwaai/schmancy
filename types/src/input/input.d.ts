@@ -28,11 +28,18 @@ export type SchmancyInputEnterEvent = CustomEvent<EventDetails>;
 export type InputSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
 declare const SchmancyInput_base: import("@mixins/index").Constructor<import("@mixins/index").IFormFieldMixin> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * Enhanced version of the SchmancyInput component with improved form integration
- * and compatibility with legacy API.
+ * Single-line text input — the primary form-text primitive. Form-associated via ElementInternals, so it participates in native `<form>` submission, validation, and reset without additional wiring.
  *
- * This component uses the native form association API and maintains parity with
- * native input behaviors while providing a stylish, accessible interface.
+ * @element schmancy-input
+ * @summary Text input with Material Design styling, native form integration, and RxJS-debounced input/change/enter events.
+ * @example
+ * <schmancy-form @submit=${onSubmit}>
+ *   <schmancy-input name="email" type="email" label="Email" required></schmancy-input>
+ * </schmancy-form>
+ * @platform input change - Schmancy-skinned native `<input>`. Degrades to `<input class="…">` styled via Tailwind if the tag never registers.
+ * @fires input - `CustomEvent<{value: string}>` on every keystroke.
+ * @fires change - `CustomEvent<{value: string}>` on blur/change.
+ * @fires enter - `CustomEvent<{value: string}>` when user presses Enter.
  *
  * @prop {string} name - Name attribute for form submission (inherited from FormFieldMixin)
  * @prop {string} label - Label text for the form field (inherited from FormFieldMixin)

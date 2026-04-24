@@ -31228,7 +31228,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancyAutocomplete",
 				tagName: "schmancy-autocomplete",
-				description: "Autocomplete input component with filtering and multi-select support.",
+				description: "Combobox with type-ahead filtering over a list of `<schmancy-option>` children. Single or multi-select. Form-associated.",
+				summary: "Use when users need to pick from a known list of options but the list is too long for a plain select dropdown. Prefer schmancy-select for short static lists.",
+				platformPrimitive: {
+					tag: "combobox",
+					mode: "change",
+					note: "Composed of a schmancy-input + a floating listbox populated from `<schmancy-option>` children. Multi-select renders selections as schmancy-input-chip chips. Degrades to a datalist-backed native input if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "required",
@@ -31302,7 +31308,12 @@ var qp = {
 						type: { text: "string" },
 						default: "''"
 					}
-				]
+				],
+				events: [{
+					name: "change",
+					description: "`SchmancyAutocompleteChangeEvent` with `{ value }` (single) or `{ value, values }` (multi)."
+				}],
+				examples: ["<schmancy-autocomplete name=\"country\" label=\"Country\" placeholder=\"Start typing…\">\n  <schmancy-option value=\"US\">United States</schmancy-option>\n  <schmancy-option value=\"CA\">Canada</schmancy-option>\n  <schmancy-option value=\"GB\">United Kingdom</schmancy-option>\n</schmancy-autocomplete>"]
 			}]
 		},
 		{
@@ -31550,7 +31561,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancyButton",
 				tagName: "schmancy-button",
-				description: "A button component.",
+				description: "Material Design button — primary interactive surface for triggering actions or navigation.",
+				summary: "Trigger actions or navigate. Form-associated; participates in native form submission.",
+				platformPrimitive: {
+					tag: "button",
+					mode: "click",
+					note: "Schmancy-skinned native `<button type=\"submit\">`. When `href` is set, degrades to `<a href=\"…\">`. Falls back to plain `<button>` styled with Tailwind if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "variant",
@@ -31641,6 +31658,7 @@ var qp = {
 					name: "base",
 					description: "The underlying native `<button>` (or `<a>` when `href` is set)."
 				}],
+				examples: ["<schmancy-button variant=\"filled\" @click=${() => save()}>Save</schmancy-button>\n<schmancy-button variant=\"outlined\" href=\"/next\">Continue</schmancy-button>"],
 				contexts: [{
 					name: "SchmancyButtonSizeContext",
 					kind: "provide"
@@ -31654,7 +31672,13 @@ var qp = {
 				kind: "class",
 				name: "SchmnacyIconButton",
 				tagName: "schmancy-icon-button",
-				description: "An icon button component.",
+				description: "Icon-only button for toolbar actions, close affordances, or overflow menus.",
+				summary: "Compact round/square button wrapping a single icon glyph. Form-associated like schmancy-button.",
+				platformPrimitive: {
+					tag: "button",
+					mode: "click",
+					note: "Schmancy-skinned native `<button>` (or `<a>` when `href` is set). aria-label is required for a11y because there's no text content."
+				},
 				attributes: [
 					{
 						name: "size",
@@ -31732,7 +31756,8 @@ var qp = {
 				cssParts: [{
 					name: "base",
 					description: "The underlying native `<button>` (or `<a>` when `href` is set)."
-				}]
+				}],
+				examples: ["<schmancy-icon-button aria-label=\"Close\" @click=${() => close()}>\n  <schmancy-icon>close</schmancy-icon>\n</schmancy-icon-button>"]
 			}]
 		},
 		{
@@ -32013,6 +32038,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancyCheckboxElement",
 				tagName: "schmancy-checkbox",
+				description: "Binary checkbox for multi-select or boolean form fields. Wraps Material Web's `<md-checkbox>`; form-associated.",
+				summary: "Use for \"select many from a list\" or any boolean that's part of a form submission. Prefer schmancy-switch for immediate-effect toggles.",
+				platformPrimitive: {
+					tag: "checkbox",
+					mode: "change",
+					note: "Wraps `<md-checkbox>` from `@material/web`. Degrades to styled native `<input type=\"checkbox\">` if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "value",
@@ -32058,12 +32090,13 @@ var qp = {
 				],
 				events: [{
 					name: "valueChange",
-					description: "Event fired when the checkbox value changes."
+					description: "`CustomEvent<{ value: boolean }>` when the checkbox is toggled."
 				}],
 				slots: [{
 					name: "",
 					description: "The label for the checkbox."
-				}]
+				}],
+				examples: ["<schmancy-checkbox name=\"tos\" required>I accept the terms</schmancy-checkbox>"]
 			}]
 		},
 		{
@@ -32121,6 +32154,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancyChips",
 				tagName: "schmancy-chips",
+				description: "Filter-chip group — container for selectable `<schmancy-chip>` children. Single or multi-select.",
+				summary: "Use for filtering or choosing from 2–8 mutually-visible options (\"Status: active / paused / archived\"). Prefer schmancy-select when the list gets long or vertical.",
+				platformPrimitive: {
+					tag: "chip-group",
+					mode: "change",
+					note: "No direct native equivalent. Degrades to a styled schmancy-select with similar semantics if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "wrap",
@@ -32142,7 +32182,12 @@ var qp = {
 						],
 						default: "'start'"
 					}
-				]
+				],
+				events: [{
+					name: "change",
+					description: "`CustomEvent<{ value: string }>` (single) or `{ values: string[] }` (multi)."
+				}],
+				examples: ["<schmancy-chips multi @change=${(e) => this.filters = e.detail.values}>\n  <schmancy-chip value=\"active\">Active</schmancy-chip>\n  <schmancy-chip value=\"paused\">Paused</schmancy-chip>\n  <schmancy-chip value=\"archived\">Archived</schmancy-chip>\n</schmancy-chips>"]
 			}]
 		},
 		{
@@ -32152,7 +32197,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancyInputChip",
 				tagName: "schmancy-input-chip",
-				description: "Input chip component - represents user-provided information that can be removed.  IMPORTANT: Per Material Design 3 specification, input chips do NOT have selected state. They represent discrete pieces of user input (like entered tags, selections from lists, etc.) that can only be removed, not toggled on/off.  Use cases: - Displaying selected recipients in an email - Showing applied filters that can be removed - Tags or keywords entered by the user - Selected items from a multi-select dropdown",
+				description: "Input chip — displays user-provided information (tags, recipients, filters) that can be removed but not toggled.  IMPORTANT: Per Material Design 3 specification, input chips do NOT have selected state. They represent discrete pieces of user input (like entered tags, selections from lists, etc.) that can only be removed, not toggled on/off.  Use cases: - Displaying selected recipients in an email - Showing applied filters that can be removed - Tags or keywords entered by the user - Selected items from a multi-select dropdown",
+				summary: "Removable pill that represents a single user input value. No selected state — use schmancy-chip (filter chip) for toggleable options.",
+				platformPrimitive: {
+					tag: "chip",
+					mode: "remove",
+					note: "No native equivalent. Composed of a labeled pill + close button. Degrades to a styled `<span>` with a trailing close `<button>` if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "value",
@@ -33089,14 +33140,21 @@ var qp = {
 				kind: "class",
 				name: "SchmancyForm",
 				tagName: "schmancy-form",
-				description: "A thin ergonomic wrapper around a native `<form>` element. Its children are reparented into a `<form>` element in light DOM on connection, so:  - Form-associated custom elements (FACE) resolve their `internals.form`   correctly via native DOM ancestry. - `new FormData(form)` collects values from every FACE + native control   without any manual walking. - `form.reset()` triggers `formResetCallback()` on every FACE. - `form.reportValidity()` runs native validation UI. - `<button type=\"submit\">` and `<schmancy-button type=\"submit\">` both   submit the form via the native submitter pipeline.  This component exists only to translate the native `submit` / `reset` events into the Schmancy event shape (`detail: FormData`). All heavy lifting is the platform's.",
+				description: "Ergonomic wrapper around a native `<form>`. Children are reparented into a light-DOM `<form>` on connection so form-associated custom elements resolve `internals.form` via native DOM ancestry.  - Form-associated custom elements (FACE) resolve their `internals.form`   correctly via native DOM ancestry. - `new FormData(form)` collects values from every FACE + native control   without any manual walking. - `form.reset()` triggers `formResetCallback()` on every FACE. - `form.reportValidity()` runs native validation UI. - `<button type=\"submit\">` and `<schmancy-button type=\"submit\">` both   submit the form via the native submitter pipeline.  This component exists only to translate the native `submit` / `reset` events into the Schmancy event shape (`detail: FormData`). All heavy lifting is the platform's.",
+				summary: "Always wrap form-associated schmancy components in schmancy-form (or a native `<form>`) so `new FormData(form)` just works.",
+				platformPrimitive: {
+					tag: "form",
+					mode: "submit",
+					note: "Light-DOM native `<form>` element. Degrades to a `<form>` if the tag never registers — same semantics, just no CustomEvent translation."
+				},
 				events: [{
 					name: "submit",
 					description: "`CustomEvent<FormData>` emitted when the form is submitted."
 				}, {
 					name: "reset",
 					description: "Emitted after the underlying form resets."
-				}]
+				}],
+				examples: ["<schmancy-form @submit=${(e) => console.log(Object.fromEntries(e.detail))}>\n  <schmancy-input name=\"email\" type=\"email\" required></schmancy-input>\n  <schmancy-input name=\"password\" type=\"password\" required></schmancy-input>\n  <schmancy-button type=\"submit\" variant=\"filled\">Sign in</schmancy-button>\n</schmancy-form>"]
 			}]
 		},
 		{
@@ -33238,7 +33296,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancyInput",
 				tagName: "schmancy-input",
-				description: "Enhanced version of the SchmancyInput component with improved form integration and compatibility with legacy API.  This component uses the native form association API and maintains parity with native input behaviors while providing a stylish, accessible interface.",
+				description: "Single-line text input — the primary form-text primitive. Form-associated via ElementInternals, so it participates in native `<form>` submission, validation, and reset without additional wiring.",
+				summary: "Text input with Material Design styling, native form integration, and RxJS-debounced input/change/enter events.",
+				platformPrimitive: {
+					tag: "input",
+					mode: "change",
+					note: "Schmancy-skinned native `<input>`. Degrades to `<input class=\"…\">` styled via Tailwind if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "value",
@@ -33369,7 +33433,22 @@ var qp = {
 						type: { text: "string" },
 						description: "For datalist support"
 					}
-				]
+				],
+				events: [
+					{
+						name: "input",
+						description: "`CustomEvent<{value: string}>` on every keystroke."
+					},
+					{
+						name: "change",
+						description: "`CustomEvent<{value: string}>` on blur/change."
+					},
+					{
+						name: "enter",
+						description: "`CustomEvent<{value: string}>` when user presses Enter."
+					}
+				],
+				examples: ["<schmancy-form @submit=${onSubmit}>\n  <schmancy-input name=\"email\" type=\"email\" label=\"Email\" required></schmancy-input>\n</schmancy-form>"]
 			}, {
 				kind: "class",
 				name: "SchmancyInputCompat",
@@ -34700,7 +34779,13 @@ var qp = {
 				kind: "class",
 				name: "RadioButton",
 				tagName: "schmancy-radio-button",
-				description: "Radio button component for use within radio groups.",
+				description: "Single radio button — always rendered as a child of `<schmancy-radio-group>`, never standalone.",
+				summary: "Low-level primitive. Use schmancy-radio-group and pass `.options` for the common path; only instantiate schmancy-radio-button directly when you need per-button custom rendering.",
+				platformPrimitive: {
+					tag: "radio",
+					mode: "change",
+					note: "Schmancy-skinned `<input type=\"radio\">` semantics. Degrades to native radio if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "value",
@@ -34722,7 +34807,8 @@ var qp = {
 						type: { text: "string" },
 						default: "''"
 					}
-				]
+				],
+				examples: ["<schmancy-radio-group name=\"plan\">\n  <schmancy-radio-button value=\"free\">Free</schmancy-radio-button>\n  <schmancy-radio-button value=\"pro\" checked>Pro</schmancy-radio-button>\n</schmancy-radio-group>"]
 			}]
 		},
 		{
@@ -34732,6 +34818,13 @@ var qp = {
 				kind: "class",
 				name: "RadioGroup",
 				tagName: "schmancy-radio-group",
+				description: "Radio-button group — single-select from a static list of mutually-exclusive options. Form-associated.",
+				summary: "Use for 2–5 mutually-exclusive options where all should stay visible (\"Shipping: standard / express / overnight\"). Prefer schmancy-select when the list grows.",
+				platformPrimitive: {
+					tag: "radiogroup",
+					mode: "change",
+					note: "Renders schmancy-radio-button children. Degrades to a fieldset with native `<input type=\"radio\" name=\"…\">` siblings if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "label",
@@ -34758,7 +34851,12 @@ var qp = {
 						type: { text: "boolean" },
 						default: "false"
 					}
-				]
+				],
+				events: [{
+					name: "change",
+					description: "`SchmancyRadioGroupChangeEvent` with the selected `value`."
+				}],
+				examples: ["<schmancy-radio-group\n  name=\"shipping\"\n  label=\"Shipping\"\n  .options=${[\n    { label: 'Standard (5 days)', value: 'standard' },\n    { label: 'Express (2 days)', value: 'express' },\n    { label: 'Overnight', value: 'overnight' },\n  ]}\n></schmancy-radio-group>"]
 			}]
 		},
 		{
@@ -34812,7 +34910,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancySelect",
 				tagName: "schmancy-select",
-				description: "Select dropdown component with single and multi-select support.",
+				description: "Dropdown selector — single or multi-select from a list of `<schmancy-option>` children. Form-associated.",
+				summary: "Material Design dropdown with type-to-filter, keyboard nav, single or multi-select. Options are declared as `<schmancy-option>` children; value / values props sync with selection.",
+				platformPrimitive: {
+					tag: "select",
+					mode: "change",
+					note: "Floating-UI-positioned listbox. Degrades to native `<select>` styled via Tailwind if the tag never registers, though multi-select UX is lost."
+				},
 				attributes: [
 					{
 						name: "name",
@@ -34876,7 +34980,12 @@ var qp = {
 						type: { text: "string" },
 						default: "''"
 					}
-				]
+				],
+				events: [{
+					name: "change",
+					description: "`SchmancySelectChangeEvent` with `{ value }` (single) or `{ value: string[] }` (multi)."
+				}],
+				examples: ["<schmancy-select name=\"priority\" label=\"Priority\" value=\"medium\">\n  <schmancy-option value=\"low\">Low</schmancy-option>\n  <schmancy-option value=\"medium\">Medium</schmancy-option>\n  <schmancy-option value=\"high\">High</schmancy-option>\n</schmancy-select>"]
 			}]
 		},
 		{
@@ -35220,7 +35329,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancySwitch",
 				tagName: "schmancy-switch",
-				description: "Binary on/off control. Form-associated, keyboard-accessible, semantically a switch (ARIA role=\"switch\"). Distinct from `schmancy-checkbox`: a switch represents an immediate state change, a checkbox represents a selection in a form to be submitted.",
+				description: "Binary on/off control with immediate effect. Form-associated, keyboard-accessible, semantically a switch (ARIA role=\"switch\"). Distinct from `schmancy-checkbox`: a switch represents an immediate state change, a checkbox represents a selection in a form to be submitted.",
+				summary: "Use when flipping the control takes effect right away (e.g. \"Dark mode\", \"Enable notifications\"). Prefer schmancy-checkbox for form submissions.",
+				platformPrimitive: {
+					tag: "switch",
+					mode: "change",
+					note: "Accessible native `<button role=\"switch\" aria-checked>` under the hood. No native HTML element exists; falls back to a styled checkbox if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "checked",
@@ -35263,7 +35378,8 @@ var qp = {
 				}, {
 					name: "thumb",
 					description: "The moving thumb."
-				}]
+				}],
+				examples: ["<schmancy-switch ?checked=${this.darkMode} @change=${(e) => this.darkMode = e.detail.value}>\n  Dark mode\n</schmancy-switch>"]
 			}]
 		},
 		{
@@ -35404,7 +35520,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancyTextarea",
 				tagName: "schmancy-textarea",
-				description: "Textarea component with auto-resize and form integration.",
+				description: "Multi-line text input with auto-resize and form integration. Form-associated.",
+				summary: "Textarea for freeform text — notes, descriptions, messages. Auto-grows with content up to a maxlength.",
+				platformPrimitive: {
+					tag: "textarea",
+					mode: "change",
+					note: "Schmancy-skinned native `<textarea>`. Degrades to styled native `<textarea>` if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "label",
@@ -35536,7 +35658,15 @@ var qp = {
 						type: { text: "boolean" },
 						default: "false"
 					}
-				]
+				],
+				events: [{
+					name: "input",
+					description: "On every keystroke."
+				}, {
+					name: "change",
+					description: "On blur."
+				}],
+				examples: ["<schmancy-textarea name=\"description\" label=\"Description\" rows=\"4\" maxlength=\"500\"></schmancy-textarea>"]
 			}]
 		},
 		{
@@ -35968,6 +36098,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancyCountriesSelect",
 				tagName: "schmancy-select-countries",
+				description: "Country picker — type-ahead autocomplete over the ISO 3166-1 country list. Form-associated.",
+				summary: "Drop-in replacement for schmancy-autocomplete when the options are specifically \"every country\". Pre-seeds the list from countries.data.",
+				platformPrimitive: {
+					tag: "combobox",
+					mode: "change",
+					note: "Composes schmancy-autocomplete with a static options list. Value is the 2-letter ISO code."
+				},
 				attributes: [
 					{
 						name: "value",
@@ -35998,7 +36135,12 @@ var qp = {
 						type: { text: "string" },
 						default: "''"
 					}
-				]
+				],
+				events: [{
+					name: "change",
+					description: "`SchmancyAutocompleteChangeEvent` with `{ value: string }` (the ISO code)."
+				}],
+				examples: ["<schmancy-select-countries name=\"country\" label=\"Shipping country\" required></schmancy-select-countries>"]
 			}]
 		},
 		{
@@ -36008,7 +36150,13 @@ var qp = {
 				kind: "class",
 				name: "SchmancyTimezonesSelect",
 				tagName: "schmancy-select-timezones",
-				description: "Timezone selector component with autocomplete filtering.",
+				description: "Timezone picker — type-ahead autocomplete over the IANA tz database. Form-associated.",
+				summary: "Drop-in replacement for schmancy-autocomplete when the options are IANA timezone names. Value is the IANA identifier (\"America/Los_Angeles\").",
+				platformPrimitive: {
+					tag: "combobox",
+					mode: "change",
+					note: "Composes schmancy-autocomplete with a static IANA timezones list."
+				},
 				attributes: [
 					{
 						name: "value",
@@ -36039,7 +36187,12 @@ var qp = {
 						type: { text: "string" },
 						default: "''"
 					}
-				]
+				],
+				events: [{
+					name: "change",
+					description: "`SchmancyAutocompleteChangeEvent` with `{ value: string }` (the IANA tz name)."
+				}],
+				examples: ["<schmancy-select-timezones name=\"tz\" label=\"Timezone\" value=\"America/New_York\"></schmancy-select-timezones>"]
 			}]
 		},
 		{

@@ -126,7 +126,7 @@
     {
       "name": "schmancy-autocomplete",
       "path": "./src/autocomplete/autocomplete.ts",
-      "description": "Autocomplete input component with filtering and multi-select support.",
+      "description": "Combobox with type-ahead filtering over a list of `<schmancy-option>` children. Single or multi-select. Form-associated.",
       "attributes": [
         {
           "name": "maxHeight",
@@ -321,7 +321,8 @@
       ],
       "events": [
         {
-          "name": "change"
+          "name": "change",
+          "description": "`SchmancyAutocompleteChangeEvent` with `{ value }` (single) or `{ value, values }` (multi)."
         }
       ]
     },
@@ -873,7 +874,7 @@
     {
       "name": "schmancy-button",
       "path": "./src/button/button.ts",
-      "description": "A button component.",
+      "description": "Material Design button — primary interactive surface for triggering actions or navigation.",
       "attributes": [
         {
           "name": "variant",
@@ -1015,7 +1016,7 @@
     {
       "name": "schmancy-icon-button",
       "path": "./src/button/icon-button.ts",
-      "description": "An icon button component.",
+      "description": "Icon-only button for toolbar actions, close affordances, or overflow menus.",
       "attributes": [
         {
           "name": "size",
@@ -1625,6 +1626,7 @@
     {
       "name": "schmancy-checkbox",
       "path": "./src/checkbox/checkbox.ts",
+      "description": "Binary checkbox for multi-select or boolean form fields. Wraps Material Web's `<md-checkbox>`; form-associated.",
       "attributes": [
         {
           "name": "value",
@@ -1729,7 +1731,7 @@
       "events": [
         {
           "name": "valueChange",
-          "description": "Event fired when the checkbox value changes."
+          "description": "`CustomEvent<{ value: boolean }>` when the checkbox is toggled."
         },
         {
           "name": "change"
@@ -1840,6 +1842,7 @@
     {
       "name": "schmancy-chips",
       "path": "./src/chips/chips.ts",
+      "description": "Filter-chip group — container for selectable `<schmancy-chip>` children. Single or multi-select.",
       "attributes": [
         {
           "name": "multi",
@@ -1912,7 +1915,8 @@
       ],
       "events": [
         {
-          "name": "change"
+          "name": "change",
+          "description": "`CustomEvent<{ value: string }>` (single) or `{ values: string[] }` (multi)."
         }
       ]
     },
@@ -2104,7 +2108,7 @@
     {
       "name": "schmancy-input-chip",
       "path": "./src/chips/input-chip.ts",
-      "description": "Input chip component - represents user-provided information that can be removed.\n\nIMPORTANT: Per Material Design 3 specification, input chips do NOT have selected state.\nThey represent discrete pieces of user input (like entered tags, selections from lists, etc.)\nthat can only be removed, not toggled on/off.\n\nUse cases:\n- Displaying selected recipients in an email\n- Showing applied filters that can be removed\n- Tags or keywords entered by the user\n- Selected items from a multi-select dropdown",
+      "description": "Input chip — displays user-provided information (tags, recipients, filters) that can be removed but not toggled.\n\nIMPORTANT: Per Material Design 3 specification, input chips do NOT have selected state.\nThey represent discrete pieces of user input (like entered tags, selections from lists, etc.)\nthat can only be removed, not toggled on/off.\n\nUse cases:\n- Displaying selected recipients in an email\n- Showing applied filters that can be removed\n- Tags or keywords entered by the user\n- Selected items from a multi-select dropdown",
       "attributes": [
         {
           "name": "value",
@@ -3725,6 +3729,7 @@
     {
       "name": "schmancy-select-countries",
       "path": "./src/extra/countries/countries.ts",
+      "description": "Country picker — type-ahead autocomplete over the ISO 3166-1 country list. Form-associated.",
       "attributes": [
         {
           "name": "value",
@@ -3809,14 +3814,15 @@
       ],
       "events": [
         {
-          "name": "change"
+          "name": "change",
+          "description": "`SchmancyAutocompleteChangeEvent` with `{ value: string }` (the ISO code)."
         }
       ]
     },
     {
       "name": "schmancy-select-timezones",
       "path": "./src/extra/timezone/timezone.ts",
-      "description": "Timezone selector component with autocomplete filtering.",
+      "description": "Timezone picker — type-ahead autocomplete over the IANA tz database. Form-associated.",
       "attributes": [
         {
           "name": "hint",
@@ -3909,7 +3915,8 @@
       ],
       "events": [
         {
-          "name": "change"
+          "name": "change",
+          "description": "`SchmancyAutocompleteChangeEvent` with `{ value: string }` (the IANA tz name)."
         }
       ]
     },
@@ -4061,7 +4068,7 @@
     {
       "name": "schmancy-form",
       "path": "./src/form/form.ts",
-      "description": "A thin ergonomic wrapper around a native `<form>` element. Its children are\nreparented into a `<form>` element in light DOM on connection, so:\n\n- Form-associated custom elements (FACE) resolve their `internals.form`\n  correctly via native DOM ancestry.\n- `new FormData(form)` collects values from every FACE + native control\n  without any manual walking.\n- `form.reset()` triggers `formResetCallback()` on every FACE.\n- `form.reportValidity()` runs native validation UI.\n- `<button type=\"submit\">` and `<schmancy-button type=\"submit\">` both\n  submit the form via the native submitter pipeline.\n\nThis component exists only to translate the native `submit` / `reset`\nevents into the Schmancy event shape (`detail: FormData`). All heavy\nlifting is the platform's.",
+      "description": "Ergonomic wrapper around a native `<form>`. Children are reparented into a light-DOM `<form>` on connection so form-associated custom elements resolve `internals.form` via native DOM ancestry.\n\n- Form-associated custom elements (FACE) resolve their `internals.form`\n  correctly via native DOM ancestry.\n- `new FormData(form)` collects values from every FACE + native control\n  without any manual walking.\n- `form.reset()` triggers `formResetCallback()` on every FACE.\n- `form.reportValidity()` runs native validation UI.\n- `<button type=\"submit\">` and `<schmancy-button type=\"submit\">` both\n  submit the form via the native submitter pipeline.\n\nThis component exists only to translate the native `submit` / `reset`\nevents into the Schmancy event shape (`detail: FormData`). All heavy\nlifting is the platform's.",
       "properties": [
         {
           "name": "tagName",
@@ -4291,7 +4298,7 @@
     {
       "name": "schmancy-input",
       "path": "./src/input/input.ts",
-      "description": "Enhanced version of the SchmancyInput component with improved form integration\nand compatibility with legacy API.\n\nThis component uses the native form association API and maintains parity with\nnative input behaviors while providing a stylish, accessible interface.",
+      "description": "Single-line text input — the primary form-text primitive. Form-associated via ElementInternals, so it participates in native `<form>` submission, validation, and reset without additional wiring.",
       "attributes": [
         {
           "name": "value",
@@ -4574,10 +4581,19 @@
       ],
       "events": [
         {
-          "name": "reset"
+          "name": "input",
+          "description": "`CustomEvent<{value: string}>` on every keystroke."
         },
         {
-          "name": "input"
+          "name": "change",
+          "description": "`CustomEvent<{value: string}>` on blur/change."
+        },
+        {
+          "name": "enter",
+          "description": "`CustomEvent<{value: string}>` when user presses Enter."
+        },
+        {
+          "name": "reset"
         },
         {
           "name": "focus"
@@ -4587,9 +4603,6 @@
         },
         {
           "name": "autofill"
-        },
-        {
-          "name": "enter"
         },
         {
           "name": "click"
@@ -4599,7 +4612,7 @@
     {
       "name": "sch-input",
       "path": "./src/input/input.ts",
-      "description": "Enhanced version of the SchmancyInput component with improved form integration\nand compatibility with legacy API.\n\nThis component uses the native form association API and maintains parity with\nnative input behaviors while providing a stylish, accessible interface.",
+      "description": "Single-line text input — the primary form-text primitive. Form-associated via ElementInternals, so it participates in native `<form>` submission, validation, and reset without additional wiring.",
       "attributes": [
         {
           "name": "value",
@@ -4882,10 +4895,19 @@
       ],
       "events": [
         {
-          "name": "reset"
+          "name": "input",
+          "description": "`CustomEvent<{value: string}>` on every keystroke."
         },
         {
-          "name": "input"
+          "name": "change",
+          "description": "`CustomEvent<{value: string}>` on blur/change."
+        },
+        {
+          "name": "enter",
+          "description": "`CustomEvent<{value: string}>` when user presses Enter."
+        },
+        {
+          "name": "reset"
         },
         {
           "name": "focus"
@@ -4895,9 +4917,6 @@
         },
         {
           "name": "autofill"
-        },
-        {
-          "name": "enter"
         },
         {
           "name": "click"
@@ -8578,7 +8597,7 @@
     {
       "name": "schmancy-radio-button",
       "path": "./src/radio-group/radio-button.ts",
-      "description": "Radio button component for use within radio groups.",
+      "description": "Single radio button — always rendered as a child of `<schmancy-radio-group>`, never standalone.",
       "attributes": [
         {
           "name": "checked",
@@ -8736,6 +8755,7 @@
     {
       "name": "schmancy-radio-group",
       "path": "./src/radio-group/radio-group.ts",
+      "description": "Radio-button group — single-select from a static list of mutually-exclusive options. Form-associated.",
       "attributes": [
         {
           "name": "options",
@@ -8875,7 +8895,8 @@
       ],
       "events": [
         {
-          "name": "change"
+          "name": "change",
+          "description": "`SchmancyRadioGroupChangeEvent` with the selected `value`."
         }
       ]
     },
@@ -8960,7 +8981,7 @@
     {
       "name": "schmancy-select",
       "path": "./src/select/select.ts",
-      "description": "Select dropdown component with single and multi-select support.",
+      "description": "Dropdown selector — single or multi-select from a list of `<schmancy-option>` children. Form-associated.",
       "attributes": [
         {
           "name": "disabled",
@@ -9116,7 +9137,8 @@
       ],
       "events": [
         {
-          "name": "change"
+          "name": "change",
+          "description": "`SchmancySelectChangeEvent` with `{ value }` (single) or `{ value: string[] }` (multi)."
         }
       ]
     },
@@ -9598,7 +9620,7 @@
     {
       "name": "schmancy-switch",
       "path": "./src/switch/switch.ts",
-      "description": "Binary on/off control. Form-associated, keyboard-accessible, semantically a\nswitch (ARIA role=\"switch\"). Distinct from `schmancy-checkbox`: a switch\nrepresents an immediate state change, a checkbox represents a selection in\na form to be submitted.",
+      "description": "Binary on/off control with immediate effect. Form-associated, keyboard-accessible, semantically a switch (ARIA role=\"switch\"). Distinct from `schmancy-checkbox`: a switch represents an immediate state change, a checkbox represents a selection in a form to be submitted.",
       "attributes": [
         {
           "name": "value",
@@ -10003,7 +10025,7 @@
     {
       "name": "schmancy-textarea",
       "path": "./src/textarea/textarea.ts",
-      "description": "Textarea component with auto-resize and form integration.",
+      "description": "Multi-line text input with auto-resize and form integration. Form-associated.",
       "attributes": [
         {
           "name": "label",
@@ -10315,7 +10337,12 @@
       ],
       "events": [
         {
-          "name": "change"
+          "name": "input",
+          "description": "On every keystroke."
+        },
+        {
+          "name": "change",
+          "description": "On blur."
         },
         {
           "name": "enter"

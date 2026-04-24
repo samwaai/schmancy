@@ -5,9 +5,15 @@ export type schmancyCheckBoxChangeEvent = CustomEvent<{
 }>;
 declare const SchmancyCheckboxElement_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
+ * Binary checkbox for multi-select or boolean form fields. Wraps Material Web's `<md-checkbox>`; form-associated.
+ *
  * @element schmancy-checkbox
+ * @summary Use for "select many from a list" or any boolean that's part of a form submission. Prefer schmancy-switch for immediate-effect toggles.
+ * @example
+ * <schmancy-checkbox name="tos" required>I accept the terms</schmancy-checkbox>
+ * @platform checkbox change - Wraps `<md-checkbox>` from `@material/web`. Degrades to styled native `<input type="checkbox">` if the tag never registers.
  * @slot - The label for the checkbox.
- * @fires valueChange - Event fired when the checkbox value changes.
+ * @fires valueChange - `CustomEvent<{ value: boolean }>` when the checkbox is toggled.
  **/
 declare class SchmancyCheckboxElement extends SchmancyCheckboxElement_base {
     protected static shadowRootOptions: {

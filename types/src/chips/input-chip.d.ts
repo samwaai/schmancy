@@ -1,7 +1,7 @@
 import { LitElement } from 'lit';
 declare const SchmancyInputChip_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 /**
- * Input chip component - represents user-provided information that can be removed.
+ * Input chip — displays user-provided information (tags, recipients, filters) that can be removed but not toggled.
  *
  * IMPORTANT: Per Material Design 3 specification, input chips do NOT have selected state.
  * They represent discrete pieces of user input (like entered tags, selections from lists, etc.)
@@ -13,15 +13,15 @@ declare const SchmancyInputChip_base: import("../../mixins").Constructor<CustomE
  * - Tags or keywords entered by the user
  * - Selected items from a multi-select dropdown
  *
- * @fires click - Optional click event on chip body (value)
- * @fires remove - Dispatched when remove button is clicked (value)
- *
+ * @element schmancy-input-chip
+ * @summary Removable pill that represents a single user input value. No selected state — use schmancy-chip (filter chip) for toggleable options.
  * @example
- * ```html
  * <schmancy-input-chip value="john@example.com" avatar="/avatars/john.jpg">
  *   John Doe
  * </schmancy-input-chip>
- * ```
+ * @platform chip remove - No native equivalent. Composed of a labeled pill + close button. Degrades to a styled `<span>` with a trailing close `<button>` if the tag never registers.
+ * @fires click - Optional click event on chip body (value)
+ * @fires remove - Dispatched when remove button is clicked (value)
  */
 export declare class SchmancyInputChip extends SchmancyInputChip_base {
     /** Value identifier for the chip */

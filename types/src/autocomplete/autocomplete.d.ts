@@ -6,7 +6,18 @@ export type SchmancyAutocompleteChangeEvent = CustomEvent<{
 }>;
 declare const SchmancyAutocomplete_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * Autocomplete input component with filtering and multi-select support.
+ * Combobox with type-ahead filtering over a list of `<schmancy-option>` children. Single or multi-select. Form-associated.
+ *
+ * @element schmancy-autocomplete
+ * @summary Use when users need to pick from a known list of options but the list is too long for a plain select dropdown. Prefer schmancy-select for short static lists.
+ * @example
+ * <schmancy-autocomplete name="country" label="Country" placeholder="Start typing…">
+ *   <schmancy-option value="US">United States</schmancy-option>
+ *   <schmancy-option value="CA">Canada</schmancy-option>
+ *   <schmancy-option value="GB">United Kingdom</schmancy-option>
+ * </schmancy-autocomplete>
+ * @platform combobox change - Composed of a schmancy-input + a floating listbox populated from `<schmancy-option>` children. Multi-select renders selections as schmancy-input-chip chips. Degrades to a datalist-backed native input if the tag never registers.
+ * @fires change - `SchmancyAutocompleteChangeEvent` with `{ value }` (single) or `{ value, values }` (multi).
  *
  * @prop {string} name - Name attribute for form submission
  * @prop {string} label - Label text displayed above the input

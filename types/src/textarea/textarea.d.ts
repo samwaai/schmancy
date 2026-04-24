@@ -1,7 +1,15 @@
 import { LitElement, type PropertyValues } from 'lit';
 declare const SchmancyTextarea_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * Textarea component with auto-resize and form integration.
+ * Multi-line text input with auto-resize and form integration. Form-associated.
+ *
+ * @element schmancy-textarea
+ * @summary Textarea for freeform text — notes, descriptions, messages. Auto-grows with content up to a maxlength.
+ * @example
+ * <schmancy-textarea name="description" label="Description" rows="4" maxlength="500"></schmancy-textarea>
+ * @platform textarea change - Schmancy-skinned native `<textarea>`. Degrades to styled native `<textarea>` if the tag never registers.
+ * @fires input - On every keystroke.
+ * @fires change - On blur.
  *
  * @prop {string} name - Name attribute for form submission
  * @prop {string} value - Current value of the textarea

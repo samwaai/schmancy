@@ -4,12 +4,15 @@ export type SchmancySwitchChangeEvent = CustomEvent<{
 }>;
 declare const SchmancySwitch_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * Binary on/off control. Form-associated, keyboard-accessible, semantically a
- * switch (ARIA role="switch"). Distinct from `schmancy-checkbox`: a switch
- * represents an immediate state change, a checkbox represents a selection in
- * a form to be submitted.
+ * Binary on/off control with immediate effect. Form-associated, keyboard-accessible, semantically a switch (ARIA role="switch"). Distinct from `schmancy-checkbox`: a switch represents an immediate state change, a checkbox represents a selection in a form to be submitted.
  *
  * @element schmancy-switch
+ * @summary Use when flipping the control takes effect right away (e.g. "Dark mode", "Enable notifications"). Prefer schmancy-checkbox for form submissions.
+ * @example
+ * <schmancy-switch ?checked=${this.darkMode} @change=${(e) => this.darkMode = e.detail.value}>
+ *   Dark mode
+ * </schmancy-switch>
+ * @platform switch change - Accessible native `<button role="switch" aria-checked>` under the hood. No native HTML element exists; falls back to a styled checkbox if the tag never registers.
  * @fires change - `CustomEvent<{ value: boolean }>` when the state changes.
  * @attr checked - Initial checked state (also reflected via `value`).
  * @attr disabled - Disables interaction.
