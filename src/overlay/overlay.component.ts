@@ -9,7 +9,6 @@ import {
 	fromEvent,
 	map,
 	merge,
-	Observable,
 	Subject,
 	take,
 	takeUntil,
@@ -22,7 +21,7 @@ import {
 	flipAnimation,
 	surfaceAnimation,
 } from './overlay.animations'
-import { keyboardDismiss$, swipeToDismiss$ } from './overlay.gestures'
+import { swipeToDismiss$ } from './overlay.gestures'
 import {
 	readViewport,
 	resolveAnchorRef,
@@ -126,20 +125,6 @@ export class SchmancyOverlay extends $LitElement(css`
 	.surface:popover-open {
 		margin: 0;
 		border: 0;
-	}
-	.drag-handle {
-		display: flex;
-		justify-content: center;
-		padding: 8px 0 4px;
-		touch-action: none;
-		cursor: grab;
-	}
-	.drag-handle::before {
-		content: '';
-		width: 40px;
-		height: 4px;
-		border-radius: 999px;
-		background: var(--schmancy-sys-color-outline-variant, #cac4cf);
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.surface {
@@ -323,26 +308,6 @@ export class SchmancyOverlay extends $LitElement(css`
 					aria-modal=${this.modal ? 'true' : nothing}
 					tabindex="-1"
 				>
-					${when(
-						this.layout === 'sheet' && this.dismissable,
-						() =>
-							// WAI-ARIA Window Splitter pattern (novel — no major sheet
-							// implementation exposes detents to keyboard today). Single
-							// detent for now: aria-valuenow stays at 100 while open;
-							// keyboardDismiss$ listens for Escape / End / ArrowDown and
-							// dismisses. Focus-visible ring via outline so keyboard users
-							// see the target.
-							html`<div
-								class="drag-handle"
-								role="separator"
-								aria-orientation="horizontal"
-								aria-label="Sheet height. Press Escape, End, or ArrowDown to dismiss."
-								aria-valuemin="0"
-								aria-valuemax="100"
-								aria-valuenow="100"
-								tabindex="0"
-							></div>`,
-					)}
 					<div id=${MOUNT_POINT_ID}></div>
 				</section>
 			</div>
@@ -496,23 +461,15 @@ export class SchmancyOverlay extends $LitElement(css`
 				.subscribe()
 		}
 
-		// Swipe-to-dismiss + keyboard-dismiss for sheet layout only. Both
-		// streams emit `'dismiss'`; merge-then-take-1 so whichever commits
-		// first wins and the other stream tears down.
+		// Swipe-to-dismiss for sheet layout only. No visual drag handle —
+		// the gesture starts from the top 40px of the surface (see
+		// DRAG_START_TOP_PX in overlay.gestures). Escape + backdrop click
+		// cover the other dismiss paths via the modal-tier listeners above.
 		if (this.layout === 'sheet' && this.dismissable) {
-			const dragHandle = this.renderRoot.querySelector<HTMLElement>('.drag-handle')
-			const gestureUntil$ = merge(until, this._closed$)
-			const streams: Observable<'dismiss'>[] = [
-				swipeToDismiss$({
-					surface: this._surface,
-					dragHandle,
-					until$: gestureUntil$,
-				}),
-			]
-			if (dragHandle) {
-				streams.push(keyboardDismiss$(dragHandle, gestureUntil$))
-			}
-			merge(...streams)
+			swipeToDismiss$({
+				surface: this._surface,
+				until$: merge(until, this._closed$),
+			})
 				.pipe(take(1))
 				.subscribe(() => void this.close('swipe'))
 		}

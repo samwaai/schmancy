@@ -1,23 +1,13 @@
-import {
-	filter,
-	fromEvent,
-	map,
-	merge,
-	Observable,
-	Subject,
-	take,
-	takeUntil,
-	tap,
-} from 'rxjs'
+import { filter, fromEvent, merge, Observable, Subject, take, takeUntil, tap } from 'rxjs'
 
 /**
- * Swipe-to-dismiss and keyboard-dismiss gestures for sheet-layout overlays.
+ * Swipe-to-dismiss gesture for sheet-layout overlays.
  *
  * Pointer-event based — a single pipeline covers touch, mouse, pen, and
- * any future pointer source. Previous touch-only implementation silently
- * dropped mouse drags; this fixes that. Paired with a keyboard-dismiss
- * stream so WAI-ARIA Window-Splitter-pattern handles can dismiss without
- * a pointer at all.
+ * any future pointer source. Without a visible drag handle, the gesture
+ * only starts within the top DRAG_START_TOP_PX band of the surface (a
+ * standard pull-to-dismiss convention). Escape + backdrop click cover
+ * the non-pointer dismiss paths via the component's modal-tier listeners.
  *
  * RxJS-native (rxjs skill principle 3: every async source is an Observable).
  * Thresholds are policy constants, not magic numbers.
@@ -175,30 +165,3 @@ export function swipeToDismiss$(inputs: SwipeInputs): Observable<'dismiss'> {
 	}).pipe(take(1))
 }
 
-/**
- * Keyboard-driven dismiss for a handle element wearing the W3C Window
- * Splitter pattern (role="separator" + tabindex="0" + aria-valuenow).
- *
- * Emits `'dismiss'` when the user presses Escape, End, or ArrowDown on
- * the handle while it has focus. ArrowDown/End both correspond to
- * "shrink the sheet to zero" — which, with a single-detent sheet, is
- * dismissal. Home/ArrowUp are no-ops (already at the largest detent).
- *
- * Composes with `swipeToDismiss$` via `merge().pipe(take(1))`:
- *
- *     merge(swipeToDismiss$(…), keyboardDismiss$(handle, until$))
- *       .pipe(take(1))
- *       .subscribe(() => this.close('gesture'))
- */
-export function keyboardDismiss$(
-	handle: HTMLElement,
-	until$: Observable<unknown>,
-): Observable<'dismiss'> {
-	return fromEvent<KeyboardEvent>(handle, 'keydown').pipe(
-		filter((e) => e.key === 'Escape' || e.key === 'End' || e.key === 'ArrowDown'),
-		tap((e) => e.preventDefault()),
-		map(() => 'dismiss' as const),
-		takeUntil(until$),
-		take(1),
-	)
-}
