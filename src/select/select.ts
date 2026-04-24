@@ -15,7 +15,18 @@ export type SchmancySelectChangeEvent = CustomEvent<{
 }>
 
 /**
- * Select dropdown component with single and multi-select support.
+ * Dropdown selector — single or multi-select from a list of `<schmancy-option>` children. Form-associated.
+ *
+ * @element schmancy-select
+ * @summary Material Design dropdown with type-to-filter, keyboard nav, single or multi-select. Options are declared as `<schmancy-option>` children; value / values props sync with selection.
+ * @example
+ * <schmancy-select name="priority" label="Priority" value="medium">
+ *   <schmancy-option value="low">Low</schmancy-option>
+ *   <schmancy-option value="medium">Medium</schmancy-option>
+ *   <schmancy-option value="high">High</schmancy-option>
+ * </schmancy-select>
+ * @platform select change - Floating-UI-positioned listbox. Degrades to native `<select>` styled via Tailwind if the tag never registers, though multi-select UX is lost.
+ * @fires change - `SchmancySelectChangeEvent` with `{ value }` (single) or `{ value: string[] }` (multi).
  *
  * @prop {string} name - Name attribute for form submission
  * @prop {string} label - Label text displayed above the select

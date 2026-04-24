@@ -7,8 +7,14 @@ import { magnetic } from '../directives/magnetic'
 import { ButtonVariant } from './button'
 
 /**
- * An icon button component.
+ * Icon-only button for toolbar actions, close affordances, or overflow menus.
  * @element schmancy-icon-button
+ * @summary Compact round/square button wrapping a single icon glyph. Form-associated like schmancy-button.
+ * @example
+ * <schmancy-icon-button aria-label="Close" @click=${() => close()}>
+ *   <schmancy-icon>close</schmancy-icon>
+ * </schmancy-icon-button>
+ * @platform button click - Schmancy-skinned native `<button>` (or `<a>` when `href` is set). aria-label is required for a11y because there's no text content.
  * @slot - The default slot (usually an icon or glyph).
  * @csspart base - The underlying native `<button>` (or `<a>` when `href` is set).
  */

@@ -13,6 +13,24 @@ export type SchmancyRadioGroupOption = {
 export type SchmancyRadioGroupChangeEvent = CustomEvent<{
 	value: string
 }>
+/**
+ * Radio-button group — single-select from a static list of mutually-exclusive options. Form-associated.
+ *
+ * @element schmancy-radio-group
+ * @summary Use for 2–5 mutually-exclusive options where all should stay visible ("Shipping: standard / express / overnight"). Prefer schmancy-select when the list grows.
+ * @example
+ * <schmancy-radio-group
+ *   name="shipping"
+ *   label="Shipping"
+ *   .options=${[
+ *     { label: 'Standard (5 days)', value: 'standard' },
+ *     { label: 'Express (2 days)', value: 'express' },
+ *     { label: 'Overnight', value: 'overnight' },
+ *   ]}
+ * ></schmancy-radio-group>
+ * @platform radiogroup change - Renders schmancy-radio-button children. Degrades to a fieldset with native `<input type="radio" name="…">` siblings if the tag never registers.
+ * @fires change - `SchmancyRadioGroupChangeEvent` with the selected `value`.
+ */
 @customElement('schmancy-radio-group')
 export class RadioGroup extends FormFieldMixin(TailwindElement(style)) {
 	@property({ type: String }) override label = ''

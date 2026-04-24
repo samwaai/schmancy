@@ -7,6 +7,20 @@ import { fullWidth } from '../directives/layout'
 import type { FilterChipChangeEvent as SchmancyChipChangeEvent } from './filter-chip'
 import { SchmancyFilterChip as SchmancyChip } from './filter-chip'
 
+/**
+ * Filter-chip group — container for selectable `<schmancy-chip>` children. Single or multi-select.
+ *
+ * @element schmancy-chips
+ * @summary Use for filtering or choosing from 2–8 mutually-visible options ("Status: active / paused / archived"). Prefer schmancy-select when the list gets long or vertical.
+ * @example
+ * <schmancy-chips multi @change=${(e) => this.filters = e.detail.values}>
+ *   <schmancy-chip value="active">Active</schmancy-chip>
+ *   <schmancy-chip value="paused">Paused</schmancy-chip>
+ *   <schmancy-chip value="archived">Archived</schmancy-chip>
+ * </schmancy-chips>
+ * @platform chip-group change - No direct native equivalent. Degrades to a styled schmancy-select with similar semantics if the tag never registers.
+ * @fires change - `CustomEvent<{ value: string }>` (single) or `{ values: string[] }` (multi).
+ */
 @customElement('schmancy-chips')
 export default class SchmancyChips extends $LitElement(
 

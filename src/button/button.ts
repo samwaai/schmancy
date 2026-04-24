@@ -16,8 +16,13 @@ export type ButtonVariant = 'elevated' | 'filled' | 'filled tonal' | 'tonal' | '
 export type ButtonColor = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' | 'neutral'
 
 /**
- * A button component.
+ * Material Design button — primary interactive surface for triggering actions or navigation.
  * @element schmancy-button
+ * @summary Trigger actions or navigate. Form-associated; participates in native form submission.
+ * @example
+ * <schmancy-button variant="filled" @click=${() => save()}>Save</schmancy-button>
+ * <schmancy-button variant="outlined" href="/next">Continue</schmancy-button>
+ * @platform button click - Schmancy-skinned native `<button type="submit">`. When `href` is set, degrades to `<a href="…">`. Falls back to plain `<button>` styled with Tailwind if the tag never registers.
  * @slot - The default slot.
  * @slot prefix - The prefix slot.
  * @slot suffix - The suffix slot.
