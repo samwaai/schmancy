@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./float-I4wePTk7.cjs`);exports.SchmancyFloat=e.t;
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./float-yZoLnUg0.cjs`);exports.SchmancyFloat=e.t;

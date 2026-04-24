@@ -2,6 +2,48 @@
   "version": "experimental",
   "tags": [
     {
+      "name": "schmancy-skill",
+      "path": "./src/agent/schmancy-skill.ts",
+      "description": "Self-describing runtime helper. Drop `<schmancy-skill></schmancy-skill>`\nonce on a page and `window.schmancy.help('schmancy-button')` returns the\nmachine-readable entry for any tag. Renders nothing.",
+      "properties": [
+        {
+          "name": "disconnecting",
+          "type": "Subject<boolean>",
+          "default": "\"new Subject<boolean>()\""
+        },
+        {
+          "name": "locale",
+          "description": "Current locale from theme context. Falls back to navigator.language.",
+          "type": "string"
+        },
+        {
+          "name": "stableId",
+          "description": "Stable ID from DOM path - lazy, only computed on first access",
+          "type": "string"
+        },
+        {
+          "name": "uid",
+          "description": "Unique instance ID - can be overridden via attribute, otherwise auto-generated.\nUsage: <my-component uid=\"custom-id\"> or let it auto-generate",
+          "type": "string"
+        },
+        {
+          "name": "disconnectedCallback",
+          "type": "() => void",
+          "default": "\"() => {\\n\\t\\t\\tsuper.disconnectedCallback()\\n\\t\\t}\""
+        },
+        {
+          "name": "styles",
+          "type": "CSSResult[]",
+          "default": "[null,\"tailwindStyles\"]"
+        }
+      ],
+      "events": [
+        {
+          "name": "schmancy-discover-response"
+        }
+      ]
+    },
+    {
       "name": "schmancy-area",
       "path": "./src/area/area.component.ts",
       "attributes": [

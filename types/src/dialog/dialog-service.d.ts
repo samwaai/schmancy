@@ -67,7 +67,17 @@ export declare class DialogService {
     private getDefaultPosition;
 }
 /**
- * Global dialog utility
+ * Global dialog utility. Imperative modal API — open any element as a dialog,
+ * or use the built-in `confirm` / `ask` / `danger` prompts. Returns Promises
+ * that resolve when the user picks an action.
+ *
+ * @service
+ * @summary Imperative modal dialogs and built-in confirm/ask/danger prompts.
+ * @method confirm(options: DialogOptions) - Built-in confirm prompt. Returns Promise<boolean>.
+ * @method ask(message, event?) - One-line yes/no prompt anchored to the triggering event.
+ * @method danger(options) - Destructive-action confirm styled with the error palette.
+ * @method component(element, options?) - Open any element as a modal.
+ * @method dismiss(id?) - Dismiss a dialog by id, or the topmost dialog.
  */
 export declare const $dialog: {
     confirm: (options: DialogOptions) => Promise<boolean>;

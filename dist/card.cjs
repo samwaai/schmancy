@@ -1,1 +1,1 @@
-require(`./card-DBjGfCxi.cjs`);
+require(`./card-ZObyqkFF.cjs`);

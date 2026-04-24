@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./window-DAWRoXo1.cjs`);exports.SchmancyWindow=e.t,exports.windowManager=e.n;
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./window-IGZgxuUC.cjs`);exports.SchmancyWindow=e.t,exports.windowManager=e.n;

@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./src-r2bV-AFk.cjs`);Object.defineProperty(exports,`ScBadgeV2`,{enumerable:!0,get:function(){return e.T}}),Object.defineProperty(exports,`SchmancyBadgeV2`,{enumerable:!0,get:function(){return e.E}});
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./src-ByGCYD-E.cjs`);Object.defineProperty(exports,`ScBadgeV2`,{enumerable:!0,get:function(){return e.T}}),Object.defineProperty(exports,`SchmancyBadgeV2`,{enumerable:!0,get:function(){return e.E}});

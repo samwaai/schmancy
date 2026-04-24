@@ -1,2 +1,2 @@
-import { t as e } from "./iframe-CMTUyiz1.js";
+import { t as e } from "./iframe-qCW0HzwB.js";
 export { e as SchmancyIframe };

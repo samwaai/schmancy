@@ -1,2 +1,2 @@
-import { t as e } from "./typewriter-DaTkMEHc.js";
+import { t as e } from "./typewriter-BTqEQXsX.js";
 export { e as TypewriterElement };

@@ -64,7 +64,17 @@ export declare class NotificationService {
     persistent(message: string, options?: Partial<Omit<NotificationOptions, 'message' | 'duration'>>): string;
 }
 /**
- * Global notification utility - provides a quick way to show notifications
+ * Global notification (toast) utility. Fire-and-forget API for success,
+ * error, info, and warning toasts, plus a low-level `show` for custom
+ * notifications.
+ *
+ * @service
+ * @summary Toast notifications — success, error, info, warning.
+ * @method show(options: NotificationOptions) - Low-level; show any NotificationOptions.
+ * @method success(message, options?) - Green success toast.
+ * @method error(message, options?) - Red error toast.
+ * @method info(message, options?) - Blue informational toast.
+ * @method warning(message, options?) - Amber warning toast.
  */
 export declare const $notify: {
     /**

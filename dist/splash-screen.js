@@ -1,1 +1,1 @@
-import "./splash-screen-B5Sgz7eG.js";
+import "./splash-screen-B0ppA3f1.js";

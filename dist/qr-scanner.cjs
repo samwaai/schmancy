@@ -1,4 +1,4 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./chunk-BCfY8kxB.cjs`),t=require(`./decorate-F9CuyeHg.cjs`),n=require(`./litElement.mixin-Bx9Avv0M.cjs`);let r=require(`rxjs`),i=require(`rxjs/operators`),a=require(`lit/decorators.js`),o=require(`lit`),s=require(`lit/directives/when.js`),c=require(`jsqr`);c=e.n(c,1);var l=class extends n.t(o.css`
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./chunk-BCfY8kxB.cjs`),t=require(`./decorate-F9CuyeHg.cjs`),n=require(`./litElement.mixin-DeT3kAOS.cjs`);let r=require(`rxjs`),i=require(`rxjs/operators`),a=require(`lit/decorators.js`),o=require(`lit`),s=require(`lit/directives/when.js`),c=require(`jsqr`);c=e.n(c,1);var l=class extends n.t(o.css`
 	:host {
 		display: block;
 		width: 100%;

@@ -270,6 +270,17 @@ declare class ThemeService {
      */
     static getInstance(): ThemeService;
 }
+/**
+ * Theme singleton. Reads and mutates the active theme (scheme, source color,
+ * locale); persists the user's scheme choice. Components subscribe via
+ * `theme.theme$` for changes.
+ *
+ * @service
+ * @summary Theme service — active scheme, source color, locale.
+ * @method next({ scheme?, source?, locale? }) - Update theme state.
+ * @method theme$ - Observable<TSchmancyTheme>; emits on every theme change.
+ * @method toggle() - Toggle between light and dark schemes.
+ */
 export declare const theme: ThemeService;
 export declare const schmancyTheme: ThemeService;
 export default theme;

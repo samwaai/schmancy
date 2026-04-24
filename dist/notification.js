@@ -1,2 +1,2 @@
-import { i as e, n as t, r as n, t as r } from "./notification-DvrozLTu.js";
+import { i as e, n as t, r as n, t as r } from "./notification-B_Fkxv7d.js";
 export { n as $notify, e as SchmancyNotification, r as notify, t as notifyProgress };

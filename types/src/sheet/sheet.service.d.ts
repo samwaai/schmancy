@@ -52,5 +52,14 @@ declare class BottomSheetService {
      */
     closeAll(): void;
 }
+/**
+ * Bottom / side sheet service. Mounts any element as a sheet with a chosen
+ * position (see `SchmancySheetPosition` enum).
+ *
+ * @service
+ * @summary Imperative bottom / side sheet surface.
+ * @method open({ component, position? }) - Mount an element as a sheet.
+ * @method dismiss(id?) - Dismiss a sheet by id, or the topmost.
+ */
 export declare const sheet: BottomSheetService;
 export {};

@@ -1,4 +1,4 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`}),require(`./chunk-BCfY8kxB.cjs`);const e=require(`./decorate-F9CuyeHg.cjs`),t=require(`./litElement.mixin-Bx9Avv0M.cjs`);require(`./mixins.cjs`);let n=require(`rxjs`),r=require(`rxjs/operators`),i=require(`lit/decorators.js`),a=require(`lit`),o=require(`lit/directives/cache.js`);var s=class extends t.t(a.css`
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`}),require(`./chunk-BCfY8kxB.cjs`);const e=require(`./decorate-F9CuyeHg.cjs`),t=require(`./litElement.mixin-DeT3kAOS.cjs`);require(`./mixins.cjs`);let n=require(`rxjs`),r=require(`rxjs/operators`),i=require(`lit/decorators.js`),a=require(`lit`),o=require(`lit/directives/cache.js`);var s=class extends t.t(a.css`
 	:host {
 		display: block;
 		scroll-snap-align: center; /* If your slider uses scroll-snap */
