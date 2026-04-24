@@ -14,15 +14,55 @@ import type { THistoryStrategy } from '../area/router.types'
 export type Content = ComponentType | TemplateResult
 
 /**
+ * Virtual reference object — same contract Floating UI and CSS Anchor
+ * Positioning accept. A caller who needs to anchor off something that
+ * isn't a real element (e.g. a computed region, a scroll-clipped shape)
+ * passes one of these. Must expose `getBoundingClientRect()` returning
+ * a DOMRect-shaped value.
+ */
+export interface VirtualAnchor {
+	getBoundingClientRect(): DOMRect
+}
+
+/**
  * Anchor hint for positioning. When provided, the layout engine tries to
- * anchor the overlay near this point via Floating UI / CSS Anchor Positioning.
+ * anchor the overlay near this point via the Tier-1/2/3 positioning ladder
+ * (CSS Anchor Positioning → Popover API + Floating UI → Floating UI only).
  * Falls back to centered / sheet if the anchored position can't fit.
  *
- * `MouseEvent | TouchEvent` — idiomatic: pass the event that triggered the show.
- * `HTMLElement` — anchor to the element's bounding box (menus, tooltips).
- * `{ x, y }` — explicit coordinates (rare; for programmatic positioning).
+ * Forms accepted (typeof-discriminated at runtime):
+ * - `MouseEvent | TouchEvent` — pass the event that triggered the show (most idiomatic)
+ * - `HTMLElement` — anchor to the element's bounding box (menus, tooltips)
+ * - `DOMRect` — explicit rect (rare; useful when the anchoring surface is virtual)
+ * - `VirtualAnchor` — anything with `getBoundingClientRect()` (computed regions)
+ * - `{ x: number; y: number }` — explicit coordinates (last resort)
  */
-export type Anchor = MouseEvent | HTMLElement | { x: number; y: number }
+export type Anchor =
+	| MouseEvent
+	| TouchEvent
+	| HTMLElement
+	| DOMRect
+	| VirtualAnchor
+	| { x: number; y: number }
+
+/**
+ * Floating UI `Placement` subset the overlay exposes as a preferred
+ * placement hint. The full set of 12 placements is supported internally;
+ * this narrower list covers the practical cases a caller would name.
+ */
+export type OverlayPlacement =
+	| 'top'
+	| 'top-start'
+	| 'top-end'
+	| 'bottom'
+	| 'bottom-start'
+	| 'bottom-end'
+	| 'left'
+	| 'left-start'
+	| 'left-end'
+	| 'right'
+	| 'right-start'
+	| 'right-end'
 
 /**
  * How the overlay should behave. All optional; the system handles every
@@ -61,6 +101,24 @@ export interface ShowOptions {
 	 *  - `'replace'` — replace current entry; back skips the overlay.
 	 *  - `'silent'` — no history; for tooltips / transient / ephemeral UI. */
 	historyStrategy?: THistoryStrategy
+
+	/** Preferred placement for anchored layouts. The positioning engine
+	 *  (Floating UI `flip` middleware on Tier 2/3, CSS `position-try` on
+	 *  Tier 1) will fall back when the preferred side doesn't fit.
+	 *  Default is `'bottom-start'`. Ignored for centered / sheet layouts. */
+	preferredPlacement?: OverlayPlacement
+
+	/** Render a tail arrow pointing from the surface to the anchor.
+	 *  Default `false`. Only meaningful on anchored layouts. */
+	arrow?: boolean
+
+	/** For anchored layouts: auto-track the anchor element's bounding rect
+	 *  via `autoUpdate` (Floating UI tiers) or native `anchor-name` tracking
+	 *  (CSS Anchor Positioning tier). Default `true` when an element anchor
+	 *  is passed; `false` when a point / DOMRect / event anchor is passed
+	 *  (those are inherently one-shot).
+	 */
+	track?: boolean
 }
 
 /**
@@ -74,6 +132,19 @@ export interface ShowOptions {
 export type OverlayLayout = 'centered' | 'anchored' | 'sheet'
 
 /**
+ * Positioning tier an anchored overlay is using.
+ * - `'css-anchor'` — Tier 1: Popover API + CSS Anchor Positioning (Chromium).
+ *                    Lives in native top-layer; the library's z-index stack
+ *                    does not manage it.
+ * - `'popover-fui'` — Tier 2: Popover API + Floating UI. Native top-layer;
+ *                    z-index stack also skipped.
+ * - `'fui-only'` — Tier 3: Floating UI only, manual backdrop + click-outside.
+ *                    Uses the library's z-index stack.
+ * - `'modal'` — centered / sheet layout; custom shell, library z-index.
+ */
+export type OverlayTier = 'css-anchor' | 'popover-fui' | 'fui-only' | 'modal'
+
+/**
  * Read-only snapshot of an active overlay. Emitted as part of the
  * `openOverlays$` stream for stack introspection.
  */
@@ -85,6 +156,13 @@ export interface OverlayEntry {
 	readonly element: HTMLElement
 	/** Current layout, chosen by the dispatch engine. */
 	readonly layout: OverlayLayout
+	/** Whether this overlay traps focus + inerts siblings. Centered / sheet
+	 *  default to modal; anchored defaults to non-modal (popover-like). */
+	readonly modal: boolean
+	/** Which positioning tier is in use. Scroll lock + sibling-inert only
+	 *  fire for `'modal'` and `'fui-only'` tiers — native top-layer tiers
+	 *  (`'popover-fui'`, `'css-anchor'`) handle stacking via the platform. */
+	readonly tier: OverlayTier
 }
 
 /**

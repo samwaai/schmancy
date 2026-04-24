@@ -167,10 +167,16 @@ export function show<T = void>(
 
 					// Register with the stack (post-open so layout is resolved).
 					const id = generateId()
+					// The element exposes `modal` (boolean). `tier` is a placeholder
+					// until the component reports its resolved tier — for now map
+					// modal layouts to 'modal' and anchored to 'fui-only' (the
+					// component rewrite in Step 6 will set `tier` precisely).
 					entry = {
 						id,
 						element: el,
 						layout: el.layout,
+						modal: el.modal,
+						tier: el.modal ? 'modal' : 'fui-only',
 					}
 					pushEntry(entry)
 

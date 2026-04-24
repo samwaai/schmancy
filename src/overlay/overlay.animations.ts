@@ -64,25 +64,37 @@ function clampPercent(value: number): number {
 }
 
 function getAnchorCenter(anchor: Anchor): { x: number; y: number } {
-	if (anchor instanceof Element) {
-		const r = anchor.getBoundingClientRect()
+	// Element | VirtualAnchor — anything exposing getBoundingClientRect()
+	if (
+		typeof (anchor as { getBoundingClientRect?: unknown }).getBoundingClientRect === 'function'
+	) {
+		const r = (anchor as { getBoundingClientRect(): DOMRect }).getBoundingClientRect()
 		return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
 	}
-	if ('clientX' in anchor && 'clientY' in anchor) {
-		return { x: anchor.clientX, y: anchor.clientY }
-	}
+	// DOMRect — has left/top/width/height but no getBoundingClientRect()
 	if (
-		typeof (anchor as { touches?: { length: number; 0?: { clientX: number; clientY: number } } }).touches !==
-			'undefined' &&
-		(anchor as { touches: { length: number } }).touches.length > 0
+		typeof (anchor as DOMRect).width === 'number' &&
+		typeof (anchor as DOMRect).height === 'number' &&
+		typeof (anchor as DOMRect).left === 'number' &&
+		typeof (anchor as DOMRect).top === 'number'
 	) {
-		const t = (anchor as { touches: { 0: { clientX: number; clientY: number } } }).touches[0]
+		const r = anchor as DOMRect
+		return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
+	}
+	// MouseEvent / PointerEvent
+	if (typeof (anchor as MouseEvent).clientX === 'number' && typeof (anchor as MouseEvent).clientY === 'number') {
+		const e = anchor as MouseEvent
+		return { x: e.clientX, y: e.clientY }
+	}
+	// TouchEvent
+	if (
+		typeof (anchor as TouchEvent).touches !== 'undefined' &&
+		(anchor as TouchEvent).touches.length > 0
+	) {
+		const t = (anchor as TouchEvent).touches[0]
 		return { x: t.clientX, y: t.clientY }
 	}
-	if ('getBoundingClientRect' in anchor && typeof anchor.getBoundingClientRect === 'function') {
-		const r = anchor.getBoundingClientRect()
-		return { x: r.left + r.width / 2, y: r.top + r.height / 2 }
-	}
+	// Plain { x, y } point
 	const pt = anchor as { x: number; y: number }
 	return { x: pt.x, y: pt.y }
 }

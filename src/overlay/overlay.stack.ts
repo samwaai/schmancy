@@ -55,12 +55,16 @@ export function topEntry(): OverlayEntry | undefined {
 /* ---------------- scroll lock -------------------------------------------- */
 
 /**
- * Ref-counted body scroll lock, derived from the stack's length.
+ * Ref-counted body scroll lock. Active whenever ANY modal-tier overlay is
+ * in the stack. Popover-tier (Tier 1/2) overlays do NOT lock body scroll —
+ * a menu / share card / picker shouldn't freeze the page scroll behind it
+ * (that's platform UX convention).
+ *
  * Subscription is idempotent — subscribing multiple times won't stack
  * effects, because it's a distinctUntilChanged boolean projection.
  *
- * Inner overlay close does NOT release the lock while an outer is still
- * open (this was the pre-existing bug in sheet.service.ts).
+ * Inner overlay close does NOT release the lock while an outer modal is
+ * still open (this was the pre-existing bug in sheet.service.ts).
  */
 let scrollLockActive = false
 let previousOverflow = ''
@@ -68,7 +72,7 @@ let previousScrollbarGutter = ''
 
 stack$$
 	.pipe(
-		map((s) => s.length > 0),
+		map((s) => s.some((e) => e.modal)),
 		distinctUntilChanged(),
 	)
 	.subscribe((shouldLock) => {
