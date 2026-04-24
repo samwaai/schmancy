@@ -41,7 +41,12 @@ jobs:
           corepack prepare yarn@4.9.2 --activate
 
       - name: Install dependencies
-        run: yarn install
+        # --no-immutable: this submodule deliberately has no committed
+        # yarn.lock (see chore c98d555 "drop nested yarn project files").
+        # Yarn 4 in CI (CI=true) would otherwise default to immutable mode
+        # and fail without a lockfile. We want CI to resolve + write a
+        # fresh lockfile every run.
+        run: yarn install --no-immutable
 
       - name: Build project
         run: yarn build
