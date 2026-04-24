@@ -7,11 +7,11 @@
 ## The URLs you asked for
 
 ```
-https://esm.sh/@mhmo91/schmancy/agent@<PENDING>
-https://esm.sh/@mhmo91/schmancy/agent/manifest@<PENDING>
+https://esm.sh/@mhmo91/schmancy/agent@0.9.13
+https://esm.sh/@mhmo91/schmancy/agent/manifest@0.9.13
 ```
 
-`<PENDING>` is filled in after the first CI release publishes to npm; `npm view @mhmo91/schmancy version` always returns the current pin.
+`0.9.13` is the first release containing `/agent`; every subsequent publish serves the same subpath. `npm view @mhmo91/schmancy version` always returns the current pin if you want to float forward.
 
 ## Minimum consumption
 
@@ -20,7 +20,7 @@ One script tag. No bundler, no bare specifiers, no npm install.
 ```html
 <!doctype html>
 <script type="module">
-  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent@<PENDING>';
+  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent@0.9.13';
 </script>
 <schmancy-theme root scheme="dark">
   <schmancy-surface type="solid" fill="all">
@@ -30,7 +30,7 @@ One script tag. No bundler, no bare specifiers, no npm install.
 </schmancy-theme>
 ```
 
-Importing the URL side-effect registers every `<schmancy-*>` tag (113 of them) plus `<schmancy-skill>`. Named re-exports cover the full imperative surface: `$dialog`, `$notify`, `sheet`, `SchmancySheetPosition`, `schmancyContentDrawer`, `theme`, `area`, `lazy`, `createContext`, `select`, `selectItem`, `$LitElement`.
+Importing the URL side-effect registers every `<schmancy-*>` tag (111 of them, verified live) plus `<schmancy-skill>`. Named re-exports cover the full imperative surface: `$dialog`, `$notify`, `sheet`, `SchmancySheetPosition`, `schmancyContentDrawer`, `theme`, `area`, `lazy`, `createContext`, `select`, `selectItem`, `$LitElement`.
 
 ## Discovery API (installed by `<schmancy-skill>`)
 
