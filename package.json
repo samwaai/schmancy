@@ -58,8 +58,9 @@
 	},
 	"scripts": {
 		"dev": "vite build --config vite.config.ts --watch",
-		"build": "tsc && vite build --config vite.config.ts && yarn manifest && yarn build:agent",
+		"build": "tsc && vite build --config vite.config.ts && yarn manifest && yarn build:agent && yarn build:handover",
 		"build:agent": "vite build --config vite.config.agent.ts",
+		"build:handover": "node scripts/render-handover.mjs",
 		"manifest": "wca 'src/**/*.ts' --outFile custom-elements.json --format json",
 		"ncu": "ncu -u && npm i",
 		"test": "vitest run",
