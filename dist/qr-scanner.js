@@ -5,8 +5,7 @@ import { distinctUntilChanged as a, filter as o, map as s, takeUntil as c, throt
 import { customElement as u, property as d, state as f } from "lit/decorators.js";
 import { css as p, html as m } from "lit";
 import { when as h } from "lit/directives/when.js";
-import g from "jsqr";
-var _ = class extends t(p`
+var g = null, _ = null, v = class extends t(p`
 	:host {
 		display: block;
 		width: 100%;
@@ -27,7 +26,10 @@ var _ = class extends t(p`
 				width: { ideal: 1280 },
 				height: { ideal: 720 }
 			} };
-			this.stream = await navigator.mediaDevices.getUserMedia(e), this.hasPermission = !0, this.error = "", await this.updateComplete, this.videoElement = this.shadowRoot?.querySelector("#video"), this.videoElement && (this.videoElement.srcObject = this.stream, await this.videoElement.play(), this.startScanning());
+			if (this.stream = await navigator.mediaDevices.getUserMedia(e), this.hasPermission = !0, this.error = "", await this.updateComplete, this.videoElement = this.shadowRoot?.querySelector("#video"), this.videoElement) {
+				if (this.videoElement.srcObject = this.stream, await this.videoElement.play(), await (_ ||= import("jsqr").then((e) => (g = e.default, e.default))), !this.isConnected) return;
+				this.startScanning();
+			}
 		} catch {
 			this.hasPermission = !1, this.error = "Camera access is required to scan QR codes. Please allow camera access and try again.";
 		}
@@ -49,7 +51,9 @@ var _ = class extends t(p`
 			let t = e.getContext("2d");
 			if (!t) return null;
 			t.drawImage(this.videoElement, 0, 0);
-			let n = t.getImageData(0, 0, e.width, e.height), r = g(n.data, n.width, n.height);
+			let n = t.getImageData(0, 0, e.width, e.height);
+			if (!g) return null;
+			let r = g(n.data, n.width, n.height);
 			if (r && r.data) return {
 				data: r.data,
 				timestamp: Date.now()
@@ -116,5 +120,5 @@ var _ = class extends t(p`
 		`;
 	}
 };
-e([d({ type: Boolean })], _.prototype, "continuous", void 0), e([f()], _.prototype, "hasPermission", void 0), e([f()], _.prototype, "error", void 0), e([f()], _.prototype, "showSuccess", void 0), _ = e([u("schmancy-qr-scanner")], _);
-export { _ as SchmancyQRScanner };
+e([d({ type: Boolean })], v.prototype, "continuous", void 0), e([f()], v.prototype, "hasPermission", void 0), e([f()], v.prototype, "error", void 0), e([f()], v.prototype, "showSuccess", void 0), v = e([u("schmancy-qr-scanner")], v);
+export { v as SchmancyQRScanner };
