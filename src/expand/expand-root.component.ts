@@ -7,6 +7,18 @@ import { SPRING_SMOOTH } from '../utils/animation.js'
 import { reducedMotion$ } from '../directives/reduced-motion'
 import '../surface/surface.js'
 
+/**
+ * Container for schmancy-expand children — coordinates mutual-exclusion so only one child is open at a time. Also renders the portal panel that the active child expands into.
+ *
+ * @element schmancy-expand-root
+ * @summary Always wrap a group of schmancy-expand children. Without a root, each schmancy-expand behaves independently (which is usually not what you want — prefer schmancy-details for that).
+ * @example
+ * <schmancy-expand-root>
+ *   <schmancy-expand summary="Step 1">…</schmancy-expand>
+ *   <schmancy-expand summary="Step 2">…</schmancy-expand>
+ * </schmancy-expand-root>
+ * @platform div - Coordinating wrapper. Degrades to a plain div if the tag never registers — children fall back to independent `<details>` behavior.
+ */
 @customElement('schmancy-expand-root')
 export class SchmancyExpandRoot extends SurfaceMixin(TailwindElement(css`
 	:host {

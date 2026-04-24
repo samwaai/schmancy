@@ -9,6 +9,18 @@ import { distinctUntilChanged, filter, take, takeUntil, tap } from 'rxjs/operato
 import { SPRING_SNAPPY } from '../utils/animation.js'
 import { reducedMotion$ } from '../directives/reduced-motion'
 
+/**
+ * Expandable disclosure panel — a styled `<details>` / `<summary>` pair with animated expand + overlay options.
+ *
+ * @element schmancy-details
+ * @summary Use for progressive-disclosure content: FAQs, collapsible settings sections, accordion-style lists. Prefer schmancy-expand for full-page accordions where only one section can be open at a time.
+ * @example
+ * <schmancy-details summary="Shipping details">
+ *   <p>Order ships in 2 business days.</p>
+ * </schmancy-details>
+ * @platform details toggle - Wraps native `<details>`/`<summary>`. Degrades to the native element if the tag never registers — same keyboard accessibility, just no animation.
+ * @fires toggle - When the open state changes (bubbles from the native `<details>`).
+ */
 @customElement('schmancy-details')
 export default class SchmancyDetails extends SurfaceMixin(
 	TailwindElement(css`

@@ -11,22 +11,16 @@ export const SchmancySurfaceTypeContext = createContext<TSurfaceColor>('surface'
 export type { SchmancySurfaceFill, SchmancySurfaceRounded, SchmancySurfaceElevation } from '@mixins/surface.mixin'
 
 /**
- * `<schmancy-surface>` component
- *
- * This component renders a styled container that adapts its dimensions based on the `fill` property.
- * It supports various rounding options, elevation levels, and applies background and text color classes
- * based on the specified surface variant. Additionally, when the `scroller` property is true, the component
- * enables internal scrolling by applying overflow and scroll-behavior styles.
- *
- * SurfaceMixin automatically provides surfaceStyles CSS.
+ * Themed container — the root surface primitive. Sets background, text color, rounding, elevation, and (optionally) internal scroll. Provides a `SchmancySurfaceTypeContext` so descendants can adapt to the enclosing surface variant.
  *
  * @element schmancy-surface
- * @slot - Default slot for projecting child content.
- *
+ * @summary Wrap a region of a page when you need it to pick up theme tokens (background + on-color + elevation). Nest surfaces to express Material Design's hierarchical color stacking.
  * @example
  * <schmancy-surface fill="all" rounded="all" elevation="3" type="surfaceBright" scroller>
  *   <p>Your scrollable content here</p>
  * </schmancy-surface>
+ * @platform div - Styled `<div>` with theme-driven background/color/elevation. Degrades to a plain `<div>` if the tag never registers — text stays readable, just loses theming.
+ * @slot - Default slot for projecting child content.
  */
 @customElement('schmancy-surface')
 export class SchmancySurface extends SurfaceMixin(
