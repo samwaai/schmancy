@@ -7,6 +7,23 @@ import { on } from './hook'
 import { SchmancySheetPosition, sheet } from './sheet.service'
 import { BLACKBIRD_EASING, DURATION_ENTER, DURATION_EXIT, DURATION_BACKDROP, EASE_OUT, EASE_IN } from '../utils/animation'
 
+/**
+ * Side-docked or bottom-docked panel — a dialog variant that slides in from an edge. Driven imperatively by the `sheet` service; rarely instantiated directly.
+ *
+ * @element schmancy-sheet
+ * @summary Prefer `sheet.open({ component, position })` over placing this element declaratively — the service handles stacking, focus, close on outside-click, ESC, and router integration.
+ * @example
+ * import { sheet, SchmancySheetPosition } from '@mhmo91/schmancy'
+ * sheet.open({
+ *   component: new MyEditorElement(),
+ *   position: SchmancySheetPosition.Side,
+ *   title: 'Edit item',
+ * })
+ * @platform dialog close - Positioned-fixed panel with backdrop. Degrades to a `<dialog>` if the tag never registers — loses slide animation, keeps focus trap + dismiss.
+ * @attr position - `'side' | 'bottom'`. Which edge the sheet docks to.
+ * @attr open - Boolean; sheet is visible when true.
+ * @fires close - When the sheet is dismissed (backdrop click, close button, ESC).
+ */
 @customElement('schmancy-sheet')
 export default class SchmancySheet extends $LitElement(css`
 	:host {

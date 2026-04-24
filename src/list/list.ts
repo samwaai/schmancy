@@ -7,19 +7,18 @@ import { customElement, property } from 'lit/decorators.js'
 import { SchmancyListTypeContext } from './context'
 
 /**
- * `<schmancy-list>` component.
- *
- * A list component that wraps its content within a customizable surface.
- * It allows you to set the surface type and fill style, and can optionally
- * enable scrolling behavior by delegating the scroller attribute to the surface.
+ * Wrapped list container — holds schmancy-list-item children on a themed surface. Optionally scrollable.
  *
  * @element schmancy-list
- * @slot - The default slot for list items.
- *
+ * @summary Use for vertical lists of similarly-shaped items: settings entries, menu items, contact lists, notification lists. Pair with schmancy-list-item children.
  * @example
  * <schmancy-list surface="container" scroller>
- *   <schmancy-list-item>List Item 1</schmancy-list-item>
+ *   <schmancy-list-item>First</schmancy-list-item>
+ *   <schmancy-list-item>Second</schmancy-list-item>
+ *   <schmancy-list-item>Third</schmancy-list-item>
  * </schmancy-list>
+ * @platform ul - Styled list container. Degrades to a plain ul/div if the tag never registers.
+ * @slot - The default slot for list items.
  */
 @customElement('schmancy-list')
 export class List extends TailwindElement(css`

@@ -4,31 +4,19 @@ import { customElement, query } from 'lit/decorators.js'
 import { $dialog } from '../dialog/dialog-service'
 
 /**
- * Menu Component
+ * Floating menu — a trigger button + a list of schmancy-menu-item children that open as a positioned dialog on click.
  *
- * CRITICAL: The dialog ONLY renders the raw menu items passed via the default slot.
- * NO <ul> wrapper, NO classes, NO additional markup in the dialog call.
- * The dialog service handles positioning and display - we just pass the pure content.
- *
- * @example Basic menu with auto-dismiss
- * ```typescript
+ * @element schmancy-menu
+ * @summary Use for dropdown menus attached to a button or icon — "More actions", "Account", row overflow menus in tables. Clicking a schmancy-menu-item inside auto-dismisses; custom components slotted inside must call `$dialog.dismiss()` themselves.
+ * @example
  * <schmancy-menu>
- *   <schmancy-button slot="trigger">Actions</schmancy-button>
- *   <schmancy-menu-item @click=${() => editItem()}>Edit</schmancy-menu-item>
- *   <schmancy-menu-item @click=${() => deleteItem()}>Delete</schmancy-menu-item>
+ *   <schmancy-icon-button slot="trigger" aria-label="Actions">
+ *     <schmancy-icon>more_vert</schmancy-icon>
+ *   </schmancy-icon-button>
+ *   <schmancy-menu-item @click=${() => edit()}>Edit</schmancy-menu-item>
+ *   <schmancy-menu-item @click=${() => remove()}>Delete</schmancy-menu-item>
  * </schmancy-menu>
- * ```
- * Note: Dialog auto-dismisses when schmancy-menu-item is clicked
- *
- * @example Custom component (manual dismiss)
- * ```typescript
- * <schmancy-menu>
- *   <schmancy-icon-button slot="trigger">settings</schmancy-icon-button>
- *   <my-settings-form @submit=${() => $dialog.dismiss()}></my-settings-form>
- * </schmancy-menu>
- * ```
- * Note: Custom components must call $dialog.dismiss() manually
- *
+ * @platform menu close - Trigger + floating listbox dialog. Degrades to a native `<select>` or inline list if the tag never registers.
  * @slot trigger - Button to open menu (new naming)
  * @slot button - Button to open menu (backward compatible)
  * @slot default - Menu items or any custom component to display in dialog
