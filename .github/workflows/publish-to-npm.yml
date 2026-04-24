@@ -48,16 +48,31 @@ jobs:
         # fresh lockfile every run.
         run: yarn install --no-immutable
 
-      - name: Build project
-        run: yarn build
+      # Vitest browser mode uses Playwright's Chromium. The browser binary
+      # is not downloaded by `yarn install` — install it explicitly before
+      # the smoke test step.
+      - name: Install Playwright Chromium
+        run: yarn playwright install chromium --with-deps
+
+      # Handover §4.4 acceptance: load the bundle in a real browser,
+      # assert registration + `window.schmancy.help()` surface. Blocks
+      # publish on regression.
+      - name: Agent bundle smoke test
+        run: yarn vitest run src/agent/
 
       - name: Authenticate with npm
         run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # Bump BEFORE build so `yarn build:handover` renders dist/handover/*.md
+      # against the version that will actually ship. Previously build ran
+      # first and the rendered handover lagged by one patch release.
       - name: Bump package version
         run: yarn version patch
+
+      - name: Build project
+        run: yarn build
 
       - name: Publish to npm
         run: npm publish --access public
