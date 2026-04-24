@@ -1,8 +1,10 @@
 import {
+	BehaviorSubject,
 	defer,
 	defaultIfEmpty,
 	distinctUntilChanged,
 	EMPTY,
+	filter,
 	firstValueFrom,
 	fromEvent,
 	map,
@@ -45,6 +47,72 @@ import type {
 export const openOverlays$: Observable<readonly OverlayEntry[]> = internalStack$
 
 /* ======================================================================= *
+ *                        ambient event capture                              *
+ * ======================================================================= *
+ * Novel: callers do not need to pass `anchor: event` manually. The service
+ * listens to pointerdown / click / keydown at capture phase on the document
+ * and remembers the most-recent user gesture. When show() is invoked
+ * synchronously (or shortly after) in response to that gesture, the remembered
+ * event becomes the default anchor. This matches the "anchored is the novel
+ * default" principle without forcing callers to thread events through
+ * handlers.
+ *
+ * Staleness guard: an event older than AMBIENT_ANCHOR_MAX_AGE_MS is ignored.
+ * Timer-driven or async show() calls that don't originate from a user gesture
+ * fall through to centered / sheet layout.
+ */
+const AMBIENT_ANCHOR_MAX_AGE_MS = 750
+
+interface AmbientAnchor {
+	event: MouseEvent
+	capturedAt: number
+}
+
+/**
+ * BehaviorSubject projected off three document-level event streams,
+ * merged as Observables per rxjs principle 3 (every async source
+ * lifted into fromEvent). Keydown activations synthesize a MouseEvent
+ * at the focused element's bounding rect so the anchor path can
+ * carry keyboard-triggered opens uniformly.
+ *
+ * The singleton subscribe has no explicit teardown — the module's
+ * lifetime IS the subscription's lifetime, which is the correct
+ * SUBSCRIPTION_IS_STATE shape for a document-level event sink.
+ */
+const ambientAnchor$ = new BehaviorSubject<AmbientAnchor | null>(null)
+
+if (typeof document !== 'undefined') {
+	const pointerdown$ = fromEvent<PointerEvent>(document, 'pointerdown', { capture: true, passive: true }).pipe(
+		map((e): AmbientAnchor => ({ event: e, capturedAt: performance.now() })),
+	)
+	const click$ = fromEvent<MouseEvent>(document, 'click', { capture: true, passive: true }).pipe(
+		map((e): AmbientAnchor => ({ event: e, capturedAt: performance.now() })),
+	)
+	const keydown$ = fromEvent<KeyboardEvent>(document, 'keydown', { capture: true }).pipe(
+		filter((e) => e.target instanceof Element),
+		map((e): AmbientAnchor => {
+			const rect = (e.target as Element).getBoundingClientRect()
+			const synthetic = new MouseEvent('click', {
+				clientX: rect.left + rect.width / 2,
+				clientY: rect.top + rect.height / 2,
+				bubbles: true,
+			})
+			return { event: synthetic, capturedAt: performance.now() }
+		}),
+	)
+
+	merge(pointerdown$, click$, keydown$).subscribe((ambient) => ambientAnchor$.next(ambient))
+}
+
+function ambientAnchor(): MouseEvent | undefined {
+	const cur = ambientAnchor$.value
+	if (!cur) return undefined
+	if (performance.now() - cur.capturedAt > AMBIENT_ANCHOR_MAX_AGE_MS) return undefined
+	return cur.event
+}
+
+
+/* ======================================================================= *
  *                                   show                                    *
  * ======================================================================= */
 
@@ -72,6 +140,13 @@ export function show<T = void>(
 	options: ShowOptions = {},
 ): Observable<T | undefined> {
 	return defer(() => {
+		// Resolve anchor at subscribe time: caller's explicit anchor wins,
+		// otherwise the ambient gesture captured by ambientAnchor$ fills in.
+		const resolvedOptions: ShowOptions = {
+			...options,
+			anchor: options.anchor ?? ambientAnchor(),
+		}
+
 		return new Observable<T | undefined>((subscriber) => {
 			let el: SchmancyOverlay | null = null
 			let entry: OverlayEntry | null = null
@@ -88,7 +163,7 @@ export function show<T = void>(
 					await el.updateComplete
 
 					// Open it — mount content, resolve layout, animate in.
-					await el.open(content, options)
+					await el.open(content, resolvedOptions)
 
 					// Register with the stack (post-open so layout is resolved).
 					const id = generateId()
@@ -105,7 +180,7 @@ export function show<T = void>(
 					}
 
 					// History integration — push a sentinel unless silent.
-					const strategy: THistoryStrategy = options.historyStrategy ?? 'push'
+					const strategy: THistoryStrategy = resolvedOptions.historyStrategy ?? 'push'
 					if (strategy === 'push') {
 						history.pushState({ __schmancyOverlayId: id }, '', location.href)
 						historyPushed = true
