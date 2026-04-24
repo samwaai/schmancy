@@ -9,6 +9,7 @@ import {
 	fromEvent,
 	map,
 	merge,
+	Observable,
 	Subject,
 	take,
 	takeUntil,
@@ -21,7 +22,7 @@ import {
 	flipAnimation,
 	surfaceAnimation,
 } from './overlay.animations'
-import { swipeToDismiss$ } from './overlay.gestures'
+import { keyboardDismiss$, swipeToDismiss$ } from './overlay.gestures'
 import {
 	readViewport,
 	resolveAnchorRef,
@@ -325,12 +326,21 @@ export class SchmancyOverlay extends $LitElement(css`
 					${when(
 						this.layout === 'sheet' && this.dismissable,
 						() =>
+							// WAI-ARIA Window Splitter pattern (novel — no major sheet
+							// implementation exposes detents to keyboard today). Single
+							// detent for now: aria-valuenow stays at 100 while open;
+							// keyboardDismiss$ listens for Escape / End / ArrowDown and
+							// dismisses. Focus-visible ring via outline so keyboard users
+							// see the target.
 							html`<div
 								class="drag-handle"
-								role="button"
-								aria-label="Dismiss"
+								role="separator"
+								aria-orientation="horizontal"
+								aria-label="Sheet height. Press Escape, End, or ArrowDown to dismiss."
+								aria-valuemin="0"
+								aria-valuemax="100"
+								aria-valuenow="100"
 								tabindex="0"
-								@keydown=${this.onDragHandleKey}
 							></div>`,
 					)}
 					<div id=${MOUNT_POINT_ID}></div>
@@ -341,13 +351,6 @@ export class SchmancyOverlay extends $LitElement(css`
 
 	private onBackdropClick = (): void => {
 		if (this.dismissable) void this.close('backdrop')
-	}
-
-	private onDragHandleKey = (e: KeyboardEvent): void => {
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault()
-			if (this.dismissable) void this.close('programmatic')
-		}
 	}
 
 	/* ---------------- anchor-origin bloom ------------------------------ */
@@ -493,14 +496,23 @@ export class SchmancyOverlay extends $LitElement(css`
 				.subscribe()
 		}
 
-		// Swipe-to-dismiss for sheet layout only.
+		// Swipe-to-dismiss + keyboard-dismiss for sheet layout only. Both
+		// streams emit `'dismiss'`; merge-then-take-1 so whichever commits
+		// first wins and the other stream tears down.
 		if (this.layout === 'sheet' && this.dismissable) {
 			const dragHandle = this.renderRoot.querySelector<HTMLElement>('.drag-handle')
-			swipeToDismiss$({
-				surface: this._surface,
-				dragHandle,
-				until$: merge(until, this._closed$),
-			})
+			const gestureUntil$ = merge(until, this._closed$)
+			const streams: Observable<'dismiss'>[] = [
+				swipeToDismiss$({
+					surface: this._surface,
+					dragHandle,
+					until$: gestureUntil$,
+				}),
+			]
+			if (dragHandle) {
+				streams.push(keyboardDismiss$(dragHandle, gestureUntil$))
+			}
+			merge(...streams)
 				.pipe(take(1))
 				.subscribe(() => void this.close('swipe'))
 		}
