@@ -5,7 +5,20 @@ import hashContent from '@schmancy/utils/hashContent'
 import { intersection$ } from '@schmancy/utils/intersection'
 import { css, html, TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements, queryAssignedNodes } from 'lit/decorators.js'
-import TypeIt, { Options as TypeItOptions } from 'typeit'
+// TypeIt is loaded lazily on first render — see ADR 0014 in the parent
+// monorepo. The static import was replaced with a type-only import plus a
+// memoised dynamic loader so the ~15 KB gzipped vendor chunk stays out of
+// the agent bundle's first paint for pages that don't render a typewriter.
+import type { Options as TypeItOptions } from 'typeit'
+type TypeItCtor = typeof import('typeit').default
+type TypeItInstance = InstanceType<TypeItCtor>
+
+let typeItPromise: Promise<TypeItCtor> | null = null
+function loadTypeIt(): Promise<TypeItCtor> {
+	if (typeItPromise) return typeItPromise
+	typeItPromise = import('typeit').then(m => m.default)
+	return typeItPromise
+}
 
 @customElement('schmancy-typewriter')
 export class TypewriterElement extends $LitElement(css`
@@ -170,9 +183,11 @@ export class TypewriterElement extends $LitElement(css`
 	 */
 	@property({ type: Number }) cyclePause = 1500
 	/**
-	 * TypeIt instance.
+	 * TypeIt instance. Populated after `loadTypeIt()` resolves inside
+	 * `_startTyping()` — null until then, which is correct for a cold start
+	 * where the vendor chunk hasn't loaded yet.
 	 */
-	private typeItInstance: TypeIt | null = null
+	private typeItInstance: TypeItInstance | null = null
 
 	/**
 	 * Reference to the typewriter container.
@@ -202,8 +217,9 @@ export class TypewriterElement extends $LitElement(css`
 
 	/**
 	 * Initializes the TypeIt instance with the provided slotted content.
+	 * Async because TypeIt itself is lazy-loaded on first render.
 	 */
-	private _startTyping() {
+	private async _startTyping() {
 		// Destroy any existing TypeIt instance
 		this._destroyTypeIt()
 
@@ -245,6 +261,12 @@ export class TypewriterElement extends $LitElement(css`
 				}
 			},
 		}
+
+		// Load TypeIt lazily on first call (module-scope memoised promise).
+		const TypeIt = await loadTypeIt()
+		// Bail if we were disconnected during the load — avoids attaching to
+		// a detached host.
+		if (!this.isConnected) return
 
 		// Initialize TypeIt
 		this.typeItInstance = new TypeIt(this.typewriterContainer, typeItOptions)
