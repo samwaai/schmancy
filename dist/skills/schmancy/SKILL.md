@@ -74,7 +74,7 @@ Use component tags (`<schmancy-menu>`, `<schmancy-dropdown>`, `<schmancy-tooltip
 **Styling**
 - Styling uses Tailwind and schmancy tokens. The `css` template passed to `$LitElement` contains only `:host` rules, `@keyframes`, and selectors targeting vendor pseudo-elements (`::-webkit-*`, `::-moz-*`). Other styling is set through Tailwind utility classes and schmancy theme tokens on the `class=` attribute. The `style=` attribute holds per-instance dynamic values only (e.g. `style="--tide: ${value}"`).
   Remediation: move declarations to Tailwind on the `class=` attribute (`backdrop-filter: blur(20px)` → `backdrop-blur-xl`; `color-mix(in oklch, Canvas 72%, transparent)` → `bg-surface/70`; `border-radius: 14px` → `rounded-2xl`; `transition: opacity 80ms linear` → `transition-opacity duration-75 ease-linear`). When a visual pattern seems to want its own class (like `.glass`), check `INDEX.md` — schmancy likely ships the component.
-- Colors: `--schmancy-sys-color-*` CSS vars or Tailwind theme classes. Never hardcoded hex.
+- Colors: **Tailwind theme classes** (`bg-primary-default`, `text-surface-on`, `border-outline-variant`, …) — every `--schmancy-sys-color-*` token is exposed as a Tailwind color utility, so prefer the Tailwind class. Fall back to the `--schmancy-sys-color-*` CSS var only when Tailwind lacks a utility for the specific property. Never hardcoded hex, never arbitrary values like `bg-[#ff0000]`.
 - No `setTimeout` / `setInterval` / `addEventListener` — use RxJS (`timer`, `interval`, `fromEvent`).
 
 **Accessibility (combobox forms)**

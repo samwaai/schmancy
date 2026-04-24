@@ -1,2 +1,2 @@
-import { n as e, t } from "./table-Dwt66SR6.js";
+import { n as e, t } from "./table-B8H-zioX.js";
 export { t as SchmancyDataTable, e as SchmancyTableRow };

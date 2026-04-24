@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./src-sG7Ihf0e.cjs`);exports.HereMorty=e.r,Object.defineProperty(exports,`SchmancyTeleportation`,{enumerable:!0,get:function(){return e.n}}),exports.WhereAreYouRicky=e.i,exports.teleport=e.a;
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./src-C9DpHCWF.cjs`);exports.HereMorty=e.r,Object.defineProperty(exports,`SchmancyTeleportation`,{enumerable:!0,get:function(){return e.n}}),exports.WhereAreYouRicky=e.i,exports.teleport=e.a;

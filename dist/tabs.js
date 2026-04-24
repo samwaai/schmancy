@@ -1,1 +1,1 @@
-import "./tabs-C7r4TqcX.js";
+import "./tabs-DB5kSuGL.js";

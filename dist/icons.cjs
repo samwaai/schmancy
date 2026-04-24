@@ -1,1 +1,1 @@
-require(`./icons-B6V3nZ4-.cjs`);
+require(`./icons-BpHN4Z8q.cjs`);

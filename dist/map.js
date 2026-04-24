@@ -1,2 +1,2 @@
-import { t as e } from "./map-YY1Q4FWO.js";
+import { t as e } from "./map-YSAPFrH9.js";
 export { e as SchmancyMap };

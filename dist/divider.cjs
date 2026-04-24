@@ -1,1 +1,1 @@
-require(`./divider-JyyFw_3J.cjs`);
+require(`./divider-D6MRonTS.cjs`);

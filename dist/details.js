@@ -1,2 +1,2 @@
-import { t as e } from "./details-CCW52lzz.js";
+import { t as e } from "./details-CBoXUDlQ.js";
 export { e as SchmancyDetails };
