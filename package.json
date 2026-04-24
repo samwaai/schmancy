@@ -34,7 +34,9 @@
 	"keywords": [
 		"lit",
 		"UI",
-		"Schmancy"
+		"Schmancy",
+		"agent-runtime",
+		"esm"
 	],
 	"type": "module",
 	"types": "./types/src/index.d.ts",
