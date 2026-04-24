@@ -7,8 +7,8 @@
 ## The URLs you asked for
 
 ```
-https://esm.sh/@mhmo91/schmancy/agent@0.9.16
-https://esm.sh/@mhmo91/schmancy/agent/manifest@0.9.16
+https://esm.sh/@mhmo91/schmancy/agent@0.9.17
+https://esm.sh/@mhmo91/schmancy/agent/manifest@0.9.17
 ```
 
 `0.9.13` is the first release containing `/agent`; every subsequent publish serves the same subpath. `npm view @mhmo91/schmancy version` always returns the current pin if you want to float forward.
@@ -20,7 +20,7 @@ One script tag. No bundler, no bare specifiers, no npm install.
 ```html
 <!doctype html>
 <script type="module">
-  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent@0.9.16';
+  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent@0.9.17';
 </script>
 <schmancy-theme root scheme="dark">
   <schmancy-surface type="solid" fill="all">

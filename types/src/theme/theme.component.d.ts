@@ -2,28 +2,23 @@ import { TSchmancyTheme } from './theme.interface';
 export declare const tailwindStyles: import("lit").CSSResult;
 declare const SchmancyThemeComponent_base: CustomElementConstructor & import("../../mixins/constructor").Constructor<import("lit").LitElement> & import("../../mixins/constructor").Constructor<import("../../mixins/baseElement").IBaseMixin>;
 /**
- * SchmancyThemeComponent - Provides theming capabilities for Schmancy components.
- *
- * This component manages color schemes, primary colors, and theme distribution
- * throughout the component tree. It can be used at the root level or nested
- * to provide different themes to different parts of the application.
+ * Theme provider — generates a Material 3 palette from a seed color, resolves light/dark scheme, and publishes the token set to descendants as CSS custom properties (var(--schmancy-sys-color-…)).
  *
  * @element schmancy-theme
- *
+ * @summary Always wrap your app root in a `<schmancy-theme root scheme="auto" color="#…">`. Nest additional `<schmancy-theme>` blocks to override theming for a subtree.
  * @example
- * ```html
  * <!-- Root theme provider -->
- * <schmancy-theme color="#6200ee" scheme="auto" root>
+ * <schmancy-theme root scheme="auto" color="#6200ee">
  *   <your-app></your-app>
  * </schmancy-theme>
- *
- * <!-- Nested theme for specific section -->
- * <schmancy-theme color="#2196f3" scheme="dark">
- *   <div class="dark-section">
- *     <!-- Components here will use blue dark theme -->
- *   </div>
+ * @example
+ * <!-- Nested theme for a specific section -->
+ * <schmancy-theme scheme="dark" color="#2196f3">
+ *   <schmancy-surface fill="all">
+ *     <!-- Components here use the blue dark theme -->
+ *   </schmancy-surface>
  * </schmancy-theme>
- * ```
+ * @platform div - Styled `<div>` that publishes theme tokens via inline `--schmancy-sys-color-*` custom properties. Degrades to a plain div if the tag never registers — children lose theming and fall back to browser defaults.
  */
 export declare class SchmancyThemeComponent extends SchmancyThemeComponent_base {
     /**

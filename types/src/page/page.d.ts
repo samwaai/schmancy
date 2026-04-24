@@ -1,20 +1,17 @@
 import '../layout/scroll/scroll';
 declare const SchmancyPage_base: CustomElementConstructor & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * Native mobile-like page container.
- * Prevents double-tap zoom, pull-to-refresh, rubber-banding.
- * Automatically fills remaining viewport height.
+ * Mobile-first page container — fills remaining viewport height, suppresses double-tap zoom / pull-to-refresh / rubber-banding. Lays children in a CSS grid whose row template is `rows`.
  *
  * @element schmancy-page
- *
+ * @summary The root of any app view — wraps header / main / footer children in a full-viewport grid. Use rows="auto_1fr_auto" to make the middle child scroll while header/footer stay pinned.
  * @example
- * html`
- *   <schmancy-page rows="1fr_2fr_auto">
- *     <header>App Bar</header>
- *     <main>Scrollable content</main>
- *     <footer>Navigation</footer>
- *   </schmancy-page>
- * `
+ * <schmancy-page rows="auto_1fr_auto">
+ *   <schmancy-nav-drawer-appbar>Title</schmancy-nav-drawer-appbar>
+ *   <main>Scrollable content</main>
+ *   <schmancy-navigation-bar></schmancy-navigation-bar>
+ * </schmancy-page>
+ * @platform div - Full-height CSS-grid container. Degrades to a plain div if the tag never registers — children still flow vertically but without the height fill and gesture suppression.
  */
 export declare class SchmancyPage extends SchmancyPage_base {
     /** Custom grid-template-rows using underscores (e.g. "1fr_2fr_auto") */

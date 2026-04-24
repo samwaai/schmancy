@@ -41,7 +41,11 @@ declare global {
 }
 declare const SchmancyScroll_base: import("@mixins/index").Constructor<CustomElementConstructor> & import("@mixins/index").Constructor<import("@mixins/index").ITailwindElementMixin> & import("@mixins/index").Constructor<import("lit").LitElement> & import("@mixins/index").Constructor<import("@mixins/index").IBaseMixin>;
 /**
- * A custom scrollable container with enhanced features.
+ * Scrollable container with debounced scroll events, horizontal/vertical direction, optional hidden scrollbar, and programmatic scrollTo via command events or refs.
+ *
+ * @element schmancy-scroll
+ * @summary Use anywhere you'd reach for `overflow: auto` but also need debounced scroll events (for sticky headers, scroll spies, virtualization triggers) or the ability to drive scroll from elsewhere in the app by dispatching a schmancy-scroll-command event.
+ * @platform div - Styled scrollable `<div>`. Degrades to a plain scrollable div if the tag never registers — loses the debounced scroll event and the command-bus integration.
  *
  * @fires {SchmancyScrollEvent} scroll - Fired when scrolling occurs (with a configurable debounce)
  * @slot - Default slot for content to be scrolled

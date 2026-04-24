@@ -1151,6 +1151,7 @@
     {
       "name": "schmancy-card-action",
       "path": "./src/card/actions.ts",
+      "description": "Action row of a schmancy-card — holds the card's buttons / links (typically aligned bottom-right).",
       "slots": [
         {
           "name": "",
@@ -1161,6 +1162,7 @@
     {
       "name": "schmancy-card",
       "path": "./src/card/card.ts",
+      "description": "Material Design card — a surface-level container for grouping related content with media / content / actions slots.",
       "attributes": [
         {
           "name": "type",
@@ -1278,11 +1280,13 @@
     },
     {
       "name": "schmancy-card-content",
-      "path": "./src/card/content.ts"
+      "path": "./src/card/content.ts",
+      "description": "Content region of a schmancy-card — holds the card's headline, supporting text, and inline controls."
     },
     {
       "name": "schmancy-card-media",
       "path": "./src/card/media.ts",
+      "description": "Media region of a schmancy-card — the image / thumbnail at the top of the card.",
       "attributes": [
         {
           "name": "src",
@@ -3151,6 +3155,7 @@
     {
       "name": "schmancy-details",
       "path": "./src/details/details.ts",
+      "description": "Expandable disclosure panel — a styled `<details>` / `<summary>` pair with animated expand + overlay options.",
       "attributes": [
         {
           "name": "summary",
@@ -3260,6 +3265,12 @@
           "name": "rounded",
           "type": "string",
           "default": "\"all\""
+        }
+      ],
+      "events": [
+        {
+          "name": "toggle",
+          "description": "When the open state changes (bubbles from the native `<details>`)."
         }
       ]
     },
@@ -3410,6 +3421,7 @@
     {
       "name": "schmancy-divider",
       "path": "./src/divider/divider.ts",
+      "description": "Thin horizontal (or vertical) separator rule between sections of content.",
       "attributes": [
         {
           "name": "outline",
@@ -3609,6 +3621,7 @@
     {
       "name": "schmancy-expand-root",
       "path": "./src/expand/expand-root.component.ts",
+      "description": "Container for schmancy-expand children — coordinates mutual-exclusion so only one child is open at a time. Also renders the portal panel that the active child expands into.",
       "attributes": [
         {
           "name": "type",
@@ -3633,6 +3646,7 @@
     {
       "name": "schmancy-expand",
       "path": "./src/expand/expand.component.ts",
+      "description": "Accordion-style section — expands on click, coordinates with siblings via schmancy-expand-root to close any sibling when a new one opens. Only one schmancy-expand can be open at a time within the same root.",
       "attributes": [
         {
           "name": "summary",
@@ -3723,6 +3737,12 @@
           "attribute": "inline",
           "type": "boolean",
           "default": "false"
+        }
+      ],
+      "events": [
+        {
+          "name": "toggle",
+          "description": "When the open state changes."
         }
       ]
     },
@@ -5973,7 +5993,7 @@
     {
       "name": "schmancy-scroll",
       "path": "./src/layout/scroll/scroll.ts",
-      "description": "A custom scrollable container with enhanced features.",
+      "description": "Scrollable container with debounced scroll events, horizontal/vertical direction, optional hidden scrollbar, and programmatic scrollTo via command events or refs.",
       "attributes": [
         {
           "name": "hide",
@@ -8455,7 +8475,7 @@
     {
       "name": "schmancy-page",
       "path": "./src/page/page.ts",
-      "description": "Native mobile-like page container.\nPrevents double-tap zoom, pull-to-refresh, rubber-banding.\nAutomatically fills remaining viewport height.",
+      "description": "Mobile-first page container — fills remaining viewport height, suppresses double-tap zoom / pull-to-refresh / rubber-banding. Lays children in a CSS grid whose row template is `rows`.",
       "attributes": [
         {
           "name": "rows",
@@ -9592,7 +9612,7 @@
     {
       "name": "schmancy-surface",
       "path": "./src/surface/surface.ts",
-      "description": "`<schmancy-surface>` component\n\nThis component renders a styled container that adapts its dimensions based on the `fill` property.\nIt supports various rounding options, elevation levels, and applies background and text color classes\nbased on the specified surface variant. Additionally, when the `scroller` property is true, the component\nenables internal scrolling by applying overflow and scroll-behavior styles.\n\nSurfaceMixin automatically provides surfaceStyles CSS.",
+      "description": "Themed container — the root surface primitive. Sets background, text color, rounding, elevation, and (optionally) internal scroll. Provides a `SchmancySurfaceTypeContext` so descendants can adapt to the enclosing surface variant.",
       "attributes": [
         {
           "name": "type",
@@ -10416,7 +10436,7 @@
     {
       "name": "schmancy-theme",
       "path": "./src/theme/theme.component.ts",
-      "description": "SchmancyThemeComponent - Provides theming capabilities for Schmancy components.\n\nThis component manages color schemes, primary colors, and theme distribution\nthroughout the component tree. It can be used at the root level or nested\nto provide different themes to different parts of the application.",
+      "description": "Theme provider — generates a Material 3 palette from a seed color, resolves light/dark scheme, and publishes the token set to descendants as CSS custom properties (var(--schmancy-sys-color-…)).",
       "attributes": [
         {
           "name": "color",
@@ -10542,6 +10562,7 @@
     {
       "name": "schmancy-tree",
       "path": "./src/tree/tree.ts",
+      "description": "Expandable tree node — a recursive disclosure widget. One root slot, one default slot for child nodes. Each node can itself contain schmancy-tree children.",
       "attributes": [
         {
           "name": "open",

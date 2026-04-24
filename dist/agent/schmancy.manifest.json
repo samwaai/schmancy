@@ -904,11 +904,21 @@
           "kind": "class",
           "name": "SchmancyCardAction",
           "tagName": "schmancy-card-action",
+          "description": "Action row of a schmancy-card — holds the card's buttons / links (typically aligned bottom-right).",
+          "summary": "Always nested inside schmancy-card. Holds the primary + secondary CTAs for the card.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Styled flex container. Degrades to a plain div if the tag never registers."
+          },
           "slots": [
             {
               "name": "",
               "description": "The content of the action"
             }
+          ],
+          "examples": [
+            "<schmancy-card-action>\n  <schmancy-button variant=\"text\">Cancel</schmancy-button>\n  <schmancy-button variant=\"filled\">Save</schmancy-button>\n</schmancy-card-action>"
           ]
         }
       ]
@@ -921,6 +931,13 @@
           "kind": "class",
           "name": "SchmancyCard",
           "tagName": "schmancy-card",
+          "description": "Material Design card — a surface-level container for grouping related content with media / content / actions slots.",
+          "summary": "Use for discrete pieces of content that appear in a list (a product, a note, a message). Combine with schmancy-card-media / schmancy-card-content / schmancy-card-action children.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Styled `<div>`; becomes an `<a>` when `href` is set so the whole card is a single interactive surface. Degrades to a plain div/a if the tag never registers."
+          },
           "attributes": [
             {
               "name": "type",
@@ -989,6 +1006,9 @@
               "default": "''",
               "description": "ARIA label for accessibility."
             }
+          ],
+          "examples": [
+            "<schmancy-card type=\"elevated\" href=\"/items/42\">\n  <schmancy-card-media src=\"/thumb.jpg\" alt=\"Thumbnail\"></schmancy-card-media>\n  <schmancy-card-content>\n    <h3>Title</h3>\n    <p>One-line description of the card's content.</p>\n  </schmancy-card-content>\n  <schmancy-card-action>\n    <schmancy-button variant=\"text\">Open</schmancy-button>\n  </schmancy-card-action>\n</schmancy-card>"
           ]
         }
       ]
@@ -1000,7 +1020,17 @@
         {
           "kind": "class",
           "name": "SchmancyCardContent",
-          "tagName": "schmancy-card-content"
+          "tagName": "schmancy-card-content",
+          "description": "Content region of a schmancy-card — holds the card's headline, supporting text, and inline controls.",
+          "summary": "Always nested inside schmancy-card. The padded content block between the media and action rows.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Styled `<div>` with padding. Degrades to a plain div if the tag never registers."
+          },
+          "examples": [
+            "<schmancy-card-content>\n  <h3>Card title</h3>\n  <p>Supporting text that describes the card's subject.</p>\n</schmancy-card-content>"
+          ]
         }
       ]
     },
@@ -1012,6 +1042,13 @@
           "kind": "class",
           "name": "SchmancyCardMedia",
           "tagName": "schmancy-card-media",
+          "description": "Media region of a schmancy-card — the image / thumbnail at the top of the card.",
+          "summary": "Always nested inside schmancy-card. Pass `src` + `alt` props or slot an `<img>` / `<video>` for custom media.",
+          "platformPrimitive": {
+            "tag": "img",
+            "mode": "-",
+            "note": "Renders an `<img>` (or wraps a slotted media element). Degrades to a styled `<img>` if the tag never registers."
+          },
           "attributes": [
             {
               "name": "src",
@@ -1041,6 +1078,9 @@
               },
               "default": "''"
             }
+          ],
+          "examples": [
+            "<schmancy-card-media src=\"/thumb.jpg\" alt=\"Product photo\"></schmancy-card-media>"
           ]
         }
       ]
@@ -2203,6 +2243,13 @@
           "kind": "class",
           "name": "SchmancyDetails",
           "tagName": "schmancy-details",
+          "description": "Expandable disclosure panel — a styled `<details>` / `<summary>` pair with animated expand + overlay options.",
+          "summary": "Use for progressive-disclosure content: FAQs, collapsible settings sections, accordion-style lists. Prefer schmancy-expand for full-page accordions where only one section can be open at a time.",
+          "platformPrimitive": {
+            "tag": "details",
+            "mode": "toggle",
+            "note": "Wraps native `<details>`/`<summary>`. Degrades to the native element if the tag never registers — same keyboard accessibility, just no animation."
+          },
           "attributes": [
             {
               "name": "summary",
@@ -2264,6 +2311,15 @@
               },
               "default": "'p-3'"
             }
+          ],
+          "events": [
+            {
+              "name": "toggle",
+              "description": "When the open state changes (bubbles from the native `<details>`)."
+            }
+          ],
+          "examples": [
+            "<schmancy-details summary=\"Shipping details\">\n  <p>Order ships in 2 business days.</p>\n</schmancy-details>"
           ]
         }
       ]
@@ -2406,6 +2462,13 @@
           "kind": "class",
           "name": "SchmancyDivider",
           "tagName": "schmancy-divider",
+          "description": "Thin horizontal (or vertical) separator rule between sections of content.",
+          "summary": "Semantic separator between groups — list items, menu sections, content blocks. Uses outline theme token.",
+          "platformPrimitive": {
+            "tag": "hr",
+            "mode": "-",
+            "note": "Styled horizontal rule. Degrades to a native `<hr>` if the tag never registers."
+          },
           "attributes": [
             {
               "name": "outline",
@@ -2437,6 +2500,9 @@
               ],
               "default": "'start'"
             }
+          ],
+          "examples": [
+            "<schmancy-list-item>First</schmancy-list-item>\n<schmancy-divider></schmancy-divider>\n<schmancy-list-item>Second</schmancy-list-item>"
           ]
         }
       ]
@@ -2576,6 +2642,13 @@
           "kind": "class",
           "name": "SchmancyExpandRoot",
           "tagName": "schmancy-expand-root",
+          "description": "Container for schmancy-expand children — coordinates mutual-exclusion so only one child is open at a time. Also renders the portal panel that the active child expands into.",
+          "summary": "Always wrap a group of schmancy-expand children. Without a root, each schmancy-expand behaves independently (which is usually not what you want — prefer schmancy-details for that).",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Coordinating wrapper. Degrades to a plain div if the tag never registers — children fall back to independent `<details>` behavior."
+          },
           "attributes": [
             {
               "name": "type",
@@ -2608,6 +2681,9 @@
               ],
               "default": "'solid'"
             }
+          ],
+          "examples": [
+            "<schmancy-expand-root>\n  <schmancy-expand summary=\"Step 1\">…</schmancy-expand>\n  <schmancy-expand summary=\"Step 2\">…</schmancy-expand>\n</schmancy-expand-root>"
           ]
         }
       ]
@@ -2620,6 +2696,13 @@
           "kind": "class",
           "name": "SchmancyExpand",
           "tagName": "schmancy-expand",
+          "description": "Accordion-style section — expands on click, coordinates with siblings via schmancy-expand-root to close any sibling when a new one opens. Only one schmancy-expand can be open at a time within the same root.",
+          "summary": "Use for grouped progressive-disclosure where only one section should be open at a time. Prefer schmancy-details when sections should be independent.",
+          "platformPrimitive": {
+            "tag": "details",
+            "mode": "toggle",
+            "note": "Schmancy-skinned accordion section. Degrades to `<details>` if the tag never registers — loses mutual-exclusion behavior but stays functional."
+          },
           "attributes": [
             {
               "name": "summary",
@@ -2677,6 +2760,15 @@
               },
               "default": "false"
             }
+          ],
+          "events": [
+            {
+              "name": "toggle",
+              "description": "When the open state changes."
+            }
+          ],
+          "examples": [
+            "<schmancy-expand-root>\n  <schmancy-expand summary=\"Billing\">Billing form…</schmancy-expand>\n  <schmancy-expand summary=\"Shipping\">Shipping form…</schmancy-expand>\n  <schmancy-expand summary=\"Review\">Order review…</schmancy-expand>\n</schmancy-expand-root>"
           ]
         }
       ]
@@ -4686,7 +4778,13 @@
           "kind": "class",
           "name": "SchmancyPage",
           "tagName": "schmancy-page",
-          "description": "Native mobile-like page container. Prevents double-tap zoom, pull-to-refresh, rubber-banding. Automatically fills remaining viewport height.",
+          "description": "Mobile-first page container — fills remaining viewport height, suppresses double-tap zoom / pull-to-refresh / rubber-banding. Lays children in a CSS grid whose row template is `rows`.",
+          "summary": "The root of any app view — wraps header / main / footer children in a full-viewport grid. Use rows=\"auto_1fr_auto\" to make the middle child scroll while header/footer stay pinned.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Full-height CSS-grid container. Degrades to a plain div if the tag never registers — children still flow vertically but without the height fill and gesture suppression."
+          },
           "attributes": [
             {
               "name": "rows",
@@ -4712,7 +4810,7 @@
             }
           ],
           "examples": [
-            "html`\n  <schmancy-page rows=\"1fr_2fr_auto\">\n    <header>App Bar</header>\n    <main>Scrollable content</main>\n    <footer>Navigation</footer>\n  </schmancy-page>\n`"
+            "<schmancy-page rows=\"auto_1fr_auto\">\n  <schmancy-nav-drawer-appbar>Title</schmancy-nav-drawer-appbar>\n  <main>Scrollable content</main>\n  <schmancy-navigation-bar></schmancy-navigation-bar>\n</schmancy-page>"
           ]
         }
       ]
@@ -5477,7 +5575,13 @@
           "kind": "class",
           "name": "SchmancySurface",
           "tagName": "schmancy-surface",
-          "description": "`<schmancy-surface>` component  This component renders a styled container that adapts its dimensions based on the `fill` property. It supports various rounding options, elevation levels, and applies background and text color classes based on the specified surface variant. Additionally, when the `scroller` property is true, the component enables internal scrolling by applying overflow and scroll-behavior styles.  SurfaceMixin automatically provides surfaceStyles CSS.",
+          "description": "Themed container — the root surface primitive. Sets background, text color, rounding, elevation, and (optionally) internal scroll. Provides a `SchmancySurfaceTypeContext` so descendants can adapt to the enclosing surface variant.",
+          "summary": "Wrap a region of a page when you need it to pick up theme tokens (background + on-color + elevation). Nest surfaces to express Material Design's hierarchical color stacking.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Styled `<div>` with theme-driven background/color/elevation. Degrades to a plain `<div>` if the tag never registers — text stays readable, just loses theming."
+          },
           "attributes": [
             {
               "name": "type",
@@ -6059,7 +6163,13 @@
           "kind": "class",
           "name": "SchmancyThemeComponent",
           "tagName": "schmancy-theme",
-          "description": "SchmancyThemeComponent - Provides theming capabilities for Schmancy components.  This component manages color schemes, primary colors, and theme distribution throughout the component tree. It can be used at the root level or nested to provide different themes to different parts of the application.",
+          "description": "Theme provider — generates a Material 3 palette from a seed color, resolves light/dark scheme, and publishes the token set to descendants as CSS custom properties (var(--schmancy-sys-color-…)).",
+          "summary": "Always wrap your app root in a `<schmancy-theme root scheme=\"auto\" color=\"#…\">`. Nest additional `<schmancy-theme>` blocks to override theming for a subtree.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Styled `<div>` that publishes theme tokens via inline `--schmancy-sys-color-*` custom properties. Degrades to a plain div if the tag never registers — children lose theming and fall back to browser defaults."
+          },
           "attributes": [
             {
               "name": "color",
@@ -6114,7 +6224,8 @@
             }
           ],
           "examples": [
-            "<!-- Root theme provider -->\n<schmancy-theme color=\"#6200ee\" scheme=\"auto\" root>\n  <your-app></your-app>\n</schmancy-theme>\n\n<!-- Nested theme for specific section -->\n<schmancy-theme color=\"#2196f3\" scheme=\"dark\">\n  <div class=\"dark-section\">\n    <!-- Components here will use blue dark theme -->\n  </div>\n</schmancy-theme>"
+            "<!-- Root theme provider -->\n<schmancy-theme root scheme=\"auto\" color=\"#6200ee\">\n  <your-app></your-app>\n</schmancy-theme>",
+            "<!-- Nested theme for a specific section -->\n<schmancy-theme scheme=\"dark\" color=\"#2196f3\">\n  <schmancy-surface fill=\"all\">\n    <!-- Components here use the blue dark theme -->\n  </schmancy-surface>\n</schmancy-theme>"
           ],
           "contexts": [
             {
@@ -6170,6 +6281,13 @@
           "kind": "class",
           "name": "SchmancyTree",
           "tagName": "schmancy-tree",
+          "description": "Expandable tree node — a recursive disclosure widget. One root slot, one default slot for child nodes. Each node can itself contain schmancy-tree children.",
+          "summary": "Use for hierarchical navigation / file-explorer layouts. Each level is a schmancy-tree with a `root` slot (the parent label) and default slot (the children, which may be more schmancy-trees).",
+          "platformPrimitive": {
+            "tag": "details",
+            "mode": "toggle",
+            "note": "Recursive `<details>`-like disclosure. Degrades to a plain nested list if the tag never registers — loses expand/collapse but stays navigable."
+          },
           "attributes": [
             {
               "name": "open",
@@ -6189,6 +6307,9 @@
               "name": "",
               "description": "The children of the tree"
             }
+          ],
+          "examples": [
+            "<schmancy-tree>\n  <schmancy-list-item slot=\"root\">src/</schmancy-list-item>\n  <schmancy-tree>\n    <schmancy-list-item slot=\"root\">components/</schmancy-list-item>\n    <schmancy-list-item>button.ts</schmancy-list-item>\n  </schmancy-tree>\n</schmancy-tree>"
           ]
         }
       ]
@@ -6886,7 +7007,13 @@
           "kind": "class",
           "name": "SchmancyScroll",
           "tagName": "schmancy-scroll",
-          "description": "A custom scrollable container with enhanced features.",
+          "description": "Scrollable container with debounced scroll events, horizontal/vertical direction, optional hidden scrollbar, and programmatic scrollTo via command events or refs.",
+          "summary": "Use anywhere you'd reach for `overflow: auto` but also need debounced scroll events (for sticky headers, scroll spies, virtualization triggers) or the ability to drive scroll from elsewhere in the app by dispatching a schmancy-scroll-command event.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Styled scrollable `<div>`. Degrades to a plain scrollable div if the tag never registers — loses the debounced scroll event and the command-bus integration."
+          },
           "attributes": [
             {
               "name": "hide",
