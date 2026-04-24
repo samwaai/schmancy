@@ -7,9 +7,13 @@ on:
     paths:
       - 'src/**'
       - 'mixins/**'
+      - 'plugins/**'
       - 'package.json'
       - 'skills/**'
       - '.claude-plugin/**'
+      - '.yarnrc.yml'
+      - 'vite.config.ts'
+      - 'vite.config.agent.ts'
 
 permissions:
   contents: write
