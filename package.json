@@ -36,7 +36,9 @@
 		"UI",
 		"Schmancy",
 		"agent-runtime",
-		"esm"
+		"esm",
+		"sandbox",
+		"web-components"
 	],
 	"type": "module",
 	"types": "./types/src/index.d.ts",
