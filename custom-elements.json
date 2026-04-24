@@ -8240,6 +8240,200 @@
       ]
     },
     {
+      "name": "schmancy-overlay",
+      "path": "./src/overlay/overlay.component.ts",
+      "description": "The single overlay element. Hosts a native `<dialog>` in its shadow\nroot for centered/sheet layouts; for anchored, we stay modeless by\nusing `<dialog>` with .show() (non-modal) + explicit positioning.\n\nPublic lifecycle: the service calls `open()` to mount content and\nanimate in, `close(reason)` to animate out and dismiss. The element\ndispatches `overlay-close` when closed; the service listens and\nresolves the caller's Observable.",
+      "attributes": [
+        {
+          "name": "layout",
+          "type": "OverlayLayout",
+          "default": "\"centered\""
+        },
+        {
+          "name": "dismissable",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "modal",
+          "type": "boolean",
+          "default": "true"
+        }
+      ],
+      "properties": [
+        {
+          "name": "layout",
+          "attribute": "layout",
+          "type": "OverlayLayout",
+          "default": "\"centered\""
+        },
+        {
+          "name": "dismissable",
+          "attribute": "dismissable",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "modal",
+          "attribute": "modal",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "closed$",
+          "description": "Service subscribes to this to know when the overlay dismissed.",
+          "type": "Observable<{ reason: CloseReason; result?: unknown; }>"
+        }
+      ]
+    },
+    {
+      "name": "schmancy-overlay-prompt-body",
+      "path": "./src/overlay/overlay.confirm-body.ts",
+      "description": "Internal body component used by the `confirm()` / `prompt()` sugar.\n\nMinimal, dependency-free — plain HTML buttons / input so this file\ndoesn't need to import schmancy-form / schmancy-button (avoids the\nrisk of circular module graphs during early imports of $overlay).\n\nEmits a `close` CustomEvent with the typed result; the overlay picks\nthat up as the primary return channel. For custom-styled confirms,\ncallers pass their own component to `show()`.",
+      "attributes": [
+        {
+          "name": "heading",
+          "type": "string | undefined"
+        },
+        {
+          "name": "subtitle",
+          "type": "string | undefined"
+        },
+        {
+          "name": "message",
+          "type": "string | undefined"
+        },
+        {
+          "name": "confirm-text",
+          "type": "string",
+          "default": "\"Confirm\""
+        },
+        {
+          "name": "cancel-text",
+          "type": "string",
+          "default": "\"Cancel\""
+        },
+        {
+          "name": "variant",
+          "type": "\"default\" | \"danger\"",
+          "default": "\"default\""
+        },
+        {
+          "name": "mode",
+          "description": "Presence of `mode` switches between confirm (boolean) and prompt (string).",
+          "type": "\"confirm\" | \"prompt\"",
+          "default": "\"confirm\""
+        },
+        {
+          "name": "label",
+          "type": "string | undefined"
+        },
+        {
+          "name": "default-value",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "placeholder",
+          "type": "string | undefined"
+        },
+        {
+          "name": "input-type",
+          "type": "string",
+          "default": "\"text\""
+        },
+        {
+          "name": "pattern",
+          "type": "string | undefined"
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "properties": [
+        {
+          "name": "heading",
+          "attribute": "heading",
+          "type": "string | undefined"
+        },
+        {
+          "name": "subtitle",
+          "attribute": "subtitle",
+          "type": "string | undefined"
+        },
+        {
+          "name": "message",
+          "attribute": "message",
+          "type": "string | undefined"
+        },
+        {
+          "name": "confirmText",
+          "attribute": "confirm-text",
+          "type": "string",
+          "default": "\"Confirm\""
+        },
+        {
+          "name": "cancelText",
+          "attribute": "cancel-text",
+          "type": "string",
+          "default": "\"Cancel\""
+        },
+        {
+          "name": "variant",
+          "attribute": "variant",
+          "type": "\"default\" | \"danger\"",
+          "default": "\"default\""
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "description": "Presence of `mode` switches between confirm (boolean) and prompt (string).",
+          "type": "\"confirm\" | \"prompt\"",
+          "default": "\"confirm\""
+        },
+        {
+          "name": "label",
+          "attribute": "label",
+          "type": "string | undefined"
+        },
+        {
+          "name": "defaultValue",
+          "attribute": "default-value",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "placeholder",
+          "attribute": "placeholder",
+          "type": "string | undefined"
+        },
+        {
+          "name": "inputType",
+          "attribute": "input-type",
+          "type": "string",
+          "default": "\"text\""
+        },
+        {
+          "name": "pattern",
+          "attribute": "pattern",
+          "type": "string | undefined"
+        },
+        {
+          "name": "required",
+          "attribute": "required",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "events": [
+        {
+          "name": "close"
+        }
+      ]
+    },
+    {
       "name": "schmancy-page",
       "path": "./src/page/page.ts",
       "description": "Native mobile-like page container.\nPrevents double-tap zoom, pull-to-refresh, rubber-banding.\nAutomatically fills remaining viewport height.",

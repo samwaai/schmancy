@@ -1,1 +1,1 @@
-require(`./menu-BnGjBrdD.cjs`);
+require(`./menu-DS8Iz4fJ.cjs`);

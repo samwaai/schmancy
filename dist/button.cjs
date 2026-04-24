@@ -1,4 +1,4 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`}),require(`./chunk-BCfY8kxB.cjs`);const e=require(`./provide-CnXCF-UP.cjs`),t=require(`./decorate-F9CuyeHg.cjs`),n=require(`./litElement.mixin-DeT3kAOS.cjs`);require(`./mixins.cjs`);const r=require(`./magnetic-aBBnj_vk.cjs`),i=require(`./context-C6GwmNJJ.cjs`);let a=require(`lit/decorators.js`),o=require(`lit`),s=require(`lit/directives/when.js`),c=require(`lit/directives/if-defined.js`);var l=class extends n.t(o.css`:host{
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`}),require(`./chunk-CncqDLb2.cjs`);const e=require(`./provide-MvHcXKzT.cjs`),t=require(`./decorate-F9CuyeHg.cjs`),n=require(`./litElement.mixin-CtQOmwq6.cjs`);require(`./mixins.cjs`);const r=require(`./magnetic-CVXEkYTA.cjs`),i=require(`./context-CAYQh-mx.cjs`);let a=require(`lit/decorators.js`),o=require(`lit`),s=require(`lit/directives/when.js`),c=require(`lit/directives/if-defined.js`);var l=class extends n.t(o.css`:host{
 		display: inline-block;
 		min-width: fit-content;
 		overflow: hidden;

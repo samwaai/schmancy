@@ -1,2 +1,2 @@
-import { t as e } from "./checkbox-COhTJ1x5.js";
+import { t as e } from "./checkbox-Br84TiCs.js";
 export { e as SchmancyCheckbox };

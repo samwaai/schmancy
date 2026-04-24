@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./form-CzD0JLxM.cjs`);exports.SchmancyForm=e.t;
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./form-wI58M85H.cjs`);exports.SchmancyForm=e.t;

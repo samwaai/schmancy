@@ -1,2 +1,2 @@
-import { t as e } from "./float-BgGeLER6.js";
+import { t as e } from "./float-D5ezUurt.js";
 export { e as SchmancyFloat };

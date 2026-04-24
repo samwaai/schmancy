@@ -28,7 +28,7 @@ The framework pieces — touch before components.
 [Breadcrumb](./breadcrumb.md) · [Nav Drawer](./nav-drawer.md) · [Tabs](./tabs.md) · [Navigation Bar](./navigation-bar.md) · [Navigation Rail](./navigation-rail.md) · [Steps](./steps.md) · [Teleport](./teleport.md) · [Theme Button](./theme-button.md)
 
 ### Overlays
-[Dialog](./dialog.md) · [Sheet](./sheet.md) · [Notification](./notification.md) · [Menu](./menu.md) · [Dropdown](./dropdown.md) · [Tooltip (directive)](./tooltip.md) · [Lightbox](./lightbox.md) · [Expand](./expand.md)
+[Overlay](./overlay.md) — canonical · [Dialog](./dialog.md) / [Sheet](./sheet.md) — *deprecated, use Overlay* · [Notification](./notification.md) · [Menu](./menu.md) · [Dropdown](./dropdown.md) · [Tooltip (directive)](./tooltip.md) · [Lightbox](./lightbox.md) · [Expand](./expand.md)
 
 ### Interactive
 [Button](./button.md) · [List](./list.md) · [Details](./details.md) · [Table](./table.md) · [Tree](./tree.md) · [Slider](./slider.md) · [QR Scanner](./qr-scanner.md)

@@ -1,2 +1,2 @@
-import { t as e } from "./form-C1qS9uvS.js";
+import { t as e } from "./form-rCZqoAoK.js";
 export { e as SchmancyForm };

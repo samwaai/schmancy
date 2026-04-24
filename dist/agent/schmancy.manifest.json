@@ -4435,6 +4435,154 @@
     },
     {
       "kind": "javascript-module",
+      "path": "overlay/overlay.component.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "SchmancyOverlay",
+          "tagName": "schmancy-overlay",
+          "description": "The single overlay element. Hosts a native `<dialog>` in its shadow root for centered/sheet layouts; for anchored, we stay modeless by using `<dialog>` with .show() (non-modal) + explicit positioning.  Public lifecycle: the service calls `open()` to mount content and animate in, `close(reason)` to animate out and dismiss. The element dispatches `overlay-close` when closed; the service listens and resolves the caller's Observable.",
+          "attributes": [
+            {
+              "name": "layout",
+              "type": {
+                "text": "OverlayLayout"
+              },
+              "values": [
+                "centered",
+                "anchored",
+                "sheet"
+              ],
+              "default": "'centered'"
+            },
+            {
+              "name": "dismissable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true"
+            },
+            {
+              "name": "modal",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "overlay/overlay.confirm-body.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "SchmancyOverlayPromptBody",
+          "tagName": "schmancy-overlay-prompt-body",
+          "description": "Internal body component used by the `confirm()` / `prompt()` sugar.  Minimal, dependency-free — plain HTML buttons / input so this file doesn't need to import schmancy-form / schmancy-button (avoids the risk of circular module graphs during early imports of $overlay).  Emits a `close` CustomEvent with the typed result; the overlay picks that up as the primary return channel. For custom-styled confirms, callers pass their own component to `show()`.",
+          "attributes": [
+            {
+              "name": "heading",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "subtitle",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "message",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "confirm-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Confirm'"
+            },
+            {
+              "name": "cancel-text",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Cancel'"
+            },
+            {
+              "name": "variant",
+              "type": {
+                "text": "\"default\" | \"danger\""
+              },
+              "values": [
+                "default",
+                "danger"
+              ],
+              "default": "'default'"
+            },
+            {
+              "name": "mode",
+              "type": {
+                "text": "\"confirm\" | \"prompt\""
+              },
+              "values": [
+                "confirm",
+                "prompt"
+              ],
+              "default": "'confirm'",
+              "description": "Presence of `mode` switches between confirm (boolean) and prompt (string)."
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "default-value",
+              "type": {
+                "text": "string"
+              },
+              "default": "''"
+            },
+            {
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "input-type",
+              "type": {
+                "text": "string"
+              },
+              "default": "'text'"
+            },
+            {
+              "name": "pattern",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "page/page.ts",
       "declarations": [
         {

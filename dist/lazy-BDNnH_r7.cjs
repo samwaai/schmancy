@@ -1,0 +1,1 @@
+function e(e){let t=function(){return t._promise?t._promise:t._module?Promise.resolve(t._module):(t._promise=e().then(e=>(t._module=e,e)).catch(e=>{throw t._promise=void 0,e}),t._promise)};return t.preload=async function(){try{await t()}catch{}},t}Object.defineProperty(exports,`t`,{enumerable:!0,get:function(){return e}});
