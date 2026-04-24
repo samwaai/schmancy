@@ -1,10 +1,13 @@
 import { $LitElement } from '@mixins/index'
-import { css, html, render as litRender, type TemplateResult } from 'lit'
-import { customElement, property, query } from 'lit/decorators.js'
+import { css, html, render as litRender, nothing, type TemplateResult } from 'lit'
+import { customElement, property, query, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import {
+	debounceTime,
+	distinctUntilChanged,
 	filter,
 	fromEvent,
+	map,
 	merge,
 	Subject,
 	take,
@@ -12,32 +15,56 @@ import {
 	tap,
 } from 'rxjs'
 import type { LazyComponent } from '../area/lazy'
-import { surfaceAnimation } from './overlay.animations'
+import { fromResizeObserver } from '../directives/layout'
+import {
+	anchorOriginVars,
+	flipAnimation,
+	surfaceAnimation,
+} from './overlay.animations'
 import { swipeToDismiss$ } from './overlay.gestures'
 import {
-	ANCHOR_FIT_PADDING_PX,
 	readViewport,
+	resolveAnchorRef,
 	resolveLayout,
+	type ResolvedAnchor,
 } from './overlay.layout'
+import {
+	pickPositioner,
+	positionCSSAnchor,
+	positionFloatingUI,
+	positionPopoverAPI,
+} from './overlay.positioning'
 import type {
 	Anchor,
 	CloseReason,
 	Content,
 	OverlayLayout,
+	OverlayTier,
 	ShowOptions,
 } from './overlay.types'
 
 const MOUNT_POINT_ID = 'overlay-mount'
+const RE_RESOLVE_COOLDOWN_MS = 600
 
 /**
- * The single overlay element. Hosts a native `<dialog>` in its shadow
- * root for centered/sheet layouts; for anchored, we stay modeless by
- * using `<dialog>` with .show() (non-modal) + explicit positioning.
+ * The single overlay element. Custom `<div>` shell (not a native
+ * `<dialog>`) — one backdrop mechanism for all layouts, one focus-trap
+ * path, one animation orchestrator. The shell is always rendered; the
+ * backdrop only renders when modal. The surface is positioned per tier:
+ *
+ * - Modal layouts (centered / sheet) → backdrop + surface, focus-trapped,
+ *   library-managed z-index.
+ * - Anchored 'css-anchor' tier → surface as `popover="auto"` with
+ *   CSS Anchor Positioning; native top-layer + light-dismiss.
+ * - Anchored 'popover-fui' tier → surface as `popover="auto"` + Floating
+ *   UI position math; native top-layer + light-dismiss.
+ * - Anchored 'fui-only' tier → surface positioned by Floating UI;
+ *   manual click-outside + manual Esc.
  *
  * Public lifecycle: the service calls `open()` to mount content and
  * animate in, `close(reason)` to animate out and dismiss. The element
- * dispatches `overlay-close` when closed; the service listens and
- * resolves the caller's Observable.
+ * exposes `closed$` (Observable emitting reason + result once) and
+ * `tier` / `layout` / `modal` as properties for the stack entry.
  */
 @customElement('schmancy-overlay')
 export class SchmancyOverlay extends $LitElement(css`
@@ -45,23 +72,24 @@ export class SchmancyOverlay extends $LitElement(css`
 		position: fixed;
 		inset: 0;
 		z-index: var(--schmancy-overlay-z, 10000);
-		display: contents;
+		display: none;
 		pointer-events: none;
 	}
-	dialog {
-		margin: 0;
-		padding: 0;
-		border: 0;
-		background: transparent;
-		overflow: visible;
-		max-width: none;
-		max-height: none;
-		pointer-events: auto;
+	:host([active]) {
+		display: block;
 	}
-	dialog::backdrop {
-		background: rgba(12, 12, 16, 0.28);
+	.shell {
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+	}
+	.backdrop {
+		position: fixed;
+		inset: 0;
+		background: color-mix(in srgb, var(--schmancy-sys-color-surface-container, rgba(12, 12, 16, 0.28)) 60%, transparent);
 		backdrop-filter: blur(18px) saturate(150%);
 		-webkit-backdrop-filter: blur(18px) saturate(150%);
+		pointer-events: auto;
 	}
 	.surface {
 		position: fixed;
@@ -71,6 +99,7 @@ export class SchmancyOverlay extends $LitElement(css`
 		overflow: auto;
 		border-radius: var(--schmancy-sys-shape-corner-large, 16px);
 		background: var(--schmancy-sys-color-surface, #ffffff);
+		color: var(--schmancy-sys-color-on-surface, #1a1a1a);
 		box-shadow: 0 24px 64px -16px rgba(0, 0, 0, 0.35);
 	}
 	.surface[data-layout='centered'] {
@@ -83,7 +112,6 @@ export class SchmancyOverlay extends $LitElement(css`
 		right: 0;
 		bottom: 0;
 		max-width: none;
-		max-height: 90dvh;
 		width: 100%;
 		border-radius: var(--schmancy-sys-shape-corner-large, 16px) var(--schmancy-sys-shape-corner-large, 16px) 0 0;
 		padding-bottom: env(safe-area-inset-bottom);
@@ -91,6 +119,12 @@ export class SchmancyOverlay extends $LitElement(css`
 	.surface[data-layout='anchored'] {
 		max-width: min(480px, calc(100vw - 2rem));
 		box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.28);
+	}
+	/* Popover top-layer surfaces escape normal z-index — zero out host
+	 * display to avoid two surfaces rendering during transitions. */
+	.surface:popover-open {
+		margin: 0;
+		border: 0;
 	}
 	.drag-handle {
 		display: flex;
@@ -107,21 +141,33 @@ export class SchmancyOverlay extends $LitElement(css`
 		background: var(--schmancy-sys-color-outline-variant, #cac4cf);
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.surface { box-shadow: var(--schmancy-sys-elevation-2, 0 2px 6px rgba(0,0,0,0.2)); }
+		.surface {
+			box-shadow: var(--schmancy-sys-elevation-2, 0 2px 6px rgba(0, 0, 0, 0.2));
+		}
 	}
 `) {
 	@property({ type: String, reflect: true }) layout: OverlayLayout = 'centered'
 	@property({ type: Boolean, reflect: true }) dismissable = true
 	@property({ type: Boolean, reflect: true }) modal = true
+	@property({ type: String, reflect: true }) tier: OverlayTier = 'modal'
 
-	@query('dialog') private _dialog!: HTMLDialogElement
-	@query('.surface') private _surface!: HTMLDivElement
+	@state() private _active = false
+
+	@query('.backdrop') private _backdrop?: HTMLDivElement
+	@query('.surface') private _surface!: HTMLElement
 
 	/** Close trigger for the service; emits the reason + detail payload. */
 	private readonly _closed$ = new Subject<{ reason: CloseReason; result?: unknown }>()
 
 	private _mounted = false
 	private _closing = false
+	private _resolvedAnchor?: ResolvedAnchor
+	private _rawAnchor?: Anchor
+	private _anchorOriginAnchor?: Anchor
+	private _positionerTeardown?: () => void
+	private _lastFocusedElement: HTMLElement | null = null
+	private _inertedSiblings: HTMLElement[] = []
+	private _lastReResolveAt = 0
 
 	/** Service subscribes to this to know when the overlay dismissed. */
 	get closed$(): import('rxjs').Observable<{ reason: CloseReason; result?: unknown }> {
@@ -130,17 +176,23 @@ export class SchmancyOverlay extends $LitElement(css`
 
 	/**
 	 * Mount content and animate in. Called by the service after the
-	 * element is attached to the DOM. Returns a promise that resolves
-	 * when the entrance animation completes.
+	 * element is attached to the DOM. Resolves when the entrance
+	 * animation completes.
 	 */
 	async open(content: Content, options: ShowOptions): Promise<void> {
 		if (this._mounted) throw new Error('schmancy-overlay: open() called twice on the same element')
 		this._mounted = true
 
 		this.dismissable = options.dismissable !== false
+		this._rawAnchor = options.anchor
+		this._anchorOriginAnchor = options.anchor
+		this._resolvedAnchor = resolveAnchorRef(options.anchor)
 
-		// Resolve Content → HTMLElement and mount into the slot host.
+		// Ensure the shell is rendered so the mount point exists.
+		this._active = true
+		this.setAttribute('active', '')
 		await this.updateComplete
+
 		const mount = this.renderRoot.querySelector(`#${MOUNT_POINT_ID}`) as HTMLElement | null
 		if (!mount) throw new Error('schmancy-overlay: mount point missing')
 		await mountContent(content, mount, options.props)
@@ -151,115 +203,295 @@ export class SchmancyOverlay extends $LitElement(css`
 			width: mount.scrollWidth,
 			height: mount.scrollHeight,
 		}
-		const resolved = resolveLayout({
+		this.layout = resolveLayout({
 			anchor: options.anchor,
 			content: contentSize,
 			viewport,
 		})
-		this.layout = resolved
 
 		// Modal defaults per layout, with the caller's `modal` as escape hatch.
-		const isModal =
-			options.modal ?? (resolved === 'centered' || resolved === 'sheet')
-		this.modal = isModal
+		this.modal =
+			options.modal ?? (this.layout === 'centered' || this.layout === 'sheet')
+
+		// Pick the positioning tier. Modal layouts always use the 'modal'
+		// tier (custom shell + manual backdrop); anchored uses the CAPS-driven
+		// ladder. `modal: true` on an anchored layout stays modal.
+		this.tier = this.modal
+			? 'modal'
+			: this._resolvedAnchor
+				? pickPositioner(this._resolvedAnchor)
+				: 'modal'
 
 		await this.updateComplete
 
-		// Open the native <dialog>.
-		if (isModal) {
-			this._dialog.showModal()
-		} else {
-			this._dialog.show()
+		// Apply tier-specific positioning. For 'modal' the CSS data-layout
+		// attribute + :host styles already place the surface; nothing to do.
+		// For anchored tiers we delegate to the positioning module.
+		if (this.tier === 'css-anchor' && this._resolvedAnchor?.el && this.shadowRoot) {
+			this._positionerTeardown = positionCSSAnchor(this._surface, this._resolvedAnchor, this.shadowRoot, {
+				id: `ov-${Math.random().toString(36).slice(2, 10)}`,
+				placement: options.preferredPlacement ?? 'bottom-start',
+			})
+			// Pair with Popover API to get native top-layer + light-dismiss.
+			const popoverCleanup = positionPopoverAPI(this._surface)
+			const prior = this._positionerTeardown
+			this._positionerTeardown = () => {
+				popoverCleanup()
+				prior()
+			}
+		} else if (this.tier === 'popover-fui' && this._resolvedAnchor) {
+			const popoverCleanup = positionPopoverAPI(this._surface)
+			const floatSub = positionFloatingUI(this._surface, this._resolvedAnchor, {
+				placement: options.preferredPlacement ?? 'bottom-start',
+				offsetPx: 8,
+				track: options.track !== false,
+			})
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe()
+			this._positionerTeardown = () => {
+				popoverCleanup()
+				floatSub.unsubscribe()
+			}
+		} else if (this.tier === 'fui-only' && this._resolvedAnchor) {
+			const floatSub = positionFloatingUI(this._surface, this._resolvedAnchor, {
+				placement: options.preferredPlacement ?? 'bottom-start',
+				offsetPx: 8,
+				track: options.track !== false,
+			})
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe()
+			this._positionerTeardown = () => floatSub.unsubscribe()
 		}
 
-		// For anchored mode, compute position from the anchor's rect.
-		if (resolved === 'anchored' && options.anchor) {
-			this.positionAnchored(options.anchor)
-		}
+		// Set the anchor-origin CSS vars so the entrance animation blooms
+		// from the click point. Must happen AFTER positioning so the
+		// surface rect is final.
+		this.setAnchorOriginVars()
 
-		// Wire close triggers: native 'close' event, structured 'close' from
-		// content, backdrop click, swipe gesture. Signal aborts close too.
+		// Wire close triggers (focus trap, Esc, backdrop click, etc).
+		this.wireFocusTrap()
 		this.wireCloseTriggers(options.signal)
+
+		// Watch content for mid-session re-resolves (upward-only + cooldown).
+		this.wireResizeObserver(mount)
 
 		// Play entrance animations.
 		await this.playEnterAnimations()
 	}
 
-	/** Play exit animations then close the native dialog. */
+	/** Play exit animations then dismiss. */
 	async close(reason: CloseReason, result?: unknown): Promise<void> {
 		if (this._closing || !this._mounted) return
 		this._closing = true
 		try {
 			await this.playExitAnimations()
 		} catch {
-			// animation can be cancelled — not an error.
+			// animation cancelled mid-flight — not an error.
 		}
-		try {
-			this._dialog?.close()
-		} catch {
-			// Already closed natively — fine.
+		this.releaseFocusTrap()
+		if (this._positionerTeardown) {
+			try {
+				this._positionerTeardown()
+			} catch {
+				// cleanup shouldn't throw; ignore anything that does.
+			}
+			this._positionerTeardown = undefined
 		}
+		this._active = false
+		this.removeAttribute('active')
 		this._closed$.next({ reason, result })
 		this._closed$.complete()
 	}
 
-	/* ---------------- close trigger wiring ------------------------------ */
+	/* ---------------- render ------------------------------------------- */
+
+	protected render(): TemplateResult {
+		if (!this._active) return html``
+		return html`
+			<div class="shell" part="shell">
+				${when(
+					this.modal,
+					() => html`<div class="backdrop" part="backdrop" @click=${this.onBackdropClick}></div>`,
+				)}
+				<section
+					class="surface"
+					part="surface"
+					data-layout=${this.layout}
+					data-tier=${this.tier}
+					role=${this.modal ? 'dialog' : 'region'}
+					aria-modal=${this.modal ? 'true' : nothing}
+					tabindex="-1"
+				>
+					${when(
+						this.layout === 'sheet' && this.dismissable,
+						() =>
+							html`<div
+								class="drag-handle"
+								role="button"
+								aria-label="Dismiss"
+								tabindex="0"
+								@keydown=${this.onDragHandleKey}
+							></div>`,
+					)}
+					<div id=${MOUNT_POINT_ID}></div>
+				</section>
+			</div>
+		`
+	}
+
+	private onBackdropClick = (): void => {
+		if (this.dismissable) void this.close('backdrop')
+	}
+
+	private onDragHandleKey = (e: KeyboardEvent): void => {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault()
+			if (this.dismissable) void this.close('programmatic')
+		}
+	}
+
+	/* ---------------- anchor-origin bloom ------------------------------ */
+
+	private setAnchorOriginVars(): void {
+		const surface = this._surface
+		if (!surface) return
+		const rect = surface.getBoundingClientRect()
+		const vars =
+			this.layout === 'centered' && !this._anchorOriginAnchor
+				? { '--schmancy-overlay-origin-x': '50%', '--schmancy-overlay-origin-y': '50%' }
+				: this.layout === 'sheet' && !this._anchorOriginAnchor
+					? { '--schmancy-overlay-origin-x': '50%', '--schmancy-overlay-origin-y': '100%' }
+					: anchorOriginVars(this._anchorOriginAnchor, rect)
+		for (const [k, v] of Object.entries(vars)) {
+			surface.style.setProperty(k, v)
+		}
+	}
+
+	/* ---------------- focus trap --------------------------------------- */
+
+	private wireFocusTrap(): void {
+		if (!this.modal) return
+		this._lastFocusedElement = (document.activeElement as HTMLElement) ?? null
+		const parent = this.parentElement
+		if (parent) {
+			this._inertedSiblings = []
+			for (const child of Array.from(parent.children)) {
+				if (child !== this && child instanceof HTMLElement && !child.inert) {
+					child.inert = true
+					this._inertedSiblings.push(child)
+				}
+			}
+		}
+		// Focus the surface or the first [autofocus] child.
+		queueMicrotask(() => {
+			const auto = this._surface?.querySelector<HTMLElement>('[autofocus]')
+			;(auto ?? this._surface)?.focus()
+		})
+	}
+
+	private releaseFocusTrap(): void {
+		for (const el of this._inertedSiblings) {
+			el.inert = false
+		}
+		this._inertedSiblings = []
+		try {
+			this._lastFocusedElement?.focus?.()
+		} catch {
+			// trigger may be detached now; no-op.
+		}
+		this._lastFocusedElement = null
+	}
+
+	/* ---------------- close triggers ----------------------------------- */
 
 	private wireCloseTriggers(signal?: AbortSignal): void {
-		const disconnecting = this.disconnecting
-
-		// Native 'close' from <dialog>. Runs on Esc, on form[method=dialog]
-		// submit, and on our own close() call. returnValue carries the native
-		// string result.
-		fromEvent(this._dialog, 'close')
-			.pipe(
-				filter(() => !this._closing),
-				tap(() => {
-					const rv = this._dialog.returnValue
-					if (rv !== '' && rv !== undefined) {
-						void this.close('native-submit', rv)
-					} else {
-						void this.close('escape')
-					}
-				}),
-				takeUntil(disconnecting),
-			)
-			.subscribe()
+		const until = this.disconnecting
 
 		// Structured close — content dispatches CustomEvent('close', { detail }).
 		fromEvent<CustomEvent>(this, 'close')
 			.pipe(
-				// Filter out the native <dialog>.close event (which is a plain Event,
-				// no .detail — but it still bubbles into this listener target as 'close').
 				filter((e) => e instanceof CustomEvent),
-				// Don't re-enter if we're the source.
-				filter((e) => e.target !== this._dialog),
 				tap((e) => {
 					e.stopPropagation()
 					void this.close('structured', e.detail)
 				}),
-				takeUntil(disconnecting),
+				takeUntil(until),
 			)
 			.subscribe()
 
-		// Esc keydown — native dialog handles; we only intercept to honor `dismissable: false`.
-		fromEvent<KeyboardEvent>(this._dialog, 'cancel')
+		// Native <form method="dialog"> submission bubbles up as a regular
+		// submit event with `submitter.value` (returnValue proxy for our
+		// custom shell). Capture it and resolve with the string value.
+		fromEvent<SubmitEvent>(this, 'submit')
 			.pipe(
-				tap((e) => {
-					if (!this.dismissable) e.preventDefault()
+				filter((e) => {
+					const form = e.target as HTMLFormElement | null
+					return !!form && form.method === 'dialog'
 				}),
-				takeUntil(disconnecting),
+				tap((e) => {
+					e.preventDefault()
+					const submitter = (e as SubmitEvent & { submitter?: HTMLButtonElement | HTMLInputElement })
+						.submitter
+					const value = submitter?.value ?? ''
+					void this.close('native-submit', value)
+				}),
+				takeUntil(until),
 			)
 			.subscribe()
 
-		// Backdrop click — native backdrop clicks bubble to the dialog.
-		fromEvent<MouseEvent>(this._dialog, 'click')
-			.pipe(
-				filter((e) => this.dismissable && e.target === this._dialog),
-				tap(() => void this.close('backdrop')),
-				takeUntil(disconnecting),
-			)
-			.subscribe()
+		// Modal tier: manual Esc (popover tiers use native toggle event).
+		if (this.tier === 'modal') {
+			fromEvent<KeyboardEvent>(document, 'keydown')
+				.pipe(
+					filter((e) => e.key === 'Escape'),
+					tap((e) => {
+						if (!this.dismissable) {
+							e.preventDefault()
+							return
+						}
+						e.preventDefault()
+						void this.close('escape')
+					}),
+					takeUntil(until),
+				)
+				.subscribe()
+		}
+
+		// Popover tiers: native `toggle` event fires on open/close, with
+		// `newState: 'closed'` when the browser light-dismisses the popover.
+		if (this.tier === 'popover-fui' || this.tier === 'css-anchor') {
+			fromEvent<ToggleEvent>(this._surface, 'toggle')
+				.pipe(
+					filter((e) => e.newState === 'closed'),
+					take(1),
+					tap(() => {
+						if (!this._closing) void this.close('light-dismiss')
+					}),
+					takeUntil(until),
+				)
+				.subscribe()
+		}
+
+		// Floating-UI-only tier: manual outside-click dismissal.
+		if (this.tier === 'fui-only') {
+			fromEvent<PointerEvent>(document, 'pointerdown', { capture: true })
+				.pipe(
+					filter((e) => {
+						if (!this.dismissable) return false
+						const target = e.composedPath()[0] as Node | undefined
+						if (!target) return false
+						// Clicks inside the surface shouldn't dismiss.
+						if (this._surface?.contains(target as Node)) return false
+						// Clicks on the anchor itself shouldn't dismiss (avoid re-toggle).
+						if (this._resolvedAnchor?.el?.contains(target as Node)) return false
+						return true
+					}),
+					take(1),
+					tap(() => void this.close('backdrop')),
+					takeUntil(until),
+				)
+				.subscribe()
+		}
 
 		// Swipe-to-dismiss for sheet layout only.
 		if (this.layout === 'sheet' && this.dismissable) {
@@ -267,7 +499,7 @@ export class SchmancyOverlay extends $LitElement(css`
 			swipeToDismiss$({
 				surface: this._surface,
 				dragHandle,
-				until$: merge(disconnecting, this._closed$),
+				until$: merge(until, this._closed$),
 			})
 				.pipe(take(1))
 				.subscribe(() => void this.close('swipe'))
@@ -282,80 +514,106 @@ export class SchmancyOverlay extends $LitElement(css`
 					.pipe(
 						take(1),
 						tap(() => void this.close('abort')),
-						takeUntil(disconnecting),
+						takeUntil(until),
 					)
 					.subscribe()
 			}
 		}
 	}
 
-	/* ---------------- anchored positioning ----------------------------- */
+	/* ---------------- ResizeObserver FLIP re-resolve ------------------- */
 
-	private positionAnchored(anchor: Anchor): void {
-		const rect = getAnchorRect(anchor)
-		const surfaceRect = this._surface.getBoundingClientRect()
-		const viewport = { w: window.innerWidth, h: window.innerHeight }
-		const pad = ANCHOR_FIT_PADDING_PX
+	private wireResizeObserver(mount: HTMLElement): void {
+		fromResizeObserver(mount)
+			.pipe(
+				map((entries) => {
+					const entry = entries[0]
+					if (!entry) return null
+					const box = entry.contentRect
+					return { w: box.width, h: box.height }
+				}),
+				filter((v): v is { w: number; h: number } => v !== null),
+				distinctUntilChanged((a, b) => a.w === b.w && a.h === b.h),
+				debounceTime(80),
+				takeUntil(merge(this.disconnecting, this._closed$)),
+			)
+			.subscribe((size) => this.maybeReResolve(size))
+	}
 
-		// Prefer placing below the anchor; flip above if it doesn't fit.
-		let top = rect.bottom + 8
-		if (top + surfaceRect.height > viewport.h - pad) {
-			const above = rect.top - 8 - surfaceRect.height
-			if (above >= pad) top = above
-			else top = Math.max(pad, viewport.h - pad - surfaceRect.height)
+	private async maybeReResolve(size: { w: number; h: number }): Promise<void> {
+		if (this._closing) return
+		const viewport = readViewport()
+		const next = resolveLayout({
+			anchor: this._rawAnchor,
+			content: { width: size.w, height: size.h },
+			viewport,
+		})
+		if (next === this.layout) return
+		// Cooldown: prevent churn-driven bouncing.
+		const now = performance.now()
+		if (now - this._lastReResolveAt < RE_RESOLVE_COOLDOWN_MS) return
+		// Upward-only ratchet: centered → sheet on content-grow is OK,
+		// sheet → centered on content-shrink is ignored.
+		if (!isUpwardTransition(this.layout, next)) return
+
+		// FLIP: capture `before` rect, apply new layout, capture `after`,
+		// animate the inverse transform.
+		const surface = this._surface
+		const before = surface.getBoundingClientRect()
+		this.layout = next
+		await this.updateComplete
+		const after = surface.getBoundingClientRect()
+		const spec = flipAnimation(before, after)
+		try {
+			await surface.animate(spec.keyframes, spec.options).finished
+		} catch {
+			// cancelled — not an error.
 		}
-
-		// Prefer aligning the surface's left to the anchor's left; shift to keep in viewport.
-		let left = rect.left
-		if (left + surfaceRect.width > viewport.w - pad) {
-			left = viewport.w - pad - surfaceRect.width
-		}
-		if (left < pad) left = pad
-
-		this._surface.style.top = `${top}px`
-		this._surface.style.left = `${left}px`
-		this._surface.style.transform = 'none'
+		this._lastReResolveAt = performance.now()
 	}
 
 	/* ---------------- animations --------------------------------------- */
 
 	private async playEnterAnimations(): Promise<void> {
-		const dialogEl = this._dialog
 		const surface = this._surface
-		if (!dialogEl || !surface) return
-
-		// Backdrop animates on the dialog itself via the ::backdrop pseudo,
-		// which WAAPI can't drive; we rely on CSS transition if desired.
+		if (!surface) return
 		const spec = surfaceAnimation(this.layout, 'in')
-		await surface.animate(spec.keyframes, spec.options).finished.catch(() => undefined)
+		const tasks: Promise<unknown>[] = [
+			surface.animate(spec.keyframes, spec.options).finished.catch(() => undefined),
+		]
+		const backdrop = this._backdrop
+		if (this.modal && backdrop) {
+			tasks.push(
+				backdrop
+					.animate(
+						[{ opacity: 0 }, { opacity: 1 }],
+						{ duration: spec.options.duration, easing: 'ease-out', fill: 'forwards' },
+					)
+					.finished.catch(() => undefined),
+			)
+		}
+		await Promise.all(tasks)
 	}
 
 	private async playExitAnimations(): Promise<void> {
 		const surface = this._surface
 		if (!surface) return
 		const spec = surfaceAnimation(this.layout, 'out')
-		await surface.animate(spec.keyframes, spec.options).finished.catch(() => undefined)
-	}
-
-	/* ---------------- render ------------------------------------------- */
-
-	protected render(): TemplateResult {
-		return html`
-			<dialog>
-				<section
-					class="surface"
-					data-layout=${this.layout}
-					role="dialog"
-					aria-modal=${this.modal ? 'true' : 'false'}
-				>
-					${when(
-						this.layout === 'sheet',
-						() => html`<div class="drag-handle" role="button" aria-label="Dismiss" tabindex="0"></div>`,
-					)}
-					<div id=${MOUNT_POINT_ID}></div>
-				</section>
-			</dialog>
-		`
+		const tasks: Promise<unknown>[] = [
+			surface.animate(spec.keyframes, spec.options).finished.catch(() => undefined),
+		]
+		const backdrop = this._backdrop
+		if (this.modal && backdrop) {
+			tasks.push(
+				backdrop
+					.animate(
+						[{ opacity: 1 }, { opacity: 0 }],
+						{ duration: spec.options.duration, easing: 'ease-in', fill: 'forwards' },
+					)
+					.finished.catch(() => undefined),
+			)
+		}
+		await Promise.all(tasks)
 	}
 }
 
@@ -374,28 +632,26 @@ async function mountContent(
 	host: HTMLElement,
 	props?: Record<string, unknown>,
 ): Promise<HTMLElement> {
-	// TemplateResult path — render via lit's `render`.
+	// TemplateResult — render via lit's `render`.
 	if (isTemplateResult(content)) {
 		litRender(content, host)
 		return host
 	}
 
-	// Already-instantiated element: append directly.
+	// Already-instantiated element — append directly.
 	if (content instanceof HTMLElement) {
 		if (props) Object.assign(content, props)
 		host.appendChild(content)
 		return content
 	}
 
-	// LazyComponent: await the module, then recurse with the default export.
+	// LazyComponent — await the module, recurse with the default export.
 	if (isLazy(content)) {
 		const mod = await content()
 		return mountContent(mod.default, host, props)
 	}
 
-	// Class constructor — narrowed by exclusion of TemplateResult / HTMLElement /
-	// LazyComponent above; isLazy() false means the remaining `function` branch
-	// is a CustomElementConstructor.
+	// Class constructor.
 	if (typeof content === 'function') {
 		const Ctor = content as unknown as { new (): HTMLElement }
 		const el = new Ctor()
@@ -423,30 +679,10 @@ function isLazy(x: unknown): x is LazyComponent {
 	return typeof x === 'function' && ('preload' in (x as object) || '_promise' in (x as object))
 }
 
-interface Rect {
-	top: number
-	left: number
-	right: number
-	bottom: number
-	width: number
-	height: number
-}
-
-function getAnchorRect(anchor: Anchor): Rect {
-	if (anchor instanceof Element) {
-		const r = anchor.getBoundingClientRect()
-		return { top: r.top, left: r.left, right: r.right, bottom: r.bottom, width: r.width, height: r.height }
-	}
-	if ('clientX' in anchor && 'clientY' in anchor) {
-		return {
-			top: anchor.clientY,
-			left: anchor.clientX,
-			right: anchor.clientX,
-			bottom: anchor.clientY,
-			width: 0,
-			height: 0,
-		}
-	}
-	const pt = anchor as { x: number; y: number }
-	return { top: pt.y, left: pt.x, right: pt.x, bottom: pt.y, width: 0, height: 0 }
+function isUpwardTransition(from: OverlayLayout, to: OverlayLayout): boolean {
+	// Upward ladder: centered < sheet. anchored → sheet is also upward
+	// (overflow went past threshold). anchored → centered is NOT upward.
+	if (from === 'centered' && to === 'sheet') return true
+	if (from === 'anchored' && to === 'sheet') return true
+	return false
 }
