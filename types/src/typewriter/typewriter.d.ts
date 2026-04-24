@@ -34,7 +34,9 @@ export declare class TypewriterElement extends TypewriterElement_base {
      */
     cyclePause: number;
     /**
-     * TypeIt instance.
+     * TypeIt instance. Populated after `loadTypeIt()` resolves inside
+     * `_startTyping()` — null until then, which is correct for a cold start
+     * where the vendor chunk hasn't loaded yet.
      */
     private typeItInstance;
     /**
@@ -51,6 +53,7 @@ export declare class TypewriterElement extends TypewriterElement_base {
     disconnectedCallback(): void;
     /**
      * Initializes the TypeIt instance with the provided slotted content.
+     * Async because TypeIt itself is lazy-loaded on first render.
      */
     private _startTyping;
     private generateSessionKey;

@@ -29293,494 +29293,7 @@ var rp = class extends B(I`
 	}
 };
 P([L({ type: Boolean })], rp.prototype, "open", void 0), P([z("#toggler")], rp.prototype, "toggler", void 0), P([z("slot:not([name=\"root\"])")], rp.prototype, "defaultSlot", void 0), P([z("#chevron")], rp.prototype, "chevron", void 0), rp = P([F("schmancy-tree")], rp);
-var ip = (e) => Array.isArray(e), ap = (e) => ip(e) ? e : [e], op = "data-typeit-id", sp = "ti-cursor", cp = {
-	started: !1,
-	completed: !1,
-	frozen: !1,
-	destroyed: !1
-}, lp = {
-	breakLines: !0,
-	cursor: {
-		autoPause: !0,
-		autoPauseDelay: 500,
-		animation: {
-			frames: [
-				0,
-				0,
-				1
-			].map((e) => ({ opacity: e })),
-			options: {
-				iterations: Infinity,
-				easing: "steps(2, start)",
-				fill: "forwards"
-			}
-		}
-	},
-	cursorChar: "|",
-	cursorSpeed: 1e3,
-	deleteSpeed: null,
-	html: !0,
-	lifeLike: !0,
-	loop: !1,
-	loopDelay: 750,
-	nextStringDelay: 750,
-	speed: 100,
-	startDelay: 250,
-	startDelete: !1,
-	strings: [],
-	waitUntilVisible: !1,
-	beforeString: () => {},
-	afterString: () => {},
-	beforeStep: () => {},
-	afterStep: () => {},
-	afterComplete: () => {}
-}, up = `[${op}]:before {content: '.'; display: inline-block; width: 0; visibility: hidden;}`, dp = (e) => document.createElement(e), fp = (e) => document.createTextNode(e), pp = (e, t = "") => {
-	let n = dp("style");
-	n.id = t, n.appendChild(fp(e)), document.head.appendChild(n);
-}, mp = (e) => (ip(e) || (e = [e / 2, e / 2]), e), hp = (e, t) => Math.abs(Math.random() * (e + t - (e - t)) + (e - t)), gp = (e) => e / 2, _p = (e) => Array.from(e), vp = (e) => ([...e.childNodes].forEach((e) => {
-	if (e.nodeValue) return [...e.nodeValue].forEach((t) => {
-		e.parentNode.insertBefore(fp(t), e);
-	}), void e.remove();
-	vp(e);
-}), e), yp = (e) => {
-	let t = document.implementation.createHTMLDocument();
-	return t.body.innerHTML = e, vp(t.body);
-};
-function bp(e, t = !1, n = !1) {
-	let r, i = e.querySelector(`.${sp}`), a = document.createTreeWalker(e, NodeFilter.SHOW_ALL, { acceptNode: (e) => {
-		if (i && n) {
-			if (e.classList?.contains(sp)) return NodeFilter.FILTER_ACCEPT;
-			if (i.contains(e)) return NodeFilter.FILTER_REJECT;
-		}
-		return e.classList?.contains(sp) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
-	} }), o = [];
-	for (; r = a.nextNode();) r.originalParent ||= r.parentNode, o.push(r);
-	return t ? o.reverse() : o;
-}
-function xp(e, t = !0) {
-	return t ? bp(yp(e)) : _p(e).map(fp);
-}
-var Sp = ({ index: e, newIndex: t, queueItems: n, cleanUp: r }) => {
-	for (let i = e + 1; i < t + 1; i++) r(n[i][0]);
-}, Cp = (e) => Number.isInteger(e), wp = ({ queueItems: e, selector: t, cursorPosition: n, to: r }) => {
-	if (Cp(t)) return -1 * t;
-	let i = (/* @__PURE__ */ RegExp("END", "i")).test(r), a = t ? [...e].reverse().findIndex(({ char: e }) => {
-		let n = e.parentElement, r = n.matches(t);
-		return !(!i || !r) || r && n.firstChild.isSameNode(e);
-	}) : -1;
-	return a < 0 && (a = i ? 0 : e.length - 1), a - n + +!i;
-}, Tp = (e, t) => Array(t).fill(e), Ep = (e) => new Promise((t) => {
-	requestAnimationFrame(async () => {
-		t(await e());
-	});
-}), Dp = (e) => e?.getAnimations().find((t) => t.id === e.dataset.tiAnimationId), Op = ({ cursor: e, frames: t, options: n }) => {
-	let r = e.animate(t, n);
-	return r.pause(), r.id = e.dataset.tiAnimationId, Ep(() => {
-		Ep(() => {
-			r.play();
-		});
-	}), r;
-}, kp = (e) => e.func?.call(null), Ap = async ({ index: e, queueItems: t, wait: n, cursor: r, cursorOptions: i }) => {
-	let a = t[e][1], o = [], s = e, c = a, l = () => c && !c.delay, u = a.shouldPauseCursor() && i.autoPause;
-	for (; l();) o.push(c), l() && s++, c = t[s] ? t[s][1] : null;
-	if (o.length) return await Ep(async () => {
-		for (let e of o) await kp(e);
-	}), s - 1;
-	let d, f = Dp(r);
-	return f && (d = {
-		...f.effect.getComputedTiming(),
-		delay: u ? i.autoPauseDelay : 0
-	}), await n(async () => {
-		f && u && f.cancel(), await Ep(() => {
-			kp(a);
-		});
-	}, a.delay), await (({ cursor: e, options: t, cursorOptions: n }) => {
-		if (!e || !n) return;
-		let r, i = Dp(e);
-		i && (t.delay = i.effect.getComputedTiming().delay, r = i.currentTime, i.cancel());
-		let a = Op({
-			cursor: e,
-			frames: n.animation.frames,
-			options: t
-		});
-		return r && (a.currentTime = r), a;
-	})({
-		cursor: r,
-		options: d,
-		cursorOptions: i
-	}), e;
-}, jp = (e) => "value" in e, Mp = (e) => typeof e == "function" ? e() : e, Np = (e, t = document, n = !1) => t["querySelector" + (n ? "All" : "")](e), Pp = (e, t) => Object.assign({}, e, t), Fp = {
-	"font-family": "",
-	"font-weight": "",
-	"font-size": "",
-	"font-style": "",
-	"line-height": "",
-	color: "",
-	transform: "translateX(-.125em)"
-}, Ip = class {
-	element;
-	timeouts;
-	cursorPosition;
-	predictedCursorPosition;
-	statuses = {
-		started: !1,
-		completed: !1,
-		frozen: !1,
-		destroyed: !1,
-		firing: !1
-	};
-	opts;
-	id;
-	queue;
-	cursor;
-	flushCallback = null;
-	unfreeze = () => {};
-	constructor(e, t = {}) {
-		var n;
-		this.opts = Pp(lp, t), this.element = typeof (n = e) == "string" ? Np(n) : n, this.timeouts = [], this.cursorPosition = 0, this.unfreeze = () => {}, this.predictedCursorPosition = null, this.statuses = Pp({}, cp), this.id = Math.random().toString().substring(2, 9), this.queue = function(e) {
-			let t = function(e) {
-				return ap(e).forEach((e) => a.set(Symbol(e.char?.innerText), n({ ...e }))), this;
-			}, n = (e) => (e.shouldPauseCursor = function() {
-				return !!(this.typeable || this.cursorable || this.deletable);
-			}, e), r = () => a, i = () => Array.from(a.values()), a = /* @__PURE__ */ new Map();
-			return t(e), {
-				add: t,
-				set: function(e, t) {
-					let r = [...a.keys()];
-					a.set(r[e], n(t));
-				},
-				wipe: function() {
-					a = /* @__PURE__ */ new Map(), t(e);
-				},
-				done: (e, t = !1) => t ? a.delete(e) : a.get(e).done = !0,
-				reset: function() {
-					a.forEach((e) => delete e.done);
-				},
-				destroy: (e) => a.delete(e),
-				getItems: (e = !1) => e ? i() : i().filter((e) => !e.done),
-				getQueue: r,
-				getTypeable: () => i().filter((e) => e.typeable),
-				getPendingQueueItems: () => {
-					let e = [];
-					for (let [, t] of r()) t.done || e.push(t);
-					return e;
-				}
-			};
-		}([{ delay: this.opts.startDelay }]), this.#p(t), this.cursor = this.#h(), this.element.dataset.typeitId = this.id, pp(up), this.opts.strings.length && this.#f();
-	}
-	go() {
-		return this.statuses.started ? this : (this.#o(), this.opts.waitUntilVisible ? (e = this.element, t = this.#t.bind(this), new IntersectionObserver((n, r) => {
-			n.forEach((n) => {
-				n.isIntersecting && (t(), r.unobserve(e));
-			});
-		}, { threshold: 1 }).observe(e), this) : (this.#t(), this));
-		var e, t;
-	}
-	destroy(e = !0) {
-		this.timeouts = (this.timeouts.forEach(clearTimeout), []), Mp(e) && this.cursor && this.#y(this.cursor), this.statuses.destroyed = !0;
-	}
-	reset(e) {
-		!this.is("destroyed") && this.destroy(), e ? (this.queue.wipe(), e(this)) : this.queue.reset(), this.cursorPosition = 0;
-		for (let e in this.statuses) this.statuses[e] = !1;
-		return this.element[this.#s() ? "value" : "innerHTML"] = "", this;
-	}
-	is = function(e) {
-		return this.statuses[e];
-	};
-	type(e, t = {}) {
-		e = Mp(e);
-		let { instant: n } = t, r = this.#u(t), i = xp(e, this.opts.html).map((e) => {
-			return {
-				func: () => this.#_(e),
-				char: e,
-				delay: n || (t = e, /<(.+)>(.*?)<\/(.+)>/.test(t.outerHTML)) ? 0 : this.#b(),
-				typeable: e.nodeType === Node.TEXT_NODE
-			};
-			var t;
-		}), a = [
-			r[0],
-			{ func: async () => await this.opts.beforeString(e, this) },
-			...i,
-			{ func: async () => await this.opts.afterString(e, this) },
-			r[1]
-		];
-		return this.#c(a, t);
-	}
-	break(e = {}) {
-		return this.#c({
-			func: () => this.#_(dp("BR")),
-			typeable: !0
-		}, e);
-	}
-	move(e, t = {}) {
-		e = Mp(e);
-		let n = this.#u(t), { instant: r, to: i } = t, a = wp({
-			queueItems: this.queue.getTypeable(),
-			selector: e === null ? "" : e,
-			to: i,
-			cursorPosition: this.#x
-		}), o = a < 0 ? -1 : 1;
-		return this.predictedCursorPosition = this.#x + a, this.#c([
-			n[0],
-			...Tp({
-				func: () => this.#n(o),
-				delay: r ? 0 : this.#b(),
-				cursorable: !0
-			}, Math.abs(a)),
-			n[1]
-		], t);
-	}
-	exec(e, t = {}) {
-		let n = this.#u(t);
-		return this.#c([
-			n[0],
-			{ func: () => e(this) },
-			n[1]
-		], t);
-	}
-	options(e, t = {}) {
-		return e = Mp(e), this.#d(e), this.#c({}, t);
-	}
-	pause(e, t = {}) {
-		return this.#c({ delay: Mp(e) }, t);
-	}
-	delete(e = null, t = {}) {
-		e = Mp(e);
-		let n = this.#u(t), r = e, { instant: i, to: a } = t, o = this.queue.getTypeable(), s = r === null ? o.length : Cp(r) ? r : wp({
-			queueItems: o,
-			selector: r,
-			cursorPosition: this.#x,
-			to: a
-		});
-		return this.#c([
-			n[0],
-			...Tp({
-				func: this.#v.bind(this),
-				delay: i ? 0 : this.#b(1),
-				deletable: !0
-			}, s),
-			n[1]
-		], t);
-	}
-	freeze() {
-		this.statuses.frozen = !0;
-	}
-	flush(e = null) {
-		return this.flushCallback = e || this.flushCallback, this.statuses.firing || (this.#o(), this.#t(!1).then(() => {
-			if (this.queue.getPendingQueueItems().length > 0) return this.flush();
-			this.flushCallback(), this.flushCallback = null;
-		})), this;
-	}
-	getQueue() {
-		return this.queue;
-	}
-	getOptions() {
-		return this.opts;
-	}
-	updateOptions(e) {
-		return this.#d(e);
-	}
-	getElement() {
-		return this.element;
-	}
-	empty(e = {}) {
-		return this.#c({ func: this.#e.bind(this) }, e);
-	}
-	async #e() {
-		this.#s() ? this.element.value = "" : this.#w.forEach(this.#y.bind(this));
-	}
-	async #t(e = !0) {
-		this.statuses.started = !0, this.statuses.firing = !0;
-		let t = (t) => {
-			this.queue.done(t, !e);
-		};
-		try {
-			let n = [...this.queue.getQueue()];
-			for (let e = 0; e < n.length; e++) {
-				let [r, i] = n[e];
-				if (!i.done) {
-					if (!i.deletable || i.deletable && this.#w.length) {
-						let r = await this.#i(e, n);
-						Sp({
-							index: e,
-							newIndex: r,
-							queueItems: n,
-							cleanUp: t
-						}), e = r;
-					}
-					t(r);
-				}
-			}
-			if (!e) return this.statuses.firing = !1, this;
-			if (this.statuses.completed = !0, this.statuses.firing = !1, await this.opts.afterComplete(this), !this.opts.loop) throw "";
-			let r = this.opts.loopDelay;
-			this.#a(async () => {
-				await this.#r(r[0]), this.#t();
-			}, r[1]);
-		} catch {}
-		return this.statuses.firing = !1, this;
-	}
-	async #n(e) {
-		var t, n, r;
-		this.cursorPosition = (t = e, n = this.cursorPosition, r = this.#w, Math.min(Math.max(n + t, 0), r.length)), ((e, t, n) => {
-			let r = t[n - 1], i = Np(`.${sp}`, e);
-			(e = r?.parentNode || e).insertBefore(i, r || null);
-		})(this.element, this.#w, this.cursorPosition);
-	}
-	async #r(e) {
-		let t = this.#x;
-		t && await this.#n({ value: t });
-		let n = this.#w.map((e) => [Symbol(), {
-			func: this.#v.bind(this),
-			delay: this.#b(1),
-			deletable: !0,
-			shouldPauseCursor: () => !0
-		}]);
-		for (let e = 0; e < n.length; e++) await this.#i(e, n);
-		this.queue.reset(), this.queue.set(0, { delay: e });
-	}
-	#i(e, t) {
-		return Ap({
-			index: e,
-			queueItems: t,
-			wait: this.#a.bind(this),
-			cursor: this.cursor,
-			cursorOptions: this.opts.cursor
-		});
-	}
-	async #a(e, t, n = !1) {
-		this.statuses.frozen && await new Promise((e) => {
-			this.unfreeze = () => {
-				this.statuses.frozen = !1, e();
-			};
-		}), n || await this.opts.beforeStep(this), await ((e, t, n) => new Promise((r) => {
-			n.push(setTimeout(async () => {
-				await e(), r();
-			}, t || 0));
-		}))(e, t, this.timeouts), n || await this.opts.afterStep(this);
-	}
-	async #o() {
-		if (!this.#s() && this.cursor && this.element.appendChild(this.cursor), this.#C) {
-			((e, t) => {
-				let n = `[${op}='${e}'] .${sp}`, r = getComputedStyle(t);
-				pp(`${n} { display: inline-block; width: 0; ${Object.entries(Fp).reduce((e, [t, n]) => `${e} ${t}: var(--ti-cursor-${t}, ${n || r[t]});`, "")} }`, e);
-			})(this.id, this.element), this.cursor.dataset.tiAnimationId = this.id;
-			let { animation: e } = this.opts.cursor, { frames: t, options: n } = e;
-			Op({
-				frames: t,
-				cursor: this.cursor,
-				options: {
-					duration: this.opts.cursorSpeed,
-					...n
-				}
-			});
-		}
-	}
-	#s() {
-		return jp(this.element);
-	}
-	#c(e, t) {
-		return this.queue.add(e), this.#l(t), this;
-	}
-	#l(e = {}) {
-		let t = e.delay;
-		t && this.queue.add({ delay: t });
-	}
-	#u(e = {}) {
-		return [{ func: () => this.#d(e) }, { func: () => this.#d(this.opts) }];
-	}
-	async #d(e) {
-		this.opts = Pp(this.opts, e);
-	}
-	#f() {
-		let e = this.opts.strings.filter((e) => !!e);
-		e.forEach((t, n) => {
-			if (this.type(t), n + 1 === e.length) return;
-			let r = this.opts.breakLines ? [{
-				func: () => this.#_(dp("BR")),
-				typeable: !0
-			}] : Tp({
-				func: this.#v.bind(this),
-				delay: this.#b(1)
-			}, this.queue.getTypeable().length);
-			this.#g(r);
-		});
-	}
-	#p = (e) => {
-		this.opts.cursor = ((e) => {
-			if (typeof e == "object") {
-				let t = {}, { frames: n, options: r } = lp.cursor.animation;
-				return t.animation = e.animation || {}, t.animation.frames = e.animation?.frames || n, t.animation.options = Pp(r, e.animation?.options || {}), t.autoPause = e.autoPause ?? lp.cursor.autoPause, t.autoPauseDelay = e.autoPauseDelay || lp.cursor.autoPauseDelay, t;
-			}
-			return !0 === e ? lp.cursor : e;
-		})(e.cursor ?? lp.cursor), this.opts.strings = this.#m(ap(this.opts.strings)), this.opts = Pp(this.opts, {
-			html: !this.#S && this.opts.html,
-			nextStringDelay: mp(this.opts.nextStringDelay),
-			loopDelay: mp(this.opts.loopDelay)
-		});
-	};
-	#m(e) {
-		let t = this.element.innerHTML;
-		return t ? (this.element.innerHTML = "", this.opts.startDelete ? (this.element.innerHTML = t, vp(this.element), this.#g(Tp({
-			func: this.#v.bind(this),
-			delay: this.#b(1),
-			deletable: !0
-		}, this.#w.length)), e) : (n = t, n.replace(/<!--(.+?)-->/g, "").trim().split(/<br(?:\s*?)(?:\/)?>/)).concat(e)) : e;
-		var n;
-	}
-	#h() {
-		if (this.#S) return null;
-		let e = dp("span");
-		return e.className = sp, this.#C ? (e.innerHTML = yp(this.opts.cursorChar).innerHTML, e) : (e.style.visibility = "hidden", e);
-	}
-	#g(e) {
-		let t = this.opts.nextStringDelay;
-		this.queue.add([
-			{ delay: t[0] },
-			...e,
-			{ delay: t[1] }
-		]);
-	}
-	#_(e) {
-		((e, t) => {
-			if (jp(e)) return void (e.value = `${e.value}${t.textContent}`);
-			t.innerHTML = "";
-			let n = (r = t.originalParent, /body/i.test(r?.tagName) ? e : t.originalParent || e);
-			var r;
-			let i = Np("." + sp, n) || null;
-			i && i.parentElement !== n && (n = i.parentElement), n.insertBefore(t, i);
-		})(this.element, e);
-	}
-	#v() {
-		this.#w.length && (this.#S ? this.element.value = this.element.value.slice(0, -1) : this.#y(this.#w[this.cursorPosition]));
-	}
-	#y(e) {
-		((e, t) => {
-			if (!e) return;
-			let n = e.parentNode;
-			(n.childNodes.length > 1 || n.isSameNode(t) ? e : n).remove();
-		})(e, this.element);
-	}
-	#b(e = 0) {
-		return function(e) {
-			let { speed: t, deleteSpeed: n, lifeLike: r } = e;
-			return n = n === null ? t / 3 : n, r ? [hp(t, gp(t)), hp(n, gp(n))] : [t, n];
-		}(this.opts)[e];
-	}
-	get #x() {
-		return this.predictedCursorPosition ?? this.cursorPosition;
-	}
-	get #S() {
-		return jp(this.element);
-	}
-	get #C() {
-		return !!this.opts.cursor && !this.#S;
-	}
-	get #w() {
-		return e = this.element, jp(e) ? _p(e.value) : bp(e, !0).filter((e) => !(e.childNodes.length > 0));
-		var e;
-	}
-}, Lp = class extends V(I`
+var ip = null, ap = class extends V(I`
 	:host {
 		display: inline-block;
 	}
@@ -29902,7 +29415,7 @@ var Sp = ({ index: e, newIndex: t, queueItems: n, cleanUp: r }) => {
 	disconnectedCallback() {
 		super.disconnectedCallback(), this._destroyTypeIt();
 	}
-	_startTyping() {
+	async _startTyping() {
 		if (this._destroyTypeIt(), this.sessionKey = this.generateSessionKey(), this.once && sessionStorage.getItem(this.sessionKey) === "true") return void this.shadowRoot?.querySelector("slot")?.removeAttribute("hidden");
 		if (!this.typewriterContainer) return;
 		let e = {
@@ -29921,8 +29434,8 @@ var Sp = ({ index: e, newIndex: t, queueItems: n, cleanUp: r }) => {
 					composed: !0
 				})), this.loop || this.typewriterContainer.style.setProperty("--ti-cursor-display", "none");
 			}
-		};
-		this.typeItInstance = new Ip(this.typewriterContainer, e), this._getSlottedNodes.forEach((e) => {
+		}, t = await (ip || (ip = import("./index.es-Dymj8REP.js").then((e) => e.default), ip));
+		this.isConnected && (this.typeItInstance = new t(this.typewriterContainer, e), this._getSlottedNodes.forEach((e) => {
 			if (e.nodeType === Node.TEXT_NODE) {
 				let t = e.textContent || "";
 				t.trim() && this.typeItInstance?.type(t);
@@ -29938,7 +29451,7 @@ var Sp = ({ index: e, newIndex: t, queueItems: n, cleanUp: r }) => {
 			});
 		}(this.shadowRoot?.host).subscribe(() => {
 			this.typeItInstance?.go();
-		});
+		}));
 	}
 	generateSessionKey() {
 		let e = this._getSlottedElements.map((e) => e.outerHTML).join("");
@@ -29989,18 +29502,18 @@ var Sp = ({ index: e, newIndex: t, queueItems: n, cleanUp: r }) => {
 			</div> `;
 	}
 };
-P([L({ type: Number })], Lp.prototype, "speed", void 0), P([vr({
+P([L({ type: Number })], ap.prototype, "speed", void 0), P([vr({
 	context: pl,
 	subscribe: !0
-}), L({ type: Number })], Lp.prototype, "delay", void 0), P([L({ type: Boolean })], Lp.prototype, "autoStart", void 0), P([L({ type: String })], Lp.prototype, "cursorChar", void 0), P([L({ type: Number })], Lp.prototype, "deleteSpeed", void 0), P([L({ type: Boolean })], Lp.prototype, "once", void 0), P([L({ type: Boolean })], Lp.prototype, "loop", void 0), P([L({ type: Number })], Lp.prototype, "cyclePause", void 0), P([z("#typewriter")], Lp.prototype, "typewriterContainer", void 0), P([function(e) {
+}), L({ type: Number })], ap.prototype, "delay", void 0), P([L({ type: Boolean })], ap.prototype, "autoStart", void 0), P([L({ type: String })], ap.prototype, "cursorChar", void 0), P([L({ type: Number })], ap.prototype, "deleteSpeed", void 0), P([L({ type: Boolean })], ap.prototype, "once", void 0), P([L({ type: Boolean })], ap.prototype, "loop", void 0), P([L({ type: Number })], ap.prototype, "cyclePause", void 0), P([z("#typewriter")], ap.prototype, "typewriterContainer", void 0), P([function(e) {
 	return (t, n) => {
 		let { slot: r } = e ?? {}, i = "slot" + (r ? `[name=${r}]` : ":not([name])");
 		return Gr(t, n, { get() {
 			return (this.renderRoot?.querySelector(i))?.assignedNodes(e) ?? [];
 		} });
 	};
-}({ flatten: !0 })], Lp.prototype, "_getSlottedNodes", void 0), P([Kr({ flatten: !0 })], Lp.prototype, "_getSlottedElements", void 0), Lp = P([F("schmancy-typewriter")], Lp);
-var Rp = class extends B(I`
+}({ flatten: !0 })], ap.prototype, "_getSlottedNodes", void 0), P([Kr({ flatten: !0 })], ap.prototype, "_getSlottedElements", void 0), ap = P([F("schmancy-typewriter")], ap);
+var op = class extends B(I`
 	:host {
 		display: block;
 		font-family: inherit;
@@ -30331,22 +29844,22 @@ var Rp = class extends B(I`
 P([L({
 	type: String,
 	reflect: !0
-})], Rp.prototype, "type", void 0), P([L({
+})], op.prototype, "type", void 0), P([L({
 	type: String,
 	reflect: !0
-})], Rp.prototype, "token", void 0), P([L({
+})], op.prototype, "token", void 0), P([L({
 	type: String,
 	reflect: !0
-})], Rp.prototype, "align", void 0), P([L({
+})], op.prototype, "align", void 0), P([L({
 	type: String,
 	reflect: !0
-})], Rp.prototype, "weight", void 0), P([L({
+})], op.prototype, "weight", void 0), P([L({
 	type: String,
 	reflect: !0
-})], Rp.prototype, "transform", void 0), P([L({ type: Number })], Rp.prototype, "maxLines", void 0), P([L({
+})], op.prototype, "transform", void 0), P([L({ type: Number })], op.prototype, "maxLines", void 0), P([L({
 	type: Boolean,
 	reflect: !0
-})], Rp.prototype, "editable", void 0), P([L({ type: String })], Rp.prototype, "value", void 0), P([L({ type: String })], Rp.prototype, "placeholder", void 0), Rp = P([F("schmancy-typography")], Rp), new class {
+})], op.prototype, "editable", void 0), P([L({ type: String })], op.prototype, "value", void 0), P([L({ type: String })], op.prototype, "placeholder", void 0), op = P([F("schmancy-typography")], op), new class {
 	constructor() {
 		this.systemLocale = typeof navigator < "u" && navigator.language ? navigator.language : "de-DE";
 	}
@@ -30600,7 +30113,7 @@ P([L({
 		return e.split("").map((e) => t[e] || e).join("");
 	}
 }();
-var zp = class extends V() {
+var sp = class extends V() {
 	constructor(...e) {
 		super(...e), this.initials = "", this.src = "", this.icon = "", this.size = "md", this.color = "primary", this.shape = "circle", this.bordered = !1, this.status = "none";
 	}
@@ -30679,8 +30192,8 @@ var zp = class extends V() {
 		`;
 	}
 };
-P([L({ type: String })], zp.prototype, "initials", void 0), P([L({ type: String })], zp.prototype, "src", void 0), P([L({ type: String })], zp.prototype, "icon", void 0), P([L({ type: String })], zp.prototype, "size", void 0), P([L({ type: String })], zp.prototype, "color", void 0), P([L({ type: String })], zp.prototype, "shape", void 0), P([L({ type: Boolean })], zp.prototype, "bordered", void 0), P([L({ type: String })], zp.prototype, "status", void 0), zp = P([F("schmancy-avatar")], zp);
-var Bp = class extends B(I`
+P([L({ type: String })], sp.prototype, "initials", void 0), P([L({ type: String })], sp.prototype, "src", void 0), P([L({ type: String })], sp.prototype, "icon", void 0), P([L({ type: String })], sp.prototype, "size", void 0), P([L({ type: String })], sp.prototype, "color", void 0), P([L({ type: String })], sp.prototype, "shape", void 0), P([L({ type: Boolean })], sp.prototype, "bordered", void 0), P([L({ type: String })], sp.prototype, "status", void 0), sp = P([F("schmancy-avatar")], sp);
+var cp = class extends B(I`
 	:host {
 		display: block;
 	}
@@ -30723,8 +30236,8 @@ var Bp = class extends B(I`
 		});
 	}
 };
-P([L({ type: String })], Bp.prototype, "separator", void 0), Bp = P([F("schmancy-breadcrumb")], Bp);
-var Vp = class extends B(I`
+P([L({ type: String })], cp.prototype, "separator", void 0), cp = P([F("schmancy-breadcrumb")], cp);
+var lp = class extends B(I`
 	:host {
 		display: inline-block;
 	}
@@ -30743,11 +30256,11 @@ var Vp = class extends B(I`
 		return this.href && !this.current ? M`<a href=${this.href}><slot></slot></a>` : M`<span aria-current=${this.current ? "page" : "false"}><slot></slot></span>`;
 	}
 };
-P([L({ type: String })], Vp.prototype, "href", void 0), P([L({
+P([L({ type: String })], lp.prototype, "href", void 0), P([L({
 	type: Boolean,
 	reflect: !0
-})], Vp.prototype, "current", void 0), Vp = P([F("schmancy-breadcrumb-item")], Vp);
-var Hp = class extends B(I`
+})], lp.prototype, "current", void 0), lp = P([F("schmancy-breadcrumb-item")], lp);
+var up = class extends B(I`
 	:host {
 		display: inline-block;
 		vertical-align: middle;
@@ -30785,8 +30298,8 @@ var Hp = class extends B(I`
 P([L({
 	type: String,
 	reflect: !0
-})], Hp.prototype, "size", void 0), Hp = P([F("schmancy-kbd")], Hp);
-var Up = class extends B(I`
+})], up.prototype, "size", void 0), up = P([F("schmancy-kbd")], up);
+var dp = class extends B(I`
 	:host {
 		display: block;
 		width: var(--_sw, 100%);
@@ -30837,8 +30350,8 @@ var Up = class extends B(I`
 P([L({
 	type: String,
 	reflect: !0
-})], Up.prototype, "shape", void 0), P([L({ type: String })], Up.prototype, "width", void 0), P([L({ type: String })], Up.prototype, "height", void 0), P([L({ type: String })], Up.prototype, "radius", void 0), Up = P([F("schmancy-skeleton")], Up);
-var Wp = class extends V(I`
+})], dp.prototype, "shape", void 0), P([L({ type: String })], dp.prototype, "width", void 0), P([L({ type: String })], dp.prototype, "height", void 0), P([L({ type: String })], dp.prototype, "radius", void 0), dp = P([F("schmancy-skeleton")], dp);
+var fp = class extends V(I`
 	:host {
 		display: block;
 		position: relative;
@@ -30910,11 +30423,11 @@ var Wp = class extends V(I`
 P([L({
 	type: Number,
 	attribute: "min-duration"
-})], Wp.prototype, "minDuration", void 0), P([L({ type: Boolean })], Wp.prototype, "auto", void 0), P([L({
+})], fp.prototype, "minDuration", void 0), P([L({ type: Boolean })], fp.prototype, "auto", void 0), P([L({
 	type: Boolean,
 	attribute: "initially-hidden"
-})], Wp.prototype, "initiallyHidden", void 0), P([R()], Wp.prototype, "_visible", void 0), Wp = P([F("schmancy-splash-screen")], Wp);
-var Gp = class extends B(I`
+})], fp.prototype, "initiallyHidden", void 0), P([R()], fp.prototype, "_visible", void 0), fp = P([F("schmancy-splash-screen")], fp);
+var pp = class extends B(I`
 	:host {
 		display: inline-block;
 	}
@@ -31033,14 +30546,14 @@ var Gp = class extends B(I`
 P([L({
 	type: Boolean,
 	reflect: !0
-})], Gp.prototype, "checked", void 0), P([L({
+})], pp.prototype, "checked", void 0), P([L({
 	type: Boolean,
 	reflect: !0
-})], Gp.prototype, "disabled", void 0), P([L({
+})], pp.prototype, "disabled", void 0), P([L({
 	type: Boolean,
 	reflect: !0
-})], Gp.prototype, "required", void 0), P([L({ type: String })], Gp.prototype, "name", void 0), P([L({ type: String })], Gp.prototype, "value", void 0), P([L({ type: String })], Gp.prototype, "label", void 0), Gp = P([F("schmancy-switch")], Gp);
-var Kp = class extends B(I`
+})], pp.prototype, "required", void 0), P([L({ type: String })], pp.prototype, "name", void 0), P([L({ type: String })], pp.prototype, "value", void 0), P([L({ type: String })], pp.prototype, "label", void 0), pp = P([F("schmancy-switch")], pp);
+var mp = class extends B(I`
 	:host {
 		position: absolute;
 		width: 1px;
@@ -31057,8 +30570,8 @@ var Kp = class extends B(I`
 		return M`<slot></slot>`;
 	}
 };
-Kp = P([F("schmancy-visually-hidden")], Kp);
-var qp = {
+mp = P([F("schmancy-visually-hidden")], mp);
+var hp = {
 	schemaVersion: "1.0.0",
 	readme: "# Schmancy\n\nA Web Component UI library built on Lit, RxJS, and Tailwind CSS. Surfaces are glass. Depth is light. Interactions are physics.\n\n## Agent runtime\n\nFor sandboxed-iframe agents (Claude Design, Claude Artifacts, any LLM that can\nonly write HTML), schmancy ships a single-URL runtime at `@mhmo91/schmancy/agent`.\nDrop one `<script type=\"module\">` tag and every `<schmancy-*>` element is\nregistered. No bundler, no bare specifiers, no npm install.\n\n```html\n<script type=\"module\">\n  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent';\n<\/script>\n<schmancy-theme root scheme=\"dark\">\n  <schmancy-surface type=\"solid\" fill=\"all\">\n    <schmancy-button>Hi</schmancy-button>\n    <schmancy-skill></schmancy-skill>\n  </schmancy-surface>\n</schmancy-theme>\n```\n\nThe `<schmancy-skill>` tag installs `window.schmancy` for runtime discovery:\n\n- `window.schmancy.help()` — full manifest (CEM v1 shape).\n- `window.schmancy.help('schmancy-button')` — one tag's attributes, events, slots, CSS parts.\n- `window.schmancy.tokens()` — build-time-extracted list of `--schmancy-*` theme tokens.\n- `window.schmancy.manifestUrl` — Blob URL; `fetch()` it for the same data.\n- `window.schmancy.a11yAudit()` — walks the live DOM and reports ARIA / shadow-root / form-association status per instance.\n- `window.schmancy.platformPrimitive('schmancy-dialog')` — map to the native element a component wraps (present when the component's JSDoc has `@platform`).\n- `window.schmancy.capabilities()` — runtime feature probe (`popover`, `declarativeShadowDom`, `scopedRegistries`, `trustedTypes`, `cssRegisteredProperties`, `elementInternalsAria`, `formAssociated`, `adoptedStyleSheets`). Agents use this to adapt to the sandbox they're in rather than the one they expect.\n\nEvery enum-typed attribute carries a `values` array — e.g. `schmancy-button`'s `variant` ships `[\"elevated\", \"filled\", \"filled tonal\", \"tonal\", \"outlined\", \"text\"]` so agents never have to parse `\"'filled' | 'tonal' | ...\"` strings.\n\nThe manifest is also emitted as a sibling file at `@mhmo91/schmancy/agent/manifest`\nfor tooling that prefers reading JSON from disk.\n\n## Install\n\n```bash\nnpm install @mhmo91/schmancy\n```\n\n```typescript\nimport '@mhmo91/schmancy'\nimport { magnetic, cursorGlow, gravity } from '@mhmo91/schmancy/directives'\n```\n\n## Use with Claude Code\n\nSchmancy ships a Claude Code plugin. In any Claude Code session, run:\n\n```\n/plugin install https://github.com/samwaai/schmancy\n```\n\nClaude now knows every Schmancy component, foundation pattern, and convention in your project. The skill activates automatically when you work on schmancy code — no CLAUDE.md edits, no symlinks.\n\n## Quick Start\n\n```html\n<schmancy-theme root scheme=\"dark\">\n  <schmancy-surface type=\"solid\" fill=\"all\">\n    <schmancy-area name=\"root\" .default=${lazy(() => import('./home.page'))}>\n      <schmancy-route when=\"home-page\" .component=${lazy(() => import('./home.page'))} />\n    </schmancy-area>\n  </schmancy-surface>\n</schmancy-theme>\n```\n\n## Design: Luminous Glass\n\n| Surface | Opacity | Blur | Purpose |\n|---------|---------|------|---------|\n| `solid` | 92% | — | Dense glass, high readability |\n| `subtle` | 78% | 8px | Frosted panel (default) |\n| `glass` | 55% | 16px | Overlays, dialogs, dropdowns |\n| `luminous` | 42% | 20px | Hero panels with glow halo |\n\n## Docs\n\nSchmancy is organized in four layers:\n\n- **Foundations** — [Area](./skills/schmancy/area.md) · [Store](./skills/schmancy/store.md) · [Mixins ($LitElement)](./skills/schmancy/mixins.md) · [Theme](./skills/schmancy/theme.md) · [Directives](./skills/schmancy/directives.md)\n- **Atoms** — [Typography](./skills/schmancy/typography.md) · [Icons](./skills/schmancy/icons.md) · [Button](./skills/schmancy/button.md) · [Surface](./skills/schmancy/surface.md) · [Divider](./skills/schmancy/divider.md) · [Avatar](./skills/schmancy/avatar.md)\n- **Composites (by job)** — Forms, Navigation, Overlays, Interaction, Feedback, Display\n- **Utilities** — [Animation](./skills/schmancy/animation.md) · [Audio](./skills/schmancy/audio.md) · [Discovery](./skills/schmancy/discovery.md) · [RxJS Utils](./skills/schmancy/rxjs-utils.md) · [Utils](./skills/schmancy/utils.md)\n\n**Full component index:** [skills/schmancy/INDEX.md](./skills/schmancy/INDEX.md) — the single-file map with every tag, service, and convention. Written primarily for AI agents; humans welcome.\n\n## Tech Stack\n\n[Lit](https://lit.dev) · [RxJS](https://rxjs.dev) · [Tailwind CSS v4](https://tailwindcss.com) · [Blackbird](./src/utils/animation.ts)\n\n## License\n\nApache-2.0\n",
 	modules: [
@@ -36779,43 +36292,43 @@ var qp = {
 		"Prefer `fromEvent(target, type).pipe(takeUntil(this.disconnecting))` over raw `addEventListener` inside components."
 	]
 };
-function Jp() {
+function gp() {
 	let e = [];
-	for (let t of qp.modules ?? []) {
+	for (let t of hp.modules ?? []) {
 		let n = t.declarations ?? [];
 		for (let t of n) e.push(t);
 	}
 	return e;
 }
-function Yp() {
-	return Jp().filter((e) => e.kind === "class" && typeof e.tagName == "string");
+function _p() {
+	return gp().filter((e) => e.kind === "class" && typeof e.tagName == "string");
 }
-function Xp() {
-	return Jp().filter((e) => e.kind === "variable" && !0 === e.service);
+function vp() {
+	return gp().filter((e) => e.kind === "variable" && !0 === e.service);
 }
-function Zp(e) {
-	return e ? Yp().find((t) => t.tagName === e) || Xp().find((t) => t.name === e) || null : {
-		elements: Yp().map((e) => ({
+function yp(e) {
+	return e ? _p().find((t) => t.tagName === e) || vp().find((t) => t.name === e) || null : {
+		elements: _p().map((e) => ({
 			tag: e.tagName,
 			summary: e.summary ?? e.description
 		})),
-		services: Xp().map((e) => ({
+		services: vp().map((e) => ({
 			name: e.name,
 			summary: e.summary ?? e.description
 		}))
 	};
 }
-function Qp() {
-	return qp.tokens ?? [];
+function bp() {
+	return hp.tokens ?? [];
 }
-function $p(e) {
-	return Yp().find((t) => t.tagName === e)?.platformPrimitive ?? null;
+function xp(e) {
+	return _p().find((t) => t.tagName === e)?.platformPrimitive ?? null;
 }
-function em() {
-	return Yp().map((e) => e.tagName).filter((e) => customElements.get(e) !== void 0);
+function Sp() {
+	return _p().map((e) => e.tagName).filter((e) => customElements.get(e) !== void 0);
 }
-function tm() {
-	let e = new Set(Yp().map((e) => e.tagName)), t = [], n = document.querySelectorAll("*");
+function Cp() {
+	let e = new Set(_p().map((e) => e.tagName)), t = [], n = document.querySelectorAll("*");
 	for (let r of Array.from(n)) {
 		let n = r.tagName.toLowerCase();
 		if (!e.has(n)) continue;
@@ -36830,7 +36343,7 @@ function tm() {
 	}
 	return t;
 }
-function nm() {
+function wp() {
 	let e = typeof HTMLTemplateElement < "u" ? HTMLTemplateElement.prototype : null, t = typeof ElementInternals < "u" ? ElementInternals.prototype : null;
 	return {
 		popover: typeof HTMLElement < "u" && "popover" in HTMLElement.prototype,
@@ -36849,29 +36362,29 @@ function nm() {
 		adoptedStyleSheets: typeof Document < "u" && "adoptedStyleSheets" in Document.prototype
 	};
 }
-var rm = null;
-function im() {
-	typeof window < "u" && (rm || (rm = function() {
-		let e = new Blob([JSON.stringify(qp)], { type: "application/json" });
+var Tp = null;
+function Ep() {
+	typeof window < "u" && (Tp || (Tp = function() {
+		let e = new Blob([JSON.stringify(hp)], { type: "application/json" });
 		return URL.createObjectURL(e);
 	}(), window.schmancy = {
-		manifest: qp,
-		manifestUrl: rm,
-		help: Zp,
-		tokens: Qp,
-		platformPrimitive: $p,
-		registeredTags: em,
-		a11yAudit: tm,
-		capabilities: nm
+		manifest: hp,
+		manifestUrl: Tp,
+		help: yp,
+		tokens: bp,
+		platformPrimitive: xp,
+		registeredTags: Sp,
+		a11yAudit: Cp,
+		capabilities: wp
 	}));
 }
-var am = class extends V() {
+var Dp = class extends V() {
 	connectedCallback() {
-		super.connectedCallback(), im();
+		super.connectedCallback(), Ep();
 	}
 	render() {
 		return M``;
 	}
 };
-am = P([F("schmancy-skill")], am);
+Dp = P([F("schmancy-skill")], Dp);
 export { V as $LitElement, Lc as $dialog, bd as $notify, Rc as SchmancySheetPosition, si as area, Pa as createContext, di as lazy, xc as schmancyContentDrawer, Ba as select, Va as selectItem, zc as sheet, Po as theme };

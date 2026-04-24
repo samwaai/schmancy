@@ -1,0 +1,489 @@
+var e = (e) => Array.isArray(e), t = (t) => e(t) ? t : [t], n = "data-typeit-id", r = "ti-cursor", i = {
+	started: !1,
+	completed: !1,
+	frozen: !1,
+	destroyed: !1
+}, a = {
+	breakLines: !0,
+	cursor: {
+		autoPause: !0,
+		autoPauseDelay: 500,
+		animation: {
+			frames: [
+				0,
+				0,
+				1
+			].map((e) => ({ opacity: e })),
+			options: {
+				iterations: Infinity,
+				easing: "steps(2, start)",
+				fill: "forwards"
+			}
+		}
+	},
+	cursorChar: "|",
+	cursorSpeed: 1e3,
+	deleteSpeed: null,
+	html: !0,
+	lifeLike: !0,
+	loop: !1,
+	loopDelay: 750,
+	nextStringDelay: 750,
+	speed: 100,
+	startDelay: 250,
+	startDelete: !1,
+	strings: [],
+	waitUntilVisible: !1,
+	beforeString: () => {},
+	afterString: () => {},
+	beforeStep: () => {},
+	afterStep: () => {},
+	afterComplete: () => {}
+}, o = `[${n}]:before {content: '.'; display: inline-block; width: 0; visibility: hidden;}`, s = (e) => document.createElement(e), c = (e) => document.createTextNode(e), l = (e, t = "") => {
+	let n = s("style");
+	n.id = t, n.appendChild(c(e)), document.head.appendChild(n);
+}, u = (t) => (e(t) || (t = [t / 2, t / 2]), t), d = (e, t) => Math.abs(Math.random() * (e + t - (e - t)) + (e - t)), f = (e) => e / 2, p = (e) => Array.from(e), m = (e) => ([...e.childNodes].forEach((e) => {
+	if (e.nodeValue) return [...e.nodeValue].forEach((t) => {
+		e.parentNode.insertBefore(c(t), e);
+	}), void e.remove();
+	m(e);
+}), e), h = (e) => {
+	let t = document.implementation.createHTMLDocument();
+	return t.body.innerHTML = e, m(t.body);
+};
+function g(e, t = !1, n = !1) {
+	let i, a = e.querySelector(`.${r}`), o = document.createTreeWalker(e, NodeFilter.SHOW_ALL, { acceptNode: (e) => {
+		if (a && n) {
+			if (e.classList?.contains(r)) return NodeFilter.FILTER_ACCEPT;
+			if (a.contains(e)) return NodeFilter.FILTER_REJECT;
+		}
+		return e.classList?.contains(r) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+	} }), s = [];
+	for (; i = o.nextNode();) i.originalParent ||= i.parentNode, s.push(i);
+	return t ? s.reverse() : s;
+}
+function _(e, t = !0) {
+	return t ? g(h(e)) : p(e).map(c);
+}
+var v = ({ index: e, newIndex: t, queueItems: n, cleanUp: r }) => {
+	for (let i = e + 1; i < t + 1; i++) r(n[i][0]);
+}, y = (e) => Number.isInteger(e), b = ({ queueItems: e, selector: t, cursorPosition: n, to: r }) => {
+	if (y(t)) return -1 * t;
+	let i = (/* @__PURE__ */ RegExp("END", "i")).test(r), a = t ? [...e].reverse().findIndex(({ char: e }) => {
+		let n = e.parentElement, r = n.matches(t);
+		return !(!i || !r) || r && n.firstChild.isSameNode(e);
+	}) : -1;
+	return a < 0 && (a = i ? 0 : e.length - 1), a - n + +!i;
+}, x = (e, t) => Array(t).fill(e), S = (e) => new Promise((t) => {
+	requestAnimationFrame(async () => {
+		t(await e());
+	});
+}), C = (e) => e?.getAnimations().find((t) => t.id === e.dataset.tiAnimationId), w = ({ cursor: e, frames: t, options: n }) => {
+	let r = e.animate(t, n);
+	return r.pause(), r.id = e.dataset.tiAnimationId, S(() => {
+		S(() => {
+			r.play();
+		});
+	}), r;
+}, T = (e) => e.func?.call(null), E = async ({ index: e, queueItems: t, wait: n, cursor: r, cursorOptions: i }) => {
+	let a = t[e][1], o = [], s = e, c = a, l = () => c && !c.delay, u = a.shouldPauseCursor() && i.autoPause;
+	for (; l();) o.push(c), l() && s++, c = t[s] ? t[s][1] : null;
+	if (o.length) return await S(async () => {
+		for (let e of o) await T(e);
+	}), s - 1;
+	let d, f = C(r);
+	return f && (d = {
+		...f.effect.getComputedTiming(),
+		delay: u ? i.autoPauseDelay : 0
+	}), await n(async () => {
+		f && u && f.cancel(), await S(() => {
+			T(a);
+		});
+	}, a.delay), await (({ cursor: e, options: t, cursorOptions: n }) => {
+		if (!e || !n) return;
+		let r, i = C(e);
+		i && (t.delay = i.effect.getComputedTiming().delay, r = i.currentTime, i.cancel());
+		let a = w({
+			cursor: e,
+			frames: n.animation.frames,
+			options: t
+		});
+		return r && (a.currentTime = r), a;
+	})({
+		cursor: r,
+		options: d,
+		cursorOptions: i
+	}), e;
+}, D = (e) => "value" in e, O = (e) => typeof e == "function" ? e() : e, k = (e, t = document, n = !1) => t["querySelector" + (n ? "All" : "")](e), A = (e, t) => Object.assign({}, e, t), j = {
+	"font-family": "",
+	"font-weight": "",
+	"font-size": "",
+	"font-style": "",
+	"line-height": "",
+	color: "",
+	transform: "translateX(-.125em)"
+}, M = class {
+	element;
+	timeouts;
+	cursorPosition;
+	predictedCursorPosition;
+	statuses = {
+		started: !1,
+		completed: !1,
+		frozen: !1,
+		destroyed: !1,
+		firing: !1
+	};
+	opts;
+	id;
+	queue;
+	cursor;
+	flushCallback = null;
+	unfreeze = () => {};
+	constructor(e, n = {}) {
+		var r;
+		this.opts = A(a, n), this.element = typeof (r = e) == "string" ? k(r) : r, this.timeouts = [], this.cursorPosition = 0, this.unfreeze = () => {}, this.predictedCursorPosition = null, this.statuses = A({}, i), this.id = Math.random().toString().substring(2, 9), this.queue = function(e) {
+			let n = function(e) {
+				return t(e).forEach((e) => o.set(Symbol(e.char?.innerText), r({ ...e }))), this;
+			}, r = (e) => (e.shouldPauseCursor = function() {
+				return !!(this.typeable || this.cursorable || this.deletable);
+			}, e), i = () => o, a = () => Array.from(o.values()), o = /* @__PURE__ */ new Map();
+			return n(e), {
+				add: n,
+				set: function(e, t) {
+					let n = [...o.keys()];
+					o.set(n[e], r(t));
+				},
+				wipe: function() {
+					o = /* @__PURE__ */ new Map(), n(e);
+				},
+				done: (e, t = !1) => t ? o.delete(e) : o.get(e).done = !0,
+				reset: function() {
+					o.forEach((e) => delete e.done);
+				},
+				destroy: (e) => o.delete(e),
+				getItems: (e = !1) => e ? a() : a().filter((e) => !e.done),
+				getQueue: i,
+				getTypeable: () => a().filter((e) => e.typeable),
+				getPendingQueueItems: () => {
+					let e = [];
+					for (let [, t] of i()) t.done || e.push(t);
+					return e;
+				}
+			};
+		}([{ delay: this.opts.startDelay }]), this.#p(n), this.cursor = this.#h(), this.element.dataset.typeitId = this.id, l(o), this.opts.strings.length && this.#f();
+	}
+	go() {
+		return this.statuses.started ? this : (this.#o(), this.opts.waitUntilVisible ? (e = this.element, t = this.#t.bind(this), new IntersectionObserver((n, r) => {
+			n.forEach((n) => {
+				n.isIntersecting && (t(), r.unobserve(e));
+			});
+		}, { threshold: 1 }).observe(e), this) : (this.#t(), this));
+		var e, t;
+	}
+	destroy(e = !0) {
+		this.timeouts = (this.timeouts.forEach(clearTimeout), []), O(e) && this.cursor && this.#y(this.cursor), this.statuses.destroyed = !0;
+	}
+	reset(e) {
+		!this.is("destroyed") && this.destroy(), e ? (this.queue.wipe(), e(this)) : this.queue.reset(), this.cursorPosition = 0;
+		for (let e in this.statuses) this.statuses[e] = !1;
+		return this.element[this.#s() ? "value" : "innerHTML"] = "", this;
+	}
+	is = function(e) {
+		return this.statuses[e];
+	};
+	type(e, t = {}) {
+		e = O(e);
+		let { instant: n } = t, r = this.#u(t), i = _(e, this.opts.html).map((e) => {
+			return {
+				func: () => this.#_(e),
+				char: e,
+				delay: n || (t = e, /<(.+)>(.*?)<\/(.+)>/.test(t.outerHTML)) ? 0 : this.#b(),
+				typeable: e.nodeType === Node.TEXT_NODE
+			};
+			var t;
+		}), a = [
+			r[0],
+			{ func: async () => await this.opts.beforeString(e, this) },
+			...i,
+			{ func: async () => await this.opts.afterString(e, this) },
+			r[1]
+		];
+		return this.#c(a, t);
+	}
+	break(e = {}) {
+		return this.#c({
+			func: () => this.#_(s("BR")),
+			typeable: !0
+		}, e);
+	}
+	move(e, t = {}) {
+		e = O(e);
+		let n = this.#u(t), { instant: r, to: i } = t, a = b({
+			queueItems: this.queue.getTypeable(),
+			selector: e === null ? "" : e,
+			to: i,
+			cursorPosition: this.#x
+		}), o = a < 0 ? -1 : 1;
+		return this.predictedCursorPosition = this.#x + a, this.#c([
+			n[0],
+			...x({
+				func: () => this.#n(o),
+				delay: r ? 0 : this.#b(),
+				cursorable: !0
+			}, Math.abs(a)),
+			n[1]
+		], t);
+	}
+	exec(e, t = {}) {
+		let n = this.#u(t);
+		return this.#c([
+			n[0],
+			{ func: () => e(this) },
+			n[1]
+		], t);
+	}
+	options(e, t = {}) {
+		return e = O(e), this.#d(e), this.#c({}, t);
+	}
+	pause(e, t = {}) {
+		return this.#c({ delay: O(e) }, t);
+	}
+	delete(e = null, t = {}) {
+		e = O(e);
+		let n = this.#u(t), r = e, { instant: i, to: a } = t, o = this.queue.getTypeable(), s = r === null ? o.length : y(r) ? r : b({
+			queueItems: o,
+			selector: r,
+			cursorPosition: this.#x,
+			to: a
+		});
+		return this.#c([
+			n[0],
+			...x({
+				func: this.#v.bind(this),
+				delay: i ? 0 : this.#b(1),
+				deletable: !0
+			}, s),
+			n[1]
+		], t);
+	}
+	freeze() {
+		this.statuses.frozen = !0;
+	}
+	flush(e = null) {
+		return this.flushCallback = e || this.flushCallback, this.statuses.firing || (this.#o(), this.#t(!1).then(() => {
+			if (this.queue.getPendingQueueItems().length > 0) return this.flush();
+			this.flushCallback(), this.flushCallback = null;
+		})), this;
+	}
+	getQueue() {
+		return this.queue;
+	}
+	getOptions() {
+		return this.opts;
+	}
+	updateOptions(e) {
+		return this.#d(e);
+	}
+	getElement() {
+		return this.element;
+	}
+	empty(e = {}) {
+		return this.#c({ func: this.#e.bind(this) }, e);
+	}
+	async #e() {
+		this.#s() ? this.element.value = "" : this.#w.forEach(this.#y.bind(this));
+	}
+	async #t(e = !0) {
+		this.statuses.started = !0, this.statuses.firing = !0;
+		let t = (t) => {
+			this.queue.done(t, !e);
+		};
+		try {
+			let n = [...this.queue.getQueue()];
+			for (let e = 0; e < n.length; e++) {
+				let [r, i] = n[e];
+				if (!i.done) {
+					if (!i.deletable || i.deletable && this.#w.length) {
+						let r = await this.#i(e, n);
+						v({
+							index: e,
+							newIndex: r,
+							queueItems: n,
+							cleanUp: t
+						}), e = r;
+					}
+					t(r);
+				}
+			}
+			if (!e) return this.statuses.firing = !1, this;
+			if (this.statuses.completed = !0, this.statuses.firing = !1, await this.opts.afterComplete(this), !this.opts.loop) throw "";
+			let r = this.opts.loopDelay;
+			this.#a(async () => {
+				await this.#r(r[0]), this.#t();
+			}, r[1]);
+		} catch {}
+		return this.statuses.firing = !1, this;
+	}
+	async #n(e) {
+		var t, n, i;
+		this.cursorPosition = (t = e, n = this.cursorPosition, i = this.#w, Math.min(Math.max(n + t, 0), i.length)), ((e, t, n) => {
+			let i = t[n - 1], a = k(`.${r}`, e);
+			(e = i?.parentNode || e).insertBefore(a, i || null);
+		})(this.element, this.#w, this.cursorPosition);
+	}
+	async #r(e) {
+		let t = this.#x;
+		t && await this.#n({ value: t });
+		let n = this.#w.map((e) => [Symbol(), {
+			func: this.#v.bind(this),
+			delay: this.#b(1),
+			deletable: !0,
+			shouldPauseCursor: () => !0
+		}]);
+		for (let e = 0; e < n.length; e++) await this.#i(e, n);
+		this.queue.reset(), this.queue.set(0, { delay: e });
+	}
+	#i(e, t) {
+		return E({
+			index: e,
+			queueItems: t,
+			wait: this.#a.bind(this),
+			cursor: this.cursor,
+			cursorOptions: this.opts.cursor
+		});
+	}
+	async #a(e, t, n = !1) {
+		this.statuses.frozen && await new Promise((e) => {
+			this.unfreeze = () => {
+				this.statuses.frozen = !1, e();
+			};
+		}), n || await this.opts.beforeStep(this), await ((e, t, n) => new Promise((r) => {
+			n.push(setTimeout(async () => {
+				await e(), r();
+			}, t || 0));
+		}))(e, t, this.timeouts), n || await this.opts.afterStep(this);
+	}
+	async #o() {
+		if (!this.#s() && this.cursor && this.element.appendChild(this.cursor), this.#C) {
+			((e, t) => {
+				let i = `[${n}='${e}'] .${r}`, a = getComputedStyle(t);
+				l(`${i} { display: inline-block; width: 0; ${Object.entries(j).reduce((e, [t, n]) => `${e} ${t}: var(--ti-cursor-${t}, ${n || a[t]});`, "")} }`, e);
+			})(this.id, this.element), this.cursor.dataset.tiAnimationId = this.id;
+			let { animation: e } = this.opts.cursor, { frames: t, options: i } = e;
+			w({
+				frames: t,
+				cursor: this.cursor,
+				options: {
+					duration: this.opts.cursorSpeed,
+					...i
+				}
+			});
+		}
+	}
+	#s() {
+		return D(this.element);
+	}
+	#c(e, t) {
+		return this.queue.add(e), this.#l(t), this;
+	}
+	#l(e = {}) {
+		let t = e.delay;
+		t && this.queue.add({ delay: t });
+	}
+	#u(e = {}) {
+		return [{ func: () => this.#d(e) }, { func: () => this.#d(this.opts) }];
+	}
+	async #d(e) {
+		this.opts = A(this.opts, e);
+	}
+	#f() {
+		let e = this.opts.strings.filter((e) => !!e);
+		e.forEach((t, n) => {
+			if (this.type(t), n + 1 === e.length) return;
+			let r = this.opts.breakLines ? [{
+				func: () => this.#_(s("BR")),
+				typeable: !0
+			}] : x({
+				func: this.#v.bind(this),
+				delay: this.#b(1)
+			}, this.queue.getTypeable().length);
+			this.#g(r);
+		});
+	}
+	#p = (e) => {
+		this.opts.cursor = ((e) => {
+			if (typeof e == "object") {
+				let t = {}, { frames: n, options: r } = a.cursor.animation;
+				return t.animation = e.animation || {}, t.animation.frames = e.animation?.frames || n, t.animation.options = A(r, e.animation?.options || {}), t.autoPause = e.autoPause ?? a.cursor.autoPause, t.autoPauseDelay = e.autoPauseDelay || a.cursor.autoPauseDelay, t;
+			}
+			return !0 === e ? a.cursor : e;
+		})(e.cursor ?? a.cursor), this.opts.strings = this.#m(t(this.opts.strings)), this.opts = A(this.opts, {
+			html: !this.#S && this.opts.html,
+			nextStringDelay: u(this.opts.nextStringDelay),
+			loopDelay: u(this.opts.loopDelay)
+		});
+	};
+	#m(e) {
+		let t = this.element.innerHTML;
+		return t ? (this.element.innerHTML = "", this.opts.startDelete ? (this.element.innerHTML = t, m(this.element), this.#g(x({
+			func: this.#v.bind(this),
+			delay: this.#b(1),
+			deletable: !0
+		}, this.#w.length)), e) : (n = t, n.replace(/<!--(.+?)-->/g, "").trim().split(/<br(?:\s*?)(?:\/)?>/)).concat(e)) : e;
+		var n;
+	}
+	#h() {
+		if (this.#S) return null;
+		let e = s("span");
+		return e.className = r, this.#C ? (e.innerHTML = h(this.opts.cursorChar).innerHTML, e) : (e.style.visibility = "hidden", e);
+	}
+	#g(e) {
+		let t = this.opts.nextStringDelay;
+		this.queue.add([
+			{ delay: t[0] },
+			...e,
+			{ delay: t[1] }
+		]);
+	}
+	#_(e) {
+		((e, t) => {
+			if (D(e)) return void (e.value = `${e.value}${t.textContent}`);
+			t.innerHTML = "";
+			let n = (i = t.originalParent, /body/i.test(i?.tagName) ? e : t.originalParent || e);
+			var i;
+			let a = k("." + r, n) || null;
+			a && a.parentElement !== n && (n = a.parentElement), n.insertBefore(t, a);
+		})(this.element, e);
+	}
+	#v() {
+		this.#w.length && (this.#S ? this.element.value = this.element.value.slice(0, -1) : this.#y(this.#w[this.cursorPosition]));
+	}
+	#y(e) {
+		((e, t) => {
+			if (!e) return;
+			let n = e.parentNode;
+			(n.childNodes.length > 1 || n.isSameNode(t) ? e : n).remove();
+		})(e, this.element);
+	}
+	#b(e = 0) {
+		return function(e) {
+			let { speed: t, deleteSpeed: n, lifeLike: r } = e;
+			return n = n === null ? t / 3 : n, r ? [d(t, f(t)), d(n, f(n))] : [t, n];
+		}(this.opts)[e];
+	}
+	get #x() {
+		return this.predictedCursorPosition ?? this.cursorPosition;
+	}
+	get #S() {
+		return D(this.element);
+	}
+	get #C() {
+		return !!this.opts.cursor && !this.#S;
+	}
+	get #w() {
+		return e = this.element, D(e) ? p(e.value) : g(e, !0).filter((e) => !(e.childNodes.length > 0));
+		var e;
+	}
+};
+export { M as default };

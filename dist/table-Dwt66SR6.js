@@ -241,7 +241,7 @@ var v, y = class {
 			let r = { ...e };
 			delete r.type, t = r;
 		} else t = e;
-		n === void 0 && (v = n = (await import("./flow-BGkHnOnd.js")).FlowLayout), this._layout = new n((e) => this._handleLayoutMessage(e), t), this._layout.measureChildren && typeof this._layout.updateItemSizes == "function" && (typeof this._layout.measureChildren == "function" && (this._measureChildOverride = this._layout.measureChildren), this._measureCallback = this._layout.updateItemSizes.bind(this._layout)), this._layout.listenForChildLoadEvents && this._hostElement.addEventListener("load", this._loadListener, !0), this._schedule(this._updateLayout);
+		n === void 0 && (v = n = (await import("./flow-BPDtbhLe.js")).FlowLayout), this._layout = new n((e) => this._handleLayoutMessage(e), t), this._layout.measureChildren && typeof this._layout.updateItemSizes == "function" && (typeof this._layout.measureChildren == "function" && (this._measureChildOverride = this._layout.measureChildren), this._measureCallback = this._layout.updateItemSizes.bind(this._layout)), this._layout.listenForChildLoadEvents && this._hostElement.addEventListener("load", this._loadListener, !0), this._schedule(this._updateLayout);
 	}
 	startBenchmarking() {
 		this._benchmarkStart === null && (this._benchmarkStart = window.performance.now());

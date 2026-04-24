@@ -1,2 +1,2 @@
-import { a as e, i as t, n, r } from "./src-C7niWYur.js";
+import { a as e, i as t, n, r } from "./src-BGj6ufWS.js";
 export { r as HereMorty, n as SchmancyTeleportation, t as WhereAreYouRicky, e as teleport };
