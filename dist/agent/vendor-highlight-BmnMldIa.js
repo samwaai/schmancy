@@ -1,5 +1,5 @@
-import { n as e, t } from "./rolldown-runtime-DsMetpgY.js";
-var n = e(t((e, t) => {
+import { n as e, r as t, t as n } from "./rolldown-runtime-BIIoCavz.js";
+var r = n((e, t) => {
 	function n(e) {
 		return e instanceof Map ? e.clear = e.delete = e.set = function() {
 			throw Error("map is read-only");
@@ -795,8 +795,11 @@ var n = e(t((e, t) => {
 		return Object.assign(e, I), e;
 	}, $ = Q({});
 	$.newInstance = () => Q({}), t.exports = $, $.HighlightJS = $, $.default = $;
-})()).default;
-function r(e) {
+}), i = e({
+	HighlightJS: () => a.default,
+	default: () => o
+}), a = t(r()), o = a.default, s = e({ default: () => c });
+function c(e) {
 	let t = e.regex, n = {}, r = {
 		begin: /\$\{/,
 		end: /\}/,
@@ -913,14 +916,14 @@ function r(e) {
 		]
 	};
 }
-var i = "[A-Za-z$_][0-9A-Za-z$_]*", a = /* @__PURE__ */ "as.in.of.if.for.while.finally.var.new.function.do.return.void.else.break.catch.instanceof.with.throw.case.default.try.switch.continue.typeof.delete.let.yield.const.class.debugger.async.await.static.import.from.export.extends.using".split("."), o = [
+var l = e({ default: () => v }), u = "[A-Za-z$_][0-9A-Za-z$_]*", d = /* @__PURE__ */ "as.in.of.if.for.while.finally.var.new.function.do.return.void.else.break.catch.instanceof.with.throw.case.default.try.switch.continue.typeof.delete.let.yield.const.class.debugger.async.await.static.import.from.export.extends.using".split("."), f = [
 	"true",
 	"false",
 	"null",
 	"undefined",
 	"NaN",
 	"Infinity"
-], s = /* @__PURE__ */ "Object.Function.Boolean.Symbol.Math.Date.Number.BigInt.String.RegExp.Array.Float32Array.Float64Array.Int8Array.Uint8Array.Uint8ClampedArray.Int16Array.Int32Array.Uint16Array.Uint32Array.BigInt64Array.BigUint64Array.Set.Map.WeakSet.WeakMap.ArrayBuffer.SharedArrayBuffer.Atomics.DataView.JSON.Promise.Generator.GeneratorFunction.AsyncFunction.Reflect.Proxy.Intl.WebAssembly".split("."), c = [
+], p = /* @__PURE__ */ "Object.Function.Boolean.Symbol.Math.Date.Number.BigInt.String.RegExp.Array.Float32Array.Float64Array.Int8Array.Uint8Array.Uint8ClampedArray.Int16Array.Int32Array.Uint16Array.Uint32Array.BigInt64Array.BigUint64Array.Set.Map.WeakSet.WeakMap.ArrayBuffer.SharedArrayBuffer.Atomics.DataView.JSON.Promise.Generator.GeneratorFunction.AsyncFunction.Reflect.Proxy.Intl.WebAssembly".split("."), m = [
 	"Error",
 	"EvalError",
 	"InternalError",
@@ -929,7 +932,7 @@ var i = "[A-Za-z$_][0-9A-Za-z$_]*", a = /* @__PURE__ */ "as.in.of.if.for.while.f
 	"SyntaxError",
 	"TypeError",
 	"URIError"
-], l = [
+], h = [
 	"setInterval",
 	"setTimeout",
 	"clearInterval",
@@ -947,7 +950,7 @@ var i = "[A-Za-z$_][0-9A-Za-z$_]*", a = /* @__PURE__ */ "as.in.of.if.for.while.f
 	"encodeURIComponent",
 	"escape",
 	"unescape"
-], u = [
+], g = [
 	"arguments",
 	"this",
 	"super",
@@ -958,9 +961,9 @@ var i = "[A-Za-z$_][0-9A-Za-z$_]*", a = /* @__PURE__ */ "as.in.of.if.for.while.f
 	"sessionStorage",
 	"module",
 	"global"
-], d = [].concat(l, s, c);
-function f(e) {
-	let t = e.regex, n = i, r = {
+], _ = [].concat(h, p, m);
+function v(e) {
+	let t = e.regex, n = u, r = {
 		begin: /<[A-Za-z0-9\\._:-]+/,
 		end: /\/[A-Za-z0-9\\._:-]+>|\/>/,
 		isTrulyOpeningTag: (e, t) => {
@@ -974,17 +977,17 @@ function f(e) {
 			let a = e.input.substring(n);
 			((i = a.match(/^\s*=/)) || (i = a.match(/^\s+extends\s+/)) && i.index === 0) && t.ignoreMatch();
 		}
-	}, f = {
-		$pattern: i,
-		keyword: a,
-		literal: o,
-		built_in: d,
-		"variable.language": u
-	}, p = "[0-9](_?[0-9])*", m = `\\.(${p})`, h = "0|[1-9](_?[0-9])*|0[0-7]*[89][0-9]*", g = {
+	}, i = {
+		$pattern: u,
+		keyword: d,
+		literal: f,
+		built_in: _,
+		"variable.language": g
+	}, a = "[0-9](_?[0-9])*", o = `\\.(${a})`, s = "0|[1-9](_?[0-9])*|0[0-7]*[89][0-9]*", c = {
 		className: "number",
 		variants: [
-			{ begin: `(\\b(${h})((${m})|\\.)?|(${m}))[eE][+-]?(${p})\\b` },
-			{ begin: `\\b(${h})\\b((${m})\\b|\\.)?|(${m})\\b` },
+			{ begin: `(\\b(${s})((${o})|\\.)?|(${o}))[eE][+-]?(${a})\\b` },
+			{ begin: `\\b(${s})\\b((${o})\\b|\\.)?|(${o})\\b` },
 			{ begin: "\\b(0|[1-9](_?[0-9])*)n\\b" },
 			{ begin: "\\b0[xX][0-9a-fA-F](_?[0-9a-fA-F])*n?\\b" },
 			{ begin: "\\b0[bB][0-1](_?[0-1])*n?\\b" },
@@ -992,11 +995,11 @@ function f(e) {
 			{ begin: "\\b0[0-7]+n?\\b" }
 		],
 		relevance: 0
-	}, _ = {
+	}, l = {
 		className: "subst",
 		begin: "\\$\\{",
 		end: "\\}",
-		keywords: f,
+		keywords: i,
 		contains: []
 	}, v = {
 		begin: ".?html`",
@@ -1004,7 +1007,7 @@ function f(e) {
 		starts: {
 			end: "`",
 			returnEnd: !1,
-			contains: [e.BACKSLASH_ESCAPE, _],
+			contains: [e.BACKSLASH_ESCAPE, l],
 			subLanguage: "xml"
 		}
 	}, y = {
@@ -1013,7 +1016,7 @@ function f(e) {
 		starts: {
 			end: "`",
 			returnEnd: !1,
-			contains: [e.BACKSLASH_ESCAPE, _],
+			contains: [e.BACKSLASH_ESCAPE, l],
 			subLanguage: "css"
 		}
 	}, b = {
@@ -1022,14 +1025,14 @@ function f(e) {
 		starts: {
 			end: "`",
 			returnEnd: !1,
-			contains: [e.BACKSLASH_ESCAPE, _],
+			contains: [e.BACKSLASH_ESCAPE, l],
 			subLanguage: "graphql"
 		}
 	}, x = {
 		className: "string",
 		begin: "`",
 		end: "`",
-		contains: [e.BACKSLASH_ESCAPE, _]
+		contains: [e.BACKSLASH_ESCAPE, l]
 	}, S = {
 		className: "comment",
 		variants: [
@@ -1075,18 +1078,18 @@ function f(e) {
 		b,
 		x,
 		{ match: /\$\d+/ },
-		g
+		c
 	];
-	_.contains = C.concat({
+	l.contains = C.concat({
 		begin: /\{/,
 		end: /\}/,
-		keywords: f,
+		keywords: i,
 		contains: ["self"].concat(C)
 	});
-	let w = [].concat(S, _.contains), T = w.concat([{
+	let w = [].concat(S, l.contains), T = w.concat([{
 		begin: /(\s*)\(/,
 		end: /\)/,
-		keywords: f,
+		keywords: i,
 		contains: ["self"].concat(w)
 	}]), E = {
 		className: "params",
@@ -1094,7 +1097,7 @@ function f(e) {
 		end: /\)/,
 		excludeBegin: !0,
 		excludeEnd: !0,
-		keywords: f,
+		keywords: i,
 		contains: T
 	}, D = { variants: [{
 		match: [
@@ -1126,7 +1129,7 @@ function f(e) {
 		relevance: 0,
 		match: t.either(/\bJSON/, /\b[A-Z][a-z]+([A-Z][a-z]*|\d)*/, /\b[A-Z]{2,}([A-Z][a-z]+|\d)+([A-Z][a-z]*)*/, /\b[A-Z]{2,}[a-z]+([A-Z][a-z]+|\d)*([A-Z][a-z]*)*/),
 		className: "title.class",
-		keywords: { _: [...s, ...c] }
+		keywords: { _: [...p, ...m] }
 	}, k = {
 		variants: [{ match: [
 			/function/,
@@ -1143,7 +1146,7 @@ function f(e) {
 		illegal: /%/
 	}, A = {
 		match: t.concat(/\b/, (j = [
-			...l,
+			...h,
 			"super",
 			"import"
 		].map((e) => `${e}\\s*\\(`), t.concat("(?!", j.join("|"), ")")), n, t.lookahead(/\s*\(/)),
@@ -1195,7 +1198,7 @@ function f(e) {
 			"mjs",
 			"cjs"
 		],
-		keywords: f,
+		keywords: i,
 		exports: {
 			PARAMS_CONTAINS: T,
 			CLASS_REFERENCE: O
@@ -1221,7 +1224,7 @@ function f(e) {
 			x,
 			S,
 			{ match: /\$\d+/ },
-			g,
+			c,
 			O,
 			{
 				scope: "attr",
@@ -1258,7 +1261,7 @@ function f(e) {
 									end: /\)/,
 									excludeBegin: !0,
 									excludeEnd: !0,
-									keywords: f,
+									keywords: i,
 									contains: T
 								}
 							]
@@ -1332,7 +1335,8 @@ function f(e) {
 		]
 	};
 }
-function p(e) {
+var y = e({ default: () => b });
+function b(e) {
 	let t = {
 		begin: /<\/?[A-Za-z_]/,
 		end: ">",
@@ -1510,14 +1514,14 @@ function p(e) {
 		]
 	};
 }
-var m = "[A-Za-z$_][0-9A-Za-z$_]*", h = /* @__PURE__ */ "as.in.of.if.for.while.finally.var.new.function.do.return.void.else.break.catch.instanceof.with.throw.case.default.try.switch.continue.typeof.delete.let.yield.const.class.debugger.async.await.static.import.from.export.extends.using".split("."), g = [
+var x = e({ default: () => j }), S = "[A-Za-z$_][0-9A-Za-z$_]*", C = /* @__PURE__ */ "as.in.of.if.for.while.finally.var.new.function.do.return.void.else.break.catch.instanceof.with.throw.case.default.try.switch.continue.typeof.delete.let.yield.const.class.debugger.async.await.static.import.from.export.extends.using".split("."), w = [
 	"true",
 	"false",
 	"null",
 	"undefined",
 	"NaN",
 	"Infinity"
-], _ = /* @__PURE__ */ "Object.Function.Boolean.Symbol.Math.Date.Number.BigInt.String.RegExp.Array.Float32Array.Float64Array.Int8Array.Uint8Array.Uint8ClampedArray.Int16Array.Int32Array.Uint16Array.Uint32Array.BigInt64Array.BigUint64Array.Set.Map.WeakSet.WeakMap.ArrayBuffer.SharedArrayBuffer.Atomics.DataView.JSON.Promise.Generator.GeneratorFunction.AsyncFunction.Reflect.Proxy.Intl.WebAssembly".split("."), v = [
+], T = /* @__PURE__ */ "Object.Function.Boolean.Symbol.Math.Date.Number.BigInt.String.RegExp.Array.Float32Array.Float64Array.Int8Array.Uint8Array.Uint8ClampedArray.Int16Array.Int32Array.Uint16Array.Uint32Array.BigInt64Array.BigUint64Array.Set.Map.WeakSet.WeakMap.ArrayBuffer.SharedArrayBuffer.Atomics.DataView.JSON.Promise.Generator.GeneratorFunction.AsyncFunction.Reflect.Proxy.Intl.WebAssembly".split("."), E = [
 	"Error",
 	"EvalError",
 	"InternalError",
@@ -1526,7 +1530,7 @@ var m = "[A-Za-z$_][0-9A-Za-z$_]*", h = /* @__PURE__ */ "as.in.of.if.for.while.f
 	"SyntaxError",
 	"TypeError",
 	"URIError"
-], y = [
+], D = [
 	"setInterval",
 	"setTimeout",
 	"clearInterval",
@@ -1544,7 +1548,7 @@ var m = "[A-Za-z$_][0-9A-Za-z$_]*", h = /* @__PURE__ */ "as.in.of.if.for.while.f
 	"encodeURIComponent",
 	"escape",
 	"unescape"
-], b = [
+], O = [
 	"arguments",
 	"this",
 	"super",
@@ -1555,9 +1559,9 @@ var m = "[A-Za-z$_][0-9A-Za-z$_]*", h = /* @__PURE__ */ "as.in.of.if.for.while.f
 	"sessionStorage",
 	"module",
 	"global"
-], x = [].concat(y, _, v);
-function S(e) {
-	let t = e.regex, n = m, r = {
+], k = [].concat(D, T, E);
+function A(e) {
+	let t = e.regex, n = S, r = {
 		begin: /<[A-Za-z0-9\\._:-]+/,
 		end: /\/[A-Za-z0-9\\._:-]+>|\/>/,
 		isTrulyOpeningTag: (e, t) => {
@@ -1572,11 +1576,11 @@ function S(e) {
 			((i = a.match(/^\s*=/)) || (i = a.match(/^\s+extends\s+/)) && i.index === 0) && t.ignoreMatch();
 		}
 	}, i = {
-		$pattern: m,
-		keyword: h,
-		literal: g,
-		built_in: x,
-		"variable.language": b
+		$pattern: S,
+		keyword: C,
+		literal: w,
+		built_in: k,
+		"variable.language": O
 	}, a = "[0-9](_?[0-9])*", o = `\\.(${a})`, s = "0|[1-9](_?[0-9])*|0[0-7]*[89][0-9]*", c = {
 		className: "number",
 		variants: [
@@ -1627,7 +1631,7 @@ function S(e) {
 		begin: "`",
 		end: "`",
 		contains: [e.BACKSLASH_ESCAPE, l]
-	}, S = {
+	}, m = {
 		className: "comment",
 		variants: [
 			e.COMMENT(/\/\*\*(?!\/)/, "\\*/", {
@@ -1664,7 +1668,7 @@ function S(e) {
 			e.C_BLOCK_COMMENT_MODE,
 			e.C_LINE_COMMENT_MODE
 		]
-	}, C = [
+	}, h = [
 		e.APOS_STRING_MODE,
 		e.QUOTE_STRING_MODE,
 		u,
@@ -1674,26 +1678,26 @@ function S(e) {
 		{ match: /\$\d+/ },
 		c
 	];
-	l.contains = C.concat({
+	l.contains = h.concat({
 		begin: /\{/,
 		end: /\}/,
 		keywords: i,
-		contains: ["self"].concat(C)
+		contains: ["self"].concat(h)
 	});
-	let w = [].concat(S, l.contains), T = w.concat([{
+	let g = [].concat(m, l.contains), _ = g.concat([{
 		begin: /(\s*)\(/,
 		end: /\)/,
 		keywords: i,
-		contains: ["self"].concat(w)
-	}]), E = {
+		contains: ["self"].concat(g)
+	}]), v = {
 		className: "params",
 		begin: /(\s*)\(/,
 		end: /\)/,
 		excludeBegin: !0,
 		excludeEnd: !0,
 		keywords: i,
-		contains: T
-	}, D = { variants: [{
+		contains: _
+	}, y = { variants: [{
 		match: [
 			/class/,
 			/\s+/,
@@ -1719,12 +1723,12 @@ function S(e) {
 			1: "keyword",
 			3: "title.class"
 		}
-	}] }, O = {
+	}] }, b = {
 		relevance: 0,
 		match: t.either(/\bJSON/, /\b[A-Z][a-z]+([A-Z][a-z]*|\d)*/, /\b[A-Z]{2,}([A-Z][a-z]+|\d)+([A-Z][a-z]*)*/, /\b[A-Z]{2,}[a-z]+([A-Z][a-z]+|\d)*([A-Z][a-z]*)*/),
 		className: "title.class",
-		keywords: { _: [..._, ...v] }
-	}, k = {
+		keywords: { _: [...T, ...E] }
+	}, x = {
 		variants: [{ match: [
 			/function/,
 			/\s+/,
@@ -1736,11 +1740,11 @@ function S(e) {
 			3: "title.function"
 		},
 		label: "func.def",
-		contains: [E],
+		contains: [v],
 		illegal: /%/
 	}, A = {
 		match: t.concat(/\b/, (j = [
-			...y,
+			...D,
 			"super",
 			"import"
 		].map((e) => `${e}\\s*\\(`), t.concat("(?!", j.join("|"), ")")), n, t.lookahead(/\s*\(/)),
@@ -1766,7 +1770,7 @@ function S(e) {
 			1: "keyword",
 			3: "title.function"
 		},
-		contains: [{ begin: /\(\)/ }, E]
+		contains: [{ begin: /\(\)/ }, v]
 	}, P = "(\\([^()]*(\\([^()]*(\\([^()]*\\)[^()]*)*\\)[^()]*)*\\)|" + e.UNDERSCORE_IDENT_RE + ")\\s*=>", F = {
 		match: [
 			/const|var|let/,
@@ -1782,7 +1786,7 @@ function S(e) {
 			1: "keyword",
 			3: "title.function"
 		},
-		contains: [E]
+		contains: [v]
 	};
 	return {
 		name: "JavaScript",
@@ -1794,8 +1798,8 @@ function S(e) {
 		],
 		keywords: i,
 		exports: {
-			PARAMS_CONTAINS: T,
-			CLASS_REFERENCE: O
+			PARAMS_CONTAINS: _,
+			CLASS_REFERENCE: b
 		},
 		illegal: /#(?![$_A-z])/,
 		contains: [
@@ -1816,10 +1820,10 @@ function S(e) {
 			d,
 			f,
 			p,
-			S,
+			m,
 			{ match: /\$\d+/ },
 			c,
-			O,
+			b,
 			{
 				scope: "attr",
 				match: n + t.lookahead(":"),
@@ -1831,7 +1835,7 @@ function S(e) {
 				keywords: "return throw case",
 				relevance: 0,
 				contains: [
-					S,
+					m,
 					e.REGEXP_MODE,
 					{
 						className: "function",
@@ -1856,7 +1860,7 @@ function S(e) {
 									excludeBegin: !0,
 									excludeEnd: !0,
 									keywords: i,
-									contains: T
+									contains: _
 								}
 							]
 						}]
@@ -1892,13 +1896,13 @@ function S(e) {
 					}
 				]
 			},
-			k,
+			x,
 			{ beginKeywords: "while if switch catch for" },
 			{
 				begin: "\\b(?!function)" + e.UNDERSCORE_IDENT_RE + "\\([^()]*(\\([^()]*(\\([^()]*\\)[^()]*)*\\)[^()]*)*\\)\\s*\\{",
 				returnBegin: !0,
 				label: "func.def",
-				contains: [E, e.inherit(e.TITLE_MODE, {
+				contains: [v, e.inherit(e.TITLE_MODE, {
 					begin: n,
 					className: "title.function"
 				})]
@@ -1915,7 +1919,7 @@ function S(e) {
 			{
 				match: [/\bconstructor(?=\s*\()/],
 				className: { 1: "title.function" },
-				contains: [E]
+				contains: [v]
 			},
 			A,
 			{
@@ -1923,14 +1927,14 @@ function S(e) {
 				match: /\b[A-Z][A-Z_0-9]+\b/,
 				className: "variable.constant"
 			},
-			D,
+			y,
 			N,
 			{ match: /\$[(.]/ }
 		]
 	};
 }
-function C(e) {
-	let t = e.regex, n = S(e), r = m, i = [
+function j(e) {
+	let t = e.regex, n = A(e), r = S, i = [
 		"any",
 		"void",
 		"number",
@@ -1961,8 +1965,8 @@ function C(e) {
 		},
 		contains: [n.exports.CLASS_REFERENCE]
 	}, s = {
-		$pattern: m,
-		keyword: h.concat([
+		$pattern: S,
+		keyword: C.concat([
 			"type",
 			"interface",
 			"public",
@@ -1976,9 +1980,9 @@ function C(e) {
 			"override",
 			"satisfies"
 		]),
-		literal: g,
-		built_in: x.concat(i),
-		"variable.language": b
+		literal: w,
+		built_in: k.concat(i),
+		"variable.language": O
 	}, c = {
 		className: "meta",
 		begin: "@" + r
@@ -2012,7 +2016,8 @@ function C(e) {
 		]
 	}), n;
 }
-function w(e) {
+var M = e({ default: () => N });
+function N(e) {
 	let t = e.regex, n = t.concat(/[\p{L}_]/u, t.optional(/[\p{L}0-9_.-]*:/u), /[\p{L}0-9_.-]*/u), r = {
 		className: "symbol",
 		begin: /&[a-z]+;|&#[0-9]+;|&#x[a-f0-9]+;/
@@ -2175,4 +2180,4 @@ function w(e) {
 		]
 	};
 }
-export { r as a, f as i, C as n, n as o, p as r, w as t };
+export { s as a, l as i, x as n, i as o, y as r, M as t };

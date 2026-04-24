@@ -16,7 +16,7 @@ import "./card-CEdgK9nb.js";
 import "./charts.js";
 import "./checkbox-Br84TiCs.js";
 import "./chips-BNYOweGm.js";
-import "./code-highlight-BgExKEto.js";
+import "./code-highlight-CI_gqXYX.js";
 import "./components-DjKNS9R_.js";
 import "./connectivity.js";
 import "./date-range-sGkC0KF3.js";

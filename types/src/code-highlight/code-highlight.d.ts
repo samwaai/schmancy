@@ -33,7 +33,14 @@ export declare class SchmancyCode extends SchmancyCode_base {
      */
     maxHeight?: string;
     private copied;
-    private get highlightedCode();
+    /**
+     * Fully-rendered highlighted HTML — populated asynchronously after
+     * `loadHljs()` resolves. Empty on first render (one microtask) for a
+     * cold component; non-empty from then on.
+     */
+    private _highlightedCode;
+    protected updated(changed: Map<string, unknown>): void;
+    private _rehighlight;
     private escapeHtml;
     private getHighlightedLines;
     private addLineFeatures;

@@ -5,15 +5,8 @@ import { timer as n } from "rxjs";
 import { take as r } from "rxjs/operators";
 import { customElement as i, property as a, state as o } from "lit/decorators.js";
 import { css as s, html as c } from "lit";
-import l from "highlight.js/lib/core";
-import u from "highlight.js/lib/languages/bash";
-import d from "highlight.js/lib/languages/javascript";
-import f from "highlight.js/lib/languages/markdown";
-import p from "highlight.js/lib/languages/typescript";
-import m from "highlight.js/lib/languages/xml";
-import { unsafeHTML as h } from "lit/directives/unsafe-html.js";
-l.registerLanguage("javascript", d), l.registerLanguage("typescript", p), l.registerLanguage("html", m), l.registerLanguage("xml", m), l.registerLanguage("markdown", f), l.registerLanguage("bash", u);
-var g = class extends e(s`
+import { unsafeHTML as l } from "lit/directives/unsafe-html.js";
+var u = null, d = class extends e(s`
 	:host {
 		display: block;
 		width: 100%;
@@ -135,21 +128,36 @@ var g = class extends e(s`
 	}
 `) {
 	constructor(...e) {
-		super(...e), this.language = "javascript", this.code = "", this.lineNumbers = !1, this.copyButton = !0, this.copied = !1;
+		super(...e), this.language = "javascript", this.code = "", this.lineNumbers = !1, this.copyButton = !0, this.copied = !1, this._highlightedCode = "";
 	}
-	get highlightedCode() {
-		if (!this.code) return "";
-		let e = "";
+	updated(e) {
+		super.updated?.(e), (e.has("code") || e.has("language") || e.has("lineNumbers") || e.has("highlightLines")) && this._rehighlight();
+	}
+	async _rehighlight() {
+		if (!this.code) return void (this._highlightedCode = "");
+		let e = await (u ||= Promise.all([
+			import("highlight.js/lib/core"),
+			import("highlight.js/lib/languages/bash"),
+			import("highlight.js/lib/languages/javascript"),
+			import("highlight.js/lib/languages/markdown"),
+			import("highlight.js/lib/languages/typescript"),
+			import("highlight.js/lib/languages/xml")
+		]).then(([e, t, n, r, i, a]) => {
+			let o = e.default;
+			return o.registerLanguage("javascript", n.default), o.registerLanguage("typescript", i.default), o.registerLanguage("html", a.default), o.registerLanguage("xml", a.default), o.registerLanguage("markdown", r.default), o.registerLanguage("bash", t.default), o;
+		}));
+		if (!this.isConnected) return;
+		let t = "";
 		try {
-			e = l.highlight(this.code.trim(), { language: this.language }).value;
+			t = e.highlight(this.code.trim(), { language: this.language }).value;
 		} catch {
 			try {
-				e = l.highlightAuto(this.code.trim()).value;
+				t = e.highlightAuto(this.code.trim()).value;
 			} catch {
-				e = this.escapeHtml(this.code.trim());
+				t = this.escapeHtml(this.code.trim());
 			}
 		}
-		return this.lineNumbers || this.highlightLines ? this.addLineFeatures(e) : e;
+		this.lineNumbers || this.highlightLines ? this._highlightedCode = this.addLineFeatures(t) : this._highlightedCode = t;
 	}
 	escapeHtml(e) {
 		let t = document.createElement("div");
@@ -226,14 +234,14 @@ var g = class extends e(s`
 				</section>
 				<!-- Code -->
 				<div class="overflow-auto" style="${this.maxHeight ? `max-height: ${this.maxHeight}` : ""}">
-					<pre class="m-0"><code class="${e}">${h(this.highlightedCode)}</code></pre>
+					<pre class="m-0"><code class="${e}">${l(this._highlightedCode)}</code></pre>
 				</div>
 			</schmancy-details>
 		`;
 	}
 };
-t([a({ type: String })], g.prototype, "language", void 0), t([a({ type: String })], g.prototype, "code", void 0), t([a({ type: String })], g.prototype, "filename", void 0), t([a({ type: Boolean })], g.prototype, "lineNumbers", void 0), t([a({ type: Boolean })], g.prototype, "copyButton", void 0), t([a({ type: String })], g.prototype, "highlightLines", void 0), t([a({ type: String })], g.prototype, "maxHeight", void 0), t([o()], g.prototype, "copied", void 0), g = t([i("schmancy-code")], g);
-var _ = class extends e(s`:host{
+t([a({ type: String })], d.prototype, "language", void 0), t([a({ type: String })], d.prototype, "code", void 0), t([a({ type: String })], d.prototype, "filename", void 0), t([a({ type: Boolean })], d.prototype, "lineNumbers", void 0), t([a({ type: Boolean })], d.prototype, "copyButton", void 0), t([a({ type: String })], d.prototype, "highlightLines", void 0), t([a({ type: String })], d.prototype, "maxHeight", void 0), t([o()], d.prototype, "copied", void 0), t([o()], d.prototype, "_highlightedCode", void 0), d = t([i("schmancy-code")], d);
+var f = class extends e(s`:host{
 		display:block;
 		overflow:hidden;
 		position:relative;
@@ -287,5 +295,5 @@ var _ = class extends e(s`:host{
 		`;
 	}
 };
-t([a({ type: String })], _.prototype, "language", void 0), t([a({ type: String })], _.prototype, "layout", void 0), t([a({ type: Boolean })], _.prototype, "preview", void 0), t([o()], _.prototype, "slotContent", void 0), _ = t([i("schmancy-code-preview")], _);
-export { g as n, _ as t };
+t([a({ type: String })], f.prototype, "language", void 0), t([a({ type: String })], f.prototype, "layout", void 0), t([a({ type: Boolean })], f.prototype, "preview", void 0), t([o()], f.prototype, "slotContent", void 0), f = t([i("schmancy-code-preview")], f);
+export { d as n, f as t };
