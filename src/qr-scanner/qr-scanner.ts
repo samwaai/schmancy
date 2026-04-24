@@ -1,10 +1,24 @@
 import { $LitElement } from '@mixins/litElement.mixin'
-import jsQR from 'jsqr'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { animationFrames, Subject, timer } from 'rxjs'
 import { distinctUntilChanged, filter, map, takeUntil, throttleTime } from 'rxjs/operators'
+
+// jsQR (~53 KB gzipped) is loaded lazily the first time a camera stream
+// is attached — see ADR 0014. Until this resolves, scanFrame() returns
+// null and no decode happens, so the animationFrames loop spins harmlessly.
+type JsQR = typeof import('jsqr').default
+let jsQRFn: JsQR | null = null
+let jsQRPromise: Promise<JsQR> | null = null
+function loadJsQR(): Promise<JsQR> {
+	if (jsQRPromise) return jsQRPromise
+	jsQRPromise = import('jsqr').then(m => {
+		jsQRFn = m.default
+		return m.default
+	})
+	return jsQRPromise
+}
 
 interface QRScanResult {
 	data: string
@@ -55,6 +69,12 @@ export class SchmancyQRScanner extends $LitElement(css`
 			if (this.videoElement) {
 				this.videoElement.srcObject = this.stream
 				await this.videoElement.play()
+				// Preload jsQR before starting the animationFrames loop so the
+				// first few frames have the decoder available. If the fetch
+				// hasn't finished by the time a frame fires, scanFrame() just
+				// returns null for that tick — no decode, no error.
+				await loadJsQR()
+				if (!this.isConnected) return
 				this.startScanning()
 			}
 		} catch (error) {
@@ -122,7 +142,12 @@ export class SchmancyQRScanner extends $LitElement(css`
 			ctx.drawImage(this.videoElement, 0, 0)
 			const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
-			const code = jsQR(imageData.data, imageData.width, imageData.height)
+			// Skip this frame if jsQR hasn't resolved yet — startCamera awaits
+			// loadJsQR() before this path runs, so in practice jsQRFn is
+			// always set here. Keeping the guard for safety during racy
+			// disconnects.
+			if (!jsQRFn) return null
+			const code = jsQRFn(imageData.data, imageData.width, imageData.height)
 
 			if (code && code.data) {
 				return {
