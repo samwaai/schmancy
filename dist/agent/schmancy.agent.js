@@ -24959,7 +24959,94 @@ var Ld = class extends B(F`
 		`;
 	}
 };
-N([R("slot:not([name])")], Ld.prototype, "menuSlot", void 0), Ld = N([P("schmancy-menu")], Ld), new class {
+N([R("slot:not([name])")], Ld.prototype, "menuSlot", void 0), Ld = N([P("schmancy-menu")], Ld);
+var Rd = class extends z(F`
+	:host {
+		display: inline-flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		min-width: 0;
+	}
+	:host([size='sm']) .label { font-size: 0.6875rem; }
+	:host([size='sm']) .value { font-size: 1.25rem; }
+	:host([size='md']) .label { font-size: 0.75rem; }
+	:host([size='md']) .value { font-size: 1.75rem; }
+	:host([size='lg']) .label { font-size: 0.8125rem; }
+	:host([size='lg']) .value { font-size: 2.5rem; }
+	.label {
+		font-weight: 500;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--schmancy-sys-color-surface-onVariant);
+	}
+	.value {
+		font-weight: 600;
+		line-height: 1.1;
+		color: var(--schmancy-sys-color-surface-on);
+		font-variant-numeric: tabular-nums;
+	}
+	.delta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.125rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		padding: 0.125rem 0.375rem;
+		border-radius: 999px;
+		font-variant-numeric: tabular-nums;
+	}
+	.delta[data-trend='up'] {
+		color: var(--schmancy-sys-color-success-on);
+		background: var(--schmancy-sys-color-success-default);
+	}
+	.delta[data-trend='down'] {
+		color: var(--schmancy-sys-color-error-on);
+		background: var(--schmancy-sys-color-error-default);
+	}
+	.delta[data-trend='neutral'] {
+		color: var(--schmancy-sys-color-surface-on);
+		background: var(--schmancy-sys-color-surface-containerHigh);
+	}
+	.arrow {
+		font-size: 0.625rem;
+		line-height: 1;
+	}
+	.row {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+`) {
+	constructor(...e) {
+		super(...e), this.label = "", this.value = "", this.size = "md";
+	}
+	_arrowFor(e) {
+		return e === "up" ? "↑" : e === "down" ? "↓" : "→";
+	}
+	render() {
+		let e = this.trend ?? "neutral";
+		return j`
+			<span class="label" part="label"><slot name="label">${this.label}</slot></span>
+			<span class="row">
+				<span class="value" part="value"><slot>${this.value}</slot></span>
+				${this.delta ? j`
+							<span class="delta" part="delta" data-trend=${e}>
+								${this.trend ? j`<span class="arrow" aria-hidden="true">${this._arrowFor(this.trend)}</span>` : M}
+								${this.delta}
+							</span>
+						` : M}
+			</span>
+		`;
+	}
+};
+N([I({ type: String })], Rd.prototype, "label", void 0), N([I({ type: String })], Rd.prototype, "value", void 0), N([I({
+	type: String,
+	reflect: !0
+})], Rd.prototype, "trend", void 0), N([I({ type: String })], Rd.prototype, "delta", void 0), N([I({
+	type: String,
+	reflect: !0
+})], Rd.prototype, "size", void 0), Rd = N([P("schmancy-metric")], Rd), new class {
 	constructor() {
 		this.$drawer = new C(), this.$drawer.pipe(Yt(10)).subscribe((e) => {
 			e.state ? window.dispatchEvent(new CustomEvent(hc.NavDrawer_toggle, {
@@ -24986,7 +25073,7 @@ N([R("slot:not([name])")], Ld.prototype, "menuSlot", void 0), Ld = N([P("schmanc
 		});
 	}
 }();
-var Rd = class extends z(F`
+var zd = class extends z(F`
 	:host {
 		display: block;
 		width: 100%;
@@ -24997,8 +25084,8 @@ var Rd = class extends z(F`
 		return j`<slot></slot>`;
 	}
 };
-Rd = N([P("schmancy-nav-drawer-appbar")], Rd);
-var zd = class extends B(F`
+zd = N([P("schmancy-nav-drawer-appbar")], zd);
+var Bd = class extends B(F`
 	:host {
 		display: block;
 		position: relative;
@@ -25019,8 +25106,8 @@ var zd = class extends B(F`
 		return j` <slot></slot> `;
 	}
 };
-zd = N([P("schmancy-nav-drawer-content")], zd);
-var Bd, Vd = "push", Hd = "close", Ud = class extends B(F`
+Bd = N([P("schmancy-nav-drawer-content")], Bd);
+var Vd, Hd = "push", Ud = "close", Wd = class extends B(F`
 	:host {
 		display: grid;
 		grid-template-columns: auto 1fr;
@@ -25041,7 +25128,7 @@ var Bd, Vd = "push", Hd = "close", Ud = class extends B(F`
 	}
 `) {
 	static {
-		Bd = this;
+		Vd = this;
 	}
 	constructor(...e) {
 		super(...e), this.fullscreen = !1, this.breakpoint = "md";
@@ -25055,7 +25142,7 @@ var Bd, Vd = "push", Hd = "close", Ud = class extends B(F`
 		};
 	}
 	firstUpdated() {
-		this.updateState(window.innerWidth), this.setAttribute("data-ready", ""), E(window, "resize").pipe(T((e) => e.target.innerWidth), T((e) => e >= Bd.BREAKPOINTS[this.breakpoint]), O(), Yt(100), k(this.disconnecting)).subscribe((e) => {
+		this.updateState(window.innerWidth), this.setAttribute("data-ready", ""), E(window, "resize").pipe(T((e) => e.target.innerWidth), T((e) => e >= Vd.BREAKPOINTS[this.breakpoint]), O(), Yt(100), k(this.disconnecting)).subscribe((e) => {
 			e ? (this.mode = "push", this.open = "open") : (this.mode = "overlay", this.open = "close");
 		}), E(window, "fullscreen").pipe(A((e) => {
 			let t = e;
@@ -25067,7 +25154,7 @@ var Bd, Vd = "push", Hd = "close", Ud = class extends B(F`
 		});
 	}
 	updateState(e) {
-		let t = e >= Bd.BREAKPOINTS[this.breakpoint];
+		let t = e >= Vd.BREAKPOINTS[this.breakpoint];
 		this.mode = t ? "push" : "overlay", this.open = t ? "open" : "close";
 	}
 	render() {
@@ -25077,11 +25164,11 @@ var Bd, Vd = "push", Hd = "close", Ud = class extends B(F`
 N([I({
 	type: Boolean,
 	reflect: !0
-})], Ud.prototype, "fullscreen", void 0), N([I({
+})], Wd.prototype, "fullscreen", void 0), N([I({
 	type: String,
 	attribute: "breakpoint"
-})], Ud.prototype, "breakpoint", void 0), N([dr({ context: Vd }), L()], Ud.prototype, "mode", void 0), N([dr({ context: Hd }), I()], Ud.prototype, "open", void 0), Ud = Bd = N([P("schmancy-nav-drawer")], Ud);
-var Wd = "cubic-bezier(0.5, 0.01, 0.25, 1)", Gd = class extends B() {
+})], Wd.prototype, "breakpoint", void 0), N([dr({ context: Hd }), L()], Wd.prototype, "mode", void 0), N([dr({ context: Ud }), I()], Wd.prototype, "open", void 0), Wd = Vd = N([P("schmancy-nav-drawer")], Wd);
+var Gd = "cubic-bezier(0.5, 0.01, 0.25, 1)", Kd = class extends B() {
 	constructor(...e) {
 		super(...e), this.width = "220px", this._initialized = !1;
 	}
@@ -25094,14 +25181,14 @@ var Wd = "cubic-bezier(0.5, 0.01, 0.25, 1)", Gd = class extends B() {
 	openOverlay() {
 		this.overlay.style.display = "block", this.overlay.animate([{ opacity: 0 }, { opacity: .4 }], {
 			duration: 200,
-			easing: Wd,
+			easing: Gd,
 			fill: "forwards"
 		});
 	}
 	closeOverlay() {
 		this.overlay.animate([{ opacity: .4 }, { opacity: 0 }], {
 			duration: 150,
-			easing: Wd,
+			easing: Gd,
 			fill: "forwards"
 		}).onfinish = () => {
 			this.overlay.style.display = "none";
@@ -25110,7 +25197,7 @@ var Wd = "cubic-bezier(0.5, 0.01, 0.25, 1)", Gd = class extends B() {
 	showNavDrawer() {
 		this.nav.animate([{ transform: "translateX(-100%)" }, { transform: "translateX(0)" }], {
 			duration: 200,
-			easing: Wd,
+			easing: Gd,
 			fill: "forwards"
 		}).onfinish = () => {
 			this.nav.style.transform = "translateX(0)";
@@ -25119,7 +25206,7 @@ var Wd = "cubic-bezier(0.5, 0.01, 0.25, 1)", Gd = class extends B() {
 	hideNavDrawer() {
 		this.nav.animate([{ transform: "translateX(0)" }, { transform: "translateX(-100%)" }], {
 			duration: 200,
-			easing: Wd,
+			easing: Gd,
 			fill: "forwards"
 		}).onfinish = () => {
 			this.nav.style.transform = "translateX(-100%)";
@@ -25156,13 +25243,13 @@ var Wd = "cubic-bezier(0.5, 0.01, 0.25, 1)", Gd = class extends B() {
 	}
 };
 N([fr({
-	context: Vd,
-	subscribe: !0
-}), L()], Gd.prototype, "mode", void 0), N([fr({
 	context: Hd,
 	subscribe: !0
-}), L()], Gd.prototype, "drawerState", void 0), N([R("#overlay")], Gd.prototype, "overlay", void 0), N([R("nav")], Gd.prototype, "nav", void 0), N([I({ type: String })], Gd.prototype, "width", void 0), N([L()], Gd.prototype, "_initialized", void 0), Gd = N([P("schmancy-nav-drawer-navbar")], Gd);
-var Kd = class extends z(F`
+}), L()], Kd.prototype, "mode", void 0), N([fr({
+	context: Ud,
+	subscribe: !0
+}), L()], Kd.prototype, "drawerState", void 0), N([R("#overlay")], Kd.prototype, "overlay", void 0), N([R("nav")], Kd.prototype, "nav", void 0), N([I({ type: String })], Kd.prototype, "width", void 0), N([L()], Kd.prototype, "_initialized", void 0), Kd = N([P("schmancy-nav-drawer-navbar")], Kd);
+var qd = class extends z(F`
 	:host {
 		display: flex;
 		flex: 1;
@@ -25374,17 +25461,17 @@ var Kd = class extends z(F`
 		`;
 	}
 };
-N([I({ type: String })], Kd.prototype, "icon", void 0), N([I({ type: String })], Kd.prototype, "label", void 0), N([I({ type: String })], Kd.prototype, "badge", void 0), N([I({
+N([I({ type: String })], qd.prototype, "icon", void 0), N([I({ type: String })], qd.prototype, "label", void 0), N([I({ type: String })], qd.prototype, "badge", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Kd.prototype, "active", null), N([I({
+})], qd.prototype, "active", null), N([I({
 	type: Boolean,
 	reflect: !0
-})], Kd.prototype, "disabled", void 0), N([I({
+})], qd.prototype, "disabled", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Kd.prototype, "hideLabels", void 0), N([L()], Kd.prototype, "ripples", void 0), Kd = N([P("schmancy-navigation-bar-item")], Kd);
-var qd = class extends z(F`
+})], qd.prototype, "hideLabels", void 0), N([L()], qd.prototype, "ripples", void 0), qd = N([P("schmancy-navigation-bar-item")], qd);
+var Jd = class extends z(F`
 	:host {
 		display: block;
 		transition: transform 0.3s ease-in-out;
@@ -25543,17 +25630,17 @@ var qd = class extends z(F`
 		`;
 	}
 };
-N([I({ type: Number })], qd.prototype, "activeIndex", null), N([I({
+N([I({ type: Number })], Jd.prototype, "activeIndex", null), N([I({
 	type: Boolean,
 	reflect: !0
-})], qd.prototype, "hideLabels", void 0), N([I({
+})], Jd.prototype, "hideLabels", void 0), N([I({
 	type: Number,
 	reflect: !0
-})], qd.prototype, "elevation", void 0), N([I({
+})], Jd.prototype, "elevation", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], qd.prototype, "hideOnScroll", void 0), N([L()], qd.prototype, "focusedIndex", void 0), N([L()], qd.prototype, "isHiddenByScroll", void 0), N([L()], qd.prototype, "isFullscreen", void 0), qd = N([P("schmancy-navigation-bar")], qd);
-var Jd = class extends B() {
+})], Jd.prototype, "hideOnScroll", void 0), N([L()], Jd.prototype, "focusedIndex", void 0), N([L()], Jd.prototype, "isHiddenByScroll", void 0), N([L()], Jd.prototype, "isFullscreen", void 0), Jd = N([P("schmancy-navigation-bar")], Jd);
+var Yd = class extends B() {
 	constructor(...e) {
 		super(...e), this.hovering$ = new w(!1), this.pressing$ = new w(!1), this.active$ = new w(!1), this.icon = "", this.label = "", this.value = "", this.badge = "", this.badgeVariant = "error", this.showLabel = !1, this.disabled = !1, this.nested = !1, this.group = !1, this.showRipple = !1;
 	}
@@ -25702,26 +25789,26 @@ var Jd = class extends B() {
 		`;
 	}
 };
-N([I({ type: String })], Jd.prototype, "icon", void 0), N([I({ type: String })], Jd.prototype, "label", void 0), N([I({ type: String })], Jd.prototype, "value", void 0), N([I({
+N([I({ type: String })], Yd.prototype, "icon", void 0), N([I({ type: String })], Yd.prototype, "label", void 0), N([I({ type: String })], Yd.prototype, "value", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Jd.prototype, "active", null), N([I({
+})], Yd.prototype, "active", null), N([I({
 	type: Boolean,
 	reflect: !0
-})], Jd.prototype, "selected", null), N([I({ type: String })], Jd.prototype, "badge", void 0), N([I({ type: String })], Jd.prototype, "badgeVariant", void 0), N([I({
+})], Yd.prototype, "selected", null), N([I({ type: String })], Yd.prototype, "badge", void 0), N([I({ type: String })], Yd.prototype, "badgeVariant", void 0), N([I({
 	type: Boolean,
 	attribute: "show-label"
-})], Jd.prototype, "showLabel", void 0), N([I({
+})], Yd.prototype, "showLabel", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Jd.prototype, "disabled", void 0), N([I({
+})], Yd.prototype, "disabled", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Jd.prototype, "nested", void 0), N([I({
+})], Yd.prototype, "nested", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Jd.prototype, "group", void 0), N([L()], Jd.prototype, "showRipple", void 0), Jd = N([P("schmancy-navigation-rail-item")], Jd);
-var Yd = class extends B() {
+})], Yd.prototype, "group", void 0), N([L()], Yd.prototype, "showRipple", void 0), Yd = N([P("schmancy-navigation-rail-item")], Yd);
+var Xd = class extends B() {
 	constructor(...e) {
 		super(...e), this.activeIndex$ = new w(-1), this._activeValue = "", this.labelVisibility = "all", this.alignment = "top", this.showTooltips = !0, this.keyboardNavigation = !0, this.expanded = !1, this.focusedIndex = -1, this.hasHeaderContent = !1, this.isFullscreen = !1;
 	}
@@ -25897,18 +25984,18 @@ var Yd = class extends B() {
 		});
 	}
 };
-N([I({ type: Number })], Yd.prototype, "activeIndex", null), N([I({ type: String })], Yd.prototype, "activeValue", null), N([I({
+N([I({ type: Number })], Xd.prototype, "activeIndex", null), N([I({ type: String })], Xd.prototype, "activeValue", null), N([I({
 	type: String,
 	attribute: "label-visibility",
 	reflect: !0
-})], Yd.prototype, "labelVisibility", void 0), N([I({
+})], Xd.prototype, "labelVisibility", void 0), N([I({
 	type: String,
 	reflect: !0
-})], Yd.prototype, "alignment", void 0), N([I({ type: Boolean })], Yd.prototype, "showTooltips", void 0), N([I({ type: Boolean })], Yd.prototype, "keyboardNavigation", void 0), N([I({
+})], Xd.prototype, "alignment", void 0), N([I({ type: Boolean })], Xd.prototype, "showTooltips", void 0), N([I({ type: Boolean })], Xd.prototype, "keyboardNavigation", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Yd.prototype, "expanded", void 0), N([L()], Yd.prototype, "focusedIndex", void 0), N([L()], Yd.prototype, "hasHeaderContent", void 0), N([L()], Yd.prototype, "isFullscreen", void 0), N([Br({ flatten: !0 })], Yd.prototype, "allElements", void 0), Yd = N([P("schmancy-navigation-rail")], Yd);
-var Xd = class extends z(F`
+})], Xd.prototype, "expanded", void 0), N([L()], Xd.prototype, "focusedIndex", void 0), N([L()], Xd.prototype, "hasHeaderContent", void 0), N([L()], Xd.prototype, "isFullscreen", void 0), N([Br({ flatten: !0 })], Xd.prototype, "allElements", void 0), Xd = N([P("schmancy-navigation-rail")], Xd);
+var Zd = class extends z(F`
 	:host {
 		display: block;
 		cursor: pointer;
@@ -25993,14 +26080,14 @@ var Xd = class extends z(F`
 		`;
 	}
 };
-N([I({ type: String })], Xd.prototype, "value", void 0), N([I({ type: String })], Xd.prototype, "label", void 0), N([I({
+N([I({ type: String })], Zd.prototype, "value", void 0), N([I({ type: String })], Zd.prototype, "label", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Xd.prototype, "selected", void 0), N([I({
+})], Zd.prototype, "selected", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Xd.prototype, "disabled", void 0), N([I({ type: String })], Xd.prototype, "group", void 0), N([I({ type: String })], Xd.prototype, "icon", void 0), Xd = N([P("schmancy-option")], Xd);
-var Zd = class extends B(F`
+})], Zd.prototype, "disabled", void 0), N([I({ type: String })], Zd.prototype, "group", void 0), N([I({ type: String })], Zd.prototype, "icon", void 0), Zd = N([P("schmancy-option")], Zd);
+var Qd = class extends B(F`
 	:host {
 		display: block;
 		box-sizing: border-box;
@@ -26054,14 +26141,14 @@ var Zd = class extends B(F`
 		`;
 	}
 };
-N([I({ type: String })], Zd.prototype, "rows", void 0), N([I({
+N([I({ type: String })], Qd.prototype, "rows", void 0), N([I({
 	type: Boolean,
 	attribute: "show-scrollbar"
-})], Zd.prototype, "showScrollbar", void 0), N([I({
+})], Qd.prototype, "showScrollbar", void 0), N([I({
 	type: Boolean,
 	attribute: "no-select"
-})], Zd.prototype, "noSelect", void 0), Zd = N([P("schmancy-page")], Zd);
-var Qd = null, $d = null, ef = class extends B(F`
+})], Qd.prototype, "noSelect", void 0), Qd = N([P("schmancy-page")], Qd);
+var $d = null, ef = null, tf = class extends B(F`
 	:host {
 		display: block;
 		width: 100%;
@@ -26083,7 +26170,7 @@ var Qd = null, $d = null, ef = class extends B(F`
 				height: { ideal: 720 }
 			} };
 			if (this.stream = await navigator.mediaDevices.getUserMedia(t), this.hasPermission = !0, this.error = "", await this.updateComplete, this.videoElement = this.shadowRoot?.querySelector("#video"), this.videoElement) {
-				if (this.videoElement.srcObject = this.stream, await this.videoElement.play(), await ($d || ($d = import("./vendor-jsqr-Bl4iAtKC.js").then((t) => e(t.t(), 1)).then((e) => (Qd = e.default, e.default)), $d)), !this.isConnected) return;
+				if (this.videoElement.srcObject = this.stream, await this.videoElement.play(), await (ef || (ef = import("./vendor-jsqr-Bl4iAtKC.js").then((t) => e(t.t(), 1)).then((e) => ($d = e.default, e.default)), ef)), !this.isConnected) return;
 				this.startScanning();
 			}
 		} catch {
@@ -26109,8 +26196,8 @@ var Qd = null, $d = null, ef = class extends B(F`
 			if (!t) return null;
 			t.drawImage(this.videoElement, 0, 0);
 			let n = t.getImageData(0, 0, e.width, e.height);
-			if (!Qd) return null;
-			let r = Qd(n.data, n.width, n.height);
+			if (!$d) return null;
+			let r = $d(n.data, n.width, n.height);
 			if (r && r.data) return {
 				data: r.data,
 				timestamp: Date.now()
@@ -26177,8 +26264,8 @@ var Qd = null, $d = null, ef = class extends B(F`
 		`;
 	}
 };
-N([I({ type: Boolean })], ef.prototype, "continuous", void 0), N([L()], ef.prototype, "hasPermission", void 0), N([L()], ef.prototype, "error", void 0), N([L()], ef.prototype, "showSuccess", void 0), ef = N([P("schmancy-qr-scanner")], ef);
-var tf = class extends qr(z(":host{display:inherit;position:inherit}")) {
+N([I({ type: Boolean })], tf.prototype, "continuous", void 0), N([L()], tf.prototype, "hasPermission", void 0), N([L()], tf.prototype, "error", void 0), N([L()], tf.prototype, "showSuccess", void 0), tf = N([P("schmancy-qr-scanner")], tf);
+var nf = class extends qr(z(":host{display:inherit;position:inherit}")) {
 	constructor(...e) {
 		super(...e), this.label = "", this.name = "", this.value = "", this.options = [], this.required = !1, this.selection$ = new C();
 	}
@@ -26230,8 +26317,8 @@ var tf = class extends qr(z(":host{display:inherit;position:inherit}")) {
 		`;
 	}
 };
-N([I({ type: String })], tf.prototype, "label", void 0), N([I({ type: String })], tf.prototype, "name", void 0), N([I({ type: String })], tf.prototype, "value", void 0), N([I({ type: Array })], tf.prototype, "options", void 0), N([I({ type: Boolean })], tf.prototype, "required", void 0), tf = N([P("schmancy-radio-group")], tf);
-var nf = class extends qr(z()) {
+N([I({ type: String })], nf.prototype, "label", void 0), N([I({ type: String })], nf.prototype, "name", void 0), N([I({ type: String })], nf.prototype, "value", void 0), N([I({ type: Array })], nf.prototype, "options", void 0), N([I({ type: Boolean })], nf.prototype, "required", void 0), nf = N([P("schmancy-radio-group")], nf);
+var rf = class extends qr(z()) {
 	constructor(...e) {
 		super(...e), this.value = "", this.checked = !1, this.disabled = !1, this.name = "";
 	}
@@ -26272,11 +26359,11 @@ var nf = class extends qr(z()) {
 		`;
 	}
 };
-N([I({ type: String })], nf.prototype, "value", void 0), N([I({
+N([I({ type: String })], rf.prototype, "value", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], nf.prototype, "checked", void 0), N([I({ type: Boolean })], nf.prototype, "disabled", void 0), N([I({ type: String })], nf.prototype, "name", void 0), nf = N([P("schmancy-radio-button")], nf);
-var rf = class extends z(F`
+})], rf.prototype, "checked", void 0), N([I({ type: Boolean })], rf.prototype, "disabled", void 0), N([I({ type: String })], rf.prototype, "name", void 0), rf = N([P("schmancy-radio-button")], rf);
+var af = class extends z(F`
 	input[type='range'] {
 		-webkit-appearance: none;
 		appearance: none;
@@ -26354,7 +26441,7 @@ var rf = class extends z(F`
 		`;
 	}
 };
-N([I({ type: Number })], rf.prototype, "min", void 0), N([I({ type: Number })], rf.prototype, "max", void 0), N([I({ type: Number })], rf.prototype, "step", void 0), N([I({ type: Number })], rf.prototype, "value", void 0), N([I({ type: String })], rf.prototype, "label", void 0), N([I({ type: Boolean })], rf.prototype, "disabled", void 0), rf = N([P("schmancy-range")], rf);
+N([I({ type: Number })], af.prototype, "min", void 0), N([I({ type: Number })], af.prototype, "max", void 0), N([I({ type: Number })], af.prototype, "step", void 0), N([I({ type: Number })], af.prototype, "value", void 0), N([I({ type: String })], af.prototype, "label", void 0), N([I({ type: Boolean })], af.prototype, "disabled", void 0), af = N([P("schmancy-range")], af);
 var Z = (t((e) => {
 	Object.defineProperty(e, "Y", { value: !0 }), e.hasValueAtKey = e.hasPresentKey = e.isFilled = e.isDefined = e.isPresent = void 0, e.isPresent = function(e) {
 		return e != null;
@@ -26955,7 +27042,7 @@ N([I({ type: String })], Q.prototype, "name", void 0), N([I({
 	type: String,
 	reflect: !0
 })], Q.prototype, "value", null), N([I({ type: Array })], Q.prototype, "values", null), N([I({ type: Boolean })], Q.prototype, "multi", void 0), N([I({ type: String })], Q.prototype, "label", void 0), N([I({ type: String })], Q.prototype, "hint", void 0), N([I({ type: String })], Q.prototype, "validateOn", void 0), N([I({ type: String })], Q.prototype, "size", void 0), N([L()], Q.prototype, "isOpen", void 0), N([L()], Q.prototype, "valueLabel", void 0), N([L()], Q.prototype, "isValid", void 0), N([I({ type: String })], Q.prototype, "validationMessage", void 0), N([L()], Q.prototype, "defaultValue", void 0), N([R("ul")], Q.prototype, "ul", void 0), N([R("sch-input")], Q.prototype, "inputRef", void 0), N([Br({ flatten: !0 })], Q.prototype, "options", void 0), N([L()], Q.prototype, "_userInteracted", void 0), N([L()], Q.prototype, "_touched", void 0), N([L()], Q.prototype, "_dirty", void 0), N([L()], Q.prototype, "_submitted", void 0), N([L()], Q.prototype, "_focusedOptionId", void 0), Q = N([P("schmancy-select")], Q);
-var af, of, sf = class extends B(F`
+var of, sf, cf = class extends B(F`
 	:host {
 		position: fixed;
 		inset: 0;
@@ -27093,28 +27180,28 @@ var af, of, sf = class extends B(F`
 N([I({
 	type: Boolean,
 	reflect: !0
-})], sf.prototype, "open", void 0), N([I({
+})], cf.prototype, "open", void 0), N([I({
 	type: String,
 	reflect: !0
-})], sf.prototype, "position", void 0), N([I({
+})], cf.prototype, "position", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], sf.prototype, "persist", void 0), N([I({
+})], cf.prototype, "persist", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], sf.prototype, "lock", void 0), N([I({
+})], cf.prototype, "lock", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], sf.prototype, "handleHistory", void 0), N([R(".overlay")], sf.prototype, "overlayEl", void 0), N([R(".content")], sf.prototype, "contentEl", void 0), N([(af = "open", (e, t) => {
+})], cf.prototype, "handleHistory", void 0), N([R(".overlay")], cf.prototype, "overlayEl", void 0), N([R(".content")], cf.prototype, "contentEl", void 0), N([(of = "open", (e, t) => {
 	let { willUpdate: n } = e;
-	of = Object.assign({ waitUntilFirstUpdate: !1 }, of), e.willUpdate = function(e) {
-		if (n.call(this, e), e.has(af)) {
-			let n = e.get(af), r = this[af];
-			n !== r && (of?.waitUntilFirstUpdate && !this.hasUpdated || this[t].call(this, n, r));
+	sf = Object.assign({ waitUntilFirstUpdate: !1 }, sf), e.willUpdate = function(e) {
+		if (n.call(this, e), e.has(of)) {
+			let n = e.get(of), r = this[of];
+			n !== r && (sf?.waitUntilFirstUpdate && !this.hasUpdated || this[t].call(this, n, r));
 		}
 	};
-})], sf.prototype, "onOpenChange", null), sf = N([P("schmancy-sheet")], sf);
-var cf = class extends B(F`
+})], cf.prototype, "onOpenChange", null), cf = N([P("schmancy-sheet")], cf);
+var lf = class extends B(F`
 	:host {
 		display: block;
 		scroll-snap-align: center; /* If your slider uses scroll-snap */
@@ -27152,8 +27239,8 @@ var cf = class extends B(F`
 		}
 	}
 };
-N([I({ type: String })], cf.prototype, "type", void 0), N([I({ type: String })], cf.prototype, "src", void 0), N([I({ type: String })], cf.prototype, "alt", void 0), N([I({ type: Boolean })], cf.prototype, "controls", void 0), N([I({ type: Boolean })], cf.prototype, "autoplay", void 0), N([I({ type: Boolean })], cf.prototype, "loop", void 0), N([I({ type: Boolean })], cf.prototype, "muted", void 0), N([I({ type: String })], cf.prototype, "fit", void 0), cf = N([P("schmancy-slide")], cf);
-var lf = class extends B(F`
+N([I({ type: String })], lf.prototype, "type", void 0), N([I({ type: String })], lf.prototype, "src", void 0), N([I({ type: String })], lf.prototype, "alt", void 0), N([I({ type: Boolean })], lf.prototype, "controls", void 0), N([I({ type: Boolean })], lf.prototype, "autoplay", void 0), N([I({ type: Boolean })], lf.prototype, "loop", void 0), N([I({ type: Boolean })], lf.prototype, "muted", void 0), N([I({ type: String })], lf.prototype, "fit", void 0), lf = N([P("schmancy-slide")], lf);
+var uf = class extends B(F`
 	.slider {
 		/* Lay out slides horizontally, one after another */
 		display: flex;
@@ -27248,8 +27335,8 @@ var lf = class extends B(F`
 		`;
 	}
 };
-N([L()], lf.prototype, "selectedIndex", void 0), N([I({ type: Boolean })], lf.prototype, "showArrows", void 0), N([R("#slider")], lf.prototype, "slider", void 0), N([R("slot")], lf.prototype, "defaultSlot", void 0), lf = N([P("schmancy-slider")], lf);
-var uf = class {
+N([L()], uf.prototype, "selectedIndex", void 0), N([I({ type: Boolean })], uf.prototype, "showArrows", void 0), N([R("#slider")], uf.prototype, "slider", void 0), N([R("slot")], uf.prototype, "defaultSlot", void 0), uf = N([P("schmancy-slider")], uf);
+var df = class {
 	constructor() {
 		this._currentStep = new w(1);
 	}
@@ -27262,7 +27349,7 @@ var uf = class {
 	setStep(e) {
 		this._currentStep.next(e);
 	}
-}, df = Symbol("SchmancyStepsContext"), ff = class extends B(F`
+}, ff = Symbol("SchmancyStepsContext"), pf = class extends B(F`
 	:host {
 		display: grid;
 		/* Base display is just grid, flex properties will be applied dynamically */
@@ -27361,18 +27448,18 @@ var uf = class {
 		`;
 	}
 };
-N([I({ type: Number })], ff.prototype, "position", void 0), N([I({ type: String })], ff.prototype, "title", void 0), N([I({ type: String })], ff.prototype, "description", void 0), N([I({
+N([I({ type: Number })], pf.prototype, "position", void 0), N([I({ type: String })], pf.prototype, "title", void 0), N([I({ type: String })], pf.prototype, "description", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], ff.prototype, "completed", void 0), N([I({ type: Boolean })], ff.prototype, "lockBack", void 0), N([fr({ context: df })], ff.prototype, "steps", void 0), N([L()], ff.prototype, "currentStep", void 0), ff = N([P("schmancy-step")], ff);
-var pf = class extends B(F`
+})], pf.prototype, "completed", void 0), N([I({ type: Boolean })], pf.prototype, "lockBack", void 0), N([fr({ context: ff })], pf.prototype, "steps", void 0), N([L()], pf.prototype, "currentStep", void 0), pf = N([P("schmancy-step")], pf);
+var mf = class extends B(F`
 	:host {
 		display: block;
 		overflow: auto;
 	}
 `) {
 	constructor(...e) {
-		super(...e), this.controller = new uf(), this.stepsController = this.controller, this.gap = 4, this.handleChange = (e) => {
+		super(...e), this.controller = new df(), this.stepsController = this.controller, this.gap = 4, this.handleChange = (e) => {
 			e.target !== this && e.stopPropagation();
 		};
 	}
@@ -27412,14 +27499,14 @@ var pf = class extends B(F`
 		`;
 	}
 };
-N([dr({ context: df })], pf.prototype, "stepsController", void 0), N([I({
+N([dr({ context: ff })], mf.prototype, "stepsController", void 0), N([I({
 	type: Number,
 	reflect: !0
-})], pf.prototype, "currentStep", null), N([I({
+})], mf.prototype, "currentStep", null), N([I({
 	type: Number,
 	reflect: !0
-})], pf.prototype, "gap", void 0), pf = N([P("schmancy-steps-container")], pf);
-var mf = class extends B() {
+})], mf.prototype, "gap", void 0), mf = N([P("schmancy-steps-container")], mf);
+var hf = class extends B() {
 	constructor(...e) {
 		super(...e), this.columns = [], this.cols = this.columns.map(() => "1fr").join(" ");
 	}
@@ -27453,29 +27540,29 @@ var mf = class extends B() {
 N([I({
 	type: Array,
 	attribute: !1
-})], mf.prototype, "columns", void 0), N([I({
+})], hf.prototype, "columns", void 0), N([I({
 	type: Object,
 	attribute: !1
-})], mf.prototype, "item", void 0), N([I({ type: String })], mf.prototype, "cols", void 0), mf = N([P("schmancy-table-row")], mf);
-var hf = class e extends Event {
-	constructor(t) {
-		super(e.eventName, { bubbles: !1 }), this.first = t.first, this.last = t.last;
-	}
-};
-hf.eventName = "rangeChanged";
+})], hf.prototype, "item", void 0), N([I({ type: String })], hf.prototype, "cols", void 0), hf = N([P("schmancy-table-row")], hf);
 var gf = class e extends Event {
 	constructor(t) {
 		super(e.eventName, { bubbles: !1 }), this.first = t.first, this.last = t.last;
 	}
 };
-gf.eventName = "visibilityChanged";
+gf.eventName = "rangeChanged";
 var _f = class e extends Event {
+	constructor(t) {
+		super(e.eventName, { bubbles: !1 }), this.first = t.first, this.last = t.last;
+	}
+};
+_f.eventName = "visibilityChanged";
+var vf = class e extends Event {
 	constructor() {
 		super(e.eventName, { bubbles: !1 });
 	}
 };
-_f.eventName = "unpinned";
-var vf, yf = class {
+vf.eventName = "unpinned";
+var yf, bf = class {
 	constructor(e) {
 		this._element = null;
 		let t = e ?? window;
@@ -27508,7 +27595,7 @@ var vf, yf = class {
 	get maxScrollLeft() {
 		return this.scrollWidth - this.viewportWidth;
 	}
-}, bf = class extends yf {
+}, xf = class extends bf {
 	constructor(e, t) {
 		super(t), this._clients = /* @__PURE__ */ new Set(), this._retarget = null, this._end = null, this.W = null, this.correctingScrollError = !1, this._checkForArrival = this._checkForArrival.bind(this), this._updateManagedScrollTo = this._updateManagedScrollTo.bind(this), this.scrollTo = this.scrollTo.bind(this), this.scrollBy = this.scrollBy.bind(this);
 		let n = this._node;
@@ -27574,7 +27661,7 @@ var vf, yf = class {
 	_attach(e) {
 		this._clients.add(e), this._clients.size === 1 && (this._node.scrollTo = this.scrollTo, this._node.scrollBy = this.scrollBy, this._node.scroll = this.scrollTo, this._node.addEventListener("scroll", this._checkForArrival));
 	}
-}, xf = typeof window < "u" ? window.ResizeObserver : void 0, Sf = Symbol("virtualizerRef"), Cf = "virtualizer-sizer", wf = class {
+}, Sf = typeof window < "u" ? window.ResizeObserver : void 0, Cf = Symbol("virtualizerRef"), wf = "virtualizer-sizer", Tf = class {
 	constructor(e) {
 		if (this._benchmarkStart = null, this._layout = null, this._clippingAncestors = [], this._scrollSize = null, this._scrollError = null, this._childrenPos = null, this._childMeasurements = null, this._toBeMeasured = /* @__PURE__ */ new Map(), this._rangeChanged = !0, this._itemsChanged = !0, this._visibilityChanged = !0, this._scrollerController = null, this._isScroller = !1, this._sizer = null, this._hostElementRO = null, this._childrenRO = null, this._mutationObserver = null, this._scrollEventListeners = [], this._scrollEventListenerOptions = { passive: !0 }, this._loadListener = this._childLoaded.bind(this), this._scrollIntoViewTarget = null, this._updateScrollIntoViewCoordinates = null, this._items = [], this._first = -1, this._last = -1, this._firstVisible = -1, this._lastVisible = -1, this._scheduled = /* @__PURE__ */ new WeakSet(), this._measureCallback = null, this._measureChildOverride = null, this._layoutCompletePromise = null, this._layoutCompleteResolver = null, this._layoutCompleteRejecter = null, this._pendingLayoutComplete = null, this._layoutInitialized = null, this._connected = !1, !e) throw Error("Virtualizer constructor requires a configuration object");
 		if (!e.hostElement) throw Error("Virtualizer configuration requires the \"hostElement\" property");
@@ -27589,11 +27676,11 @@ var vf, yf = class {
 		this._layoutInitialized = this._initLayout(t);
 	}
 	_initObservers() {
-		this._mutationObserver = new MutationObserver(this._finishDOMUpdate.bind(this)), this._hostElementRO = new xf(() => this._hostElementSizeChanged()), this._childrenRO = new xf(this._childrenSizeChanged.bind(this));
+		this._mutationObserver = new MutationObserver(this._finishDOMUpdate.bind(this)), this._hostElementRO = new Sf(() => this._hostElementSizeChanged()), this._childrenRO = new Sf(this._childrenSizeChanged.bind(this));
 	}
 	_initHostElement(e) {
 		let t = this._hostElement = e.hostElement;
-		this._applyVirtualizerStyles(), t[Sf] = this;
+		this._applyVirtualizerStyles(), t[Cf] = this;
 	}
 	connected() {
 		this._initObservers();
@@ -27601,15 +27688,15 @@ var vf, yf = class {
 		this._clippingAncestors = function(e, t = !1) {
 			let n = !1;
 			return function(e, t = !1) {
-				let n = [], r = t ? e : Ef(e);
-				for (; r !== null;) n.push(r), r = Ef(r);
+				let n = [], r = t ? e : Df(e);
+				for (; r !== null;) n.push(r), r = Df(r);
 				return n;
 			}(e, t).filter((e) => {
 				if (n) return !1;
 				let t = getComputedStyle(e);
 				return n = t.position === "fixed", t.overflow !== "visible";
 			});
-		}(this._hostElement, e), this._scrollerController = new bf(this, this._clippingAncestors[0]), this._schedule(this._updateLayout), this._observeAndListen(), this._connected = !0;
+		}(this._hostElement, e), this._scrollerController = new xf(this, this._clippingAncestors[0]), this._schedule(this._updateLayout), this._observeAndListen(), this._connected = !0;
 	}
 	_observeAndListen() {
 		this._mutationObserver.observe(this._hostElement, { childList: !0 }), this._hostElementRO.observe(this._hostElement), this._scrollEventListeners.push(window), window.addEventListener("scroll", this, this._scrollEventListenerOptions), this._clippingAncestors.forEach((e) => {
@@ -27626,20 +27713,20 @@ var vf, yf = class {
 	_getSizer() {
 		let e = this._hostElement;
 		if (!this._sizer) {
-			let t = e.querySelector(`[${Cf}]`);
-			t || (t = document.createElement("div"), t.setAttribute(Cf, ""), e.appendChild(t)), Object.assign(t.style, {
+			let t = e.querySelector(`[${wf}]`);
+			t || (t = document.createElement("div"), t.setAttribute(wf, ""), e.appendChild(t)), Object.assign(t.style, {
 				position: "absolute",
 				margin: "-2px 0 0 0",
 				padding: 0,
 				visibility: "hidden",
 				fontSize: "2px"
-			}), t.textContent = "&nbsp;", t.setAttribute(Cf, ""), this._sizer = t;
+			}), t.textContent = "&nbsp;", t.setAttribute(wf, ""), this._sizer = t;
 		}
 		return this._sizer;
 	}
 	async updateLayoutConfig(e) {
 		await this._layoutInitialized;
-		let t = e.type || vf;
+		let t = e.type || yf;
 		if (typeof t == "function" && this._layout instanceof t) {
 			let t = { ...e };
 			return delete t.type, this._layout.config = t, !0;
@@ -27653,7 +27740,7 @@ var vf, yf = class {
 			let r = { ...e };
 			delete r.type, t = r;
 		} else t = e;
-		n === void 0 && (vf = n = (await import("./flow-CvG1fLW5.js")).FlowLayout), this._layout = new n((e) => this._handleLayoutMessage(e), t), this._layout.measureChildren && typeof this._layout.updateItemSizes == "function" && (typeof this._layout.measureChildren == "function" && (this._measureChildOverride = this._layout.measureChildren), this._measureCallback = this._layout.updateItemSizes.bind(this._layout)), this._layout.listenForChildLoadEvents && this._hostElement.addEventListener("load", this._loadListener, !0), this._schedule(this._updateLayout);
+		n === void 0 && (yf = n = (await import("./flow-CvG1fLW5.js")).FlowLayout), this._layout = new n((e) => this._handleLayoutMessage(e), t), this._layout.measureChildren && typeof this._layout.updateItemSizes == "function" && (typeof this._layout.measureChildren == "function" && (this._measureChildOverride = this._layout.measureChildren), this._measureCallback = this._layout.updateItemSizes.bind(this._layout)), this._layout.listenForChildLoadEvents && this._hostElement.addEventListener("load", this._loadListener, !0), this._schedule(this._updateLayout);
 	}
 	startBenchmarking() {
 		this._benchmarkStart === null && (this._benchmarkStart = window.performance.now());
@@ -27684,10 +27771,10 @@ var vf, yf = class {
 		}, function(e) {
 			let t = window.getComputedStyle(e);
 			return {
-				marginTop: Tf(t.marginTop),
-				marginRight: Tf(t.marginRight),
-				marginBottom: Tf(t.marginBottom),
-				marginLeft: Tf(t.marginLeft)
+				marginTop: Ef(t.marginTop),
+				marginRight: Ef(t.marginRight),
+				marginBottom: Ef(t.marginBottom),
+				marginLeft: Ef(t.marginLeft)
 			};
 		}(e));
 	}
@@ -27718,11 +27805,11 @@ var vf, yf = class {
 		e.type === "scroll" && (e.currentTarget === window || this._clippingAncestors.includes(e.currentTarget)) && this._handleScrollEvent();
 	}
 	_handleLayoutMessage(e) {
-		e.type === "stateChanged" ? this._updateDOM(e) : e.type === "visibilityChanged" ? (this._firstVisible = e.firstVisible, this._lastVisible = e.lastVisible, this._notifyVisibility()) : e.type === "unpinned" && this._hostElement.dispatchEvent(new _f());
+		e.type === "stateChanged" ? this._updateDOM(e) : e.type === "visibilityChanged" ? (this._firstVisible = e.firstVisible, this._lastVisible = e.lastVisible, this._notifyVisibility()) : e.type === "unpinned" && this._hostElement.dispatchEvent(new vf());
 	}
 	get _children() {
 		let e = [], t = this._hostElement.firstElementChild;
-		for (; t;) t.hasAttribute(Cf) || e.push(t), t = t.nextElementSibling;
+		for (; t;) t.hasAttribute(wf) || e.push(t), t = t.nextElementSibling;
 		return e;
 	}
 	_updateView() {
@@ -27794,13 +27881,13 @@ var vf, yf = class {
 		t && e?.has(t) && this._updateScrollIntoViewCoordinates(this._layout.getScrollIntoViewCoordinates(this._scrollIntoViewTarget));
 	}
 	_notifyRange() {
-		this._hostElement.dispatchEvent(new hf({
+		this._hostElement.dispatchEvent(new gf({
 			first: this._first,
 			last: this._last
 		}));
 	}
 	_notifyVisibility() {
-		this._hostElement.dispatchEvent(new gf({
+		this._hostElement.dispatchEvent(new _f({
 			first: this._firstVisible,
 			last: this._lastVisible
 		}));
@@ -27834,19 +27921,19 @@ var vf, yf = class {
 		this._scheduleLayoutComplete(), this._itemsChanged = !1, this._rangeChanged = !1;
 	}
 };
-function Tf(e) {
+function Ef(e) {
 	let t = e ? parseFloat(e) : NaN;
 	return Number.isNaN(t) ? 0 : t;
 }
-function Ef(e) {
+function Df(e) {
 	if (e.assignedSlot !== null) return e.assignedSlot;
 	if (e.parentElement !== null) return e.parentElement;
 	let t = e.parentNode;
 	return t && t.nodeType === Node.DOCUMENT_FRAGMENT_NODE && t.host || null;
 }
-var Df = (e) => e, Of = (e, t) => j`${t}: ${JSON.stringify(e, null, 2)}`, kf = $n(class extends no {
+var Of = (e) => e, kf = (e, t) => j`${t}: ${JSON.stringify(e, null, 2)}`, Af = $n(class extends no {
 	constructor(e) {
-		if (super(e), this._virtualizer = null, this._first = 0, this._last = -1, this._renderItem = (e, t) => Of(e, t + this._first), this._keyFunction = (e, t) => Df(e, this._first), this._items = [], e.type !== Zn) throw Error("The virtualize directive can only be used in child expressions");
+		if (super(e), this._virtualizer = null, this._first = 0, this._last = -1, this._renderItem = (e, t) => kf(e, t + this._first), this._keyFunction = (e, t) => Of(e, this._first), this._items = [], e.type !== Zn) throw Error("The virtualize directive can only be used in child expressions");
 	}
 	render(e) {
 		e && this._setFunctions(e);
@@ -27873,7 +27960,7 @@ var Df = (e) => e, Of = (e, t) => j`${t}: ${JSON.stringify(e, null, 2)}`, kf = $
 	_makeVirtualizer(e, t) {
 		this._virtualizer && this._virtualizer.disconnected();
 		let { layout: n, scroller: r, items: i } = t;
-		this._virtualizer = new wf({
+		this._virtualizer = new Tf({
 			hostElement: e,
 			layout: n,
 			scroller: r
@@ -27891,16 +27978,16 @@ var Df = (e) => e, Of = (e, t) => j`${t}: ${JSON.stringify(e, null, 2)}`, kf = $
 	reconnected() {
 		this._virtualizer?.connected();
 	}
-}), Af = class extends Hr {
+}), jf = class extends Hr {
 	constructor() {
-		super(...arguments), this.items = [], this.renderItem = Of, this.keyFunction = Df, this.layout = {}, this.scroller = !1;
+		super(...arguments), this.items = [], this.renderItem = kf, this.keyFunction = Of, this.layout = {}, this.scroller = !1;
 	}
 	createRenderRoot() {
 		return this;
 	}
 	render() {
 		let { items: e, renderItem: t, keyFunction: n, layout: r, scroller: i } = this;
-		return j`${kf({
+		return j`${Af({
 			items: e,
 			renderItem: t,
 			keyFunction: n,
@@ -27909,20 +27996,20 @@ var Df = (e) => e, Of = (e, t) => j`${t}: ${JSON.stringify(e, null, 2)}`, kf = $
 		})}`;
 	}
 	element(e) {
-		return this[Sf]?.element(e);
+		return this[Cf]?.element(e);
 	}
 	get layoutComplete() {
-		return this[Sf]?.layoutComplete;
+		return this[Cf]?.layoutComplete;
 	}
 	scrollToIndex(e, t = "start") {
 		this.element(e)?.scrollIntoView({ block: t });
 	}
 };
-l([I({ attribute: !1 })], Af.prototype, "items", void 0), l([I()], Af.prototype, "renderItem", void 0), l([I()], Af.prototype, "keyFunction", void 0), l([I({ attribute: !1 })], Af.prototype, "layout", void 0), l([I({
+l([I({ attribute: !1 })], jf.prototype, "items", void 0), l([I()], jf.prototype, "renderItem", void 0), l([I()], jf.prototype, "keyFunction", void 0), l([I({ attribute: !1 })], jf.prototype, "layout", void 0), l([I({
 	reflect: !0,
 	type: Boolean
-})], Af.prototype, "scroller", void 0), customElements.define("lit-virtualizer", Af);
-var jf = class extends B() {
+})], jf.prototype, "scroller", void 0), customElements.define("lit-virtualizer", jf);
+var Mf = class extends B() {
 	constructor() {
 		super(), this.columns = [], this.data = [], this.keyField = "id", this.cols = "1fr", this.sortable = !1, this.sortColumn = null, this.sortDirection = null, this.filteredData = [], this.filteredData = this.data;
 	}
@@ -28036,11 +28123,11 @@ var jf = class extends B() {
 N([I({
 	type: Array,
 	attribute: !1
-})], jf.prototype, "columns", void 0), N([I({
+})], Mf.prototype, "columns", void 0), N([I({
 	type: Array,
 	attribute: !1
-})], jf.prototype, "data", void 0), N([I({ type: String })], jf.prototype, "keyField", void 0), N([I({ type: String })], jf.prototype, "cols", void 0), N([I({ type: Boolean })], jf.prototype, "sortable", void 0), N([L()], jf.prototype, "sortColumn", void 0), N([L()], jf.prototype, "sortDirection", void 0), N([L()], jf.prototype, "filteredData", void 0), jf = N([P("schmancy-table")], jf);
-var Mf = "tabs", Nf = class extends z() {
+})], Mf.prototype, "data", void 0), N([I({ type: String })], Mf.prototype, "keyField", void 0), N([I({ type: String })], Mf.prototype, "cols", void 0), N([I({ type: Boolean })], Mf.prototype, "sortable", void 0), N([L()], Mf.prototype, "sortColumn", void 0), N([L()], Mf.prototype, "sortDirection", void 0), N([L()], Mf.prototype, "filteredData", void 0), Mf = N([P("schmancy-table")], Mf);
+var Nf = "tabs", Pf = class extends z() {
 	updated(e) {
 		e.has("active") && this.active && requestAnimationFrame(() => {
 			window.dispatchEvent(new Event("resize"));
@@ -28053,17 +28140,17 @@ var Mf = "tabs", Nf = class extends z() {
 N([I({
 	type: String,
 	reflect: !0
-})], Nf.prototype, "label", void 0), N([I({
+})], Pf.prototype, "label", void 0), N([I({
 	type: String,
 	reflect: !0
-})], Nf.prototype, "value", void 0), N([I({
+})], Pf.prototype, "value", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Nf.prototype, "active", void 0), N([fr({
-	context: Mf,
+})], Pf.prototype, "active", void 0), N([fr({
+	context: Nf,
 	subscribe: !0
-}), L()], Nf.prototype, "mode", void 0), Nf = N([P("schmancy-tab")], Nf);
-var Pf = class extends z(F`
+}), L()], Pf.prototype, "mode", void 0), Pf = N([P("schmancy-tab")], Pf);
+var Ff = class extends z(F`
 	:host {
 		display: block;
 		height: 100%;
@@ -28152,16 +28239,16 @@ var Pf = class extends z(F`
 		`;
 	}
 };
-N([dr({ context: Mf }), I({ type: String })], Pf.prototype, "mode", void 0), N([I({ type: Boolean })], Pf.prototype, "rounded", void 0), N([I({
+N([dr({ context: Nf }), I({ type: String })], Ff.prototype, "mode", void 0), N([I({ type: Boolean })], Ff.prototype, "rounded", void 0), N([I({
 	type: String,
 	reflect: !0
-})], Pf.prototype, "activeTab", void 0), N([Br({ flatten: !0 })], Pf.prototype, "tabsElements", void 0), N([R("#tabsNavigation")], Pf.prototype, "navElement", void 0), N([R("#tabsContent")], Pf.prototype, "tabsContent", void 0), N([L()], Pf.prototype, "tabs", void 0);
-var Ff = Pf = N([P("schmancy-tab-group")], Pf);
-customElements.define("schmancy-tabs-group", class extends Ff {});
-var If = "whereAreYouRicky", Lf = "hereMorty", Rf = new class {
+})], Ff.prototype, "activeTab", void 0), N([Br({ flatten: !0 })], Ff.prototype, "tabsElements", void 0), N([R("#tabsNavigation")], Ff.prototype, "navElement", void 0), N([R("#tabsContent")], Ff.prototype, "tabsContent", void 0), N([L()], Ff.prototype, "tabs", void 0);
+var If = Ff = N([P("schmancy-tab-group")], Ff);
+customElements.define("schmancy-tabs-group", class extends If {});
+var Lf = "whereAreYouRicky", Rf = "hereMorty", zf = new class {
 	constructor() {
-		this.activeTeleportations = /* @__PURE__ */ new Map(), this.flipRequests = new C(), this.find = (e) => Wt([E(window, Lf).pipe(D((t) => !!t.detail.component.uuid && !!e.id && t.detail.component.id === e.id && t.detail.component.uuid !== e.uuid), T((e) => e.detail.component), Zt(1)), ht(e).pipe(A(() => {
-			window.dispatchEvent(new CustomEvent(If, { detail: {
+		this.activeTeleportations = /* @__PURE__ */ new Map(), this.flipRequests = new C(), this.find = (e) => Wt([E(window, Rf).pipe(D((t) => !!t.detail.component.uuid && !!e.id && t.detail.component.id === e.id && t.detail.component.uuid !== e.uuid), T((e) => e.detail.component), Zt(1)), ht(e).pipe(A(() => {
+			window.dispatchEvent(new CustomEvent(Lf, { detail: {
 				id: e.id,
 				callerID: e.uuid
 			} }));
@@ -28184,10 +28271,10 @@ var If = "whereAreYouRicky", Lf = "hereMorty", Rf = new class {
 		}))), Jt((e) => Wt(e.map((e) => ht(this.flip(e)))))).subscribe();
 	}
 }();
-function zf(e) {
+function Bf(e) {
 	return Bt(50).pipe(T(() => e.getBoundingClientRect()), O((e, t) => e.width === t.width && e.height === t.height && e.top === t.top && e.right === t.right && e.bottom === t.bottom && e.left === t.left), Zt(1));
 }
-var Bf = class extends B(F``) {
+var Vf = class extends B(F``) {
 	constructor(...e) {
 		super(...e), this.uuid = Math.floor(Math.random() * Date.now()), this.delay = 0, this.debugging = !1;
 	}
@@ -28202,8 +28289,8 @@ var Bf = class extends B(F``) {
 				bubbles: !0,
 				composed: !0
 			}));
-		} })), E(window, If).pipe(A({ next: (e) => {
-			e.detail.id === this.id && this.uuid && e.detail.callerID !== this.uuid && this.dispatchEvent(new CustomEvent(Lf, {
+		} })), E(window, Lf).pipe(A({ next: (e) => {
+			e.detail.id === this.id && this.uuid && e.detail.callerID !== this.uuid && this.dispatchEvent(new CustomEvent(Rf, {
 				detail: { component: this },
 				bubbles: !0,
 				composed: !0
@@ -28211,10 +28298,10 @@ var Bf = class extends B(F``) {
 		} }))).pipe(k(this.disconnecting)).subscribe();
 	}
 	async firstUpdated() {
-		ht(Rf.activeTeleportations.get(this.id)).pipe(D((e) => !!e), k(this.disconnecting), tn()).subscribe({
+		ht(zf.activeTeleportations.get(this.id)).pipe(D((e) => !!e), k(this.disconnecting), tn()).subscribe({
 			next: (e) => {
-				this.style.setProperty("visibility", "hidden"), zf(this).pipe(k(this.disconnecting)).subscribe({ next: (t) => {
-					Rf.activeTeleportations.set(this.id, t), Rf.flipRequests.next({
+				this.style.setProperty("visibility", "hidden"), Bf(this).pipe(k(this.disconnecting)).subscribe({ next: (t) => {
+					zf.activeTeleportations.set(this.id, t), zf.flipRequests.next({
 						from: { rect: e },
 						to: {
 							rect: t,
@@ -28225,8 +28312,8 @@ var Bf = class extends B(F``) {
 				} });
 			},
 			error: () => {
-				this.style.setProperty("visibility", "visible"), zf(this).pipe(k(this.disconnecting)).subscribe({ next: (e) => {
-					Rf.activeTeleportations.set(this.id, e);
+				this.style.setProperty("visibility", "visible"), Bf(this).pipe(k(this.disconnecting)).subscribe({ next: (e) => {
+					zf.activeTeleportations.set(this.id, e);
 				} });
 			},
 			complete: () => {}
@@ -28239,8 +28326,8 @@ var Bf = class extends B(F``) {
 N([I({
 	type: Number,
 	reflect: !0
-})], Bf.prototype, "uuid", void 0), N([I({ type: String })], Bf.prototype, "id", void 0), N([I({ type: Number })], Bf.prototype, "delay", void 0), Bf = N([P("schmancy-teleport")], Bf);
-var Vf = class extends z(":host{width:-webkit-fill-available;display:block;border:unset!important;line-height:unset!important;background:unset!important;padding:unset!important;font-size:unset!important;box-shadow:unset!important}:host([fillHeight]){flex-direction:column;height:100%;display:flex}:host:focus{box-shadow:unset!important}textarea:focus-visible{outline:none!important}textarea{font-family:inherit;font-size:inherit;font-weight:inherit;line-height:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;-webkit-text-decoration:inherit;text-decoration:inherit;text-indent:inherit;text-shadow:inherit;text-overflow:inherit;text-rendering:inherit;text-size-adjust:inherit;text-align-last:inherit;overflow-y:auto}@keyframes onAutoFillStart{}textarea:-webkit-autofill{animation-name:onAutoFillStart}") {
+})], Vf.prototype, "uuid", void 0), N([I({ type: String })], Vf.prototype, "id", void 0), N([I({ type: Number })], Vf.prototype, "delay", void 0), Vf = N([P("schmancy-teleport")], Vf);
+var Hf = class extends z(":host{width:-webkit-fill-available;display:block;border:unset!important;line-height:unset!important;background:unset!important;padding:unset!important;font-size:unset!important;box-shadow:unset!important}:host([fillHeight]){flex-direction:column;height:100%;display:flex}:host:focus{box-shadow:unset!important}textarea:focus-visible{outline:none!important}textarea{font-family:inherit;font-size:inherit;font-weight:inherit;line-height:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;-webkit-text-decoration:inherit;text-decoration:inherit;text-indent:inherit;text-shadow:inherit;text-overflow:inherit;text-rendering:inherit;text-size-adjust:inherit;text-align-last:inherit;overflow-y:auto}@keyframes onAutoFillStart{}textarea:-webkit-autofill{animation-name:onAutoFillStart}") {
 	static {
 		this.shadowRootOptions = {
 			...Hr.shadowRootOptions,
@@ -28415,7 +28502,7 @@ var Vf = class extends z(":host{width:-webkit-fill-available;display:block;borde
 function $(e) {
 	return a(e);
 }
-function Hf(e) {
+function Uf(e) {
 	let t = n.fromInt(e), i = r.fromHueAndChroma(t.hue, t.chroma);
 	return {
 		0: $(i.tone(0)),
@@ -28433,50 +28520,50 @@ function Hf(e) {
 		100: $(i.tone(100))
 	};
 }
-N([I()], Vf.prototype, "label", void 0), N([I()], Vf.prototype, "name", void 0), N([I()], Vf.prototype, "placeholder", void 0), N([I({
+N([I()], Hf.prototype, "label", void 0), N([I()], Hf.prototype, "name", void 0), N([I()], Hf.prototype, "placeholder", void 0), N([I({
 	type: String,
 	reflect: !0
-})], Vf.prototype, "value", void 0), N([I({ type: Number })], Vf.prototype, "minlength", void 0), N([I({ type: Number })], Vf.prototype, "maxlength", void 0), N([I({ type: Number })], Vf.prototype, "cols", void 0), N([I({ type: Number })], Vf.prototype, "rows", void 0), N([I({
+})], Hf.prototype, "value", void 0), N([I({ type: Number })], Hf.prototype, "minlength", void 0), N([I({ type: Number })], Hf.prototype, "maxlength", void 0), N([I({ type: Number })], Hf.prototype, "cols", void 0), N([I({ type: Number })], Hf.prototype, "rows", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Vf.prototype, "fillHeight", void 0), N([I({ type: Boolean })], Vf.prototype, "autoHeight", void 0), N([I({
+})], Hf.prototype, "fillHeight", void 0), N([I({ type: Boolean })], Hf.prototype, "autoHeight", void 0), N([I({
 	type: String,
 	reflect: !0
-})], Vf.prototype, "resize", void 0), N([I({ type: String })], Vf.prototype, "wrap", void 0), N([I({ type: String })], Vf.prototype, "dirname", void 0), N([I({
+})], Hf.prototype, "resize", void 0), N([I({ type: String })], Hf.prototype, "wrap", void 0), N([I({ type: String })], Hf.prototype, "dirname", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Vf.prototype, "required", void 0), N([I({
+})], Hf.prototype, "required", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Vf.prototype, "disabled", void 0), N([I({
+})], Hf.prototype, "disabled", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Vf.prototype, "readonly", void 0), N([I({
+})], Hf.prototype, "readonly", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Vf.prototype, "spellcheck", void 0), N([I({
+})], Hf.prototype, "spellcheck", void 0), N([I({
 	type: String,
 	reflect: !0
-})], Vf.prototype, "align", void 0), N([I({ type: Boolean })], Vf.prototype, "autofocus", void 0), N([I({ type: Number })], Vf.prototype, "tabIndex", void 0), N([R("textarea")], Vf.prototype, "textareaElement", void 0), N([I()], Vf.prototype, "hint", void 0), N([I({
+})], Hf.prototype, "align", void 0), N([I({ type: Boolean })], Hf.prototype, "autofocus", void 0), N([I({ type: Number })], Hf.prototype, "tabIndex", void 0), N([R("textarea")], Hf.prototype, "textareaElement", void 0), N([I()], Hf.prototype, "hint", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], Vf.prototype, "error", void 0), Vf = N([P("schmancy-textarea")], Vf);
-var Uf = br(":host,:root{--md-ref-typeface-brand:var(--schmancy-font-family,sans-serif);--md-ref-typeface-plain:var(--schmancy-font-family,sans-serif);--md-sys-color-primary:var(--schmancy-sys-color-primary-default);--md-sys-color-secondary:var(--schmancy-sys-color-secondary-default);--default-font-family:var(--schmancy-font-family);--border-style:solid;--spacing:.25rem;--color-scrim:var(--schmancy-sys-color-scrim);--color-shadow:var(--schmancy-sys-color-shadow);--color-outline:var(--schmancy-sys-color-outline);--color-outlineVariant:var(--schmancy-sys-color-outlineVariant);--color-outline-variant:var(--schmancy-sys-color-outlineVariant);--color-surface-default:var(--schmancy-sys-color-surface-default);--color-surface-dim:var(--schmancy-sys-color-surface-dim);--color-surface-bright:var(--schmancy-sys-color-surface-bright);--color-surface-container:var(--schmancy-sys-color-surface-container);--color-surface-low:var(--schmancy-sys-color-surface-low);--color-surface-high:var(--schmancy-sys-color-surface-high);--color-surface-highest:var(--schmancy-sys-color-surface-highest);--color-surface-lowest:var(--schmancy-sys-color-surface-lowest);--color-surface-containerLow:var(--schmancy-sys-color-surface-containerLow);--color-surface-containerHigh:var(--schmancy-sys-color-surface-containerHigh);--color-surface-containerLowest:var(--schmancy-sys-color-surface-containerLowest);--color-surface-containerHighest:var(--schmancy-sys-color-surface-containerHighest);--color-surface-on:var(--schmancy-sys-color-surface-on);--color-surface-onVariant:var(--schmancy-sys-color-surface-onVariant);--color-surface-on-variant:var(--schmancy-sys-color-surface-onVariant);--color-surface-tint:var(--schmancy-sys-color-surface-tint);--color-surface-inverse:var(--schmancy-sys-color-inverse-surface);--color-surface-inverseOn:var(--schmancy-sys-color-inverse-onSurface);--color-inverse-surface:var(--schmancy-sys-color-inverse-surface);--color-inverse-on-surface:var(--schmancy-sys-color-inverse-onSurface);--color-primary-default:var(--schmancy-sys-color-primary-default);--color-primary-on:var(--schmancy-sys-color-primary-on);--color-primary-container:var(--schmancy-sys-color-primary-container);--color-primary-onContainer:var(--schmancy-sys-color-primary-onContainer);--color-primary-on-container:var(--schmancy-sys-color-primary-onContainer);--color-primary-fixed:var(--schmancy-sys-color-primary-fixed);--color-primary-fixedDim:var(--schmancy-sys-color-primary-fixedDim);--color-primary-fixed-dim:var(--schmancy-sys-color-primary-fixedDim);--color-primary-onFixed:var(--schmancy-sys-color-primary-onFixed);--color-primary-on-fixed:var(--schmancy-sys-color-primary-onFixed);--color-primary-onFixedVariant:var(--schmancy-sys-color-primary-onFixedVariant);--color-primary-on-fixed-variant:var(--schmancy-sys-color-primary-onFixedVariant);--color-primary-inverse:var(--schmancy-sys-color-inverse-primary);--color-inverse-primary:var(--schmancy-sys-color-inverse-primary);--color-secondary-default:var(--schmancy-sys-color-secondary-default);--color-secondary-on:var(--schmancy-sys-color-secondary-on);--color-secondary-container:var(--schmancy-sys-color-secondary-container);--color-secondary-onContainer:var(--schmancy-sys-color-secondary-onContainer);--color-secondary-on-container:var(--schmancy-sys-color-secondary-onContainer);--color-secondary-fixed:var(--schmancy-sys-color-secondary-fixed);--color-secondary-fixedDim:var(--schmancy-sys-color-secondary-fixedDim);--color-secondary-fixed-dim:var(--schmancy-sys-color-secondary-fixedDim);--color-secondary-onFixed:var(--schmancy-sys-color-secondary-onFixed);--color-secondary-on-fixed:var(--schmancy-sys-color-secondary-onFixed);--color-secondary-onFixedVariant:var(--schmancy-sys-color-secondary-onFixedVariant);--color-secondary-on-fixed-variant:var(--schmancy-sys-color-secondary-onFixedVariant);--color-tertiary-default:var(--schmancy-sys-color-tertiary-default);--color-tertiary-on:var(--schmancy-sys-color-tertiary-on);--color-tertiary-container:var(--schmancy-sys-color-tertiary-container);--color-tertiary-onContainer:var(--schmancy-sys-color-tertiary-onContainer);--color-tertiary-on-container:var(--schmancy-sys-color-tertiary-onContainer);--color-tertiary-fixed:var(--schmancy-sys-color-tertiary-fixed);--color-tertiary-fixedDim:var(--schmancy-sys-color-tertiary-fixedDim);--color-tertiary-fixed-dim:var(--schmancy-sys-color-tertiary-fixedDim);--color-tertiary-onFixed:var(--schmancy-sys-color-tertiary-onFixed);--color-tertiary-on-fixed:var(--schmancy-sys-color-tertiary-onFixed);--color-tertiary-onFixedVariant:var(--schmancy-sys-color-tertiary-onFixedVariant);--color-tertiary-on-fixed-variant:var(--schmancy-sys-color-tertiary-onFixedVariant);--color-error-default:var(--schmancy-sys-color-error-default);--color-error-on:var(--schmancy-sys-color-error-on);--color-error-container:var(--schmancy-sys-color-error-container);--color-error-onContainer:var(--schmancy-sys-color-error-onContainer);--color-error-on-container:var(--schmancy-sys-color-error-onContainer);--color-success-default:var(--schmancy-sys-color-success-default);--color-success-on:var(--schmancy-sys-color-success-on);--color-success-container:var(--schmancy-sys-color-success-container);--color-success-onContainer:var(--schmancy-sys-color-success-onContainer);--color-success-on-container:var(--schmancy-sys-color-success-onContainer);--color-warning-default:var(--schmancy-sys-color-warning-default);--color-warning-on:var(--schmancy-sys-color-warning-on);--color-warning-container:var(--schmancy-sys-color-warning-container);--color-warning-onContainer:var(--schmancy-sys-color-warning-onContainer);--color-warning-on-container:var(--schmancy-sys-color-warning-onContainer);--color-info-default:var(--schmancy-sys-color-info-default);--color-info-on:var(--schmancy-sys-color-info-on);--color-info-container:var(--schmancy-sys-color-info-container);--color-info-onContainer:var(--schmancy-sys-color-info-onContainer);--color-info-on-container:var(--schmancy-sys-color-info-onContainer);--shadow-xs:0 1px 2px 0 #0000000d;--shadow-sm:0 1px 3px 0 #0000001a, 0 1px 2px -1px #0000001a;--shadow-md:0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a;--shadow-lg:0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a;--shadow-xl:0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a;--shadow-2xl:var(--schmancy-sys-elevation-5);--outline-1:var(--schmancy-sys-outline-1);--font-sans:ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";--font-serif:ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif;--font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;--color-red-50:oklch(97.1% .013 17.38);--color-red-100:oklch(93.6% .032 17.717);--color-red-200:oklch(88.5% .062 18.334);--color-red-300:oklch(80.8% .114 19.571);--color-red-400:oklch(70.4% .191 22.216);--color-red-500:oklch(63.7% .237 25.331);--color-red-600:oklch(57.7% .245 27.325);--color-red-700:oklch(50.5% .213 27.518);--color-red-800:oklch(44.4% .177 26.899);--color-red-900:oklch(39.6% .141 25.723);--color-red-950:oklch(25.8% .092 26.042);--color-orange-50:oklch(98% .016 73.684);--color-orange-100:oklch(95.4% .038 75.164);--color-orange-200:oklch(90.1% .076 70.697);--color-orange-300:oklch(83.7% .128 66.29);--color-orange-400:oklch(75% .183 55.934);--color-orange-500:oklch(70.5% .213 47.604);--color-orange-600:oklch(64.6% .222 41.116);--color-orange-700:oklch(55.3% .195 38.402);--color-orange-800:oklch(47% .157 37.304);--color-orange-900:oklch(40.8% .123 38.172);--color-orange-950:oklch(26.6% .079 36.259);--color-amber-50:oklch(98.7% .022 95.277);--color-amber-100:oklch(96.2% .059 95.617);--color-amber-200:oklch(92.4% .12 95.746);--color-amber-300:oklch(87.9% .169 91.605);--color-amber-400:oklch(82.8% .189 84.429);--color-amber-500:oklch(76.9% .188 70.08);--color-amber-600:oklch(66.6% .179 58.318);--color-amber-700:oklch(55.5% .163 48.998);--color-amber-800:oklch(47.3% .137 46.201);--color-amber-900:oklch(41.4% .112 45.904);--color-amber-950:oklch(27.9% .077 45.635);--color-yellow-50:oklch(98.7% .026 102.212);--color-yellow-100:oklch(97.3% .071 103.193);--color-yellow-200:oklch(94.5% .129 101.54);--color-yellow-300:oklch(90.5% .182 98.111);--color-yellow-400:oklch(85.2% .199 91.936);--color-yellow-500:oklch(79.5% .184 86.047);--color-yellow-600:oklch(68.1% .162 75.834);--color-yellow-700:oklch(55.4% .135 66.442);--color-yellow-800:oklch(47.6% .114 61.907);--color-yellow-900:oklch(42.1% .095 57.708);--color-yellow-950:oklch(28.6% .066 53.813);--color-lime-50:oklch(98.6% .031 120.757);--color-lime-100:oklch(96.7% .067 122.328);--color-lime-200:oklch(93.8% .127 124.321);--color-lime-300:oklch(89.7% .196 126.665);--color-lime-400:oklch(84.1% .238 128.85);--color-lime-500:oklch(76.8% .233 130.85);--color-lime-600:oklch(64.8% .2 131.684);--color-lime-700:oklch(53.2% .157 131.589);--color-lime-800:oklch(45.3% .124 130.933);--color-lime-900:oklch(40.5% .101 131.063);--color-lime-950:oklch(27.4% .072 132.109);--color-green-50:oklch(98.2% .018 155.826);--color-green-100:oklch(96.2% .044 156.743);--color-green-200:oklch(92.5% .084 155.995);--color-green-300:oklch(87.1% .15 154.449);--color-green-400:oklch(79.2% .209 151.711);--color-green-500:oklch(72.3% .219 149.579);--color-green-600:oklch(62.7% .194 149.214);--color-green-700:oklch(52.7% .154 150.069);--color-green-800:oklch(44.8% .119 151.328);--color-green-900:oklch(39.3% .095 152.535);--color-green-950:oklch(26.6% .065 152.934);--color-emerald-50:oklch(97.9% .021 166.113);--color-emerald-100:oklch(95% .052 163.051);--color-emerald-200:oklch(90.5% .093 164.15);--color-emerald-300:oklch(84.5% .143 164.978);--color-emerald-400:oklch(76.5% .177 163.223);--color-emerald-500:oklch(69.6% .17 162.48);--color-emerald-600:oklch(59.6% .145 163.225);--color-emerald-700:oklch(50.8% .118 165.612);--color-emerald-800:oklch(43.2% .095 166.913);--color-emerald-900:oklch(37.8% .077 168.94);--color-emerald-950:oklch(26.2% .051 172.552);--color-teal-50:oklch(98.4% .014 180.72);--color-teal-100:oklch(95.3% .051 180.801);--color-teal-200:oklch(91% .096 180.426);--color-teal-300:oklch(85.5% .138 181.071);--color-teal-400:oklch(77.7% .152 181.912);--color-teal-500:oklch(70.4% .14 182.503);--color-teal-600:oklch(60% .118 184.704);--color-teal-700:oklch(51.1% .096 186.391);--color-teal-800:oklch(43.7% .078 188.216);--color-teal-900:oklch(38.6% .063 188.416);--color-teal-950:oklch(27.7% .046 192.524);--color-cyan-50:oklch(98.4% .019 200.873);--color-cyan-100:oklch(95.6% .045 203.388);--color-cyan-200:oklch(91.7% .08 205.041);--color-cyan-300:oklch(86.5% .127 207.078);--color-cyan-400:oklch(78.9% .154 211.53);--color-cyan-500:oklch(71.5% .143 215.221);--color-cyan-600:oklch(60.9% .126 221.723);--color-cyan-700:oklch(52% .105 223.128);--color-cyan-800:oklch(45% .085 224.283);--color-cyan-900:oklch(39.8% .07 227.392);--color-cyan-950:oklch(30.2% .056 229.695);--color-sky-50:oklch(97.7% .013 236.62);--color-sky-100:oklch(95.1% .026 236.824);--color-sky-200:oklch(90.1% .058 230.902);--color-sky-300:oklch(82.8% .111 230.318);--color-sky-400:oklch(74.6% .16 232.661);--color-sky-500:oklch(68.5% .169 237.323);--color-sky-600:oklch(58.8% .158 241.966);--color-sky-700:oklch(50% .134 242.749);--color-sky-800:oklch(44.3% .11 240.79);--color-sky-900:oklch(39.1% .09 240.876);--color-sky-950:oklch(29.3% .066 243.157);--color-blue-50:oklch(97% .014 254.604);--color-blue-100:oklch(93.2% .032 255.585);--color-blue-200:oklch(88.2% .059 254.128);--color-blue-300:oklch(80.9% .105 251.813);--color-blue-400:oklch(70.7% .165 254.624);--color-blue-500:oklch(62.3% .214 259.815);--color-blue-600:oklch(54.6% .245 262.881);--color-blue-700:oklch(48.8% .243 264.376);--color-blue-800:oklch(42.4% .199 265.638);--color-blue-900:oklch(37.9% .146 265.522);--color-blue-950:oklch(28.2% .091 267.935);--color-indigo-50:oklch(96.2% .018 272.314);--color-indigo-100:oklch(93% .034 272.788);--color-indigo-200:oklch(87% .065 274.039);--color-indigo-300:oklch(78.5% .115 274.713);--color-indigo-400:oklch(67.3% .182 276.935);--color-indigo-500:oklch(58.5% .233 277.117);--color-indigo-600:oklch(51.1% .262 276.966);--color-indigo-700:oklch(45.7% .24 277.023);--color-indigo-800:oklch(39.8% .195 277.366);--color-indigo-900:oklch(35.9% .144 278.697);--color-indigo-950:oklch(25.7% .09 281.288);--color-violet-50:oklch(96.9% .016 293.756);--color-violet-100:oklch(94.3% .029 294.588);--color-violet-200:oklch(89.4% .057 293.283);--color-violet-300:oklch(81.1% .111 293.571);--color-violet-400:oklch(70.2% .183 293.541);--color-violet-500:oklch(60.6% .25 292.717);--color-violet-600:oklch(54.1% .281 293.009);--color-violet-700:oklch(49.1% .27 292.581);--color-violet-800:oklch(43.2% .232 292.759);--color-violet-900:oklch(38% .189 293.745);--color-violet-950:oklch(28.3% .141 291.089);--color-purple-50:oklch(97.7% .014 308.299);--color-purple-100:oklch(94.6% .033 307.174);--color-purple-200:oklch(90.2% .063 306.703);--color-purple-300:oklch(82.7% .119 306.383);--color-purple-400:oklch(71.4% .203 305.504);--color-purple-500:oklch(62.7% .265 303.9);--color-purple-600:oklch(55.8% .288 302.321);--color-purple-700:oklch(49.6% .265 301.924);--color-purple-800:oklch(43.8% .218 303.724);--color-purple-900:oklch(38.1% .176 304.987);--color-purple-950:oklch(29.1% .149 302.717);--color-fuchsia-50:oklch(97.7% .017 320.058);--color-fuchsia-100:oklch(95.2% .037 318.852);--color-fuchsia-200:oklch(90.3% .076 319.62);--color-fuchsia-300:oklch(83.3% .145 321.434);--color-fuchsia-400:oklch(74% .238 322.16);--color-fuchsia-500:oklch(66.7% .295 322.15);--color-fuchsia-600:oklch(59.1% .293 322.896);--color-fuchsia-700:oklch(51.8% .253 323.949);--color-fuchsia-800:oklch(45.2% .211 324.591);--color-fuchsia-900:oklch(40.1% .17 325.612);--color-fuchsia-950:oklch(29.3% .136 325.661);--color-pink-50:oklch(97.1% .014 343.198);--color-pink-100:oklch(94.8% .028 342.258);--color-pink-200:oklch(89.9% .061 343.231);--color-pink-300:oklch(82.3% .12 346.018);--color-pink-400:oklch(71.8% .202 349.761);--color-pink-500:oklch(65.6% .241 354.308);--color-pink-600:oklch(59.2% .249 .584);--color-pink-700:oklch(52.5% .223 3.958);--color-pink-800:oklch(45.9% .187 3.815);--color-pink-900:oklch(40.8% .153 2.432);--color-pink-950:oklch(28.4% .109 3.907);--color-rose-50:oklch(96.9% .015 12.422);--color-rose-100:oklch(94.1% .03 12.58);--color-rose-200:oklch(89.2% .058 10.001);--color-rose-300:oklch(81% .117 11.638);--color-rose-400:oklch(71.2% .194 13.428);--color-rose-500:oklch(64.5% .246 16.439);--color-rose-600:oklch(58.6% .253 17.585);--color-rose-700:oklch(51.4% .222 16.935);--color-rose-800:oklch(45.5% .188 13.697);--color-rose-900:oklch(41% .159 10.272);--color-rose-950:oklch(27.1% .105 12.094);--color-slate-50:oklch(98.4% .003 247.858);--color-slate-100:oklch(96.8% .007 247.896);--color-slate-200:oklch(92.9% .013 255.508);--color-slate-300:oklch(86.9% .022 252.894);--color-slate-400:oklch(70.4% .04 256.788);--color-slate-500:oklch(55.4% .046 257.417);--color-slate-600:oklch(44.6% .043 257.281);--color-slate-700:oklch(37.2% .044 257.287);--color-slate-800:oklch(27.9% .041 260.031);--color-slate-900:oklch(20.8% .042 265.755);--color-slate-950:oklch(12.9% .042 264.695);--color-gray-50:oklch(98.5% .002 247.839);--color-gray-100:oklch(96.7% .003 264.542);--color-gray-200:oklch(92.8% .006 264.531);--color-gray-300:oklch(87.2% .01 258.338);--color-gray-400:oklch(70.7% .022 261.325);--color-gray-500:oklch(55.1% .027 264.364);--color-gray-600:oklch(44.6% .03 256.802);--color-gray-700:oklch(37.3% .034 259.733);--color-gray-800:oklch(27.8% .033 256.848);--color-gray-900:oklch(21% .034 264.665);--color-gray-950:oklch(13% .028 261.692);--color-zinc-50:oklch(98.5% 0 0);--color-zinc-100:oklch(96.7% .001 286.375);--color-zinc-200:oklch(92% .004 286.32);--color-zinc-300:oklch(87.1% .006 286.286);--color-zinc-400:oklch(70.5% .015 286.067);--color-zinc-500:oklch(55.2% .016 285.938);--color-zinc-600:oklch(44.2% .017 285.786);--color-zinc-700:oklch(37% .013 285.805);--color-zinc-800:oklch(27.4% .006 286.033);--color-zinc-900:oklch(21% .006 285.885);--color-zinc-950:oklch(14.1% .005 285.823);--color-neutral-50:oklch(98.5% 0 0);--color-neutral-100:oklch(97% 0 0);--color-neutral-200:oklch(92.2% 0 0);--color-neutral-300:oklch(87% 0 0);--color-neutral-400:oklch(70.8% 0 0);--color-neutral-500:oklch(55.6% 0 0);--color-neutral-600:oklch(43.9% 0 0);--color-neutral-700:oklch(37.1% 0 0);--color-neutral-800:oklch(26.9% 0 0);--color-neutral-900:oklch(20.5% 0 0);--color-neutral-950:oklch(14.5% 0 0);--color-stone-50:oklch(98.5% .001 106.423);--color-stone-100:oklch(97% .001 106.424);--color-stone-200:oklch(92.3% .003 48.717);--color-stone-300:oklch(86.9% .005 56.366);--color-stone-400:oklch(70.9% .01 56.259);--color-stone-500:oklch(55.3% .013 58.071);--color-stone-600:oklch(44.4% .011 73.639);--color-stone-700:oklch(37.4% .01 67.558);--color-stone-800:oklch(26.8% .007 34.298);--color-stone-900:oklch(21.6% .006 56.043);--color-stone-950:oklch(14.7% .004 49.25);--color-black:#000;--color-white:#fff;--breakpoint-sm:40rem;--breakpoint-md:48rem;--breakpoint-lg:64rem;--breakpoint-xl:80rem;--breakpoint-2xl:96rem;--container-3xs:16rem;--container-2xs:18rem;--container-xs:20rem;--container-sm:24rem;--container-md:28rem;--container-lg:32rem;--container-xl:36rem;--container-2xl:42rem;--container-3xl:48rem;--container-4xl:56rem;--container-5xl:64rem;--container-6xl:72rem;--container-7xl:80rem;--text-xs:.75rem;--text-xs--line-height:calc(1 / .75);--text-sm:.875rem;--text-sm--line-height:calc(1.25 / .875);--text-base:1rem;--text-base--line-height:calc(1.5 / 1);--text-lg:1.125rem;--text-lg--line-height:calc(1.75 / 1.125);--text-xl:1.25rem;--text-xl--line-height:calc(1.75 / 1.25);--text-2xl:1.5rem;--text-2xl--line-height:calc(2 / 1.5);--text-3xl:1.875rem;--text-3xl--line-height:calc(2.25 / 1.875);--text-4xl:2.25rem;--text-4xl--line-height:calc(2.5 / 2.25);--text-5xl:3rem;--text-5xl--line-height:1;--text-6xl:3.75rem;--text-6xl--line-height:1;--text-7xl:4.5rem;--text-7xl--line-height:1;--text-8xl:6rem;--text-8xl--line-height:1;--text-9xl:8rem;--text-9xl--line-height:1;--font-weight-thin:100;--font-weight-extralight:200;--font-weight-light:300;--font-weight-normal:400;--font-weight-medium:500;--font-weight-semibold:600;--font-weight-bold:700;--font-weight-extrabold:800;--font-weight-black:900;--tracking-tighter:-.05em;--tracking-tight:-.025em;--tracking-normal:0em;--tracking-wide:.025em;--tracking-wider:.05em;--tracking-widest:.1em;--leading-tight:1.25;--leading-snug:1.375;--leading-normal:1.5;--leading-relaxed:1.625;--leading-loose:2;--radius-xs:.125rem;--radius-sm:.25rem;--radius-md:.375rem;--radius-lg:.5rem;--radius-xl:.75rem;--radius-2xl:1rem;--radius-3xl:1.5rem;--radius-4xl:2rem;--shadow-smxs:0 1px #0000000d;--shadow-smxl:0 25px 50px -12px #00000040;--inset-shadow-smxs:inset 0 1px #0000000d;--inset-shadow-xs:inset 0 1px 1px #0000000d;--inset-shadow-sm:inset 0 2px 4px #0000000d;--drop-shadow-xs:0 1px 1px #0000000d;--drop-shadow-sm:0 1px 2px #00000026;--drop-shadow-md:0 3px 3px #0000001f;--drop-shadow-lg:0 4px 4px #00000026;--drop-shadow-xl:0 9px 7px #0000001a;--drop-shadow-smxl:0 25px 25px #00000026;--blur-xs:4px;--blur-sm:8px;--blur-md:12px;--blur-lg:16px;--blur-xl:24px;--blur-2xl:40px;--blur-3xl:64px;--perspective-dramatic:100px;--perspective-near:300px;--perspective-normal:500px;--perspective-midrange:800px;--perspective-distant:1200px;--aspect-video:16 / 9;--ease-in:cubic-bezier(.4, 0, 1, 1);--ease-out:cubic-bezier(0, 0, .2, 1);--ease-in-out:cubic-bezier(.4, 0, .2, 1);--animate-spin:spin 1s linear infinite;--animate-ping:ping 1s cubic-bezier(0, 0, .2, 1) infinite;--animate-pulse:pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;--animate-bounce:bounce 1s infinite;--animate-float-1:float-drift 20s ease-in-out infinite;--animate-float-2:float-drift-alt 25s ease-in-out infinite;--animate-float-3:float-drift 30s ease-in-out infinite reverse;--animate-pulse-glow:pulse-glow 8s ease-in-out infinite;--animate-spin-slow:slow-spin 120s linear infinite;--animate-aurora-drift:aurora-drift 30s ease-in-out infinite;--animate-scene-enter:scene-enter 1.2s cubic-bezier(.16, 1, .3, 1) forwards;--md-sys-color-scrim:var(--schmancy-sys-color-scrim);--md-sys-color-outline:var(--schmancy-sys-color-outline);--md-sys-color-outlineVariant:var(--schmancy-sys-color-outlineVariant);--md-sys-color-surface-default:var(--schmancy-sys-color-surface-default);--md-sys-color-surface-dim:var(--schmancy-sys-color-surface-dim);--md-sys-color-surface-bright:var(--schmancy-sys-color-surface-bright);--md-sys-color-surface-container:var(--schmancy-sys-color-surface-container);--md-sys-color-surface-low:var(--schmancy-sys-color-surface-low);--md-sys-color-surface-high:var(--schmancy-sys-color-surface-high);--md-sys-color-surface-highest:var(--schmancy-sys-color-surface-highest);--md-sys-color-surface-lowest:var(--schmancy-sys-color-surface-lowest);--md-sys-color-surface-on:var(--schmancy-sys-color-surface-on);--md-sys-color-on-surface-variant:var(--schmancy-sys-color-surface-onVariant);--md-sys-color-on-secondary-container:var(--schmancy-sys-color-secondary-onContainer);--md-sys-color-primary-default:var(--schmancy-sys-color-primary-default);--md-sys-color-primary-on:var(--schmancy-sys-color-primary-on);--md-sys-color-primary-container:var(--schmancy-sys-color-primary-container);--md-sys-color-primary-onContainer:var(--schmancy-sys-color-primary-onContainer);--md-sys-color-secondary-default:var(--schmancy-sys-color-secondary-default);--md-sys-color-secondary-on:var(--schmancy-sys-color-secondary-on);--md-sys-color-secondary-container:var(--schmancy-sys-color-secondary-container);--md-sys-color-secondary-onContainer:var(--schmancy-sys-color-secondary-onContainer);--md-sys-color-tertiary-default:var(--schmancy-sys-color-tertiary-default);--md-sys-color-tertiary-on:var(--schmancy-sys-color-tertiary-on);--md-sys-color-tertiary-container:var(--schmancy-sys-color-tertiary-container);--md-sys-color-tertiary-onContainer:var(--schmancy-sys-color-tertiary-onContainer);--md-sys-color-error-default:var(--schmancy-sys-color-error-default);--md-sys-color-error-on:var(--schmancy-sys-color-error-on);--md-sys-color-error-container:var(--schmancy-sys-color-error-container);--md-sys-color-error-onContainer:var(--schmancy-sys-color-error-onContainer);--md-sys-color-success-default:var(--schmancy-sys-color-success-default);--md-sys-color-success-on:var(--schmancy-sys-color-success-on);--md-sys-color-success-container:var(--schmancy-sys-color-success-container);--md-sys-color-success-onContainer:var(--schmancy-sys-color-success-onContainer);--md-sys-color-warning-default:var(--schmancy-sys-color-warning-default);--md-sys-color-warning-on:var(--schmancy-sys-color-warning-on);--md-sys-color-warning-container:var(--schmancy-sys-color-warning-container);--md-sys-color-warning-onContainer:var(--schmancy-sys-color-warning-onContainer);--md-sys-color-info-default:var(--schmancy-sys-color-info-default);--md-sys-color-info-on:var(--schmancy-sys-color-info-on);--md-sys-color-info-container:var(--schmancy-sys-color-info-container);--md-sys-color-info-onContainer:var(--schmancy-sys-color-info-onContainer);--md-sys-elevation-0:var(--schmancy-sys-elevation-0);--md-sys-elevation-1:var(--schmancy-sys-elevation-1);--md-sys-elevation-2:var(--schmancy-sys-elevation-2);--md-sys-elevation-3:var(--schmancy-sys-elevation-3);--md-sys-elevation-4:var(--schmancy-sys-elevation-4);--md-sys-elevation-5:var(--schmancy-sys-elevation-5);--md-sys-outline-1:var(--schmancy-sys-outline-1);--md-filter-chip-label-text-color:var(--schmancy-sys-color-surface-on);--md-checkbox-focus-outline-color:var(--schmancy-sys-color-surface-on);--md-checkbox-focus-outline-width:2px;--md-checkbox-hover-outline-color:var(--schmancy-sys-color-surface-on);--md-checkbox-hover-outline-width:2px;--md-checkbox-pressed-outline-color:var(--schmancy-sys-color-surface-on);--md-checkbox-pressed-outline-width:2px;--md-checkbox-disabled-outline-color:var(--schmancy-sys-color-surface-on);--md-checkbox-disabled-outline-width:2px}@keyframes spin{to{transform:rotate(360deg)}}@keyframes ping{75%,to{opacity:0;transform:scale(2)}}@keyframes pulse{50%{opacity:.5}}@keyframes bounce{0%,to{animation-timing-function:cubic-bezier(.8,0,1,1);transform:translateY(-25%)}50%{animation-timing-function:cubic-bezier(0,0,.2,1);transform:none}}@keyframes float-drift{0%,to{transform:translate(0)rotate(0)}25%{transform:translate(20px,-30px)rotate(2deg)}50%{transform:translate(-10px,-50px)rotate(-1deg)}75%{transform:translate(15px,-20px)rotate(1deg)}}@keyframes float-drift-alt{0%,to{transform:translate(0)rotate(0)}25%{transform:translate(-25px,20px)rotate(-2deg)}50%{transform:translate(15px,40px)rotate(1deg)}75%{transform:translate(-20px,15px)rotate(-1deg)}}@keyframes pulse-glow{0%,to{opacity:.15;transform:scale(1)}50%{opacity:.25;transform:scale(1.05)}}@keyframes slow-spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}@keyframes aurora-drift{0%,to{transform:translate(0)scale(1)rotate(0)}33%{transform:translate(3%,-5%)scale(1.05)rotate(1deg)}66%{transform:translate(-3%,3%)scale(.95)rotate(-1deg)}}@keyframes scene-enter{0%{opacity:0;filter:blur(12px);transform:scale(.92)}to{opacity:1;filter:blur();transform:scale(1)}}@keyframes star-appear{0%{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}@keyframes star-twinkle{0%,to{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.92)}}"), Wf = window.matchMedia("(prefers-color-scheme: dark)"), Gf = new x((e) => {
-	let t = Wf.matches ? "dark" : "light";
+})], Hf.prototype, "error", void 0), Hf = N([P("schmancy-textarea")], Hf);
+var Wf = br(":host,:root{--md-ref-typeface-brand:var(--schmancy-font-family,sans-serif);--md-ref-typeface-plain:var(--schmancy-font-family,sans-serif);--md-sys-color-primary:var(--schmancy-sys-color-primary-default);--md-sys-color-secondary:var(--schmancy-sys-color-secondary-default);--default-font-family:var(--schmancy-font-family);--border-style:solid;--spacing:.25rem;--color-scrim:var(--schmancy-sys-color-scrim);--color-shadow:var(--schmancy-sys-color-shadow);--color-outline:var(--schmancy-sys-color-outline);--color-outlineVariant:var(--schmancy-sys-color-outlineVariant);--color-outline-variant:var(--schmancy-sys-color-outlineVariant);--color-surface-default:var(--schmancy-sys-color-surface-default);--color-surface-dim:var(--schmancy-sys-color-surface-dim);--color-surface-bright:var(--schmancy-sys-color-surface-bright);--color-surface-container:var(--schmancy-sys-color-surface-container);--color-surface-low:var(--schmancy-sys-color-surface-low);--color-surface-high:var(--schmancy-sys-color-surface-high);--color-surface-highest:var(--schmancy-sys-color-surface-highest);--color-surface-lowest:var(--schmancy-sys-color-surface-lowest);--color-surface-containerLow:var(--schmancy-sys-color-surface-containerLow);--color-surface-containerHigh:var(--schmancy-sys-color-surface-containerHigh);--color-surface-containerLowest:var(--schmancy-sys-color-surface-containerLowest);--color-surface-containerHighest:var(--schmancy-sys-color-surface-containerHighest);--color-surface-on:var(--schmancy-sys-color-surface-on);--color-surface-onVariant:var(--schmancy-sys-color-surface-onVariant);--color-surface-on-variant:var(--schmancy-sys-color-surface-onVariant);--color-surface-tint:var(--schmancy-sys-color-surface-tint);--color-surface-inverse:var(--schmancy-sys-color-inverse-surface);--color-surface-inverseOn:var(--schmancy-sys-color-inverse-onSurface);--color-inverse-surface:var(--schmancy-sys-color-inverse-surface);--color-inverse-on-surface:var(--schmancy-sys-color-inverse-onSurface);--color-primary-default:var(--schmancy-sys-color-primary-default);--color-primary-on:var(--schmancy-sys-color-primary-on);--color-primary-container:var(--schmancy-sys-color-primary-container);--color-primary-onContainer:var(--schmancy-sys-color-primary-onContainer);--color-primary-on-container:var(--schmancy-sys-color-primary-onContainer);--color-primary-fixed:var(--schmancy-sys-color-primary-fixed);--color-primary-fixedDim:var(--schmancy-sys-color-primary-fixedDim);--color-primary-fixed-dim:var(--schmancy-sys-color-primary-fixedDim);--color-primary-onFixed:var(--schmancy-sys-color-primary-onFixed);--color-primary-on-fixed:var(--schmancy-sys-color-primary-onFixed);--color-primary-onFixedVariant:var(--schmancy-sys-color-primary-onFixedVariant);--color-primary-on-fixed-variant:var(--schmancy-sys-color-primary-onFixedVariant);--color-primary-inverse:var(--schmancy-sys-color-inverse-primary);--color-inverse-primary:var(--schmancy-sys-color-inverse-primary);--color-secondary-default:var(--schmancy-sys-color-secondary-default);--color-secondary-on:var(--schmancy-sys-color-secondary-on);--color-secondary-container:var(--schmancy-sys-color-secondary-container);--color-secondary-onContainer:var(--schmancy-sys-color-secondary-onContainer);--color-secondary-on-container:var(--schmancy-sys-color-secondary-onContainer);--color-secondary-fixed:var(--schmancy-sys-color-secondary-fixed);--color-secondary-fixedDim:var(--schmancy-sys-color-secondary-fixedDim);--color-secondary-fixed-dim:var(--schmancy-sys-color-secondary-fixedDim);--color-secondary-onFixed:var(--schmancy-sys-color-secondary-onFixed);--color-secondary-on-fixed:var(--schmancy-sys-color-secondary-onFixed);--color-secondary-onFixedVariant:var(--schmancy-sys-color-secondary-onFixedVariant);--color-secondary-on-fixed-variant:var(--schmancy-sys-color-secondary-onFixedVariant);--color-tertiary-default:var(--schmancy-sys-color-tertiary-default);--color-tertiary-on:var(--schmancy-sys-color-tertiary-on);--color-tertiary-container:var(--schmancy-sys-color-tertiary-container);--color-tertiary-onContainer:var(--schmancy-sys-color-tertiary-onContainer);--color-tertiary-on-container:var(--schmancy-sys-color-tertiary-onContainer);--color-tertiary-fixed:var(--schmancy-sys-color-tertiary-fixed);--color-tertiary-fixedDim:var(--schmancy-sys-color-tertiary-fixedDim);--color-tertiary-fixed-dim:var(--schmancy-sys-color-tertiary-fixedDim);--color-tertiary-onFixed:var(--schmancy-sys-color-tertiary-onFixed);--color-tertiary-on-fixed:var(--schmancy-sys-color-tertiary-onFixed);--color-tertiary-onFixedVariant:var(--schmancy-sys-color-tertiary-onFixedVariant);--color-tertiary-on-fixed-variant:var(--schmancy-sys-color-tertiary-onFixedVariant);--color-error-default:var(--schmancy-sys-color-error-default);--color-error-on:var(--schmancy-sys-color-error-on);--color-error-container:var(--schmancy-sys-color-error-container);--color-error-onContainer:var(--schmancy-sys-color-error-onContainer);--color-error-on-container:var(--schmancy-sys-color-error-onContainer);--color-success-default:var(--schmancy-sys-color-success-default);--color-success-on:var(--schmancy-sys-color-success-on);--color-success-container:var(--schmancy-sys-color-success-container);--color-success-onContainer:var(--schmancy-sys-color-success-onContainer);--color-success-on-container:var(--schmancy-sys-color-success-onContainer);--color-warning-default:var(--schmancy-sys-color-warning-default);--color-warning-on:var(--schmancy-sys-color-warning-on);--color-warning-container:var(--schmancy-sys-color-warning-container);--color-warning-onContainer:var(--schmancy-sys-color-warning-onContainer);--color-warning-on-container:var(--schmancy-sys-color-warning-onContainer);--color-info-default:var(--schmancy-sys-color-info-default);--color-info-on:var(--schmancy-sys-color-info-on);--color-info-container:var(--schmancy-sys-color-info-container);--color-info-onContainer:var(--schmancy-sys-color-info-onContainer);--color-info-on-container:var(--schmancy-sys-color-info-onContainer);--shadow-xs:0 1px 2px 0 #0000000d;--shadow-sm:0 1px 3px 0 #0000001a, 0 1px 2px -1px #0000001a;--shadow-md:0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a;--shadow-lg:0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a;--shadow-xl:0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a;--shadow-2xl:var(--schmancy-sys-elevation-5);--outline-1:var(--schmancy-sys-outline-1);--font-sans:ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";--font-serif:ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif;--font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;--color-red-50:oklch(97.1% .013 17.38);--color-red-100:oklch(93.6% .032 17.717);--color-red-200:oklch(88.5% .062 18.334);--color-red-300:oklch(80.8% .114 19.571);--color-red-400:oklch(70.4% .191 22.216);--color-red-500:oklch(63.7% .237 25.331);--color-red-600:oklch(57.7% .245 27.325);--color-red-700:oklch(50.5% .213 27.518);--color-red-800:oklch(44.4% .177 26.899);--color-red-900:oklch(39.6% .141 25.723);--color-red-950:oklch(25.8% .092 26.042);--color-orange-50:oklch(98% .016 73.684);--color-orange-100:oklch(95.4% .038 75.164);--color-orange-200:oklch(90.1% .076 70.697);--color-orange-300:oklch(83.7% .128 66.29);--color-orange-400:oklch(75% .183 55.934);--color-orange-500:oklch(70.5% .213 47.604);--color-orange-600:oklch(64.6% .222 41.116);--color-orange-700:oklch(55.3% .195 38.402);--color-orange-800:oklch(47% .157 37.304);--color-orange-900:oklch(40.8% .123 38.172);--color-orange-950:oklch(26.6% .079 36.259);--color-amber-50:oklch(98.7% .022 95.277);--color-amber-100:oklch(96.2% .059 95.617);--color-amber-200:oklch(92.4% .12 95.746);--color-amber-300:oklch(87.9% .169 91.605);--color-amber-400:oklch(82.8% .189 84.429);--color-amber-500:oklch(76.9% .188 70.08);--color-amber-600:oklch(66.6% .179 58.318);--color-amber-700:oklch(55.5% .163 48.998);--color-amber-800:oklch(47.3% .137 46.201);--color-amber-900:oklch(41.4% .112 45.904);--color-amber-950:oklch(27.9% .077 45.635);--color-yellow-50:oklch(98.7% .026 102.212);--color-yellow-100:oklch(97.3% .071 103.193);--color-yellow-200:oklch(94.5% .129 101.54);--color-yellow-300:oklch(90.5% .182 98.111);--color-yellow-400:oklch(85.2% .199 91.936);--color-yellow-500:oklch(79.5% .184 86.047);--color-yellow-600:oklch(68.1% .162 75.834);--color-yellow-700:oklch(55.4% .135 66.442);--color-yellow-800:oklch(47.6% .114 61.907);--color-yellow-900:oklch(42.1% .095 57.708);--color-yellow-950:oklch(28.6% .066 53.813);--color-lime-50:oklch(98.6% .031 120.757);--color-lime-100:oklch(96.7% .067 122.328);--color-lime-200:oklch(93.8% .127 124.321);--color-lime-300:oklch(89.7% .196 126.665);--color-lime-400:oklch(84.1% .238 128.85);--color-lime-500:oklch(76.8% .233 130.85);--color-lime-600:oklch(64.8% .2 131.684);--color-lime-700:oklch(53.2% .157 131.589);--color-lime-800:oklch(45.3% .124 130.933);--color-lime-900:oklch(40.5% .101 131.063);--color-lime-950:oklch(27.4% .072 132.109);--color-green-50:oklch(98.2% .018 155.826);--color-green-100:oklch(96.2% .044 156.743);--color-green-200:oklch(92.5% .084 155.995);--color-green-300:oklch(87.1% .15 154.449);--color-green-400:oklch(79.2% .209 151.711);--color-green-500:oklch(72.3% .219 149.579);--color-green-600:oklch(62.7% .194 149.214);--color-green-700:oklch(52.7% .154 150.069);--color-green-800:oklch(44.8% .119 151.328);--color-green-900:oklch(39.3% .095 152.535);--color-green-950:oklch(26.6% .065 152.934);--color-emerald-50:oklch(97.9% .021 166.113);--color-emerald-100:oklch(95% .052 163.051);--color-emerald-200:oklch(90.5% .093 164.15);--color-emerald-300:oklch(84.5% .143 164.978);--color-emerald-400:oklch(76.5% .177 163.223);--color-emerald-500:oklch(69.6% .17 162.48);--color-emerald-600:oklch(59.6% .145 163.225);--color-emerald-700:oklch(50.8% .118 165.612);--color-emerald-800:oklch(43.2% .095 166.913);--color-emerald-900:oklch(37.8% .077 168.94);--color-emerald-950:oklch(26.2% .051 172.552);--color-teal-50:oklch(98.4% .014 180.72);--color-teal-100:oklch(95.3% .051 180.801);--color-teal-200:oklch(91% .096 180.426);--color-teal-300:oklch(85.5% .138 181.071);--color-teal-400:oklch(77.7% .152 181.912);--color-teal-500:oklch(70.4% .14 182.503);--color-teal-600:oklch(60% .118 184.704);--color-teal-700:oklch(51.1% .096 186.391);--color-teal-800:oklch(43.7% .078 188.216);--color-teal-900:oklch(38.6% .063 188.416);--color-teal-950:oklch(27.7% .046 192.524);--color-cyan-50:oklch(98.4% .019 200.873);--color-cyan-100:oklch(95.6% .045 203.388);--color-cyan-200:oklch(91.7% .08 205.041);--color-cyan-300:oklch(86.5% .127 207.078);--color-cyan-400:oklch(78.9% .154 211.53);--color-cyan-500:oklch(71.5% .143 215.221);--color-cyan-600:oklch(60.9% .126 221.723);--color-cyan-700:oklch(52% .105 223.128);--color-cyan-800:oklch(45% .085 224.283);--color-cyan-900:oklch(39.8% .07 227.392);--color-cyan-950:oklch(30.2% .056 229.695);--color-sky-50:oklch(97.7% .013 236.62);--color-sky-100:oklch(95.1% .026 236.824);--color-sky-200:oklch(90.1% .058 230.902);--color-sky-300:oklch(82.8% .111 230.318);--color-sky-400:oklch(74.6% .16 232.661);--color-sky-500:oklch(68.5% .169 237.323);--color-sky-600:oklch(58.8% .158 241.966);--color-sky-700:oklch(50% .134 242.749);--color-sky-800:oklch(44.3% .11 240.79);--color-sky-900:oklch(39.1% .09 240.876);--color-sky-950:oklch(29.3% .066 243.157);--color-blue-50:oklch(97% .014 254.604);--color-blue-100:oklch(93.2% .032 255.585);--color-blue-200:oklch(88.2% .059 254.128);--color-blue-300:oklch(80.9% .105 251.813);--color-blue-400:oklch(70.7% .165 254.624);--color-blue-500:oklch(62.3% .214 259.815);--color-blue-600:oklch(54.6% .245 262.881);--color-blue-700:oklch(48.8% .243 264.376);--color-blue-800:oklch(42.4% .199 265.638);--color-blue-900:oklch(37.9% .146 265.522);--color-blue-950:oklch(28.2% .091 267.935);--color-indigo-50:oklch(96.2% .018 272.314);--color-indigo-100:oklch(93% .034 272.788);--color-indigo-200:oklch(87% .065 274.039);--color-indigo-300:oklch(78.5% .115 274.713);--color-indigo-400:oklch(67.3% .182 276.935);--color-indigo-500:oklch(58.5% .233 277.117);--color-indigo-600:oklch(51.1% .262 276.966);--color-indigo-700:oklch(45.7% .24 277.023);--color-indigo-800:oklch(39.8% .195 277.366);--color-indigo-900:oklch(35.9% .144 278.697);--color-indigo-950:oklch(25.7% .09 281.288);--color-violet-50:oklch(96.9% .016 293.756);--color-violet-100:oklch(94.3% .029 294.588);--color-violet-200:oklch(89.4% .057 293.283);--color-violet-300:oklch(81.1% .111 293.571);--color-violet-400:oklch(70.2% .183 293.541);--color-violet-500:oklch(60.6% .25 292.717);--color-violet-600:oklch(54.1% .281 293.009);--color-violet-700:oklch(49.1% .27 292.581);--color-violet-800:oklch(43.2% .232 292.759);--color-violet-900:oklch(38% .189 293.745);--color-violet-950:oklch(28.3% .141 291.089);--color-purple-50:oklch(97.7% .014 308.299);--color-purple-100:oklch(94.6% .033 307.174);--color-purple-200:oklch(90.2% .063 306.703);--color-purple-300:oklch(82.7% .119 306.383);--color-purple-400:oklch(71.4% .203 305.504);--color-purple-500:oklch(62.7% .265 303.9);--color-purple-600:oklch(55.8% .288 302.321);--color-purple-700:oklch(49.6% .265 301.924);--color-purple-800:oklch(43.8% .218 303.724);--color-purple-900:oklch(38.1% .176 304.987);--color-purple-950:oklch(29.1% .149 302.717);--color-fuchsia-50:oklch(97.7% .017 320.058);--color-fuchsia-100:oklch(95.2% .037 318.852);--color-fuchsia-200:oklch(90.3% .076 319.62);--color-fuchsia-300:oklch(83.3% .145 321.434);--color-fuchsia-400:oklch(74% .238 322.16);--color-fuchsia-500:oklch(66.7% .295 322.15);--color-fuchsia-600:oklch(59.1% .293 322.896);--color-fuchsia-700:oklch(51.8% .253 323.949);--color-fuchsia-800:oklch(45.2% .211 324.591);--color-fuchsia-900:oklch(40.1% .17 325.612);--color-fuchsia-950:oklch(29.3% .136 325.661);--color-pink-50:oklch(97.1% .014 343.198);--color-pink-100:oklch(94.8% .028 342.258);--color-pink-200:oklch(89.9% .061 343.231);--color-pink-300:oklch(82.3% .12 346.018);--color-pink-400:oklch(71.8% .202 349.761);--color-pink-500:oklch(65.6% .241 354.308);--color-pink-600:oklch(59.2% .249 .584);--color-pink-700:oklch(52.5% .223 3.958);--color-pink-800:oklch(45.9% .187 3.815);--color-pink-900:oklch(40.8% .153 2.432);--color-pink-950:oklch(28.4% .109 3.907);--color-rose-50:oklch(96.9% .015 12.422);--color-rose-100:oklch(94.1% .03 12.58);--color-rose-200:oklch(89.2% .058 10.001);--color-rose-300:oklch(81% .117 11.638);--color-rose-400:oklch(71.2% .194 13.428);--color-rose-500:oklch(64.5% .246 16.439);--color-rose-600:oklch(58.6% .253 17.585);--color-rose-700:oklch(51.4% .222 16.935);--color-rose-800:oklch(45.5% .188 13.697);--color-rose-900:oklch(41% .159 10.272);--color-rose-950:oklch(27.1% .105 12.094);--color-slate-50:oklch(98.4% .003 247.858);--color-slate-100:oklch(96.8% .007 247.896);--color-slate-200:oklch(92.9% .013 255.508);--color-slate-300:oklch(86.9% .022 252.894);--color-slate-400:oklch(70.4% .04 256.788);--color-slate-500:oklch(55.4% .046 257.417);--color-slate-600:oklch(44.6% .043 257.281);--color-slate-700:oklch(37.2% .044 257.287);--color-slate-800:oklch(27.9% .041 260.031);--color-slate-900:oklch(20.8% .042 265.755);--color-slate-950:oklch(12.9% .042 264.695);--color-gray-50:oklch(98.5% .002 247.839);--color-gray-100:oklch(96.7% .003 264.542);--color-gray-200:oklch(92.8% .006 264.531);--color-gray-300:oklch(87.2% .01 258.338);--color-gray-400:oklch(70.7% .022 261.325);--color-gray-500:oklch(55.1% .027 264.364);--color-gray-600:oklch(44.6% .03 256.802);--color-gray-700:oklch(37.3% .034 259.733);--color-gray-800:oklch(27.8% .033 256.848);--color-gray-900:oklch(21% .034 264.665);--color-gray-950:oklch(13% .028 261.692);--color-zinc-50:oklch(98.5% 0 0);--color-zinc-100:oklch(96.7% .001 286.375);--color-zinc-200:oklch(92% .004 286.32);--color-zinc-300:oklch(87.1% .006 286.286);--color-zinc-400:oklch(70.5% .015 286.067);--color-zinc-500:oklch(55.2% .016 285.938);--color-zinc-600:oklch(44.2% .017 285.786);--color-zinc-700:oklch(37% .013 285.805);--color-zinc-800:oklch(27.4% .006 286.033);--color-zinc-900:oklch(21% .006 285.885);--color-zinc-950:oklch(14.1% .005 285.823);--color-neutral-50:oklch(98.5% 0 0);--color-neutral-100:oklch(97% 0 0);--color-neutral-200:oklch(92.2% 0 0);--color-neutral-300:oklch(87% 0 0);--color-neutral-400:oklch(70.8% 0 0);--color-neutral-500:oklch(55.6% 0 0);--color-neutral-600:oklch(43.9% 0 0);--color-neutral-700:oklch(37.1% 0 0);--color-neutral-800:oklch(26.9% 0 0);--color-neutral-900:oklch(20.5% 0 0);--color-neutral-950:oklch(14.5% 0 0);--color-stone-50:oklch(98.5% .001 106.423);--color-stone-100:oklch(97% .001 106.424);--color-stone-200:oklch(92.3% .003 48.717);--color-stone-300:oklch(86.9% .005 56.366);--color-stone-400:oklch(70.9% .01 56.259);--color-stone-500:oklch(55.3% .013 58.071);--color-stone-600:oklch(44.4% .011 73.639);--color-stone-700:oklch(37.4% .01 67.558);--color-stone-800:oklch(26.8% .007 34.298);--color-stone-900:oklch(21.6% .006 56.043);--color-stone-950:oklch(14.7% .004 49.25);--color-black:#000;--color-white:#fff;--breakpoint-sm:40rem;--breakpoint-md:48rem;--breakpoint-lg:64rem;--breakpoint-xl:80rem;--breakpoint-2xl:96rem;--container-3xs:16rem;--container-2xs:18rem;--container-xs:20rem;--container-sm:24rem;--container-md:28rem;--container-lg:32rem;--container-xl:36rem;--container-2xl:42rem;--container-3xl:48rem;--container-4xl:56rem;--container-5xl:64rem;--container-6xl:72rem;--container-7xl:80rem;--text-xs:.75rem;--text-xs--line-height:calc(1 / .75);--text-sm:.875rem;--text-sm--line-height:calc(1.25 / .875);--text-base:1rem;--text-base--line-height:calc(1.5 / 1);--text-lg:1.125rem;--text-lg--line-height:calc(1.75 / 1.125);--text-xl:1.25rem;--text-xl--line-height:calc(1.75 / 1.25);--text-2xl:1.5rem;--text-2xl--line-height:calc(2 / 1.5);--text-3xl:1.875rem;--text-3xl--line-height:calc(2.25 / 1.875);--text-4xl:2.25rem;--text-4xl--line-height:calc(2.5 / 2.25);--text-5xl:3rem;--text-5xl--line-height:1;--text-6xl:3.75rem;--text-6xl--line-height:1;--text-7xl:4.5rem;--text-7xl--line-height:1;--text-8xl:6rem;--text-8xl--line-height:1;--text-9xl:8rem;--text-9xl--line-height:1;--font-weight-thin:100;--font-weight-extralight:200;--font-weight-light:300;--font-weight-normal:400;--font-weight-medium:500;--font-weight-semibold:600;--font-weight-bold:700;--font-weight-extrabold:800;--font-weight-black:900;--tracking-tighter:-.05em;--tracking-tight:-.025em;--tracking-normal:0em;--tracking-wide:.025em;--tracking-wider:.05em;--tracking-widest:.1em;--leading-tight:1.25;--leading-snug:1.375;--leading-normal:1.5;--leading-relaxed:1.625;--leading-loose:2;--radius-xs:.125rem;--radius-sm:.25rem;--radius-md:.375rem;--radius-lg:.5rem;--radius-xl:.75rem;--radius-2xl:1rem;--radius-3xl:1.5rem;--radius-4xl:2rem;--shadow-smxs:0 1px #0000000d;--shadow-smxl:0 25px 50px -12px #00000040;--inset-shadow-smxs:inset 0 1px #0000000d;--inset-shadow-xs:inset 0 1px 1px #0000000d;--inset-shadow-sm:inset 0 2px 4px #0000000d;--drop-shadow-xs:0 1px 1px #0000000d;--drop-shadow-sm:0 1px 2px #00000026;--drop-shadow-md:0 3px 3px #0000001f;--drop-shadow-lg:0 4px 4px #00000026;--drop-shadow-xl:0 9px 7px #0000001a;--drop-shadow-smxl:0 25px 25px #00000026;--blur-xs:4px;--blur-sm:8px;--blur-md:12px;--blur-lg:16px;--blur-xl:24px;--blur-2xl:40px;--blur-3xl:64px;--perspective-dramatic:100px;--perspective-near:300px;--perspective-normal:500px;--perspective-midrange:800px;--perspective-distant:1200px;--aspect-video:16 / 9;--ease-in:cubic-bezier(.4, 0, 1, 1);--ease-out:cubic-bezier(0, 0, .2, 1);--ease-in-out:cubic-bezier(.4, 0, .2, 1);--animate-spin:spin 1s linear infinite;--animate-ping:ping 1s cubic-bezier(0, 0, .2, 1) infinite;--animate-pulse:pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;--animate-bounce:bounce 1s infinite;--animate-float-1:float-drift 20s ease-in-out infinite;--animate-float-2:float-drift-alt 25s ease-in-out infinite;--animate-float-3:float-drift 30s ease-in-out infinite reverse;--animate-pulse-glow:pulse-glow 8s ease-in-out infinite;--animate-spin-slow:slow-spin 120s linear infinite;--animate-aurora-drift:aurora-drift 30s ease-in-out infinite;--animate-scene-enter:scene-enter 1.2s cubic-bezier(.16, 1, .3, 1) forwards;--md-sys-color-scrim:var(--schmancy-sys-color-scrim);--md-sys-color-outline:var(--schmancy-sys-color-outline);--md-sys-color-outlineVariant:var(--schmancy-sys-color-outlineVariant);--md-sys-color-surface-default:var(--schmancy-sys-color-surface-default);--md-sys-color-surface-dim:var(--schmancy-sys-color-surface-dim);--md-sys-color-surface-bright:var(--schmancy-sys-color-surface-bright);--md-sys-color-surface-container:var(--schmancy-sys-color-surface-container);--md-sys-color-surface-low:var(--schmancy-sys-color-surface-low);--md-sys-color-surface-high:var(--schmancy-sys-color-surface-high);--md-sys-color-surface-highest:var(--schmancy-sys-color-surface-highest);--md-sys-color-surface-lowest:var(--schmancy-sys-color-surface-lowest);--md-sys-color-surface-on:var(--schmancy-sys-color-surface-on);--md-sys-color-on-surface-variant:var(--schmancy-sys-color-surface-onVariant);--md-sys-color-on-secondary-container:var(--schmancy-sys-color-secondary-onContainer);--md-sys-color-primary-default:var(--schmancy-sys-color-primary-default);--md-sys-color-primary-on:var(--schmancy-sys-color-primary-on);--md-sys-color-primary-container:var(--schmancy-sys-color-primary-container);--md-sys-color-primary-onContainer:var(--schmancy-sys-color-primary-onContainer);--md-sys-color-secondary-default:var(--schmancy-sys-color-secondary-default);--md-sys-color-secondary-on:var(--schmancy-sys-color-secondary-on);--md-sys-color-secondary-container:var(--schmancy-sys-color-secondary-container);--md-sys-color-secondary-onContainer:var(--schmancy-sys-color-secondary-onContainer);--md-sys-color-tertiary-default:var(--schmancy-sys-color-tertiary-default);--md-sys-color-tertiary-on:var(--schmancy-sys-color-tertiary-on);--md-sys-color-tertiary-container:var(--schmancy-sys-color-tertiary-container);--md-sys-color-tertiary-onContainer:var(--schmancy-sys-color-tertiary-onContainer);--md-sys-color-error-default:var(--schmancy-sys-color-error-default);--md-sys-color-error-on:var(--schmancy-sys-color-error-on);--md-sys-color-error-container:var(--schmancy-sys-color-error-container);--md-sys-color-error-onContainer:var(--schmancy-sys-color-error-onContainer);--md-sys-color-success-default:var(--schmancy-sys-color-success-default);--md-sys-color-success-on:var(--schmancy-sys-color-success-on);--md-sys-color-success-container:var(--schmancy-sys-color-success-container);--md-sys-color-success-onContainer:var(--schmancy-sys-color-success-onContainer);--md-sys-color-warning-default:var(--schmancy-sys-color-warning-default);--md-sys-color-warning-on:var(--schmancy-sys-color-warning-on);--md-sys-color-warning-container:var(--schmancy-sys-color-warning-container);--md-sys-color-warning-onContainer:var(--schmancy-sys-color-warning-onContainer);--md-sys-color-info-default:var(--schmancy-sys-color-info-default);--md-sys-color-info-on:var(--schmancy-sys-color-info-on);--md-sys-color-info-container:var(--schmancy-sys-color-info-container);--md-sys-color-info-onContainer:var(--schmancy-sys-color-info-onContainer);--md-sys-elevation-0:var(--schmancy-sys-elevation-0);--md-sys-elevation-1:var(--schmancy-sys-elevation-1);--md-sys-elevation-2:var(--schmancy-sys-elevation-2);--md-sys-elevation-3:var(--schmancy-sys-elevation-3);--md-sys-elevation-4:var(--schmancy-sys-elevation-4);--md-sys-elevation-5:var(--schmancy-sys-elevation-5);--md-sys-outline-1:var(--schmancy-sys-outline-1);--md-filter-chip-label-text-color:var(--schmancy-sys-color-surface-on);--md-checkbox-focus-outline-color:var(--schmancy-sys-color-surface-on);--md-checkbox-focus-outline-width:2px;--md-checkbox-hover-outline-color:var(--schmancy-sys-color-surface-on);--md-checkbox-hover-outline-width:2px;--md-checkbox-pressed-outline-color:var(--schmancy-sys-color-surface-on);--md-checkbox-pressed-outline-width:2px;--md-checkbox-disabled-outline-color:var(--schmancy-sys-color-surface-on);--md-checkbox-disabled-outline-width:2px}@keyframes spin{to{transform:rotate(360deg)}}@keyframes ping{75%,to{opacity:0;transform:scale(2)}}@keyframes pulse{50%{opacity:.5}}@keyframes bounce{0%,to{animation-timing-function:cubic-bezier(.8,0,1,1);transform:translateY(-25%)}50%{animation-timing-function:cubic-bezier(0,0,.2,1);transform:none}}@keyframes float-drift{0%,to{transform:translate(0)rotate(0)}25%{transform:translate(20px,-30px)rotate(2deg)}50%{transform:translate(-10px,-50px)rotate(-1deg)}75%{transform:translate(15px,-20px)rotate(1deg)}}@keyframes float-drift-alt{0%,to{transform:translate(0)rotate(0)}25%{transform:translate(-25px,20px)rotate(-2deg)}50%{transform:translate(15px,40px)rotate(1deg)}75%{transform:translate(-20px,15px)rotate(-1deg)}}@keyframes pulse-glow{0%,to{opacity:.15;transform:scale(1)}50%{opacity:.25;transform:scale(1.05)}}@keyframes slow-spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}@keyframes aurora-drift{0%,to{transform:translate(0)scale(1)rotate(0)}33%{transform:translate(3%,-5%)scale(1.05)rotate(1deg)}66%{transform:translate(-3%,3%)scale(.95)rotate(-1deg)}}@keyframes scene-enter{0%{opacity:0;filter:blur(12px);transform:scale(.92)}to{opacity:1;filter:blur();transform:scale(1)}}@keyframes star-appear{0%{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}@keyframes star-twinkle{0%,to{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.92)}}"), Gf = window.matchMedia("(prefers-color-scheme: dark)"), Kf = new x((e) => {
+	let t = Gf.matches ? "dark" : "light";
 	e.next(t);
-	let n = E(Wf, "change").subscribe((t) => {
+	let n = E(Gf, "change").subscribe((t) => {
 		let n = t.matches ? "dark" : "light";
 		e.next(n);
 	});
 	return () => n.unsubscribe();
-}), Kf = class extends B(Uf) {
+}), qf = class extends B(Wf) {
 	constructor(...e) {
 		super(...e), this.scheme = "auto", this.root = !1, this.locale = typeof navigator < "u" ? navigator.language : "de-DE", this.theme = {};
 	}
 	connectedCallback() {
 		super.connectedCallback();
 		let e = this.generateThemeName(), t = sessionStorage.getItem(`schmancy-theme-${e}-color`), n = sessionStorage.getItem(`schmancy-theme-${e}-scheme`);
-		this.color || (this.color = t || this.generateRandomColor(), sessionStorage.setItem(`schmancy-theme-${e}-color`, this.color)), !this.hasAttribute("scheme") && n && (this.scheme = n), ht(this.scheme).pipe(un((e) => e === "auto" ? Gf : ht(e)), k(this.disconnecting)).subscribe((t) => {
+		this.color || (this.color = t || this.generateRandomColor(), sessionStorage.setItem(`schmancy-theme-${e}-color`, this.color)), !this.hasAttribute("scheme") && n && (this.scheme = n), ht(this.scheme).pipe(un((e) => e === "auto" ? Kf : ht(e)), k(this.disconnecting)).subscribe((t) => {
 			this.scheme = t, queueMicrotask(() => {
 				this.registerTheme(), sessionStorage.setItem(`schmancy-theme-${e}-scheme`, this.scheme);
 			});
@@ -28495,7 +28582,7 @@ var Uf = br(":host,:root{--md-ref-typeface-brand:var(--schmancy-font-family,sans
 	}
 	registerTheme() {
 		let e = function(e, t = !1, n) {
-			let a = t ? e.schemes.dark : e.schemes.light, o = r.fromHueAndChroma(e.palettes.primary.hue, e.palettes.primary.chroma), s = r.fromHueAndChroma(e.palettes.secondary.hue, e.palettes.secondary.chroma), c = r.fromHueAndChroma(e.palettes.tertiary.hue, e.palettes.tertiary.chroma), l = r.fromHueAndChroma(e.palettes.neutral.hue, e.palettes.neutral.chroma), u = r.fromHueAndChroma(e.palettes.neutralVariant.hue, e.palettes.neutralVariant.chroma), d = r.fromHueAndChroma(e.palettes.error.hue, e.palettes.error.chroma), f = Hf(n?.success ? n.success : i("#00C853")), p = Hf(n?.warning ? n.warning : i("#FFCA28")), m = Hf(n?.info ? n.info : i("#2979FF")), h = {
+			let a = t ? e.schemes.dark : e.schemes.light, o = r.fromHueAndChroma(e.palettes.primary.hue, e.palettes.primary.chroma), s = r.fromHueAndChroma(e.palettes.secondary.hue, e.palettes.secondary.chroma), c = r.fromHueAndChroma(e.palettes.tertiary.hue, e.palettes.tertiary.chroma), l = r.fromHueAndChroma(e.palettes.neutral.hue, e.palettes.neutral.chroma), u = r.fromHueAndChroma(e.palettes.neutralVariant.hue, e.palettes.neutralVariant.chroma), d = r.fromHueAndChroma(e.palettes.error.hue, e.palettes.error.chroma), f = Uf(n?.success ? n.success : i("#00C853")), p = Uf(n?.warning ? n.warning : i("#FFCA28")), m = Uf(n?.info ? n.info : i("#2979FF")), h = {
 				primary: t ? 80 : 40,
 				onPrimary: t ? 20 : 100,
 				primaryContainer: t ? 30 : 90,
@@ -28725,12 +28812,12 @@ var Uf = br(":host,:root{--md-ref-typeface-brand:var(--schmancy-font-family,sans
 					outline: { 1: "1px" }
 				},
 				ref: { palette: {
-					primary: Hf(o.tone(40)),
-					secondary: Hf(s.tone(40)),
-					tertiary: Hf(c.tone(40)),
-					neutral: Hf(l.tone(40)),
-					neutralVariant: Hf(u.tone(40)),
-					error: Hf(d.tone(40))
+					primary: Uf(o.tone(40)),
+					secondary: Uf(s.tone(40)),
+					tertiary: Uf(c.tone(40)),
+					neutral: Uf(l.tone(40)),
+					neutralVariant: Uf(u.tone(40)),
+					error: Uf(d.tone(40))
 				} }
 			};
 		}(o(i(typeof this.color == "string" ? this.color : "#6200ee")), this.scheme === "dark", {
@@ -28776,8 +28863,8 @@ var Uf = br(":host,:root{--md-ref-typeface-brand:var(--schmancy-font-family,sans
 N([I({
 	type: String,
 	reflect: !0
-})], Kf.prototype, "color", void 0), N([I({ type: String })], Kf.prototype, "scheme", void 0), N([I({ type: Boolean })], Kf.prototype, "root", void 0), N([I({ type: String })], Kf.prototype, "locale", void 0), N([I({ type: String })], Kf.prototype, "name", void 0), N([dr({ context: pr }), I({ type: Object })], Kf.prototype, "theme", void 0), Kf = N([P("schmancy-theme")], Kf);
-var qf = class extends B() {
+})], qf.prototype, "color", void 0), N([I({ type: String })], qf.prototype, "scheme", void 0), N([I({ type: Boolean })], qf.prototype, "root", void 0), N([I({ type: String })], qf.prototype, "locale", void 0), N([I({ type: String })], qf.prototype, "name", void 0), N([dr({ context: pr }), I({ type: Object })], qf.prototype, "theme", void 0), qf = N([P("schmancy-theme")], qf);
+var Jf = class extends B() {
 	constructor(...e) {
 		super(...e), this.currentScheme = "auto", this.currentColor = "#6200ee", this.resolvedScheme = "light", this.themeComponent = null, this.colorInput$ = new C();
 	}
@@ -28946,8 +29033,8 @@ var qf = class extends B() {
 		`;
 	}
 };
-N([L()], qf.prototype, "currentScheme", void 0), N([L()], qf.prototype, "currentColor", void 0), N([L()], qf.prototype, "resolvedScheme", void 0), N([L()], qf.prototype, "themeComponent", void 0), N([I({ type: Array })], qf.prototype, "customColors", void 0), qf = N([P("schmancy-theme-controller")], qf);
-var Jf = class extends CustomEvent {
+N([L()], Jf.prototype, "currentScheme", void 0), N([L()], Jf.prototype, "currentColor", void 0), N([L()], Jf.prototype, "resolvedScheme", void 0), N([L()], Jf.prototype, "themeComponent", void 0), N([I({ type: Array })], Jf.prototype, "customColors", void 0), Jf = N([P("schmancy-theme-controller")], Jf);
+var Yf = class extends CustomEvent {
 	constructor(e) {
 		super("schmancy-generate-mood-audio", {
 			detail: e,
@@ -28955,7 +29042,7 @@ var Jf = class extends CustomEvent {
 			composed: !0
 		});
 	}
-}, Yf = class extends B(F`
+}, Xf = class extends B(F`
 	:host {
 		display: block;
 	}
@@ -28981,7 +29068,7 @@ var Jf = class extends CustomEvent {
 		this.moodInput$.next(t.value);
 	}
 	requestMoodAudio() {
-		this.moodText.trim() ? (this.error = "", this.isGenerating = !0, this.audioSequence = null, this.detectedMood = "", this.dispatchEvent(new Jf({
+		this.moodText.trim() ? (this.error = "", this.isGenerating = !0, this.audioSequence = null, this.detectedMood = "", this.dispatchEvent(new Yf({
 			moodText: this.moodText.trim(),
 			themeColor: this.currentColor,
 			scheme: this.currentScheme
@@ -29195,8 +29282,8 @@ var Jf = class extends CustomEvent {
 		`;
 	}
 };
-N([L()], Yf.prototype, "currentColor", void 0), N([L()], Yf.prototype, "currentScheme", void 0), N([L()], Yf.prototype, "moodText", void 0), N([L()], Yf.prototype, "isGenerating", void 0), N([L()], Yf.prototype, "audioSequence", void 0), N([L()], Yf.prototype, "detectedMood", void 0), N([L()], Yf.prototype, "error", void 0), N([L()], Yf.prototype, "volume", void 0), N([L()], Yf.prototype, "currentThemeName", void 0), Yf = N([P("schmancy-theme-audio-player")], Yf);
-var Xf = class extends qf {
+N([L()], Xf.prototype, "currentColor", void 0), N([L()], Xf.prototype, "currentScheme", void 0), N([L()], Xf.prototype, "moodText", void 0), N([L()], Xf.prototype, "isGenerating", void 0), N([L()], Xf.prototype, "audioSequence", void 0), N([L()], Xf.prototype, "detectedMood", void 0), N([L()], Xf.prototype, "error", void 0), N([L()], Xf.prototype, "volume", void 0), N([L()], Xf.prototype, "currentThemeName", void 0), Xf = N([P("schmancy-theme-audio-player")], Xf);
+var Zf = class extends Jf {
 	render() {
 		return j`
 			<schmancy-boat id="schmancy-theme-component">
@@ -29213,8 +29300,8 @@ var Xf = class extends qf {
 		`;
 	}
 };
-Xf = N([P("schmancy-theme-controller-boat")], Xf);
-var Zf = class extends z() {
+Zf = N([P("schmancy-theme-controller-boat")], Zf);
+var Qf = class extends z() {
 	render() {
 		return j`
 			<schmancy-button
@@ -29228,8 +29315,8 @@ var Zf = class extends z() {
 		`;
 	}
 };
-N([R("#color")], Zf.prototype, "color", void 0), Zf = N([P("schmancy-theme-button")], Zf);
-var Qf = class extends z(F`
+N([R("#color")], Qf.prototype, "color", void 0), Qf = N([P("schmancy-theme-button")], Qf);
+var $f = class extends z(F`
 	:host {
 		display: block;
 		position: relative;
@@ -29308,8 +29395,8 @@ var Qf = class extends z(F`
 		`;
 	}
 };
-N([I({ type: Boolean })], Qf.prototype, "open", void 0), N([R("#toggler")], Qf.prototype, "toggler", void 0), N([R("slot:not([name=\"root\"])")], Qf.prototype, "defaultSlot", void 0), N([R("#chevron")], Qf.prototype, "chevron", void 0), Qf = N([P("schmancy-tree")], Qf);
-var $f = null, ep = class extends B(F`
+N([I({ type: Boolean })], $f.prototype, "open", void 0), N([R("#toggler")], $f.prototype, "toggler", void 0), N([R("slot:not([name=\"root\"])")], $f.prototype, "defaultSlot", void 0), N([R("#chevron")], $f.prototype, "chevron", void 0), $f = N([P("schmancy-tree")], $f);
+var ep = null, tp = class extends B(F`
 	:host {
 		display: inline-block;
 	}
@@ -29450,7 +29537,7 @@ var $f = null, ep = class extends B(F`
 					composed: !0
 				})), this.loop || this.typewriterContainer.style.setProperty("--ti-cursor-display", "none");
 			}
-		}, t = await ($f || ($f = import("./index.es-Dymj8REP.js").then((e) => e.default), $f));
+		}, t = await (ep || (ep = import("./index.es-Dymj8REP.js").then((e) => e.default), ep));
 		this.isConnected && (this.typeItInstance = new t(this.typewriterContainer, e), this._getSlottedNodes.forEach((e) => {
 			if (e.nodeType === Node.TEXT_NODE) {
 				let t = e.textContent || "";
@@ -29518,18 +29605,18 @@ var $f = null, ep = class extends B(F`
 			</div> `;
 	}
 };
-N([I({ type: Number })], ep.prototype, "speed", void 0), N([fr({
+N([I({ type: Number })], tp.prototype, "speed", void 0), N([fr({
 	context: cl,
 	subscribe: !0
-}), I({ type: Number })], ep.prototype, "delay", void 0), N([I({ type: Boolean })], ep.prototype, "autoStart", void 0), N([I({ type: String })], ep.prototype, "cursorChar", void 0), N([I({ type: Number })], ep.prototype, "deleteSpeed", void 0), N([I({ type: Boolean })], ep.prototype, "once", void 0), N([I({ type: Boolean })], ep.prototype, "loop", void 0), N([I({ type: Number })], ep.prototype, "cyclePause", void 0), N([R("#typewriter")], ep.prototype, "typewriterContainer", void 0), N([function(e) {
+}), I({ type: Number })], tp.prototype, "delay", void 0), N([I({ type: Boolean })], tp.prototype, "autoStart", void 0), N([I({ type: String })], tp.prototype, "cursorChar", void 0), N([I({ type: Number })], tp.prototype, "deleteSpeed", void 0), N([I({ type: Boolean })], tp.prototype, "once", void 0), N([I({ type: Boolean })], tp.prototype, "loop", void 0), N([I({ type: Number })], tp.prototype, "cyclePause", void 0), N([R("#typewriter")], tp.prototype, "typewriterContainer", void 0), N([function(e) {
 	return (t, n) => {
 		let { slot: r } = e ?? {}, i = "slot" + (r ? `[name=${r}]` : ":not([name])");
 		return zr(t, n, { get() {
 			return (this.renderRoot?.querySelector(i))?.assignedNodes(e) ?? [];
 		} });
 	};
-}({ flatten: !0 })], ep.prototype, "_getSlottedNodes", void 0), N([Br({ flatten: !0 })], ep.prototype, "_getSlottedElements", void 0), ep = N([P("schmancy-typewriter")], ep);
-var tp = class extends z(F`
+}({ flatten: !0 })], tp.prototype, "_getSlottedNodes", void 0), N([Br({ flatten: !0 })], tp.prototype, "_getSlottedElements", void 0), tp = N([P("schmancy-typewriter")], tp);
+var np = class extends z(F`
 	:host {
 		display: block;
 		font-family: inherit;
@@ -29860,22 +29947,22 @@ var tp = class extends z(F`
 N([I({
 	type: String,
 	reflect: !0
-})], tp.prototype, "type", void 0), N([I({
+})], np.prototype, "type", void 0), N([I({
 	type: String,
 	reflect: !0
-})], tp.prototype, "token", void 0), N([I({
+})], np.prototype, "token", void 0), N([I({
 	type: String,
 	reflect: !0
-})], tp.prototype, "align", void 0), N([I({
+})], np.prototype, "align", void 0), N([I({
 	type: String,
 	reflect: !0
-})], tp.prototype, "weight", void 0), N([I({
+})], np.prototype, "weight", void 0), N([I({
 	type: String,
 	reflect: !0
-})], tp.prototype, "transform", void 0), N([I({ type: Number })], tp.prototype, "maxLines", void 0), N([I({
+})], np.prototype, "transform", void 0), N([I({ type: Number })], np.prototype, "maxLines", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], tp.prototype, "editable", void 0), N([I({ type: String })], tp.prototype, "value", void 0), N([I({ type: String })], tp.prototype, "placeholder", void 0), tp = N([P("schmancy-typography")], tp), new class {
+})], np.prototype, "editable", void 0), N([I({ type: String })], np.prototype, "value", void 0), N([I({ type: String })], np.prototype, "placeholder", void 0), np = N([P("schmancy-typography")], np), new class {
 	constructor() {
 		this.systemLocale = typeof navigator < "u" && navigator.language ? navigator.language : "de-DE";
 	}
@@ -30129,7 +30216,7 @@ N([I({
 		return e.split("").map((e) => t[e] || e).join("");
 	}
 }();
-var np = class extends B() {
+var rp = class extends B() {
 	constructor(...e) {
 		super(...e), this.initials = "", this.src = "", this.icon = "", this.size = "md", this.color = "primary", this.shape = "circle", this.bordered = !1, this.status = "none";
 	}
@@ -30208,8 +30295,8 @@ var np = class extends B() {
 		`;
 	}
 };
-N([I({ type: String })], np.prototype, "initials", void 0), N([I({ type: String })], np.prototype, "src", void 0), N([I({ type: String })], np.prototype, "icon", void 0), N([I({ type: String })], np.prototype, "size", void 0), N([I({ type: String })], np.prototype, "color", void 0), N([I({ type: String })], np.prototype, "shape", void 0), N([I({ type: Boolean })], np.prototype, "bordered", void 0), N([I({ type: String })], np.prototype, "status", void 0), np = N([P("schmancy-avatar")], np);
-var rp = class extends z(F`
+N([I({ type: String })], rp.prototype, "initials", void 0), N([I({ type: String })], rp.prototype, "src", void 0), N([I({ type: String })], rp.prototype, "icon", void 0), N([I({ type: String })], rp.prototype, "size", void 0), N([I({ type: String })], rp.prototype, "color", void 0), N([I({ type: String })], rp.prototype, "shape", void 0), N([I({ type: Boolean })], rp.prototype, "bordered", void 0), N([I({ type: String })], rp.prototype, "status", void 0), rp = N([P("schmancy-avatar")], rp);
+var ip = class extends z(F`
 	:host {
 		display: block;
 	}
@@ -30252,8 +30339,8 @@ var rp = class extends z(F`
 		});
 	}
 };
-N([I({ type: String })], rp.prototype, "separator", void 0), rp = N([P("schmancy-breadcrumb")], rp);
-var ip = class extends z(F`
+N([I({ type: String })], ip.prototype, "separator", void 0), ip = N([P("schmancy-breadcrumb")], ip);
+var ap = class extends z(F`
 	:host {
 		display: inline-block;
 	}
@@ -30272,11 +30359,11 @@ var ip = class extends z(F`
 		return this.href && !this.current ? j`<a href=${this.href}><slot></slot></a>` : j`<span aria-current=${this.current ? "page" : "false"}><slot></slot></span>`;
 	}
 };
-N([I({ type: String })], ip.prototype, "href", void 0), N([I({
+N([I({ type: String })], ap.prototype, "href", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], ip.prototype, "current", void 0), ip = N([P("schmancy-breadcrumb-item")], ip);
-var ap = class extends z(F`
+})], ap.prototype, "current", void 0), ap = N([P("schmancy-breadcrumb-item")], ap);
+var op = class extends z(F`
 	:host {
 		display: inline-block;
 		vertical-align: middle;
@@ -30314,8 +30401,8 @@ var ap = class extends z(F`
 N([I({
 	type: String,
 	reflect: !0
-})], ap.prototype, "size", void 0), ap = N([P("schmancy-kbd")], ap);
-var op = class extends z(F`
+})], op.prototype, "size", void 0), op = N([P("schmancy-kbd")], op);
+var sp = class extends z(F`
 	:host {
 		display: block;
 		width: var(--_sw, 100%);
@@ -30366,8 +30453,8 @@ var op = class extends z(F`
 N([I({
 	type: String,
 	reflect: !0
-})], op.prototype, "shape", void 0), N([I({ type: String })], op.prototype, "width", void 0), N([I({ type: String })], op.prototype, "height", void 0), N([I({ type: String })], op.prototype, "radius", void 0), op = N([P("schmancy-skeleton")], op);
-var sp = class extends B(F`
+})], sp.prototype, "shape", void 0), N([I({ type: String })], sp.prototype, "width", void 0), N([I({ type: String })], sp.prototype, "height", void 0), N([I({ type: String })], sp.prototype, "radius", void 0), sp = N([P("schmancy-skeleton")], sp);
+var cp = class extends B(F`
 	:host {
 		display: block;
 		position: relative;
@@ -30439,11 +30526,11 @@ var sp = class extends B(F`
 N([I({
 	type: Number,
 	attribute: "min-duration"
-})], sp.prototype, "minDuration", void 0), N([I({ type: Boolean })], sp.prototype, "auto", void 0), N([I({
+})], cp.prototype, "minDuration", void 0), N([I({ type: Boolean })], cp.prototype, "auto", void 0), N([I({
 	type: Boolean,
 	attribute: "initially-hidden"
-})], sp.prototype, "initiallyHidden", void 0), N([L()], sp.prototype, "_visible", void 0), sp = N([P("schmancy-splash-screen")], sp);
-var cp = class extends z(F`
+})], cp.prototype, "initiallyHidden", void 0), N([L()], cp.prototype, "_visible", void 0), cp = N([P("schmancy-splash-screen")], cp);
+var lp = class extends z(F`
 	:host {
 		display: inline-block;
 	}
@@ -30562,14 +30649,14 @@ var cp = class extends z(F`
 N([I({
 	type: Boolean,
 	reflect: !0
-})], cp.prototype, "checked", void 0), N([I({
+})], lp.prototype, "checked", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], cp.prototype, "disabled", void 0), N([I({
+})], lp.prototype, "disabled", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], cp.prototype, "required", void 0), N([I({ type: String })], cp.prototype, "name", void 0), N([I({ type: String })], cp.prototype, "value", void 0), N([I({ type: String })], cp.prototype, "label", void 0), cp = N([P("schmancy-switch")], cp);
-var lp = class extends z(F`
+})], lp.prototype, "required", void 0), N([I({ type: String })], lp.prototype, "name", void 0), N([I({ type: String })], lp.prototype, "value", void 0), N([I({ type: String })], lp.prototype, "label", void 0), lp = N([P("schmancy-switch")], lp);
+var up = class extends z(F`
 	:host {
 		position: absolute;
 		width: 1px;
@@ -30586,8 +30673,8 @@ var lp = class extends z(F`
 		return j`<slot></slot>`;
 	}
 };
-lp = N([P("schmancy-visually-hidden")], lp);
-var up = {
+up = N([P("schmancy-visually-hidden")], up);
+var dp = {
 	schemaVersion: "1.0.0",
 	readme: "# Schmancy\n\nA Web Component UI library built on Lit, RxJS, and Tailwind CSS. Surfaces are glass. Depth is light. Interactions are physics.\n\n## Agent runtime\n\nFor sandboxed-iframe agents (Claude Design, Claude Artifacts, any LLM that can\nonly write HTML), schmancy ships a single-URL runtime at `@mhmo91/schmancy/agent`.\nDrop one `<script type=\"module\">` tag and every `<schmancy-*>` element is\nregistered. No bundler, no bare specifiers, no npm install.\n\n```html\n<script type=\"module\">\n  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent';\n<\/script>\n<schmancy-theme root scheme=\"dark\">\n  <schmancy-surface type=\"solid\" fill=\"all\">\n    <schmancy-button>Hi</schmancy-button>\n    <schmancy-skill></schmancy-skill>\n  </schmancy-surface>\n</schmancy-theme>\n```\n\nThe `<schmancy-skill>` tag installs `window.schmancy` for runtime discovery:\n\n- `window.schmancy.help()` — full manifest (CEM v1 shape).\n- `window.schmancy.help('schmancy-button')` — one tag's attributes, events, slots, CSS parts.\n- `window.schmancy.tokens()` — build-time-extracted list of `--schmancy-*` theme tokens.\n- `window.schmancy.manifestUrl` — Blob URL; `fetch()` it for the same data.\n- `window.schmancy.a11yAudit()` — walks the live DOM and reports ARIA / shadow-root / form-association status per instance.\n- `window.schmancy.platformPrimitive('schmancy-dialog')` — map to the native element a component wraps (present when the component's JSDoc has `@platform`).\n- `window.schmancy.capabilities()` — runtime feature probe (`popover`, `declarativeShadowDom`, `scopedRegistries`, `trustedTypes`, `cssRegisteredProperties`, `elementInternalsAria`, `formAssociated`, `adoptedStyleSheets`). Agents use this to adapt to the sandbox they're in rather than the one they expect.\n\nEvery enum-typed attribute carries a `values` array — e.g. `schmancy-button`'s `variant` ships `[\"elevated\", \"filled\", \"filled tonal\", \"tonal\", \"outlined\", \"text\"]` so agents never have to parse `\"'filled' | 'tonal' | ...\"` strings.\n\nThe manifest is also emitted as a sibling file at `@mhmo91/schmancy/agent/manifest`\nfor tooling that prefers reading JSON from disk.\n\n## Install\n\n```bash\nnpm install @mhmo91/schmancy\n```\n\n```typescript\nimport '@mhmo91/schmancy'\nimport { magnetic, cursorGlow, gravity } from '@mhmo91/schmancy/directives'\n```\n\n## Use with Claude Code\n\nSchmancy ships a Claude Code plugin. In any Claude Code session, run:\n\n```\n/plugin install https://github.com/samwaai/schmancy\n```\n\nClaude now knows every Schmancy component, foundation pattern, and convention in your project. The skill activates automatically when you work on schmancy code — no CLAUDE.md edits, no symlinks.\n\n## Quick Start\n\n```html\n<schmancy-theme root scheme=\"dark\">\n  <schmancy-surface type=\"solid\" fill=\"all\">\n    <schmancy-area name=\"root\" .default=${lazy(() => import('./home.page'))}>\n      <schmancy-route when=\"home-page\" .component=${lazy(() => import('./home.page'))} />\n    </schmancy-area>\n  </schmancy-surface>\n</schmancy-theme>\n```\n\n## Design: Luminous Glass\n\n| Surface | Opacity | Blur | Purpose |\n|---------|---------|------|---------|\n| `solid` | 92% | — | Dense glass, high readability |\n| `subtle` | 78% | 8px | Frosted panel (default) |\n| `glass` | 55% | 16px | Overlays, dialogs, dropdowns |\n| `luminous` | 42% | 20px | Hero panels with glow halo |\n\n## Docs\n\nSchmancy is organized in four layers:\n\n- **Foundations** — [Area](./skills/schmancy/area.md) · [Store](./skills/schmancy/store.md) · [Mixins ($LitElement)](./skills/schmancy/mixins.md) · [Theme](./skills/schmancy/theme.md) · [Directives](./skills/schmancy/directives.md)\n- **Atoms** — [Typography](./skills/schmancy/typography.md) · [Icons](./skills/schmancy/icons.md) · [Button](./skills/schmancy/button.md) · [Surface](./skills/schmancy/surface.md) · [Divider](./skills/schmancy/divider.md) · [Avatar](./skills/schmancy/avatar.md)\n- **Composites (by job)** — Forms, Navigation, Overlays, Interaction, Feedback, Display\n- **Utilities** — [Animation](./skills/schmancy/animation.md) · [Audio](./skills/schmancy/audio.md) · [Discovery](./skills/schmancy/discovery.md) · [RxJS Utils](./skills/schmancy/rxjs-utils.md) · [Utils](./skills/schmancy/utils.md)\n\n**Full component index:** [skills/schmancy/INDEX.md](./skills/schmancy/INDEX.md) — the single-file map with every tag, service, and convention. Written primarily for AI agents; humans welcome.\n\n## Tech Stack\n\n[Lit](https://lit.dev) · [RxJS](https://rxjs.dev) · [Tailwind CSS v4](https://tailwindcss.com) · [Blackbird](./src/utils/animation.ts)\n\n## License\n\nApache-2.0\n",
 	modules: [
@@ -33742,6 +33829,84 @@ var up = {
 		},
 		{
 			kind: "javascript-module",
+			path: "metric/metric.ts",
+			declarations: [{
+				kind: "class",
+				name: "SchmancyMetric",
+				tagName: "schmancy-metric",
+				description: "KPI metric — a label + value pair for dashboards, with optional trend + delta indicators.",
+				summary: "The building block of dashboards and meta bars. Pass `label` + `value` for a basic stat; add `trend` / `delta` for the delta-from-last-period pattern. Use multiple metrics side-by-side with Tailwind flex/grid utilities.",
+				platformPrimitive: {
+					tag: "div",
+					mode: "-",
+					note: "Styled `<div>` with two text lines + optional trend arrow. Degrades to a plain div+spans if the tag never registers."
+				},
+				attributes: [
+					{
+						name: "label",
+						type: { text: "string" },
+						default: "''",
+						description: "Upper-case caption shown above the value."
+					},
+					{
+						name: "value",
+						type: { text: "string" },
+						default: "''",
+						description: "Primary metric value, rendered large. Pre-format numbers/currency yourself."
+					},
+					{
+						name: "trend",
+						type: { text: "MetricTrend" },
+						values: [
+							"neutral",
+							"up",
+							"down"
+						],
+						description: "Optional trend direction. Controls the color + arrow on the delta pill."
+					},
+					{
+						name: "delta",
+						type: { text: "string" },
+						description: "Optional delta copy displayed in a pill next to the value (e.g. `+12%`)."
+					},
+					{
+						name: "size",
+						type: { text: "MetricSize" },
+						values: [
+							"sm",
+							"md",
+							"lg"
+						],
+						default: "'md'",
+						description: "Size scale affecting label + value typography."
+					}
+				],
+				slots: [{
+					name: "",
+					description: "Optional custom value rendering (overrides the `value` attribute if present)."
+				}, {
+					name: "label",
+					description: "Optional custom label rendering (overrides the `label` attribute if present)."
+				}],
+				cssParts: [
+					{
+						name: "label",
+						description: "The label line."
+					},
+					{
+						name: "value",
+						description: "The value line."
+					},
+					{
+						name: "delta",
+						description: "The delta pill (only when `delta` is set)."
+					}
+				],
+				examples: ["<schmancy-metric label=\"In flight\" value=\"4\"></schmancy-metric>\n<schmancy-metric label=\"Open value\" value=\"€165,900\" trend=\"up\" delta=\"+12%\"></schmancy-metric>\n<schmancy-metric label=\"Error rate\" value=\"0.3%\" trend=\"down\" delta=\"-0.1%\"></schmancy-metric>"]
+			}]
+		},
+		{
+			kind: "javascript-module",
 			path: "nav-drawer/appbar.ts",
 			declarations: [{
 				kind: "class",
@@ -36308,43 +36473,43 @@ var up = {
 		"Prefer `fromEvent(target, type).pipe(takeUntil(this.disconnecting))` over raw `addEventListener` inside components."
 	]
 };
-function dp() {
+function fp() {
 	let e = [];
-	for (let t of up.modules ?? []) {
+	for (let t of dp.modules ?? []) {
 		let n = t.declarations ?? [];
 		for (let t of n) e.push(t);
 	}
 	return e;
 }
-function fp() {
-	return dp().filter((e) => e.kind === "class" && typeof e.tagName == "string");
-}
 function pp() {
-	return dp().filter((e) => e.kind === "variable" && !0 === e.service);
+	return fp().filter((e) => e.kind === "class" && typeof e.tagName == "string");
 }
-function mp(e) {
-	return e ? fp().find((t) => t.tagName === e) || pp().find((t) => t.name === e) || null : {
-		elements: fp().map((e) => ({
+function mp() {
+	return fp().filter((e) => e.kind === "variable" && !0 === e.service);
+}
+function hp(e) {
+	return e ? pp().find((t) => t.tagName === e) || mp().find((t) => t.name === e) || null : {
+		elements: pp().map((e) => ({
 			tag: e.tagName,
 			summary: e.summary ?? e.description
 		})),
-		services: pp().map((e) => ({
+		services: mp().map((e) => ({
 			name: e.name,
 			summary: e.summary ?? e.description
 		}))
 	};
 }
-function hp() {
-	return up.tokens ?? [];
+function gp() {
+	return dp.tokens ?? [];
 }
-function gp(e) {
-	return fp().find((t) => t.tagName === e)?.platformPrimitive ?? null;
-}
-function _p() {
-	return fp().map((e) => e.tagName).filter((e) => customElements.get(e) !== void 0);
+function _p(e) {
+	return pp().find((t) => t.tagName === e)?.platformPrimitive ?? null;
 }
 function vp() {
-	let e = new Set(fp().map((e) => e.tagName)), t = [], n = document.querySelectorAll("*");
+	return pp().map((e) => e.tagName).filter((e) => customElements.get(e) !== void 0);
+}
+function yp() {
+	let e = new Set(pp().map((e) => e.tagName)), t = [], n = document.querySelectorAll("*");
 	for (let r of Array.from(n)) {
 		let n = r.tagName.toLowerCase();
 		if (!e.has(n)) continue;
@@ -36359,7 +36524,7 @@ function vp() {
 	}
 	return t;
 }
-function yp() {
+function bp() {
 	let e = typeof HTMLTemplateElement < "u" ? HTMLTemplateElement.prototype : null, t = typeof ElementInternals < "u" ? ElementInternals.prototype : null;
 	return {
 		popover: typeof HTMLElement < "u" && "popover" in HTMLElement.prototype,
@@ -36378,29 +36543,29 @@ function yp() {
 		adoptedStyleSheets: typeof Document < "u" && "adoptedStyleSheets" in Document.prototype
 	};
 }
-var bp = null;
-function xp() {
-	typeof window < "u" && (bp || (bp = function() {
-		let e = new Blob([JSON.stringify(up)], { type: "application/json" });
+var xp = null;
+function Sp() {
+	typeof window < "u" && (xp || (xp = function() {
+		let e = new Blob([JSON.stringify(dp)], { type: "application/json" });
 		return URL.createObjectURL(e);
 	}(), window.schmancy = {
-		manifest: up,
-		manifestUrl: bp,
-		help: mp,
-		tokens: hp,
-		platformPrimitive: gp,
-		registeredTags: _p,
-		a11yAudit: vp,
-		capabilities: yp
+		manifest: dp,
+		manifestUrl: xp,
+		help: hp,
+		tokens: gp,
+		platformPrimitive: _p,
+		registeredTags: vp,
+		a11yAudit: yp,
+		capabilities: bp
 	}));
 }
-var Sp = class extends B() {
+var Cp = class extends B() {
 	connectedCallback() {
-		super.connectedCallback(), xp();
+		super.connectedCallback(), Sp();
 	}
 	render() {
 		return j``;
 	}
 };
-Sp = N([P("schmancy-skill")], Sp);
+Cp = N([P("schmancy-skill")], Cp);
 export { B as $LitElement, Mc as $dialog, hd as $notify, Nc as SchmancySheetPosition, ti as area, Oa as createContext, ai as lazy, gc as schmancyContentDrawer, Pa as select, Fa as selectItem, Pc as sheet, Oo as theme };

@@ -4073,6 +4073,101 @@
     },
     {
       "kind": "javascript-module",
+      "path": "metric/metric.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "SchmancyMetric",
+          "tagName": "schmancy-metric",
+          "description": "KPI metric — a label + value pair for dashboards, with optional trend + delta indicators.",
+          "summary": "The building block of dashboards and meta bars. Pass `label` + `value` for a basic stat; add `trend` / `delta` for the delta-from-last-period pattern. Use multiple metrics side-by-side with Tailwind flex/grid utilities.",
+          "platformPrimitive": {
+            "tag": "div",
+            "mode": "-",
+            "note": "Styled `<div>` with two text lines + optional trend arrow. Degrades to a plain div+spans if the tag never registers."
+          },
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Upper-case caption shown above the value."
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Primary metric value, rendered large. Pre-format numbers/currency yourself."
+            },
+            {
+              "name": "trend",
+              "type": {
+                "text": "MetricTrend"
+              },
+              "values": [
+                "neutral",
+                "up",
+                "down"
+              ],
+              "description": "Optional trend direction. Controls the color + arrow on the delta pill."
+            },
+            {
+              "name": "delta",
+              "type": {
+                "text": "string"
+              },
+              "description": "Optional delta copy displayed in a pill next to the value (e.g. `+12%`)."
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "MetricSize"
+              },
+              "values": [
+                "sm",
+                "md",
+                "lg"
+              ],
+              "default": "'md'",
+              "description": "Size scale affecting label + value typography."
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "Optional custom value rendering (overrides the `value` attribute if present)."
+            },
+            {
+              "name": "label",
+              "description": "Optional custom label rendering (overrides the `label` attribute if present)."
+            }
+          ],
+          "cssParts": [
+            {
+              "name": "label",
+              "description": "The label line."
+            },
+            {
+              "name": "value",
+              "description": "The value line."
+            },
+            {
+              "name": "delta",
+              "description": "The delta pill (only when `delta` is set)."
+            }
+          ],
+          "examples": [
+            "<schmancy-metric label=\"In flight\" value=\"4\"></schmancy-metric>\n<schmancy-metric label=\"Open value\" value=\"€165,900\" trend=\"up\" delta=\"+12%\"></schmancy-metric>\n<schmancy-metric label=\"Error rate\" value=\"0.3%\" trend=\"down\" delta=\"-0.1%\"></schmancy-metric>"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "nav-drawer/appbar.ts",
       "declarations": [
         {

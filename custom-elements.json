@@ -7447,6 +7447,100 @@
       ]
     },
     {
+      "name": "schmancy-metric",
+      "path": "./src/metric/metric.ts",
+      "description": "KPI metric — a label + value pair for dashboards, with optional trend + delta indicators.",
+      "attributes": [
+        {
+          "name": "label",
+          "description": "Upper-case caption shown above the value.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "value",
+          "description": "Primary metric value, rendered large. Pre-format numbers/currency yourself.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "trend",
+          "description": "Optional trend direction. Controls the color + arrow on the delta pill.",
+          "type": "MetricTrend | undefined"
+        },
+        {
+          "name": "delta",
+          "description": "Optional delta copy displayed in a pill next to the value (e.g. `+12%`).",
+          "type": "string | undefined"
+        },
+        {
+          "name": "size",
+          "description": "Size scale affecting label + value typography.",
+          "type": "MetricSize",
+          "default": "\"md\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "label",
+          "attribute": "label",
+          "description": "Upper-case caption shown above the value.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "value",
+          "attribute": "value",
+          "description": "Primary metric value, rendered large. Pre-format numbers/currency yourself.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "trend",
+          "attribute": "trend",
+          "description": "Optional trend direction. Controls the color + arrow on the delta pill.",
+          "type": "MetricTrend | undefined"
+        },
+        {
+          "name": "delta",
+          "attribute": "delta",
+          "description": "Optional delta copy displayed in a pill next to the value (e.g. `+12%`).",
+          "type": "string | undefined"
+        },
+        {
+          "name": "size",
+          "attribute": "size",
+          "description": "Size scale affecting label + value typography.",
+          "type": "MetricSize",
+          "default": "\"md\""
+        }
+      ],
+      "slots": [
+        {
+          "name": "",
+          "description": "Optional custom value rendering (overrides the `value` attribute if present)."
+        },
+        {
+          "name": "label",
+          "description": "Optional custom label rendering (overrides the `label` attribute if present)."
+        }
+      ],
+      "cssParts": [
+        {
+          "name": "label",
+          "description": "The label line."
+        },
+        {
+          "name": "value",
+          "description": "The value line."
+        },
+        {
+          "name": "delta",
+          "description": "The delta pill (only when `delta` is set)."
+        }
+      ]
+    },
+    {
       "name": "schmancy-nav-drawer-appbar",
       "path": "./src/nav-drawer/appbar.ts",
       "description": "Top app bar region inside schmancy-nav-drawer — the horizontal strip above the content area that typically holds the page title, hamburger trigger, and contextual actions.",

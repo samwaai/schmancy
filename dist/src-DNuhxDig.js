@@ -44,6 +44,7 @@ import "./list-DZWoCb3V.js";
 import "./mailbox-laG7nvXl.js";
 import "./map-YSAPFrH9.js";
 import "./menu-DeNdlsSV.js";
+import "./metric.js";
 import "./navigation-rail.js";
 import "./option-N3wlHTc9.js";
 import "./page.js";

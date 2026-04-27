@@ -203,7 +203,7 @@ The manifest already has everything needed; the package is just the JSON-RPC wra
 
 **Problem.** `handover/agent-runtime-v1.md` had `<PENDING>` placeholders that we manually replaced with `0.9.13` after the first publish. Future handover docs will have the same issue.
 
-**Fix.** A build step that substitutes `0.9.22` in `handover/**/*.md` against `package.json`'s `version` field on every build. `dist/handover/**/*.md` gets the rendered version; the source stays templated.
+**Fix.** A build step that substitutes `0.9.23` in `handover/**/*.md` against `package.json`'s `version` field on every build. `dist/handover/**/*.md` gets the rendered version; the source stays templated.
 
 **Effort:** ~30 min (one sed step or a tiny script).
 

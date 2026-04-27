@@ -37,6 +37,7 @@ export * from './list';
 export * from './mailbox';
 export * from './map';
 export * from './menu';
+export * from './metric';
 export * from './nav-drawer';
 export * from './navigation-bar';
 export * from './navigation-rail';
