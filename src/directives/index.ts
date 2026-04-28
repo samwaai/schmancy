@@ -16,4 +16,3 @@ export * from './nebula';
 export * from './reduced-motion';
 export * from './reveal';
 export * from './ripple';
-export * from './typewriter';
