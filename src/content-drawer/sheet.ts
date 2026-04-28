@@ -56,7 +56,7 @@ export class SchmancyContentDrawerSheet extends $LitElement(css`
 		}
 	}
 
-	updated(changedProperties: Map<string, any>) {
+	updated(changedProperties: Map<string, unknown>) {
 		super.updated(changedProperties)
 		if (changedProperties.has('minWidth') && this.minWidth) {
 			// If the 'minWidth' property changed

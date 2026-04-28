@@ -77,7 +77,7 @@ export class SchmancyMailbox extends $LitElement(css`
 		this.setSending(this.disabled)
 	}
 
-	updated(changedProperties: Map<string, any>) {
+	updated(changedProperties: Map<string, unknown>) {
 		super.updated(changedProperties)
 		
 		// Sync sending state

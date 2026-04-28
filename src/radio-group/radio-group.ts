@@ -63,7 +63,7 @@ export class RadioGroup extends FormFieldMixin(TailwindElement(style)) {
 	}
 	
 	// For backwards compatibility with direct option setting
-	updated(changedProperties: Map<string, any>) {
+	updated(changedProperties: Map<string, unknown>) {
 		super.updated(changedProperties)
 		if (changedProperties.has('value')) {
 			this.updateChildRadioButtons()

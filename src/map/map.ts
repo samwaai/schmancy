@@ -410,7 +410,7 @@ export default class SchmancyMap extends TailwindElement(css`
     })
   }
 
-  protected updated(changedProperties: Map<string, any>) {
+  protected updated(changedProperties: Map<string, unknown>) {
     super.updated(changedProperties)
 
     if (changedProperties.has('height')) {

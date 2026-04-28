@@ -59,7 +59,7 @@ export class SchmancyNavigationDrawerSidebar extends $LitElement() {
 	 * updated()
 	 * Trigger animations when either the consumed mode or state changes.
 	 */
-	updated(changedProperties: Map<string, any>) {
+	updated(changedProperties: Map<string, unknown>) {
 		if (!this._initialized) return
 
 		if (changedProperties.has('drawerState') || changedProperties.has('mode')) {

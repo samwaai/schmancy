@@ -48,7 +48,7 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 		this.updateFilteredTemplates()
 	}
 
-	updated(changed: Map<string, any>) {
+	updated(changed: Map<string, unknown>) {
 		if (changed.has('templates') || changed.has('searchQuery') || changed.has('selectedCategory')) {
 			this.updateFilteredTemplates()
 		}

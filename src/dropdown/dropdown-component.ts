@@ -141,7 +141,7 @@ export class SchmancyDropdown extends $LitElement() {
 		this.open = !this.open
 	}
 
-	updated(changedProps: Map<string, any>) {
+	updated(changedProps: Map<string, unknown>) {
 		super.updated(changedProps)
 
 		if (changedProps.has('open')) {

@@ -414,7 +414,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 		})
 	}
 
-	updated(changedProperties: Map<string, any>) {
+	updated(changedProperties: Map<string, unknown>) {
 		super.updated(changedProperties)
 
 		if (changedProperties.has('hideLabels')) {

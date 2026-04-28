@@ -158,7 +158,7 @@ export default class SchmancyCard extends TailwindElement(css`
 		this._updateAriaAttributes()
 	}
 
-	updated(changedProperties: Map<string, any>) {
+	updated(changedProperties: Map<string, unknown>) {
 		super.updated(changedProperties)
 		if (changedProperties.has('interactive') || changedProperties.has('disabled')) {
 			this._updateAriaAttributes()

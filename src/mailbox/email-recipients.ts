@@ -105,7 +105,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 		this.requestUpdate()
 	}
 
-	updated(changedProperties: Map<string, any>) {
+	updated(changedProperties: Map<string, unknown>) {
 		super.updated(changedProperties)
 		
 		// Sync selection state when selectedRecipients prop changes
