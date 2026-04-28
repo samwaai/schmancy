@@ -196,7 +196,7 @@ export function discover<T extends HTMLElement>(
 	query: string,
 	timeout = 150,
 ): Observable<T | null> {
-	const isCssSelector = /^[#.\[]/.test(query)
+	const isCssSelector = /^[#.[]/.test(query)
 
 	if (isCssSelector) {
 		return discoverElement<T>(query, timeout)

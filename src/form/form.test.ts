@@ -4,6 +4,8 @@ import '../input/input'
 import '../button/button'
 import '../checkbox/checkbox'
 
+const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
+
 describe('schmancy-form', () => {
 	let host: HTMLDivElement
 
@@ -15,8 +17,6 @@ describe('schmancy-form', () => {
 	afterEach(() => {
 		host.remove()
 	})
-
-	const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
 
 	it('wraps children in a real light-DOM <form>', async () => {
 		host.innerHTML = `

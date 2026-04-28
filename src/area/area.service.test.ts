@@ -8,8 +8,6 @@ class TestAreaService {
 	public prettyURL = false
 	public enableHistoryMode = true
 
-	constructor() {}
-
 	// Copy the createCleanURL method for direct testing
 	createCleanURL(areas: Record<string, ActiveRoute>, clearQueryParams?: string[] | boolean | null): string {
 		// Get the current base path (everything except the last segment which might be encoded state)

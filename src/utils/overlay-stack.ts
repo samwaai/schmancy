@@ -93,7 +93,7 @@ class OverlayStackManager {
 	 */
 	getStackOrder(): string[] {
 		return [...this.idMap.entries()]
-			.sort(([, a], [, b]) => a - b)
+			.toSorted(([, a], [, b]) => a - b)
 			.map(([id]) => id)
 	}
 }

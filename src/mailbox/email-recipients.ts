@@ -160,8 +160,8 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 		}
 
 		const reader = new FileReader()
-		reader.onload = e => {
-			const content = e.target?.result as string
+		reader.addEventListener('load', e => {
+			const content = (e.target as FileReader | null)?.result as string
 			try {
 				const emails = this.parseCSV(content)
 
@@ -182,7 +182,7 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 				$notify.error('Failed to parse CSV file')
 				console.error('CSV parse error:', error)
 			}
-		}
+		}, { once: true })
 		reader.readAsText(file)
 	}
 

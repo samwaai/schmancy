@@ -30,6 +30,7 @@ declare global {
 }
 
 // Singleton for managing Google Maps script loading
+// oxlint-disable-next-line typescript/no-extraneous-class
 class GoogleMapsLoader {
   private static loading$?: Observable<boolean>
 
@@ -64,10 +65,10 @@ class GoogleMapsLoader {
         observer.complete()
       }
 
-      script.onerror = (error) => {
+      script.addEventListener('error', (error) => {
         console.error('Google Maps script loading error:', error)
         observer.error(new Error('Failed to load Google Maps. Please check API key configuration and ensure the domain is authorized.'))
-      }
+      }, { once: true })
 
       document.head.appendChild(script)
     }).pipe(

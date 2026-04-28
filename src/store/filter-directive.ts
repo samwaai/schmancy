@@ -114,21 +114,21 @@ const isSubsequence = (sub: string, str: string): boolean => {
  * Check if every character (with frequency) in the query exists in the target.
  * For example, "aovc" matches "avocados".
  */
+const countChars = (s: string): Record<string, number> =>
+	s
+		.toLowerCase()
+		.split('')
+		.reduce(
+			(acc, char) => {
+				acc[char] = (acc[char] || 0) + 1
+				return acc
+			},
+			{} as Record<string, number>,
+		)
+
 const anagramMatch = (query: string, target: string): boolean => {
 	if (!query) return true
 	if (!target) return false
-
-	const countChars = (s: string): Record<string, number> =>
-		s
-			.toLowerCase()
-			.split('')
-			.reduce(
-				(acc, char) => {
-					acc[char] = (acc[char] || 0) + 1
-					return acc
-				},
-				{} as Record<string, number>,
-			)
 
 	const queryCount = countChars(query)
 	const targetCount = countChars(target)
@@ -161,7 +161,7 @@ const diceCoefficient = (s1: string, s2: string): number => {
 	if (bigrams1.length === 0 || bigrams2.length === 0) return 0
 
 	let intersection = 0
-	const used = new Array(bigrams2.length).fill(false)
+	const used = Array.from({ length: bigrams2.length }, () => false)
 
 	for (const bigram of bigrams1) {
 		for (let i = 0; i < bigrams2.length; i++) {

@@ -8,7 +8,7 @@ import observeOnMutation from './mutation-observer'
  * @example waitForElements(['button', 'input']).subscribe(([button, input]) => button.click())
  * @returns
  */
-export default function waitForElementsAll<T extends Array<T>>(
+export default function waitForElementsAll(
   /**
    * @param selectors The selectors to use to find the elements
    * @type { string[] }

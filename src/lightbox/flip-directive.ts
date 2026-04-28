@@ -259,7 +259,7 @@ class FlipDirective extends AsyncDirective {
 			if (this.element.complete) {
 				requestAnimationFrame(animate)
 			} else {
-				this.element.onload = () => requestAnimationFrame(animate)
+				this.element.addEventListener('load', () => requestAnimationFrame(animate), { once: true })
 			}
 		} else {
 			requestAnimationFrame(animate)

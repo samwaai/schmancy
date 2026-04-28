@@ -16,7 +16,7 @@ import {
 	takeUntil,
 	tap,
 } from 'rxjs'
-import area from './area.service'
+import { area } from './area.service'
 import { RouteComponent, SchmancyRoute } from './route.component'
 import { ActiveRoute, HISTORY_STRATEGY, RouteAction } from './router.types'
 

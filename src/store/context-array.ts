@@ -277,7 +277,7 @@ export class SchmancyArrayStore<T = any> extends BaseStore<T[]> implements IArra
 	public sort(compareFn?: (a: T, b: T) => number): void {
 		try {
 			// Create a copy of the current array and apply the sort operation
-			const sortedArray = [...this.value].sort(compareFn)
+			const sortedArray = [...this.value].toSorted(compareFn)
 
 			// Use Immer to create a new immutable array that matches the sorted array
 			const nextState = produce(this.value, draft => {

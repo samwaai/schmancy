@@ -194,7 +194,7 @@ export class SchmancyThemeComponent extends $LitElement(tailwindStyles) {
 
 		const formattedTheme = formatTheme(
 			themeFromSourceColor(argbFromHex(colorHex)),
-			this.scheme === 'dark' ? true : false,
+			this.scheme === 'dark',
 			{
 				success: argbFromHex('#4CAF50'), // Material Green 500 - vibrant but balanced
 				warning: argbFromHex('#FF9800'), // Material Orange 500 - better contrast than amber

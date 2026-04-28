@@ -632,7 +632,7 @@ class AreaService implements AreaSubscription {
 		if (this.enableHistoryMode) {
 			try {
 				const currentState = history.state || {}
-				const schmancyAreas = { ...(currentState.schmancyAreas || {}) }
+				const schmancyAreas = { ...currentState.schmancyAreas }
 				delete schmancyAreas[name]
 
 				const newState = {

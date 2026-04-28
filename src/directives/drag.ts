@@ -1,5 +1,5 @@
 import { nothing } from 'lit'
-import { Directive, directive, type ElementPart, type PartInfo } from 'lit/directive.js'
+import { Directive, directive, type ElementPart } from 'lit/directive.js'
 import { animationFrameScheduler, BehaviorSubject, EMPTY, fromEvent, Subject, timer } from 'rxjs'
 import { distinctUntilChanged, observeOn, skip, switchMap, take, takeUntil, tap } from 'rxjs/operators'
 import { SPRING_SNAPPY } from '../utils/animation'
@@ -146,10 +146,6 @@ export class DragDirective extends Directive {
 	private registeredId?: string
 	private destroy$ = new Subject<void>()
 
-	constructor(partInfo: PartInfo) {
-		super(partInfo)
-	}
-
 	update(part: ElementPart, [id]: [string]) {
 		this.id = id
 
@@ -284,10 +280,6 @@ export class DropDirective extends Directive {
 	private element?: HTMLElement
 	private destinationId!: string
 	private destroy$ = new Subject<void>()
-
-	constructor(partInfo: PartInfo) {
-		super(partInfo)
-	}
 
 	update(part: ElementPart, [destinationId]: [string]) {
 		this.destinationId = destinationId

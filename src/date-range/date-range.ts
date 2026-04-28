@@ -276,6 +276,7 @@ export class SchmancyDateRange extends $LitElement() {
 				position: e
 			}).then(() => {
 				this.isOpen = false
+				return
 			})
 		}
 	}

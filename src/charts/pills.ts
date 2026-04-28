@@ -168,7 +168,7 @@ export class SchmancyPills extends $LitElement(css`
 
 		// Sort by total value (most = first color)
 		const sortedCategories = Array.from(categoryTotals.entries())
-			.sort((a, b) => b[1] - a[1])
+			.toSorted((a, b) => b[1] - a[1])
 			.map(([cat]) => cat)
 
 		// Clear and rebuild - use explicit colors if available, otherwise default palette

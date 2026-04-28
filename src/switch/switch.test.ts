@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { expectNoA11yViolations } from '../test-utils/a11y'
 import './switch'
 
+const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
+
 describe('schmancy-switch', () => {
 	let host: HTMLDivElement
 
@@ -13,8 +15,6 @@ describe('schmancy-switch', () => {
 	afterEach(() => {
 		host.remove()
 	})
-
-	const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
 
 	it('is form-associated and contributes when checked', async () => {
 		host.innerHTML = `

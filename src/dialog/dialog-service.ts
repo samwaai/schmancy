@@ -240,6 +240,7 @@ export class DialogService {
 
 							// Remove from DOM
 							dialog.parentElement?.removeChild(dialog)
+							return
 						})
 						.catch((error: unknown) => {
 							target.reject?.(error)
@@ -421,6 +422,7 @@ export class DialogService {
 				content: container,
 			}).then(confirmed => {
 				resolve(confirmed ? inputValue : null)
+				return
 			})
 		})
 	}

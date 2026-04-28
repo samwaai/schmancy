@@ -28,7 +28,7 @@ export class SchmancyTeleportation extends $LitElement(css``) {
 
 	@property({ type: Number }) delay = 0
 
-	debugging = import.meta.env.DEV ? true : false
+	debugging = Boolean(import.meta.env.DEV)
 
 	get _slottedChildren() {
 		const slot = this.shadowRoot.querySelector('slot')

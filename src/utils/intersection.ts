@@ -12,7 +12,11 @@ export function intersection$(
 		}, options)
 
 		// Observe each element
-		Array.isArray(element) ? element.forEach(el => observer.observe(el)) : observer.observe(element)
+		if (Array.isArray(element)) {
+			element.forEach(el => observer.observe(el))
+		} else {
+			observer.observe(element)
+		}
 
 		// Cleanup on unsubscription
 		return () => {

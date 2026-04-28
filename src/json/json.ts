@@ -25,7 +25,7 @@ export class SchmancyJson extends TailwindElement(css`:host { display: block }`)
 		try {
 			await navigator.clipboard.writeText(JSON.stringify(this.data, null, 2))
 			$notify.success('JSON copied to clipboard')
-		} catch (error) {
+		} catch {
 			$notify.error('Failed to copy JSON')
 		}
 	}

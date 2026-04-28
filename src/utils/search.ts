@@ -286,8 +286,8 @@ function calculateLevenshtein(a: string, b: string, maxDistance = 0): number {
 	}
 
 	// Use two rolling arrays instead of full matrix: O(n) space instead of O(n*m)
-	let prevRow = new Array(a.length + 1)
-	let currRow = new Array(a.length + 1)
+	let prevRow = Array.from({ length: a.length + 1 }) as number[]
+	let currRow = Array.from({ length: a.length + 1 }) as number[]
 
 	// Initialize first row
 	for (let j = 0; j <= a.length; j++) {

@@ -191,6 +191,7 @@ export class SchmancyDropdown extends $LitElement() {
 					left: `${x}px`,
 					top: `${y - 8}px`,
 				})
+				return
 			})
 		})
 	}

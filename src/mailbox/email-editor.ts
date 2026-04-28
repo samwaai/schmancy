@@ -451,6 +451,7 @@ The Fulfillment Team`
 					updatedTextarea.setSelectionRange(start + text.length, start + text.length)
 				}
 			}
+			return
 		})
 	}
 
@@ -489,6 +490,7 @@ The Fulfillment Team`
 					updatedTextarea.setSelectionRange(start + newText.length, start + newText.length)
 				}
 			}
+			return
 		})
 	}
 
@@ -685,8 +687,8 @@ Your primary content goes here. This area takes up most of the width while the s
 	private createDataUrl = (file: File): Promise<string> => {
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader()
-			reader.onload = () => resolve(reader.result as string)
-			reader.onerror = reject
+			reader.addEventListener('load', () => resolve(reader.result as string), { once: true })
+			reader.addEventListener('error', () => reject(reader.error), { once: true })
 			reader.readAsDataURL(file)
 		})
 	}
@@ -695,14 +697,14 @@ Your primary content goes here. This area takes up most of the width while the s
 	private getImageDimensions = (file: File): Promise<{width: number, height: number}> => {
 		return new Promise((resolve) => {
 			const img = new Image()
-			img.onload = () => {
+			img.addEventListener('load', () => {
 				resolve({ width: img.width, height: img.height })
 				URL.revokeObjectURL(img.src)
-			}
-			img.onerror = () => {
+			}, { once: true })
+			img.addEventListener('error', () => {
 				resolve({ width: 400, height: 300 }) // Default dimensions
 				URL.revokeObjectURL(img.src)
-			}
+			}, { once: true })
 			img.src = URL.createObjectURL(file)
 		})
 	}
@@ -732,6 +734,7 @@ Your primary content goes here. This area takes up most of the width while the s
 				updatedTextarea.setSelectionRange(newPosition, newPosition)
 				updatedTextarea.focus()
 			}
+			return
 		})
 	}
 

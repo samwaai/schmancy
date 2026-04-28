@@ -210,16 +210,21 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
             if (!option.id) {
                 option.id = `${this.id}-option-${index}`
             }
+            // Idempotent: slotchange may fire repeatedly for the same option nodes,
+            // and addEventListener doesn't replace prior handlers like onfoo= did.
+            if (option.dataset.schmancyAutocompleteHandlers === 'attached') return
+            option.dataset.schmancyAutocompleteHandlers = 'attached'
+
             // Prevent blur handler from interfering with option selection
-            option.onmousedown = (e: MouseEvent) => {
+            option.addEventListener('mousedown', (e: MouseEvent) => {
                 e.preventDefault() // Prevent focus loss
-            }
+            })
 
             // Handle the actual selection
-            option.onclick = (e: MouseEvent) => {
+            option.addEventListener('click', (e: MouseEvent) => {
                 e.stopPropagation()
                 this._selectOption(option)
-            }
+            })
         })
     }
 
@@ -724,7 +729,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
         if (!isOpen) return
 
         const visibleOptions = this._options.filter(opt => !opt.hidden)
-            .sort((a, b) => parseInt(a.style.order || '0') - parseInt(b.style.order || '0'))
+            .toSorted((a, b) => parseInt(a.style.order || '0') - parseInt(b.style.order || '0'))
 
         const focusedOption = visibleOptions.find(opt => opt === document.activeElement)
         const currentIndex = focusedOption ? visibleOptions.indexOf(focusedOption) : -1

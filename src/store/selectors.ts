@@ -107,7 +107,7 @@ export function createEntriesSelector<T>(store: ICollectionStore<T>): Observable
  */
 export function createSortSelector<T>(store: ICollectionStore<T>, compareFn: (a: T, b: T) => number): Observable<T[]> {
 	return createCollectionSelector(store, collection => {
-		return Array.from(collection.values()).sort(compareFn)
+		return Array.from(collection.values()).toSorted(compareFn)
 	})
 }
 

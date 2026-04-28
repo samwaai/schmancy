@@ -31,17 +31,14 @@ export function resolveOverlap(
 	existing: WindowRecord[],
 	viewport: { width: number; height: number },
 ): WindowBounds {
-	let bounds = { ...candidate }
+	const bounds = { ...candidate }
 
 	for (let attempt = 0; attempt < MAX_CASCADE_ATTEMPTS; attempt++) {
 		const hasOverlap = existing.some(w => rectsOverlap(bounds, w.bounds))
 		if (!hasOverlap) break
 
-		bounds = {
-			...bounds,
-			left: bounds.left + CASCADE_OFFSET,
-			top: bounds.top + CASCADE_OFFSET,
-		}
+		bounds.left += CASCADE_OFFSET
+		bounds.top += CASCADE_OFFSET
 	}
 
 	return clampToViewport(bounds, viewport)

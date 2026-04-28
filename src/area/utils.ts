@@ -45,8 +45,8 @@ export function compareCustomElementConstructors(
 		// Check if they have the same prototype chain
 		if (Object.getPrototypeOf(proto1) === Object.getPrototypeOf(proto2)) {
 			// Check if they have the same property names
-			const keys1 = Object.getOwnPropertyNames(proto1).sort()
-			const keys2 = Object.getOwnPropertyNames(proto2).sort()
+			const keys1 = Object.getOwnPropertyNames(proto1).toSorted()
+			const keys2 = Object.getOwnPropertyNames(proto2).toSorted()
 
 			return keys1.length === keys2.length && keys1.every((key, i) => key === keys2[i])
 		}
@@ -144,6 +144,7 @@ export function debounce<T extends (...args: any[]) => any>(func: T, wait: numbe
 	let timeout: ReturnType<typeof setTimeout> | null = null
 
 	return function (this: any, ...args: Parameters<T>) {
+		// oxlint-disable-next-line typescript/no-this-alias
 		const context = this
 
 		if (timeout !== null) {

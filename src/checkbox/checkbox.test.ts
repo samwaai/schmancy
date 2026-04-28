@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { expectNoA11yViolations } from '../test-utils/a11y'
 import './checkbox'
 
+const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
+
 describe('schmancy-checkbox', () => {
 	let host: HTMLDivElement
 
@@ -13,8 +15,6 @@ describe('schmancy-checkbox', () => {
 	afterEach(() => {
 		host.remove()
 	})
-
-	const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
 
 	it('is defined on the element registry', () => {
 		expect(customElements.get('schmancy-checkbox')).toBeDefined()

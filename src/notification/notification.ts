@@ -65,6 +65,7 @@ export default class SchmancyNotification extends $LitElement(style) {
 		// Animate in after first render
 		this.updateComplete.then(() => {
 			this.animateIn()
+			return
 		})
 
 		if (this.duration > 0) {

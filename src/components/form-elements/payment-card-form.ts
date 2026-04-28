@@ -69,7 +69,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 	 */
 	firstUpdated(): void {
 		// Credit card number formatter with type detection
-		new Cleave(this.cardNumberInput, {
+		void new Cleave(this.cardNumberInput, {
 			creditCard: true,
 			creditCardStrictMode: true,
 			onCreditCardTypeChanged: type => {
@@ -95,7 +95,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 		})
 
 		// Expiration date formatter (MM/YY)
-		new Cleave(this.expirationDateInput, {
+		void new Cleave(this.expirationDateInput, {
 			date: true,
 			datePattern: ['m', 'y'],
 			onValueChanged: e => {
@@ -130,7 +130,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 		})
 
 		// CVV formatter (numeric only)
-		new Cleave(this.cvvInput, {
+		void new Cleave(this.cvvInput, {
 			blocks: [4], // Maximum size for AMEX
 			numericOnly: true,
 			onValueChanged: e => {
@@ -149,7 +149,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 		})
 
 		// Card name formatter (uppercase)
-		new Cleave(this.cardNameInput, {
+		void new Cleave(this.cardNameInput, {
 			uppercase: true,
 			delimiter: ' ',
 			onValueChanged: e => {

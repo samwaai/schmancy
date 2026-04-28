@@ -178,6 +178,7 @@ export class SchmancyExpandRoot extends SurfaceMixin(TailwindElement(css`
 				panel.style.height = 'auto'
 				panel.style.maxHeight = `${window.innerHeight - finalTop - 16}px`
 			}
+			return
 		})
 
 		const btn = this._btnRef.value

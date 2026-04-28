@@ -139,7 +139,7 @@ export function capabilities(): Capabilities {
 			try {
 				// Native scoped registries require a constructible CustomElementRegistry.
 				// Pre-Safari-26/Chrome-146, the constructor throws Illegal constructor.
-				new (window as { CustomElementRegistry?: new () => unknown }).CustomElementRegistry!()
+				void new (window as { CustomElementRegistry?: new () => unknown }).CustomElementRegistry!()
 				return true
 			} catch {
 				return false

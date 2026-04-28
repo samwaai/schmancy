@@ -114,7 +114,9 @@ export default class SchmancyTabGroup extends TailwindElement(css`
 				tab.active = false
 			}
 		})
-		this.mode === 'tabs' && (this.activeTab = selectedTab.value)
+		if (this.mode === 'tabs') {
+			this.activeTab = selectedTab.value
+		}
 		this.dispatchEvent(new CustomEvent('tab-changed', { detail: this.activeTab }))
 	}
 

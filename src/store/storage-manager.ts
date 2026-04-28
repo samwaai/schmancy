@@ -173,8 +173,8 @@ export class IndexedDBStorageManager<T> implements IStorageManager<T> {
 				}
 			}
 
-			request.onsuccess = () => resolve(request.result)
-			request.onerror = () => reject(request.error)
+			request.addEventListener('success', () => resolve(request.result), { once: true })
+			request.addEventListener('error', () => reject(request.error), { once: true })
 		})
 	}
 
@@ -186,15 +186,15 @@ export class IndexedDBStorageManager<T> implements IStorageManager<T> {
 				const store = transaction.objectStore(IndexedDBStorageManager.STORE_NAME)
 				const request = store.get(this.key)
 
-				request.onsuccess = () => {
+				request.addEventListener('success', () => {
 					db.close()
 					resolve(request.result || null)
-				}
+				}, { once: true })
 
-				request.onerror = () => {
+				request.addEventListener('error', () => {
 					db.close()
 					reject(request.error)
-				}
+				}, { once: true })
 			})
 		} catch (err) {
 			console.error(`Failed to load from IndexedDB (${this.key}):`, err)
@@ -210,15 +210,15 @@ export class IndexedDBStorageManager<T> implements IStorageManager<T> {
 				const store = transaction.objectStore(IndexedDBStorageManager.STORE_NAME)
 				const request = store.put(state, this.key)
 
-				request.onsuccess = () => {
+				request.addEventListener('success', () => {
 					db.close()
 					resolve()
-				}
+				}, { once: true })
 
-				request.onerror = () => {
+				request.addEventListener('error', () => {
 					db.close()
 					reject(request.error)
-				}
+				}, { once: true })
 			})
 		} catch (err) {
 			console.error(`Failed to save to IndexedDB (${this.key}):`, err)
@@ -234,15 +234,15 @@ export class IndexedDBStorageManager<T> implements IStorageManager<T> {
 				const store = transaction.objectStore(IndexedDBStorageManager.STORE_NAME)
 				const request = store.delete(this.key)
 
-				request.onsuccess = () => {
+				request.addEventListener('success', () => {
 					db.close()
 					resolve()
-				}
+				}, { once: true })
 
-				request.onerror = () => {
+				request.addEventListener('error', () => {
 					db.close()
 					reject(request.error)
-				}
+				}, { once: true })
 			})
 		} catch (err) {
 			console.error(`Failed to clear from IndexedDB (${this.key}):`, err)

@@ -195,7 +195,7 @@ export class SchmancyAreaChart extends $LitElement(css`
 		if (!this.data || this.data.length === 0) return []
 
 		// Find top N peak values
-		const sortedByValue = [...this.data].sort((a, b) => b.value - a.value)
+		const sortedByValue = [...this.data].toSorted((a, b) => b.value - a.value)
 		const peakLabels = new Set(sortedByValue.slice(0, this.peakCount).map(d => d.label))
 
 		return this.data.map(d => ({
@@ -244,6 +244,7 @@ export class SchmancyAreaChart extends $LitElement(css`
 		const maxValue = Math.max(...data.map(d => d.value), 1)
 
 		// Calculate positions
+		// oxlint-disable-next-line oxc/no-map-spread
 		const points = data.map((d, i) => ({
 			...d,
 			x: padding.left + (data.length > 1 ? (i / (data.length - 1)) * chartWidth : chartWidth / 2),
