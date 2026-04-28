@@ -1,3 +1,14 @@
+import { type PropertyValues } from 'lit';
+/**
+ * Preset → (type, token) shorthand. Saves the two-decision-per-text-node
+ * fatigue that 50+ typography nodes in a single page cause.
+ */
+export type TypographyPreset = 'display' | 'display-lg' | 'display-md' | 'display-sm' | 'heading-lg' | 'heading-md' | 'heading-sm' | 'title-lg' | 'title-md' | 'title-sm' | 'body-lg' | 'body-md' | 'body-sm' | 'label-lg' | 'label-md' | 'label-sm' | 'caption';
+/**
+ * Allowed semantic tag names for the `as` prop. Closed enum so we can
+ * use `literal` template parts safely with `lit/static-html`.
+ */
+export type TypographyTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div';
 declare const SchmancyTypography_base: import("../../mixins").Constructor<CustomElementConstructor> & import("../../mixins").Constructor<import("@mixins/tailwind.mixin").ITailwindElementMixin> & import("../../mixins").Constructor<import("lit").LitElement> & import("../../mixins").Constructor<import("../../mixins").IBaseMixin>;
 /**
  * @element schmancy-typography
@@ -11,6 +22,26 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
      * @type {'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'}
      */
     type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label';
+    /**
+     * Shorthand for picking a (type, token) pair in one go. When set, derives
+     * `type` and `token` automatically — saves the two-decisions-per-text-node
+     * fatigue that hits when a single page has 50+ typography nodes.
+     *
+     * @attr preset
+     * @type {TypographyPreset}
+     * @example <schmancy-typography preset="heading-md">Title</schmancy-typography>
+     */
+    preset?: TypographyPreset;
+    /**
+     * Render the slot wrapped in the requested semantic HTML element so screen
+     * readers expose the right role / heading level. Without `as`, the slot
+     * sits directly in the shadow root and the host is a generic element.
+     *
+     * @attr as
+     * @type {TypographyTag}
+     * @example <schmancy-typography preset="heading-md" as="h2">Section</schmancy-typography>
+     */
+    as?: TypographyTag;
     /**
      * @attr token - The size token.
      * @deprecated Prefer using Tailwind responsive text classes for better responsive design.
@@ -49,6 +80,7 @@ export declare class SchmancyTypography extends SchmancyTypography_base {
     /** Placeholder shown when editable and empty */
     placeholder: string;
     private _editRef;
+    protected willUpdate(changed: PropertyValues): void;
     /** Focus and select all text in editable mode */
     selectAll(): void;
     connectedCallback(): void;

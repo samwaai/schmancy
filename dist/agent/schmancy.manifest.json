@@ -6697,6 +6697,50 @@
               "default": "'body'"
             },
             {
+              "name": "preset",
+              "type": {
+                "text": "TypographyPreset"
+              },
+              "values": [
+                "display",
+                "display-lg",
+                "display-md",
+                "display-sm",
+                "heading-lg",
+                "heading-md",
+                "heading-sm",
+                "title-lg",
+                "title-md",
+                "title-sm",
+                "body-lg",
+                "body-md",
+                "body-sm",
+                "label-lg",
+                "label-md",
+                "label-sm",
+                "caption"
+              ],
+              "description": "Shorthand for picking a (type, token) pair in one go. When set, derives `type` and `token` automatically — saves the two-decisions-per-text-node fatigue that hits when a single page has 50+ typography nodes."
+            },
+            {
+              "name": "as",
+              "type": {
+                "text": "TypographyTag"
+              },
+              "values": [
+                "h1",
+                "h2",
+                "h3",
+                "h4",
+                "h5",
+                "h6",
+                "p",
+                "span",
+                "div"
+              ],
+              "description": "Render the slot wrapped in the requested semantic HTML element so screen readers expose the right role / heading level. Without `as`, the slot sits directly in the shadow root and the host is a generic element."
+            },
+            {
               "name": "token",
               "type": {
                 "text": "\"\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\""

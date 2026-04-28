@@ -29616,7 +29616,105 @@ N([I({ type: Number })], tp.prototype, "speed", void 0), N([fr({
 		} });
 	};
 }({ flatten: !0 })], tp.prototype, "_getSlottedNodes", void 0), N([Br({ flatten: !0 })], tp.prototype, "_getSlottedElements", void 0), tp = N([P("schmancy-typewriter")], tp);
-var np = class extends z(F`
+var np = Symbol.for(""), rp = (e) => {
+	if (e?.r === np) return e?._$litStatic$;
+}, ip = (e, ...t) => ({
+	_$litStatic$: t.reduce((t, n, r) => t + ((e) => {
+		if (e._$litStatic$ !== void 0) return e._$litStatic$;
+		throw Error(`Value passed to 'literal' function must be a 'literal' result: ${e}. Use 'unsafeStatic' to pass non-literal values, but\n            take care to ensure page security.`);
+	})(n) + e[r + 1], e[0]),
+	r: np
+}), ap = /* @__PURE__ */ new Map(), op = ((e) => (t, ...n) => {
+	let r = n.length, i, a, o = [], s = [], c, l = 0, u = !1;
+	for (; l < r;) {
+		for (c = t[l]; l < r && (a = n[l], i = rp(a)) !== void 0;) c += i + t[++l], u = !0;
+		l !== r && s.push(a), o.push(c), l++;
+	}
+	if (l === r && o.push(t[r]), u) {
+		let e = o.join("$$lit$$");
+		(t = ap.get(e)) === void 0 && (o.raw = o, ap.set(e, t = o)), n = s;
+	}
+	return e(t, ...n);
+})(j), sp = {
+	display: {
+		type: "display",
+		token: "lg"
+	},
+	"display-lg": {
+		type: "display",
+		token: "lg"
+	},
+	"display-md": {
+		type: "display",
+		token: "md"
+	},
+	"display-sm": {
+		type: "display",
+		token: "sm"
+	},
+	"heading-lg": {
+		type: "headline",
+		token: "lg"
+	},
+	"heading-md": {
+		type: "headline",
+		token: "md"
+	},
+	"heading-sm": {
+		type: "headline",
+		token: "sm"
+	},
+	"title-lg": {
+		type: "title",
+		token: "lg"
+	},
+	"title-md": {
+		type: "title",
+		token: "md"
+	},
+	"title-sm": {
+		type: "title",
+		token: "sm"
+	},
+	"body-lg": {
+		type: "body",
+		token: "lg"
+	},
+	"body-md": {
+		type: "body",
+		token: "md"
+	},
+	"body-sm": {
+		type: "body",
+		token: "sm"
+	},
+	"label-lg": {
+		type: "label",
+		token: "lg"
+	},
+	"label-md": {
+		type: "label",
+		token: "md"
+	},
+	"label-sm": {
+		type: "label",
+		token: "sm"
+	},
+	caption: {
+		type: "label",
+		token: "sm"
+	}
+}, cp = {
+	h1: ip`h1`,
+	h2: ip`h2`,
+	h3: ip`h3`,
+	h4: ip`h4`,
+	h5: ip`h5`,
+	h6: ip`h6`,
+	p: ip`p`,
+	span: ip`span`,
+	div: ip`div`
+}, lp = class extends z(F`
 	:host {
 		display: block;
 		font-family: inherit;
@@ -29902,6 +30000,12 @@ var np = class extends z(F`
 			delegatesFocus: !0
 		};
 	}
+	willUpdate(e) {
+		if (super.willUpdate?.(e), e.has("preset") && this.preset && sp[this.preset]) {
+			let { type: e, token: t } = sp[this.preset];
+			this.type = e, this.token = t;
+		}
+	}
 	selectAll() {
 		let e = this._editRef.value;
 		if (!e) return;
@@ -29936,33 +30040,44 @@ var np = class extends z(F`
 		}
 	}
 	render() {
-		return this.editable ? j`<div
+		if (this.editable) return j`<div
 				${W(this._editRef)}
 				class="edit"
 				contenteditable="true"
 				data-placeholder=${this.placeholder ?? ""}
-			></div>` : j`<slot></slot>`;
+			></div>`;
+		if (this.as && cp[this.as]) {
+			let e = cp[this.as];
+			return op`<${e}><slot></slot></${e}>`;
+		}
+		return j`<slot></slot>`;
 	}
 };
 N([I({
 	type: String,
 	reflect: !0
-})], np.prototype, "type", void 0), N([I({
+})], lp.prototype, "type", void 0), N([I({
 	type: String,
 	reflect: !0
-})], np.prototype, "token", void 0), N([I({
+})], lp.prototype, "preset", void 0), N([I({
 	type: String,
 	reflect: !0
-})], np.prototype, "align", void 0), N([I({
+})], lp.prototype, "as", void 0), N([I({
 	type: String,
 	reflect: !0
-})], np.prototype, "weight", void 0), N([I({
+})], lp.prototype, "token", void 0), N([I({
 	type: String,
 	reflect: !0
-})], np.prototype, "transform", void 0), N([I({ type: Number })], np.prototype, "maxLines", void 0), N([I({
+})], lp.prototype, "align", void 0), N([I({
+	type: String,
+	reflect: !0
+})], lp.prototype, "weight", void 0), N([I({
+	type: String,
+	reflect: !0
+})], lp.prototype, "transform", void 0), N([I({ type: Number })], lp.prototype, "maxLines", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], np.prototype, "editable", void 0), N([I({ type: String })], np.prototype, "value", void 0), N([I({ type: String })], np.prototype, "placeholder", void 0), np = N([P("schmancy-typography")], np), new class {
+})], lp.prototype, "editable", void 0), N([I({ type: String })], lp.prototype, "value", void 0), N([I({ type: String })], lp.prototype, "placeholder", void 0), lp = N([P("schmancy-typography")], lp), new class {
 	constructor() {
 		this.systemLocale = typeof navigator < "u" && navigator.language ? navigator.language : "de-DE";
 	}
@@ -30216,7 +30331,7 @@ N([I({
 		return e.split("").map((e) => t[e] || e).join("");
 	}
 }();
-var rp = class extends B() {
+var up = class extends B() {
 	constructor(...e) {
 		super(...e), this.initials = "", this.src = "", this.icon = "", this.size = "md", this.color = "primary", this.shape = "circle", this.bordered = !1, this.status = "none";
 	}
@@ -30295,8 +30410,8 @@ var rp = class extends B() {
 		`;
 	}
 };
-N([I({ type: String })], rp.prototype, "initials", void 0), N([I({ type: String })], rp.prototype, "src", void 0), N([I({ type: String })], rp.prototype, "icon", void 0), N([I({ type: String })], rp.prototype, "size", void 0), N([I({ type: String })], rp.prototype, "color", void 0), N([I({ type: String })], rp.prototype, "shape", void 0), N([I({ type: Boolean })], rp.prototype, "bordered", void 0), N([I({ type: String })], rp.prototype, "status", void 0), rp = N([P("schmancy-avatar")], rp);
-var ip = class extends z(F`
+N([I({ type: String })], up.prototype, "initials", void 0), N([I({ type: String })], up.prototype, "src", void 0), N([I({ type: String })], up.prototype, "icon", void 0), N([I({ type: String })], up.prototype, "size", void 0), N([I({ type: String })], up.prototype, "color", void 0), N([I({ type: String })], up.prototype, "shape", void 0), N([I({ type: Boolean })], up.prototype, "bordered", void 0), N([I({ type: String })], up.prototype, "status", void 0), up = N([P("schmancy-avatar")], up);
+var dp = class extends z(F`
 	:host {
 		display: block;
 	}
@@ -30339,8 +30454,8 @@ var ip = class extends z(F`
 		});
 	}
 };
-N([I({ type: String })], ip.prototype, "separator", void 0), ip = N([P("schmancy-breadcrumb")], ip);
-var ap = class extends z(F`
+N([I({ type: String })], dp.prototype, "separator", void 0), dp = N([P("schmancy-breadcrumb")], dp);
+var fp = class extends z(F`
 	:host {
 		display: inline-block;
 	}
@@ -30359,11 +30474,11 @@ var ap = class extends z(F`
 		return this.href && !this.current ? j`<a href=${this.href}><slot></slot></a>` : j`<span aria-current=${this.current ? "page" : "false"}><slot></slot></span>`;
 	}
 };
-N([I({ type: String })], ap.prototype, "href", void 0), N([I({
+N([I({ type: String })], fp.prototype, "href", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], ap.prototype, "current", void 0), ap = N([P("schmancy-breadcrumb-item")], ap);
-var op = class extends z(F`
+})], fp.prototype, "current", void 0), fp = N([P("schmancy-breadcrumb-item")], fp);
+var pp = class extends z(F`
 	:host {
 		display: inline-block;
 		vertical-align: middle;
@@ -30401,8 +30516,8 @@ var op = class extends z(F`
 N([I({
 	type: String,
 	reflect: !0
-})], op.prototype, "size", void 0), op = N([P("schmancy-kbd")], op);
-var sp = class extends z(F`
+})], pp.prototype, "size", void 0), pp = N([P("schmancy-kbd")], pp);
+var mp = class extends z(F`
 	:host {
 		display: block;
 		width: var(--_sw, 100%);
@@ -30453,8 +30568,8 @@ var sp = class extends z(F`
 N([I({
 	type: String,
 	reflect: !0
-})], sp.prototype, "shape", void 0), N([I({ type: String })], sp.prototype, "width", void 0), N([I({ type: String })], sp.prototype, "height", void 0), N([I({ type: String })], sp.prototype, "radius", void 0), sp = N([P("schmancy-skeleton")], sp);
-var cp = class extends B(F`
+})], mp.prototype, "shape", void 0), N([I({ type: String })], mp.prototype, "width", void 0), N([I({ type: String })], mp.prototype, "height", void 0), N([I({ type: String })], mp.prototype, "radius", void 0), mp = N([P("schmancy-skeleton")], mp);
+var hp = class extends B(F`
 	:host {
 		display: block;
 		position: relative;
@@ -30526,11 +30641,11 @@ var cp = class extends B(F`
 N([I({
 	type: Number,
 	attribute: "min-duration"
-})], cp.prototype, "minDuration", void 0), N([I({ type: Boolean })], cp.prototype, "auto", void 0), N([I({
+})], hp.prototype, "minDuration", void 0), N([I({ type: Boolean })], hp.prototype, "auto", void 0), N([I({
 	type: Boolean,
 	attribute: "initially-hidden"
-})], cp.prototype, "initiallyHidden", void 0), N([L()], cp.prototype, "_visible", void 0), cp = N([P("schmancy-splash-screen")], cp);
-var lp = class extends z(F`
+})], hp.prototype, "initiallyHidden", void 0), N([L()], hp.prototype, "_visible", void 0), hp = N([P("schmancy-splash-screen")], hp);
+var gp = class extends z(F`
 	:host {
 		display: inline-block;
 	}
@@ -30649,14 +30764,14 @@ var lp = class extends z(F`
 N([I({
 	type: Boolean,
 	reflect: !0
-})], lp.prototype, "checked", void 0), N([I({
+})], gp.prototype, "checked", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], lp.prototype, "disabled", void 0), N([I({
+})], gp.prototype, "disabled", void 0), N([I({
 	type: Boolean,
 	reflect: !0
-})], lp.prototype, "required", void 0), N([I({ type: String })], lp.prototype, "name", void 0), N([I({ type: String })], lp.prototype, "value", void 0), N([I({ type: String })], lp.prototype, "label", void 0), lp = N([P("schmancy-switch")], lp);
-var up = class extends z(F`
+})], gp.prototype, "required", void 0), N([I({ type: String })], gp.prototype, "name", void 0), N([I({ type: String })], gp.prototype, "value", void 0), N([I({ type: String })], gp.prototype, "label", void 0), gp = N([P("schmancy-switch")], gp);
+var _p = class extends z(F`
 	:host {
 		position: absolute;
 		width: 1px;
@@ -30673,8 +30788,8 @@ var up = class extends z(F`
 		return j`<slot></slot>`;
 	}
 };
-up = N([P("schmancy-visually-hidden")], up);
-var dp = {
+_p = N([P("schmancy-visually-hidden")], _p);
+var vp = {
 	schemaVersion: "1.0.0",
 	readme: "# Schmancy\n\nA Web Component UI library built on Lit, RxJS, and Tailwind CSS. Surfaces are glass. Depth is light. Interactions are physics.\n\n## Agent runtime\n\nFor sandboxed-iframe agents (Claude Design, Claude Artifacts, any LLM that can\nonly write HTML), schmancy ships a single-URL runtime at `@mhmo91/schmancy/agent`.\nDrop one `<script type=\"module\">` tag and every `<schmancy-*>` element is\nregistered. No bundler, no bare specifiers, no npm install.\n\n```html\n<script type=\"module\">\n  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent';\n<\/script>\n<schmancy-theme root scheme=\"dark\">\n  <schmancy-surface type=\"solid\" fill=\"all\">\n    <schmancy-button>Hi</schmancy-button>\n    <schmancy-skill></schmancy-skill>\n  </schmancy-surface>\n</schmancy-theme>\n```\n\nThe `<schmancy-skill>` tag installs `window.schmancy` for runtime discovery:\n\n- `window.schmancy.help()` — full manifest (CEM v1 shape).\n- `window.schmancy.help('schmancy-button')` — one tag's attributes, events, slots, CSS parts.\n- `window.schmancy.tokens()` — build-time-extracted list of `--schmancy-*` theme tokens.\n- `window.schmancy.manifestUrl` — Blob URL; `fetch()` it for the same data.\n- `window.schmancy.a11yAudit()` — walks the live DOM and reports ARIA / shadow-root / form-association status per instance.\n- `window.schmancy.platformPrimitive('schmancy-dialog')` — map to the native element a component wraps (present when the component's JSDoc has `@platform`).\n- `window.schmancy.capabilities()` — runtime feature probe (`popover`, `declarativeShadowDom`, `scopedRegistries`, `trustedTypes`, `cssRegisteredProperties`, `elementInternalsAria`, `formAssociated`, `adoptedStyleSheets`). Agents use this to adapt to the sandbox they're in rather than the one they expect.\n\nEvery enum-typed attribute carries a `values` array — e.g. `schmancy-button`'s `variant` ships `[\"elevated\", \"filled\", \"filled tonal\", \"tonal\", \"outlined\", \"text\"]` so agents never have to parse `\"'filled' | 'tonal' | ...\"` strings.\n\nThe manifest is also emitted as a sibling file at `@mhmo91/schmancy/agent/manifest`\nfor tooling that prefers reading JSON from disk.\n\n## Install\n\n```bash\nnpm install @mhmo91/schmancy\n```\n\n```typescript\nimport '@mhmo91/schmancy'\nimport { magnetic, cursorGlow, gravity } from '@mhmo91/schmancy/directives'\n```\n\n## Use with Claude Code\n\nSchmancy ships a Claude Code plugin. In any Claude Code session, run:\n\n```\n/plugin install https://github.com/samwaai/schmancy\n```\n\nClaude now knows every Schmancy component, foundation pattern, and convention in your project. The skill activates automatically when you work on schmancy code — no CLAUDE.md edits, no symlinks.\n\n## Quick Start\n\n```html\n<schmancy-theme root scheme=\"dark\">\n  <schmancy-surface type=\"solid\" fill=\"all\">\n    <schmancy-area name=\"root\" .default=${lazy(() => import('./home.page'))}>\n      <schmancy-route when=\"home-page\" .component=${lazy(() => import('./home.page'))} />\n    </schmancy-area>\n  </schmancy-surface>\n</schmancy-theme>\n```\n\n## Design: Luminous Glass\n\n| Surface | Opacity | Blur | Purpose |\n|---------|---------|------|---------|\n| `solid` | 92% | — | Dense glass, high readability |\n| `subtle` | 78% | 8px | Frosted panel (default) |\n| `glass` | 55% | 16px | Overlays, dialogs, dropdowns |\n| `luminous` | 42% | 20px | Hero panels with glow halo |\n\n## Docs\n\nSchmancy is organized in four layers:\n\n- **Foundations** — [Area](./skills/schmancy/area.md) · [Store](./skills/schmancy/store.md) · [Mixins ($LitElement)](./skills/schmancy/mixins.md) · [Theme](./skills/schmancy/theme.md) · [Directives](./skills/schmancy/directives.md)\n- **Atoms** — [Typography](./skills/schmancy/typography.md) · [Icons](./skills/schmancy/icons.md) · [Button](./skills/schmancy/button.md) · [Surface](./skills/schmancy/surface.md) · [Divider](./skills/schmancy/divider.md) · [Avatar](./skills/schmancy/avatar.md)\n- **Composites (by job)** — Forms, Navigation, Overlays, Interaction, Feedback, Display\n- **Utilities** — [Animation](./skills/schmancy/animation.md) · [Audio](./skills/schmancy/audio.md) · [Discovery](./skills/schmancy/discovery.md) · [RxJS Utils](./skills/schmancy/rxjs-utils.md) · [Utils](./skills/schmancy/utils.md)\n\n**Full component index:** [skills/schmancy/INDEX.md](./skills/schmancy/INDEX.md) — the single-file map with every tag, service, and convention. Written primarily for AI agents; humans welcome.\n\n## Tech Stack\n\n[Lit](https://lit.dev) · [RxJS](https://rxjs.dev) · [Tailwind CSS v4](https://tailwindcss.com) · [Blackbird](./src/utils/animation.ts)\n\n## License\n\nApache-2.0\n",
 	modules: [
@@ -35837,6 +35952,46 @@ var dp = {
 						default: "'body'"
 					},
 					{
+						name: "preset",
+						type: { text: "TypographyPreset" },
+						values: [
+							"display",
+							"display-lg",
+							"display-md",
+							"display-sm",
+							"heading-lg",
+							"heading-md",
+							"heading-sm",
+							"title-lg",
+							"title-md",
+							"title-sm",
+							"body-lg",
+							"body-md",
+							"body-sm",
+							"label-lg",
+							"label-md",
+							"label-sm",
+							"caption"
+						],
+						description: "Shorthand for picking a (type, token) pair in one go. When set, derives `type` and `token` automatically — saves the two-decisions-per-text-node fatigue that hits when a single page has 50+ typography nodes."
+					},
+					{
+						name: "as",
+						type: { text: "TypographyTag" },
+						values: [
+							"h1",
+							"h2",
+							"h3",
+							"h4",
+							"h5",
+							"h6",
+							"p",
+							"span",
+							"div"
+						],
+						description: "Render the slot wrapped in the requested semantic HTML element so screen readers expose the right role / heading level. Without `as`, the slot sits directly in the shadow root and the host is a generic element."
+					},
+					{
 						name: "token",
 						type: { text: "\"\" | \"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\"" },
 						values: [
@@ -36473,43 +36628,43 @@ var dp = {
 		"Prefer `fromEvent(target, type).pipe(takeUntil(this.disconnecting))` over raw `addEventListener` inside components."
 	]
 };
-function fp() {
+function yp() {
 	let e = [];
-	for (let t of dp.modules ?? []) {
+	for (let t of vp.modules ?? []) {
 		let n = t.declarations ?? [];
 		for (let t of n) e.push(t);
 	}
 	return e;
 }
-function pp() {
-	return fp().filter((e) => e.kind === "class" && typeof e.tagName == "string");
+function bp() {
+	return yp().filter((e) => e.kind === "class" && typeof e.tagName == "string");
 }
-function mp() {
-	return fp().filter((e) => e.kind === "variable" && !0 === e.service);
+function xp() {
+	return yp().filter((e) => e.kind === "variable" && !0 === e.service);
 }
-function hp(e) {
-	return e ? pp().find((t) => t.tagName === e) || mp().find((t) => t.name === e) || null : {
-		elements: pp().map((e) => ({
+function Sp(e) {
+	return e ? bp().find((t) => t.tagName === e) || xp().find((t) => t.name === e) || null : {
+		elements: bp().map((e) => ({
 			tag: e.tagName,
 			summary: e.summary ?? e.description
 		})),
-		services: mp().map((e) => ({
+		services: xp().map((e) => ({
 			name: e.name,
 			summary: e.summary ?? e.description
 		}))
 	};
 }
-function gp() {
-	return dp.tokens ?? [];
+function Cp() {
+	return vp.tokens ?? [];
 }
-function _p(e) {
-	return pp().find((t) => t.tagName === e)?.platformPrimitive ?? null;
+function wp(e) {
+	return bp().find((t) => t.tagName === e)?.platformPrimitive ?? null;
 }
-function vp() {
-	return pp().map((e) => e.tagName).filter((e) => customElements.get(e) !== void 0);
+function Tp() {
+	return bp().map((e) => e.tagName).filter((e) => customElements.get(e) !== void 0);
 }
-function yp() {
-	let e = new Set(pp().map((e) => e.tagName)), t = [], n = document.querySelectorAll("*");
+function Ep() {
+	let e = new Set(bp().map((e) => e.tagName)), t = [], n = document.querySelectorAll("*");
 	for (let r of Array.from(n)) {
 		let n = r.tagName.toLowerCase();
 		if (!e.has(n)) continue;
@@ -36524,7 +36679,7 @@ function yp() {
 	}
 	return t;
 }
-function bp() {
+function Dp() {
 	let e = typeof HTMLTemplateElement < "u" ? HTMLTemplateElement.prototype : null, t = typeof ElementInternals < "u" ? ElementInternals.prototype : null;
 	return {
 		popover: typeof HTMLElement < "u" && "popover" in HTMLElement.prototype,
@@ -36543,29 +36698,29 @@ function bp() {
 		adoptedStyleSheets: typeof Document < "u" && "adoptedStyleSheets" in Document.prototype
 	};
 }
-var xp = null;
-function Sp() {
-	typeof window < "u" && (xp || (xp = function() {
-		let e = new Blob([JSON.stringify(dp)], { type: "application/json" });
+var Op = null;
+function kp() {
+	typeof window < "u" && (Op || (Op = function() {
+		let e = new Blob([JSON.stringify(vp)], { type: "application/json" });
 		return URL.createObjectURL(e);
 	}(), window.schmancy = {
-		manifest: dp,
-		manifestUrl: xp,
-		help: hp,
-		tokens: gp,
-		platformPrimitive: _p,
-		registeredTags: vp,
-		a11yAudit: yp,
-		capabilities: bp
+		manifest: vp,
+		manifestUrl: Op,
+		help: Sp,
+		tokens: Cp,
+		platformPrimitive: wp,
+		registeredTags: Tp,
+		a11yAudit: Ep,
+		capabilities: Dp
 	}));
 }
-var Cp = class extends B() {
+var Ap = class extends B() {
 	connectedCallback() {
-		super.connectedCallback(), Sp();
+		super.connectedCallback(), kp();
 	}
 	render() {
 		return j``;
 	}
 };
-Cp = N([P("schmancy-skill")], Cp);
+Ap = N([P("schmancy-skill")], Ap);
 export { B as $LitElement, Mc as $dialog, hd as $notify, Nc as SchmancySheetPosition, ti as area, Oa as createContext, ai as lazy, gc as schmancyContentDrawer, Pa as select, Fa as selectItem, Pc as sheet, Oo as theme };

@@ -10868,6 +10868,16 @@
           "default": "\"'body'\""
         },
         {
+          "name": "preset",
+          "description": "Shorthand for picking a (type, token) pair in one go. When set, derives\n`type` and `token` automatically — saves the two-decisions-per-text-node\nfatigue that hits when a single page has 50+ typography nodes.",
+          "type": "TypographyPreset"
+        },
+        {
+          "name": "as",
+          "description": "Render the slot wrapped in the requested semantic HTML element so screen\nreaders expose the right role / heading level. Without `as`, the slot\nsits directly in the shadow root and the host is a generic element.",
+          "type": "TypographyTag"
+        },
+        {
           "name": "token",
           "type": "'xs' | 'sm' | 'md' | 'lg' | 'xl' | ''",
           "default": "\"'md'\"",
@@ -10922,6 +10932,18 @@
           "attribute": "type",
           "type": "'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label'",
           "default": "\"'body'\""
+        },
+        {
+          "name": "preset",
+          "attribute": "preset",
+          "description": "Shorthand for picking a (type, token) pair in one go. When set, derives\n`type` and `token` automatically — saves the two-decisions-per-text-node\nfatigue that hits when a single page has 50+ typography nodes.",
+          "type": "TypographyPreset"
+        },
+        {
+          "name": "as",
+          "attribute": "as",
+          "description": "Render the slot wrapped in the requested semantic HTML element so screen\nreaders expose the right role / heading level. Without `as`, the slot\nsits directly in the shadow root and the host is a generic element.",
+          "type": "TypographyTag"
         },
         {
           "name": "token",

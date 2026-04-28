@@ -5,7 +5,87 @@ import { filter as r, takeUntil as i, tap as a } from "rxjs/operators";
 import { customElement as o, property as s } from "lit/decorators.js";
 import { css as c, html as l } from "lit";
 import { createRef as u, ref as d } from "lit/directives/ref.js";
-var f = class extends e(c`
+import { html as f, literal as p } from "lit/static-html.js";
+var m = {
+	display: {
+		type: "display",
+		token: "lg"
+	},
+	"display-lg": {
+		type: "display",
+		token: "lg"
+	},
+	"display-md": {
+		type: "display",
+		token: "md"
+	},
+	"display-sm": {
+		type: "display",
+		token: "sm"
+	},
+	"heading-lg": {
+		type: "headline",
+		token: "lg"
+	},
+	"heading-md": {
+		type: "headline",
+		token: "md"
+	},
+	"heading-sm": {
+		type: "headline",
+		token: "sm"
+	},
+	"title-lg": {
+		type: "title",
+		token: "lg"
+	},
+	"title-md": {
+		type: "title",
+		token: "md"
+	},
+	"title-sm": {
+		type: "title",
+		token: "sm"
+	},
+	"body-lg": {
+		type: "body",
+		token: "lg"
+	},
+	"body-md": {
+		type: "body",
+		token: "md"
+	},
+	"body-sm": {
+		type: "body",
+		token: "sm"
+	},
+	"label-lg": {
+		type: "label",
+		token: "lg"
+	},
+	"label-md": {
+		type: "label",
+		token: "md"
+	},
+	"label-sm": {
+		type: "label",
+		token: "sm"
+	},
+	caption: {
+		type: "label",
+		token: "sm"
+	}
+}, h = {
+	h1: p`h1`,
+	h2: p`h2`,
+	h3: p`h3`,
+	h4: p`h4`,
+	h5: p`h5`,
+	h6: p`h6`,
+	p: p`p`,
+	span: p`span`,
+	div: p`div`
+}, g = class extends e(c`
 	:host {
 		display: block;
 		font-family: inherit;
@@ -291,6 +371,12 @@ var f = class extends e(c`
 			delegatesFocus: !0
 		};
 	}
+	willUpdate(e) {
+		if (super.willUpdate?.(e), e.has("preset") && this.preset && m[this.preset]) {
+			let { type: e, token: t } = m[this.preset];
+			this.type = e, this.token = t;
+		}
+	}
 	selectAll() {
 		let e = this._editRef.value;
 		if (!e) return;
@@ -325,31 +411,42 @@ var f = class extends e(c`
 		}
 	}
 	render() {
-		return this.editable ? l`<div
+		if (this.editable) return l`<div
 				${d(this._editRef)}
 				class="edit"
 				contenteditable="true"
 				data-placeholder=${this.placeholder ?? ""}
-			></div>` : l`<slot></slot>`;
+			></div>`;
+		if (this.as && h[this.as]) {
+			let e = h[this.as];
+			return f`<${e}><slot></slot></${e}>`;
+		}
+		return l`<slot></slot>`;
 	}
 };
 t([s({
 	type: String,
 	reflect: !0
-})], f.prototype, "type", void 0), t([s({
+})], g.prototype, "type", void 0), t([s({
 	type: String,
 	reflect: !0
-})], f.prototype, "token", void 0), t([s({
+})], g.prototype, "preset", void 0), t([s({
 	type: String,
 	reflect: !0
-})], f.prototype, "align", void 0), t([s({
+})], g.prototype, "as", void 0), t([s({
 	type: String,
 	reflect: !0
-})], f.prototype, "weight", void 0), t([s({
+})], g.prototype, "token", void 0), t([s({
 	type: String,
 	reflect: !0
-})], f.prototype, "transform", void 0), t([s({ type: Number })], f.prototype, "maxLines", void 0), t([s({
+})], g.prototype, "align", void 0), t([s({
+	type: String,
+	reflect: !0
+})], g.prototype, "weight", void 0), t([s({
+	type: String,
+	reflect: !0
+})], g.prototype, "transform", void 0), t([s({ type: Number })], g.prototype, "maxLines", void 0), t([s({
 	type: Boolean,
 	reflect: !0
-})], f.prototype, "editable", void 0), t([s({ type: String })], f.prototype, "value", void 0), t([s({ type: String })], f.prototype, "placeholder", void 0), f = t([o("schmancy-typography")], f);
-export { f as SchmancyTypography };
+})], g.prototype, "editable", void 0), t([s({ type: String })], g.prototype, "value", void 0), t([s({ type: String })], g.prototype, "placeholder", void 0), g = t([o("schmancy-typography")], g);
+export { g as SchmancyTypography };
