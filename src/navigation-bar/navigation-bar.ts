@@ -268,7 +268,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	private handleItemClick = (event: CustomEvent) => {
 		const items = this.getItems()
 		const clickedItem = event.target as HTMLElement
-		const index = items.indexOf(clickedItem as any)
+		const index = items.findIndex(it => it === clickedItem)
 
 		if (index === -1) return
 
@@ -336,8 +336,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 			case ' ':
 				event.preventDefault()
 				if (this.focusedIndex !== -1) {
-					const item = items[this.focusedIndex] as any
-					item?.click()
+					items[this.focusedIndex]?.click()
 				}
 				break
 		}
@@ -400,17 +399,11 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 	private updateActiveStates(activeIndex: number) {
 		const items = this.getItems()
 		items.forEach((item, index) => {
-			const navItem = item as any
 			// Use setActive method to trigger item's reactive update
-			if (navItem.setActive) {
-				navItem.setActive(index === activeIndex)
-			} else {
-				// Fallback for backward compatibility
-				navItem.active = index === activeIndex
-			}
-			navItem.hideLabels = this.hideLabels
+			item.setActive(index === activeIndex)
+			item.hideLabels = this.hideLabels
 			// Set tabindex for accessibility
-			;(item as HTMLElement).tabIndex = index === activeIndex ? 0 : -1
+			item.tabIndex = index === activeIndex ? 0 : -1
 		})
 	}
 

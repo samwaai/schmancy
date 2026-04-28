@@ -328,7 +328,7 @@ export class SchmancyArea extends $LitElement(css`
 				if (element) {
 					if (route.params) Object.assign(element, route.params)
 					if (route.props) Object.assign(element, route.props)
-					if (route.state) (element as any).state = route.state
+					if (route.state) Object.assign(element, { state: route.state })
 				}
 
 				return { element, route }
