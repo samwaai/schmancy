@@ -9,6 +9,7 @@ import { $dialog } from '../dialog'
 import { $notify } from '../notification'
 import { sheet } from '../sheet/sheet.service'
 import './email-layout-selector'
+import SchmancyTextarea from '../textarea/textarea'
 import { SchmancyEmailTemplatePicker } from './email-template-picker'
 import type { EmailAttachment, EmailComposeConfig, EmailTemplate } from './types'
 
@@ -63,7 +64,7 @@ export class SchmancyEmailEditor extends $LitElement(css`
 
 	/** Element references */
 	private subjectInputRef = createRef<HTMLInputElement>()
-	private bodyTextAreaRef = createRef<any>()
+	private bodyTextAreaRef = createRef<SchmancyTextarea>()
 	private fileInputRef = createRef<HTMLInputElement>()
 	private imageInputRef = createRef<HTMLInputElement>()
 
@@ -402,7 +403,7 @@ The Fulfillment Team`
 	}
 
 	/** Handle body textarea changes */
-	private handleBodyChange = (event: any) => {
+	private handleBodyChange = (event: CustomEvent<{ value: string }>) => {
 		this.body = event.detail.value
 		this.dispatchChange()
 	}

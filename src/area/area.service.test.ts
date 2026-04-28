@@ -73,9 +73,10 @@ class TestAreaService {
 		// Fallback to encoded state in URL (original behavior)
 		try {
 			// Clean up empty objects before encoding
-			const cleanedAreas: Record<string, any> = {}
+			type CleanRoute = Omit<ActiveRoute, 'area'>
+			const cleanedAreas: Record<string, CleanRoute> = {}
 			Object.entries(areas).forEach(([areaName, route]) => {
-				const cleanRoute: any = { component: route.component }
+				const cleanRoute: CleanRoute = { component: route.component }
 
 				// Only include state if it has content
 				if (route.state && Object.keys(route.state).length > 0) {
@@ -821,7 +822,7 @@ describe('AreaService - Edge Cases', () => {
 		mockLocation.pathname = '/demo/area/'
 
 		// Create a large state object
-		const largeState: Record<string, any> = {}
+		const largeState: Record<string, string> = {}
 		for (let i = 0; i < 1000; i++) {
 			largeState[`key${i}`] = `value${i}`.repeat(10)
 		}

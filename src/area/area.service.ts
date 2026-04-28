@@ -496,9 +496,10 @@ class AreaService implements AreaSubscription {
 		// Fallback to encoded state in URL (original behavior)
 		try {
 			// Clean up empty objects before encoding
-			const cleanedAreas: Record<string, any> = {}
+			type CleanRoute = Omit<ActiveRoute, 'area'>
+			const cleanedAreas: Record<string, CleanRoute> = {}
 			Object.entries(areas).forEach(([areaName, route]) => {
-				const cleanRoute: any = { component: route.component }
+				const cleanRoute: CleanRoute = { component: route.component }
 
 				// Only include state if it has content
 				if (route.state && Object.keys(route.state).length > 0) {
