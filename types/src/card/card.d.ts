@@ -17,6 +17,7 @@ declare const SchmancyCard_base: import("@mixins/index").Constructor<CustomEleme
  *   </schmancy-card-action>
  * </schmancy-card>
  * @platform div - Styled `<div>`; becomes an `<a>` when `href` is set so the whole card is a single interactive surface. Degrades to a plain div/a if the tag never registers.
+ * @fires schmancy-click - When an interactive card is clicked or activated via keyboard. `detail.value` echoes the card's `type`. Only fires when `interactive` is set.
  */
 export default class SchmancyCard extends SchmancyCard_base {
     protected static shadowRootOptions: {

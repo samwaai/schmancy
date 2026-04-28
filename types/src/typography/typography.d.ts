@@ -13,6 +13,7 @@ declare const SchmancyTypography_base: import("../../mixins").Constructor<Custom
 /**
  * @element schmancy-typography
  * @slot - The text for the typography.
+ * @fires change - When `editable` is true, fires on blur or Enter with `detail.value` set to the new text content. Not fired when `editable` is unset (the default).
  */
 export declare class SchmancyTypography extends SchmancyTypography_base {
     static shadowRootOptions: ShadowRootInit;

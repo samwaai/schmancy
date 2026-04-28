@@ -12,7 +12,7 @@ Four separable PRs, each shippable on its own:
 | # | Title | Branch | Impact on your probe |
 |---|---|---|---|
 | 2 | CI smoke-test gate | `feat/ci-gate-and-version-templating` | None user-facing. `window.schmancy.help()` regressions now fail-closed at publish time instead of shipping silently. |
-| 9 | `0.9.24` templating for handover docs | same branch as #2 | None user-facing. Future handover docs will have live esm.sh URLs instead of `<PENDING>` placeholders. |
+| 9 | `0.9.25` templating for handover docs | same branch as #2 | None user-facing. Future handover docs will have live esm.sh URLs instead of `<PENDING>` placeholders. |
 | 3 | JSDoc backfill (46 components) | `feat/jsdoc-batch-{1,2,3}-*` | **This is what you'll notice.** Every form-control, container, and overlay/nav component now ships `@summary`, `@example`, and `@platform` tags in its manifest entry. `window.schmancy.help('schmancy-button')` returns a non-empty `summary`, a copy-pastable `examples[]`, and a `platformPrimitive` hint for graceful degradation. |
 | 1 | Lazy vendor chunks | `feat/lazy-{typewriter,code-highlight,qr-scanner}` | Pages that don't render `<schmancy-code>`, `<schmancy-qr-scanner>`, or `<schmancy-typewriter>` no longer fetch `vendor-highlight`, `vendor-jsqr`, or the typewriter chunk on first paint. ~68 KB gzipped saved on cold starts for typical prototypes. |
 
@@ -21,18 +21,18 @@ The only one that changes the shape of `window.schmancy` is **#3**. The others a
 ## Pinned URLs (live once the PRs merge)
 
 ```
-https://esm.sh/@mhmo91/schmancy/agent@0.9.24
-https://esm.sh/@mhmo91/schmancy/agent/manifest@0.9.24
+https://esm.sh/@mhmo91/schmancy/agent@0.9.25
+https://esm.sh/@mhmo91/schmancy/agent/manifest@0.9.25
 ```
 
-`0.9.24` is substituted at publish time — see [`agent-runtime-followups.md`](./agent-runtime-followups.md) #9. Until the PRs land, continue pinning `@0.9.14` (the last published version at time of writing).
+`0.9.25` is substituted at publish time — see [`agent-runtime-followups.md`](./agent-runtime-followups.md) #9. Until the PRs land, continue pinning `@0.9.14` (the last published version at time of writing).
 
 ## Minimum loop-back test
 
 ```html
 <!doctype html>
 <script type="module">
-  import 'https://esm.sh/@mhmo91/schmancy/agent@0.9.24';
+  import 'https://esm.sh/@mhmo91/schmancy/agent@0.9.25';
 </script>
 
 <schmancy-theme root scheme="dark">

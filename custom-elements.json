@@ -46,6 +46,7 @@
     {
       "name": "schmancy-area",
       "path": "./src/area/area.component.ts",
+      "description": "Router outlet — renders the active route's component for the named area. Drives the schmancy router via the `area` service.",
       "attributes": [
         {
           "name": "name",
@@ -72,7 +73,8 @@
       ],
       "events": [
         {
-          "name": "redirect"
+          "name": "redirect",
+          "description": "When the area resolves a route to a different destination (programmatic redirect). `detail.from` and `detail.to` are the route names."
         }
       ]
     },
@@ -1274,7 +1276,8 @@
       ],
       "events": [
         {
-          "name": "schmancy-click"
+          "name": "schmancy-click",
+          "description": "When an interactive card is clicked or activated via keyboard. `detail.value` echoes the card's `type`. Only fires when `interactive` is set."
         }
       ]
     },
@@ -1751,7 +1754,7 @@
     {
       "name": "schmancy-assist-chip",
       "path": "./src/chips/assist-chip.ts",
-      "description": "Assist chip component - prompts user actions like opening calendar events or sharing content\nPure Schmancy implementation with Tailwind CSS and RxJS state management",
+      "description": "Assist chip — single-tap trigger for a contextual action (open calendar event, share content, jump to related view). Distinct from filter and input chips: assist chips have no selected state; clicking fires `action`.",
       "attributes": [
         {
           "name": "value",
@@ -1836,7 +1839,8 @@
       ],
       "events": [
         {
-          "name": "action"
+          "name": "action",
+          "description": "When the chip is clicked or activated via keyboard. `detail.value` echoes the chip's `value` attribute."
         },
         {
           "name": "click"
@@ -2227,7 +2231,7 @@
     {
       "name": "schmancy-suggestion-chip",
       "path": "./src/chips/suggestion-chip.ts",
-      "description": "Suggestion chip component - provides contextual recommendations to users\n\nIMPORTANT: Suggestion chips do NOT have a selected state. They are designed to\nprovide suggestions and recommendations that trigger actions when clicked.\nUnlike filter chips, they cannot be toggled on/off.\n\nPure Schmancy implementation with Tailwind CSS and RxJS state management",
+      "description": "Suggestion chip — single-tap insertion of a recommended value. Distinct from filter chips (no selected state) and assist chips (assist triggers an action; suggestion offers a value the user can pick).",
       "attributes": [
         {
           "name": "value",
@@ -2312,7 +2316,8 @@
       ],
       "events": [
         {
-          "name": "action"
+          "name": "action",
+          "description": "When the chip is clicked or activated via keyboard. `detail.value` echoes the chip's `value` attribute."
         },
         {
           "name": "click"
@@ -6587,6 +6592,7 @@
     {
       "name": "schmancy-lightbox",
       "path": "./src/lightbox/lightbox.ts",
+      "description": "Image lightbox — thumbnail grid that opens to a full-screen viewer on click, with keyboard navigation between images.",
       "attributes": [
         {
           "name": "src",
@@ -6637,10 +6643,12 @@
       ],
       "events": [
         {
-          "name": "close"
+          "name": "change",
+          "description": "When the active image index changes (next/prev). `detail.index` is the new active image's position in the array."
         },
         {
-          "name": "change"
+          "name": "close",
+          "description": "When the viewer is dismissed (ESC, backdrop click, close button)."
         }
       ]
     },
@@ -8892,7 +8900,8 @@
       ],
       "events": [
         {
-          "name": "radio-button-click"
+          "name": "radio-button-click",
+          "description": "Internal event consumed by the parent schmancy-radio-group; `detail.value` is the clicked button's value. Listen on schmancy-radio-group for the public `change` event instead of subscribing here."
         },
         {
           "name": "change"
@@ -9909,7 +9918,7 @@
     {
       "name": "schmancy-table",
       "path": "./src/table/table.ts",
-      "description": "SchmancyDataTable is a generic data table component.\nIt supports sorting, filtering, and custom rendering of rows.",
+      "description": "Generic data table — typed columns, optional sort, custom renderers per column. Pass `data` (array) and `columns` (TableColumn descriptors).",
       "attributes": [
         {
           "name": "keyField",
@@ -9959,10 +9968,12 @@
       ],
       "events": [
         {
-          "name": "sort-change"
+          "name": "click",
+          "description": "When a data row is activated. `detail.item` is the row's source object, `detail.index` is the position in the data array."
         },
         {
-          "name": "click"
+          "name": "sort-change",
+          "description": "When the user toggles a column sort. `detail.column` is the column key, `detail.direction` is `'asc' | 'desc' | null`."
         }
       ]
     },
@@ -10727,7 +10738,8 @@
       ],
       "events": [
         {
-          "name": "toggle"
+          "name": "toggle",
+          "description": "When the root toggler or chevron is clicked. Fires before the open state flips; the host's `open` property reflects the new state on the next animation frame."
         }
       ],
       "slots": [
@@ -10744,6 +10756,7 @@
     {
       "name": "schmancy-typewriter",
       "path": "./src/typewriter/typewriter.ts",
+      "description": "Typewriter effect — animates text typing/deletion with a cursor. Wraps the TypeIt library, lazy-loaded on first render.",
       "attributes": [
         {
           "name": "speed",
@@ -10854,7 +10867,8 @@
       ],
       "events": [
         {
-          "name": "typeit-complete"
+          "name": "typeit-complete",
+          "description": "When the animation finishes typing all content. Fires after the final `afterComplete` callback in the underlying TypeIt instance."
         }
       ]
     },
@@ -10999,7 +11013,8 @@
       ],
       "events": [
         {
-          "name": "change"
+          "name": "change",
+          "description": "When `editable` is true, fires on blur or Enter with `detail.value` set to the new text content. Not fired when `editable` is unset (the default)."
         }
       ],
       "slots": [

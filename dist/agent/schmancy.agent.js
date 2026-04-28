@@ -30887,6 +30887,13 @@ var vp = {
 				kind: "class",
 				name: "SchmancyArea",
 				tagName: "schmancy-area",
+				description: "Router outlet — renders the active route's component for the named area. Drives the schmancy router via the `area` service.",
+				summary: "Mount once per \"addressable region\" of the app (typically the main content area). Use the imperative `area.push({ area, component, params })` service to navigate. Multiple named areas can coexist on a page (e.g. main content + a sheet).",
+				platformPrimitive: {
+					tag: "div",
+					mode: "-",
+					note: "Routing outlet. Degrades to an empty div if the tag never registers — routing is lost but the page stays accessible."
+				},
 				attributes: [{
 					name: "name",
 					type: { text: "string" },
@@ -30894,7 +30901,12 @@ var vp = {
 				}, {
 					name: "default",
 					type: { text: "RouteComponent" }
-				}]
+				}],
+				events: [{
+					name: "redirect",
+					description: "When the area resolves a route to a different destination (programmatic redirect). `detail.from` and `detail.to` are the route names."
+				}],
+				examples: ["<schmancy-area name=\"main\"></schmancy-area>\n<script>\n  import { area } from '@mhmo91/schmancy';\n  area.push({ area: 'main', component: MyDashboardView, params: { id: 42 } });\n<\/script>"]
 			}]
 		},
 		{
@@ -31593,6 +31605,10 @@ var vp = {
 						description: "ARIA label for accessibility."
 					}
 				],
+				events: [{
+					name: "schmancy-click",
+					description: "When an interactive card is clicked or activated via keyboard. `detail.value` echoes the card's `type`. Only fires when `interactive` is set."
+				}],
 				examples: ["<schmancy-card type=\"elevated\" href=\"/items/42\">\n  <schmancy-card-media src=\"/thumb.jpg\" alt=\"Thumbnail\"></schmancy-card-media>\n  <schmancy-card-content>\n    <h3>Title</h3>\n    <p>One-line description of the card's content.</p>\n  </schmancy-card-content>\n  <schmancy-card-action>\n    <schmancy-button variant=\"text\">Open</schmancy-button>\n  </schmancy-card-action>\n</schmancy-card>"]
 			}]
 		},
@@ -31883,7 +31899,13 @@ var vp = {
 				kind: "class",
 				name: "SchmancyAssistChip",
 				tagName: "schmancy-assist-chip",
-				description: "Assist chip component - prompts user actions like opening calendar events or sharing content Pure Schmancy implementation with Tailwind CSS and RxJS state management",
+				description: "Assist chip — single-tap trigger for a contextual action (open calendar event, share content, jump to related view). Distinct from filter and input chips: assist chips have no selected state; clicking fires `action`.",
+				summary: "Use for \"do this thing\" suggestions surfaced in context (next to a date, after a recipient list, near a long description). Pair with schmancy-icon for the leading glyph.",
+				platformPrimitive: {
+					tag: "button",
+					mode: "click",
+					note: "Material 3 assist-chip semantics. Degrades to a plain `<button>` if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "value",
@@ -31921,7 +31943,12 @@ var vp = {
 						default: "true",
 						description: "Elevated style variant - true by default per M3 spec for assist chips"
 					}
-				]
+				],
+				events: [{
+					name: "action",
+					description: "When the chip is clicked or activated via keyboard. `detail.value` echoes the chip's `value` attribute."
+				}],
+				examples: ["<schmancy-assist-chip @action=${(e) => share(e.detail.value)}>\n  <schmancy-icon slot=\"icon\">share</schmancy-icon>\n  Share\n</schmancy-assist-chip>"]
 			}]
 		},
 		{
@@ -32036,7 +32063,13 @@ var vp = {
 				kind: "class",
 				name: "SchmancySuggestionChip",
 				tagName: "schmancy-suggestion-chip",
-				description: "Suggestion chip component - provides contextual recommendations to users  IMPORTANT: Suggestion chips do NOT have a selected state. They are designed to provide suggestions and recommendations that trigger actions when clicked. Unlike filter chips, they cannot be toggled on/off.  Pure Schmancy implementation with Tailwind CSS and RxJS state management",
+				description: "Suggestion chip — single-tap insertion of a recommended value. Distinct from filter chips (no selected state) and assist chips (assist triggers an action; suggestion offers a value the user can pick).",
+				summary: "Use for \"would you also like to…\" prompts above a search input or below a message thread. Click fires `action` with the chip's `value` so the parent can insert it into a field or trigger a search.",
+				platformPrimitive: {
+					tag: "button",
+					mode: "click",
+					note: "Material 3 suggestion-chip semantics. Degrades to a plain `<button>` if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "value",
@@ -32074,7 +32107,12 @@ var vp = {
 						default: "false",
 						description: "Elevated style variant - flat by default per M3 spec"
 					}
-				]
+				],
+				events: [{
+					name: "action",
+					description: "When the chip is clicked or activated via keyboard. `detail.value` echoes the chip's `value` attribute."
+				}],
+				examples: ["<schmancy-suggestion-chip value=\"yesterday\" @action=${(e) => setRange(e.detail.value)}>\n  Yesterday\n</schmancy-suggestion-chip>"]
 			}]
 		},
 		{
@@ -33364,6 +33402,13 @@ var vp = {
 				kind: "class",
 				name: "SchmancyLightbox",
 				tagName: "schmancy-lightbox",
+				description: "Image lightbox — thumbnail grid that opens to a full-screen viewer on click, with keyboard navigation between images.",
+				summary: "Drop-in for galleries / image lists where each thumbnail should expand to fill the viewport. Pass an `images` array of `{ src, alt, caption? }`.",
+				platformPrimitive: {
+					tag: "dialog",
+					mode: "close",
+					note: "Modal full-screen viewer with keyboard navigation. Degrades to a plain image grid if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "src",
@@ -33385,7 +33430,15 @@ var vp = {
 						type: { text: "boolean" },
 						default: "false"
 					}
-				]
+				],
+				events: [{
+					name: "change",
+					description: "When the active image index changes (next/prev). `detail.index` is the new active image's position in the array."
+				}, {
+					name: "close",
+					description: "When the viewer is dismissed (ESC, backdrop click, close button)."
+				}],
+				examples: ["<schmancy-lightbox .images=${[{ src: '/a.jpg', alt: 'A' }, { src: '/b.jpg', alt: 'B' }]}></schmancy-lightbox>"]
 			}]
 		},
 		{
@@ -34829,6 +34882,10 @@ var vp = {
 						default: "''"
 					}
 				],
+				events: [{
+					name: "radio-button-click",
+					description: "Internal event consumed by the parent schmancy-radio-group; `detail.value` is the clicked button's value. Listen on schmancy-radio-group for the public `change` event instead of subscribing here."
+				}],
 				examples: ["<schmancy-radio-group name=\"plan\">\n  <schmancy-radio-button value=\"free\">Free</schmancy-radio-button>\n  <schmancy-radio-button value=\"pro\" checked>Pro</schmancy-radio-button>\n</schmancy-radio-group>"]
 			}]
 		},
@@ -35442,7 +35499,13 @@ var vp = {
 				kind: "class",
 				name: "SchmancyDataTable",
 				tagName: "schmancy-table",
-				description: "SchmancyDataTable is a generic data table component. It supports sorting, filtering, and custom rendering of rows.",
+				description: "Generic data table — typed columns, optional sort, custom renderers per column. Pass `data` (array) and `columns` (TableColumn descriptors).",
+				summary: "Use for tabular data where each column has a known shape. Pair with `<schmancy-table-row>` for the per-row interaction surface. Sort by setting `sortable: true` on a column descriptor; the table emits `sort-change` so the parent can re-fetch / re-sort in the data layer if needed.",
+				platformPrimitive: {
+					tag: "table",
+					mode: "-",
+					note: "Renders an accessible table with `<lit-virtualizer>` for large datasets. Degrades to a styled `<table>` if the tag never registers."
+				},
 				attributes: [
 					{
 						name: "keyField",
@@ -35459,7 +35522,15 @@ var vp = {
 						type: { text: "boolean" },
 						default: "false"
 					}
-				]
+				],
+				events: [{
+					name: "click",
+					description: "When a data row is activated. `detail.item` is the row's source object, `detail.index` is the position in the data array."
+				}, {
+					name: "sort-change",
+					description: "When the user toggles a column sort. `detail.column` is the column key, `detail.direction` is `'asc' | 'desc' | null`."
+				}],
+				examples: ["<schmancy-table .data=${rows} .columns=${[{ name: 'Name', key: 'name' }, { name: 'Status', key: 'status' }]}></schmancy-table>"]
 			}]
 		},
 		{
@@ -35857,6 +35928,10 @@ var vp = {
 					default: "false",
 					description: "Whether the tree’s children are visible"
 				}],
+				events: [{
+					name: "toggle",
+					description: "When the root toggler or chevron is clicked. Fires before the open state flips; the host's `open` property reflects the new state on the next animation frame."
+				}],
 				slots: [{
 					name: "root",
 					description: "The root element of the tree"
@@ -35874,6 +35949,13 @@ var vp = {
 				kind: "class",
 				name: "TypewriterElement",
 				tagName: "schmancy-typewriter",
+				description: "Typewriter effect — animates text typing/deletion with a cursor. Wraps the TypeIt library, lazy-loaded on first render.",
+				summary: "Drop string content as the default slot or use `<p>` / `<span>` with `cycle=\"A|B|C\"` attribute children for cycling phrases. Set `loop` for infinite cycling, `once` to remember completion across sessions via sessionStorage.",
+				platformPrimitive: {
+					tag: "span",
+					mode: "-",
+					note: "Animated text container. Degrades to its raw text content if the tag never registers — animation is lost but content stays visible."
+				},
 				attributes: [
 					{
 						name: "speed",
@@ -35924,6 +36006,11 @@ var vp = {
 						description: "Default pause duration for cycling (ms)."
 					}
 				],
+				events: [{
+					name: "typeit-complete",
+					description: "When the animation finishes typing all content. Fires after the final `afterComplete` callback in the underlying TypeIt instance."
+				}],
+				examples: ["<schmancy-typewriter speed=\"35\" cursor-char=\"|\">\n  Hello, world.\n</schmancy-typewriter>"],
 				contexts: [{
 					name: "delayContext",
 					kind: "consume"
@@ -36056,6 +36143,10 @@ var vp = {
 						description: "Placeholder shown when editable and empty"
 					}
 				],
+				events: [{
+					name: "change",
+					description: "When `editable` is true, fires on blur or Enter with `detail.value` set to the new text content. Not fired when `editable` is unset (the default)."
+				}],
 				slots: [{
 					name: "",
 					description: "The text for the typography."
