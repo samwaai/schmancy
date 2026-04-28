@@ -48,21 +48,169 @@ type ServiceDeclaration = {
 
 type Declaration = ElementDeclaration | ServiceDeclaration
 type Module = { kind: 'javascript-module'; path: string; declarations: Declaration[] }
+
+/**
+ * Structured rule descriptor — replaces the bare string entries in earlier
+ * schemas. The `validator` id is what a runtime validator (Phase 3) will
+ * dispatch on; `severity` lets consumers triage. Bumping the manifest's
+ * `schemaVersion` to '1.1.0' is the minor-bump signal for this addition.
+ */
+type Rule = {
+	/** Stable identifier — keep these constant across releases. */
+	id: string
+	/** Where the rule fires. */
+	scope: 'global' | 'tag' | 'token' | 'attribute' | 'workflow'
+	/** Optional selector — tag glob, token category, etc. */
+	applies?: string[]
+	/** Human-readable rule body. Surfaces in agent prompts and lint output. */
+	rule: string
+	/** Hint to consumers about how strictly to enforce. */
+	severity: 'error' | 'warn' | 'hint'
+	/** Identifier the runtime validator dispatches on. Optional for workflow rules. */
+	validator?: string
+}
+
 type Manifest = {
-	schemaVersion: '1.0.0'
+	/**
+	 * '1.0.0' — original manifest with `conventions: string[]`.
+	 * '1.1.0' — adds the structured `rules: Rule[]` array. `conventions: string[]`
+	 *           stays for back-compat (one rule body per entry, severity dropped).
+	 */
+	schemaVersion: '1.1.0'
 	readme?: string
 	modules: Module[]
 	tokens: string[]
 	conventions: string[]
+	rules: Rule[]
 }
 
-const CONVENTIONS: string[] = [
-	'Every component extends `$LitElement`, not raw `LitElement`. Use the mixin from `@mhmo91/schmancy/mixins`.',
-	'RxJS subscriptions inside a component must end with `.pipe(takeUntil(this.disconnecting))` for automatic cleanup on disconnect.',
-	'Theme must wrap a surface: `<schmancy-theme>` provides design tokens, `<schmancy-surface>` paints the background and inherits text color.',
-	'Use `repeat()` from `lit/directives/repeat.js` for dynamic lists — never `.map()` inside `html\`\``.',
-	'Prefer `fromEvent(target, type).pipe(takeUntil(this.disconnecting))` over raw `addEventListener` inside components.',
+/**
+ * Agent-facing rules + repo conventions, in one place. The `rules: Rule[]`
+ * field is the structured, validator-dispatchable form; the legacy
+ * `conventions: string[]` field is derived from this same source so older
+ * consumers keep getting a flat list.
+ */
+const RULES: Rule[] = [
+	// Workflow rules — fire when the agent is about to author something custom.
+	{
+		id: 'discovery-first',
+		scope: 'workflow',
+		rule: 'Before authoring any custom element, call window.schmancy.help() to scan the elements[] list. Only compose from primitives if no existing tag fits.',
+		severity: 'error',
+	},
+	{
+		id: 'use-existing-overlay-services',
+		scope: 'workflow',
+		rule: 'Use $dialog.confirm / sheet.open / $notify imperatively for overlays. Do not roll element-based dialogs, sheets, or toasts.',
+		severity: 'error',
+	},
+	// Global tag rules.
+	{
+		id: 'schmancy-tags-only',
+		scope: 'global',
+		rule: 'Every UI tag must be a <schmancy-*> custom element. Replace <button> with <schmancy-button>, <input> with <schmancy-input>, <li> with <schmancy-list-item>, etc.',
+		severity: 'error',
+		validator: 'tag-namespace',
+	},
+	{
+		id: 'tag-must-exist',
+		scope: 'tag',
+		rule: 'Every <schmancy-*> tag used in output must exist in the manifest declarations[]. Hand-rolled tags are violations.',
+		severity: 'error',
+		validator: 'tag-exists',
+	},
+	{
+		id: 'attribute-in-spec',
+		scope: 'attribute',
+		rule: 'Every attribute on a <schmancy-*> element must be declared in that tag\'s attributes[] in the manifest.',
+		severity: 'error',
+		validator: 'attr-in-spec',
+	},
+	{
+		id: 'enum-attribute-value',
+		scope: 'attribute',
+		rule: 'When an attribute has a values[] enum, only those values are valid.',
+		severity: 'error',
+		validator: 'enum-value-valid',
+	},
+	// Token rules.
+	{
+		id: 'no-hex-literals',
+		scope: 'token',
+		applies: ['style', 'class'],
+		rule: 'Never use hex literals (#6200ee) in style or class. Reference --schmancy-sys-color-* tokens or the Tailwind utilities that wrap them.',
+		severity: 'error',
+		validator: 'no-hex',
+	},
+	{
+		id: 'no-arbitrary-tailwind-values',
+		scope: 'token',
+		applies: ['class'],
+		rule: 'Never use Tailwind arbitrary values like bg-[#xxx] or text-[13px]. Use bg-primary-default, text-surface-on, and the typography presets instead.',
+		severity: 'error',
+		validator: 'no-arbitrary-values',
+	},
+	{
+		id: 'tailwind-classes-preferred-over-css-vars',
+		scope: 'token',
+		rule: 'Prefer Tailwind utility classes (bg-primary-default, text-surface-on) over raw --schmancy-sys-color-* CSS variables. Fall back to the CSS variable only when Tailwind lacks a utility for the property.',
+		severity: 'warn',
+	},
+	// Form rules.
+	{
+		id: 'form-controls-inside-schmancy-form',
+		scope: 'tag',
+		applies: ['schmancy-input', 'schmancy-select', 'schmancy-checkbox', 'schmancy-radio-group', 'schmancy-textarea', 'schmancy-switch', 'schmancy-autocomplete'],
+		rule: 'Form-associated controls work standalone, but always wrap a related group in <schmancy-form> so its submit event fires with a FormData payload.',
+		severity: 'warn',
+	},
+	{
+		id: 'icon-buttons-need-aria-label',
+		scope: 'tag',
+		applies: ['schmancy-icon-button'],
+		rule: 'schmancy-icon-button has no text content; provide aria-label so screen readers can announce it.',
+		severity: 'error',
+		validator: 'icon-button-aria-label',
+	},
+	// Repo / development conventions (carried forward from earlier schema).
+	{
+		id: 'lit-mixin',
+		scope: 'global',
+		rule: 'Every component extends `$LitElement`, not raw `LitElement`. Use the mixin from `@mhmo91/schmancy/mixins`.',
+		severity: 'hint',
+	},
+	{
+		id: 'rxjs-cleanup',
+		scope: 'global',
+		rule: 'RxJS subscriptions inside a component must end with `.pipe(takeUntil(this.disconnecting))` for automatic cleanup on disconnect.',
+		severity: 'hint',
+	},
+	{
+		id: 'theme-wraps-surface',
+		scope: 'global',
+		rule: 'Theme must wrap a surface: `<schmancy-theme>` provides design tokens, `<schmancy-surface>` paints the background and inherits text color.',
+		severity: 'hint',
+	},
+	{
+		id: 'lit-repeat-not-map',
+		scope: 'global',
+		rule: 'Use `repeat()` from `lit/directives/repeat.js` for dynamic lists — never `.map()` inside `html\`\``.',
+		severity: 'hint',
+	},
+	{
+		id: 'rxjs-fromevent',
+		scope: 'global',
+		rule: 'Prefer `fromEvent(target, type).pipe(takeUntil(this.disconnecting))` over raw `addEventListener` inside components.',
+		severity: 'hint',
+	},
 ]
+
+/**
+ * Legacy flat list — derived from RULES so older consumers reading
+ * `conventions: string[]` keep working without re-implementing rule
+ * authoring in two places.
+ */
+const CONVENTIONS: string[] = RULES.map(r => r.rule)
 
 function stripStars(raw: string): string {
 	return raw
@@ -373,11 +521,12 @@ function buildManifest(project: Project, srcDir: string, readme: string | null):
 	}
 
 	return {
-		schemaVersion: '1.0.0',
+		schemaVersion: '1.1.0',
 		...(readme ? { readme } : {}),
 		modules,
 		tokens: extractTokens(srcDir),
 		conventions: CONVENTIONS,
+		rules: RULES,
 	}
 }
 
