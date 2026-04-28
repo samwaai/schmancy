@@ -1,1 +1,0 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./float-yZoLnUg0.cjs`);exports.SchmancyFloat=e.t;

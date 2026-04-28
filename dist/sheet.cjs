@@ -1,1 +1,0 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./sheet.service-BKmnlkpZ.cjs`);require(`./sheet-Bv2mPHWk.cjs`),exports.SchmancySheetPosition=e.t,exports.sheet=e.n;

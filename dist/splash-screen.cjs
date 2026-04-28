@@ -1,1 +1,0 @@
-require(`./splash-screen-BemqNFNj.cjs`);

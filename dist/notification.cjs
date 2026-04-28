@@ -1,1 +1,0 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./notification-DE5dFf8G.cjs`);exports.$notify=e.r,exports.SchmancyNotification=e.i,exports.notify=e.t,exports.notifyProgress=e.n;

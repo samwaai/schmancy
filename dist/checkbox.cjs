@@ -1,1 +1,0 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./checkbox-CiAtIrqB.cjs`);Object.defineProperty(exports,`SchmancyCheckbox`,{enumerable:!0,get:function(){return e.t}});

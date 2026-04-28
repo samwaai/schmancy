@@ -1,1 +1,0 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./src-ByGCYD-E.cjs`);exports.HereMorty=e.r,Object.defineProperty(exports,`SchmancyTeleportation`,{enumerable:!0,get:function(){return e.n}}),exports.WhereAreYouRicky=e.i,exports.teleport=e.a;

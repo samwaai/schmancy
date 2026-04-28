@@ -1,1 +1,0 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./lightbox-Ce8nMldr.cjs`);Object.defineProperty(exports,`SchmancyLightbox`,{enumerable:!0,get:function(){return e.i}}),exports.flip=e.r,exports.lightbox=e.t,exports.lightboxDirective=e.n;
