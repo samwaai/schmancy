@@ -232,8 +232,4 @@ export abstract class BaseStore<T> {
 		return this.storage.save(state)
 	}
 
-	/**
-	 * Setup development tools
-	 */
-	protected abstract setupDevTools(): void
 }

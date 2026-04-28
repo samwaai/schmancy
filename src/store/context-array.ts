@@ -324,35 +324,4 @@ export class SchmancyArrayStore<T = any> extends BaseStore<T[]> implements IArra
 	public clear(): void {
 		this.updateState([])
 	}
-
-	/**
-	 * Setup development tools for debugging
-	 */
-	protected setupDevTools(): void {
-		if (typeof window !== 'undefined') {
-			// Add to global store registry
-			;(window as any).__STORES__ = (window as any).__STORES__ || {}
-			;(window as any).__STORES__[this.key] = {
-				getState: () => this.value,
-				push: this.push.bind(this),
-				pop: this.pop.bind(this),
-				unshift: this.unshift.bind(this),
-				shift: this.shift.bind(this),
-				set: this.set.bind(this),
-				get: this.get.bind(this),
-				splice: this.splice.bind(this),
-				remove: this.remove.bind(this),
-				replace: this.replace.bind(this),
-				filter: this.filter.bind(this),
-				map: this.map.bind(this),
-				sort: this.sort.bind(this),
-				update: this.update.bind(this),
-				clear: this.clear.bind(this),
-				subscribe: (callback: (state: T[]) => void) => {
-					const subscription = this.$.subscribe(callback)
-					return () => subscription.unsubscribe()
-				},
-			}
-		}
-	}
 }

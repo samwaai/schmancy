@@ -192,27 +192,4 @@ export default class SchmancyCollectionStore<V = any> extends BaseStore<Map<stri
 			})
 		})
 	}
-
-	/**
-	 * Setup development tools for debugging
-	 */
-	protected setupDevTools(): void {
-		if (typeof window !== 'undefined') {
-			// Add to global store registry
-			;(window as any).__STORES__ = (window as any).__STORES__ || {}
-			;(window as any).__STORES__[this.key] = {
-				getState: () => this.value,
-				set: this.set.bind(this),
-				merge: this.merge.bind(this),
-				delete: this.delete.bind(this),
-				clear: this.clear.bind(this),
-				batchUpdate: this.batchUpdate.bind(this),
-				update: this.update.bind(this),
-				subscribe: (callback: (state: Map<string, V>) => void) => {
-					const subscription = this.$.subscribe(callback)
-					return () => subscription.unsubscribe()
-				},
-			}
-		}
-	}
 }

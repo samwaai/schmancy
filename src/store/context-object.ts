@@ -268,27 +268,6 @@ export class SchmancyStoreObject<T extends Record<string, any>> extends BaseStor
 	}
 
 	/**
-	 * Setup development tools for debugging
-	 */
-	protected setupDevTools(): void {
-		if (typeof window !== 'undefined') {
-			// Add to global store registry
-			;(window as any).__STORES__ = (window as any).__STORES__ || {}
-			;(window as any).__STORES__[this.key] = {
-				getState: () => this.value,
-				set: this.set.bind(this),
-				delete: this.delete.bind(this),
-				clear: this.clear.bind(this),
-				setPath: this.setPath.bind(this),
-				subscribe: (callback: (state: T) => void) => {
-					const subscription = this.$.subscribe(callback)
-					return () => subscription.unsubscribe()
-				},
-			}
-		}
-	}
-
-	/**
 	 * Inherit isImmerDraftable from BaseStore, but also check for [immerable]
 	 */
 	protected isImmerDraftable(value: any): boolean {
