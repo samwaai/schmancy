@@ -6,13 +6,16 @@ import { BehaviorSubject, combineLatest } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
 /**
- * Suggestion chip component - provides contextual recommendations to users
+ * Suggestion chip — single-tap insertion of a recommended value. Distinct from filter chips (no selected state) and assist chips (assist triggers an action; suggestion offers a value the user can pick).
  *
- * IMPORTANT: Suggestion chips do NOT have a selected state. They are designed to
- * provide suggestions and recommendations that trigger actions when clicked.
- * Unlike filter chips, they cannot be toggled on/off.
- *
- * Pure Schmancy implementation with Tailwind CSS and RxJS state management
+ * @element schmancy-suggestion-chip
+ * @summary Use for "would you also like to…" prompts above a search input or below a message thread. Click fires `action` with the chip's `value` so the parent can insert it into a field or trigger a search.
+ * @example
+ * <schmancy-suggestion-chip value="yesterday" @action=${(e) => setRange(e.detail.value)}>
+ *   Yesterday
+ * </schmancy-suggestion-chip>
+ * @platform button click - Material 3 suggestion-chip semantics. Degrades to a plain `<button>` if the tag never registers.
+ * @fires action - When the chip is clicked or activated via keyboard. `detail.value` echoes the chip's `value` attribute.
  */
 @customElement('schmancy-suggestion-chip')
 export class SchmancySuggestionChip extends TailwindElement(css`

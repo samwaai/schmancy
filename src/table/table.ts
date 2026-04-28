@@ -26,9 +26,15 @@ export interface RowEventDetail<T> {
 export type SortDirection = 'asc' | 'desc' | null
 
 /**
- * SchmancyDataTable is a generic data table component.
- * It supports sorting, filtering, and custom rendering of rows.
+ * Generic data table — typed columns, optional sort, custom renderers per column. Pass `data` (array) and `columns` (TableColumn descriptors).
  *
+ * @element schmancy-table
+ * @summary Use for tabular data where each column has a known shape. Pair with `<schmancy-table-row>` for the per-row interaction surface. Sort by setting `sortable: true` on a column descriptor; the table emits `sort-change` so the parent can re-fetch / re-sort in the data layer if needed.
+ * @example
+ * <schmancy-table .data=${rows} .columns=${[{ name: 'Name', key: 'name' }, { name: 'Status', key: 'status' }]}></schmancy-table>
+ * @platform table - Renders an accessible table with `<lit-virtualizer>` for large datasets. Degrades to a styled `<table>` if the tag never registers.
+ * @fires click - When a data row is activated. `detail.item` is the row's source object, `detail.index` is the position in the data array.
+ * @fires sort-change - When the user toggles a column sort. `detail.column` is the column key, `detail.direction` is `'asc' | 'desc' | null`.
  */
 @customElement('schmancy-table')
 export class SchmancyDataTable<T extends Record<string, any> = any> extends $LitElement() {

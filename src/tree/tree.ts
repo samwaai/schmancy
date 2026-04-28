@@ -19,6 +19,7 @@ import { fromEvent, merge, switchMap, takeUntil, tap, zip } from 'rxjs'
  * @platform details toggle - Recursive `<details>`-like disclosure. Degrades to a plain nested list if the tag never registers — loses expand/collapse but stays navigable.
  * @slot root - The root element of the tree
  * @slot - The children of the tree
+ * @fires toggle - When the root toggler or chevron is clicked. Fires before the open state flips; the host's `open` property reflects the new state on the next animation frame.
  */
 @customElement('schmancy-tree')
 export class SchmancyTree extends TailwindElement(css`

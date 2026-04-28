@@ -20,6 +20,18 @@ function loadTypeIt(): Promise<TypeItCtor> {
 	return typeItPromise
 }
 
+/**
+ * Typewriter effect — animates text typing/deletion with a cursor. Wraps the TypeIt library, lazy-loaded on first render.
+ *
+ * @element schmancy-typewriter
+ * @summary Drop string content as the default slot or use `<p>` / `<span>` with `cycle="A|B|C"` attribute children for cycling phrases. Set `loop` for infinite cycling, `once` to remember completion across sessions via sessionStorage.
+ * @example
+ * <schmancy-typewriter speed="35" cursor-char="|">
+ *   Hello, world.
+ * </schmancy-typewriter>
+ * @platform span - Animated text container. Degrades to its raw text content if the tag never registers — animation is lost but content stays visible.
+ * @fires typeit-complete - When the animation finishes typing all content. Fires after the final `afterComplete` callback in the underlying TypeIt instance.
+ */
 @customElement('schmancy-typewriter')
 export class TypewriterElement extends $LitElement(css`
 	:host {
