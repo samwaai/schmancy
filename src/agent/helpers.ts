@@ -19,6 +19,7 @@ export type ElementEntry = {
 	slots?: Array<{ name: string; description?: string }>
 	cssProperties?: Array<{ name: string; description?: string }>
 	cssParts?: Array<{ name: string; description?: string }>
+	examples?: string[]
 	whenToUse?: string
 	platformPrimitive?: { tag: string; mode?: string; note?: string }
 	contexts?: { provides?: string[]; consumes?: string[] }
@@ -70,6 +71,99 @@ export function help(tag?: string): unknown {
 
 export function tokens(): string[] {
 	return (manifest as { tokens?: string[] }).tokens ?? []
+}
+
+// --- findFor: keyword search over the manifest -------------------------------
+
+/**
+ * Stopwords stripped from both query and document tokens. Kept short on
+ * purpose — over-aggressive stopword lists hurt recall on short queries
+ * like "use". Word "use" stays in because of "use case" matches.
+ */
+const STOPWORDS = new Set([
+	'a', 'an', 'and', 'or', 'the', 'of', 'in', 'on', 'at', 'to', 'for', 'with',
+	'is', 'it', 'this', 'that', 'these', 'those', 'be', 'by', 'as', 'are', 'was',
+	'i', 'you', 'we', 'my', 'your',
+])
+
+function tokenize(text: string): Set<string> {
+	const out = new Set<string>()
+	for (const t of text.toLowerCase().match(/[a-z][a-z0-9]+/g) ?? []) {
+		if (t.length >= 2 && !STOPWORDS.has(t)) out.add(t)
+	}
+	return out
+}
+
+type IndexEntry = {
+	entry: ElementEntry
+	body: Set<string>      // tokens from summary + description + examples
+	tagTokens: Set<string> // tokens derived from the tag name itself
+}
+
+let _searchIndex: IndexEntry[] | null = null
+
+function buildSearchIndex(): IndexEntry[] {
+	return elements().map(entry => {
+		const tagTokens = tokenize((entry.tagName ?? '').replace(/-/g, ' '))
+		const body = tokenize(
+			[
+				entry.tagName ?? '',
+				entry.summary ?? '',
+				entry.description ?? '',
+				entry.whenToUse ?? '',
+				(entry.examples ?? []).join(' '),
+			].join(' '),
+		)
+		return { entry, body, tagTokens }
+	})
+}
+
+export type FindForResult = {
+	tag: string
+	score: number
+	summary?: string
+	examples?: string[]
+}
+
+/**
+ * Keyword search over the component manifest. Tokenizes the query the same
+ * way each component's `summary + description + examples` were tokenized,
+ * and returns the components with the most overlap. Tag-name token matches
+ * count for 3× a body-text match.
+ *
+ * Designed to catch the "I'm reaching for a custom component, what does
+ * schmancy ship?" gap without bringing in a vector-embedding dependency.
+ *
+ * @example
+ * window.schmancy.findFor('status pill')
+ * // → [{ tag: 'schmancy-badge', score: 4, summary: '…', examples: [...] }]
+ *
+ * window.schmancy.findFor('initials avatar')
+ * // → [{ tag: 'schmancy-avatar', score: 5, ... }]
+ *
+ * window.schmancy.findFor('xyz123nonexistent') // → []
+ */
+export function findFor(query: string, limit = 5): FindForResult[] {
+	if (!_searchIndex) _searchIndex = buildSearchIndex()
+	const queryTokens = tokenize(query)
+	if (queryTokens.size === 0) return []
+
+	const scored: Array<{ entry: ElementEntry; score: number }> = []
+	for (const ix of _searchIndex) {
+		let score = 0
+		for (const qt of queryTokens) {
+			if (ix.tagTokens.has(qt)) score += 3
+			else if (ix.body.has(qt)) score += 1
+		}
+		if (score > 0) scored.push({ entry: ix.entry, score })
+	}
+	scored.sort((a, b) => b.score - a.score)
+	return scored.slice(0, limit).map(({ entry, score }) => ({
+		tag: entry.tagName ?? '',
+		score,
+		summary: entry.summary,
+		examples: entry.examples,
+	}))
 }
 
 export function platformPrimitive(tag: string): ElementEntry['platformPrimitive'] | null {

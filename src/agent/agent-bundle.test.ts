@@ -89,4 +89,53 @@ describe('agent bundle — handover §4.4 acceptance', () => {
 
 		skill.remove()
 	})
+
+	/**
+	 * findFor() is the discovery-failure backstop. Phase 1 of the manifest-as-
+	 * validator-data plan: agents that reach for a "missing" component should
+	 * call this first and find what already ships.
+	 */
+	it('`window.schmancy.findFor("badge")` returns schmancy-badge first', async () => {
+		const skill = document.createElement('schmancy-skill')
+		document.body.appendChild(skill)
+		await customElements.whenDefined('schmancy-skill')
+		await new Promise(requestAnimationFrame)
+
+		const results = window.schmancy!.findFor('badge') as Array<{
+			tag: string
+			score: number
+			summary?: string
+		}>
+		expect(results.length).toBeGreaterThan(0)
+		expect(results[0].tag).toBe('schmancy-badge')
+		expect(results[0].score).toBeGreaterThan(0)
+
+		skill.remove()
+	})
+
+	it('`window.schmancy.findFor("avatar")` returns schmancy-avatar first', async () => {
+		const skill = document.createElement('schmancy-skill')
+		document.body.appendChild(skill)
+		await customElements.whenDefined('schmancy-skill')
+		await new Promise(requestAnimationFrame)
+
+		const results = window.schmancy!.findFor('avatar') as Array<{ tag: string; score: number }>
+		expect(results.length).toBeGreaterThan(0)
+		expect(results[0].tag).toBe('schmancy-avatar')
+
+		skill.remove()
+	})
+
+	it('`window.schmancy.findFor("xyz123nonexistent")` returns empty array', async () => {
+		const skill = document.createElement('schmancy-skill')
+		document.body.appendChild(skill)
+		await customElements.whenDefined('schmancy-skill')
+		await new Promise(requestAnimationFrame)
+
+		const results = window.schmancy!.findFor('xyz123nonexistent') as unknown[]
+		expect(Array.isArray(results)).toBe(true)
+		expect(results.length).toBe(0)
+
+		skill.remove()
+	})
 })

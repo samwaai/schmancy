@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators.js'
 import {
 	a11yAudit,
 	capabilities,
+	findFor,
 	help,
 	manifest,
 	manifestUrl,
@@ -23,6 +24,7 @@ declare global {
 			registeredTags: typeof registeredTags
 			a11yAudit: typeof a11yAudit
 			capabilities: typeof capabilities
+			findFor: typeof findFor
 		}
 	}
 }
@@ -42,6 +44,7 @@ function install() {
 		registeredTags,
 		a11yAudit,
 		capabilities,
+		findFor,
 	}
 }
 
