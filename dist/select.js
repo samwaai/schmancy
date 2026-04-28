@@ -1,2 +1,2 @@
-import { t as e } from "./select-Bydjuia9.js";
+import { t as e } from "./select-DKyGWDsG.js";
 export { e as SchmancySelect };

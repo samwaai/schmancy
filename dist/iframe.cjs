@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./iframe-BXzYZu9_.cjs`);exports.SchmancyIframe=e.t;
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./iframe-BkwwWIbQ.cjs`);exports.SchmancyIframe=e.t;

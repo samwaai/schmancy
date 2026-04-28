@@ -1,1 +1,1 @@
-require(`./tabs-DGmbqqBD.cjs`);
+require(`./tabs-DAzB8O7w.cjs`);

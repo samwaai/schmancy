@@ -1,1 +1,1 @@
-require(`./divider-D6MRonTS.cjs`);
+require(`./divider-CILo3_vi.cjs`);

@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./notification-DqWW2oh9.cjs`);exports.$notify=e.r,exports.SchmancyNotification=e.i,exports.notify=e.t,exports.notifyProgress=e.n;
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./notification-P4c-kFdH.cjs`);exports.$notify=e.r,exports.SchmancyNotification=e.i,exports.notify=e.t,exports.notifyProgress=e.n;

@@ -1,1 +1,0 @@
-require(`./chunk-CncqDLb2.cjs`);const e=require(`./decorate-F9CuyeHg.cjs`),t=require(`./window-BhrSdbk2.cjs`);let n=require(`lit/decorators.js`);var r=class extends t.t{},i=r=e.t([(0,n.customElement)(`schmancy-float`)],r);Object.defineProperty(exports,`t`,{enumerable:!0,get:function(){return i}});

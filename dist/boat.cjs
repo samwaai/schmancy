@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./boat-ZA47HbKj.cjs`);exports.SchmancyBoat=e.t;
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./boat-BkIO-0No.cjs`);exports.SchmancyBoat=e.t;

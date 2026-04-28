@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./checkbox-DEKQLJYR.cjs`);Object.defineProperty(exports,`SchmancyCheckbox`,{enumerable:!0,get:function(){return e.t}});
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./checkbox-CiYEtw9F.cjs`);Object.defineProperty(exports,`SchmancyCheckbox`,{enumerable:!0,get:function(){return e.t}});

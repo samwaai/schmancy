@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "readme": "# Schmancy\n\nA Web Component UI library built on Lit, RxJS, and Tailwind CSS. Surfaces are glass. Depth is light. Interactions are physics.\n\n## Agent runtime\n\nFor sandboxed-iframe agents (Claude Design, Claude Artifacts, any LLM that can\nonly write HTML), schmancy ships a single-URL runtime at `@mhmo91/schmancy/agent`.\nDrop one `<script type=\"module\">` tag and every `<schmancy-*>` element is\nregistered. No bundler, no bare specifiers, no npm install.\n\n```html\n<script type=\"module\">\n  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent';\n</script>\n<schmancy-theme root scheme=\"dark\">\n  <schmancy-surface type=\"solid\" fill=\"all\">\n    <schmancy-button>Hi</schmancy-button>\n    <schmancy-skill></schmancy-skill>\n  </schmancy-surface>\n</schmancy-theme>\n```\n\nThe `<schmancy-skill>` tag installs `window.schmancy` for runtime discovery:\n\n- `window.schmancy.help()` — full manifest (CEM v1 shape).\n- `window.schmancy.help('schmancy-button')` — one tag's attributes, events, slots, CSS parts.\n- `window.schmancy.tokens()` — build-time-extracted list of `--schmancy-*` theme tokens.\n- `window.schmancy.manifestUrl` — Blob URL; `fetch()` it for the same data.\n- `window.schmancy.a11yAudit()` — walks the live DOM and reports ARIA / shadow-root / form-association status per instance.\n- `window.schmancy.platformPrimitive('schmancy-dialog')` — map to the native element a component wraps (present when the component's JSDoc has `@platform`).\n- `window.schmancy.capabilities()` — runtime feature probe (`popover`, `declarativeShadowDom`, `scopedRegistries`, `trustedTypes`, `cssRegisteredProperties`, `elementInternalsAria`, `formAssociated`, `adoptedStyleSheets`). Agents use this to adapt to the sandbox they're in rather than the one they expect.\n\nEvery enum-typed attribute carries a `values` array — e.g. `schmancy-button`'s `variant` ships `[\"elevated\", \"filled\", \"filled tonal\", \"tonal\", \"outlined\", \"text\"]` so agents never have to parse `\"'filled' | 'tonal' | ...\"` strings.\n\nThe manifest is also emitted as a sibling file at `@mhmo91/schmancy/agent/manifest`\nfor tooling that prefers reading JSON from disk.\n\n## Install\n\n```bash\nnpm install @mhmo91/schmancy\n```\n\n```typescript\nimport '@mhmo91/schmancy'\nimport { magnetic, cursorGlow, gravity } from '@mhmo91/schmancy/directives'\n```\n\n## Use with Claude Code\n\nSchmancy ships a Claude Code plugin. In any Claude Code session, run:\n\n```\n/plugin install https://github.com/samwaai/schmancy\n```\n\nClaude now knows every Schmancy component, foundation pattern, and convention in your project. The skill activates automatically when you work on schmancy code — no CLAUDE.md edits, no symlinks.\n\n## Quick Start\n\n```html\n<schmancy-theme root scheme=\"dark\">\n  <schmancy-surface type=\"solid\" fill=\"all\">\n    <schmancy-area name=\"root\" .default=${lazy(() => import('./home.page'))}>\n      <schmancy-route when=\"home-page\" .component=${lazy(() => import('./home.page'))} />\n    </schmancy-area>\n  </schmancy-surface>\n</schmancy-theme>\n```\n\n## Design: Luminous Glass\n\n| Surface | Opacity | Blur | Purpose |\n|---------|---------|------|---------|\n| `solid` | 92% | — | Dense glass, high readability |\n| `subtle` | 78% | 8px | Frosted panel (default) |\n| `glass` | 55% | 16px | Overlays, dialogs, dropdowns |\n| `luminous` | 42% | 20px | Hero panels with glow halo |\n\n## Docs\n\nSchmancy is organized in four layers:\n\n- **Foundations** — [Area](./skills/schmancy/area.md) · [Store](./skills/schmancy/store.md) · [Mixins ($LitElement)](./skills/schmancy/mixins.md) · [Theme](./skills/schmancy/theme.md) · [Directives](./skills/schmancy/directives.md)\n- **Atoms** — [Typography](./skills/schmancy/typography.md) · [Icons](./skills/schmancy/icons.md) · [Button](./skills/schmancy/button.md) · [Surface](./skills/schmancy/surface.md) · [Divider](./skills/schmancy/divider.md) · [Avatar](./skills/schmancy/avatar.md)\n- **Composites (by job)** — Forms, Navigation, Overlays, Interaction, Feedback, Display\n- **Utilities** — [Animation](./skills/schmancy/animation.md) · [Audio](./skills/schmancy/audio.md) · [Discovery](./skills/schmancy/discovery.md) · [RxJS Utils](./skills/schmancy/rxjs-utils.md) · [Utils](./skills/schmancy/utils.md)\n\n**Full component index:** [skills/schmancy/INDEX.md](./skills/schmancy/INDEX.md) — the single-file map with every tag, service, and convention. Written primarily for AI agents; humans welcome.\n\n## Tech Stack\n\n[Lit](https://lit.dev) · [RxJS](https://rxjs.dev) · [Tailwind CSS v4](https://tailwindcss.com) · [Blackbird](./src/utils/animation.ts)\n\n## License\n\nApache-2.0\n",
   "modules": [
     {
@@ -7785,10 +7785,145 @@
     "schmancy-sys-typescale-title-small"
   ],
   "conventions": [
+    "Before authoring any custom element, call window.schmancy.help() to scan the elements[] list. Only compose from primitives if no existing tag fits.",
+    "Use $dialog.confirm / sheet.open / $notify imperatively for overlays. Do not roll element-based dialogs, sheets, or toasts.",
+    "Every UI tag must be a <schmancy-*> custom element. Replace <button> with <schmancy-button>, <input> with <schmancy-input>, <li> with <schmancy-list-item>, etc.",
+    "Every <schmancy-*> tag used in output must exist in the manifest declarations[]. Hand-rolled tags are violations.",
+    "Every attribute on a <schmancy-*> element must be declared in that tag's attributes[] in the manifest.",
+    "When an attribute has a values[] enum, only those values are valid.",
+    "Never use hex literals (#6200ee) in style or class. Reference --schmancy-sys-color-* tokens or the Tailwind utilities that wrap them.",
+    "Never use Tailwind arbitrary values like bg-[#xxx] or text-[13px]. Use bg-primary-default, text-surface-on, and the typography presets instead.",
+    "Prefer Tailwind utility classes (bg-primary-default, text-surface-on) over raw --schmancy-sys-color-* CSS variables. Fall back to the CSS variable only when Tailwind lacks a utility for the property.",
+    "Form-associated controls work standalone, but always wrap a related group in <schmancy-form> so its submit event fires with a FormData payload.",
+    "schmancy-icon-button has no text content; provide aria-label so screen readers can announce it.",
     "Every component extends `$LitElement`, not raw `LitElement`. Use the mixin from `@mhmo91/schmancy/mixins`.",
     "RxJS subscriptions inside a component must end with `.pipe(takeUntil(this.disconnecting))` for automatic cleanup on disconnect.",
     "Theme must wrap a surface: `<schmancy-theme>` provides design tokens, `<schmancy-surface>` paints the background and inherits text color.",
     "Use `repeat()` from `lit/directives/repeat.js` for dynamic lists — never `.map()` inside `html```.",
     "Prefer `fromEvent(target, type).pipe(takeUntil(this.disconnecting))` over raw `addEventListener` inside components."
+  ],
+  "rules": [
+    {
+      "id": "discovery-first",
+      "scope": "workflow",
+      "rule": "Before authoring any custom element, call window.schmancy.help() to scan the elements[] list. Only compose from primitives if no existing tag fits.",
+      "severity": "error"
+    },
+    {
+      "id": "use-existing-overlay-services",
+      "scope": "workflow",
+      "rule": "Use $dialog.confirm / sheet.open / $notify imperatively for overlays. Do not roll element-based dialogs, sheets, or toasts.",
+      "severity": "error"
+    },
+    {
+      "id": "schmancy-tags-only",
+      "scope": "global",
+      "rule": "Every UI tag must be a <schmancy-*> custom element. Replace <button> with <schmancy-button>, <input> with <schmancy-input>, <li> with <schmancy-list-item>, etc.",
+      "severity": "error",
+      "validator": "tag-namespace"
+    },
+    {
+      "id": "tag-must-exist",
+      "scope": "tag",
+      "rule": "Every <schmancy-*> tag used in output must exist in the manifest declarations[]. Hand-rolled tags are violations.",
+      "severity": "error",
+      "validator": "tag-exists"
+    },
+    {
+      "id": "attribute-in-spec",
+      "scope": "attribute",
+      "rule": "Every attribute on a <schmancy-*> element must be declared in that tag's attributes[] in the manifest.",
+      "severity": "error",
+      "validator": "attr-in-spec"
+    },
+    {
+      "id": "enum-attribute-value",
+      "scope": "attribute",
+      "rule": "When an attribute has a values[] enum, only those values are valid.",
+      "severity": "error",
+      "validator": "enum-value-valid"
+    },
+    {
+      "id": "no-hex-literals",
+      "scope": "token",
+      "applies": [
+        "style",
+        "class"
+      ],
+      "rule": "Never use hex literals (#6200ee) in style or class. Reference --schmancy-sys-color-* tokens or the Tailwind utilities that wrap them.",
+      "severity": "error",
+      "validator": "no-hex"
+    },
+    {
+      "id": "no-arbitrary-tailwind-values",
+      "scope": "token",
+      "applies": [
+        "class"
+      ],
+      "rule": "Never use Tailwind arbitrary values like bg-[#xxx] or text-[13px]. Use bg-primary-default, text-surface-on, and the typography presets instead.",
+      "severity": "error",
+      "validator": "no-arbitrary-values"
+    },
+    {
+      "id": "tailwind-classes-preferred-over-css-vars",
+      "scope": "token",
+      "rule": "Prefer Tailwind utility classes (bg-primary-default, text-surface-on) over raw --schmancy-sys-color-* CSS variables. Fall back to the CSS variable only when Tailwind lacks a utility for the property.",
+      "severity": "warn"
+    },
+    {
+      "id": "form-controls-inside-schmancy-form",
+      "scope": "tag",
+      "applies": [
+        "schmancy-input",
+        "schmancy-select",
+        "schmancy-checkbox",
+        "schmancy-radio-group",
+        "schmancy-textarea",
+        "schmancy-switch",
+        "schmancy-autocomplete"
+      ],
+      "rule": "Form-associated controls work standalone, but always wrap a related group in <schmancy-form> so its submit event fires with a FormData payload.",
+      "severity": "warn"
+    },
+    {
+      "id": "icon-buttons-need-aria-label",
+      "scope": "tag",
+      "applies": [
+        "schmancy-icon-button"
+      ],
+      "rule": "schmancy-icon-button has no text content; provide aria-label so screen readers can announce it.",
+      "severity": "error",
+      "validator": "icon-button-aria-label"
+    },
+    {
+      "id": "lit-mixin",
+      "scope": "global",
+      "rule": "Every component extends `$LitElement`, not raw `LitElement`. Use the mixin from `@mhmo91/schmancy/mixins`.",
+      "severity": "hint"
+    },
+    {
+      "id": "rxjs-cleanup",
+      "scope": "global",
+      "rule": "RxJS subscriptions inside a component must end with `.pipe(takeUntil(this.disconnecting))` for automatic cleanup on disconnect.",
+      "severity": "hint"
+    },
+    {
+      "id": "theme-wraps-surface",
+      "scope": "global",
+      "rule": "Theme must wrap a surface: `<schmancy-theme>` provides design tokens, `<schmancy-surface>` paints the background and inherits text color.",
+      "severity": "hint"
+    },
+    {
+      "id": "lit-repeat-not-map",
+      "scope": "global",
+      "rule": "Use `repeat()` from `lit/directives/repeat.js` for dynamic lists — never `.map()` inside `html```.",
+      "severity": "hint"
+    },
+    {
+      "id": "rxjs-fromevent",
+      "scope": "global",
+      "rule": "Prefer `fromEvent(target, type).pipe(takeUntil(this.disconnecting))` over raw `addEventListener` inside components.",
+      "severity": "hint"
+    }
   ]
 }

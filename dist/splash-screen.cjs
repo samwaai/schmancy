@@ -1,1 +1,1 @@
-require(`./splash-screen-C2xsOEdx.cjs`);
+require(`./splash-screen-DoHRTHi8.cjs`);

@@ -1,1 +1,1 @@
-Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./select-CQGKkEZc.cjs`);Object.defineProperty(exports,`SchmancySelect`,{enumerable:!0,get:function(){return e.t}});
+Object.defineProperty(exports,Symbol.toStringTag,{value:`Module`});const e=require(`./select-BV4lK2zy.cjs`);Object.defineProperty(exports,`SchmancySelect`,{enumerable:!0,get:function(){return e.t}});

@@ -1,1 +1,0 @@
-var e=require(`./tailwind.mixin-BHX99hgX.cjs`).o(`schmancy-button-size`);Object.defineProperty(exports,`t`,{enumerable:!0,get:function(){return e}});
