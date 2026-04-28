@@ -104,18 +104,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "agent/schmancy-skill.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "name": "SchmancySkill",
-          "tagName": "schmancy-skill",
-          "description": "Self-describing runtime helper. Drop `<schmancy-skill></schmancy-skill>` once on a page and `window.schmancy.help('schmancy-button')` returns the machine-readable entry for any tag. Renders nothing."
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "area/area.component.ts",
       "declarations": [
         {
