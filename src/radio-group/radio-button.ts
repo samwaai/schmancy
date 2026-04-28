@@ -15,6 +15,7 @@ import { fromEvent, takeUntil } from 'rxjs'
  *   <schmancy-radio-button value="pro" checked>Pro</schmancy-radio-button>
  * </schmancy-radio-group>
  * @platform radio change - Schmancy-skinned `<input type="radio">` semantics. Degrades to native radio if the tag never registers.
+ * @fires radio-button-click - Internal event consumed by the parent schmancy-radio-group; `detail.value` is the clicked button's value. Listen on schmancy-radio-group for the public `change` event instead of subscribing here.
  *
  * @prop {string} name - Name attribute for grouping radio buttons
  * @prop {string} value - Value of this radio button

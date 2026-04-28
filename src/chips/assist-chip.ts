@@ -6,8 +6,17 @@ import { BehaviorSubject, combineLatest } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
 /**
- * Assist chip component - prompts user actions like opening calendar events or sharing content
- * Pure Schmancy implementation with Tailwind CSS and RxJS state management
+ * Assist chip — single-tap trigger for a contextual action (open calendar event, share content, jump to related view). Distinct from filter and input chips: assist chips have no selected state; clicking fires `action`.
+ *
+ * @element schmancy-assist-chip
+ * @summary Use for "do this thing" suggestions surfaced in context (next to a date, after a recipient list, near a long description). Pair with schmancy-icon for the leading glyph.
+ * @example
+ * <schmancy-assist-chip @action=${(e) => share(e.detail.value)}>
+ *   <schmancy-icon slot="icon">share</schmancy-icon>
+ *   Share
+ * </schmancy-assist-chip>
+ * @platform button click - Material 3 assist-chip semantics. Degrades to a plain `<button>` if the tag never registers.
+ * @fires action - When the chip is clicked or activated via keyboard. `detail.value` echoes the chip's `value` attribute.
  */
 @customElement('schmancy-assist-chip')
 export class SchmancyAssistChip extends TailwindElement(css`

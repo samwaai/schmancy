@@ -20,6 +20,20 @@ import area from './area.service'
 import { RouteComponent, SchmancyRoute } from './route.component'
 import { ActiveRoute, HISTORY_STRATEGY, RouteAction } from './router.types'
 
+/**
+ * Router outlet — renders the active route's component for the named area. Drives the schmancy router via the `area` service.
+ *
+ * @element schmancy-area
+ * @summary Mount once per "addressable region" of the app (typically the main content area). Use the imperative `area.push({ area, component, params })` service to navigate. Multiple named areas can coexist on a page (e.g. main content + a sheet).
+ * @example
+ * <schmancy-area name="main"></schmancy-area>
+ * <script>
+ *   import { area } from '@mhmo91/schmancy';
+ *   area.push({ area: 'main', component: MyDashboardView, params: { id: 42 } });
+ * </script>
+ * @platform div - Routing outlet. Degrades to an empty div if the tag never registers — routing is lost but the page stays accessible.
+ * @fires redirect - When the area resolves a route to a different destination (programmatic redirect). `detail.from` and `detail.to` are the route names.
+ */
 @customElement('schmancy-area')
 export class SchmancyArea extends $LitElement(css`
 	:host {

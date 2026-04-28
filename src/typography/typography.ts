@@ -61,6 +61,7 @@ const TAG_LITERALS: Record<TypographyTag, ReturnType<typeof literal>> = {
 /**
  * @element schmancy-typography
  * @slot - The text for the typography.
+ * @fires change - When `editable` is true, fires on blur or Enter with `detail.value` set to the new text content. Not fired when `editable` is unset (the default).
  */
 @customElement('schmancy-typography')
 export class SchmancyTypography extends TailwindElement(css`

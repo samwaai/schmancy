@@ -21,6 +21,7 @@ import { ifDefined } from 'lit/directives/if-defined.js'
  *   </schmancy-card-action>
  * </schmancy-card>
  * @platform div - Styled `<div>`; becomes an `<a>` when `href` is set so the whole card is a single interactive surface. Degrades to a plain div/a if the tag never registers.
+ * @fires schmancy-click - When an interactive card is clicked or activated via keyboard. `detail.value` echoes the card's `type`. Only fires when `interactive` is set.
  */
 @customElement('schmancy-card')
 export default class SchmancyCard extends TailwindElement(css`
