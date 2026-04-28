@@ -2,39 +2,38 @@
 
 A Web Component UI library built on Lit, RxJS, and Tailwind CSS. Surfaces are glass. Depth is light. Interactions are physics.
 
-## Agent runtime
+## For AI consumers — the static manifest
 
-For sandboxed-iframe agents (Claude Design, Claude Artifacts, any LLM that can
-only write HTML), schmancy ships a single-URL runtime at `@mhmo91/schmancy/agent`.
-Drop one `<script type="module">` tag and every `<schmancy-*>` element is
-registered. No bundler, no bare specifiers, no npm install.
+AI tools that author or audit designs against schmancy (Claude Design's source ingestion, IDE tooling, build pipelines) read the static manifest:
+
+```
+https://cdn.jsdelivr.net/npm/@mhmo91/schmancy/dist/agent/schmancy.manifest.json
+```
+
+The manifest is the integration point. It carries every component declaration with `tagName`, `summary`, `description`, `whenToUse`, `attributes` (extracted enum `values[]`), `events`, `slots`, `examples`, `platformPrimitive`. It also ships a structured `rules[]` array (16 entries with `id` / `scope` / `severity` / `validator` ids) and a flat `tokens: string[]` of every `--schmancy-sys-*` CSS custom property.
+
+Every enum-typed attribute carries a `values` array — e.g. `schmancy-button`'s `variant` ships `["elevated", "filled", "filled tonal", "tonal", "outlined", "text"]` so consumers never parse TS union strings.
+
+For the agent-facing rules and copy-pasteable usage, see [`handover/claude-design-brief.md`](./handover/claude-design-brief.md).
+
+## Distribution bundle
+
+Standalone HTML and one-page demos can load schmancy without a bundler:
 
 ```html
 <script type="module">
-  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent';
+  import { $dialog, theme } from 'https://cdn.jsdelivr.net/npm/@mhmo91/schmancy/dist/agent/schmancy.agent.js';
 </script>
 <schmancy-theme root scheme="dark">
   <schmancy-surface type="solid" fill="all">
     <schmancy-button>Hi</schmancy-button>
-    <schmancy-skill></schmancy-skill>
   </schmancy-surface>
 </schmancy-theme>
 ```
 
-The `<schmancy-skill>` tag installs `window.schmancy` for runtime discovery:
+One script tag side-effect-registers every `<schmancy-*>` element and exposes the imperative service surface (`$dialog`, `sheet`, `$notify`, `theme`, `area`, etc.). No npm install, no bare specifiers.
 
-- `window.schmancy.help()` — full manifest (CEM v1 shape).
-- `window.schmancy.help('schmancy-button')` — one tag's attributes, events, slots, CSS parts.
-- `window.schmancy.tokens()` — build-time-extracted list of `--schmancy-*` theme tokens.
-- `window.schmancy.manifestUrl` — Blob URL; `fetch()` it for the same data.
-- `window.schmancy.a11yAudit()` — walks the live DOM and reports ARIA / shadow-root / form-association status per instance.
-- `window.schmancy.platformPrimitive('schmancy-dialog')` — map to the native element a component wraps (present when the component's JSDoc has `@platform`).
-- `window.schmancy.capabilities()` — runtime feature probe (`popover`, `declarativeShadowDom`, `scopedRegistries`, `trustedTypes`, `cssRegisteredProperties`, `elementInternalsAria`, `formAssociated`, `adoptedStyleSheets`). Agents use this to adapt to the sandbox they're in rather than the one they expect.
-
-Every enum-typed attribute carries a `values` array — e.g. `schmancy-button`'s `variant` ships `["elevated", "filled", "filled tonal", "tonal", "outlined", "text"]` so agents never have to parse `"'filled' | 'tonal' | ..."` strings.
-
-The manifest is also emitted as a sibling file at `@mhmo91/schmancy/agent/manifest`
-for tooling that prefers reading JSON from disk.
+> **Note:** earlier versions installed a `window.schmancy.*` runtime introspection surface (`<schmancy-skill>` element, `help()` / `tokens()` / `findFor()` / `capabilities()` helpers). That surface was removed because no shipping consumer used it — Claude Artifacts is CSP-blocked from loading the bundle, Claude Design's LLM is server-side, Claude Code reads TypeScript types. The static manifest above is the actual integration point.
 
 ## Install
 

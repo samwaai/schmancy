@@ -2,7 +2,7 @@
 
 Every token your design can lean on, grouped by what it's for. Use the **Tailwind class** column when styling — every system token is exposed as a Tailwind utility, so reach for `bg-primary-default` or `text-surface-on` before the raw CSS variable. The CSS variable column is the fallback for properties Tailwind doesn't cover (e.g. `box-shadow`, `transition-duration`).
 
-Source of truth: `src/theme/theme.interface.ts` in this repo. Live introspection: `window.schmancy.tokens()` returns the full flat list of CSS custom property names.
+Source of truth: `src/theme/theme.interface.ts` in this repo. The flat list of every `--schmancy-sys-*` property name also ships in the static manifest at `dist/agent/schmancy.manifest.json` under the `tokens` field.
 
 > **Never use raw hex** (`#6200ee`) **or arbitrary values** (`bg-[#ff0000]`). Both defeat theming — the whole palette is regenerated from `<schmancy-theme color="…">` and your hardcoded color won't follow scheme switches.
 
@@ -188,11 +188,10 @@ Opacity multipliers for interactive states.
 
 Both bypass theming and break when `<schmancy-theme color="…" scheme="…">` regenerates the palette.
 
-## Live introspection
+## Programmatic access
 
-```js
-window.schmancy.tokens()
-// → string[] — every --schmancy-sys-* property name available at runtime,
-//   in the order they were registered. Use this to verify a token exists
-//   before referencing it in CSS.
 ```
+https://cdn.jsdelivr.net/npm/@mhmo91/schmancy@{{version}}/dist/agent/schmancy.manifest.json
+```
+
+The manifest's `tokens: string[]` field lists every `--schmancy-sys-*` property name. Fetch the JSON, read the field, verify a token exists before referencing it in CSS. No browser runtime required — this is static data ingestible by any consumer.

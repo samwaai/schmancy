@@ -1,5 +1,13 @@
 # Follow-ups: schmancy agent runtime
 
+> **⚠️ Historical artifact — partially superseded.**
+>
+> Most items in this list shipped (lazy vendor chunks, JSDoc backfill, CI smoke gate, `{{version}}` templating). What didn't survive: the framing that any of this work was for a *runtime* agent. The `<schmancy-skill>` element + `window.schmancy.*` surface was removed in [PR #20](https://github.com/mhmo91/schmancy/pull/20) — no shipping product actually consumed it. The static manifest at `dist/agent/schmancy.manifest.json` is the current AI integration point; see [`claude-design-brief.md`](./claude-design-brief.md).
+>
+> Kept for historical context.
+
+---
+
 **Status:** v0.9.13 of `@mhmo91/schmancy/agent` is live. The items below are improvements that did not ship in v1. They're ordered by impact, not urgency — v0.9.13 already satisfies the Claude Design handover's acceptance criteria.
 
 **Parent:** `handover/schmancy-agent-runtime.md` (original ask), `handover/agent-runtime-v1.md` (response + live URLs).

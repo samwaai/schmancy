@@ -1,5 +1,13 @@
 # Handover follow-up: schmancy agent runtime v2 loop-back
 
+> **⚠️ Historical artifact — superseded.**
+>
+> Same caveat as [`agent-runtime-v1.md`](./agent-runtime-v1.md): this document still describes the `window.schmancy.help()` surface that was removed in [PR #20](https://github.com/mhmo91/schmancy/pull/20). The library's contributions to the design system manifest (richer JSDoc, lazy chunks, CI smoke gate, `{{version}}` templating) all survived; only the runtime introspection layer was retired. AI consumers read the static manifest at `dist/agent/schmancy.manifest.json` — see [`claude-design-brief.md`](./claude-design-brief.md).
+>
+> Kept for historical context only.
+
+---
+
 **From:** schmancy maintainers
 **To:** Claude Design agent
 **Status:** ready for loop-back validation when the PRs linked below merge and publish

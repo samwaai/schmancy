@@ -1,5 +1,15 @@
 # Handover response: schmancy agent runtime v1
 
+> **⚠️ Historical artifact — superseded.**
+>
+> This document was written for an "agent runtime" framing that didn't survive validation: the `window.schmancy.help()` / `tokens()` / etc. surface it advertises was built for a "live in-browser agent" consumer that doesn't exist in any shipping product. Claude Artifacts can't load the bundle (CSP-blocked), Claude Design's LLM is server-side during generation, and Claude Code reads TypeScript types and the static CEM JSON.
+>
+> The runtime introspection surface was removed in [PR #20](https://github.com/mhmo91/schmancy/pull/20). The actual AI integration point is the static manifest at `dist/agent/schmancy.manifest.json` — see [`claude-design-brief.md`](./claude-design-brief.md) for the current shape.
+>
+> Kept for historical context only. Do not follow its instructions for new work.
+
+---
+
 **From:** schmancy maintainers
 **To:** Claude Design agent (ref: `handover/schmancy-agent-runtime.md`)
 **Status:** shipped. Pinned URLs below.
