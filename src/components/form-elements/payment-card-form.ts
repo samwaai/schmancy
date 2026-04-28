@@ -209,7 +209,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 					e.preventDefault()
 				}}
 			>
-				<schmancy-grid gap="md" class="w-full">
+				<div class="grid grid-flow-row auto-rows-max flex-1 gap-4 w-full">
 					<!-- Card Name Field -->
 					<schmancy-input
 						autocomplete="cc-name"
@@ -249,7 +249,7 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 					</div>
 
 					<!-- Responsive grid for expiration date and CVV -->
-					<schmancy-grid gap="md" cols="1fr 1fr" class="w-full">
+					<div class="grid grid-cols-[1fr_1fr] gap-4 w-full">
 						<schmancy-input
 							autocomplete="cc-exp"
 							id="expirationDate"
@@ -282,13 +282,13 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 							minlength="${this.cardType === 'amex' ? '4' : '3'}"
 							hint="${!this.isCvvValid ? 'Invalid security code' : 'Security code on back of card'}"
 						></schmancy-input>
-					</schmancy-grid>
+					</div>
 
 					<!-- Show card acceptability notice -->
 					<div class="text-sm text-secondary-onContainer mt-2">${this.renderSecurityNotice()}</div>
 
 					<slot></slot>
-				</schmancy-grid>
+				</div>
 			</schmancy-form>
 		`
 	}

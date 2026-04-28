@@ -196,9 +196,18 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 			'cursor-pointer gap-1': this.sortable && column.sortable !== false && column.key,
 		})
 		return html`
-			<schmancy-grid class="h-full w-full" cols="1fr" rows="auto 1fr">
+			<div
+				class="grid h-full w-full"
+				style="grid-template-columns: 1fr; grid-template-rows: auto 1fr;"
+			>
 				<schmancy-surface rounded="top" elevation="1" type="glass" class="sticky top-0 z-10">
-					<schmancy-grid align="center" class="px-4 py-3" .cols=${this.cols} gap="md" rows="1fr">
+					<div
+						class="grid items-center gap-4 px-4 py-3"
+						style=${this.styleMap({
+							gridTemplateColumns: this.cols,
+							gridTemplateRows: '1fr',
+						})}
+					>
 						${this.columns.map(
 							column => html`
 								<div
@@ -212,7 +221,7 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 								</div>
 							`,
 						)}
-					</schmancy-grid>
+					</div>
 				</schmancy-surface>
 
 				${this.filteredData.length > 0
@@ -254,7 +263,7 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends $Lit
 								<schmancy-typography type="body" token="lg"> No data available </schmancy-typography>
 							</div>
 						`}
-			</schmancy-grid>
+			</div>
 		`
 	}
 }

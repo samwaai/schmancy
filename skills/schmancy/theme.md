@@ -131,6 +131,21 @@ surface-inverse (inverse-surface) · surface-inverseOn (inverse-on-surface)
 
 Only reach for `bg-[var(--schmancy-sys-color-X)]` when the token isn't aliased — e.g. a custom `--schmancy-*` property you've registered yourself.
 
+## Typography override
+
+`<schmancy-theme>` ships no font attribute. To swap the app's typeface, override `--schmancy-font-family` on `:root` in a consumer stylesheet. Schmancy's theme stylesheet reads it with a `sans-serif` fallback and fans it out to `--md-ref-typeface-brand`, `--md-ref-typeface-plain`, and `--default-font-family`, so every `<schmancy-*>` component picks it up via the cascade:
+
+```css
+:root {
+  --schmancy-font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--schmancy-font-family);
+}
+```
+
+The second line (`font-family: var(...)`) makes the typeface inherit by non-schmancy elements inside your app too — without it, plain `<div>`s use the browser default.
+
+There is currently **no `--schmancy-font-mono` equivalent**. `--font-mono` in [theme.style.css](../../src/theme/theme.style.css) hardcodes Tailwind's default `ui-monospace, SFMono-Regular, …` stack. Consumers that want a custom monospace typeface either (a) use Tailwind's `font-mono` utility with the default stack and accept it, or (b) override `--font-mono` directly on `:root` with the same cascade pattern as the sans hook. Option (b) is a local escape hatch, not a schmancy-blessed API — expect future schmancy versions to add a proper `--schmancy-font-mono` hook instead.
+
 ## Notes
 - Color and scheme persist to `sessionStorage` per instance
 - Generates success/warning/info/error semantic color tokens automatically

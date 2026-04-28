@@ -60,6 +60,7 @@ export * from './teleport';
 export * from './textarea';
 export * from './theme';
 export * from './theme-button';
+export * from './timeline';
 export * from './tooltip';
 export * from './tree';
 export * from './types';

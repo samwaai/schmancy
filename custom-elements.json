@@ -4980,978 +4980,6 @@
       ]
     },
     {
-      "name": "schmancy-flex",
-      "path": "./src/layout/flex/flex.ts",
-      "attributes": [
-        {
-          "name": "flow",
-          "type": "\"row\" | \"row-reverse\" | \"col\" | \"col-reverse\"",
-          "default": "\"col\""
-        },
-        {
-          "name": "wrap",
-          "type": "\"wrap\" | \"nowrap\" | \"wrap-reverse\"",
-          "default": "\"wrap\""
-        },
-        {
-          "name": "align",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
-          "default": "\"start\""
-        },
-        {
-          "name": "justify",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"between\"",
-          "default": "\"start\""
-        },
-        {
-          "name": "gap",
-          "type": "\"sm\" | \"md\" | \"lg\" | \"none\"",
-          "default": "\"none\""
-        },
-        {
-          "name": "center",
-          "type": "boolean | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "padding",
-          "type": "string | undefined"
-        },
-        {
-          "name": "margin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "width",
-          "type": "string | undefined"
-        },
-        {
-          "name": "height",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "display",
-          "type": "\"none\" | \"block\" | \"inline-block\" | \"inline\" | \"flex\" | \"inline-flex\" | \"grid\" | \"inline-grid\" | \"table\" | \"inline-table\" | \"flow-root\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflow",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowX",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowY",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "position",
-          "type": "\"static\" | \"relative\" | \"absolute\" | \"fixed\" | \"sticky\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "top",
-          "type": "string | undefined"
-        },
-        {
-          "name": "right",
-          "type": "string | undefined"
-        },
-        {
-          "name": "bottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "left",
-          "type": "string | undefined"
-        },
-        {
-          "name": "inset",
-          "type": "string | undefined"
-        },
-        {
-          "name": "zIndex",
-          "type": "string | undefined"
-        },
-        {
-          "name": "border",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderTop",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderBottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderLeft",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRadius",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "boxShadow",
-          "type": "string | undefined"
-        },
-        {
-          "name": "opacity",
-          "type": "string | undefined"
-        },
-        {
-          "name": "background",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundImage",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundPosition",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundSize",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundRepeat",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundAttachment",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundClip",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundOrigin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundBlendMode",
-          "type": "string | undefined"
-        },
-        {
-          "name": "filter",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backdropFilter",
-          "type": "string | undefined"
-        }
-      ],
-      "properties": [
-        {
-          "name": "flow",
-          "attribute": "flow",
-          "type": "\"row\" | \"row-reverse\" | \"col\" | \"col-reverse\"",
-          "default": "\"col\""
-        },
-        {
-          "name": "wrap",
-          "attribute": "wrap",
-          "type": "\"wrap\" | \"nowrap\" | \"wrap-reverse\"",
-          "default": "\"wrap\""
-        },
-        {
-          "name": "align",
-          "attribute": "align",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
-          "default": "\"start\""
-        },
-        {
-          "name": "justify",
-          "attribute": "justify",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"between\"",
-          "default": "\"start\""
-        },
-        {
-          "name": "gap",
-          "attribute": "gap",
-          "type": "\"sm\" | \"md\" | \"lg\" | \"none\"",
-          "default": "\"none\""
-        },
-        {
-          "name": "styles",
-          "type": "array",
-          "default": "[\"styles\",null]"
-        },
-        {
-          "name": "layout",
-          "type": "boolean",
-          "default": "true"
-        },
-        {
-          "name": "center",
-          "attribute": "center",
-          "type": "boolean | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "padding",
-          "attribute": "padding",
-          "type": "string | undefined"
-        },
-        {
-          "name": "margin",
-          "attribute": "margin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "width",
-          "attribute": "width",
-          "type": "string | undefined"
-        },
-        {
-          "name": "height",
-          "attribute": "height",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minWidth",
-          "attribute": "minWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minHeight",
-          "attribute": "minHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxWidth",
-          "attribute": "maxWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxHeight",
-          "attribute": "maxHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "display",
-          "attribute": "display",
-          "type": "\"none\" | \"block\" | \"inline-block\" | \"inline\" | \"flex\" | \"inline-flex\" | \"grid\" | \"inline-grid\" | \"table\" | \"inline-table\" | \"flow-root\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflow",
-          "attribute": "overflow",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowX",
-          "attribute": "overflowX",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowY",
-          "attribute": "overflowY",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "position",
-          "attribute": "position",
-          "type": "\"static\" | \"relative\" | \"absolute\" | \"fixed\" | \"sticky\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "top",
-          "attribute": "top",
-          "type": "string | undefined"
-        },
-        {
-          "name": "right",
-          "attribute": "right",
-          "type": "string | undefined"
-        },
-        {
-          "name": "bottom",
-          "attribute": "bottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "left",
-          "attribute": "left",
-          "type": "string | undefined"
-        },
-        {
-          "name": "inset",
-          "attribute": "inset",
-          "type": "string | undefined"
-        },
-        {
-          "name": "zIndex",
-          "attribute": "zIndex",
-          "type": "string | undefined"
-        },
-        {
-          "name": "border",
-          "attribute": "border",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderTop",
-          "attribute": "borderTop",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRight",
-          "attribute": "borderRight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderBottom",
-          "attribute": "borderBottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderLeft",
-          "attribute": "borderLeft",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderColor",
-          "attribute": "borderColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRadius",
-          "attribute": "borderRadius",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderWidth",
-          "attribute": "borderWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "boxShadow",
-          "attribute": "boxShadow",
-          "type": "string | undefined"
-        },
-        {
-          "name": "opacity",
-          "attribute": "opacity",
-          "type": "string | undefined"
-        },
-        {
-          "name": "background",
-          "attribute": "background",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundImage",
-          "attribute": "backgroundImage",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundPosition",
-          "attribute": "backgroundPosition",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundSize",
-          "attribute": "backgroundSize",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundRepeat",
-          "attribute": "backgroundRepeat",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundAttachment",
-          "attribute": "backgroundAttachment",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundColor",
-          "attribute": "backgroundColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundClip",
-          "attribute": "backgroundClip",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundOrigin",
-          "attribute": "backgroundOrigin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundBlendMode",
-          "attribute": "backgroundBlendMode",
-          "type": "string | undefined"
-        },
-        {
-          "name": "filter",
-          "attribute": "filter",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backdropFilter",
-          "attribute": "backdropFilter",
-          "type": "string | undefined"
-        }
-      ],
-      "deprecated": true,
-      "deprecatedMessage": "Use Tailwind CSS flex classes directly instead of this component.\nThis component will be removed in a future version.\n\nMigration guide:\n- Replace <schmancy-flex> with <div class=\"flex ...\">\n- Use Tailwind's flex utilities: flex-row, flex-col, gap-*, items-*, justify-*, etc."
-    },
-    {
-      "name": "schmancy-grid",
-      "path": "./src/layout/grid/grid.ts",
-      "attributes": [
-        {
-          "name": "flow",
-          "type": "\"row\" | \"col\" | \"dense\" | \"row-dense\" | \"col-dense\"",
-          "default": "\"row\""
-        },
-        {
-          "name": "align",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
-          "default": "\"stretch\""
-        },
-        {
-          "name": "justify",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\"",
-          "default": "\"stretch\""
-        },
-        {
-          "name": "content",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"between\" | \"around\" | \"evenly\"",
-          "default": "\"stretch\""
-        },
-        {
-          "name": "gap",
-          "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"none\"",
-          "default": "\"none\""
-        },
-        {
-          "name": "cols",
-          "type": "string | undefined"
-        },
-        {
-          "name": "rows",
-          "type": "string | undefined"
-        },
-        {
-          "name": "rcols",
-          "type": "{ xs?: string | number | undefined; sm?: string | number | undefined; md?: string | number | undefined; lg?: string | number | undefined; xl?: string | number | undefined; '2xl'?: string | number | undefined; } | undefined"
-        },
-        {
-          "name": "wrap",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "center",
-          "type": "boolean | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "padding",
-          "type": "string | undefined"
-        },
-        {
-          "name": "margin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "width",
-          "type": "string | undefined"
-        },
-        {
-          "name": "height",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "display",
-          "type": "\"none\" | \"block\" | \"inline-block\" | \"inline\" | \"flex\" | \"inline-flex\" | \"grid\" | \"inline-grid\" | \"table\" | \"inline-table\" | \"flow-root\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflow",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowX",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowY",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "position",
-          "type": "\"static\" | \"relative\" | \"absolute\" | \"fixed\" | \"sticky\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "top",
-          "type": "string | undefined"
-        },
-        {
-          "name": "right",
-          "type": "string | undefined"
-        },
-        {
-          "name": "bottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "left",
-          "type": "string | undefined"
-        },
-        {
-          "name": "inset",
-          "type": "string | undefined"
-        },
-        {
-          "name": "zIndex",
-          "type": "string | undefined"
-        },
-        {
-          "name": "border",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderTop",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderBottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderLeft",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRadius",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "boxShadow",
-          "type": "string | undefined"
-        },
-        {
-          "name": "opacity",
-          "type": "string | undefined"
-        },
-        {
-          "name": "background",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundImage",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundPosition",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundSize",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundRepeat",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundAttachment",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundClip",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundOrigin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundBlendMode",
-          "type": "string | undefined"
-        },
-        {
-          "name": "filter",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backdropFilter",
-          "type": "string | undefined"
-        }
-      ],
-      "properties": [
-        {
-          "name": "flow",
-          "attribute": "flow",
-          "type": "\"row\" | \"col\" | \"dense\" | \"row-dense\" | \"col-dense\"",
-          "default": "\"row\""
-        },
-        {
-          "name": "align",
-          "attribute": "align",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
-          "default": "\"stretch\""
-        },
-        {
-          "name": "justify",
-          "attribute": "justify",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\"",
-          "default": "\"stretch\""
-        },
-        {
-          "name": "content",
-          "attribute": "content",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"between\" | \"around\" | \"evenly\"",
-          "default": "\"stretch\""
-        },
-        {
-          "name": "gap",
-          "attribute": "gap",
-          "type": "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"none\"",
-          "default": "\"none\""
-        },
-        {
-          "name": "cols",
-          "attribute": "cols",
-          "type": "string | undefined"
-        },
-        {
-          "name": "rows",
-          "attribute": "rows",
-          "type": "string | undefined"
-        },
-        {
-          "name": "rcols",
-          "attribute": "rcols",
-          "type": "{ xs?: string | number | undefined; sm?: string | number | undefined; md?: string | number | undefined; lg?: string | number | undefined; xl?: string | number | undefined; '2xl'?: string | number | undefined; } | undefined"
-        },
-        {
-          "name": "wrap",
-          "attribute": "wrap",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "assignedElements",
-          "type": "HTMLElement[]"
-        },
-        {
-          "name": "styles",
-          "type": "array",
-          "default": "[\"styles\",null]"
-        },
-        {
-          "name": "layout",
-          "type": "boolean",
-          "default": "true"
-        },
-        {
-          "name": "center",
-          "attribute": "center",
-          "type": "boolean | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "padding",
-          "attribute": "padding",
-          "type": "string | undefined"
-        },
-        {
-          "name": "margin",
-          "attribute": "margin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "width",
-          "attribute": "width",
-          "type": "string | undefined"
-        },
-        {
-          "name": "height",
-          "attribute": "height",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minWidth",
-          "attribute": "minWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minHeight",
-          "attribute": "minHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxWidth",
-          "attribute": "maxWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxHeight",
-          "attribute": "maxHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "display",
-          "attribute": "display",
-          "type": "\"none\" | \"block\" | \"inline-block\" | \"inline\" | \"flex\" | \"inline-flex\" | \"grid\" | \"inline-grid\" | \"table\" | \"inline-table\" | \"flow-root\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflow",
-          "attribute": "overflow",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowX",
-          "attribute": "overflowX",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowY",
-          "attribute": "overflowY",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "position",
-          "attribute": "position",
-          "type": "\"static\" | \"relative\" | \"absolute\" | \"fixed\" | \"sticky\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "top",
-          "attribute": "top",
-          "type": "string | undefined"
-        },
-        {
-          "name": "right",
-          "attribute": "right",
-          "type": "string | undefined"
-        },
-        {
-          "name": "bottom",
-          "attribute": "bottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "left",
-          "attribute": "left",
-          "type": "string | undefined"
-        },
-        {
-          "name": "inset",
-          "attribute": "inset",
-          "type": "string | undefined"
-        },
-        {
-          "name": "zIndex",
-          "attribute": "zIndex",
-          "type": "string | undefined"
-        },
-        {
-          "name": "border",
-          "attribute": "border",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderTop",
-          "attribute": "borderTop",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRight",
-          "attribute": "borderRight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderBottom",
-          "attribute": "borderBottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderLeft",
-          "attribute": "borderLeft",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderColor",
-          "attribute": "borderColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRadius",
-          "attribute": "borderRadius",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderWidth",
-          "attribute": "borderWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "boxShadow",
-          "attribute": "boxShadow",
-          "type": "string | undefined"
-        },
-        {
-          "name": "opacity",
-          "attribute": "opacity",
-          "type": "string | undefined"
-        },
-        {
-          "name": "background",
-          "attribute": "background",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundImage",
-          "attribute": "backgroundImage",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundPosition",
-          "attribute": "backgroundPosition",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundSize",
-          "attribute": "backgroundSize",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundRepeat",
-          "attribute": "backgroundRepeat",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundAttachment",
-          "attribute": "backgroundAttachment",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundColor",
-          "attribute": "backgroundColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundClip",
-          "attribute": "backgroundClip",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundOrigin",
-          "attribute": "backgroundOrigin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundBlendMode",
-          "attribute": "backgroundBlendMode",
-          "type": "string | undefined"
-        },
-        {
-          "name": "filter",
-          "attribute": "filter",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backdropFilter",
-          "attribute": "backdropFilter",
-          "type": "string | undefined"
-        }
-      ],
-      "deprecated": true,
-      "deprecatedMessage": "Use Tailwind CSS grid classes directly instead of this component.\nThis component will be removed in a future version.\n\nMigration guide:\n- Replace <schmancy-grid> with <div class=\"grid ...\">\n- Use Tailwind's grid utilities: grid-cols-*, gap-*, items-*, justify-items-*, etc."
-    },
-    {
       "name": "schmancy-scroll",
       "path": "./src/layout/scroll/scroll.ts",
       "description": "A custom scrollable container with enhanced features.",
@@ -6032,503 +5060,6 @@
           "description": "The inner scrollable div element"
         }
       ]
-    },
-    {
-      "name": "sch-flex",
-      "path": "./src/layout/v2/flex.ts",
-      "attributes": [
-        {
-          "name": "inline",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "flow",
-          "description": "Flow property that determines the flex direction.\nAllowed values:\n - Standard: 'row', 'row-reverse', 'col', 'col-reverse'\n - Dense variants: 'row-dense', 'col-dense' (dense implies wrapping)",
-          "type": "\"row\" | \"row-reverse\" | \"col\" | \"col-reverse\" | \"row-dense\" | \"col-dense\"",
-          "default": "\"row\""
-        },
-        {
-          "name": "wrap",
-          "description": "Flex-wrap options:\n - 'wrap', 'nowrap', or 'wrap-reverse'",
-          "type": "\"wrap\" | \"nowrap\" | \"wrap-reverse\"",
-          "default": "\"wrap\""
-        },
-        {
-          "name": "align",
-          "description": "Align-items (vertical alignment of flex items):\n - 'start', 'center', 'end', 'stretch', or 'baseline'",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
-          "default": "\"stretch\""
-        },
-        {
-          "name": "justify",
-          "description": "Justify-content (horizontal distribution):\n - 'start', 'center', 'end', 'between', 'around', or 'evenly'",
-          "type": "\"start\" | \"center\" | \"end\" | \"between\" | \"around\" | \"evenly\"",
-          "default": "\"start\""
-        },
-        {
-          "name": "content",
-          "description": "Align-content (spacing between rows when wrapping):\n - 'start', 'center', 'end', 'between', 'around', or 'evenly'",
-          "type": "\"start\" | \"center\" | \"end\" | \"between\" | \"around\" | \"evenly\" | undefined"
-        },
-        {
-          "name": "gap",
-          "description": "Gap between flex items.\nOptions (based on Tailwind CSS 4 spacing scale):\n - 'none', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '16', '20', '24', '32', '40', '48', '56', or '64'",
-          "type": "\"none\" | \"0\" | \"1\" | \"2\" | \"3\" | \"4\" | \"5\" | \"6\" | \"7\" | \"8\" | \"9\" | \"10\" | \"12\" | \"16\" | \"20\" | \"24\" | \"32\" | \"40\" | \"48\" | \"56\" | \"64\"",
-          "default": "\"none\""
-        },
-        {
-          "name": "center",
-          "type": "boolean | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "padding",
-          "type": "string | undefined"
-        },
-        {
-          "name": "margin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "width",
-          "type": "string | undefined"
-        },
-        {
-          "name": "height",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "display",
-          "type": "\"none\" | \"block\" | \"inline-block\" | \"inline\" | \"flex\" | \"inline-flex\" | \"grid\" | \"inline-grid\" | \"table\" | \"inline-table\" | \"flow-root\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflow",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowX",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowY",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "position",
-          "type": "\"static\" | \"relative\" | \"absolute\" | \"fixed\" | \"sticky\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "top",
-          "type": "string | undefined"
-        },
-        {
-          "name": "right",
-          "type": "string | undefined"
-        },
-        {
-          "name": "bottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "left",
-          "type": "string | undefined"
-        },
-        {
-          "name": "inset",
-          "type": "string | undefined"
-        },
-        {
-          "name": "zIndex",
-          "type": "string | undefined"
-        },
-        {
-          "name": "border",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderTop",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderBottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderLeft",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRadius",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "boxShadow",
-          "type": "string | undefined"
-        },
-        {
-          "name": "opacity",
-          "type": "string | undefined"
-        },
-        {
-          "name": "background",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundImage",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundPosition",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundSize",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundRepeat",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundAttachment",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundClip",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundOrigin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundBlendMode",
-          "type": "string | undefined"
-        },
-        {
-          "name": "filter",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backdropFilter",
-          "type": "string | undefined"
-        }
-      ],
-      "properties": [
-        {
-          "name": "inline",
-          "attribute": "inline",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "flow",
-          "attribute": "flow",
-          "description": "Flow property that determines the flex direction.\nAllowed values:\n - Standard: 'row', 'row-reverse', 'col', 'col-reverse'\n - Dense variants: 'row-dense', 'col-dense' (dense implies wrapping)",
-          "type": "\"row\" | \"row-reverse\" | \"col\" | \"col-reverse\" | \"row-dense\" | \"col-dense\"",
-          "default": "\"row\""
-        },
-        {
-          "name": "wrap",
-          "attribute": "wrap",
-          "description": "Flex-wrap options:\n - 'wrap', 'nowrap', or 'wrap-reverse'",
-          "type": "\"wrap\" | \"nowrap\" | \"wrap-reverse\"",
-          "default": "\"wrap\""
-        },
-        {
-          "name": "align",
-          "attribute": "align",
-          "description": "Align-items (vertical alignment of flex items):\n - 'start', 'center', 'end', 'stretch', or 'baseline'",
-          "type": "\"start\" | \"center\" | \"end\" | \"stretch\" | \"baseline\"",
-          "default": "\"stretch\""
-        },
-        {
-          "name": "justify",
-          "attribute": "justify",
-          "description": "Justify-content (horizontal distribution):\n - 'start', 'center', 'end', 'between', 'around', or 'evenly'",
-          "type": "\"start\" | \"center\" | \"end\" | \"between\" | \"around\" | \"evenly\"",
-          "default": "\"start\""
-        },
-        {
-          "name": "content",
-          "attribute": "content",
-          "description": "Align-content (spacing between rows when wrapping):\n - 'start', 'center', 'end', 'between', 'around', or 'evenly'",
-          "type": "\"start\" | \"center\" | \"end\" | \"between\" | \"around\" | \"evenly\" | undefined"
-        },
-        {
-          "name": "gap",
-          "attribute": "gap",
-          "description": "Gap between flex items.\nOptions (based on Tailwind CSS 4 spacing scale):\n - 'none', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '16', '20', '24', '32', '40', '48', '56', or '64'",
-          "type": "\"none\" | \"0\" | \"1\" | \"2\" | \"3\" | \"4\" | \"5\" | \"6\" | \"7\" | \"8\" | \"9\" | \"10\" | \"12\" | \"16\" | \"20\" | \"24\" | \"32\" | \"40\" | \"48\" | \"56\" | \"64\"",
-          "default": "\"none\""
-        },
-        {
-          "name": "styles",
-          "type": "array",
-          "default": "[\"styles\",null]"
-        },
-        {
-          "name": "layout",
-          "type": "boolean",
-          "default": "true"
-        },
-        {
-          "name": "center",
-          "attribute": "center",
-          "type": "boolean | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "padding",
-          "attribute": "padding",
-          "type": "string | undefined"
-        },
-        {
-          "name": "margin",
-          "attribute": "margin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "width",
-          "attribute": "width",
-          "type": "string | undefined"
-        },
-        {
-          "name": "height",
-          "attribute": "height",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minWidth",
-          "attribute": "minWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "minHeight",
-          "attribute": "minHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxWidth",
-          "attribute": "maxWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "maxHeight",
-          "attribute": "maxHeight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "display",
-          "attribute": "display",
-          "type": "\"none\" | \"block\" | \"inline-block\" | \"inline\" | \"flex\" | \"inline-flex\" | \"grid\" | \"inline-grid\" | \"table\" | \"inline-table\" | \"flow-root\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflow",
-          "attribute": "overflow",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowX",
-          "attribute": "overflowX",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "overflowY",
-          "attribute": "overflowY",
-          "type": "\"visible\" | \"hidden\" | \"scroll\" | \"auto\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "position",
-          "attribute": "position",
-          "type": "\"static\" | \"relative\" | \"absolute\" | \"fixed\" | \"sticky\" | undefined",
-          "default": "\"undefined\""
-        },
-        {
-          "name": "top",
-          "attribute": "top",
-          "type": "string | undefined"
-        },
-        {
-          "name": "right",
-          "attribute": "right",
-          "type": "string | undefined"
-        },
-        {
-          "name": "bottom",
-          "attribute": "bottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "left",
-          "attribute": "left",
-          "type": "string | undefined"
-        },
-        {
-          "name": "inset",
-          "attribute": "inset",
-          "type": "string | undefined"
-        },
-        {
-          "name": "zIndex",
-          "attribute": "zIndex",
-          "type": "string | undefined"
-        },
-        {
-          "name": "border",
-          "attribute": "border",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderTop",
-          "attribute": "borderTop",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRight",
-          "attribute": "borderRight",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderBottom",
-          "attribute": "borderBottom",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderLeft",
-          "attribute": "borderLeft",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderColor",
-          "attribute": "borderColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderRadius",
-          "attribute": "borderRadius",
-          "type": "string | undefined"
-        },
-        {
-          "name": "borderWidth",
-          "attribute": "borderWidth",
-          "type": "string | undefined"
-        },
-        {
-          "name": "boxShadow",
-          "attribute": "boxShadow",
-          "type": "string | undefined"
-        },
-        {
-          "name": "opacity",
-          "attribute": "opacity",
-          "type": "string | undefined"
-        },
-        {
-          "name": "background",
-          "attribute": "background",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundImage",
-          "attribute": "backgroundImage",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundPosition",
-          "attribute": "backgroundPosition",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundSize",
-          "attribute": "backgroundSize",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundRepeat",
-          "attribute": "backgroundRepeat",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundAttachment",
-          "attribute": "backgroundAttachment",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundColor",
-          "attribute": "backgroundColor",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundClip",
-          "attribute": "backgroundClip",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundOrigin",
-          "attribute": "backgroundOrigin",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backgroundBlendMode",
-          "attribute": "backgroundBlendMode",
-          "type": "string | undefined"
-        },
-        {
-          "name": "filter",
-          "attribute": "filter",
-          "type": "string | undefined"
-        },
-        {
-          "name": "backdropFilter",
-          "attribute": "backdropFilter",
-          "type": "string | undefined"
-        }
-      ],
-      "deprecated": true,
-      "deprecatedMessage": "Use Tailwind CSS flex classes directly instead of this component.\nThis component will be removed in a future version.\n\nMigration guide:\n- Replace <sch-flex> with <div class=\"flex ...\">\n- Use Tailwind's flex utilities: flex-row, flex-col, gap-*, items-*, justify-*, etc.\n\nOriginal documentation:\n\nSchmancyFlex exposes a flex container with all the Tailwind CSS 4 options:\n\n- **Display**: By default uses `flex` but can be set to inline using the `inline` property.\n- **Flow**: Accepts 'row', 'row-reverse', 'col', 'col-reverse' as well as grid‐like dense variants:\n- Dense variants (`row-dense`, `col-dense`) force wrapping.\n- **Wrap**: 'wrap', 'nowrap', or 'wrap-reverse'\n- **Align Items**: 'start', 'center', 'end', 'stretch', or 'baseline'\n- **Justify Content**: 'start', 'center', 'end', 'between', 'around', or 'evenly'\n- **Align Content** (for multi-line flex containers): 'start', 'center', 'end', 'between', 'around', or 'evenly'\n- **Gap**: Supports Tailwind’s spacing scale (e.g. 'none', '0', '1', '2', …, '64')"
     },
     {
       "name": "schmancy-lightbox",
@@ -8236,6 +6767,211 @@
         },
         {
           "name": "option-select"
+        }
+      ]
+    },
+    {
+      "name": "schmancy-overlay",
+      "path": "./src/overlay/overlay.component.ts",
+      "description": "The single overlay element. Custom `<div>` shell (not a native\n`<dialog>`) — one backdrop mechanism for all layouts, one focus-trap\npath, one animation orchestrator. The shell is always rendered; the\nbackdrop only renders when modal. The surface is positioned per tier:\n\n- Modal layouts (centered / sheet) → backdrop + surface, focus-trapped,\n  library-managed z-index.\n- Anchored 'css-anchor' tier → surface as `popover=\"auto\"` with\n  CSS Anchor Positioning; native top-layer + light-dismiss.\n- Anchored 'popover-fui' tier → surface as `popover=\"auto\"` + Floating\n  UI position math; native top-layer + light-dismiss.\n- Anchored 'fui-only' tier → surface positioned by Floating UI;\n  manual click-outside + manual Esc.\n\nPublic lifecycle: the service calls `open()` to mount content and\nanimate in, `close(reason)` to animate out and dismiss. The element\nexposes `closed$` (Observable emitting reason + result once) and\n`tier` / `layout` / `modal` as properties for the stack entry.",
+      "attributes": [
+        {
+          "name": "layout",
+          "type": "OverlayLayout",
+          "default": "\"centered\""
+        },
+        {
+          "name": "dismissable",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "modal",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "tier",
+          "type": "OverlayTier",
+          "default": "\"modal\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "layout",
+          "attribute": "layout",
+          "type": "OverlayLayout",
+          "default": "\"centered\""
+        },
+        {
+          "name": "dismissable",
+          "attribute": "dismissable",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "modal",
+          "attribute": "modal",
+          "type": "boolean",
+          "default": "true"
+        },
+        {
+          "name": "tier",
+          "attribute": "tier",
+          "type": "OverlayTier",
+          "default": "\"modal\""
+        },
+        {
+          "name": "closed$",
+          "description": "Service subscribes to this to know when the overlay dismissed.",
+          "type": "Observable<{ reason: CloseReason; result?: unknown; }>"
+        }
+      ]
+    },
+    {
+      "name": "schmancy-overlay-prompt-body",
+      "path": "./src/overlay/overlay.confirm-body.ts",
+      "description": "Internal body component used by the `confirm()` / `prompt()` sugar.\n\nMinimal, dependency-free — plain HTML buttons / input so this file\ndoesn't need to import schmancy-form / schmancy-button (avoids the\nrisk of circular module graphs during early imports of $overlay).\n\nEmits a `close` CustomEvent with the typed result; the overlay picks\nthat up as the primary return channel. For custom-styled confirms,\ncallers pass their own component to `show()`.",
+      "attributes": [
+        {
+          "name": "heading",
+          "type": "string | undefined"
+        },
+        {
+          "name": "subtitle",
+          "type": "string | undefined"
+        },
+        {
+          "name": "message",
+          "type": "string | undefined"
+        },
+        {
+          "name": "confirm-text",
+          "type": "string",
+          "default": "\"Confirm\""
+        },
+        {
+          "name": "cancel-text",
+          "type": "string",
+          "default": "\"Cancel\""
+        },
+        {
+          "name": "variant",
+          "type": "\"default\" | \"danger\"",
+          "default": "\"default\""
+        },
+        {
+          "name": "mode",
+          "description": "Presence of `mode` switches between confirm (boolean) and prompt (string).",
+          "type": "\"confirm\" | \"prompt\"",
+          "default": "\"confirm\""
+        },
+        {
+          "name": "label",
+          "type": "string | undefined"
+        },
+        {
+          "name": "default-value",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "placeholder",
+          "type": "string | undefined"
+        },
+        {
+          "name": "input-type",
+          "type": "string",
+          "default": "\"text\""
+        },
+        {
+          "name": "pattern",
+          "type": "string | undefined"
+        },
+        {
+          "name": "required",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "properties": [
+        {
+          "name": "heading",
+          "attribute": "heading",
+          "type": "string | undefined"
+        },
+        {
+          "name": "subtitle",
+          "attribute": "subtitle",
+          "type": "string | undefined"
+        },
+        {
+          "name": "message",
+          "attribute": "message",
+          "type": "string | undefined"
+        },
+        {
+          "name": "confirmText",
+          "attribute": "confirm-text",
+          "type": "string",
+          "default": "\"Confirm\""
+        },
+        {
+          "name": "cancelText",
+          "attribute": "cancel-text",
+          "type": "string",
+          "default": "\"Cancel\""
+        },
+        {
+          "name": "variant",
+          "attribute": "variant",
+          "type": "\"default\" | \"danger\"",
+          "default": "\"default\""
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "description": "Presence of `mode` switches between confirm (boolean) and prompt (string).",
+          "type": "\"confirm\" | \"prompt\"",
+          "default": "\"confirm\""
+        },
+        {
+          "name": "label",
+          "attribute": "label",
+          "type": "string | undefined"
+        },
+        {
+          "name": "defaultValue",
+          "attribute": "default-value",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "placeholder",
+          "attribute": "placeholder",
+          "type": "string | undefined"
+        },
+        {
+          "name": "inputType",
+          "attribute": "input-type",
+          "type": "string",
+          "default": "\"text\""
+        },
+        {
+          "name": "pattern",
+          "attribute": "pattern",
+          "type": "string | undefined"
+        },
+        {
+          "name": "required",
+          "attribute": "required",
+          "type": "boolean",
+          "default": "false"
+        }
+      ],
+      "events": [
+        {
+          "name": "close"
         }
       ]
     },
@@ -10315,6 +9051,77 @@
         },
         {
           "name": "schmancy-discover-response"
+        }
+      ]
+    },
+    {
+      "name": "schmancy-timeline-tile",
+      "path": "./src/timeline/timeline-tile.ts",
+      "attributes": [
+        {
+          "name": "state",
+          "type": "TimelineTileState",
+          "default": "\"empty\""
+        },
+        {
+          "name": "glyph",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "stack-count",
+          "type": "number | undefined"
+        },
+        {
+          "name": "index",
+          "type": "number | undefined"
+        },
+        {
+          "name": "tooltip",
+          "type": "string | undefined"
+        },
+        {
+          "name": "caption",
+          "type": "string | undefined"
+        }
+      ],
+      "properties": [
+        {
+          "name": "state",
+          "attribute": "state",
+          "type": "TimelineTileState",
+          "default": "\"empty\""
+        },
+        {
+          "name": "glyph",
+          "attribute": "glyph",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "stackCount",
+          "attribute": "stack-count",
+          "type": "number | undefined"
+        },
+        {
+          "name": "index",
+          "attribute": "index",
+          "type": "number | undefined"
+        },
+        {
+          "name": "tooltip",
+          "attribute": "tooltip",
+          "type": "string | undefined"
+        },
+        {
+          "name": "caption",
+          "attribute": "caption",
+          "type": "string | undefined"
+        }
+      ],
+      "events": [
+        {
+          "name": "tile-click"
         }
       ]
     },

@@ -45,9 +45,12 @@ export class SchmancyTableRow<T extends Record<string, any> = any> extends $LitE
 	render(): TemplateResult {
 		return html`
 			<schmancy-list-item class="w-full">
-				<schmancy-grid .cols=${this.cols} align="center" gap="md">
+				<div
+					class="grid items-center gap-4"
+					style=${this.styleMap({ gridTemplateColumns: this.cols })}
+				>
 					${this.columns.map(column => this.renderCell(column))}
-				</schmancy-grid>
+				</div>
 			</schmancy-list-item>
 		`
 	}
