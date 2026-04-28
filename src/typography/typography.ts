@@ -1,9 +1,60 @@
 import { TailwindElement } from '@mixins/tailwind.mixin'
-import { css, html } from 'lit'
+import { css, html, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
+import { html as staticHtml, literal } from 'lit/static-html.js'
 import { fromEvent } from 'rxjs'
 import { filter, tap, takeUntil } from 'rxjs/operators'
+
+/**
+ * Preset → (type, token) shorthand. Saves the two-decision-per-text-node
+ * fatigue that 50+ typography nodes in a single page cause.
+ */
+export type TypographyPreset =
+	| 'display' | 'display-lg' | 'display-md' | 'display-sm'
+	| 'heading-lg' | 'heading-md' | 'heading-sm'
+	| 'title-lg' | 'title-md' | 'title-sm'
+	| 'body-lg' | 'body-md' | 'body-sm'
+	| 'label-lg' | 'label-md' | 'label-sm'
+	| 'caption'
+
+const PRESET_MAP: Record<TypographyPreset, { type: string; token: string }> = {
+	'display':    { type: 'display',  token: 'lg' },
+	'display-lg': { type: 'display',  token: 'lg' },
+	'display-md': { type: 'display',  token: 'md' },
+	'display-sm': { type: 'display',  token: 'sm' },
+	'heading-lg': { type: 'headline', token: 'lg' },
+	'heading-md': { type: 'headline', token: 'md' },
+	'heading-sm': { type: 'headline', token: 'sm' },
+	'title-lg':   { type: 'title',    token: 'lg' },
+	'title-md':   { type: 'title',    token: 'md' },
+	'title-sm':   { type: 'title',    token: 'sm' },
+	'body-lg':    { type: 'body',     token: 'lg' },
+	'body-md':    { type: 'body',     token: 'md' },
+	'body-sm':    { type: 'body',     token: 'sm' },
+	'label-lg':   { type: 'label',    token: 'lg' },
+	'label-md':   { type: 'label',    token: 'md' },
+	'label-sm':   { type: 'label',    token: 'sm' },
+	'caption':    { type: 'label',    token: 'sm' },
+}
+
+/**
+ * Allowed semantic tag names for the `as` prop. Closed enum so we can
+ * use `literal` template parts safely with `lit/static-html`.
+ */
+export type TypographyTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div'
+
+const TAG_LITERALS: Record<TypographyTag, ReturnType<typeof literal>> = {
+	h1:   literal`h1`,
+	h2:   literal`h2`,
+	h3:   literal`h3`,
+	h4:   literal`h4`,
+	h5:   literal`h5`,
+	h6:   literal`h6`,
+	p:    literal`p`,
+	span: literal`span`,
+	div:  literal`div`,
+}
 
 // Material Design 3 typography - https://m3.material.io/styles/typography/type-scale-tokens
 
@@ -303,6 +354,30 @@ export class SchmancyTypography extends TailwindElement(css`
 	type: 'display' | 'headline' | 'title' | 'subtitle' | 'body' | 'label' = 'body'
 
 	/**
+	 * Shorthand for picking a (type, token) pair in one go. When set, derives
+	 * `type` and `token` automatically — saves the two-decisions-per-text-node
+	 * fatigue that hits when a single page has 50+ typography nodes.
+	 *
+	 * @attr preset
+	 * @type {TypographyPreset}
+	 * @example <schmancy-typography preset="heading-md">Title</schmancy-typography>
+	 */
+	@property({ type: String, reflect: true })
+	preset?: TypographyPreset
+
+	/**
+	 * Render the slot wrapped in the requested semantic HTML element so screen
+	 * readers expose the right role / heading level. Without `as`, the slot
+	 * sits directly in the shadow root and the host is a generic element.
+	 *
+	 * @attr as
+	 * @type {TypographyTag}
+	 * @example <schmancy-typography preset="heading-md" as="h2">Section</schmancy-typography>
+	 */
+	@property({ type: String, reflect: true })
+	as?: TypographyTag
+
+	/**
 	 * @attr token - The size token.
 	 * @deprecated Prefer using Tailwind responsive text classes for better responsive design.
 	 * Set token="" and use class="text-sm md:text-base lg:text-lg" instead.
@@ -351,6 +426,17 @@ export class SchmancyTypography extends TailwindElement(css`
 	@property({ type: String }) placeholder = ''
 
 	private _editRef = createRef<HTMLDivElement>()
+
+	protected override willUpdate(changed: PropertyValues): void {
+		super.willUpdate?.(changed)
+		// `preset` shorthand expands to (type, token) so the existing CSS
+		// selectors keep matching without duplicating the size scale.
+		if (changed.has('preset') && this.preset && PRESET_MAP[this.preset]) {
+			const { type, token } = PRESET_MAP[this.preset]
+			this.type = type as typeof this.type
+			this.token = token as typeof this.token
+		}
+	}
 
 	/** Focus and select all text in editable mode */
 	selectAll() {
@@ -436,6 +522,13 @@ export class SchmancyTypography extends TailwindElement(css`
 				contenteditable="true"
 				data-placeholder=${this.placeholder ?? ''}
 			></div>`
+		}
+		// `as` wraps the slot in the requested semantic tag so heading levels
+		// land in the accessibility tree. Without `as` the slot is bare and
+		// the host element carries the visual styling only.
+		if (this.as && TAG_LITERALS[this.as]) {
+			const tag = TAG_LITERALS[this.as]
+			return staticHtml`<${tag}><slot></slot></${tag}>`
 		}
 		return html`<slot></slot>`
 	}
