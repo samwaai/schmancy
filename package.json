@@ -21,6 +21,7 @@
 			"default": "./dist/agent/schmancy.agent.js"
 		},
 		"./agent/manifest": "./dist/agent/schmancy.manifest.json",
+		"./vite": "./plugins/vite-plugin-schmancy-auto-import.ts",
 		"./*": {
 			"types": "./types/src/*/index.d.ts",
 			"default": "./dist/*.js"
@@ -48,6 +49,7 @@
 		"types",
 		"src",
 		".claude-plugin",
+		"plugins",
 		"skills",
 		"custom-elements.json",
 		"README.md"
