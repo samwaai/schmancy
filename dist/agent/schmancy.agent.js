@@ -36876,13 +36876,53 @@ function Sp(e) {
 function Cp() {
 	return vp.tokens ?? [];
 }
-function wp(e) {
+var wp = new Set(/* @__PURE__ */ "a.an.and.or.the.of.in.on.at.to.for.with.is.it.this.that.these.those.be.by.as.are.was.i.you.we.my.your".split("."));
+function Tp(e) {
+	let t = /* @__PURE__ */ new Set();
+	for (let n of e.toLowerCase().match(/[a-z][a-z0-9]+/g) ?? []) n.length >= 2 && !wp.has(n) && t.add(n);
+	return t;
+}
+var Ep = null;
+function Dp(e, t = 5) {
+	Ep ||= bp().map((e) => {
+		let t = Tp((e.tagName ?? "").replace(/-/g, " "));
+		return {
+			entry: e,
+			body: Tp([
+				e.tagName ?? "",
+				e.summary ?? "",
+				e.description ?? "",
+				e.whenToUse ?? "",
+				(e.examples ?? []).join(" ")
+			].join(" ")),
+			tagTokens: t
+		};
+	});
+	let n = Tp(e);
+	if (n.size === 0) return [];
+	let r = [];
+	for (let e of Ep) {
+		let t = 0;
+		for (let r of n) e.tagTokens.has(r) ? t += 3 : e.body.has(r) && (t += 1);
+		t > 0 && r.push({
+			entry: e.entry,
+			score: t
+		});
+	}
+	return r.sort((e, t) => t.score - e.score), r.slice(0, t).map(({ entry: e, score: t }) => ({
+		tag: e.tagName ?? "",
+		score: t,
+		summary: e.summary,
+		examples: e.examples
+	}));
+}
+function Op(e) {
 	return bp().find((t) => t.tagName === e)?.platformPrimitive ?? null;
 }
-function Tp() {
+function kp() {
 	return bp().map((e) => e.tagName).filter((e) => customElements.get(e) !== void 0);
 }
-function Ep() {
+function Ap() {
 	let e = new Set(bp().map((e) => e.tagName)), t = [], n = document.querySelectorAll("*");
 	for (let r of Array.from(n)) {
 		let n = r.tagName.toLowerCase();
@@ -36898,7 +36938,7 @@ function Ep() {
 	}
 	return t;
 }
-function Dp() {
+function jp() {
 	let e = typeof HTMLTemplateElement < "u" ? HTMLTemplateElement.prototype : null, t = typeof ElementInternals < "u" ? ElementInternals.prototype : null;
 	return {
 		popover: typeof HTMLElement < "u" && "popover" in HTMLElement.prototype,
@@ -36917,29 +36957,30 @@ function Dp() {
 		adoptedStyleSheets: typeof Document < "u" && "adoptedStyleSheets" in Document.prototype
 	};
 }
-var Op = null;
-function kp() {
-	typeof window < "u" && (Op || (Op = function() {
+var Mp = null;
+function Np() {
+	typeof window < "u" && (Mp || (Mp = function() {
 		let e = new Blob([JSON.stringify(vp)], { type: "application/json" });
 		return URL.createObjectURL(e);
 	}(), window.schmancy = {
 		manifest: vp,
-		manifestUrl: Op,
+		manifestUrl: Mp,
 		help: Sp,
 		tokens: Cp,
-		platformPrimitive: wp,
-		registeredTags: Tp,
-		a11yAudit: Ep,
-		capabilities: Dp
+		platformPrimitive: Op,
+		registeredTags: kp,
+		a11yAudit: Ap,
+		capabilities: jp,
+		findFor: Dp
 	}));
 }
-var Ap = class extends B() {
+var Pp = class extends B() {
 	connectedCallback() {
-		super.connectedCallback(), kp();
+		super.connectedCallback(), Np();
 	}
 	render() {
 		return j``;
 	}
 };
-Ap = N([P("schmancy-skill")], Ap);
+Pp = N([P("schmancy-skill")], Pp);
 export { B as $LitElement, Mc as $dialog, hd as $notify, Nc as SchmancySheetPosition, ti as area, Oa as createContext, ai as lazy, gc as schmancyContentDrawer, Pa as select, Fa as selectItem, Pc as sheet, Oo as theme };

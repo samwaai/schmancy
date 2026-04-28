@@ -1,4 +1,4 @@
-import { a11yAudit, capabilities, help, manifest, platformPrimitive, registeredTags, tokens } from './helpers';
+import { a11yAudit, capabilities, findFor, help, manifest, platformPrimitive, registeredTags, tokens } from './helpers';
 declare global {
     interface Window {
         schmancy?: {
@@ -10,6 +10,7 @@ declare global {
             registeredTags: typeof registeredTags;
             a11yAudit: typeof a11yAudit;
             capabilities: typeof capabilities;
+            findFor: typeof findFor;
         };
     }
 }

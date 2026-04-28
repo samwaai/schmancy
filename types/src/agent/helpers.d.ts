@@ -34,6 +34,7 @@ export type ElementEntry = {
         name: string;
         description?: string;
     }>;
+    examples?: string[];
     whenToUse?: string;
     platformPrimitive?: {
         tag: string;
@@ -58,6 +59,31 @@ export type ServiceEntry = {
 };
 export declare function help(tag?: string): unknown;
 export declare function tokens(): string[];
+export type FindForResult = {
+    tag: string;
+    score: number;
+    summary?: string;
+    examples?: string[];
+};
+/**
+ * Keyword search over the component manifest. Tokenizes the query the same
+ * way each component's `summary + description + examples` were tokenized,
+ * and returns the components with the most overlap. Tag-name token matches
+ * count for 3× a body-text match.
+ *
+ * Designed to catch the "I'm reaching for a custom component, what does
+ * schmancy ship?" gap without bringing in a vector-embedding dependency.
+ *
+ * @example
+ * window.schmancy.findFor('status pill')
+ * // → [{ tag: 'schmancy-badge', score: 4, summary: '…', examples: [...] }]
+ *
+ * window.schmancy.findFor('initials avatar')
+ * // → [{ tag: 'schmancy-avatar', score: 5, ... }]
+ *
+ * window.schmancy.findFor('xyz123nonexistent') // → []
+ */
+export declare function findFor(query: string, limit?: number): FindForResult[];
 export declare function platformPrimitive(tag: string): ElementEntry['platformPrimitive'] | null;
 export declare function registeredTags(): string[];
 export declare function a11yAudit(): Array<{
