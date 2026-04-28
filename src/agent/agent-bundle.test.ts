@@ -2,140 +2,74 @@ import { describe, expect, it } from 'vitest'
 import './agent-entry'
 
 /**
- * Acceptance test per the Claude Design handover §4.4:
+ * Agent bundle = distribution test suite.
  *
- * > "CI check: load the bundle in a headless browser, assert
- * > `customElements.get('schmancy-button')` resolves, assert
- * > `window.schmancy.help()` returns non-empty."
+ * The bundle exists so consumers can drop a single `<script type="module">`
+ * tag and get every `<schmancy-*>` element registered. These tests verify
+ * that contract, no more.
  *
- * This test is the runtime smoke test. It imports the agent bundle entry
- * (which side-effect registers every <schmancy-*> tag plus <schmancy-skill>)
- * and then verifies the self-describing surface is installed.
+ * Earlier versions of this suite tested a `window.schmancy.help()` /
+ * `tokens()` / `findFor()` runtime introspection surface that targeted a
+ * hypothetical live-in-browser agent — a consumer that never materialised
+ * in any shipping product. That surface was removed; AI consumers read the
+ * static manifest at `dist/agent/schmancy.manifest.json` instead, which is
+ * the real integration point.
  */
-describe('agent bundle — handover §4.4 acceptance', () => {
+describe('agent bundle — distribution', () => {
 	it('registers `schmancy-button` on import', () => {
 		expect(customElements.get('schmancy-button')).toBeDefined()
 	})
 
-	it('registers `schmancy-skill` on import', () => {
-		expect(customElements.get('schmancy-skill')).toBeDefined()
+	it('registers `schmancy-theme` on import', () => {
+		expect(customElements.get('schmancy-theme')).toBeDefined()
 	})
 
-	it('installs `window.schmancy` when a <schmancy-skill> connects', async () => {
-		const host = document.createElement('div')
-		const skill = document.createElement('schmancy-skill')
-		host.appendChild(skill)
-		document.body.appendChild(host)
-
-		await customElements.whenDefined('schmancy-skill')
-		// One microtask for connectedCallback to finish installing globals.
-		await new Promise(requestAnimationFrame)
-
-		expect(typeof window.schmancy).toBe('object')
-		expect(typeof window.schmancy?.help).toBe('function')
-		expect(typeof window.schmancy?.tokens).toBe('function')
-		expect(typeof window.schmancy?.capabilities).toBe('function')
-
-		host.remove()
+	it('registers `schmancy-surface` on import', () => {
+		expect(customElements.get('schmancy-surface')).toBeDefined()
 	})
 
-	it('`window.schmancy.help()` returns a non-empty manifest summary', async () => {
-		const skill = document.createElement('schmancy-skill')
-		document.body.appendChild(skill)
-		await customElements.whenDefined('schmancy-skill')
-		await new Promise(requestAnimationFrame)
-
-		const help = window.schmancy!.help() as { elements: unknown[]; services: unknown[] }
-		expect(Array.isArray(help.elements)).toBe(true)
-		expect(help.elements.length).toBeGreaterThan(50)
-
-		skill.remove()
+	it('registers a substantive set of components on import', () => {
+		// Spot-check 20 commonly-used tags. If anything below this threshold
+		// regresses, the side-effect registration chain is broken.
+		const sampleTags = [
+			'schmancy-button',
+			'schmancy-input',
+			'schmancy-card',
+			'schmancy-dialog',
+			'schmancy-sheet',
+			'schmancy-list',
+			'schmancy-list-item',
+			'schmancy-typography',
+			'schmancy-icon',
+			'schmancy-icon-button',
+			'schmancy-form',
+			'schmancy-checkbox',
+			'schmancy-select',
+			'schmancy-autocomplete',
+			'schmancy-radio-group',
+			'schmancy-textarea',
+			'schmancy-switch',
+			'schmancy-divider',
+			'schmancy-details',
+			'schmancy-card-content',
+		]
+		const registered = sampleTags.filter(tag => customElements.get(tag) !== undefined)
+		expect(registered).toEqual(sampleTags)
 	})
 
-	it('`window.schmancy.help("schmancy-button")` returns attribute enum values', async () => {
-		const skill = document.createElement('schmancy-skill')
-		document.body.appendChild(skill)
-		await customElements.whenDefined('schmancy-skill')
-		await new Promise(requestAnimationFrame)
-
-		const btn = window.schmancy!.help('schmancy-button') as {
-			attributes?: Array<{ name: string; values?: string[] }>
-		}
-		expect(btn).toBeTruthy()
-		expect(btn.attributes?.length ?? 0).toBeGreaterThan(0)
-		const variant = btn.attributes?.find(a => a.name === 'variant')
-		expect(variant?.values).toContain('filled')
-
-		skill.remove()
+	it('exports the imperative service surface', async () => {
+		const mod = await import('./agent-entry')
+		expect(typeof mod.$dialog).toBe('object')
+		expect(typeof mod.$notify).toBe('object')
+		expect(typeof mod.sheet).toBe('object')
+		expect(typeof mod.theme).toBe('object')
+		expect(typeof mod.area).toBe('object')
 	})
 
-	it('`window.schmancy.capabilities()` reports every probed feature', async () => {
-		const skill = document.createElement('schmancy-skill')
-		document.body.appendChild(skill)
-		await customElements.whenDefined('schmancy-skill')
-		await new Promise(requestAnimationFrame)
-
-		const caps = window.schmancy!.capabilities()
-		expect(caps).toMatchObject({
-			popover: expect.any(Boolean),
-			declarativeShadowDom: expect.any(Boolean),
-			scopedRegistries: expect.any(Boolean),
-			trustedTypes: expect.any(Boolean),
-			cssRegisteredProperties: expect.any(Boolean),
-			elementInternalsAria: expect.any(Boolean),
-			formAssociated: expect.any(Boolean),
-			adoptedStyleSheets: expect.any(Boolean),
-		})
-
-		skill.remove()
-	})
-
-	/**
-	 * findFor() is the discovery-failure backstop. Phase 1 of the manifest-as-
-	 * validator-data plan: agents that reach for a "missing" component should
-	 * call this first and find what already ships.
-	 */
-	it('`window.schmancy.findFor("badge")` returns schmancy-badge first', async () => {
-		const skill = document.createElement('schmancy-skill')
-		document.body.appendChild(skill)
-		await customElements.whenDefined('schmancy-skill')
-		await new Promise(requestAnimationFrame)
-
-		const results = window.schmancy!.findFor('badge') as Array<{
-			tag: string
-			score: number
-			summary?: string
-		}>
-		expect(results.length).toBeGreaterThan(0)
-		expect(results[0].tag).toBe('schmancy-badge')
-		expect(results[0].score).toBeGreaterThan(0)
-
-		skill.remove()
-	})
-
-	it('`window.schmancy.findFor("avatar")` returns schmancy-avatar first', async () => {
-		const skill = document.createElement('schmancy-skill')
-		document.body.appendChild(skill)
-		await customElements.whenDefined('schmancy-skill')
-		await new Promise(requestAnimationFrame)
-
-		const results = window.schmancy!.findFor('avatar') as Array<{ tag: string; score: number }>
-		expect(results.length).toBeGreaterThan(0)
-		expect(results[0].tag).toBe('schmancy-avatar')
-
-		skill.remove()
-	})
-
-	it('`window.schmancy.findFor("xyz123nonexistent")` returns empty array', async () => {
-		const skill = document.createElement('schmancy-skill')
-		document.body.appendChild(skill)
-		await customElements.whenDefined('schmancy-skill')
-		await new Promise(requestAnimationFrame)
-
-		const results = window.schmancy!.findFor('xyz123nonexistent') as unknown[]
-		expect(Array.isArray(results)).toBe(true)
-		expect(results.length).toBe(0)
-
-		skill.remove()
+	it('does not install the legacy `window.schmancy` runtime surface', () => {
+		// Negative test — the runtime introspection layer was removed
+		// because no shipping consumer used it. If it comes back unintentionally,
+		// flag it here so the regression is visible.
+		expect((window as { schmancy?: unknown }).schmancy).toBeUndefined()
 	})
 })
