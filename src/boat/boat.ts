@@ -95,9 +95,9 @@ export default class SchmancyBoat extends $LitElement(css`
 		return 'inset(0px 0px 0px 0px round 12px)'
 	}
 
-	private get elevation(): string {
-		if (this.open) return '4'
-		return this.lowered ? '1' : '3'
+	private get elevation(): 0 | 1 | 2 | 3 | 4 | 5 {
+		if (this.open) return 4
+		return this.lowered ? 1 : 3
 	}
 
 	// ============================================
@@ -241,50 +241,37 @@ export default class SchmancyBoat extends $LitElement(css`
 
 		let didDrag = false
 
-		merge(
-			fromEvent<MouseEvent>(header, 'mousedown').pipe(
+		fromEvent<PointerEvent>(header, 'pointerdown')
+			.pipe(
 				filter(e => e.button === 0),
 				tap(e => {
 					e.preventDefault()
 					e.stopPropagation()
+					header.setPointerCapture(e.pointerId)
 				}),
-				map(e => ({ clientX: e.clientX, clientY: e.clientY, type: 'mouse' as const })),
-			),
-			fromEvent<TouchEvent>(header, 'touchstart').pipe(
-				map(e => ({
-					clientX: e.touches[0].clientX,
-					clientY: e.touches[0].clientY,
-					type: 'touch' as const,
-				})),
-			),
-		)
-			.pipe(
-				map(({ clientX, clientY, type }) => {
+				map(e => {
 					const rect = container.getBoundingClientRect()
 					const isBottom = this._currentCorner.includes('bottom')
 					const wasOpen = this.open
 					didDrag = false
 					return {
-						startX: clientX,
-						startY: clientY,
-						offsetX: clientX - rect.left,
-						offsetY: clientY - rect.top,
+						pointerId: e.pointerId,
+						startX: e.clientX,
+						startY: e.clientY,
+						offsetX: e.clientX - rect.left,
+						offsetY: e.clientY - rect.top,
 						rect,
 						isBottom,
 						wasOpen,
-						type,
 					}
 				}),
-				switchMap(({ startX, startY, offsetX, offsetY, rect, isBottom, wasOpen, type }) => {
-					const move$ =
-						type === 'mouse'
-							? fromEvent<MouseEvent>(window, 'mousemove').pipe(
-									map(e => ({ clientX: e.clientX, clientY: e.clientY })),
-								)
-							: fromEvent<TouchEvent>(window, 'touchmove').pipe(
-									map(e => ({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })),
-								)
-					const end$ = type === 'mouse' ? fromEvent(window, 'mouseup') : fromEvent(window, 'touchend')
+				switchMap(({ pointerId, startX, startY, offsetX, offsetY, rect, isBottom, wasOpen }) => {
+					const sameId = (e: PointerEvent) => e.pointerId === pointerId
+					const move$ = fromEvent<PointerEvent>(window, 'pointermove').pipe(filter(sameId))
+					const end$ = merge(
+						fromEvent<PointerEvent>(window, 'pointerup'),
+						fromEvent<PointerEvent>(window, 'pointercancel'),
+					).pipe(filter(sameId))
 
 					return move$.pipe(
 						tap(({ clientX, clientY }) => {
@@ -563,6 +550,7 @@ export default class SchmancyBoat extends $LitElement(css`
 			'items-center': true,
 			'gap-2': true,
 			'select-none': true,
+			'touch-none': true,
 			'cursor-grabbing': this.isDragging,
 			'cursor-move': !this.isDragging,
 			'transition-opacity': true,
@@ -575,7 +563,7 @@ export default class SchmancyBoat extends $LitElement(css`
 			<schmancy-surface
 				${ref(this._containerRef)}
 				type="glass"
-				elevation="${this.elevation}"
+				.elevation=${this.elevation}
 				class=${containerClasses}
 				style=${containerStyles}
 				aria-expanded=${this.open}
