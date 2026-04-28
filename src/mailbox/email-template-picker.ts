@@ -234,7 +234,6 @@ export class SchmancyEmailTemplatePicker extends $LitElement(css`
 											<schmancy-email-viewer
 												subject=${template.subject}
 												body=${template.body}
-												mode="desktop"
 												class="max-h-96 overflow-y-auto"
 											></schmancy-email-viewer>
 										</div>

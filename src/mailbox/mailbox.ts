@@ -323,7 +323,6 @@ export class SchmancyMailbox extends $LitElement(css`
 							<schmancy-button
 								variant="filled"
 								?disabled=${!canSend}
-								?loading=${this.isSending}
 								@click=${this.handleSend}
 								class="w-full sm:w-auto"
 							>

@@ -250,7 +250,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 						? html`<slot></slot>`
 						: html`
 							<slot style="display:none" @slotchange=${this._handleSlotChange}></slot>
-							<schmancy-icon size=${iconSize} icon=${this.icon || this._capturedIcon}></schmancy-icon>
+							<schmancy-icon size=${iconSize} icon=${ifDefined(this.icon || this._capturedIcon)}></schmancy-icon>
 						`
 					}
 				</a>
@@ -273,7 +273,7 @@ export class SchmnacyIconButton extends $LitElement(css`
 					? html`<slot></slot>`
 					: html`
 						<slot style="display:none" @slotchange=${this._handleSlotChange}></slot>
-						<schmancy-icon size=${iconSize} icon=${this.icon || this._capturedIcon}></schmancy-icon>
+						<schmancy-icon size=${iconSize} icon=${ifDefined(this.icon || this._capturedIcon)}></schmancy-icon>
 					`
 				}
 			</button>

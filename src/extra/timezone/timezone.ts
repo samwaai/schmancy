@@ -92,7 +92,7 @@ export class SchmancyTimezonesSelect extends $LitElement(css`
 		return html`
 			<schmancy-autocomplete
 				.placeholder=${this.placeholder}
-				.hint=${this.hint}
+				.description=${this.hint}
 				.required=${this.required}
 				.label=${this.label}
 				.value=${this.value ?? ''}

@@ -112,9 +112,9 @@ export default class SchmancyWindow extends $LitElement(css`
 		return 'inset(0px 0px 0px 0px round 12px)'
 	}
 
-	private get elevation(): string {
-		if (this.open) return '4'
-		return this.lowered ? '1' : '3'
+	private get elevation(): 0 | 1 | 2 | 3 | 4 | 5 {
+		if (this.open) return 4
+		return this.lowered ? 1 : 3
 	}
 
 	// ============================================
@@ -668,7 +668,7 @@ export default class SchmancyWindow extends $LitElement(css`
 			<schmancy-surface
 				${ref(this._containerRef)}
 				type="glass"
-				elevation="${this.elevation}"
+				.elevation=${this.elevation}
 				class=${containerClasses}
 				style=${containerStyles}
 				aria-expanded=${this.open}

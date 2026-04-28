@@ -4,6 +4,7 @@ import SchmancyOption from '@schmancy/option/option'
 import { html, nothing } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { ifDefined } from 'lit/directives/if-defined.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { when } from 'lit/directives/when.js'
@@ -593,7 +594,7 @@ export default class SchmancyAutocomplete extends $LitElement(style) {
                                 aria-haspopup="listbox"
                                 aria-controls="options"
                                 aria-expanded=${this._open}
-                                aria-describedby=${this.description ? descriptionId : undefined}
+                                aria-describedby=${ifDefined(this.description ? descriptionId : undefined)}
                                 @input=${(e: Event) => {
                                     const value = (e.target as HTMLInputElement).value
                                     this._inputValue = value

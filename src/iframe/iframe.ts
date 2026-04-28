@@ -1,6 +1,7 @@
 import { TailwindElement } from '@mixins/index'
 import { css, html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
+import { createRef, ref } from 'lit/directives/ref.js'
 
 /** Sensible document reset for iframe content — font, spacing, word-wrap */
 const DEFAULT_BASE_CSS = `html,body{margin:0;padding:0;overflow:hidden;background:#fff;color:#1a1a1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;font-size:14px;line-height:1.6;word-wrap:break-word;overflow-wrap:break-word}
@@ -53,11 +54,18 @@ export default class SchmancyIframe extends TailwindElement(css`
 
 	@state() private _height = 60
 	private _srcdoc = ''
+	private _iframeRef = createRef<HTMLIFrameElement>()
 
 	protected willUpdate(changed: PropertyValues) {
 		if (changed.has('html') || changed.has('css') || changed.has('baseCss')) {
 			this._srcdoc = this.html ? this.buildSrcdoc() : ''
 			this._height = this.minHeight
+		}
+	}
+
+	protected updated(changed: PropertyValues) {
+		if (changed.has('sandbox')) {
+			this._iframeRef.value?.setAttribute('sandbox', this.sandbox)
 		}
 	}
 
@@ -83,8 +91,8 @@ export default class SchmancyIframe extends TailwindElement(css`
 	protected render() {
 		if (!this.html) return html``
 		return html`<iframe
+			${ref(this._iframeRef)}
 			.srcdoc=${this._srcdoc}
-			sandbox=${this.sandbox}
 			style="height:${this._height}px;min-height:${this.minHeight}px;overflow:hidden"
 			@load=${this.onLoad}
 		></iframe>`

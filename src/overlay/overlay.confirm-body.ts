@@ -1,8 +1,9 @@
 import { $LitElement } from '@mixins/index'
-import { css, html, nothing, type TemplateResult } from 'lit'
+import { css, html, type TemplateResult } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { choose } from 'lit/directives/choose.js'
+import { ifDefined } from 'lit/directives/if-defined.js'
 
 /**
  * Internal body component used by the `confirm()` / `prompt()` sugar.
@@ -44,7 +45,18 @@ export class SchmancyOverlayPromptBody extends $LitElement(css`
 	@property({ type: String }) label?: string
 	@property({ type: String, attribute: 'default-value' }) defaultValue = ''
 	@property({ type: String }) placeholder?: string
-	@property({ type: String, attribute: 'input-type' }) inputType: string = 'text'
+	@property({ type: String, attribute: 'input-type' })
+	inputType:
+		| 'text'
+		| 'email'
+		| 'password'
+		| 'tel'
+		| 'url'
+		| 'number'
+		| 'search'
+		| 'date'
+		| 'time'
+		| 'datetime-local' = 'text'
 	@property({ type: String }) pattern?: string
 	@property({ type: Boolean }) required = false
 
@@ -107,8 +119,8 @@ export class SchmancyOverlayPromptBody extends $LitElement(css`
 								<input
 									type=${this.inputType}
 									.value=${this.defaultValue}
-									placeholder=${this.placeholder ?? nothing}
-									pattern=${this.pattern ?? nothing}
+									placeholder=${ifDefined(this.placeholder)}
+									pattern=${ifDefined(this.pattern)}
 									?required=${this.required}
 									class="w-full px-3 py-2 rounded-md border border-outline-variant text-base mb-2"
 								/>

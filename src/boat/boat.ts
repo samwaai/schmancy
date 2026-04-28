@@ -225,6 +225,7 @@ export default class SchmancyBoat extends $LitElement(css`
 			if (container.isConnected) {
 				container.style.transform = ''
 			}
+			return
 		})
 
 		this._savePosition()
@@ -428,6 +429,7 @@ export default class SchmancyBoat extends $LitElement(css`
 				container.style.clipPath = ''
 				container.style.overflow = ''
 			}
+			return
 		})
 
 		this.dispatchScopedEvent('toggle', 'expanded')

@@ -6,7 +6,7 @@ import { repeat } from 'lit/directives/repeat.js'
 import { when } from 'lit/directives/when.js'
 import { fromEvent, takeUntil } from 'rxjs'
 import { $notify } from '../notification'
-import type { BoatState } from './types'
+import type { BoatState, ImportSource } from './types'
 
 /**
  * CSV parser interface (optional dependency)
@@ -50,6 +50,9 @@ export class SchmancyEmailRecipients extends $LitElement(css`
 	
 	/** All available recipients */
 	@property({ type: Array }) recipients: string[] = []
+
+	/** Sources users can import recipients from (forwarded from parent) */
+	@property({ type: Array }) importSources: ImportSource[] = []
 	
 	/** Currently selected recipients */
 	@property({ type: Array }) selectedRecipients: string[] = []

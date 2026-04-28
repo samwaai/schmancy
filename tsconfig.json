@@ -37,6 +37,7 @@
 					"no-invalid-event": "warning",
 					"no-invalid-property": "warning",
 					"no-invalid-attribute-value": "warning",
+					"no-invalid-css": "off",
 					"no-missing-import": "off",
 					"no-unknown-slot": "off"
 				}

@@ -291,9 +291,9 @@ export class SchmancyThemeComponent extends $LitElement(tailwindStyles) {
 
 	protected render(): unknown {
 		return html`
-			<schmancy-container type="containerLowest">
+			<schmancy-surface type="containerLowest">
 				<slot></slot>
-			</schmancy-container>
+			</schmancy-surface>
 		`
 	}
 }

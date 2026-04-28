@@ -217,11 +217,11 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 						.value=${this.cardName ?? ''}
 						.error=${!this.isCardNameValid}
 						type="text"
-						label="Name on card"
-						required
-						hint="${!this.isCardNameValid
+						.label=${'Name on card'}
+						.required=${true}
+						.hint=${!this.isCardNameValid
 							? 'Please enter the name as it appears on the card'
-							: 'Enter the name exactly as it appears on your card'}"
+							: 'Enter the name exactly as it appears on your card'}
 						@change=${(e: SchmancyInputChangeEvent) => {
 							this.cardName = e.detail.value
 							this.value.cardName = e.detail.value
@@ -235,10 +235,10 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 							autocomplete="cc-number"
 							id="cardNumber"
 							type="text"
-							label="Card number"
+							.label=${'Card number'}
 							.error=${!this.isCardNumberValid}
-							required
-							hint="${!this.isCardNumberValid ? 'Please enter a valid card number' : 'Your 16-digit card number'}"
+							.required=${true}
+							.hint=${!this.isCardNumberValid ? 'Please enter a valid card number' : 'Your 16-digit card number'}
 							@change=${(e: SchmancyInputChangeEvent) => {
 								this.cardNumber = e.detail.value
 								this.value.cardNumber = e.detail.value
@@ -260,10 +260,10 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 							}}
 							type="text"
 							.error=${!this.isExpirationDateValid}
-							label="Expiration date"
+							.label=${'Expiration date'}
 							placeholder="MM/YY"
-							required
-							hint="${!this.isExpirationDateValid ? 'Invalid expiration date' : 'MM/YY format'}"
+							.required=${true}
+							.hint=${!this.isExpirationDateValid ? 'Invalid expiration date' : 'MM/YY format'}
 						></schmancy-input>
 
 						<schmancy-input
@@ -274,13 +274,13 @@ export class SchmancyPaymentCardForm extends $LitElement() {
 								this.value.cvv = e.detail.value
 								this.emitChange()
 							}}
-							label="CVV"
+							.label=${'CVV'}
 							.error=${!this.isCvvValid}
-							required
+							.required=${true}
 							type="text"
 							maxlength="${this.cardType === 'amex' ? '4' : '3'}"
 							minlength="${this.cardType === 'amex' ? '4' : '3'}"
-							hint="${!this.isCvvValid ? 'Invalid security code' : 'Security code on back of card'}"
+							.hint=${!this.isCvvValid ? 'Invalid security code' : 'Security code on back of card'}
 						></schmancy-input>
 					</div>
 

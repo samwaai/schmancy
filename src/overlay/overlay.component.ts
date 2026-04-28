@@ -1,5 +1,5 @@
 import { $LitElement } from '@mixins/index'
-import { css, html, render as litRender, nothing, type TemplateResult } from 'lit'
+import { css, html, render as litRender, type TemplateResult } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import {
@@ -305,7 +305,7 @@ export class SchmancyOverlay extends $LitElement(css`
 					data-layout=${this.layout}
 					data-tier=${this.tier}
 					role=${this.modal ? 'dialog' : 'region'}
-					aria-modal=${this.modal ? 'true' : nothing}
+					aria-modal=${this.modal ? 'true' : 'false'}
 					tabindex="-1"
 				>
 					<div id=${MOUNT_POINT_ID}></div>

@@ -7,6 +7,7 @@ import { SchmancyTheme } from '@schmancy/theme/theme.interface'
 import { css, html, PropertyValues, TemplateResult } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { ifDefined } from 'lit/directives/if-defined.js'
 import { BehaviorSubject, combineLatest, fromEvent, Subject, takeUntil } from 'rxjs'
 import { tap, withLatestFrom } from 'rxjs/operators'
 
@@ -681,7 +682,7 @@ export class SchmancySelect extends $LitElement(css`
 		return html`
 			<div class="relative ${this.disabled ? 'opacity-60 cursor-not-allowed' : ''}">
 				<sch-input
-					.name=${this.name}
+					.name=${this.name ?? ''}
 					tabIndex=${this.disabled ? '-1' : '0'}
 					class="trigger"
 					role="combobox"
@@ -690,7 +691,7 @@ export class SchmancySelect extends $LitElement(css`
 					aria-controls="options"
 					aria-autocomplete="none"
 					aria-required=${this.required}
-					aria-activedescendant=${this._focusedOptionId || undefined}
+					aria-activedescendant=${ifDefined(this._focusedOptionId || undefined)}
 					aria-disabled=${this.disabled}
 					.label=${this.label}
 					.placeholder=${this.placeholder}
@@ -701,7 +702,7 @@ export class SchmancySelect extends $LitElement(css`
 					.error=${showErrors}
 					.validateOn=${this.validateOn}
 					.size=${this.size}
-					readonly
+					.readonly=${true}
 					clickable
 					@click=${(e: MouseEvent) => {
 						// Don't process clicks if disabled

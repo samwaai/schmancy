@@ -364,7 +364,7 @@ export class SchmancyThemeAudioPlayer extends $LitElement(css`
 						placeholder="I'm feeling..."
 						.value=${this.moodText}
 						@input=${this.handleMoodInput}
-						?disabled=${this.isGenerating}
+						.disabled=${this.isGenerating}
 						class="w-full"
 					></schmancy-input>
 				</div>
@@ -385,7 +385,7 @@ export class SchmancyThemeAudioPlayer extends $LitElement(css`
 					${when(
 						this.isGenerating,
 						() => html`
-							<schmancy-progress-circular indeterminate size="20"></schmancy-progress-circular>
+							<schmancy-progress indeterminate size="sm"></schmancy-progress>
 							<span class="ml-2">Generating...</span>
 						`,
 						() => html`
