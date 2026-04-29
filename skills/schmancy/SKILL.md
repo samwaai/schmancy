@@ -21,7 +21,7 @@ All reference files live in this directory. Read by filename.
 | Piece | Read |
 |-------|------|
 | Routing (`<schmancy-area>`, `<schmancy-route>`, `area.push()`, `lazy()`) | `area.md` |
-| State (`createContext`, `@select`, `@selectItem`) | `store.md` |
+| State (`state()`, `bindState`, `computed`, `stateFromObservable`) | `state.md` |
 | Base class (`$LitElement`) | `mixins.md` |
 | Theme (`<schmancy-theme>`, `theme` service) | `theme.md` |
 | Directives (`magnetic`, `cursorGlow`, `gravity`, `reveal`, `animateText`, …) | `directives.md` |

@@ -7,7 +7,7 @@ A Web Component UI library on Lit + RxJS + Tailwind CSS.
 The framework pieces — touch before components.
 
 - [Area](./area.md) — `<schmancy-area>`, `<schmancy-route>`, `area.push()`, `lazy()` for routing.
-- [Store](./store.md) — `createContext`, `@select`, `@selectItem`, storage backends.
+- [State](./state.md) — `state()` factory (memory / session / local / idb), variant write APIs (`Object` / `Map` / `Set` / `Array` / `Scalar`), `bindState`, `computed`, `stateFromObservable`.
 - [Mixins](./mixins.md) — `$LitElement` base class.
 - [Theme](./theme.md) — `<schmancy-theme>`, color scheme, CSS variables.
 - [Directives](./directives.md) — Lit directives for physics, effects, text, visibility, interaction.
