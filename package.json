@@ -90,7 +90,6 @@
 		"@lit/context": "^1.1.6",
 		"@material/material-color-utilities": "^0.4.0",
 		"@material/web": "^2.4.1",
-		"@types/cleave.js": "^1.4.12",
 		"cleave.js": "^1.6.0",
 		"dayjs": "^1.11.20",
 		"highlight.js": "^11.11.1",
@@ -106,6 +105,7 @@
 		"@rollup/plugin-terser": "^1.0.0",
 		"@tailwindcss/postcss": "^4.2.1",
 		"@tailwindcss/vite": "^4.2.1",
+		"@types/cleave.js": "^1.4.12",
 		"@types/node": "^25.5.0",
 		"@vitest/browser-playwright": "^4.1.4",
 		"@vitest/coverage-v8": "^4.1.5",
@@ -129,7 +129,10 @@
 		"web-component-analyzer": "^2.0.0"
 	},
 	"peerDependencies": {
+		"@lit/context": "^1.1.0",
+		"immer": "^11.0.0",
 		"lit": "^3.2.1",
+		"rxjs": "^7.8.0",
 		"tailwindcss": "^4.0.0"
 	}
 }
