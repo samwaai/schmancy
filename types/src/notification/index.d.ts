@@ -1,6 +1,0 @@
-export { default as SchmancyNotification } from './notification';
-export type { NotificationType } from './notification';
-export { $notify } from './notification-service';
-export type { NotificationOptions } from './notification-service';
-export { notify, notifyProgress } from './notify';
-export type { NotifyOptions } from './notify';
