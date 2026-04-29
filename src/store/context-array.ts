@@ -8,16 +8,16 @@ import { IArrayStore, StorageType, StoreError } from './types'
  * Enhanced array store with TypeScript support and immutability
  * Extends BaseStore for common functionality
  */
-export class SchmancyArrayStore<T = any> extends BaseStore<T[]> implements IArrayStore<T> {
+export class SchmancyArrayStore<T = unknown> extends BaseStore<T[]> implements IArrayStore<T> {
 	public static type = 'array'
 
 	// Static map to hold instances
-	private static instances: Map<string, SchmancyArrayStore<any>> = new Map()
+	private static instances: Map<string, SchmancyArrayStore<unknown>> = new Map()
 
 	/**
 	 * Static method to get or create an instance with proper typing
 	 */
-	public static getInstance<T = any>(storage: StorageType, key: string, defaultValue: T[] = []): SchmancyArrayStore<T> {
+	public static getInstance<T = unknown>(storage: StorageType, key: string, defaultValue: T[] = []): SchmancyArrayStore<T> {
 		const instanceKey = `${storage}:${key}`
 		if (!this.instances.has(instanceKey)) {
 			this.instances.set(instanceKey, new SchmancyArrayStore<T>(storage, key, defaultValue))

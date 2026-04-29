@@ -8,16 +8,16 @@ import { produce, Draft, castDraft } from 'immer'
  * Enhanced collection store with better TypeScript support and immutability
  * Now extends BaseStore for common functionality
  */
-export default class SchmancyCollectionStore<V = any> extends BaseStore<Map<string, V>> implements ICollectionStore<V> {
+export default class SchmancyCollectionStore<V = unknown> extends BaseStore<Map<string, V>> implements ICollectionStore<V> {
 	public static type = 'collection'
 
 	// Static map to hold instances
-	private static instances: Map<string, SchmancyCollectionStore<any>> = new Map()
+	private static instances: Map<string, SchmancyCollectionStore<unknown>> = new Map()
 
 	/**
 	 * Static method to get or create an instance with proper typing
 	 */
-	public static getInstance<V = any>(
+	public static getInstance<V = unknown>(
 		storage: StorageType,
 		key: string,
 		defaultValue: Map<string, V>,
