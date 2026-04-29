@@ -28,7 +28,7 @@
  */
 
 import { BehaviorSubject, distinctUntilChanged, map, shareReplay } from 'rxjs'
-import { createContext } from '../store'
+import { state } from '../state'
 import type {
 	Feeling,
 	FeelingCategory,
@@ -43,16 +43,12 @@ import type {
 // CONTEXT
 // ============================================================================
 
-/** Sound settings context - persists to local storage */
-const SoundContext = createContext<SoundThemeSettings>(
-	{
-		theme: null,
-		volume: 0.15,
-		muted: false,
-	},
-	'local',
-	'schmancy-sound-settings'
-)
+/** Sound settings — persists to localStorage under namespace `schmancy/sound`. */
+const SoundContext = state<SoundThemeSettings>('schmancy/sound').local({
+	theme: null,
+	volume: 0.15,
+	muted: false,
+})
 
 // ============================================================================
 // DEFAULT SOUND THEME

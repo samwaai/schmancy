@@ -15,19 +15,18 @@ import {
 import { ThemeHereIAm, ThemeHereIAmEvent, ThemeWhereAreYou } from './theme.events'
 import type { SchmancyThemeComponent } from './theme.component'
 import type { TSchmancyTheme } from './theme.interface'
-import { createContext } from '../store'
+import { state } from '../state'
 
 interface ThemeSettings {
   scheme: 'dark' | 'light' | 'auto'
   color: string
 }
 
-// Single context for all theme settings
-const ThemeContext = createContext<ThemeSettings>(
-  { scheme: 'auto', color: '#6200ee' },
-  'local',
-  'schmancy-theme-settings'
-)
+// Theme settings — persists to localStorage under namespace `schmancy/theme`.
+const ThemeContext = state<ThemeSettings>('schmancy/theme').local({
+  scheme: 'auto',
+  color: '#6200ee',
+})
 
 /**
  * Theme Service - Provides centralized theme management for Schmancy components.
