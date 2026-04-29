@@ -523,3 +523,71 @@ export function stateFromObservable<T, NS extends FeatureNamespace>(
 	}
 	return inst
 }
+
+// ---------------------------------------------------------------------------
+// bindState(host, source) — Lit ReactiveController helper for one-way binding.
+//
+// Subscribes in hostConnected, unsubscribes in hostDisconnected, calls
+// host.requestUpdate() on every emission. Returned object exposes the same
+// `value` and `$` surface as the source so render code reads naturally:
+//
+//   class CartView extends LitElement {
+//     cart = bindState(this, cartState)
+//     render() { return html`Items: ${this.cart.value.items.length}` }
+//   }
+//
+// Decorator (`@observe`) form is deliberately deferred — schmancy's
+// tsconfig still uses experimentalDecorators=true and flipping to
+// TC39 native produces ~9k errors across the codebase. The helper
+// gives the same lifecycle guarantees with zero tsconfig churn.
+// ---------------------------------------------------------------------------
+
+import type { ReactiveController, ReactiveControllerHost } from 'lit'
+
+/** Permissive duck-typed contract — v1 IStore<T>, v2 State<>, and
+ *  computed() outputs (`Signal.Computed<T>` wrapped in a thin shim) all
+ *  satisfy it once you supply a `value` getter and an Observable `$`. */
+export interface ObservableState<T> {
+	readonly value: T
+	readonly $: Observable<T>
+}
+
+export interface BoundState<T> {
+	readonly value: T
+	readonly $: Observable<T>
+}
+
+class BindStateController<T> implements ReactiveController {
+	private subscription: import('rxjs').Subscription | undefined
+	private latest: T
+	constructor(
+		private readonly host: ReactiveControllerHost,
+		private readonly source: ObservableState<T>,
+	) {
+		this.latest = source.value
+		host.addController(this)
+	}
+	get value(): T {
+		return this.latest
+	}
+	get $(): Observable<T> {
+		return this.source.$
+	}
+	hostConnected(): void {
+		this.subscription = this.source.$.subscribe(v => {
+			this.latest = v
+			this.host.requestUpdate()
+		})
+	}
+	hostDisconnected(): void {
+		this.subscription?.unsubscribe()
+		this.subscription = undefined
+	}
+}
+
+export function bindState<T>(
+	host: ReactiveControllerHost,
+	source: ObservableState<T>,
+): BoundState<T> {
+	return new BindStateController(host, source)
+}

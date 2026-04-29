@@ -1,5 +1,30 @@
 import { describe, expect, it } from 'vitest'
-import { computed, state } from './index'
+import { Subject } from 'rxjs'
+import type { ReactiveController, ReactiveControllerHost } from 'lit'
+import { bindState, computed, state, stateFromObservable } from './index'
+
+class FakeHost implements ReactiveControllerHost {
+	private controllers = new Set<ReactiveController>()
+	updates = 0
+	addController(c: ReactiveController): void {
+		this.controllers.add(c)
+	}
+	removeController(c: ReactiveController): void {
+		this.controllers.delete(c)
+	}
+	requestUpdate(): void {
+		this.updates += 1
+	}
+	get updateComplete(): Promise<boolean> {
+		return Promise.resolve(true)
+	}
+	connect(): void {
+		this.controllers.forEach(c => c.hostConnected?.())
+	}
+	disconnect(): void {
+		this.controllers.forEach(c => c.hostDisconnected?.())
+	}
+}
 
 const nextMicrotask = (): Promise<void> => Promise.resolve()
 const settle = async (): Promise<void> => {
@@ -165,5 +190,37 @@ describe('state() factory', () => {
 			using s2 = state<number>(ns).memory(0)
 			void s2
 		}).not.toThrow()
+	})
+
+	it('stateFromObservable lifts an Observable into a state', async () => {
+		const source = new Subject<number>()
+		const lifted = stateFromObservable(source, 'test/lifted', 0)
+		await lifted.ready
+		expect(lifted.value).toBe(0)
+		source.next(7)
+		expect(lifted.value).toBe(7)
+		source.next(42)
+		expect(lifted.value).toBe(42)
+		lifted[Symbol.dispose]()
+	})
+
+	it('bindState mirrors the source value across the host lifecycle', async () => {
+		using counter = state<number>('test/bound').memory(0)
+		const host = new FakeHost()
+		const bound = bindState(host, counter)
+		expect(bound.value).toBe(0)
+		host.connect()
+		counter.set(3)
+		await settle()
+		expect(bound.value).toBe(3)
+		expect(host.updates).toBeGreaterThan(0)
+
+		const updatesBeforeDisconnect = host.updates
+		host.disconnect()
+		counter.set(99)
+		await settle()
+		// After disconnect, the bound view stops tracking — value frozen.
+		expect(bound.value).toBe(3)
+		expect(host.updates).toBe(updatesBeforeDisconnect)
 	})
 })
