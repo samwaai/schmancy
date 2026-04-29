@@ -127,7 +127,14 @@ export interface BaseAPI<NS extends string, T, S extends StorageBackend> {
 	readonly [stateBrand]: true
 	readonly namespace: NS & { readonly [namespaceBrand]: NS }
 	readonly storage: S
-	readonly value: T
+	/**
+	 * Current value. For sync backends (memory/local/session) the load is
+	 * synchronous, so the type narrows to `T`. For `idb` the load is genuinely
+	 * async — `value` is `T | undefined` until `ready` resolves. Read with
+	 * `state.value ?? state.defaultValue` if you don't care about the
+	 * pre-load distinction; await `state.ready` if you do.
+	 */
+	readonly value: IsAsync<S> extends true ? T | undefined : T
 	readonly defaultValue: T
 	readonly ready: Promise<void>
 	readonly loaded: boolean
