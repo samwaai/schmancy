@@ -488,6 +488,65 @@ export function state(namespace: unknown): unknown {
 export { computed } from '@lit-labs/signals'
 
 // ---------------------------------------------------------------------------
+// effect(fn) — run a side-effect function whenever any signal it reads
+// changes. Returns a Disposable so the effect can be cleaned up.
+//
+//   const stop = effect(() => {
+//     document.title = `${cart.value.items.length} items`
+//   })
+//   ...later...
+//   stop[Symbol.dispose]()
+//
+// The effect runs once eagerly to register dependencies, then re-runs
+// (microtask-coalesced) whenever any read signal changes.
+// ---------------------------------------------------------------------------
+
+export interface EffectHandle extends Disposable {
+	[Symbol.dispose](): void
+}
+
+export function effect(fn: () => void): EffectHandle {
+	let scheduled = false
+	let disposed = false
+	let watcher: Signal.subtle.Watcher | undefined
+
+	const run = (): void => {
+		if (disposed) return
+		// Wrap fn in a Computed so signal reads are tracked. The computed's
+		// value is unused — we only care about the dependency graph it builds.
+		const computation = new Signal.Computed(() => {
+			fn()
+			return undefined
+		})
+		// Reading the computed registers our Watcher as a sink for every
+		// signal the fn touches.
+		watcher?.unwatch()
+		watcher = new Signal.subtle.Watcher(() => {
+			if (scheduled || disposed) return
+			scheduled = true
+			queueMicrotask(() => {
+				scheduled = false
+				if (disposed) return
+				run()
+			})
+		})
+		watcher.watch(computation)
+		computation.get()
+	}
+
+	run()
+
+	return {
+		[Symbol.dispose](): void {
+			if (disposed) return
+			disposed = true
+			watcher?.unwatch()
+			watcher = undefined
+		},
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Observable → state bridge.
 // ---------------------------------------------------------------------------
 

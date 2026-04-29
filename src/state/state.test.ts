@@ -4,7 +4,7 @@ import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import type { ReactiveController, ReactiveControllerHost } from 'lit'
 import { $LitElement } from '@mixins/index'
-import { bindState, computed, observe, state, stateFromObservable } from './index'
+import { bindState, computed, effect, observe, state, stateFromObservable } from './index'
 
 class FakeHost implements ReactiveControllerHost {
 	private controllers = new Set<ReactiveController>()
@@ -296,6 +296,81 @@ describe('state() factory', () => {
 		await el.updateComplete
 		expect(el.flag).toBe(true)
 
+		el.remove()
+	})
+
+	it('effect(fn) runs eagerly and re-runs on signal change', async () => {
+		using counter = state<number>('test/effect-basic').memory(0)
+		const seen: number[] = []
+		const stop = effect(() => {
+			seen.push(counter.value)
+		})
+
+		// Eager: fn ran once during construction.
+		expect(seen).toEqual([0])
+
+		counter.set(1)
+		await settle()
+		counter.set(2)
+		await settle()
+		counter.set(3)
+		await settle()
+		expect(seen).toEqual([0, 1, 2, 3])
+
+		stop[Symbol.dispose]()
+		counter.set(99)
+		await settle()
+		// Disposed: no further runs.
+		expect(seen).toEqual([0, 1, 2, 3])
+	})
+
+	it('effect coalesces multiple writes within the same microtask', async () => {
+		using counter = state<number>('test/effect-coalesce').memory(0)
+		let runs = 0
+		const stop = effect(() => {
+			void counter.value
+			runs += 1
+		})
+		expect(runs).toBe(1)
+
+		counter.set(1)
+		counter.set(2)
+		counter.set(3)
+		await settle()
+		// All three writes in the same task → exactly one re-run.
+		expect(runs).toBe(2)
+		stop[Symbol.dispose]()
+	})
+
+	it('stress: 1000 rapid signal mutations produce one render cycle', async () => {
+		using counter = state<number>('test/stress').memory(0)
+
+		@customElement('test-stress-element')
+		class TestStressElement extends $LitElement() {
+			renders = 0
+			render() {
+				this.renders += 1
+				return html`<span>${counter.value}</span>`
+			}
+		}
+		void TestStressElement
+
+		const el = document.createElement('test-stress-element') as LitElement & { renders: number }
+		document.body.appendChild(el)
+		await el.updateComplete
+		const initialRenders = el.renders
+
+		for (let i = 1; i <= 1000; i++) {
+			counter.set(i)
+		}
+		await settle()
+		await el.updateComplete
+
+		expect(counter.value).toBe(1000)
+		expect(el.shadowRoot!.querySelector('span')!.textContent).toBe('1000')
+		// SignalWatcher coalesces — the host re-renders at most a small,
+		// bounded number of times for 1000 sync mutations, NOT 1000 times.
+		expect(el.renders - initialRenders).toBeLessThanOrEqual(2)
 		el.remove()
 	})
 
