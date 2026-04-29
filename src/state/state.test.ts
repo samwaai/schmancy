@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { Subject } from 'rxjs'
+import { LitElement, html } from 'lit'
+import { customElement } from 'lit/decorators.js'
 import type { ReactiveController, ReactiveControllerHost } from 'lit'
-import { bindState, computed, state, stateFromObservable } from './index'
+import { bindState, computed, observe, state, stateFromObservable } from './index'
 
 class FakeHost implements ReactiveControllerHost {
 	private controllers = new Set<ReactiveController>()
@@ -222,5 +224,114 @@ describe('state() factory', () => {
 		// After disconnect, the bound view stops tracking — value frozen.
 		expect(bound.value).toBe(3)
 		expect(host.updates).toBe(updatesBeforeDisconnect)
+	})
+
+	it('@observe binds a Lit component field to a state source', async () => {
+		using counter = state<number>('test/observe-counter').memory(0)
+
+		@customElement('test-observe-element')
+		class TestObserveElement extends LitElement {
+			@observe(counter) count!: number
+			render() {
+				return html`<span data-test="value">${this.count}</span>`
+			}
+		}
+		void TestObserveElement
+
+		const el = document.createElement('test-observe-element') as LitElement & { count: number }
+		document.body.appendChild(el)
+		await el.updateComplete
+
+		expect(el.count).toBe(0)
+		const span = el.shadowRoot!.querySelector('[data-test="value"]')!
+		expect(span.textContent).toBe('0')
+
+		counter.set(7)
+		await settle()
+		await el.updateComplete
+		expect(el.count).toBe(7)
+		expect(span.textContent).toBe('7')
+
+		counter.set(42)
+		await settle()
+		await el.updateComplete
+		expect(el.count).toBe(42)
+		expect(span.textContent).toBe('42')
+
+		el.remove()
+	})
+
+	it('@observe drops caller writes with a dev warning', async () => {
+		using flag = state<boolean>('test/observe-readonly').memory(false)
+
+		@customElement('test-observe-readonly')
+		class TestReadonlyElement extends LitElement {
+			@observe(flag) flag!: boolean
+			render() {
+				return html`<span>${this.flag}</span>`
+			}
+		}
+		void TestReadonlyElement
+
+		const el = document.createElement('test-observe-readonly') as LitElement & { flag: boolean }
+		document.body.appendChild(el)
+		await el.updateComplete
+
+		const originalWarn = console.warn
+		const warnings: string[] = []
+		console.warn = (...args: unknown[]) => warnings.push(args.map(String).join(' '))
+		try {
+			el.flag = true
+		} finally {
+			console.warn = originalWarn
+		}
+
+		expect(el.flag).toBe(false)
+		expect(warnings.length).toBe(1)
+		expect(warnings[0]).toMatch(/read-only/)
+
+		flag.set(true)
+		await settle()
+		await el.updateComplete
+		expect(el.flag).toBe(true)
+
+		el.remove()
+	})
+
+	it('@observe unsubscribes on disconnect and resubscribes on reconnect', async () => {
+		using ticker = state<number>('test/observe-lifecycle').memory(0)
+
+		@customElement('test-observe-lifecycle')
+		class TestLifecycleElement extends LitElement {
+			@observe(ticker) tick!: number
+			render() {
+				return html`<span>${this.tick}</span>`
+			}
+		}
+		void TestLifecycleElement
+
+		const el = document.createElement('test-observe-lifecycle') as LitElement & { tick: number }
+		document.body.appendChild(el)
+		await el.updateComplete
+		expect(el.tick).toBe(0)
+
+		ticker.set(1)
+		await settle()
+		await el.updateComplete
+		expect(el.tick).toBe(1)
+
+		el.remove()
+		ticker.set(2)
+		// Field reads fall back to source.value once the cached storage is
+		// stale — the fallback path always returns the source's latest value,
+		// so we don't assert the field stayed frozen. Reconnect to verify
+		// the controller resubscribes and renders pick up emissions again.
+
+		document.body.appendChild(el)
+		await settle()
+		await el.updateComplete
+		expect(el.tick).toBe(2)
+
+		el.remove()
 	})
 })

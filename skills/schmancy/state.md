@@ -31,8 +31,8 @@ cart.delete('total')
 
 // Subscribe in a Lit component
 class CartView extends LitElement {
-  cart = bindState(this, cartState)
-  render() { return html`Items: ${this.cart.value.items.length}` }
+  @observe(cart) cart!: CartState
+  render() { return html`Items: ${this.cart.items.length}` }
 }
 
 // Derived
@@ -203,15 +203,46 @@ cart.defaultValue    // the initial passed to the factory
 
 ## Subscribing in a Lit component
 
-Use `bindState(host, source)` — a Lit `ReactiveController` helper that
-subscribes in `hostConnected`, unsubscribes in `hostDisconnected`, and
-calls `host.requestUpdate()` on each emission.
+Two consumer-facing patterns. Pick whichever fits the call site.
+
+### `@observe(source)` — decorator form
 
 ```ts
 import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { bindState } from '@mhmo91/schmancy/state'
+import { observe } from '@mhmo91/schmancy/state'
 import { cart } from './cart.context'
+
+@customElement('cart-view')
+export class CartView extends LitElement {
+  @observe(cart) cart!: CartState
+
+  render() {
+    return html`<span>Items: ${this.cart.items.length}</span>`
+  }
+}
+```
+
+Reads return the latest emitted value (falls back to `source.value`
+before the first emission lands). Caller writes to the field are
+dropped with a dev-mode warning — the source is the single source
+of truth.
+
+Per-instance subscription is wired via Lit's static `addInitializer`,
+which gives the decorator instance access at construction. A
+`ReactiveController` handles the lifecycle: subscribe in
+`hostConnected`, unsubscribe in `hostDisconnected`. Multiple `@observe`
+decorators on the same class register independent controllers — they
+compose without ordering concerns.
+
+`@observe` is a legacy property decorator (the same shape as
+`@property`/`@state`/`@query`). It works under the existing
+`experimentalDecorators: true` tsconfig — no migration required.
+
+### `bindState(host, source)` — imperative form
+
+```ts
+import { bindState } from '@mhmo91/schmancy/state'
 
 @customElement('cart-view')
 export class CartView extends LitElement {
@@ -223,14 +254,11 @@ export class CartView extends LitElement {
 }
 ```
 
-The returned `BoundState<T>` exposes the same `value` and `$` surface as
-the source, so render code reads naturally and the dependency on the
-source is explicit.
-
-A TC39 native `@observe` accessor decorator is **deferred** — flipping
-schmancy's tsconfig to `experimentalDecorators: false` produces ~9k tsc
-errors across mixins and components, which is a separate codebase-wide
-migration. Use `bindState` until that initiative lands.
+Same lifecycle guarantees, no decorator. The returned `BoundState<T>`
+exposes `.value` and `.$`. Use this when:
+- you want the binding visibly on its own line for clarity, or
+- the host isn't a Lit `ReactiveElement` subclass (the decorator
+  requires the static `addInitializer` hook).
 
 ## Derived state — `computed()`
 
@@ -329,7 +357,7 @@ const total = createCompoundSelector([cart], [c => c.total], t => t)
 // v2
 const cart = state<CartState>('hannah/cart').session(initial)
 class CartView extends LitElement {
-  cart = bindState(this, cart)
+  @observe(cart) cart!: CartState   // or: cart = bindState(this, cart)
 }
 const total = computed(() => cart.value.total)
 ```

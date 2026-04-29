@@ -591,3 +591,85 @@ export function bindState<T>(
 ): BoundState<T> {
 	return new BindStateController(host, source)
 }
+
+// ---------------------------------------------------------------------------
+// @observe(source) — legacy property decorator for one-way binding.
+//
+// Usage:
+//   class CartView extends LitElement {
+//     @observe(cart) cart!: CartState
+//     render() { return html`Items: ${this.cart.items.length}` }
+//   }
+//
+// Reads return the latest value emitted by the source (falling back to
+// `source.value` before the first emission). Caller writes are dropped
+// with a dev-mode warning — the source is the single source of truth.
+//
+// Per-instance subscription is wired via Lit's static `addInitializer`,
+// which runs at instance construction and gives the decorator access to
+// the host. A `ReactiveController` handles the lifecycle: subscribe in
+// `hostConnected`, unsubscribe in `hostDisconnected`. Multiple `@observe`
+// decorators on the same class register independent controllers — no
+// init-order bookkeeping, no prototype-walking.
+//
+// Legacy decorator (matches the rest of schmancy's @property / @state /
+// @query family). Works under the existing `experimentalDecorators: true`
+// tsconfig — no migration required.
+// ---------------------------------------------------------------------------
+
+interface ObserveHost extends ReactiveControllerHost {
+	addController(controller: ReactiveController): void
+}
+
+interface LitElementCtor {
+	addInitializer(initializer: (host: ObserveHost) => void): void
+}
+
+export function observe<T>(source: ObservableState<T>) {
+	return function (proto: object, propertyKey: string | symbol): void {
+		const storageKey = Symbol(`__observe_${String(propertyKey)}`)
+
+		// Per-prototype accessor — reads return the latest cached value,
+		// falling back to `source.value` before the first emission lands.
+		// Writes from callers are dropped with a dev warning.
+		Object.defineProperty(proto, propertyKey, {
+			get(this: Record<symbol, T>): T {
+				const cached = this[storageKey]
+				return cached !== undefined ? cached : source.value
+			},
+			set(_value: T): void {
+				console.warn(
+					`@observe: field "${String(propertyKey)}" is read-only — write ignored. ` +
+						`Update the source state directly.`,
+				)
+			},
+			configurable: true,
+			enumerable: true,
+		})
+
+		// Per-instance subscription via Lit's addInitializer hook.
+		const ctor = proto.constructor as unknown as LitElementCtor
+		if (typeof ctor.addInitializer !== 'function') {
+			throw new TypeError(
+				`@observe requires a Lit ReactiveElement subclass — ${proto.constructor.name} ` +
+					`does not provide static addInitializer.`,
+			)
+		}
+
+		ctor.addInitializer((host: ObserveHost) => {
+			let subscription: import('rxjs').Subscription | undefined
+			host.addController({
+				hostConnected(): void {
+					subscription = source.$.subscribe(value => {
+						;(host as unknown as Record<symbol, T>)[storageKey] = value
+						host.requestUpdate()
+					})
+				},
+				hostDisconnected(): void {
+					subscription?.unsubscribe()
+					subscription = undefined
+				},
+			})
+		})
+	}
+}
