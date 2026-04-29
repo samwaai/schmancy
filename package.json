@@ -86,6 +86,7 @@
 	"dependencies": {
 		"@floating-ui/dom": "^1.7.6",
 		"@lit-labs/motion": "^1.1.0",
+		"@lit-labs/signals": "^0.2.0",
 		"@lit-labs/virtualizer": "^2.1.1",
 		"@lit/context": "^1.1.6",
 		"@material/material-color-utilities": "^0.4.0",

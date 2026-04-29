@@ -51,6 +51,7 @@ export * from './rxjs-utils';
 export * from './select';
 export * from './sheet';
 export * from './slider';
+export * from './state';
 export * from './steps';
 export * from './store';
 export * from './surface';

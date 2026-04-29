@@ -49,6 +49,9 @@ yarn.lock
 # Demo directory (local development only, not part of the library)
 demo/
 
+# Throwaway prototypes / spikes — never committed
+_scratch/
+
 # Local Claude settings (per-developer, not shared)
 **/.claude/settings.local.json
 
