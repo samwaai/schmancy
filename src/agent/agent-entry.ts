@@ -10,8 +10,9 @@ export {
 	theme,
 	area,
 	lazy,
-	createContext,
-	select,
-	selectItem,
+	state,
+	bindState,
+	computed,
+	stateFromObservable,
 } from '../index'
 export { $LitElement } from '../../mixins/index'

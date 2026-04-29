@@ -53,7 +53,6 @@ export * from './sheet';
 export * from './slider';
 export * from './state';
 export * from './steps';
-export * from './store';
 export * from './surface';
 export * from './table';
 export * from './tabs';
