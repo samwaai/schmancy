@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    # Re-run on main pushes too so a green main is trustworthy. The
+    # publish-to-npm workflow gates the package version bump on this
+    # workflow's success via `needs:` once teams want that interlock;
+    # for now, both run independently.
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: typecheck + lint + dead-code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack and prepare Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.2 --activate
+
+      # The publish workflow uses --no-immutable because yarn.lock is
+      # gitignored (see .gitignore). Match that here so CI doesn't fail
+      # on the missing lockfile.
+      - name: Install dependencies
+        run: yarn install --no-immutable
+
+      # tsc is also run by `yarn build`, but isolating it gives a
+      # faster, clearer fail signal on type errors before the lint /
+      # knip / test steps run.
+      - name: Typecheck
+        run: yarn tsc --noEmit
+
+      # oxlint is configured at the parent monorepo root via
+      # .oxlintrc.json, which this submodule inherits when run from
+      # the parent. When run standalone (this workflow), use the local
+      # oxlint binary against src/ + mixins/.
+      - name: Lint (oxlint)
+        run: yarn oxlint src/ mixins/
+
+      # lit-analyzer is shipped via ts-lit-plugin (devDep). Run across
+      # the full src tree so HTMLElementTagNameMap globals from sibling
+      # files resolve and cross-file unknown-tag false positives don't
+      # fire.
+      - name: Lit template diagnostics
+        run: yarn lit-analyzer 'src/**/*.ts'
+
+      - name: Dead-code (knip)
+        run: yarn knip
+
+  test:
+    name: test (browser-mode vitest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack and prepare Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.2 --activate
+
+      - name: Install dependencies
+        run: yarn install --no-immutable
+
+      # Vitest browser mode needs a real Chromium.
+      - name: Install Playwright Chromium
+        run: yarn playwright install chromium --with-deps
+
+      # Full suite, not just the agent smoke that the publish workflow
+      # runs as a release gate.
+      - name: Test
+        run: yarn test
+
+  build:
+    name: build (smoke)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack and prepare Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.2 --activate
+
+      - name: Install dependencies
+        run: yarn install --no-immutable
+
+      # `yarn build` runs tsc → vite build → manifest → agent build →
+      # handover render. Catches build-pipeline regressions that pure
+      # typecheck would miss (vite plugin errors, manifest emit
+      # failures, missing build:agent entry points).
+      - name: Build
+        run: yarn build
