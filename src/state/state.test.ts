@@ -4,7 +4,7 @@ import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import type { ReactiveController, ReactiveControllerHost } from 'lit'
 import { $LitElement } from '@mixins/index'
-import { bindState, computed, effect, observe, state, stateFromObservable } from './index'
+import { bindState, computed, effect, observe, scopedState, state, stateFromObservable } from './index'
 
 class FakeHost implements ReactiveControllerHost {
 	private controllers = new Set<ReactiveController>()
@@ -401,6 +401,102 @@ describe('state() factory', () => {
 		await settle()
 		await el.updateComplete
 		expect(span.textContent).toBe('99')
+
+		el.remove()
+	})
+
+	it('scopedState: two providers in different subtrees give isolated states', async () => {
+		interface CartScoped {
+			items: number[]
+		}
+		const cartScope = scopedState<CartScoped, 'test/scoped-cart'>('test/scoped-cart')
+
+		@customElement('test-scoped-provider')
+		class TestScopedProvider extends $LitElement() {
+			cart = cartScope.provide(this).memory({ items: [] })
+			render() {
+				return html`<slot></slot>`
+			}
+		}
+		void TestScopedProvider
+
+		@customElement('test-scoped-consumer')
+		class TestScopedConsumer extends $LitElement() {
+			cart = cartScope.consume(this)
+			render() {
+				return html`<span data-test="count">${this.cart.value.items.length}</span>`
+			}
+		}
+		void TestScopedConsumer
+
+		document.body.innerHTML = `
+			<test-scoped-provider id="provider-a">
+				<test-scoped-consumer id="consumer-a"></test-scoped-consumer>
+			</test-scoped-provider>
+			<test-scoped-provider id="provider-b">
+				<test-scoped-consumer id="consumer-b"></test-scoped-consumer>
+			</test-scoped-provider>
+		`
+
+		const providerA = document.getElementById('provider-a') as LitElement & {
+			cart: { value: CartScoped; update: (recipe: (d: CartScoped) => void) => void }
+		}
+		const providerB = document.getElementById('provider-b') as LitElement & {
+			cart: { value: CartScoped; update: (recipe: (d: CartScoped) => void) => void }
+		}
+		const consumerA = document.getElementById('consumer-a') as LitElement
+		const consumerB = document.getElementById('consumer-b') as LitElement
+
+		await providerA.updateComplete
+		await providerB.updateComplete
+		await consumerA.updateComplete
+		await consumerB.updateComplete
+
+		// Mutate provider A's cart — only consumer A reflects it.
+		providerA.cart.update((d: CartScoped) => {
+			d.items.push(1, 2, 3)
+		})
+		await settle()
+		await consumerA.updateComplete
+		await consumerB.updateComplete
+
+		expect(providerA.cart.value.items.length).toBe(3)
+		expect(providerB.cart.value.items.length).toBe(0)
+		expect(consumerA.shadowRoot!.querySelector('[data-test="count"]')!.textContent).toBe('3')
+		expect(consumerB.shadowRoot!.querySelector('[data-test="count"]')!.textContent).toBe('0')
+
+		document.body.innerHTML = ''
+	})
+
+	it('scopedState: consumer throws clearly when no provider is in tree', async () => {
+		const orphanScope = scopedState<number, 'test/scoped-orphan'>('test/scoped-orphan')
+
+		@customElement('test-scoped-orphan')
+		class TestScopedOrphan extends $LitElement() {
+			counter = orphanScope.consume(this)
+			render() {
+				return html`${this.counter.value}`
+			}
+		}
+		void TestScopedOrphan
+
+		const el = document.createElement('test-scoped-orphan') as LitElement
+		document.body.appendChild(el)
+
+		const originalError = console.error
+		console.error = () => {} // Lit logs the render error; suppress to keep test output clean
+		try {
+			await el.updateComplete.catch(() => {
+				/* expected */
+			})
+		} finally {
+			console.error = originalError
+		}
+
+		// Reading scoped state without a provider raises through the proxy.
+		expect(() => {
+			void (el as unknown as { counter: { value: number } }).counter.value
+		}).toThrow(/no provider in tree/)
 
 		el.remove()
 	})

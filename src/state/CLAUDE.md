@@ -10,7 +10,16 @@ A reactive state primitive for the schmancy library:
 - `state(namespace).memory(initial)` / `.local()` / `.session()` / `.idb()`
   → returns a module-scoped singleton with a TC39 signal, an RxJS
   Observable, sync getter, microtask-debounced persistence, and a
-  Disposable + (for `idb`) AsyncDisposable lifecycle.
+  Disposable + (for `idb`) AsyncDisposable lifecycle. `value` narrows
+  to `T` for sync backends and `T | undefined` for `idb` (the load is
+  genuinely async; truth-in-types).
+- `scopedState(namespace)` → tree-scoped equivalent. `.provide(host)`
+  returns a NamespaceHandlePinned that creates a per-host state and
+  registers it via `@lit/context`. `.consume(host)` walks the DOM
+  tree and returns the nearest provider's instance. For multi-tenant
+  subtrees, sub-route isolation, micro-frontend composition, test
+  isolation. Module-scoped is a strict subset (a top-level provider
+  IS a global).
 - `computed(fn)` — re-export of `@lit-labs/signals/computed`.
 - `effect(fn)` — runs `fn` whenever any signal it reads changes;
   returns a `Disposable` for cleanup.
@@ -41,6 +50,22 @@ class CartView extends $LitElement() {
 
 The imported `cart` singleton IS the binding. Only reach for `@observe`
 or `bindState` when you need the value as a class field.
+
+## Module-scoped vs tree-scoped
+
+Two factories, two scopes — pick by need:
+
+- **`state(namespace)`** — module-scoped singleton. One global instance
+  per namespace. Default for app-wide state (theme, auth, current user).
+- **`scopedState(namespace)`** — tree-scoped factory. Each provider
+  creates its own instance; descendant consumers walk the DOM tree to
+  find it. For multi-tenant subtrees, sub-route isolation, test
+  isolation, micro-frontend composition.
+
+The two are independent — a namespace can have a module-scoped state
+AND a scoped state simultaneously. They use different keys internally
+(scoped state stores its `@lit/context` Context in a separate registry
+from the module-scoped namespace claim list).
 
 ## Rules for code in this directory
 

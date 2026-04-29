@@ -266,6 +266,52 @@ the same class register independent controllers; they compose without
 ordering concerns. Same decorator shape as `@property`/`@state`/`@query` —
 works under the existing tsconfig with no migration.
 
+### Tree-scoped state — `scopedState(namespace)`
+
+Module-scoped `state(...)` is a global singleton. For multi-tenant
+subtrees, sub-route isolation, micro-frontend composition, or test
+isolation, use `scopedState(...)` — a tree-scoped equivalent that
+gives each provider its own instance, found by descendant consumers
+via the DOM tree.
+
+```ts
+import { scopedState } from '@mhmo91/schmancy/state'
+
+const cartScope = scopedState<CartState>('hannah/cart')
+
+@customElement('cart-provider')
+class CartProvider extends $LitElement() {
+  cart = cartScope.provide(this).session({ items: [], total: 0 })
+  render() { return html`<slot></slot>` }
+}
+
+@customElement('cart-view')
+class CartView extends $LitElement() {
+  cart = cartScope.consume(this)
+  render() { return html`Items: ${this.cart.value.items.length}` }
+}
+```
+
+Two providers in disjoint subtrees give two isolated state instances:
+
+```html
+<cart-provider id="acme">      <!-- its own cart -->
+  <cart-view></cart-view>
+</cart-provider>
+<cart-provider id="globex">    <!-- a separate cart -->
+  <cart-view></cart-view>
+</cart-provider>
+```
+
+Lifecycle: the provider's state is disposed when the provider's host
+disconnects. Reads in `render()` (or any code path that runs after
+`connectedCallback`) are safe; reads in the constructor throw a clear
+"no provider in tree" error.
+
+Wiring uses `@lit/context` under the hood. The same state instance the
+provider creates is what the consumer reads — same `value`, same `$`,
+same write API. No proxying of mutations across the tree boundary.
+
 ### (3) `bindState(host, source)` — imperative form
 
 For hosts that aren't `$LitElement` subclasses (rare):

@@ -43,13 +43,28 @@ const cart = state('hannah/cart').session(initial)   // T inferred from `initial
 
 | v1 | v2 |
 |---|---|
-| `cart.value` | `cart.value` (unchanged) |
+| `cart.value` | `cart.value` — `T` for sync backends; `T \| undefined` for IDB until `ready` resolves |
 | `cart.$.subscribe(...)` | `cart.$.subscribe(...)` (unchanged) |
 | `cart.ready` (boolean) | `cart.loaded` (boolean) + `await cart.ready` (Promise<void>) |
 
 `cart.ready` is now a Promise that resolves when initial load completes
 (success or fallback). `cart.loaded` is the boolean runtime flag. Use
 whichever fits the call site.
+
+**For IDB-backed states**, `value` narrows to `T | undefined` because
+the load is genuinely async. Two patterns:
+
+```ts
+// Don't care about the pre-load distinction — fall back to default:
+const items = (cart.value ?? cart.defaultValue).items
+
+// Do care — await the load:
+await cart.ready
+const items = cart.value!.items   // safe, ready is true here
+```
+
+Sync backends (memory/local/session) load synchronously, so their
+`value` stays narrowed to `T` — no guard needed.
 
 ## Writing
 
@@ -217,6 +232,38 @@ it('persists across reloads', async () => {
 cart.destroy()
 ```
 
+## Tree-scoped state — `scopedState(namespace)`
+
+For multi-tenant subtrees, sub-route isolation, micro-frontend
+composition, or test isolation, use `scopedState(...)`. Same mental
+model as v1's expectation that someone might want sub-tree scoping,
+but actually shipped now:
+
+```ts
+import { scopedState } from '@mhmo91/schmancy/state'
+
+const cartScope = scopedState<CartState>('hannah/cart')
+
+class CartProvider extends $LitElement() {
+  cart = cartScope.provide(this).session({ items: [], total: 0 })
+  render() { return html`<slot></slot>` }
+}
+
+class CartView extends $LitElement() {
+  cart = cartScope.consume(this)
+  render() { return html`Items: ${this.cart.value.items.length}` }
+}
+```
+
+Two providers in disjoint subtrees → two isolated state instances.
+Wiring uses `@lit/context` under the hood. The consumer reads the
+same instance the provider created — same value, same `$`, same write
+API.
+
+Module-scoped (`state(...)`) is a strict subset; use it when there's
+exactly one global instance per namespace. Pick `scopedState(...)` when
+you need per-subtree instances.
+
 ## Things that went away
 
 - **`createCompoundSelector`** — use `computed()`.
@@ -227,9 +274,6 @@ cart.destroy()
   longer needed. The variant write API dispatch is type-level.
 - **`error$` per-store Subject** — errors flow through console + the
   `StateStorageError` thrown from `save()` for IDB write failures.
-- **Tree-scoped `<state-provider>` / `@lit/context` integration** —
-  module-scoped singletons only. The provider element from the
-  original plan was dropped per Spike C.
 
 ## Footguns
 

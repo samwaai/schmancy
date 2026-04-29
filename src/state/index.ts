@@ -439,13 +439,19 @@ function createInstance(args: CreateInstanceArgs): unknown {
 	return instance
 }
 
-function makeHandle(namespace: string): Record<string, (initial: unknown) => unknown> {
-	if (claimed.has(namespace)) {
-		throw new Error(
-			`[state] namespace "${namespace}" already registered. Each namespace must be unique.`,
-		)
+function makeHandle(
+	namespace: string,
+	options: { claim?: boolean } = {},
+): Record<string, (initial: unknown) => unknown> {
+	const claim = options.claim ?? true
+	if (claim) {
+		if (claimed.has(namespace)) {
+			throw new Error(
+				`[state] namespace "${namespace}" already registered. Each namespace must be unique.`,
+			)
+		}
+		claimed.add(namespace)
 	}
-	claimed.add(namespace)
 	return {
 		memory: initial => createInstance({ namespace, initial, storage: 'memory' }),
 		local: initial => createInstance({ namespace, initial, storage: 'local' }),
@@ -737,5 +743,170 @@ export function observe<T>(source: ObservableState<T>) {
 				},
 			})
 		})
+	}
+}
+
+// ---------------------------------------------------------------------------
+// scopedState — tree-scoped state via @lit/context.
+//
+// `state(...)` is a module-scoped singleton (one global instance per
+// namespace). `scopedState(...)` is the tree-scoped equivalent: a
+// provider component creates a per-instance state, descendant
+// consumers walk the DOM tree to find it.
+//
+// Use cases this enables that module-scoped can't:
+//   - Multi-tenant subtrees (each <tenant-shell> provides its own cart)
+//   - Sub-route isolation (a route's state lives only while mounted)
+//   - Test isolation (mount a component with a controlled state, no
+//     global pollution)
+//   - Micro-frontend composition (each MFE gets its own state, no
+//     cross-talk via siblings)
+//
+// Module-scoped state is a strict subset: a single top-level provider
+// IS the global. So scopedState is additive — module-scoped consumers
+// keep working unchanged.
+//
+// Shape:
+//   const cartScope = scopedState<CartState>('hannah/cart')
+//
+//   class CartProvider extends $LitElement() {
+//     cart = cartScope.provide(this).session(initial)
+//     render() { return html`<slot></slot>` }
+//   }
+//
+//   class CartView extends $LitElement() {
+//     cart = cartScope.consume(this)
+//     render() { return html`Items: ${this.cart.value.items.length}` }
+//   }
+//
+// The consumer's `cart` is the SAME state instance the provider
+// created — same write API, same Observable, same value. Reads
+// before the consumer's host connects throw a clear error; reads
+// inside `render()` (which always runs after connection) are safe.
+// ---------------------------------------------------------------------------
+
+import { ContextConsumer, ContextProvider, createContext, type Context } from '@lit/context'
+import type { LitElement } from 'lit'
+
+type AnyState<NS extends string, T> = State<NS, T, StorageBackend>
+
+export interface ScopedFactory<NS extends string, T> {
+	/**
+	 * Create + register the scoped state on the provider host. The provider
+	 * picks the storage backend (memory / local / session / idb).
+	 *
+	 * The state lives for the host's lifetime — it's disposed when the
+	 * provider disconnects.
+	 */
+	provide(host: LitElement): NamespaceHandlePinned<NS, T>
+
+	/**
+	 * Resolve the nearest provider in the DOM tree. Returns the same state
+	 * instance the provider created — same value, same write API, same
+	 * Observable.
+	 *
+	 * Throws if no provider exists in scope when read (after the host
+	 * connects). Reads in `render()` are safe; reads in the constructor
+	 * are not.
+	 */
+	consume(host: LitElement): AnyState<NS, T>
+}
+
+const scopeContextRegistry = new Map<string, Context<string, unknown>>()
+
+function getScopeContext<NS extends string, T>(namespace: NS): Context<NS, AnyState<NS, T>> {
+	let ctx = scopeContextRegistry.get(namespace) as Context<NS, AnyState<NS, T>> | undefined
+	if (!ctx) {
+		ctx = createContext<AnyState<NS, T>>(Symbol(`schmancy.state.scope:${namespace}`)) as Context<
+			NS,
+			AnyState<NS, T>
+		>
+		scopeContextRegistry.set(namespace, ctx as Context<string, unknown>)
+	}
+	return ctx
+}
+
+export function scopedState<T, const NS extends FeatureNamespace>(
+	namespace: NS extends RegisteredNamespace ? never : AssertNovel<NS>,
+): ScopedFactory<NS, T>
+
+export function scopedState(namespace: string): ScopedFactory<string, unknown> {
+	if (!namespace.includes('/')) {
+		throw new TypeError(
+			`[state] namespace "${namespace}" must follow the "feature/name" convention.`,
+		)
+	}
+	const ctx = getScopeContext<string, unknown>(namespace)
+
+	return {
+		provide(host: LitElement): NamespaceHandlePinned<string, unknown> {
+			// Per-host: one state instance, one ContextProvider, dispose on
+			// hostDisconnected. The namespace is NOT globally claimed — multiple
+			// providers for the same namespace are the entire point of the
+			// scoped surface.
+			const handle = makeHandle(namespace, { claim: false })
+			const wrap = (backend: 'memory' | 'local' | 'session' | 'idb') =>
+				(initial: unknown) => {
+					const inst = handle[backend](initial) as AnyState<string, unknown> & {
+						destroy(): void
+					}
+					const provider = new ContextProvider(host, { context: ctx, initialValue: inst })
+					void provider
+					host.addController({
+						hostDisconnected(): void {
+							inst.destroy()
+						},
+					})
+					return inst
+				}
+			return {
+				memory: wrap('memory'),
+				local: wrap('local'),
+				session: wrap('session'),
+				idb: wrap('idb'),
+			} as NamespaceHandlePinned<string, unknown>
+		},
+
+		consume(host: LitElement): AnyState<string, unknown> {
+			let resolved: AnyState<string, unknown> | undefined
+			const consumer = new ContextConsumer(host, {
+				context: ctx,
+				callback: (value: AnyState<string, unknown> | undefined): void => {
+					resolved = value
+				},
+				subscribe: true,
+			})
+			void consumer
+
+			// Return a proxy that forwards every property read/write to the
+			// resolved instance. Reads before resolution throw with a clear
+			// error so misuse surfaces loudly instead of silently returning
+			// stale values.
+			return new Proxy({} as AnyState<string, unknown>, {
+				get(_target, prop): unknown {
+					if (!resolved) {
+						throw new Error(
+							`[state] scopedState("${namespace}") consumed by ${host.tagName.toLowerCase()} ` +
+								`but no provider in tree. Mount the provider as an ancestor before this component reads ` +
+								`scoped state, or move the read into render() / a method called after connectedCallback.`,
+						)
+					}
+					return (resolved as unknown as Record<string | symbol, unknown>)[prop as string | symbol]
+				},
+				set(_target, prop, value): boolean {
+					if (!resolved) {
+						throw new Error(
+							`[state] scopedState("${namespace}") write before provider attached.`,
+						)
+					}
+					;(resolved as unknown as Record<string | symbol, unknown>)[prop as string | symbol] =
+						value
+					return true
+				},
+				has(_target, prop): boolean {
+					return resolved ? prop in (resolved as object) : false
+				},
+			})
+		},
 	}
 }
