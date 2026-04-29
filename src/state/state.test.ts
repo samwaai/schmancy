@@ -3,6 +3,7 @@ import { Subject } from 'rxjs'
 import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import type { ReactiveController, ReactiveControllerHost } from 'lit'
+import { $LitElement } from '@mixins/index'
 import { bindState, computed, observe, state, stateFromObservable } from './index'
 
 class FakeHost implements ReactiveControllerHost {
@@ -294,6 +295,37 @@ describe('state() factory', () => {
 		await settle()
 		await el.updateComplete
 		expect(el.flag).toBe(true)
+
+		el.remove()
+	})
+
+	it('$LitElement auto-tracks state reads in render — no decorator needed', async () => {
+		using counter = state<number>('test/auto-tracked').memory(0)
+
+		@customElement('test-auto-tracked-element')
+		class TestAutoTrackedElement extends $LitElement() {
+			render() {
+				return html`<span data-test="value">${counter.value}</span>`
+			}
+		}
+		void TestAutoTrackedElement
+
+		const el = document.createElement('test-auto-tracked-element') as LitElement
+		document.body.appendChild(el)
+		await el.updateComplete
+
+		const span = el.shadowRoot!.querySelector('[data-test="value"]')!
+		expect(span.textContent).toBe('0')
+
+		counter.set(11)
+		await settle()
+		await el.updateComplete
+		expect(span.textContent).toBe('11')
+
+		counter.set(99)
+		await settle()
+		await el.updateComplete
+		expect(span.textContent).toBe('99')
 
 		el.remove()
 	})

@@ -29,10 +29,9 @@ cart.replace({ items: [], total: 0 })
 cart.update(d => { d.items.push(item) })   // immer
 cart.delete('total')
 
-// Subscribe in a Lit component
-class CartView extends LitElement {
-  @observe(cart) cart!: CartState
-  render() { return html`Items: ${this.cart.items.length}` }
+// Subscribe in a $LitElement — direct read auto-tracks via SignalWatcher
+class CartView extends $LitElement() {
+  render() { return html`Items: ${cart.value.items.length}` }
 }
 
 // Derived
@@ -201,21 +200,55 @@ cart.storage         // 'session' (literal type preserved)
 cart.defaultValue    // the initial passed to the factory
 ```
 
-## Subscribing in a Lit component
+## Subscribing in a component
 
-Two consumer-facing patterns. Pick whichever fits the call site.
+Three options, in order of preference. The first covers the 80% case
+with zero ceremony.
 
-### `@observe(source)` — decorator form
+### (1) Default — direct read inside `render()`
+
+`$LitElement()` composes `SignalWatcher` from `@lit-labs/signals`.
+Every signal read inside `render()` auto-tracks; the host re-renders
+on change. No decorator, no field, no binding code.
 
 ```ts
 import { LitElement, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { observe } from '@mhmo91/schmancy/state'
+import { $LitElement } from '@mixins/index'
 import { cart } from './cart.context'
 
 @customElement('cart-view')
-export class CartView extends LitElement {
+export class CartView extends $LitElement() {
+  render() {
+    return html`<span>Items: ${cart.value.items.length}</span>`
+  }
+}
+```
+
+The imported `cart` singleton IS the binding. Reading `cart.value`
+(or `cart.signal.get()` directly) inside render registers the
+component as a subscriber for the host's lifetime. On `cart.set(...)`,
+the host re-renders.
+
+Use this for:
+- Any component that just renders state into the template.
+- Computed expressions over multiple states: `${cart.value.total + tip.value.amount}`.
+
+### (2) `@observe(source) field!: T` — field-level binding
+
+When the value needs to be a class field — for event handlers,
+derived methods, DevTools inspection, or readability:
+
+```ts
+import { observe } from '@mhmo91/schmancy/state'
+
+@customElement('cart-view')
+export class CartView extends $LitElement() {
   @observe(cart) cart!: CartState
+
+  onClick() {
+    console.log('current cart:', this.cart)   // field access in handlers
+  }
 
   render() {
     return html`<span>Items: ${this.cart.items.length}</span>`
@@ -224,41 +257,32 @@ export class CartView extends LitElement {
 ```
 
 Reads return the latest emitted value (falls back to `source.value`
-before the first emission lands). Caller writes to the field are
-dropped with a dev-mode warning — the source is the single source
-of truth.
+before the first emission lands). Caller writes are dropped with a
+dev-mode warning — the source is the single source of truth.
 
-Per-instance subscription is wired via Lit's static `addInitializer`,
-which gives the decorator instance access at construction. A
-`ReactiveController` handles the lifecycle: subscribe in
-`hostConnected`, unsubscribe in `hostDisconnected`. Multiple `@observe`
-decorators on the same class register independent controllers — they
-compose without ordering concerns.
+Wiring uses Lit's static `addInitializer` to install a
+`ReactiveController` per instance. Multiple `@observe` decorators on
+the same class register independent controllers; they compose without
+ordering concerns. Same decorator shape as `@property`/`@state`/`@query` —
+works under the existing tsconfig with no migration.
 
-`@observe` is a legacy property decorator (the same shape as
-`@property`/`@state`/`@query`). It works under the existing
-`experimentalDecorators: true` tsconfig — no migration required.
+### (3) `bindState(host, source)` — imperative form
 
-### `bindState(host, source)` — imperative form
+For hosts that aren't `$LitElement` subclasses (rare):
 
 ```ts
 import { bindState } from '@mhmo91/schmancy/state'
 
-@customElement('cart-view')
-export class CartView extends LitElement {
+class CustomHost extends LitElement {   // not a $LitElement subclass
   cart = bindState(this, cart)
-
   render() {
     return html`<span>Items: ${this.cart.value.items.length}</span>`
   }
 }
 ```
 
-Same lifecycle guarantees, no decorator. The returned `BoundState<T>`
-exposes `.value` and `.$`. Use this when:
-- you want the binding visibly on its own line for clarity, or
-- the host isn't a Lit `ReactiveElement` subclass (the decorator
-  requires the static `addInitializer` hook).
+Same lifecycle guarantees as `@observe`, no decorator. Returned
+`BoundState<T>` exposes `.value` and `.$`.
 
 ## Derived state — `computed()`
 
