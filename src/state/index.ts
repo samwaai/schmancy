@@ -16,13 +16,23 @@
 //   const cart = state('hannah/cart').session({ items: [], total: 0 })
 
 import { Signal } from '@lit-labs/signals'
+// `@lit/context` re-exports `ContextRequestEvent` as `ContextEvent` from
+// its public entry. Same class, just a shorter public name.
+import { ContextEvent as ContextRequestEvent, createContext } from '@lit/context'
 import { Observable } from 'rxjs'
 import { produce, type Draft } from 'immer'
 
 import { createAdapter, type StorageAdapter, type StorageBackend } from './persist'
+import { resolveActiveHost, stateContextKey } from './active-host'
+// Side-effect import: registers the `<schmancy-context>` element so users
+// only need to import from `@mhmo91/schmancy/state` to get both the factory
+// and the scoping primitive.
+import './schmancy-context'
 
 export type { StorageBackend } from './persist'
 export { Signal } from '@lit-labs/signals'
+export { _activeHost } from './active-host'
+export { SchmancyContext } from './schmancy-context'
 
 // ---------------------------------------------------------------------------
 // Public type surface
@@ -141,6 +151,11 @@ export interface BaseAPI<NS extends string, T, S extends StorageBackend> {
 	readonly signal: Signal.State<T>
 	readonly $: Observable<T>
 	destroy(): void
+	/** Internal: build a fresh per-`<schmancy-context>` copy seeded with the
+	 *  current value. Exposed on the type so a state can be passed to
+	 *  `<schmancy-context provides={[…]}>` without casts. Not for end-user
+	 *  code — the leading underscore signals "internal API". */
+	_isolatedInstance(): { destroy(): void } & Record<string | symbol, unknown>
 }
 
 export interface SyncState<NS extends string, T, S extends SyncStorage>
@@ -191,6 +206,47 @@ function detectKind(value: unknown): RuntimeKind {
 }
 
 const claimed = new Set<string>()
+
+// ---------------------------------------------------------------------------
+// Context resolution.
+//
+// Every read (`value`, `signal`, `$`) and write (`set`, `replace`, `update`,
+// `delete`, `push`, `add`, `toggle`, `clear`) on a state instance routes
+// through `resolveContextual`. It asks "is this call happening inside a
+// `<schmancy-context provides={[...]}>` subtree?" by dispatching a
+// `context-request` event from the active host (resolved via the layered
+// fallback in `active-host.ts`). If a provider responds, the call routes to
+// the per-context isolated instance; otherwise it falls through to the
+// module-scoped global. The decision is cached per-host-per-namespace in a
+// WeakMap so repeat reads stay O(1).
+// ---------------------------------------------------------------------------
+
+const hostResolverCache = new WeakMap<HTMLElement, Map<string, unknown>>()
+
+function resolveContextual(namespace: string, fallback: unknown): unknown {
+	const host = resolveActiveHost()
+	if (host === undefined) return fallback
+
+	const cached = hostResolverCache.get(host)?.get(namespace)
+	if (cached !== undefined) return cached
+
+	let resolved: unknown = undefined
+	const ctx = createContext<unknown>(stateContextKey(namespace))
+	host.dispatchEvent(
+		new ContextRequestEvent(ctx, host, value => {
+			resolved = value
+		}),
+	)
+
+	const result = resolved !== undefined ? resolved : fallback
+	let perHost = hostResolverCache.get(host)
+	if (!perHost) {
+		perHost = new Map<string, unknown>()
+		hostResolverCache.set(host, perHost)
+	}
+	perHost.set(namespace, result)
+	return result
+}
 
 interface InternalState {
 	signal: Signal.State<unknown>
@@ -347,12 +403,22 @@ interface CreateInstanceArgs {
 	storage: StorageBackend
 }
 
+interface CreateInstanceOptions {
+	/** When true, the returned instance is a per-`<schmancy-context>` copy:
+	 *  it does NOT claim the namespace in `claimed`, it does NOT route reads
+	 *  or writes through `resolveContextual` (so it can serve as the
+	 *  resolution target without recursion), and it does NOT expose
+	 *  `_isolatedInstance` (you only isolate the global). */
+	isolated?: boolean
+}
+
 function reportLoadError(err: unknown): void {
 	console.error('[state] load failed:', err)
 }
 
-function createInstance(args: CreateInstanceArgs): unknown {
+function createInstance(args: CreateInstanceArgs, options: CreateInstanceOptions = {}): unknown {
 	const { namespace, initial, storage } = args
+	const isolated = options.isolated === true
 	const adapter = createAdapter<unknown>(storage, namespace)
 	const signal = new Signal.State<unknown>(initial)
 	const internal: InternalState = {
@@ -416,17 +482,10 @@ function createInstance(args: CreateInstanceArgs): unknown {
 		storage,
 		defaultValue: initial,
 		ready,
-		signal,
-		$: observable,
 		destroy: dispose,
 		[Symbol.dispose]: dispose,
-		...writeApi,
 	})
 
-	Object.defineProperty(instance, 'value', {
-		get: () => signal.get(),
-		enumerable: true,
-	})
 	Object.defineProperty(instance, 'loaded', {
 		get: () => loaded,
 		enumerable: true,
@@ -435,6 +494,67 @@ function createInstance(args: CreateInstanceArgs): unknown {
 	if (storage === 'indexeddb') {
 		instance[Symbol.asyncDispose] = asyncDispose
 	}
+
+	if (isolated) {
+		// Per-context copy. Reads and writes go straight to its own signal —
+		// no resolveContextual call, so it serves as a recursion-free
+		// resolution target.
+		Object.defineProperty(instance, 'value', {
+			get: () => signal.get(),
+			enumerable: true,
+		})
+		instance.signal = signal
+		instance.$ = observable
+		Object.assign(instance, writeApi)
+		return instance
+	}
+
+	// Global instance. Every public read/write resolves through the active
+	// host: inside a `<schmancy-context provides={[…]}>` it routes to the
+	// per-context copy; outside, it falls back to this same instance and
+	// reads/writes its own signal directly. The cache in `resolveContextual`
+	// keeps the lookup O(1) past the first hit.
+	const isolatedTarget: Record<string | symbol, unknown> = Object.assign(Object.create(null), {
+		signal,
+		$: observable,
+		...writeApi,
+	})
+	Object.defineProperty(isolatedTarget, 'value', {
+		get: () => signal.get(),
+		enumerable: true,
+	})
+
+	Object.defineProperty(instance, 'value', {
+		get: () => (resolveContextual(namespace, isolatedTarget) as { value: unknown }).value,
+		enumerable: true,
+	})
+	Object.defineProperty(instance, 'signal', {
+		get: () =>
+			(resolveContextual(namespace, isolatedTarget) as { signal: Signal.State<unknown> }).signal,
+		enumerable: true,
+	})
+	Object.defineProperty(instance, '$', {
+		get: () =>
+			(resolveContextual(namespace, isolatedTarget) as { $: Observable<unknown> }).$,
+		enumerable: true,
+	})
+	for (const key of Object.keys(writeApi)) {
+		instance[key] = (...args: unknown[]): unknown => {
+			const target = resolveContextual(namespace, isolatedTarget) as Record<
+				string,
+				(...a: unknown[]) => unknown
+			>
+			return target[key](...args)
+		}
+	}
+
+	// Hook used by `<schmancy-context>` to mint a per-context copy seeded
+	// with the current value. Internal: not part of the public State<> type.
+	instance._isolatedInstance = (): unknown =>
+		createInstance(
+			{ namespace, initial: signal.get(), storage: 'memory' },
+			{ isolated: true },
+		)
 
 	return instance
 }

@@ -42,14 +42,64 @@ class CartView extends $LitElement() {
 The imported `cart` singleton IS the binding. Only reach for `@observe`
 or `bindState` when you need the value as a class field.
 
+## Scoping (`<schmancy-context provides>`)
+
+The default state is a module-scoped singleton. `<schmancy-context>` is
+the **only** way to scope a state per subtree. Reads and writes inside
+the element auto-resolve to a per-element isolated copy via the
+`@lit/context` request protocol; outside, they read the global.
+
+```ts
+<schmancy-context .provides=${[cart]}>
+  <cart-view></cart-view>   <!-- isolated -->
+</schmancy-context>
+<cart-summary></cart-summary>   <!-- module-scoped global -->
+```
+
+Two infrastructure files own the mechanics:
+
+- `state/active-host.ts` — `_activeHost` Variable + `Promise.then`
+  patch + `resolveActiveHost()` 4-tier fallback (stack →
+  `window.event` → `document.activeElement` → undefined). Hand-rolled
+  TC39 AsyncContext.Variable polyfill (~30 lines). The patch is
+  idempotent and uses `_origThen.call(this, …)` so Promise subclassing
+  / `Symbol.species` are untouched. Decommissions the day a real
+  polyfill or native AsyncContext lands — drop the file, swap the
+  `_activeHost` export.
+- `state/schmancy-context.ts` — the `<schmancy-context>` element. One
+  `ContextProvider` per state in `provides`; all destroyed on
+  disconnect.
+
+`mixins/SchmancyElement.ts` carries the integration points: prototype-
+chain wrap of every concrete subclass at first construction (caches in
+a `WeakSet`), and `addEventListener` / `removeEventListener` overrides
+that wrap host listeners.
+
+Inline arrow handlers in templates (`@click=${() => …}`) are not
+wrapped — they attach to child elements, not the host. They resolve
+via the `window.event.composedPath()` fallback.
+
 ## Rules for code in this directory
 
 - **One file by default.** `state/index.ts` holds the factory, types,
   variant write APIs, persistence-debouncing wrapper, RxJS interop,
-  decorator, and helpers. `persist.ts` is the only sibling — it owns
-  the four storage adapters and the JSON tunnel for `Map`/`Set`. Do
-  not split further until a second consumer of an internal helper
-  emerges.
+  decorator, and helpers. `persist.ts`, `active-host.ts`, and
+  `schmancy-context.ts` are the only siblings — they own storage
+  adapters / the JSON tunnel, the host tracker / `Promise.then` patch,
+  and the scoping element respectively. Do not split further until a
+  second consumer of an internal helper emerges.
+- **Every read and write on a global instance routes through
+  `resolveContextual`.** Don't add a fast path that bypasses it — the
+  whole point of the scoping primitive is that consumer code is
+  unchanged whether or not a `<schmancy-context>` ancestor exists.
+- **Isolated copies are direct-access.** They serve as resolution
+  targets and must not themselves call `resolveContextual` (would
+  recurse). The `{ isolated: true }` branch in `createInstance`
+  preserves this invariant.
+- **Don't extend the `Promise.prototype.then` patch.** It is the
+  minimum surface needed for await propagation. New schedulers
+  (custom queueMicrotask wrappers, etc.) should be solved by routing
+  through Promise, not by adding more patches.
 - **No tsconfig flip.** Schmancy stays on `experimentalDecorators: true`.
   Any new decorator in this module is a legacy property/method
   decorator, same shape as `@property`/`@state`/`@query`.

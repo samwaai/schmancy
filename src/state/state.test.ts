@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Subject } from 'rxjs'
-import { LitElement, html } from 'lit'
+import { LitElement, html, render } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import type { ReactiveController, ReactiveControllerHost } from 'lit'
 import { $LitElement } from '@mixins/index'
@@ -440,5 +440,381 @@ describe('state() factory', () => {
 		expect(el.tick).toBe(2)
 
 		el.remove()
+	})
+})
+
+// ---------------------------------------------------------------------------
+// <schmancy-context provides={[…]}> — declarative state isolation.
+// Each test uses a fresh namespace so the global `claimed` set + the
+// per-host resolver cache stay isolated. `using` ensures destroy on scope
+// exit, including failure cases.
+// ---------------------------------------------------------------------------
+
+interface CounterShape {
+	n: number
+}
+
+describe('<schmancy-context provides>', () => {
+	it('isolates mutations across two disjoint subtrees (and leaves the global untouched)', async () => {
+		using counter = state<CounterShape>('ctxtest/disjoint').memory({ n: 0 })
+
+		@customElement('ctx-disjoint-reader')
+		class Reader extends $LitElement() {
+			override render() {
+				return html`<span data-test="v">${counter.value.n}</span>`
+			}
+			bump() {
+				counter.replace({ n: counter.value.n + 1 })
+			}
+		}
+		void Reader
+
+		const root = document.createElement('div')
+		document.body.appendChild(root)
+		render(
+			html`
+				<schmancy-context id="A" .provides=${[counter]}>
+					<ctx-disjoint-reader id="ra"></ctx-disjoint-reader>
+				</schmancy-context>
+				<schmancy-context id="B" .provides=${[counter]}>
+					<ctx-disjoint-reader id="rb"></ctx-disjoint-reader>
+				</schmancy-context>
+			`,
+			root,
+		)
+
+		await settle()
+		const ra = root.querySelector<LitElement & { bump(): void }>('#ra')!
+		const rb = root.querySelector<LitElement & { bump(): void }>('#rb')!
+		await ra.updateComplete
+		await rb.updateComplete
+
+		ra.bump()
+		await settle()
+		await ra.updateComplete
+		await rb.updateComplete
+		expect(ra.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('1')
+		expect(rb.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('0')
+		expect(counter.value.n).toBe(0)
+
+		rb.bump()
+		rb.bump()
+		await settle()
+		await ra.updateComplete
+		await rb.updateComplete
+		expect(ra.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('1')
+		expect(rb.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('2')
+		expect(counter.value.n).toBe(0)
+
+		root.remove()
+	})
+
+	it('nested contexts resolve to the closest provider per namespace', async () => {
+		using counter = state<CounterShape>('ctxtest/nested').memory({ n: 0 })
+
+		@customElement('ctx-nested-reader')
+		class Reader extends $LitElement() {
+			override render() {
+				return html`<span data-test="v">${counter.value.n}</span>`
+			}
+			set(v: number) {
+				counter.replace({ n: v })
+			}
+		}
+		void Reader
+
+		const root = document.createElement('div')
+		document.body.appendChild(root)
+		render(
+			html`
+				<schmancy-context id="outer" .provides=${[counter]}>
+					<ctx-nested-reader id="middle"></ctx-nested-reader>
+					<schmancy-context id="inner" .provides=${[counter]}>
+						<ctx-nested-reader id="leaf"></ctx-nested-reader>
+					</schmancy-context>
+				</schmancy-context>
+			`,
+			root,
+		)
+
+		await settle()
+		const middle = root.querySelector<LitElement & { set(n: number): void }>('#middle')!
+		const leaf = root.querySelector<LitElement & { set(n: number): void }>('#leaf')!
+		await middle.updateComplete
+		await leaf.updateComplete
+
+		middle.set(7)
+		leaf.set(99)
+		await settle()
+		await middle.updateComplete
+		await leaf.updateComplete
+		expect(middle.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('7')
+		expect(leaf.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('99')
+		expect(counter.value.n).toBe(0)
+
+		root.remove()
+	})
+
+	it('isolated copy starts from the global snapshot at mount time', async () => {
+		using counter = state<CounterShape>('ctxtest/snapshot').memory({ n: 0 })
+		counter.replace({ n: 5 })
+
+		@customElement('ctx-snapshot-reader')
+		class Reader extends $LitElement() {
+			override render() {
+				return html`<span data-test="v">${counter.value.n}</span>`
+			}
+		}
+		void Reader
+
+		const root = document.createElement('div')
+		document.body.appendChild(root)
+		render(
+			html`
+				<schmancy-context .provides=${[counter]}>
+					<ctx-snapshot-reader id="r"></ctx-snapshot-reader>
+				</schmancy-context>
+			`,
+			root,
+		)
+
+		await settle()
+		const r = root.querySelector<LitElement>('#r')!
+		await r.updateComplete
+		expect(r.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('5')
+
+		root.remove()
+	})
+
+	it('disposes the isolated copy on provider disconnect (a fresh provider re-snapshots from global)', async () => {
+		using counter = state<CounterShape>('ctxtest/dispose').memory({ n: 0 })
+
+		@customElement('ctx-dispose-reader')
+		class Reader extends $LitElement() {
+			override render() {
+				return html`<span data-test="v">${counter.value.n}</span>`
+			}
+			set(v: number) {
+				counter.replace({ n: v })
+			}
+		}
+		void Reader
+
+		const rootA = document.createElement('div')
+		document.body.appendChild(rootA)
+		render(
+			html`
+				<schmancy-context .provides=${[counter]}>
+					<ctx-dispose-reader id="ra"></ctx-dispose-reader>
+				</schmancy-context>
+			`,
+			rootA,
+		)
+		await settle()
+		const ra = rootA.querySelector<LitElement & { set(n: number): void }>('#ra')!
+		await ra.updateComplete
+		ra.set(42)
+		await settle()
+		await ra.updateComplete
+		expect(ra.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('42')
+		expect(counter.value.n).toBe(0) // global never touched
+
+		rootA.remove()
+
+		// New provider mounts in a fresh subtree. It snapshots from the
+		// CURRENT global, which is still 0 — proving the previous isolated's
+		// state did not leak into the new one (i.e., it was destroyed).
+		const rootB = document.createElement('div')
+		document.body.appendChild(rootB)
+		render(
+			html`
+				<schmancy-context .provides=${[counter]}>
+					<ctx-dispose-reader id="rb"></ctx-dispose-reader>
+				</schmancy-context>
+			`,
+			rootB,
+		)
+		await settle()
+		const rb = rootB.querySelector<LitElement>('#rb')!
+		await rb.updateComplete
+		expect(rb.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('0')
+
+		rootB.remove()
+	})
+
+	it('falls through to the global for states not listed in `provides`', async () => {
+		using inside = state<CounterShape>('ctxtest/inside').memory({ n: 0 })
+		using outside = state<CounterShape>('ctxtest/outside').memory({ n: 0 })
+
+		@customElement('ctx-fallthrough-reader')
+		class Reader extends $LitElement() {
+			override render() {
+				return html`
+					<span data-test="i">${inside.value.n}</span>
+					<span data-test="o">${outside.value.n}</span>
+				`
+			}
+			bumpInside() {
+				inside.replace({ n: inside.value.n + 1 })
+			}
+			bumpOutside() {
+				outside.replace({ n: outside.value.n + 1 })
+			}
+		}
+		void Reader
+
+		const root = document.createElement('div')
+		document.body.appendChild(root)
+		render(
+			html`
+				<schmancy-context .provides=${[inside]}>
+					<ctx-fallthrough-reader id="r"></ctx-fallthrough-reader>
+				</schmancy-context>
+			`,
+			root,
+		)
+
+		await settle()
+		const r = root.querySelector<LitElement & { bumpInside(): void; bumpOutside(): void }>('#r')!
+		await r.updateComplete
+
+		r.bumpInside()
+		r.bumpOutside()
+		await settle()
+		await r.updateComplete
+
+		// `inside` is provided → global stays at 0, isolated reads as 1.
+		expect(inside.value.n).toBe(0)
+		expect(r.shadowRoot!.querySelector('[data-test="i"]')!.textContent).toBe('1')
+		// `outside` is not provided → write hits the global.
+		expect(outside.value.n).toBe(1)
+		expect(r.shadowRoot!.querySelector('[data-test="o"]')!.textContent).toBe('1')
+
+		root.remove()
+	})
+
+	it('class-method handler resolves through the active host', async () => {
+		using counter = state<CounterShape>('ctxtest/class-method').memory({ n: 0 })
+
+		@customElement('ctx-class-method')
+		class Reader extends $LitElement() {
+			override render() {
+				return html`
+					<span data-test="v">${counter.value.n}</span>
+					<button data-test="b" @click=${this.handleClick}></button>
+				`
+			}
+			handleClick() {
+				counter.replace({ n: counter.value.n + 1 })
+			}
+		}
+		void Reader
+
+		const root = document.createElement('div')
+		document.body.appendChild(root)
+		render(
+			html`
+				<schmancy-context .provides=${[counter]}>
+					<ctx-class-method id="r"></ctx-class-method>
+				</schmancy-context>
+			`,
+			root,
+		)
+
+		await settle()
+		const r = root.querySelector<LitElement>('#r')!
+		await r.updateComplete
+		const btn = r.shadowRoot!.querySelector<HTMLButtonElement>('[data-test="b"]')!
+		btn.click()
+		await settle()
+		await r.updateComplete
+
+		expect(r.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('1')
+		expect(counter.value.n).toBe(0)
+
+		root.remove()
+	})
+
+	it('inline arrow handler resolves through the active host (window.event fallback)', async () => {
+		using counter = state<CounterShape>('ctxtest/inline-arrow').memory({ n: 0 })
+
+		@customElement('ctx-inline-arrow')
+		class Reader extends $LitElement() {
+			override render() {
+				return html`
+					<span data-test="v">${counter.value.n}</span>
+					<button
+						data-test="b"
+						@click=${() => counter.replace({ n: counter.value.n + 1 })}
+					></button>
+				`
+			}
+		}
+		void Reader
+
+		const root = document.createElement('div')
+		document.body.appendChild(root)
+		render(
+			html`
+				<schmancy-context .provides=${[counter]}>
+					<ctx-inline-arrow id="r"></ctx-inline-arrow>
+				</schmancy-context>
+			`,
+			root,
+		)
+
+		await settle()
+		const r = root.querySelector<LitElement>('#r')!
+		await r.updateComplete
+		const btn = r.shadowRoot!.querySelector<HTMLButtonElement>('[data-test="b"]')!
+		btn.click()
+		await settle()
+		await r.updateComplete
+
+		expect(r.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('1')
+		expect(counter.value.n).toBe(0)
+
+		root.remove()
+	})
+
+	it('async-after-await handler resolves through the active host (Promise.then patch)', async () => {
+		using counter = state<CounterShape>('ctxtest/async-after-await').memory({ n: 0 })
+
+		@customElement('ctx-async-await')
+		class Reader extends $LitElement() {
+			override render() {
+				return html`<span data-test="v">${counter.value.n}</span>`
+			}
+			async run(): Promise<void> {
+				await Promise.resolve()
+				await new Promise<void>(resolve => queueMicrotask(resolve))
+				counter.replace({ n: counter.value.n + 1 })
+			}
+		}
+		void Reader
+
+		const root = document.createElement('div')
+		document.body.appendChild(root)
+		render(
+			html`
+				<schmancy-context .provides=${[counter]}>
+					<ctx-async-await id="r"></ctx-async-await>
+				</schmancy-context>
+			`,
+			root,
+		)
+
+		await settle()
+		const r = root.querySelector<LitElement & { run(): Promise<void> }>('#r')!
+		await r.updateComplete
+
+		await r.run()
+		await settle()
+		await r.updateComplete
+
+		expect(r.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('1')
+		expect(counter.value.n).toBe(0)
+
+		root.remove()
 	})
 })

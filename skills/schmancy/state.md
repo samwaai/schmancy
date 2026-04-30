@@ -368,6 +368,95 @@ fire-and-forget cleanup.
 - Releases the namespace claim — the same `'feature/name'` can be
   re-registered after disposal
 
+## Scoping — `<schmancy-context provides>`
+
+The default state is a module-scoped singleton: `cart` is the same
+instance everywhere. To **isolate** the same `cart` for a subtree —
+two side-by-side checkout flows, an `<iframe>`-like wizard, an
+embedded preview — wrap the subtree in `<schmancy-context>`.
+
+```ts
+class App extends $LitElement() {
+  render() {
+    return html`
+      <schmancy-context .provides=${[cart]}>
+        <cart-view></cart-view>      <!-- isolated copy -->
+      </schmancy-context>
+      <cart-summary></cart-summary>  <!-- module-scoped global -->
+    `
+  }
+}
+```
+
+Inside the element, `cart.value`, `cart.set(...)`, `cart.update(...)`,
+and every other read/write resolve to a per-element isolated copy.
+Outside, they continue to read the global. Nested
+`<schmancy-context>` resolves to the **closest** provider per
+namespace.
+
+### What you write is unchanged
+
+Consumers don't change. The same `cart.value` inside `render()`, the
+same `cart.set(...)` in a click handler, the same `cart.update(...)`
+after an `await fetch(...)` — all of it auto-resolves to the right
+instance based on tree position.
+
+```ts
+class CartView extends $LitElement() {
+  render() {
+    return html`
+      <button @click=${() => cart.set({ total: 0 })}>Clear</button>
+      <button @click=${this.handleAdd}>Add</button>
+      Items: ${cart.value.items.length}
+    `
+  }
+  handleAdd() { cart.update(d => { d.items.push({}) }) }
+  async handleSubmit() {
+    const data = await fetch('/items').then(r => r.json())
+    cart.update(d => { d.items = data })   // resolves correctly after await
+  }
+}
+```
+
+Coverage of the call paths is provided by `SchmancyElement`:
+
+- `render()` and every Lit lifecycle hook — wrapped at construction.
+- Class methods (`handleAdd`, `handleSubmit`) — wrapped at construction.
+- `await` continuations inside class methods — propagated via the
+  `Promise.then` patch in `state/active-host.ts`.
+- `addEventListener(type, fn)` on the host — wrapped (and unwrapped on
+  `removeEventListener`).
+- Inline arrow handlers in templates (`@click=${() => …}`) — resolve
+  via the `window.event.composedPath()` fallback in
+  `resolveActiveHost()`.
+
+Pure async callbacks with no DOM origin — a websocket `onmessage`,
+`setInterval` with no triggering user event — fall through to the
+module-scoped global. That is the correct semantic: those callbacks
+have no tree position to resolve to.
+
+### Lifecycle
+
+- The isolated copy is created at `<schmancy-context>` connect and
+  seeded with the **current global value** at that moment.
+- It is destroyed on `<schmancy-context>` disconnect (pending writes
+  flush, adapters close).
+- Storage backend is always **memory** for isolated copies — they
+  share lifetime with the element, not with `localStorage` /
+  `sessionStorage` / IndexedDB. The global continues to persist on
+  whichever backend it was created with.
+
+### `provides` shape
+
+`provides` accepts the same state instances you import. Pass several:
+
+```ts
+<schmancy-context .provides=${[cart, menu, draft]}>...</schmancy-context>
+```
+
+States not listed in `provides` fall through to the global from inside
+the element — useful when only one or two namespaces need scoping.
+
 ## Migration from v1 `createContext`
 
 ```ts
@@ -403,3 +492,10 @@ strings (`'hannah_cart'`) to namespace strings (`'hannah/cart'`).
 - **Treat `state.signal` as read access.** Don't `state.signal.set(…)`
   directly — go through the variant API so write-through-persist and
   observable emission stay coherent.
+- **Don't cache `state.signal` / `state.$` across tree boundaries.**
+  Every read goes through context resolution; the underlying signal
+  (and Observable) returned by the getter is the *currently resolved*
+  instance. If you store `cart.signal` in a variable and the host
+  later moves into a different `<schmancy-context>` subtree, the
+  cached reference lags. Read inline (`cart.value`, `cart.$`) instead
+  of caching.

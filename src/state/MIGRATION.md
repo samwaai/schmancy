@@ -227,9 +227,13 @@ cart.destroy()
   longer needed. The variant write API dispatch is type-level.
 - **`error$` per-store Subject** — errors flow through console + the
   `StateStorageError` thrown from `save()` for IDB write failures.
-- **Tree-scoped `<state-provider>` / `@lit/context` integration** —
-  module-scoped singletons only. The provider element from the
-  original plan was dropped per Spike C.
+- **Tree-scoped `<state-provider>`** — replaced by
+  `<schmancy-context provides={[…]}>`. Same intent (per-subtree
+  isolation of a state), different API: in v1 the provider was a
+  primitive; in v2 the state surface stays unchanged and the
+  `<schmancy-context>` element is what scopes a subtree. Consumer
+  code (`cart.value`, `cart.set(...)`) is identical inside and
+  outside the element. See `SCOPING.md` for the details.
 
 ## Footguns
 
@@ -249,4 +253,6 @@ cart.destroy()
 
 - Skill / API reference: `packages/schmancy/skills/schmancy/state.md`
 - Agent brief: `packages/schmancy/src/state/CLAUDE.md`
+- Tree-scoping reference: `packages/schmancy/src/state/SCOPING.md`
 - Original plan: `~/.claude/plans/indexed-twirling-stroustrup.md`
+- Scoping plan: `~/.claude/plans/federated-petting-penguin.md`
