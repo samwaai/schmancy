@@ -12,7 +12,7 @@
 // pending writes flush, their adapters close.
 
 import { LitElement, html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { property } from 'lit/decorators.js'
 import { ContextProvider, createContext, type Context } from '@lit/context'
 import { stateContextKey } from './active-host'
 
@@ -29,7 +29,6 @@ export interface StateTemplate {
 	_isolatedInstance(): { destroy(): void } & Record<string | symbol, unknown>
 }
 
-@customElement('schmancy-context')
 export class SchmancyContext extends LitElement {
 	/** States to isolate under this subtree. Pass the same instances you import
 	 *  at module scope (e.g. `provides={[cart, menu]}`). Outside this element
@@ -69,6 +68,13 @@ export class SchmancyContext extends LitElement {
 	override render() {
 		return html`<slot></slot>`
 	}
+}
+
+// Imperative define so a second load (source + dist) is a no-op rather than
+// a throw — the registry is process-global; whichever class wins serves the
+// element identity for the page.
+if (!customElements.get('schmancy-context')) {
+	customElements.define('schmancy-context', SchmancyContext)
 }
 
 declare global {

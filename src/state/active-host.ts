@@ -34,7 +34,16 @@
 //   3. document.activeElement — keyboard handlers in focus.
 //   4. undefined → caller falls back to the module-scoped global instance.
 
-const _stack: Array<HTMLElement | undefined> = [undefined]
+// Singleton across any number of schmancy module copies (source + dist, ESM
+// + CJS, hoisted vs. nested node_modules) via the runtime-global symbol
+// registry. The first copy to load creates the slot; later copies reuse it.
+// Without this, two stacks → mixins push to one, state reads from the other,
+// and active-host context is lost across the boundary.
+const STACK_KEY = Symbol.for('schmancy.state.activeHost.stack')
+type StackSlot = { stack: Array<HTMLElement | undefined> }
+const _g = globalThis as { [STACK_KEY]?: StackSlot }
+_g[STACK_KEY] ??= { stack: [undefined] }
+const _stack = _g[STACK_KEY].stack
 
 // One-time Promise.prototype.then patch at module init. Each .then() call
 // captures the stack head at chain time; firing the callback restores that

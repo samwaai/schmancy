@@ -205,7 +205,14 @@ function detectKind(value: unknown): RuntimeKind {
 	return 'object'
 }
 
-const claimed = new Set<string>()
+// Globalize the namespace-claim set so any number of schmancy module copies
+// share a single registry. Without this, source-state and dist-state would
+// each maintain their own `claimed` set and could both register the same
+// namespace, producing two singletons with the same name.
+const CLAIMED_KEY = Symbol.for('schmancy.state.claimed')
+const __claimedSlot = (globalThis as { [CLAIMED_KEY]?: Set<string> })
+__claimedSlot[CLAIMED_KEY] ??= new Set<string>()
+const claimed = __claimedSlot[CLAIMED_KEY]!
 
 // ---------------------------------------------------------------------------
 // Context resolution.
@@ -221,7 +228,16 @@ const claimed = new Set<string>()
 // WeakMap so repeat reads stay O(1).
 // ---------------------------------------------------------------------------
 
-const hostResolverCache = new WeakMap<HTMLElement, Map<string, unknown>>()
+// Globalize the per-host resolver cache so that a write through one schmancy
+// copy and a read through another resolve to the same target object — the
+// cache keys are DOM elements (process-global), but the cache itself must
+// also be shared.
+const CACHE_KEY = Symbol.for('schmancy.state.hostResolverCache')
+const __cacheSlot = (globalThis as {
+	[CACHE_KEY]?: WeakMap<HTMLElement, Map<string, unknown>>
+})
+__cacheSlot[CACHE_KEY] ??= new WeakMap<HTMLElement, Map<string, unknown>>()
+const hostResolverCache = __cacheSlot[CACHE_KEY]!
 
 function resolveContextual(namespace: string, fallback: unknown): unknown {
 	const host = resolveActiveHost()

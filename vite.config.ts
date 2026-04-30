@@ -83,7 +83,8 @@ export default defineConfig({
 		},
 		sourcemap: 'hidden',
 		rollupOptions: {
-			external: /^(lit|rxjs|animejs|moment|@floating-ui|highlight\.js|jsqr)/,
+			external:
+				/^(lit|rxjs|animejs|moment|@floating-ui|highlight\.js|jsqr|@lit-labs\/signals|@lit-labs\/motion|@lit-labs\/virtualizer|@lit\/context|signal-polyfill)/,
 			output: {
 				dir: resolve(__dirname, './dist'),
 				globals: {
