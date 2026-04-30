@@ -1,5 +1,5 @@
 import { consume } from '@lit/context'
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { SchmancySurfaceTypeContext } from '@schmancy/surface/context'
 import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
@@ -12,7 +12,8 @@ import { customElement, property, queryAssignedElements } from 'lit/decorators.j
  * @slot - default content
  */
 @customElement('schmancy-list-item')
-export class SchmancyListItem extends TailwindElement(css`
+export class SchmancyListItem extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		border-radius: 0.5rem;
@@ -37,7 +38,7 @@ export class SchmancyListItem extends TailwindElement(css`
 		:host { transition: background 200ms ease; }
 		:host(:active:not([readonly])) { transform: none; }
 	}
-`) {
+`];
 	@consume({ context: SchmancySurfaceTypeContext, subscribe: true })
 	@property()
 	variant: TSurfaceColor

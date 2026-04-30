@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, LitElement, nothing } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -20,7 +20,8 @@ export type SchmancySwitchChangeEvent = CustomEvent<{ value: boolean }>
  * @csspart thumb - The moving thumb.
  */
 @customElement('schmancy-switch')
-export class SchmancySwitch extends TailwindElement(css`
+export class SchmancySwitch extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: inline-block;
 	}
@@ -73,7 +74,7 @@ export class SchmancySwitch extends TailwindElement(css`
 	@media (prefers-reduced-motion: reduce) {
 		.track, .thumb { transition: none; }
 	}
-`) {
+`];
 	static formAssociated = true
 	private internals: ElementInternals | undefined
 

@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -17,7 +17,8 @@ import { customElement, property } from 'lit/decorators.js'
  * @csspart base - The inner native `<kbd>` element.
  */
 @customElement('schmancy-kbd')
-export class SchmancyKbd extends TailwindElement(css`
+export class SchmancyKbd extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: inline-block;
 		vertical-align: middle;
@@ -44,7 +45,7 @@ export class SchmancyKbd extends TailwindElement(css`
 		--_ksize: 1.25rem;
 		--_kfont: 0.6875rem;
 	}
-`) {
+`];
 	@property({ type: String, reflect: true }) size: 'sm' | 'md' = 'md'
 
 	render() {

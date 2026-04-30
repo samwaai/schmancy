@@ -1,11 +1,11 @@
-import { LitElement, html, nothing, type PropertyValues } from 'lit'
+import { LitElement, html, nothing, unsafeCSS, type PropertyValues } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
 import { distinctUntilChanged, filter, fromEvent, map } from 'rxjs'
 import style from './textarea.scss?inline'
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 
 /**
  * Textarea component with auto-resize and form integration.
@@ -20,7 +20,9 @@ import { TailwindElement } from '@mixins/index'
  * @prop {number} maxlength - Maximum character length
  */
 @customElement('schmancy-textarea')
-export default class SchmancyTextarea extends TailwindElement(style) {
+export default class SchmancyTextarea extends SchmancyElement {
+	static styles = [unsafeCSS(style)];
+
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		delegatesFocus: true,

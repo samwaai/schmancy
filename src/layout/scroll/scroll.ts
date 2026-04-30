@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { debounceTime, filter, fromEvent, takeUntil } from 'rxjs'
@@ -84,7 +84,8 @@ declare global {
  * ```
  */
 @customElement('schmancy-scroll')
-export class SchmancyScroll extends TailwindElement(css`
+export class SchmancyScroll extends SchmancyElement {
+	static styles = [css`
 	:host {
 		/* Flexible sizing for different layout contexts */
 		width: 100%;
@@ -109,7 +110,7 @@ export class SchmancyScroll extends TailwindElement(css`
 	:host([hide])::-webkit-scrollbar {
 		display: none; /* Chrome, Safari, and Opera */
 	}
-`) {
+`];
 	/**
 	 * Determines whether the scrollbar is hidden.
 	 *

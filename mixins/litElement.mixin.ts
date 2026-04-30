@@ -16,7 +16,7 @@ import { SchmancyElement } from './SchmancyElement'
  */
 export const $LitElement = <T extends CSSResult>(componentStyle?: T) => {
 	class LegacyAlias extends SchmancyElement {
-		static override styles = componentStyle ? [componentStyle] : []
+		static styles = componentStyle ? [componentStyle] : []
 	}
 	return LegacyAlias as CustomElementConstructor &
 		Constructor<LitElement> &

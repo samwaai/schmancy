@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
@@ -11,7 +11,8 @@ export type SchmancyRangeChangeEvent = CustomEvent<{ value: number }>
  * @fires change - Fires on value change with { value: number }
  */
 @customElement('schmancy-range')
-export class SchmancyRange extends TailwindElement(css`
+export class SchmancyRange extends SchmancyElement {
+	static styles = [css`
 	input[type='range'] {
 		-webkit-appearance: none;
 		appearance: none;
@@ -53,7 +54,7 @@ export class SchmancyRange extends TailwindElement(css`
 		background: var(--color-primary, #6750a4);
 		cursor: pointer;
 	}
-`) {
+`];
 	@property({ type: Number }) min = 0
 	@property({ type: Number }) max = 1
 	@property({ type: Number }) step = 0.01

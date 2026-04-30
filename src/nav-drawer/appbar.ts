@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -7,13 +7,14 @@ import { customElement } from 'lit/decorators.js'
  * @slot - The default slot
  */
 @customElement('schmancy-nav-drawer-appbar')
-export class SchmancyDrawerAppbar extends TailwindElement(css`
+export class SchmancyDrawerAppbar extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		width: 100%;
 		min-width: 0;
 	}
-`) {
+`];
 	render() {
 		return html`<slot></slot>`
 	}

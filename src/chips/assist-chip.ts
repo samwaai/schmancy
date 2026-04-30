@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/tailwind.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
@@ -10,7 +10,8 @@ import { takeUntil } from 'rxjs/operators'
  * Pure Schmancy implementation with Tailwind CSS and RxJS state management
  */
 @customElement('schmancy-assist-chip')
-export class SchmancyAssistChip extends TailwindElement(css`
+export class SchmancyAssistChip extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: inline-block;
 		outline: none;
@@ -59,7 +60,7 @@ export class SchmancyAssistChip extends TailwindElement(css`
 	:host(:not([disabled])) button:active .state-layer {
 		opacity: 0.1;
 	}
-`) {
+`];
 	/** Value identifier for the chip */
 	@property({ reflect: true }) value = ''
 

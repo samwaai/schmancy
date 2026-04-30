@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { ref, createRef } from 'lit/directives/ref.js'
@@ -104,7 +104,8 @@ class GoogleMapsLoader {
  * <schmancy-map address="Eiffel Tower, Paris" interactive="false" controls="false"></schmancy-map>
  */
 @customElement('schmancy-map')
-export default class SchmancyMap extends TailwindElement(css`
+export default class SchmancyMap extends SchmancyElement {
+	static styles = [css`
   :host {
     display: block;
     position: relative;
@@ -166,7 +167,7 @@ export default class SchmancyMap extends TailwindElement(css`
     color: var(--schmancy-sys-color-surface-onVariant);
     line-height: 1.5;
   }
-`) {
+`];
   /**
    * Simple address string that automatically geocodes to display the location.
    * Takes precedence over latitude/longitude if both are provided.

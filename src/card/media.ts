@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -6,7 +6,8 @@ import { customElement, property } from 'lit/decorators.js'
  * @element schmancy-card-media
  */
 @customElement('schmancy-card-media')
-export default class SchmancyCardMedia extends TailwindElement(css`
+export default class SchmancyCardMedia extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		position: relative;
@@ -51,7 +52,7 @@ export default class SchmancyCardMedia extends TailwindElement(css`
 	:host([fit="scale-down"]) ::slotted(img) {
 		object-fit: scale-down;
 	}
-`) {
+`];
 	@property({ type: String, reflect: true })
 	src: string = ''
 

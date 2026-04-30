@@ -5,8 +5,16 @@ import { tailwindStyles } from './tailwind.mixin'
 import type { Constructor } from './constructor'
 import { _activeHost } from '../src/state/active-host'
 
+// Cast to instance-only Constructor + a narrow static surface for `finalizeStyles`.
+// Avoids exposing LitElement's full static side (which has `protected static
+// shadowRootOptions`); that would conflict with subclasses that declare their own
+// `protected static shadowRootOptions = { ..., delegatesFocus: true }` to widen
+// visibility — same shape TailwindElement uses.
+type StaticFinalizeStyles = {
+	finalizeStyles(styles?: CSSResultGroup): CSSResultOrNative[]
+}
 const SchmancyElementBase = SignalWatcher(BaseElement(LitElement)) as unknown as
-	typeof LitElement & Constructor<IBaseMixin>
+	CustomElementConstructor & Constructor<LitElement> & Constructor<IBaseMixin> & StaticFinalizeStyles
 
 // ---------------------------------------------------------------------------
 // Active-host integration. Two layers:
@@ -128,7 +136,7 @@ export class SchmancyElement extends SchmancyElementBase {
 		wrapPrototypeChain(this.constructor as { prototype: object })
 	}
 
-	protected static override finalizeStyles(
+	static override finalizeStyles(
 		styles?: CSSResultGroup,
 	): CSSResultOrNative[] {
 		return [...super.finalizeStyles(styles), tailwindStyles]

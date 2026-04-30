@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -14,7 +14,8 @@ import { customElement, property } from 'lit/decorators.js'
  * @csspart surface - The shimmering surface element.
  */
 @customElement('schmancy-skeleton')
-export class SchmancySkeleton extends TailwindElement(css`
+export class SchmancySkeleton extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		width: var(--_sw, 100%);
@@ -46,7 +47,7 @@ export class SchmancySkeleton extends TailwindElement(css`
 			background: var(--schmancy-sys-color-surface-containerHighest, #e6e6e6);
 		}
 	}
-`) {
+`];
 	@property({ type: String, reflect: true }) shape: 'rect' | 'circle' | 'text' = 'rect'
 	@property({ type: String }) width = ''
 	@property({ type: String }) height = ''

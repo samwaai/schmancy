@@ -4,7 +4,7 @@ import { createRef, ref } from 'lit/directives/ref.js'
 import { styleMap } from 'lit/directives/style-map.js'
 import { filter, fromEvent, lastValueFrom } from 'rxjs'
 import { tap, takeUntil } from 'rxjs/operators'
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { SPRING_SNAPPY } from '../utils/animation.js'
 import { reducedMotion$ } from '../directives/reduced-motion'
 import { SchmancyExpandRoot } from './expand-root.component.js'
@@ -13,7 +13,8 @@ import { SchmancyExpandRoot } from './expand-root.component.js'
 export const SCHMANCY_EXPAND_REQUEST_CLOSE = 'schmancy-expand-request-close'
 
 @customElement('schmancy-expand')
-export default class SchmancyExpand extends TailwindElement(css`
+export default class SchmancyExpand extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
@@ -45,7 +46,7 @@ export default class SchmancyExpand extends TailwindElement(css`
 		min-height: 0;
 		overflow: hidden;
 	}
-`) {
+`];
 	@property() summary = ''
 
 	@property({ type: Boolean, reflect: true }) open = false

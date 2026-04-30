@@ -1,11 +1,12 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { cursorGlow } from '../directives/cursor-glow'
 import { ifDefined } from 'lit/directives/if-defined.js'
 
 @customElement('schmancy-card')
-export default class SchmancyCard extends TailwindElement(css`
+export default class SchmancyCard extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		position: relative;
@@ -88,7 +89,7 @@ export default class SchmancyCard extends TailwindElement(css`
 			opacity: 0;
 		}
 	}
-`) {
+`];
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		mode: 'open',

@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/tailwind.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
@@ -49,7 +49,8 @@ const MOBILE_BREAKPOINT = '(max-width: 767px)'
  * </div>
  */
 @customElement('schmancy-navigation-bar')
-export class SchmancyNavigationBar extends TailwindElement(css`
+export class SchmancyNavigationBar extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		transition: transform 0.3s ease-in-out;
@@ -70,7 +71,7 @@ export class SchmancyNavigationBar extends TailwindElement(css`
 		outline: 2px solid var(--schmancy-sys-color-primary);
 		outline-offset: -2px;
 	}
-`) {
+`];
 	/**
 	 * Observable for active index state
 	 */

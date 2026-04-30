@@ -1,4 +1,4 @@
-import { TailwindElement, SurfaceMixin } from '@mixins/index'
+import { SchmancyElement, SurfaceMixin } from '@mixins/index'
 import { css, html, LitElement, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { cursorGlow } from '../directives/cursor-glow'
@@ -10,8 +10,8 @@ import { SPRING_SNAPPY } from '../utils/animation.js'
 import { reducedMotion$ } from '../directives/reduced-motion'
 
 @customElement('schmancy-details')
-export default class SchmancyDetails extends SurfaceMixin(
-	TailwindElement(css`
+export default class SchmancyDetails extends SurfaceMixin(SchmancyElement) {
+	static styles = [css`
 		:host {
 			display: block;
 			transition: box-shadow 400ms cubic-bezier(0.34, 1.2, 0.64, 1);
@@ -126,8 +126,7 @@ export default class SchmancyDetails extends SurfaceMixin(
 				transition: none;
 			}
 		}
-	`),
-) {
+	`];
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		mode: 'open' as const,

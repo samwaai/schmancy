@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/tailwind.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
@@ -29,7 +29,8 @@ import { takeUntil, tap, filter } from 'rxjs/operators'
  * </schmancy-navigation-bar-item>
  */
 @customElement('schmancy-navigation-bar-item')
-export class SchmancyNavigationBarItem extends TailwindElement(css`
+export class SchmancyNavigationBarItem extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: flex;
 		flex: 1;
@@ -82,7 +83,7 @@ export class SchmancyNavigationBarItem extends TailwindElement(css`
 		animation: ripple 0.6s ease-out;
 		pointer-events: none;
 	}
-`) {
+`];
 	/**
 	 * Icon name for the navigation item (Material Symbols Outlined)
 	 */

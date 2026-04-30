@@ -1,8 +1,8 @@
-import { html } from 'lit'
+import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { Subject, fromEvent, takeUntil } from 'rxjs'
 import style from './radio-group.scss?inline'
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { when } from 'lit/directives/when.js'
 import { FormFieldMixin } from '../../mixins/formField.mixin'
 
@@ -14,7 +14,8 @@ export type SchmancyRadioGroupChangeEvent = CustomEvent<{
 	value: string
 }>
 @customElement('schmancy-radio-group')
-export class RadioGroup extends FormFieldMixin(TailwindElement(style)) {
+export class RadioGroup extends FormFieldMixin(SchmancyElement) {
+	static styles = [unsafeCSS(style)];
 	@property({ type: String }) override label = ''
 	@property({ type: String }) override name = ''
 	@property({ type: String }) override value = ''

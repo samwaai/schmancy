@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -12,7 +12,8 @@ import { customElement, property } from 'lit/decorators.js'
  * @csspart separator - The separator element.
  */
 @customElement('schmancy-breadcrumb')
-export class SchmancyBreadcrumb extends TailwindElement(css`
+export class SchmancyBreadcrumb extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
@@ -30,7 +31,7 @@ export class SchmancyBreadcrumb extends TailwindElement(css`
 	::slotted(schmancy-breadcrumb-item:last-of-type) {
 		font-weight: 500;
 	}
-`) {
+`];
 	@property({ type: String }) separator = '/'
 
 	connectedCallback(): void {
@@ -78,7 +79,8 @@ export class SchmancyBreadcrumb extends TailwindElement(css`
  * @attr current - Marks as `aria-current="page"`.
  */
 @customElement('schmancy-breadcrumb-item')
-export class SchmancyBreadcrumbItem extends TailwindElement(css`
+export class SchmancyBreadcrumbItem extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: inline-block;
 	}
@@ -89,7 +91,7 @@ export class SchmancyBreadcrumbItem extends TailwindElement(css`
 	a:hover {
 		text-decoration: underline;
 	}
-`) {
+`];
 	@property({ type: String }) href = ''
 	@property({ type: Boolean, reflect: true }) current = false
 

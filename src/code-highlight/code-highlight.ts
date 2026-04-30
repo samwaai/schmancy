@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import hljs from 'highlight.js/lib/core'
 import bash from 'highlight.js/lib/languages/bash'
 import javascript from 'highlight.js/lib/languages/javascript'
@@ -22,7 +22,8 @@ hljs.registerLanguage('bash', bash)
  * Code highlighting component using highlight.js with schmancy theming support
  */
 @customElement('schmancy-code')
-export class SchmancyCode extends TailwindElement(css`
+export class SchmancyCode extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		width: 100%;
@@ -142,7 +143,7 @@ export class SchmancyCode extends TailwindElement(css`
 		user-select: none;
 		font-size: inherit;
 	}
-`) {
+`];
 	/**
 	 * Programming language for syntax highlighting
 	 */

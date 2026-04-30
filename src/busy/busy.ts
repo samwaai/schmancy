@@ -1,9 +1,10 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 @customElement('schmancy-busy')
-export default class SchmancyBusy extends TailwindElement(css`
+export default class SchmancyBusy extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: inline;
 		position: absolute;
@@ -11,7 +12,7 @@ export default class SchmancyBusy extends TailwindElement(css`
 		pointer-events: all;
 		z-index: 50;
 	}
-`) {
+`];
 	protected render(): unknown {
 		return html`
 			<!-- Clean overlay with subtle backdrop -->

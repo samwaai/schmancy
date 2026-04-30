@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/tailwind.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -16,7 +16,8 @@ import { $sounds } from '../audio'
  * <schmancy-connectivity-status></schmancy-connectivity-status>
  */
 @customElement('schmancy-connectivity-status')
-export class SchmancyConnectivityStatus extends TailwindElement(css`
+export class SchmancyConnectivityStatus extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
@@ -57,7 +58,7 @@ export class SchmancyConnectivityStatus extends TailwindElement(css`
 	.icon-bounce {
 		animation: icon-bounce 600ms ease-out;
 	}
-`) {
+`];
 	private bannerRef = createRef<HTMLDivElement>()
 	private surfaceRef = createRef<HTMLElement>()
 	private iconRef = createRef<HTMLSpanElement>()

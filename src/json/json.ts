@@ -1,11 +1,12 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 import { $notify } from '@schmancy/notification'
 
 @customElement('schmancy-json')
-export class SchmancyJson extends TailwindElement(css`:host { display: block }`) {
+export class SchmancyJson extends SchmancyElement {
+	static styles = [css`:host { display: block }`];
 	@property({ type: Object }) data: Record<string, any> = {}
 	@property({ type: Array }) highlightKeys: string[] = []
 	@property({ type: Boolean }) compact = false

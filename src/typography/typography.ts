@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/tailwind.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -12,7 +12,8 @@ import { filter, tap, takeUntil } from 'rxjs/operators'
  * @slot - The text for the typography.
  */
 @customElement('schmancy-typography')
-export class SchmancyTypography extends TailwindElement(css`
+export class SchmancyTypography extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		font-family: inherit;
@@ -288,7 +289,7 @@ export class SchmancyTypography extends TailwindElement(css`
 		display: block;
 		opacity: 0.35;
 	}
-`) {
+`];
 	static shadowRootOptions: ShadowRootInit = {
 		mode: 'open',
 		delegatesFocus: true,

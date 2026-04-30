@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { SchmancySurfaceFill } from '@schmancy/surface'
 import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
@@ -22,13 +22,14 @@ import { SchmancyListTypeContext } from './context'
  * </schmancy-list>
  */
 @customElement('schmancy-list')
-export class List extends TailwindElement(css`
+export class List extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		padding-top: 8px;
 		padding-bottom: 8px;
 	}
-`) {
+`];
 	/**
 	 * Defines the type or color of the surface used by the component.
 	 * This value is provided to descendant components via context.

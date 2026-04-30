@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { consume } from '@lit/context'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
@@ -29,7 +29,8 @@ export type IconSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | string
  * @csspart icon - The inner `<span>` carrying the Material Symbols glyph.
  */
 @customElement('schmancy-icon')
-export default class SchmancyIcon extends TailwindElement(css`
+export default class SchmancyIcon extends SchmancyElement {
+	static styles = [css`
 	:host {
 		--schmancy-icon-size: 24px;
 		--schmancy-icon-fill: 0;
@@ -77,7 +78,7 @@ export default class SchmancyIcon extends TailwindElement(css`
 	.material-symbols[data-icon]::before {
 		content: attr(data-icon);
 	}
-`) {
+`];
 	// Static flag to track if Google Fonts have been loaded
 	private static fontsLoaded = false
 

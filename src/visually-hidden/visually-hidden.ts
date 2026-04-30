@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -14,7 +14,8 @@ import { customElement } from 'lit/decorators.js'
  * @slot - Content hidden from sighted users but exposed to assistive tech.
  */
 @customElement('schmancy-visually-hidden')
-export class SchmancyVisuallyHidden extends TailwindElement(css`
+export class SchmancyVisuallyHidden extends SchmancyElement {
+	static styles = [css`
 	:host {
 		position: absolute;
 		width: 1px;
@@ -26,7 +27,7 @@ export class SchmancyVisuallyHidden extends TailwindElement(css`
 		white-space: nowrap;
 		border-width: 0;
 	}
-`) {
+`];
 	render() {
 		return html`<slot></slot>`
 	}

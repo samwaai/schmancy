@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
@@ -12,12 +12,13 @@ import SchmancyTab from './tab'
  * @fires tab-changed - The event fired when the tab is changed
  */
 @customElement('schmancy-tab-group')
-export default class SchmancyTabGroup extends TailwindElement(css`
+export default class SchmancyTabGroup extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		height: 100%;
 	}
-`) {
+`];
 	@provide({ context: SchmancyTabsModeContext })
 	@property({ type: String })
 	mode: TSchmancyTabsMode = 'tabs'

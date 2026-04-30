@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -11,7 +11,8 @@ import { customElement, property } from 'lit/decorators.js'
  *   backgrounds, shadows, padding, or borders without shadow-root piercing.
  */
 @customElement('schmancy-dropdown-content')
-export class SchmancyDropdownContent extends TailwindElement(css`
+export class SchmancyDropdownContent extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		position: absolute;
@@ -53,7 +54,7 @@ export class SchmancyDropdownContent extends TailwindElement(css`
 		transform-origin: top left;
 		animation: dropdownAnimation 0.1s ease-out forwards;
 	}
-`) {
+`];
 	/**
 	 * Width of the dropdown content
 	 */

@@ -1,11 +1,11 @@
 import { consume } from '@lit/context'
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { SchmancyTabsModeContext } from './context'
 
 @customElement('schmancy-tab')
-export default class SchmancyTab extends TailwindElement() {
+export default class SchmancyTab extends SchmancyElement {
 	@property({ type: String, reflect: true }) label
 	@property({ type: String, reflect: true }) value
 	@property({ type: Boolean, reflect: true }) active!: boolean

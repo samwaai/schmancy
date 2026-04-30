@@ -1,5 +1,5 @@
 import '@material/web/checkbox/checkbox.js'
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
@@ -15,7 +15,7 @@ export type schmancyCheckBoxChangeEvent = CustomEvent<{
  **/
 
 @customElement('schmancy-checkbox')
-class SchmancyCheckboxElement extends TailwindElement() {
+class SchmancyCheckboxElement extends SchmancyElement {
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		delegatesFocus: true,

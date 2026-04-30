@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -7,7 +7,8 @@ import { customElement } from 'lit/decorators.js'
  * @slot - The content of the action
  */
 @customElement('schmancy-card-action')
-export default class SchmancyCardAction extends TailwindElement(css`
+export default class SchmancyCardAction extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: flex;
 		gap: 0.5rem;
@@ -15,7 +16,7 @@ export default class SchmancyCardAction extends TailwindElement(css`
 		align-items: center;
 		justify-content: flex-end;
 	}
-`) {
+`];
 	protected render(): unknown {
 		return html`<slot></slot>`
 	}

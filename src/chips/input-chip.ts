@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/tailwind.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
@@ -29,7 +29,8 @@ import { map, takeUntil, tap } from 'rxjs/operators'
  * ```
  */
 @customElement('schmancy-input-chip')
-export class SchmancyInputChip extends TailwindElement(css`
+export class SchmancyInputChip extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: inline-block;
 		outline: none;
@@ -109,7 +110,7 @@ export class SchmancyInputChip extends TailwindElement(css`
 	:host(:not([disabled])) .chip-container:active .state-layer {
 		opacity: 0.1;
 	}
-`) {
+`];
 	/** Value identifier for the chip */
 	@property({ type: String, reflect: true })
 	value: string = ''

@@ -2,7 +2,8 @@ import { CSSResult, LitElement, PropertyValueMap } from 'lit'
 import { property } from 'lit/decorators.js'
 import { IBaseMixin } from './baseElement'
 import { Constructor } from './constructor'
-import { ITailwindElementMixin, TailwindElement } from './tailwind.mixin'
+import { ITailwindElementMixin } from './tailwind.mixin'
+import { SchmancyElement } from './SchmancyElement'
 
 /**
  * Cross-realm brand used by `<schmancy-form>` to discover form fields by
@@ -244,11 +245,16 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 }
 
 /**
- * A convenience function that composes FormFieldMixin with TailwindElement
- * to create a base class for Schmancy form components.
+ * A convenience function that composes FormFieldMixin with SchmancyElement
+ * to create a base class for Schmancy form components. Subclasses gain the
+ * full SchmancyElement stack (SignalWatcher, _activeHost wrap, AbortSignal,
+ * automatic Tailwind injection) plus the form-field semantics.
  */
 export function SchmancyFormField<T extends CSSResult>(componentStyle?: T) {
-	return FormFieldMixin(TailwindElement(componentStyle)) as Constructor<IFormFieldMixin> &
+	class StyledSchmancyElement extends SchmancyElement {
+		static styles = componentStyle ? [componentStyle] : []
+	}
+	return FormFieldMixin(StyledSchmancyElement) as unknown as Constructor<IFormFieldMixin> &
 		Constructor<ITailwindElementMixin> &
 		Constructor<LitElement> &
 		Constructor<IBaseMixin>

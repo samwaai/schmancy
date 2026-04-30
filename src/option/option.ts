@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { fromEvent, takeUntil } from 'rxjs'
@@ -9,7 +9,8 @@ import { fromEvent, takeUntil } from 'rxjs'
  * @fires click - When the option is clicked
  */
 @customElement('schmancy-option')
-export default class SchmancyOption extends TailwindElement(css`
+export default class SchmancyOption extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		cursor: pointer;
@@ -30,7 +31,7 @@ export default class SchmancyOption extends TailwindElement(css`
 		opacity: 0.5;
 		pointer-events: none;
 	}
-`) {
+`];
 	/**
 	 * The value of the option, will be used when selected.
 	 */

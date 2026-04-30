@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -31,7 +31,8 @@ export type BadgeShape = 'rounded' | 'pill' | 'square'
  * @csspart icon - The icon container
  */
 @customElement('schmancy-badge')
-export class SchmancyBadgeV2 extends TailwindElement(css`
+export class SchmancyBadgeV2 extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: inline-flex;
 		width: fit-content;
@@ -50,7 +51,7 @@ export class SchmancyBadgeV2 extends TailwindElement(css`
 	.animate-pulse {
 		animation: elegant-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 	}
-`) {
+`];
 	/**
 	 * The color variant of the badge
 	 * @attr

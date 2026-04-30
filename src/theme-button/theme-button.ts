@@ -1,9 +1,9 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
 
 @customElement('schmancy-theme-button')
-export default class SchmancyThemeButton extends TailwindElement() {
+export default class SchmancyThemeButton extends SchmancyElement {
 	@query('#color') color!: HTMLElement
 
 	protected render(): unknown {

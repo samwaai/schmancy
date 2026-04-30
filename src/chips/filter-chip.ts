@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/tailwind.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, LitElement } from 'lit'
 import { property } from 'lit/decorators.js'
 import { magnetic } from '../directives/magnetic'
@@ -19,7 +19,8 @@ import { magnetic } from '../directives/magnetic'
  * </schmancy-filter-chip>
  * ```
  */
-export class SchmancyFilterChip extends TailwindElement(css`
+export class SchmancyFilterChip extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: inline-block;
 		outline: none;
@@ -58,7 +59,7 @@ export class SchmancyFilterChip extends TailwindElement(css`
 	button {
 		font-family: inherit;
 	}
-`) {
+`];
 	/** Unique identifier for this filter chip */
 	@property({ type: String, reflect: true })
 	value: string = ''

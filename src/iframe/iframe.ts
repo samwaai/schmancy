@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -28,7 +28,8 @@ code{background:#f5f5f5;padding:.1em .3em;border-radius:3px;font-size:.9em}`
  * ```
  */
 @customElement('schmancy-iframe')
-export default class SchmancyIframe extends TailwindElement(css`
+export default class SchmancyIframe extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
@@ -36,7 +37,7 @@ export default class SchmancyIframe extends TailwindElement(css`
 		border: 0;
 		width: 100%;
 	}
-`) {
+`];
 	/** HTML body fragment to render inside the iframe */
 	@property({ type: String }) html = ''
 

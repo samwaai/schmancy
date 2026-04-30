@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { fromEvent, merge, switchMap, takeUntil, tap, zip } from 'rxjs'
@@ -9,7 +9,8 @@ import { fromEvent, merge, switchMap, takeUntil, tap, zip } from 'rxjs'
  * @slot - The children of the tree
  */
 @customElement('schmancy-tree')
-export class SchmancyTree extends TailwindElement(css`
+export class SchmancyTree extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		position: relative;
@@ -22,7 +23,7 @@ export class SchmancyTree extends TailwindElement(css`
 	::slotted([slot='root'] + *) {
 		margin-top: 0.5rem;
 	}
-`) {
+`];
 	/**
 	 * Whether the tree’s children are visible
 	 */

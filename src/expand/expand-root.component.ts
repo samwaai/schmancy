@@ -1,14 +1,15 @@
 import { css, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
-import { TailwindElement, SurfaceMixin } from '@mixins/index'
+import { SchmancyElement, SurfaceMixin } from '@mixins/index'
 import type { TSurfaceColor } from '@schmancy/types'
 import { SPRING_SMOOTH } from '../utils/animation.js'
 import { reducedMotion$ } from '../directives/reduced-motion'
 import '../surface/surface.js'
 
 @customElement('schmancy-expand-root')
-export class SchmancyExpandRoot extends SurfaceMixin(TailwindElement(css`
+export class SchmancyExpandRoot extends SurfaceMixin(SchmancyElement) {
+	static styles = [css`
 	:host {
 		display: contents;
 	}
@@ -45,7 +46,7 @@ export class SchmancyExpandRoot extends SurfaceMixin(TailwindElement(css`
 		opacity: 1;
 		background: rgb(0 0 0 / 0.08);
 	}
-`)) {
+`];
 	@property({ reflect: true }) override type: TSurfaceColor = 'solid'
 	@state() isOpen = false
 	private summaryRect: DOMRect | null = null

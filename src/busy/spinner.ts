@@ -1,9 +1,10 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('schmancy-spinner')
-export default class SchmnacySpinner extends TailwindElement(css`
+export default class SchmnacySpinner extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: inline-block;
 		color: inherit; /* Inherit from parent by default */
@@ -79,7 +80,7 @@ export default class SchmnacySpinner extends TailwindElement(css`
 			transform: rotate(360deg);
 		}
 	}
-`) {
+`];
 	@property({ type: String, reflect: true })
 	color?: 'primary' | 'on-primary' | 'secondary' | 'on-secondary' |
 	        'tertiary' | 'on-tertiary' | 'error' | 'on-error' |

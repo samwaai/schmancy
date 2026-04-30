@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { FormFieldMixin } from '../../mixins/formField.mixin'
@@ -13,7 +13,7 @@ import { fromEvent, takeUntil } from 'rxjs'
  * @prop {boolean} disabled - Whether the radio button is disabled
  */
 @customElement('schmancy-radio-button')
-export class RadioButton extends FormFieldMixin(TailwindElement()) {
+export class RadioButton extends FormFieldMixin(SchmancyElement) {
 	@property({ type: String }) override value = ''
 	@property({ type: Boolean, reflect: true }) checked = false
 	@property({ type: Boolean }) override disabled = false

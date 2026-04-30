@@ -1,5 +1,5 @@
 import { createContext, provide } from '@lit/context'
-import { TailwindElement } from '@mixins/tailwind.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { SurfaceMixin } from '@mixins/surface.mixin'
 import { TSurfaceColor } from '@schmancy/types'
 import { css, html } from 'lit'
@@ -29,15 +29,14 @@ export type { SchmancySurfaceFill, SchmancySurfaceRounded, SchmancySurfaceElevat
  * </schmancy-surface>
  */
 @customElement('schmancy-surface')
-export class SchmancySurface extends SurfaceMixin(
-	TailwindElement(css`
+export class SchmancySurface extends SurfaceMixin(SchmancyElement) {
+	static styles = [css`
 		:host {
 			display: block;
 			box-sizing: border-box;
 			overflow: visible;
 		}
-	`),
-) {
+	`];
 	/**
 	 * Specifies the surface type for styling.
 	 * Provided to descendant components via context.

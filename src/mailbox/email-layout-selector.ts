@@ -1,4 +1,4 @@
-import { TailwindElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
@@ -10,7 +10,7 @@ import { customElement } from 'lit/decorators.js'
  * @fires layout-select - When a layout is selected with {detail: {layout: string}}
  */
 @customElement('schmancy-email-layout-selector')
-export class SchmancyEmailLayoutSelector extends TailwindElement() {
+export class SchmancyEmailLayoutSelector extends SchmancyElement {
 	
 	private layouts = [
 		{ id: 'columns-2', icon: 'view_week', label: '2 Col' },
