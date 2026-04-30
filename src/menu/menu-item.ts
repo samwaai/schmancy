@@ -1,14 +1,16 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { $dialog } from '../dialog/dialog-service'
 
 @customElement('schmancy-menu-item')
-export default class SchmancyMenuItem extends $LitElement(css`
+export default class SchmancyMenuItem extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
-`) {
+`]
+
 
 	protected render(): unknown {
 		return html`

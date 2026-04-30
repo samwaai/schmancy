@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import { html, PropertyValues, render } from 'lit'
@@ -26,7 +26,7 @@ export type SchmancyDateRangeChangeEvent = CustomEvent<{
  * @fires change - Fired when the date range changes with dateFrom and dateTo values
  */
 @customElement('schmancy-date-range')
-export class SchmancyDateRange extends $LitElement() {
+export class SchmancyDateRange extends SchmancyElement {
 	// Core properties
 	@property({ type: String }) type: 'date' | 'datetime-local' = 'date'
 	@property({ type: Object }) dateFrom: { label: string; value: string } = { label: 'From', value: '' }

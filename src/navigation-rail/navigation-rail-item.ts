@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
@@ -59,7 +59,7 @@ export type NavigationRailItemClickEvent = CustomEvent<{
  * </schmancy-navigation-rail-item>
  */
 @customElement('schmancy-navigation-rail-item')
-export class SchmancyNavigationRailItem extends $LitElement() {
+export class SchmancyNavigationRailItem extends SchmancyElement {
 	// Observable state
 	private hovering$ = new BehaviorSubject<boolean>(false)
 	private pressing$ = new BehaviorSubject<boolean>(false)

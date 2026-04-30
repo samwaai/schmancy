@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
 import { $dialog } from '../dialog/dialog-service'
@@ -34,12 +34,14 @@ import { $dialog } from '../dialog/dialog-service'
  * @slot default - Menu items or any custom component to display in dialog
  */
 @customElement('schmancy-menu')
-export default class SchmancyMenu extends $LitElement(css`
+export default class SchmancyMenu extends SchmancyElement {
+	static styles = [css`
 	:host {
 		position: relative;
 		display: flex;
 	}
-`) {
+`]
+
 	@query('slot:not([name])')
 	private menuSlot!: HTMLSlotElement
 

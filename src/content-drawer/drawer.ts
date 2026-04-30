@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, nothing } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, merge, startWith, takeUntil, tap } from 'rxjs'
@@ -20,14 +20,16 @@ import {
  * @slot - The content slot
  */
 @customElement('schmancy-content-drawer')
-export class SchmancyContentDrawer extends $LitElement(css`
+export class SchmancyContentDrawer extends SchmancyElement {
+	static styles = [css`
 	:host {
 		position: relative;
 		inset: 0;
 		display: block;
 		overflow: hidden;
 	}
-`) {
+`]
+
 	/**
 	 * The minimum width of the sheet
 	 * @attr	minWidth

@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import {
@@ -21,14 +21,16 @@ import { RouteComponent, SchmancyRoute } from './route.component'
 import { ActiveRoute, HISTORY_STRATEGY, RouteAction } from './router.types'
 
 @customElement('schmancy-area')
-export class SchmancyArea extends $LitElement(css`
+export class SchmancyArea extends SchmancyElement {
+	static styles = [css`
 	:host {
 		position: relative;
 		display: block;
 		inset: 0;
 		contain: layout style;
 	}
-`) {
+`]
+
 	/**
 	 * The name of the router outlet
 	 * @attr

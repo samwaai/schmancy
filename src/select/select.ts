@@ -1,5 +1,5 @@
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import SchmancyInput from '@schmancy/input/input'
 import SchmancyOption from '@schmancy/option/option'
@@ -27,7 +27,8 @@ export type SchmancySelectChangeEvent = CustomEvent<{
  * @prop {string[]} values - Selected values (multi-select mode)
  */
 @customElement('schmancy-select')
-export class SchmancySelect extends $LitElement(css`
+export class SchmancySelect extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		position: relative;
@@ -37,7 +38,8 @@ export class SchmancySelect extends $LitElement(css`
 		overflow-y: auto;
 		outline: none;
 	}
-`) {
+`]
+
 	// Form association setup
 	static formAssociated = true
 	private internals?: ElementInternals

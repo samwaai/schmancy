@@ -4,16 +4,18 @@ import { customElement, property, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { Subscription } from 'rxjs'
 import { stepsContext, StepsController } from './steps.context'
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 
 @customElement('schmancy-step')
-export class SchmancyStep extends $LitElement(css`
+export class SchmancyStep extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: grid;
 		/* Base display is just grid, flex properties will be applied dynamically */
 		transition: all 0.2s ease-in-out;
 	}
-`) {
+`]
+
 	/**
 	 * The step's position (1-based). This is used to compare against
 	 * the container's current step to decide if it's "complete",

@@ -1,5 +1,5 @@
 import { consume } from '@lit/context'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { from, merge, Observable, of, takeUntil, tap } from 'rxjs'
@@ -18,11 +18,13 @@ import {
 // import { animate } from '@packages/anime-beta-master'
 
 @customElement('schmancy-content-drawer-sheet')
-export class SchmancyContentDrawerSheet extends $LitElement(css`
+export class SchmancyContentDrawerSheet extends SchmancyElement {
+	static styles = [css`
 	:host {
 		overflow: scroll;
 	}
-`) {
+`]
+
 	@property({ type: Number })
 	minWidth
 

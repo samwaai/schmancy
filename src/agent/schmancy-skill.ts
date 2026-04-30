@@ -1,4 +1,4 @@
-import { $LitElement } from '../../mixins/index'
+import { SchmancyElement } from '../../mixins/index'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import {
@@ -53,7 +53,7 @@ function install() {
  * @element schmancy-skill
  */
 @customElement('schmancy-skill')
-export class SchmancySkill extends $LitElement() {
+export class SchmancySkill extends SchmancyElement {
 	connectedCallback() {
 		super.connectedCallback()
 		install()

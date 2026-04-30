@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, PropertyValues } from 'lit'
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js'
 import { BehaviorSubject, combineLatest } from 'rxjs'
@@ -8,17 +8,17 @@ import type { FilterChipChangeEvent as SchmancyChipChangeEvent } from './filter-
 import { SchmancyFilterChip as SchmancyChip } from './filter-chip'
 
 @customElement('schmancy-chips')
-export default class SchmancyChips extends $LitElement(
-
-css`
+export default class SchmancyChips extends SchmancyElement {
+	static styles = [css`
 :host{
 	display:block;
 	height:fit-content;
 	width:fit-content;
 }
-	
-`
-) {
+
+`]
+
+
 	// RxJS state streams - initialized with undefined to detect if properties were set
 	private value$ = new BehaviorSubject<string>('')
 	private values$ = new BehaviorSubject<string[]>([])

@@ -1,11 +1,12 @@
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { styleMap } from 'lit/directives/style-map.js'
 
 @customElement('schmancy-progress')
-export default class SchmancyProgress extends $LitElement(css`
+export default class SchmancyProgress extends SchmancyElement {
+  static styles = [css`
   :host {
     display: block;
   }
@@ -39,7 +40,8 @@ export default class SchmancyProgress extends $LitElement(css`
   .indeterminate-animation {
     animation: indeterminate 1.8s cubic-bezier(0.34, 1.2, 0.64, 1) infinite;
   }
-`) {
+`]
+
   @property({ type: Number, reflect: true })
   value = 0
 

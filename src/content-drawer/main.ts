@@ -1,5 +1,5 @@
 import { consume } from '@lit/context'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { PropertyValueMap, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { SchmancyEvents } from '..'
@@ -12,12 +12,14 @@ import {
 import { when } from 'lit/directives/when.js'
 
 @customElement('schmancy-content-drawer-main')
-export class SchmancyContentDrawerMain extends $LitElement(css`
+export class SchmancyContentDrawerMain extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		overflow: hidden;
 	}
-`) {
+`]
+
 	@property({ type: Number })
 	minWidth: number
 

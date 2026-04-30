@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { debounceTime, distinctUntilChanged, fromEvent, map, takeUntil, tap } from 'rxjs'
@@ -16,7 +16,8 @@ import {
  * @slot - The content slot
  */
 @customElement('schmancy-nav-drawer')
-export class SchmancyNavigationDrawer extends $LitElement(css`
+export class SchmancyNavigationDrawer extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: grid;
 		grid-template-columns: auto 1fr;
@@ -35,7 +36,8 @@ export class SchmancyNavigationDrawer extends $LitElement(css`
 	:host([fullscreen]) {
 		grid-template-columns: 1fr;
 	}
-`) {
+`]
+
 	@property({ type: Boolean, reflect: true })
 	fullscreen: boolean = false
 

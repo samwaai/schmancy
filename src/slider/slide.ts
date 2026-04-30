@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { cache } from 'lit/directives/cache.js'
@@ -18,7 +18,8 @@ type SlideType = 'image' | 'video' | 'content'
 type ObjectFit = 'cover' | 'contain' | 'fill' | 'scale-down' | 'none'
 
 @customElement('schmancy-slide')
-export class SchmancySlide extends $LitElement(css`
+export class SchmancySlide extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		scroll-snap-align: center; /* If your slider uses scroll-snap */
@@ -30,7 +31,8 @@ export class SchmancySlide extends $LitElement(css`
 		height: auto;
 		object-fit: var(--object-fit, cover);
 	}
-`) {
+`]
+
 	/**
 	 * Determines how this slide should be rendered.
 	 * Defaults to 'content' if not provided.

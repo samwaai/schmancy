@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 import jsQR from 'jsqr'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
@@ -12,14 +12,16 @@ interface QRScanResult {
 }
 
 @customElement('schmancy-qr-scanner')
-export class SchmancyQRScanner extends $LitElement(css`
+export class SchmancyQRScanner extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		width: 100%;
 		height: 100%;
 		min-height: 300px;
 	}
-`) {
+`]
+
 	@property({ type: Boolean }) continuous = true
 
 	@state() private hasPermission = false

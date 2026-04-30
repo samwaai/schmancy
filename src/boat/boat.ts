@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
@@ -22,7 +22,8 @@ interface Position {
 }
 
 @customElement('schmancy-boat')
-export default class SchmancyBoat extends $LitElement(css`
+export default class SchmancyBoat extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: contents;
 		position: relative;
@@ -31,7 +32,8 @@ export default class SchmancyBoat extends $LitElement(css`
 	:host([hidden]) {
 		display: none !important;
 	}
-`) {
+`]
+
 	@property({ type: String }) id: string = 'default'
 	@property({ type: String }) icon?: string
 	@property({ type: String }) label?: string

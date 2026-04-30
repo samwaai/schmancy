@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { color } from '@schmancy/directives'
@@ -41,7 +41,7 @@ export type AvatarStatus = 'online' | 'offline' | 'busy' | 'away' | 'none'
  * ></schmancy-avatar>
  */
 @customElement('schmancy-avatar')
-export class SchmancyAvatar extends $LitElement() {
+export class SchmancyAvatar extends SchmancyElement {
 	@property({ type: String }) initials: string = ''
 	@property({ type: String }) src: string = ''
 	@property({ type: String }) icon: string = ''

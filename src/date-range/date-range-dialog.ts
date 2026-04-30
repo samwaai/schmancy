@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import dayjs from 'dayjs'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -25,7 +25,7 @@ interface PresetGroup {
  * @element schmancy-date-range-dialog
  */
 @customElement('schmancy-date-range-dialog')
-export class SchmancyDateRangeDialog extends $LitElement() {
+export class SchmancyDateRangeDialog extends SchmancyElement {
 	@property({ type: String }) type: 'date' | 'datetime-local' = 'date'
 	@property({ type: Object }) dateFrom: { label: string; value: string } = { label: 'From', value: '' }
 	@property({ type: Object }) dateTo: { label: string; value: string } = { label: 'To', value: '' }

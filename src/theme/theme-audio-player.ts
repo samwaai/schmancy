@@ -18,7 +18,7 @@
  * ```
  */
 
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { html, css } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
@@ -59,11 +59,13 @@ declare global {
  * Integrates with the Sound Service for consistent sound management
  */
 @customElement('schmancy-theme-audio-player')
-export class SchmancyThemeAudioPlayer extends $LitElement(css`
+export class SchmancyThemeAudioPlayer extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
-`) {
+`]
+
 	/** Current theme color */
 	@state() private currentColor: string = '#6200ee'
 

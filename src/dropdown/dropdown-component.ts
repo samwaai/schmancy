@@ -1,5 +1,5 @@
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { filter, fromEvent, takeUntil, Subscription } from 'rxjs'
@@ -12,7 +12,7 @@ import { filter, fromEvent, takeUntil, Subscription } from 'rxjs'
  * @slot - Default slot for the dropdown content
  */
 @customElement('schmancy-dropdown')
-export class SchmancyDropdown extends $LitElement() {
+export class SchmancyDropdown extends SchmancyElement {
 	/**
 	 * Whether the dropdown is currently open
 	 */

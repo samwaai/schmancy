@@ -1,5 +1,5 @@
 import { consume } from '@lit/context'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { SchmancyEvents, SchmancyTheme, color } from '..'
@@ -17,7 +17,7 @@ const OVERLAY_ANIM_DURATION_CLOSE = 150
 const NAV_ANIM_DURATION = 200
 
 @customElement('schmancy-nav-drawer-navbar')
-export class SchmancyNavigationDrawerSidebar extends $LitElement() {
+export class SchmancyNavigationDrawerSidebar extends SchmancyElement {
 	// Consume context values. Renamed from "state" to "drawerState" to avoid confusion.
 	@consume({ context: SchmancyDrawerNavbarMode, subscribe: true })
 	@state()

@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { debounceTime, Subject, takeUntil, tap, switchMap, of } from 'rxjs'
@@ -34,7 +34,7 @@ export type { ColorPreset as ThemeColorPreset }
  * ```
  */
 @customElement('schmancy-theme-controller')
-export class SchmancyThemeController extends $LitElement() {
+export class SchmancyThemeController extends SchmancyElement {
 	@state() protected currentScheme: 'dark' | 'light' | 'auto' = 'auto'
 	@state() protected currentColor: string = '#6200ee'
 	@state() protected resolvedScheme: 'dark' | 'light' = 'light'

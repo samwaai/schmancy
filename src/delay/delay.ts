@@ -1,6 +1,6 @@
 import { animate, fadeIn, flyAbove, flyBelow } from '@lit-labs/motion'
 import { consume, createContext, provide } from '@lit/context'
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 import hashContent from '@schmancy/utils/hashContent'
 import { html } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
@@ -11,7 +11,7 @@ import { takeUntil } from 'rxjs/operators'
 export const delayContext = createContext<number>('delay-context')
 
 @customElement('schmancy-delay')
-export class SchmancyDelay extends $LitElement() {
+export class SchmancyDelay extends SchmancyElement {
 	@property({ type: Number, reflect: true }) delay = 0 // Delay in milliseconds
 	@property({ type: String }) motion = 'flyBelow' // Motion type (default: flyBelow)
 	@state() private rendered = false // Tracks if the content is rendered

@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
@@ -38,7 +38,8 @@ interface Position {
 }
 
 @customElement('schmancy-window')
-export default class SchmancyWindow extends $LitElement(css`
+export default class SchmancyWindow extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: contents;
 		position: relative;
@@ -47,7 +48,8 @@ export default class SchmancyWindow extends $LitElement(css`
 	:host([hidden]) {
 		display: none !important;
 	}
-`) {
+`]
+
 	@property({ type: String }) id: string = 'default'
 	/** Override the expanded panel width (e.g. '320px', '24rem'). Defaults to responsive sizing. */
 	@property({ type: String }) expandedWidth?: string

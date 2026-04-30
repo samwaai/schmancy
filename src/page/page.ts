@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import '../layout/scroll/scroll'
@@ -24,7 +24,8 @@ import { fromResizeObserver } from '../directives/layout'
  * `
  */
 @customElement('schmancy-page')
-export class SchmancyPage extends $LitElement(css`
+export class SchmancyPage extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		box-sizing: border-box;
@@ -32,7 +33,8 @@ export class SchmancyPage extends $LitElement(css`
 		overscroll-behavior: none;
 		-webkit-tap-highlight-color: transparent;
 	}
-`) {
+`]
+
 	/** Custom grid-template-rows using underscores (e.g. "1fr_2fr_auto") */
 	@property({ type: String })
 	rows = 'auto_1fr_auto'

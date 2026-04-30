@@ -1,10 +1,11 @@
 // divider.ts
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 @customElement('schmancy-divider')
-export default class SchmancyDivider extends $LitElement(css`
+export default class SchmancyDivider extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
@@ -58,7 +59,8 @@ export default class SchmancyDivider extends $LitElement(css`
 		animation: grow-vertical 400ms ease-out;
 		transform-origin: center;
 	}
-`) {
+`]
+
 	@property({ type: String }) outline: 'default' | 'variant' = 'variant'
 	@property({ type: Boolean }) vertical = false
 	@property({ type: String }) grow: 'start' | 'end' | 'both' = 'start'

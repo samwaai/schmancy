@@ -4,15 +4,17 @@ import { when } from 'lit/directives/when.js'
 import { ref, createRef, Ref } from 'lit/directives/ref.js'
 import { fromEvent } from 'rxjs'
 import { filter, takeUntil, tap, switchMap, map, first } from 'rxjs/operators'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { overlayStack } from '../utils/overlay-stack'
 
 @customElement('schmancy-lightbox')
-export class SchmancyLightbox extends $LitElement(css`
+export class SchmancyLightbox extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: contents;
 	}
-`) {
+`]
+
 	@property({ type: String }) src: string = ''
 	@property({ type: Array }) images: string[] = []
 	@property({ type: Number }) initialIndex: number = 0

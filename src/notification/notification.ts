@@ -1,5 +1,5 @@
-import { $LitElement } from '@mixins/index'
-import { html } from 'lit'
+import { SchmancyElement } from '@mixins/index'
+import { html, unsafeCSS } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { BehaviorSubject, timer, interval, NEVER } from 'rxjs'
 import { switchMap, takeUntil, map, tap, distinctUntilChanged } from 'rxjs/operators'
@@ -31,7 +31,9 @@ function calculateArcPoint(
  * @fires close - When notification is closed
  */
 @customElement('sch-notification')
-export default class SchmancyNotification extends $LitElement(style) {
+export default class SchmancyNotification extends SchmancyElement {
+	static styles = [unsafeCSS(style)];
+
 	@property({ type: String }) title = ''
 	@property({ type: String }) message = ''
 	@property({ type: String }) type: NotificationType = 'info'

@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, render as litRender, type TemplateResult } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
@@ -67,7 +67,8 @@ const RE_RESOLVE_COOLDOWN_MS = 600
  * `tier` / `layout` / `modal` as properties for the stack entry.
  */
 @customElement('schmancy-overlay')
-export class SchmancyOverlay extends $LitElement(css`
+export class SchmancyOverlay extends SchmancyElement {
+	static styles = [css`
 	:host {
 		position: fixed;
 		inset: 0;
@@ -131,7 +132,8 @@ export class SchmancyOverlay extends $LitElement(css`
 			box-shadow: var(--schmancy-sys-elevation-2, 0 2px 6px rgba(0, 0, 0, 0.2));
 		}
 	}
-`) {
+`]
+
 	@property({ type: String, reflect: true }) layout: OverlayLayout = 'centered'
 	@property({ type: Boolean, reflect: true }) dismissable = true
 	@property({ type: Boolean, reflect: true }) modal = true

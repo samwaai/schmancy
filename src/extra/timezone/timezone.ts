@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
@@ -14,11 +14,13 @@ import SchmancyAutocomplete from '@schmancy/autocomplete/autocomplete'
  * @prop {boolean} required - Whether the field is required
  */
 @customElement('schmancy-select-timezones')
-export class SchmancyTimezonesSelect extends $LitElement(css`
+export class SchmancyTimezonesSelect extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
-`) {
+`]
+
 	// Form association setup
 	static formAssociated = true
 	private internals?: ElementInternals

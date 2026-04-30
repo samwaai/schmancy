@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { SchmancyAutocompleteChangeEvent } from '@schmancy/autocomplete'
 import { css, html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
@@ -7,11 +7,13 @@ import countriesData from './countries.data'
 import SchmancyAutocomplete from '@schmancy/autocomplete/autocomplete'
 
 @customElement('schmancy-select-countries')
-export class SchmancyCountriesSelect extends $LitElement(css`
+export class SchmancyCountriesSelect extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
-`) {
+`]
+
 	// Form association setup
 	static formAssociated = true
 	private internals?: ElementInternals

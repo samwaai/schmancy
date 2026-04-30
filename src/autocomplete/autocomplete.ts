@@ -1,7 +1,7 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { InputSize, SchmancyInput } from '@schmancy/input'
 import SchmancyOption from '@schmancy/option/option'
-import { html, nothing } from 'lit'
+import { html, nothing, unsafeCSS } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
@@ -48,7 +48,9 @@ interface FilteredOption {
  * @prop {string[]} values - Selected values (multi-select mode)
  */
 @customElement('schmancy-autocomplete')
-export default class SchmancyAutocomplete extends $LitElement(style) {
+export default class SchmancyAutocomplete extends SchmancyElement {
+    static styles = [unsafeCSS(style)];
+
     static formAssociated = true
     internals: ElementInternals | undefined
 

@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html, css } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
@@ -30,12 +30,14 @@ import type {
  * ```
  */
 @customElement('schmancy-mailbox')
-export class SchmancyMailbox extends $LitElement(css`
+export class SchmancyMailbox extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		height: 100%;
 	}
-`) {
+`]
+
 	/** Configuration for endpoints and handlers */
 	@property({ type: Object }) config: EmailComposeConfig = {}
 	

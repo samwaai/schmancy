@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -39,12 +39,14 @@ interface CSVParser {
  * ```
  */
 @customElement('schmancy-email-recipients')
-export class SchmancyEmailRecipients extends $LitElement(css`
+export class SchmancyEmailRecipients extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		height: 100%;
 	}
-`) {
+`]
+
 	/** Disable all interactions */
 	@property({ type: Boolean }) disabled = false
 	

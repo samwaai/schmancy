@@ -1,7 +1,7 @@
 import { html, css, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { ref, createRef, Ref } from 'lit/directives/ref.js'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import type { ChartDataPoint, ChartTheme, ProcessedDataPoint } from './types'
 import { catmullRomSpline, hexToRgba, easeOutCubic } from './utils'
 
@@ -15,11 +15,13 @@ interface TooltipData {
 }
 
 @customElement('schmancy-area-chart')
-export class SchmancyAreaChart extends $LitElement(css`
+export class SchmancyAreaChart extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
-`) {
+`]
+
 	/** Chart data points */
 	@property({ type: Array })
 	data: ChartDataPoint[] = []

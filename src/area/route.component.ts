@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index';
+import { SchmancyElement } from '@mixins/index';
 import { css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Observable } from 'rxjs';
@@ -11,7 +11,7 @@ export type RouteComponent =
   | string // Tag name
   | CustomElementConstructor // Constructor function
   | HTMLElement // Existing element
-  | LazyComponent<any> 
+  | LazyComponent<CustomElementConstructor>
 
 export interface RouteConfig {
   when: string;
@@ -20,10 +20,21 @@ export interface RouteConfig {
   guard?:  ObservableGuardResult;
 }
 
+export type SchmancyRouteRedirectEvent = CustomEvent<{
+  blockedRoute: string;
+  area: string;
+  params: Record<string, string>;
+  state: Record<string, unknown>;
+  redirectTarget?: unknown;
+}>;
+
 /**
  * A marker component that holds route configuration.
  * This component doesn't render anything - it's used by schmancy-area
  * to configure routing via slot change detection.
+ *
+ * @fires {SchmancyRouteRedirectEvent} redirect - Fired by the parent schmancy-area
+ *   on this element when the route's guard emits false. Listen with `@redirect`.
  *
  * @example
  * ```html
@@ -37,11 +48,13 @@ export interface RouteConfig {
  * ```
  */
 @customElement('schmancy-route')
-export class SchmancyRoute extends $LitElement(css`
+export class SchmancyRoute extends SchmancyElement {
+	static styles = [css`
   :host {
     display: none;
   }
-`) {
+`]
+
   @property({ type: String })
   when!: string;
 

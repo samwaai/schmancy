@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { BehaviorSubject, fromEvent, takeUntil } from 'rxjs'
@@ -55,7 +55,7 @@ export type LabelVisibility = 'all' | 'selected' | 'none'
  * </schmancy-navigation-rail>
  */
 @customElement('schmancy-navigation-rail')
-export class SchmancyNavigationRail extends $LitElement() {
+export class SchmancyNavigationRail extends SchmancyElement {
 	// Observable state
 	private activeIndex$ = new BehaviorSubject<number>(-1)
 

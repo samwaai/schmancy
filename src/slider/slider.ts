@@ -1,11 +1,12 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { fromEvent } from 'rxjs'
 import { throttleTime } from 'rxjs/operators'
 
 @customElement('schmancy-slider')
-export class SchmancySlider extends $LitElement(css`
+export class SchmancySlider extends SchmancyElement {
+	static styles = [css`
 	.slider {
 		/* Lay out slides horizontally, one after another */
 		display: flex;
@@ -30,7 +31,8 @@ export class SchmancySlider extends $LitElement(css`
 		flex: 0 0 100%;
 		box-sizing: border-box;
 	}
-`) {
+`]
+
 	/**
 	 * Currently centered slide index
 	 */

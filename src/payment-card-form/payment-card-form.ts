@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import SchmancyForm from '@schmancy/form/form'
 import { SchmancyInputChangeEvent } from '@schmancy/input'
 import SchmancyInput from '@schmancy/input/input'
@@ -15,7 +15,7 @@ import { customElement, property, query, state } from 'lit/decorators.js'
  * @slot - Default slot for any additional content
  */
 @customElement('schmancy-payment-card-form')
-export class SchmancyPaymentCardForm extends $LitElement() {
+export class SchmancyPaymentCardForm extends SchmancyElement {
 	/**
 	 * The form data containing all payment card information
 	 */

@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { area } from '../area'
 import { html, css } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
@@ -8,7 +8,8 @@ import { SchmancySheetPosition, sheet } from './sheet.service'
 import { BLACKBIRD_EASING, DURATION_ENTER, DURATION_EXIT, DURATION_BACKDROP, EASE_OUT, EASE_IN } from '../utils/animation'
 
 @customElement('schmancy-sheet')
-export default class SchmancySheet extends $LitElement(css`
+export default class SchmancySheet extends SchmancyElement {
+	static styles = [css`
 	:host {
 		position: fixed;
 		inset: 0;
@@ -31,7 +32,8 @@ export default class SchmancySheet extends $LitElement(css`
 	@media (prefers-reduced-motion: reduce) {
 		.content { box-shadow: var(--schmancy-sys-elevation-3); }
 	}
-`) {
+`]
+
 	// uid is inherited from $LitElement mixin - auto-generated or set via attribute
 	@property({ type: Boolean, reflect: true }) open = false
 	@property({ type: String, reflect: true }) position: SchmancySheetPosition = SchmancySheetPosition.Side

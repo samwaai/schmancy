@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, LitElement, PropertyValueMap } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
@@ -13,7 +13,8 @@ import { ButtonVariant } from './button'
  * @csspart base - The underlying native `<button>` (or `<a>` when `href` is set).
  */
 @customElement('schmancy-icon-button')
-export class SchmnacyIconButton extends $LitElement(css`
+export class SchmnacyIconButton extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		border-radius: 9999px;
@@ -34,7 +35,8 @@ export class SchmnacyIconButton extends $LitElement(css`
 		:host(:hover:not([disabled])) { box-shadow: none; }
 		:host(:active:not([disabled])) { transform: none; box-shadow: none; }
 	}
-`) {
+`]
+
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		mode: 'open',

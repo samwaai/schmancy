@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
@@ -26,11 +26,13 @@ import type { EmailTemplate } from './types'
  * ```
  */
 @customElement('schmancy-email-template-picker')
-export class SchmancyEmailTemplatePicker extends $LitElement(css`
+export class SchmancyEmailTemplatePicker extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
-`) {
+`]
+
 	/** Available templates */
 	@property({ type: Array }) templates: EmailTemplate[] = []
 	

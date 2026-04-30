@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { distinctUntilChanged, takeUntil, tap } from 'rxjs/operators'
@@ -13,12 +13,14 @@ import { StepsController, stepsContext } from './steps.context'
 export type SchmancyStepsChangeEvent = CustomEvent<{ value: number }>
 
 @customElement('schmancy-steps-container')
-export class SchmancyStepsContainer extends $LitElement(css`
+export class SchmancyStepsContainer extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		overflow: auto;
 	}
-`) {
+`]
+
 	private controller = new StepsController()
 
 	@provide({ context: stepsContext })

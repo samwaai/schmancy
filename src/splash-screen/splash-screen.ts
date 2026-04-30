@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { styleMap } from 'lit/directives/style-map.js'
@@ -30,7 +30,8 @@ export type SchmancySplashScreenDoneEvent = CustomEvent<void>
  * ```
  */
 @customElement('schmancy-splash-screen')
-export default class SchmancySplashScreen extends $LitElement(css`
+export default class SchmancySplashScreen extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		position: relative;
@@ -56,7 +57,8 @@ export default class SchmancySplashScreen extends $LitElement(css`
 		width: 100%;
 		transition: opacity var(--schmancy-splash-transition, 500ms) ease-in-out;
 	}
-`) {
+`]
+
 	/**
 	 * Minimum duration (ms) the splash layer stays visible. Prevents a flash
 	 * when the app loads faster than expected.

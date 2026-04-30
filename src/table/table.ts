@@ -1,5 +1,5 @@
 import '@lit-labs/virtualizer'
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { html, TemplateResult } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import './row' // Import the schmancy-table-row component
@@ -31,7 +31,7 @@ export type SortDirection = 'asc' | 'desc' | null
  *
  */
 @customElement('schmancy-table')
-export class SchmancyDataTable<T extends Record<string, any> = any> extends $LitElement() {
+export class SchmancyDataTable<T extends Record<string, any> = any> extends SchmancyElement {
 	@property({ type: Array, attribute: false })
 	columns: TableColumn<T>[] = []
 

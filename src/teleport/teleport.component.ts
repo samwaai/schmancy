@@ -11,9 +11,11 @@ import {
 	default as teleportationService,
 } from './teleport.service'
 import { watchElementRect } from './watcher'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 @customElement('schmancy-teleport')
-export class SchmancyTeleportation extends $LitElement(css``) {
+export class SchmancyTeleportation extends SchmancyElement {
+	static styles = [css``]
+
 	/**
 	 * @attr {string} uuid - The component tag to teleport
 	 * @readonly

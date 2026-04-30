@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, type TemplateResult } from 'lit'
 import { customElement, property, query } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
@@ -17,7 +17,8 @@ import { ifDefined } from 'lit/directives/if-defined.js'
  * callers pass their own component to `show()`.
  */
 @customElement('schmancy-overlay-prompt-body')
-export class SchmancyOverlayPromptBody extends $LitElement(css`
+export class SchmancyOverlayPromptBody extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		padding: 20px 24px;
@@ -32,7 +33,8 @@ export class SchmancyOverlayPromptBody extends $LitElement(css`
 		background: var(--schmancy-sys-color-error, #b3261e);
 		color: var(--schmancy-sys-color-on-error, #ffffff);
 	}
-`) {
+`]
+
 	@property({ type: String }) heading?: string
 	@property({ type: String }) subtitle?: string
 	@property({ type: String }) message?: string

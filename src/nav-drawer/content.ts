@@ -1,17 +1,19 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 import { fromEvent, takeUntil } from 'rxjs'
 
 @customElement('schmancy-nav-drawer-content')
-export class SchmancyNavigationDrawerContent extends $LitElement(css`
+export class SchmancyNavigationDrawerContent extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 		position: relative;
 		inset: 0;
 		overflow-y: auto;
 	}
-`) {
+`]
+
 	connectedCallback(): void {
 		super.connectedCallback()
 		fromEvent(this, 'scroll')

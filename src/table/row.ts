@@ -1,10 +1,10 @@
-import { $LitElement } from '@mixins/litElement.mixin'
+import { SchmancyElement } from '@mixins/index'
 import { html, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { TableColumn } from './table' // Import TableColumn interface with updated types
 
 @customElement('schmancy-table-row')
-export class SchmancyTableRow<T extends Record<string, any> = any> extends $LitElement() {
+export class SchmancyTableRow<T extends Record<string, any> = any> extends SchmancyElement {
 	@property({ type: Array, attribute: false })
 	columns: TableColumn<T>[] = []
 

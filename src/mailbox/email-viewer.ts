@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
@@ -28,11 +28,13 @@ import type { EmailAttachment, EmailPreviewMode } from './types'
  * ```
  */
 @customElement('schmancy-email-viewer')
-export class SchmancyEmailViewer extends $LitElement(css`
+export class SchmancyEmailViewer extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
-`) {
+`]
+
 	/** Email subject */
 	@property({ type: String }) subject = ''
 	

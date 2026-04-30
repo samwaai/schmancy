@@ -1,4 +1,4 @@
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { provide } from '@lit/context'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
@@ -24,8 +24,8 @@ export type ButtonColor = 'primary' | 'secondary' | 'success' | 'error' | 'warni
  * @csspart base - The underlying native `<button>` (or `<a>` when `href` is set).
  */
 @customElement('schmancy-button')
-export class SchmancyButton extends $LitElement(
-	css`:host{
+export class SchmancyButton extends SchmancyElement {
+	static styles = [css`:host{
 		display: inline-block;
 		min-width: fit-content;
 		overflow: hidden;
@@ -52,8 +52,8 @@ export class SchmancyButton extends $LitElement(
 	:host *,
 	* {
 		touch-action: manipulation;
-	}`
-) {
+	}`]
+
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		mode: 'open',

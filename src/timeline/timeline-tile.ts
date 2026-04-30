@@ -17,7 +17,7 @@
  * fanned siblings; the attribute survives that crossing because the
  * pointerover stream stays on the wrapper subtree.
  */
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
@@ -41,7 +41,8 @@ export type TimelineTileClickEvent = CustomEvent<{
 }>
 
 @customElement('schmancy-timeline-tile')
-export class SchmancyTimelineTile extends $LitElement(css`
+export class SchmancyTimelineTile extends SchmancyElement {
+	static styles = [css`
 	:host {
 		--schmancy-tile-w: 32px;
 		--schmancy-tile-h: 40px;
@@ -302,7 +303,8 @@ export class SchmancyTimelineTile extends $LitElement(css`
 	:host-context([data-fanned]) .stack-count {
 		opacity: 0;
 	}
-`) {
+`]
+
 	@property({ type: String, reflect: true }) state: TimelineTileState = 'empty'
 
 	@property({ type: String }) glyph = ''

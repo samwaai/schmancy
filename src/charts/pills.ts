@@ -1,7 +1,7 @@
 import { html, css, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { $LitElement } from '@mixins/index'
+import { SchmancyElement } from '@mixins/index'
 import type { PillDataPoint, PillSegment } from './types'
 
 /** Default color palette for segments - expanded for uniqueness */
@@ -24,11 +24,13 @@ const DEFAULT_COLORS = [
 ]
 
 @customElement('schmancy-pills')
-export class SchmancyPills extends $LitElement(css`
+export class SchmancyPills extends SchmancyElement {
+	static styles = [css`
 	:host {
 		display: block;
 	}
-`) {
+`]
+
 	/** Chart data points */
 	@property({ type: Array })
 	data: PillDataPoint[] = []
