@@ -22,7 +22,7 @@ All reference files live in this directory. Read by filename.
 |-------|------|
 | Routing (`<schmancy-area>`, `<schmancy-route>`, `area.push()`, `lazy()`) | `area.md` |
 | State (`state()`, `bindState`, `computed`, `stateFromObservable`) | `state.md` |
-| Base class (`$LitElement`) | `mixins.md` |
+| Base class (`SchmancyElement`) | `mixins.md` |
 | Theme (`<schmancy-theme>`, `theme` service) | `theme.md` |
 | Directives (`magnetic`, `cursorGlow`, `gravity`, `reveal`, `animateText`, …) | `directives.md` |
 | Spring physics presets | `animation.md` |
@@ -57,7 +57,7 @@ Use component tags (`<schmancy-menu>`, `<schmancy-dropdown>`, `<schmancy-tooltip
 ## Non-negotiable conventions
 
 **Component authoring**
-- Every component extends `$LitElement(style?)`. Never raw `LitElement`.
+- Every component extends `SchmancyElement` and declares its component-local CSS via `static styles = [css\`...\`]`. Never raw `LitElement`. Never wrap with `SignalWatcher` — the base already includes it; double-wrapping creates two nested Computeds and panics with "Detected cycle in computations" at runtime. The deprecated `$LitElement(style?)` factory still works (it now just delegates to SchmancyElement) but should not appear in new code.
 - Every RxJS subscription ends with `.pipe(takeUntil(this.disconnecting))`.
 - Register the tag in `HTMLElementTagNameMap` for TypeScript.
 
@@ -81,7 +81,7 @@ Use component tags (`<schmancy-menu>`, `<schmancy-dropdown>`, `<schmancy-tooltip
 - `classMap(this.classMap({...}))` must be the sole expression in `class=` — never mix with string interpolation.
 
 **Styling**
-- Styling uses Tailwind and schmancy tokens. The `css` template passed to `$LitElement` contains only `:host` rules, `@keyframes`, and selectors targeting vendor pseudo-elements (`::-webkit-*`, `::-moz-*`). Other styling is set through Tailwind utility classes and schmancy theme tokens on the `class=` attribute. The `style=` attribute holds per-instance dynamic values only (e.g. `style="--tide: ${value}"`).
+- Styling uses Tailwind and schmancy tokens. The `css` block in `static styles` contains only `:host` rules, `@keyframes`, and selectors targeting vendor pseudo-elements (`::-webkit-*`, `::-moz-*`). Other styling is set through Tailwind utility classes and schmancy theme tokens on the `class=` attribute. The `style=` attribute holds per-instance dynamic values only (e.g. `style="--tide: ${value}"`).
   Remediation: move declarations to Tailwind on the `class=` attribute (`backdrop-filter: blur(20px)` → `backdrop-blur-xl`; `color-mix(in oklch, Canvas 72%, transparent)` → `bg-surface/70`; `border-radius: 14px` → `rounded-2xl`; `transition: opacity 80ms linear` → `transition-opacity duration-75 ease-linear`). When a visual pattern seems to want its own class (like `.glass`), check `INDEX.md` — schmancy likely ships the component.
 - Colors: Tailwind utility classes (`bg-surface-on`, `text-primary-default`, `border-outline-variant`) are the preferred surface — every `--schmancy-sys-color-*` token is auto-aliased to `--color-*`, which Tailwind v4 turns into the full `bg-X` / `text-X` / `border-X` / `ring-X` / `fill-X` / `stroke-X` namespace. Reach for raw `var(--schmancy-sys-color-*)` only inside the `css` template literal (where Tailwind doesn't apply) or for custom tokens you've registered yourself. Never hardcoded hex.
 - **No arbitrary-value escape** (`TOKEN_FIRST_NO_ARBITRARY`). Within `web/src/**` and `packages/schmancy/src/**`, no Tailwind arbitrary-value utility (`[...]`) appears; a value not yet covered by `packages/schmancy/src/theme/theme.style.css` or the Tailwind default theme is added as a token to that file before being used. This rule supersedes the prior `TOKEN_FIRST_LITERALS_COMPLETION` annotation form: an inline `// token-gap: <namespace>` comment is no longer a valid resolution, since color and size namespaces are exhaustively covered by schmancy and Tailwind, and any uncovered namespace (aspect ratio, motion curve, custom breakpoint) is itself a token-registry extension waiting to be made.
