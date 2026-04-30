@@ -1,34 +1,24 @@
 import { CSSResult, LitElement } from 'lit'
-import { SignalWatcher } from '@lit-labs/signals'
-import { TailwindElement } from './tailwind.mixin'
-import { BaseElement, IBaseMixin } from './baseElement'
+import { IBaseMixin } from './baseElement'
 import { Constructor } from './constructor'
+import { SchmancyElement } from './SchmancyElement'
 
 /**
- * Schmancy's base class mixin. Composes:
+ * @deprecated Extend `SchmancyElement` directly and declare `static styles`.
  *
- *   1. `TailwindElement(style)` — Tailwind/SCSS injection
- *   2. `BaseElement(...)`        — `disconnecting` Subject, classMap/styleMap, discovery
- *   3. `SignalWatcher(...)`      — auto-tracks every signal read in `render()`
+ *   Before: extends $LitElement(css`...`)
+ *   After:  extends SchmancyElement { static styles = [css`...`] }
  *
- * The SignalWatcher layer makes `state.value` reads inside templates
- * subscribe automatically — no `@observe`, no `bindState`, no field
- * required for the common case:
- *
- *   class CartView extends $LitElement() {
- *     render() { return html`Items: ${cart.value.items.length}` }
- *   }
- *
- * Use `@observe(source) field!: T` only when you need the value as a
- * field on the instance (event handlers, derived methods, DevTools).
+ * Kept as a thin alias for the migration window; will be removed in the next
+ * major Schmancy release. The returned class extends `SchmancyElement` so
+ * runtime semantics (Tailwind injection, `disconnecting` Subject,
+ * `disconnectedSignal` AbortSignal, SignalWatcher) match exactly.
  */
 export const $LitElement = <T extends CSSResult>(componentStyle?: T) => {
-	class TailwindMixinClass extends SignalWatcher(BaseElement(TailwindElement(componentStyle))) {
-		disconnectedCallback = () => {
-			super.disconnectedCallback()
-		}
+	class LegacyAlias extends SchmancyElement {
+		static override styles = componentStyle ? [componentStyle] : []
 	}
-	return TailwindMixinClass as CustomElementConstructor &
+	return LegacyAlias as CustomElementConstructor &
 		Constructor<LitElement> &
-		Constructor<IBaseMixin> /* see "typing the subclass" below */
+		Constructor<IBaseMixin>
 }
