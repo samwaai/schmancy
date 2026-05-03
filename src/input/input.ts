@@ -1,4 +1,4 @@
-import { html, LitElement, nothing, PropertyValueMap } from 'lit'
+import { html, LitElement, nothing, PropertyValueMap, unsafeCSS } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -59,7 +59,7 @@ export type InputSize = 'xxs' | 'xs' | 'sm' | 'md' | 'lg'
  * @prop {string} hint - Optional hint text to display below the field (inherited from FormFieldMixin)
  */
 @customElement('schmancy-input')
-export default class SchmancyInput extends SchmancyFormField(style) {
+export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	// ----------------------------
 	//  A) Public properties
 	// ----------------------------
