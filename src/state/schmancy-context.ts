@@ -14,7 +14,31 @@
 import { LitElement, html } from 'lit'
 import { property } from 'lit/decorators.js'
 import { ContextProvider, createContext, type Context } from '@lit/context'
-import { stateContextKey } from './active-host'
+import { _publishEventHost, stateContextKey } from './active-host'
+
+// Curated set of DOM event types that descendants are likely to bind state-
+// mutating handlers to. The capture-phase listener publishes `this` as the
+// active event-host before the event reaches the target; descendants whose
+// inline handlers (or any code reached during the synchronous chain) call a
+// state mutator can resolve back to the isolated copy this context provides.
+const EVENT_TYPES = [
+	'click',
+	'dblclick',
+	'submit',
+	'change',
+	'input',
+	'keydown',
+	'keyup',
+	'keypress',
+	'pointerdown',
+	'pointerup',
+	'mousedown',
+	'mouseup',
+	'focus',
+	'blur',
+	'paste',
+	'drop',
+] as const
 
 /** Duck-typed view of what the `state()` factory hands out, restricted to the
  *  bits `<schmancy-context>` needs. Kept internal — consumers see the full
@@ -43,6 +67,22 @@ export class SchmancyContext extends LitElement {
 		provider: ContextProvider<Context<unknown, unknown>>
 	}> = []
 
+	private _publishEventTargetAsHost = (e: Event): void => {
+		// Publish the deepest event target (across shadow boundaries) rather
+		// than `this`. The downstream `ContextRequestEvent` will be dispatched
+		// from this host and must bubble up through `<schmancy-context>` to
+		// reach our `ContextProvider`. `@lit/context` skips self-registration
+		// (`consumerHost === this.host` ⇒ no-op), so dispatching from
+		// schmancy-context itself would silently fall back to the global.
+		const path = e.composedPath()
+		for (const node of path) {
+			if (node instanceof HTMLElement) {
+				_publishEventHost(node)
+				return
+			}
+		}
+	}
+
 	override connectedCallback(): void {
 		super.connectedCallback()
 		for (const tmpl of this.provides) {
@@ -55,9 +95,15 @@ export class SchmancyContext extends LitElement {
 			const provider = new ContextProvider(this, { context: ctx, initialValue: isolated })
 			this._scoped.push({ isolated, provider })
 		}
+		for (const type of EVENT_TYPES) {
+			this.addEventListener(type, this._publishEventTargetAsHost, { capture: true })
+		}
 	}
 
 	override disconnectedCallback(): void {
+		for (const type of EVENT_TYPES) {
+			this.removeEventListener(type, this._publishEventTargetAsHost, { capture: true })
+		}
 		for (const entry of this._scoped) {
 			entry.isolated.destroy()
 		}

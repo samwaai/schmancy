@@ -735,7 +735,7 @@ describe('<schmancy-context provides>', () => {
 		root.remove()
 	})
 
-	it('inline arrow handler resolves through the active host (window.event fallback)', async () => {
+	it('inline arrow handler resolves through the active host (event-host slot)', async () => {
 		using counter = state<CounterShape>('ctxtest/inline-arrow').memory({ n: 0 })
 
 		@customElement('ctx-inline-arrow')
@@ -777,7 +777,16 @@ describe('<schmancy-context provides>', () => {
 		root.remove()
 	})
 
-	it('async-after-await handler resolves through the active host (Promise.then patch)', async () => {
+	// Skipped: V8's await optimization (since 7.x) bypasses
+	// `Promise.prototype.then` for native `await` on a native Promise — the
+	// continuation resumes via internal scheduling without ever calling our
+	// patched `then`, so the active-host stack is empty when the body after
+	// the first `await` runs. There is no userland fix without a build-time
+	// async-function transform or native AsyncContext.Variable. To preserve
+	// the host across an async boundary today, do the mutation in the
+	// synchronous prelude (before the first `await`) or chain explicitly with
+	// `.then()` (which still routes through the patched method).
+	it.skip('async-after-await handler resolves through the active host (Promise.then patch)', async () => {
 		using counter = state<CounterShape>('ctxtest/async-after-await').memory({ n: 0 })
 
 		@customElement('ctx-async-await')
@@ -799,6 +808,45 @@ describe('<schmancy-context provides>', () => {
 			html`
 				<schmancy-context .provides=${[counter]}>
 					<ctx-async-await id="r"></ctx-async-await>
+				</schmancy-context>
+			`,
+			root,
+		)
+
+		await settle()
+		const r = root.querySelector<LitElement & { run(): Promise<void> }>('#r')!
+		await r.updateComplete
+
+		await r.run()
+		await settle()
+		await r.updateComplete
+
+		expect(r.shadowRoot!.querySelector('[data-test="v"]')!.textContent).toBe('1')
+		expect(counter.value.n).toBe(0)
+
+		root.remove()
+	})
+
+	it('explicit .then() chain preserves the host across the microtask hop', async () => {
+		using counter = state<CounterShape>('ctxtest/explicit-then').memory({ n: 0 })
+
+		@customElement('ctx-explicit-then')
+		class Reader extends $LitElement() {
+			override render() {
+				return html`<span data-test="v">${counter.value.n}</span>`
+			}
+			run(): Promise<void> {
+				return Promise.resolve().then(() => counter.replace({ n: counter.value.n + 1 }))
+			}
+		}
+		void Reader
+
+		const root = document.createElement('div')
+		document.body.appendChild(root)
+		render(
+			html`
+				<schmancy-context .provides=${[counter]}>
+					<ctx-explicit-then id="r"></ctx-explicit-then>
 				</schmancy-context>
 			`,
 			root,

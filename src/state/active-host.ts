@@ -24,13 +24,27 @@
 //     polyfill or native AsyncContext lands (drop the file, swap the
 //     `_activeHost` export for the standard primitive).
 //
+// Known limitation — native await on a native Promise: V8's await
+// optimization (since 7.x) skips the spec-prescribed
+// `Promise.resolve(x).then(continuation)` step, so userland `then`
+// patches don't intercept the resumption. Class methods that mutate
+// state across an `await` boundary will fall back to the
+// module-scoped global, not the active-host's isolated copy. To
+// preserve the host across awaits, either keep the mutation in the
+// synchronous prelude before the first `await`, or explicitly chain
+// with `.then()` (which still routes through the patched method).
+// A real fix requires either a build-time async-function transform
+// or native AsyncContext.Variable in the runtime.
+//
 // resolveActiveHost() fallback chain:
 //   1. Stack value set by `_activeHost.run(host, fn)` — covers render(),
-//      Lit lifecycle methods, class-method handlers (all wrapped by
-//      $LitElement), and async-after-await via the Promise patch.
-//   2. window.event.composedPath() — sync event-handler fallback for
-//      template-bound inline arrow handlers when the EventPart patch is
-//      unavailable (feature-gated upgrade).
+//      Lit lifecycle methods, and class-method handlers (all wrapped by
+//      SchmancyElement's prototype-chain wrap).
+//   2. The closest `<schmancy-context>` whose subtree currently has an
+//      in-flight DOM event. The element installs capture-phase listeners
+//      that publish itself as the event-host while the synchronous
+//      handler chain runs; the slot clears via microtask. Covers
+//      template-bound inline arrow handlers attached to descendants.
 //   3. document.activeElement — keyboard handlers in focus.
 //   4. undefined → caller falls back to the module-scoped global instance.
 
@@ -119,24 +133,44 @@ export const _activeHost = {
 	},
 }
 
+// Tier 2 of the resolveActiveHost() fallback chain. A `<schmancy-context>`
+// publishes itself here from a capture-phase event listener attached to
+// itself; the slot clears in the next microtask, after the synchronous
+// event-handler chain has run. `window.event` is unreliable across both
+// engines and time (it can outlive its event — a stale `message` event
+// from postMessage can leak BODY for arbitrary later resolution calls), so
+// we own this slot rather than read the legacy global.
+//
+// Singleton across module copies for the same reason as `_stack` above.
+const EVENT_HOST_KEY = Symbol.for('schmancy.state.activeHost.eventHost')
+type EventHostSlot = { host: HTMLElement | undefined; scheduled: boolean }
+const _eventHostSlot: EventHostSlot =
+	((globalThis as { [EVENT_HOST_KEY]?: EventHostSlot })[EVENT_HOST_KEY] ??= {
+		host: undefined,
+		scheduled: false,
+	})
+
+/** Publish `host` as the active event-host. The slot self-clears at the
+ *  end of the current microtask checkpoint — long enough for the entire
+ *  synchronous event-handler chain to read it, short enough that no
+ *  later, unrelated microtask sees a stale value. */
+export function _publishEventHost(host: HTMLElement): void {
+	_eventHostSlot.host = host
+	if (_eventHostSlot.scheduled) return
+	_eventHostSlot.scheduled = true
+	queueMicrotask(() => {
+		_eventHostSlot.scheduled = false
+		_eventHostSlot.host = undefined
+	})
+}
+
 export function resolveActiveHost(): HTMLElement | undefined {
-	// 1. Stack (set by _activeHost.run, propagated across await via the
-	//    Promise patch above).
+	// 1. Stack (set by _activeHost.run).
 	const fromStack = _activeHost.get()
 	if (fromStack !== undefined) return fromStack
 
-	// 2. window.event — sync event-handler fallback. Covers inline arrow
-	//    template bindings whose handlers run before any _activeHost.run
-	//    frame has been pushed.
-	if (typeof window !== 'undefined') {
-		const evt = (window as Window & { event?: Event }).event
-		if (evt) {
-			const path = evt.composedPath()
-			for (const node of path) {
-				if (node instanceof HTMLElement) return node
-			}
-		}
-	}
+	// 2. Closest <schmancy-context> with an in-flight event in its subtree.
+	if (_eventHostSlot.host !== undefined) return _eventHostSlot.host
 
 	// 3. document.activeElement — keyboard / focus handlers.
 	if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
