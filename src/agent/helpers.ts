@@ -1,7 +1,5 @@
 import manifest from 'virtual:schmancy-manifest'
 
-export type Manifest = typeof manifest
-
 export type ElementEntry = {
 	kind: 'class'
 	name: string

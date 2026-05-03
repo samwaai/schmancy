@@ -330,5 +330,3 @@ export const $notify = {
 		return NotificationService.getInstance().update(id, options)
 	},
 }
-
-export default NotificationService

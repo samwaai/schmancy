@@ -2,12 +2,19 @@
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"entry": [
 		"src/index.ts",
-		"src/**/*.{test,spec}.ts"
+		"src/*/index.ts",
+		"src/agent/agent-entry.ts",
+		"src/**/*.{test,spec}.ts",
+		"src/**/*.test-d.ts",
+		"plugins/**/*.ts"
 	],
-	"project": ["src/**/*.ts", "mixins/**/*.ts"],
+	"project": ["src/**/*.ts", "mixins/**/*.ts", "plugins/**/*.ts"],
 	"ignoreBinaries": ["ncu"],
 	"ignoreDependencies": [
 		"tailwindcss"
 	],
-	"ignoreExportsUsedInFile": true
+	"ignoreExportsUsedInFile": true,
+	"rules": {
+		"duplicates": "off"
+	}
 }

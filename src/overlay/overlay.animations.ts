@@ -1,7 +1,5 @@
 import {
-	DURATION_BACKDROP,
 	DURATION_EXIT,
-	EASE_OUT,
 	getEasing,
 	SPRING_GENTLE,
 	SPRING_SMOOTH,
@@ -132,29 +130,6 @@ export function anchorOriginVars(
 		[ORIGIN_X_VAR]: `${originX}%`,
 		[ORIGIN_Y_VAR]: `${originY}%`,
 	}
-}
-
-export function backdropAnimation(direction: 'in' | 'out'): AnimationSpec {
-	if (reducedMotion) {
-		return direction === 'in'
-			? {
-					keyframes: [{ opacity: 0 }, { opacity: 1 }],
-					options: { duration: 1, easing: 'linear', fill: 'forwards' },
-				}
-			: {
-					keyframes: [{ opacity: 1 }, { opacity: 0 }],
-					options: { duration: 1, easing: 'linear', fill: 'forwards' },
-				}
-	}
-	return direction === 'in'
-		? {
-				keyframes: [{ opacity: 0 }, { opacity: 1 }],
-				options: { duration: DURATION_BACKDROP, easing: EASE_OUT, fill: 'forwards' },
-			}
-		: {
-				keyframes: [{ opacity: 1 }, { opacity: 0 }],
-				options: { duration: DURATION_BACKDROP, easing: EASE_OUT, fill: 'forwards' },
-			}
 }
 
 export function surfaceAnimation(layout: OverlayLayout, direction: 'in' | 'out'): AnimationSpec {

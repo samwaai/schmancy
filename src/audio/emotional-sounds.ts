@@ -934,5 +934,3 @@ export class EmotionalSoundGenerator {
 
 /** Global emotional sound player */
 export const $sounds = new EmotionalSoundGenerator()
-
-export default EmotionalSoundGenerator

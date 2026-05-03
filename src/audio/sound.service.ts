@@ -1071,5 +1071,3 @@ class SoundService {
 /** Global sound service singleton */
 export const sound = SoundService.getInstance()
 export const schmancySound = sound // Alias for consistency with theme
-
-export default sound

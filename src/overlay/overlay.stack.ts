@@ -46,12 +46,6 @@ export function clearStack(): void {
 	}
 }
 
-/** Top entry (LIFO). Undefined when stack is empty. */
-export function topEntry(): OverlayEntry | undefined {
-	const s = stack$$.value
-	return s[s.length - 1]
-}
-
 /* ---------------- scroll lock -------------------------------------------- */
 
 /**
