@@ -11,7 +11,7 @@ registered. No bundler, no bare specifiers, no npm install.
 
 ```html
 <script type="module">
-  import { $dialog, theme } from 'https://esm.sh/@mhmo91/schmancy/agent';
+  import { theme, state, area } from 'https://esm.sh/@mhmo91/schmancy/agent';
 </script>
 <schmancy-theme root scheme="dark">
   <schmancy-surface type="solid" fill="all">
@@ -26,6 +26,7 @@ The `<schmancy-skill>` tag installs `window.schmancy` for runtime discovery:
 - `window.schmancy.help()` — full manifest (CEM v1 shape).
 - `window.schmancy.help('schmancy-button')` — one tag's attributes, events, slots, CSS parts.
 - `window.schmancy.tokens()` — build-time-extracted list of `--schmancy-*` theme tokens.
+- `window.schmancy.registeredTags()` — every `<schmancy-*>` tag the bundle registered, sorted.
 - `window.schmancy.manifestUrl` — Blob URL; `fetch()` it for the same data.
 - `window.schmancy.a11yAudit()` — walks the live DOM and reports ARIA / shadow-root / form-association status per instance.
 - `window.schmancy.platformPrimitive('schmancy-dialog')` — map to the native element a component wraps (present when the component's JSDoc has `@platform`).
@@ -82,7 +83,7 @@ Claude now knows every Schmancy component, foundation pattern, and convention in
 
 Schmancy is organized in four layers:
 
-- **Foundations** — [Area](./skills/schmancy/area.md) · [Store](./skills/schmancy/store.md) · [Mixins ($LitElement)](./skills/schmancy/mixins.md) · [Theme](./skills/schmancy/theme.md) · [Directives](./skills/schmancy/directives.md)
+- **Foundations** — [Area](./skills/schmancy/area.md) · [State](./skills/schmancy/state.md) · [Mixins (SchmancyElement)](./skills/schmancy/mixins.md) · [Theme](./skills/schmancy/theme.md) · [Directives](./skills/schmancy/directives.md)
 - **Atoms** — [Typography](./skills/schmancy/typography.md) · [Icons](./skills/schmancy/icons.md) · [Button](./skills/schmancy/button.md) · [Surface](./skills/schmancy/surface.md) · [Divider](./skills/schmancy/divider.md) · [Avatar](./skills/schmancy/avatar.md)
 - **Composites (by job)** — Forms, Navigation, Overlays, Interaction, Feedback, Display
 - **Utilities** — [Animation](./skills/schmancy/animation.md) · [Audio](./skills/schmancy/audio.md) · [Discovery](./skills/schmancy/discovery.md) · [RxJS Utils](./skills/schmancy/rxjs-utils.md) · [Utils](./skills/schmancy/utils.md)
