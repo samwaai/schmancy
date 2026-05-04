@@ -165,5 +165,3 @@ before the first `await`, or chain explicitly with `.then(...)`.
   `packages/schmancy/_scratch/spikes/findings.md` (gitignored).
 - **Skill doc for downstream consumers:**
   `packages/schmancy/skills/schmancy/state.md`.
-- **Migration cheatsheet** for moving off the v1 `createContext`:
-  `packages/schmancy/src/state/MIGRATION.md`.

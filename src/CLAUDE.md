@@ -144,10 +144,7 @@ protected static shadowRootOptions = {
 Module-scoped reactive state lives on `state(...)` from
 `@mhmo91/schmancy/state` — see `skills/schmancy/state.md`. Inside a
 component instance, use `@state` (Lit) for private template-driving
-fields and `@property` for public attributes. There is no
-`createContext` / `@select` / `createCompoundSelector`; those v1 APIs
-were removed and replaced wholesale by `state()` / `@observe` /
-`computed`. The migration cheatsheet is `src/state/MIGRATION.md`.
+fields and `@property` for public attributes.
 
 ### Theme consumption
 
@@ -182,5 +179,4 @@ public reportValidity(): boolean {
 ## Pointers
 
 - **State module brief:** `src/state/CLAUDE.md` — invariants for code under `src/state/`.
-- **Migration off v1 contexts:** `src/state/MIGRATION.md`.
 - **Lab acceptance criterion:** `lab/README.md` — what does and doesn't belong in `@mhmo91/schmancy-lab`.

@@ -4,10 +4,6 @@ Reactive state primitive. Module-scoped singletons keyed by namespace.
 Every state exposes a TC39 signal, an RxJS Observable, a sync getter,
 and a hydration promise — pick the surface that fits the call site.
 
-This module replaced the v1 `createContext` / `@select` /
-`createCompoundSelector` system. There is no parallel API; use `state()`
-for everything.
-
 ## Quick reference
 
 ```ts
@@ -476,28 +472,6 @@ callbacks have no tree position to resolve to.
 
 States not listed in `provides` fall through to the global from inside
 the element — useful when only one or two namespaces need scoping.
-
-## Migration from v1 `createContext`
-
-```ts
-// v1
-const cart = createContext<CartState>(initial, 'session', 'hannah_cart')
-class CartView extends LitElement {
-  @select(cart) accessor cart!: CartState
-}
-const total = createCompoundSelector([cart], [c => c.total], t => t)
-
-// v2
-const cart = state<CartState>('hannah/cart').session(initial)
-class CartView extends LitElement {
-  @observe(cart) cart!: CartState   // or: cart = bindState(this, cart)
-}
-const total = computed(() => cart.value.total)
-```
-
-Surface-equivalent: `.value`, `.set(partial)`, `.replace(next)`, `.$`,
-`.delete(key)` all map directly. Storage keys move from arbitrary
-strings (`'hannah_cart'`) to namespace strings (`'hannah/cart'`).
 
 ## Rules
 
