@@ -1,7 +1,7 @@
 # @mhmo91/schmancy-lab
 
-Advanced, opinionated components that aren't part of the schmancy primitives
-surface but are reusable across multiple apps.
+Advanced, opinionated components that aren't part of the schmancy
+primitives surface but are reusable across multiple apps.
 
 This package is a sibling to `@mhmo91/schmancy` (same git repo, same CI,
 independent npm version, peer-depends on schmancy at any version). Install
