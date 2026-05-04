@@ -11,7 +11,7 @@ registered. No bundler, no bare specifiers, no npm install.
 
 ```html
 <script type="module">
-  import { theme, state, area } from 'https://esm.sh/@mhmo91/schmancy/agent';
+  import 'https://esm.sh/@mhmo91/schmancy/agent';
 </script>
 <schmancy-theme root scheme="dark">
   <schmancy-surface type="solid" fill="all">
@@ -20,6 +20,10 @@ registered. No bundler, no bare specifiers, no npm install.
   </schmancy-surface>
 </schmancy-theme>
 ```
+
+The same entry also re-exports services for code that needs them — `theme`,
+`area`, `lazy`, `state`, `bindState`, `computed`, `stateFromObservable`,
+`$notify`, `sheet`, `schmancyContentDrawer`. Import from the same URL.
 
 The `<schmancy-skill>` tag installs `window.schmancy` for runtime discovery:
 
@@ -50,13 +54,21 @@ import { magnetic, cursorGlow, gravity } from '@mhmo91/schmancy/directives'
 
 ## Use with Claude Code
 
-Schmancy ships a Claude Code plugin. In any Claude Code session, run:
+Schmancy ships a Claude Code plugin (manifest at `.claude-plugin/plugin.json`,
+skill source under `skills/schmancy/`). The npm tarball includes both, so
+after `npm install @mhmo91/schmancy`, point Claude at the package directory
+when launching:
 
 ```
-/plugin install https://github.com/samwaai/schmancy
+claude --plugin-dir node_modules/@mhmo91/schmancy
 ```
 
-Claude now knows every Schmancy component, foundation pattern, and convention in your project. The skill activates automatically when you work on schmancy code — no CLAUDE.md edits, no symlinks.
+Set a shell alias / `.envrc` so every session in the project picks it up.
+After editing plugin files, run `/reload-plugins` inside the session.
+
+Claude now knows every Schmancy component, foundation pattern, and
+convention; the skill activates automatically when you work on schmancy
+code — no CLAUDE.md edits, no symlinks.
 
 ## Quick Start
 
