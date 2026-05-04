@@ -82,20 +82,35 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # Commit + tag schmancy IMMEDIATELY after its publish, before touching
+      # lab. If a later step fails, git still reflects what's on npm.
+      # Previously a single trailing commit step caused drift: schmancy
+      # would publish but its bump never got committed because lab failed
+      # later in the job.
+      - name: Commit + tag schmancy
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git add package.json
+          git commit -m "ci: bump @mhmo91/schmancy version [skip ci]"
+          VERSION=$(node -p "require('./package.json').version")
+          git tag -a "v$VERSION" -m "Release schmancy v$VERSION"
+          git push origin "v$VERSION"
+          git push
+
       # Bump and publish @mhmo91/schmancy-lab as a sibling. Lab versions
-      # independently; both packages share this commit + tag flow but each
-      # ships its own version to npm. See lab/README.md for the Lab
-      # acceptance + graduation policy.
+      # independently; each commit + tag is bound to that package's publish.
+      # See lab/README.md for the Lab acceptance + graduation policy.
       - name: Bump lab package version
         working-directory: lab
         run: npm version patch --no-git-tag-version
 
-      # Refresh the lockfile so the post-bump main schmancy version + the
-      # post-bump lab version both resolve. Without this, `yarn workspace`
-      # commands fail with "@mhmo91/schmancy@workspace:.: not present in
-      # your lockfile" because the install at the top of the job ran
-      # against the pre-bump versions.
-      - name: Refresh lockfile after version bumps
+      # Refresh the lockfile so the post-bump lab version resolves. Without
+      # this, `yarn workspace` commands fail with "not present in your
+      # lockfile" because the install at the top of the job ran against the
+      # pre-bump version.
+      - name: Refresh lockfile after lab bump
         run: yarn install --no-immutable
 
       - name: Build lab
@@ -107,15 +122,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Commit bumped versions and Tag
+      - name: Commit + tag lab
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add .
-          git commit -m "ci: bump package versions [skip ci]"
-          VERSION=$(node -p "require('./package.json').version")
+          git add lab/package.json yarn.lock
+          git commit -m "ci: bump @mhmo91/schmancy-lab version [skip ci]"
           LAB_VERSION=$(node -p "require('./lab/package.json').version")
-          git tag -a "v$VERSION" -m "Release schmancy v$VERSION + lab v$LAB_VERSION"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git push origin --tags
+          git tag -a "schmancy-lab-v$LAB_VERSION" -m "Release schmancy-lab v$LAB_VERSION"
+          git push origin "schmancy-lab-v$LAB_VERSION"
           git push
