@@ -3,8 +3,6 @@ import { resolve } from 'node:path'
 import { Project, type ClassDeclaration, type SourceFile } from 'ts-morph'
 import type { Plugin } from 'vite'
 
-const VIRTUAL_ID = 'virtual:schmancy-manifest'
-const RESOLVED_VIRTUAL_ID = '\0' + VIRTUAL_ID
 
 type Attribute = {
 	name: string
@@ -413,17 +411,6 @@ export default function schmancyManifestPlugin(options: SchmancyManifestPluginOp
 
 		buildStart() {
 			compute()
-		},
-
-		resolveId(id) {
-			if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID
-			return null
-		},
-
-		load(id) {
-			if (id !== RESOLVED_VIRTUAL_ID) return null
-			const manifest = cachedManifest ?? compute()
-			return `export default ${JSON.stringify(manifest)};`
 		},
 
 		generateBundle() {

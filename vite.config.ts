@@ -9,8 +9,7 @@ import tailwindcss from '@tailwindcss/vite'
 /** Directories under src/ that are developer/test scaffolding, not shipped
  *  in dist by the main library build. `agent/` has its own self-contained
  *  build produced by vite.config.agent.ts and must stay out of the main
- *  build — its entry file imports `virtual:schmancy-manifest`, resolvable
- *  only when the manifest plugin is loaded. */
+ *  build — it's the single-URL bundle for sandboxed-iframe agents. */
 const NON_SHIPPED = new Set(['test-utils', 'agent'])
 
 const getDirectories = async (source: string) =>

@@ -16,30 +16,19 @@ registered. No bundler, no bare specifiers, no npm install.
 <schmancy-theme root scheme="dark">
   <schmancy-surface type="solid" fill="all">
     <schmancy-button>Hi</schmancy-button>
-    <schmancy-skill></schmancy-skill>
   </schmancy-surface>
 </schmancy-theme>
 ```
 
-The same entry also re-exports services for code that needs them — `theme`,
-`area`, `lazy`, `state`, `bindState`, `computed`, `stateFromObservable`,
-`$notify`, `sheet`, `schmancyContentDrawer`. Import from the same URL.
+The same entry re-exports the full library surface for in-page script
+code (`theme`, `area`, `state`, `show`, `lazy`, every directive, every
+service, `SchmancyElement`). Import from the same URL.
 
-The `<schmancy-skill>` tag installs `window.schmancy` for runtime discovery:
-
-- `window.schmancy.help()` — full manifest (CEM v1 shape).
-- `window.schmancy.help('schmancy-button')` — one tag's attributes, events, slots, CSS parts.
-- `window.schmancy.tokens()` — build-time-extracted list of `--schmancy-*` theme tokens.
-- `window.schmancy.registeredTags()` — every `<schmancy-*>` tag the bundle registered, sorted.
-- `window.schmancy.manifestUrl` — Blob URL; `fetch()` it for the same data.
-- `window.schmancy.a11yAudit()` — walks the live DOM and reports ARIA / shadow-root / form-association status per instance.
-- `window.schmancy.platformPrimitive('schmancy-dialog')` — map to the native element a component wraps (present when the component's JSDoc has `@platform`).
-- `window.schmancy.capabilities()` — runtime feature probe (`popover`, `declarativeShadowDom`, `scopedRegistries`, `trustedTypes`, `cssRegisteredProperties`, `elementInternalsAria`, `formAssociated`, `adoptedStyleSheets`). Agents use this to adapt to the sandbox they're in rather than the one they expect.
-
-Every enum-typed attribute carries a `values` array — e.g. `schmancy-button`'s `variant` ships `["elevated", "filled", "filled tonal", "tonal", "outlined", "text"]` so agents never have to parse `"'filled' | 'tonal' | ..."` strings.
-
-The manifest is also emitted as a sibling file at `@mhmo91/schmancy/agent/manifest`
-for tooling that prefers reading JSON from disk.
+For introspection — every tag's attributes, events, slots, CSS parts,
+plus the enum `values` array on every typed attribute (so agents don't
+have to parse `"'filled' | 'tonal' | ..."` strings) — read the static
+manifest at `@mhmo91/schmancy/agent/manifest`. It's a JSON file, shape
+follows Custom Elements Manifest v1.
 
 ## Install
 
