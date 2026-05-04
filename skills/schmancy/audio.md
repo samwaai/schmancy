@@ -36,7 +36,7 @@ sound.muted$.subscribe(m => {})
 ```
 
 ## Settings Persistence
-Volume, mute, and custom theme persist to `localStorage` under key `schmancy-sound-settings` (via `createContext`).
+Volume, mute, and custom theme persist to `localStorage` under key `schmancy-sound-settings` (via `state(...).local(...)` from `@mhmo91/schmancy/state`).
 
 ## AI-Generated Themes
 ```typescript

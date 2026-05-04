@@ -1,88 +1,124 @@
 # Claude Design brief: building with schmancy
 
-You're designing or redesigning a web page. Use the `@mhmo91/schmancy` component library for every interactive tag, every surface, every color. This file is the operating manual — paste it in alongside the design ask.
+You're designing or redesigning a web page. Use the `@mhmo91/schmancy`
+component library for every interactive tag, every surface, every
+color. This file is the operating manual — paste it in alongside the
+design ask.
 
 ## Pin URL
 
 ```
-https://cdn.jsdelivr.net/npm/@mhmo91/schmancy@0.9.21/dist/agent/schmancy.agent.js
+https://esm.sh/@mhmo91/schmancy/agent
 ```
 
-One script tag installs 100+ `<schmancy-*>` custom elements plus the `window.schmancy.*` discovery API. No bundler, no npm install, no bare specifiers.
+One module import installs every `<schmancy-*>` custom element. No
+bundler, no npm install, no bare specifiers. The same URL also
+re-exports the full library surface (`theme`, `area`, `state`, `show`,
+`lazy`, every directive, every service, `SchmancyElement`) for in-page
+script code.
+
+For introspection — every tag's attributes, events, slots, CSS parts,
+plus the `values` array on every typed attribute — read the static
+manifest at `https://esm.sh/@mhmo91/schmancy/agent/manifest` (JSON,
+shape follows Custom Elements Manifest v1).
 
 ## App shell (always this shape)
 
 ```html
 <!doctype html>
 <script type="module">
-  import 'https://cdn.jsdelivr.net/npm/@mhmo91/schmancy@0.9.21/dist/agent/schmancy.agent.js';
+  import 'https://esm.sh/@mhmo91/schmancy/agent';
 </script>
 
 <schmancy-theme root scheme="dark">
   <schmancy-surface type="solid" fill="all">
     <!-- your page content -->
-    <schmancy-skill></schmancy-skill>
   </schmancy-surface>
 </schmancy-theme>
 ```
 
-- `<schmancy-theme>` generates a Material 3 palette from a seed color + scheme. Attribute `root` publishes tokens onto `document.body`.
-- `<schmancy-surface>` picks up theme tokens for background / on-color / elevation. Nest surfaces for hierarchical color stacking.
-- `<schmancy-skill>` (drop once on the page) installs `window.schmancy.help()`, `.tokens()`, `.capabilities()`, etc.
+- `<schmancy-theme>` generates a Material 3 palette from a seed color +
+  scheme. Attribute `root` publishes tokens onto `document.body`.
+- `<schmancy-surface>` picks up theme tokens for background / on-color
+  / elevation. Nest surfaces for hierarchical color stacking.
 
-## Discovery — ask the runtime what's available
+## Discovery — read the static manifest
 
 ```js
-window.schmancy.help()
-// → { elements: [{ tag, summary }...], services: [{ name, summary }...] }
+const manifest = await fetch('https://esm.sh/@mhmo91/schmancy/agent/manifest')
+  .then(r => r.json())
 
-window.schmancy.help('schmancy-button')
-// → full declaration: attributes (with enum values[]), events, slots,
-//   cssParts, cssProperties, examples (copy-pastable), platformPrimitive
-
-window.schmancy.tokens()
-// → every --schmancy-sys-color-* custom property name, for direct CSS use
-
-window.schmancy.capabilities()
-// → { popover, declarativeShadowDom, scopedRegistries, trustedTypes,
-//     cssRegisteredProperties, elementInternalsAria, formAssociated,
-//     adoptedStyleSheets }
+// Every tag, attribute, event, slot, CSS part, CSS property.
+// Typed-attribute enums surface as `values: ['filled', 'tonal', ...]`
+// so you don't parse `"'filled' | 'tonal' | ..."` strings.
+manifest.modules
+  .flatMap(m => m.declarations)
+  .filter(d => d.kind === 'class' && d.tagName?.startsWith('schmancy-'))
 ```
 
-`help(tag)` is authoritative. Its `examples[]` array is copy-pastable. Its `platformPrimitive` hint tells you what native element the tag semantically wraps, so you can degrade gracefully if a tag fails to register.
+The manifest is the authoritative source. Pull a tag's declaration
+once at page-build time and use the `attributes`, `events`, `slots`,
+and `cssProperties` arrays to drive the rest of the page.
 
 ## Rules
 
-1. **Every UI tag is `<schmancy-*>`.** Use `<schmancy-button>`, not `<button>`. `<schmancy-input>`, not `<input>`. `<schmancy-list-item>`, not `<li>`. Probe `help()` for the exact tag and its attributes.
-2. **Colors: Tailwind utility classes against schmancy tokens.** Every `--schmancy-sys-color-*` token is exposed as a Tailwind color utility.
+1. **Every UI tag is `<schmancy-*>`.** Use `<schmancy-button>`, not
+   `<button>`. `<schmancy-input>`, not `<input>`. `<schmancy-list-item>`,
+   not `<li>`. Look up the exact tag in the manifest.
+2. **Colors: Tailwind utility classes against schmancy tokens.** Every
+   `--schmancy-sys-color-*` token is exposed as a Tailwind color
+   utility.
    - `bg-primary-default`, `bg-primary-container`, `text-primary-on`
    - `bg-surface-default`, `bg-surface-low`, `bg-surface-high`, `text-surface-on`
    - `border-outline`, `border-outline-variant`
    - `bg-secondary-container`, `bg-error-default`, `bg-success-default`, `bg-warning-default`
-   - **Never hex (`#6200ee`), never arbitrary values (`bg-[#ff0000]`).** Both defeat theming.
-3. **Forms:** wrap form controls in `<schmancy-form>`. Its `submit` event fires with a `FormData` payload — no manual walking of inputs. Every form control (`<schmancy-input>`, `<schmancy-select>`, `<schmancy-checkbox>`, etc.) is form-associated via `ElementInternals`, so `new FormData(form)` just works.
+   - **Never hex (`#6200ee`), never arbitrary values (`bg-[#ff0000]`).**
+     Both defeat theming.
+3. **Forms:** wrap form controls in `<schmancy-form>`. Its `submit`
+   event fires with a `FormData` payload — no manual walking of inputs.
+   Every form control (`<schmancy-input>`, `<schmancy-select>`,
+   `<schmancy-checkbox>`, etc.) is form-associated via
+   `ElementInternals`, so `new FormData(form)` just works.
 4. **Layout:**
-   - `<schmancy-page rows="auto_1fr_auto">` for app shell — fills viewport, suppresses double-tap zoom and pull-to-refresh.
-   - `<schmancy-nav-drawer>` for responsive sidebar + app-bar + content (persistent on desktop, modal on mobile).
-   - `<schmancy-scroll>` when you need debounced scroll events or hidden scrollbars.
-   - Use Tailwind's `grid` / `flex` utilities directly for layout math — no `<schmancy-grid>` (deprecated).
-5. **Overlays use imperative services, not element APIs:**
+   - `<schmancy-page rows="auto_1fr_auto">` for app shell — fills
+     viewport, suppresses double-tap zoom and pull-to-refresh.
+   - `<schmancy-nav-drawer>` for responsive sidebar + app-bar +
+     content (persistent on desktop, modal on mobile).
+   - `<schmancy-scroll>` when you need debounced scroll events or
+     hidden scrollbars.
+   - `<schmancy-grid>` and `<schmancy-flex>` for layout primitives
+     with design intent; raw Tailwind `grid` / `flex` utilities for
+     incidental layout math.
+5. **Overlays use the imperative service, not element APIs:**
    ```js
-   import { $dialog, sheet, $notify, SchmancySheetPosition } from 'https://cdn.jsdelivr.net/npm/@mhmo91/schmancy@0.9.21/dist/agent/schmancy.agent.js';
-   $dialog.confirm({ title: 'Delete?', message: 'Cannot be undone.', confirmText: 'Delete', cancelText: 'Keep' });
-   sheet.open({ component: new MyEditor(), position: SchmancySheetPosition.Side });
+   import { show, confirm, prompt } from 'https://esm.sh/@mhmo91/schmancy/agent';
+   import { $notify } from 'https://esm.sh/@mhmo91/schmancy/agent';
+
+   show(new MyEditor());                          // centered fallback
+   show(new QuickPicker(), { anchor: ev });       // anchored at click
+   show(new SheetForm());                         // narrow viewport → sheet (auto)
+   await confirm({ title: 'Delete?', message: 'Cannot be undone.', confirmText: 'Delete' });
    $notify.success('Saved');
    ```
-6. **Accessibility is built in.** Components handle ARIA roles, focus management, keyboard navigation, form validation messages. Don't re-implement. Do provide `aria-label` on icon-only buttons (`<schmancy-icon-button aria-label="Close">`).
-7. **Typography:** use `<schmancy-typography type="..." token="...">` for text. Type = `display` / `headline` / `title` / `body` / `label`. Token = `lg` / `md` / `sm`.
-8. **Icons:** `<schmancy-icon>close</schmancy-icon>` renders a Material Symbols glyph. Pass the icon name as text content.
+   `show()` is the single overlay primitive — layout (centered /
+   anchored / sheet) is chosen automatically by viewport + anchor
+   presence. There is no `$dialog` and no `sheet` service.
+6. **Accessibility is built in.** Components handle ARIA roles, focus
+   management, keyboard navigation, form validation messages. Don't
+   re-implement. Do provide `aria-label` on icon-only buttons
+   (`<schmancy-icon-button aria-label="Close">`).
+7. **Typography:** use `<schmancy-typography type="..." token="...">`
+   for text. Type = `display` / `headline` / `title` / `body` / `label`.
+   Token = `lg` / `md` / `sm`.
+8. **Icons:** `<schmancy-icon>close</schmancy-icon>` renders a Material
+   Symbols glyph. Pass the icon name as text content.
 
 ## Minimum working page (copy, paste, it runs)
 
 ```html
 <!doctype html>
 <script type="module">
-  import 'https://cdn.jsdelivr.net/npm/@mhmo91/schmancy@0.9.21/dist/agent/schmancy.agent.js';
+  import 'https://esm.sh/@mhmo91/schmancy/agent';
 </script>
 
 <schmancy-theme root scheme="auto" color="#6200ee">
@@ -114,18 +150,22 @@ window.schmancy.capabilities()
       <schmancy-navigation-bar-item icon="search" label="Search"></schmancy-navigation-bar-item>
       <schmancy-navigation-bar-item icon="settings" label="Settings"></schmancy-navigation-bar-item>
     </schmancy-navigation-bar>
-
-    <schmancy-skill></schmancy-skill>
   </schmancy-page>
 </schmancy-theme>
 ```
 
 ## When the design asks for something you don't recognize
 
-1. Call `window.schmancy.help()` and scan the `elements[]` summaries for a tag that fits.
-2. Call `window.schmancy.help('schmancy-<tag>')` for exact attributes + copy-pastable examples.
-3. If no tag fits, compose from primitives (`<schmancy-surface>` + `<schmancy-button>` + Tailwind layout) before reaching for a custom element.
+1. Fetch the manifest and filter `declarations` by `tagName` to find a
+   tag that fits the role.
+2. Read the matching declaration's `attributes`, `slots`, `events`,
+   and `cssProperties` arrays — they're the contract.
+3. If no tag fits, compose from primitives (`<schmancy-surface>` +
+   `<schmancy-button>` + `<schmancy-grid>` / `<schmancy-flex>` for
+   layout) before reaching for a one-off custom element.
 
 ## Report bugs
 
-github.com/mhmo91/schmancy — include `window.schmancy.capabilities()`, the minimum failing HTML, and `window.schmancy.manifest.schemaVersion`.
+`github.com/mhmo91/schmancy` — include the schmancy version
+(`https://esm.sh/@mhmo91/schmancy/package.json`), the minimum failing
+HTML, and the manifest's `schemaVersion`.

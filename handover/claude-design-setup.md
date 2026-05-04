@@ -13,9 +13,11 @@ Claude Design (Anthropic Labs) extracts a design system from a codebase at org-o
 
 ```
 schmancy — Material 3 web-component library (100+ <schmancy-*> Lit elements,
-Tailwind 4 theme tokens, RxJS). Single-URL ESM runtime ships a discovery API
-via `window.schmancy.help()`. Designs look like Material You: tonal surfaces,
-rounded corners, dynamic color palette generated from a seed color.
+Tailwind 4 theme tokens, RxJS). Single-URL ESM runtime registers every tag
+from one import. Component contracts are introspectable via the static
+Custom Elements Manifest at @mhmo91/schmancy/agent/manifest. Designs look
+like Material You: tonal surfaces, rounded corners, dynamic color palette
+generated from a seed color.
 ```
 
 **Link code on GitHub:**
@@ -37,10 +39,12 @@ Use <schmancy-*> custom elements for every UI tag — never raw <button>, <input
 Colors: Tailwind utility classes against schmancy theme tokens (bg-primary-default,
 text-surface-on, border-outline-variant). Never hex. Never arbitrary values like bg-[#xxx].
 App shell: wrap in <schmancy-theme root scheme="auto" color="#seed"> then
-<schmancy-surface type="solid" fill="all">. Include one <schmancy-skill></schmancy-skill>
-so window.schmancy.help() / tokens() / capabilities() are live for introspection.
-Full operating manual + copy-pastable minimum page: handover/claude-design-brief.md
-in the repo.
+<schmancy-surface type="solid" fill="all">. Overlays use the imperative service
+`show()` / `confirm()` / `prompt()` from @mhmo91/schmancy/overlay — there is no
+$dialog or sheet service. Component contracts (attributes, events, slots, CSS
+parts, typed-attribute enums) live in the static manifest at
+@mhmo91/schmancy/agent/manifest. Full operating manual + copy-pastable minimum
+page: handover/claude-design-brief.md in the repo.
 ```
 
 ## After onboarding

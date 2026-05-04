@@ -40,7 +40,7 @@ Centered is the fallback (no anchor given). Sheet is the responsive adaptation (
 
 ## Subscription IS the overlay lifecycle
 
-Inside any `$LitElement`, pipe `takeUntil(this.disconnecting)`. When the caller unmounts, the overlay auto-dismisses — no handles to track, no leaks.
+Inside any `SchmancyElement`, pipe `takeUntil(this.disconnecting)`. When the caller unmounts, the overlay auto-dismisses — no handles to track, no leaks.
 
 ```ts
 show(MyForm, { props: { id }, anchor: ev })

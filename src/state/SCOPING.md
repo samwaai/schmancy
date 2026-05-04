@@ -14,7 +14,7 @@ import { state } from '@mhmo91/schmancy/state'
 
 const cart = state<CartState>('hannah/cart').session({ items: [], total: 0 })
 
-class App extends $LitElement() {
+class App extends SchmancyElement {
   render() {
     return html`
       <schmancy-context .provides=${[cart]}>
@@ -53,11 +53,21 @@ component naturally writes. It handles:
 | Class methods called from event handlers (sync) | Same prototype-wrap. |
 | `await` continuations inside class methods | A `Promise.prototype.then` patch in `state/active-host.ts` propagates the host across each `.then` boundary. |
 | `addEventListener(type, fn)` on the host | Wrapped at the `SchmancyElement` layer; `removeEventListener` re-finds the wrapped listener via a `WeakMap`. |
-| Inline arrow handlers attached via Lit templates (`@click=${() => …}`) | Resolved through the `window.event.composedPath()` fallback in `resolveActiveHost()`. |
+| Inline arrow handlers attached via Lit templates (`@click=${() => …}`) and any other DOM event in a `<schmancy-context>` subtree | `<schmancy-context>` installs capture-phase listeners on itself for ~18 common event types and calls `_publishEventHost(target)` from each — `resolveActiveHost()` reads that slot for the duration of the synchronous handler chain. |
+
+**Known limitation — native `await` on a native Promise.** V8's await
+optimization (since 7.x) skips the spec-prescribed
+`Promise.resolve(x).then(continuation)` step, so the Promise.then
+patch does not see the resumption. Class methods that mutate state
+across an `await` boundary fall back to the module-scoped global,
+not the active-host's isolated copy. To preserve the host across
+awaits, keep the mutation in the synchronous prelude before the first
+`await`, or chain explicitly with `.then(...)` (which still routes
+through the patched method).
 
 Pure async callbacks with no DOM origin — a websocket `onmessage`
 unrelated to any user gesture, a `setInterval` body running on its own
-schedule — fall through to the module-scoped global. That is the
+schedule — also fall through to the module-scoped global. That is the
 correct semantic: those callbacks have no tree position to resolve to.
 
 ## Lifecycle
@@ -98,12 +108,12 @@ reference to `cart.signal` and the host later moves into a different
 ```ts
 // ✗ Don't
 const sig = cart.signal
-class Foo extends $LitElement() {
+class Foo extends SchmancyElement {
   render() { return html`${sig.get().n}` }   // never re-resolves
 }
 
 // ✓ Do
-class Foo extends $LitElement() {
+class Foo extends SchmancyElement {
   render() { return html`${cart.value.n}` }   // resolves fresh each render
 }
 ```
@@ -118,12 +128,16 @@ and use the persistent backend on that.
 ## Implementation primer (for contributors)
 
 - `state/active-host.ts` — `_activeHost` Variable (stack) +
-  one-time `Promise.prototype.then` patch + 4-tier `resolveActiveHost`
-  fallback. ~120 lines. Hand-rolled because no official, supported
-  TC39 AsyncContext.Variable polyfill exists today; the patch
-  decommissions cleanly when one ships.
+  one-time `Promise.prototype.then` patch + `_publishEventHost(node)`
+  slot + 4-tier `resolveActiveHost` fallback (stack → event-host slot
+  → `document.activeElement` → undefined). ~190 lines. Hand-rolled
+  because no official, supported TC39 AsyncContext.Variable polyfill
+  exists today; the patch decommissions cleanly when one ships.
 - `state/schmancy-context.ts` — the element. One `ContextProvider`
   (`@lit/context`) per state in `provides`. Destroys on disconnect.
+  Also installs capture-phase listeners on itself for ~18 common
+  event types and publishes the event target as the active host while
+  the synchronous handler chain runs.
 - `state/index.ts` — every read (`value` / `signal` / `$`) and every
   write on a global instance routes through `resolveContextual`,
   which dispatches a `context-request` event from the active host and

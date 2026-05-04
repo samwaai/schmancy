@@ -2,7 +2,7 @@
 
 Every token your design can lean on, grouped by what it's for. Use the **Tailwind class** column when styling — every system token is exposed as a Tailwind utility, so reach for `bg-primary-default` or `text-surface-on` before the raw CSS variable. The CSS variable column is the fallback for properties Tailwind doesn't cover (e.g. `box-shadow`, `transition-duration`).
 
-Source of truth: `src/theme/theme.interface.ts` in this repo. Live introspection: `window.schmancy.tokens()` returns the full flat list of CSS custom property names.
+Source of truth: `src/theme/theme.interface.ts` in this repo. The same flat list of CSS custom property names is enumerated in the static manifest at `@mhmo91/schmancy/agent/manifest` under each tag's `cssProperties` array.
 
 > **Never use raw hex** (`#6200ee`) **or arbitrary values** (`bg-[#ff0000]`). Both defeat theming — the whole palette is regenerated from `<schmancy-theme color="…">` and your hardcoded color won't follow scheme switches.
 
@@ -188,11 +188,17 @@ Opacity multipliers for interactive states.
 
 Both bypass theming and break when `<schmancy-theme color="…" scheme="…">` regenerates the palette.
 
-## Live introspection
+## Introspection at build time
 
 ```js
-window.schmancy.tokens()
-// → string[] — every --schmancy-sys-* property name available at runtime,
-//   in the order they were registered. Use this to verify a token exists
-//   before referencing it in CSS.
+const manifest = await fetch('https://esm.sh/@mhmo91/schmancy/agent/manifest')
+  .then(r => r.json())
+
+const tokens = new Set(
+  manifest.modules
+    .flatMap(m => m.declarations)
+    .flatMap(d => (d.cssProperties ?? []).map(p => p.name))
+)
+// → Set<string> — every --schmancy-sys-* property name surfaced by any tag.
+//   Use this to verify a token exists before referencing it in CSS.
 ```

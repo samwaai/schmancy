@@ -36,4 +36,4 @@ Auto-dismisses the dialog when clicked. Renders as a `schmancy-list-item` intern
 </schmancy-menu>
 ```
 
-Uses `$dialog.component()` internally. Menu items auto-dismiss the dialog. Custom components in the default slot must call `$dialog.dismiss()` manually.
+Uses `show(overlay, { anchor })` from `@mhmo91/schmancy/overlay` internally. `<schmancy-menu-item>` auto-closes the menu by dispatching a `'close'` event on click. Custom components in the default slot dismiss the menu the same way: `this.dispatchEvent(new CustomEvent('close', { bubbles: true, composed: true }))`.

@@ -19,7 +19,7 @@ A reactive state primitive for the schmancy library:
   needed AS a class field (event handlers, derived methods, DevTools).
 - `bindState(host, source)` — `ReactiveController` helper. Same
   guarantees as `@observe`, no decorator. Use when the host isn't a
-  `$LitElement` subclass.
+  `SchmancyElement` subclass.
 - `stateFromObservable(observable, namespace, initial)` — bridges an
   RxJS source into a `state()`.
 
@@ -28,13 +28,13 @@ type exports.
 
 ## Default subscription pattern
 
-`$LitElement()` already composes `SignalWatcher` over its mixin chain.
+`SchmancyElement` already composes `SignalWatcher` over its mixin chain.
 Every signal read inside `render()` auto-tracks. **The default consumer
 needs zero binding code:**
 
 ```ts
 @customElement('cart-view')
-class CartView extends $LitElement() {
+class CartView extends SchmancyElement {
   render() { return html`Items: ${cart.value.items.length}` }
 }
 ```
@@ -59,25 +59,33 @@ the element auto-resolve to a per-element isolated copy via the
 Two infrastructure files own the mechanics:
 
 - `state/active-host.ts` — `_activeHost` Variable + `Promise.then`
-  patch + `resolveActiveHost()` 4-tier fallback (stack →
-  `window.event` → `document.activeElement` → undefined). Hand-rolled
-  TC39 AsyncContext.Variable polyfill (~30 lines). The patch is
-  idempotent and uses `_origThen.call(this, …)` so Promise subclassing
-  / `Symbol.species` are untouched. Decommissions the day a real
+  patch + `_publishEventHost(node)` slot + `resolveActiveHost()`
+  4-tier fallback (stack → event-host slot → `document.activeElement`
+  → undefined). Hand-rolled TC39 AsyncContext.Variable polyfill
+  (~30 lines for the Promise patch alone). The patch is idempotent and
+  uses `_origThen.call(this, …)` so Promise subclassing /
+  `Symbol.species` are untouched. Decommissions the day a real
   polyfill or native AsyncContext lands — drop the file, swap the
   `_activeHost` export.
 - `state/schmancy-context.ts` — the `<schmancy-context>` element. One
   `ContextProvider` per state in `provides`; all destroyed on
-  disconnect.
+  disconnect. Also installs capture-phase listeners on itself for
+  ~18 common event types and calls `_publishEventHost(target)` from
+  each — that's how inline arrow handlers attached to descendants
+  resolve to the closest enclosing context.
 
-`mixins/SchmancyElement.ts` carries the integration points: prototype-
-chain wrap of every concrete subclass at first construction (caches in
-a `WeakSet`), and `addEventListener` / `removeEventListener` overrides
-that wrap host listeners.
+`mixins/SchmancyElement.ts` carries the host-side integration points:
+prototype-chain wrap of every concrete subclass at first construction
+(caches in a `WeakSet`), and `addEventListener` / `removeEventListener`
+overrides that wrap host listeners.
 
-Inline arrow handlers in templates (`@click=${() => …}`) are not
-wrapped — they attach to child elements, not the host. They resolve
-via the `window.event.composedPath()` fallback.
+**Known limitation — native `await`.** V8's await optimization (since
+7.x) skips the spec-prescribed `Promise.resolve(x).then(continuation)`
+step, so the Promise.then patch does not see the resumption of an
+`await` on a native Promise. Class methods that mutate state across an
+`await` boundary fall back to the module-scoped global. To preserve
+the host across awaits, keep the mutation in the synchronous prelude
+before the first `await`, or chain explicitly with `.then(...)`.
 
 ## Rules for code in this directory
 

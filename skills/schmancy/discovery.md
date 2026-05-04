@@ -38,7 +38,7 @@ discoverAnyComponent('schmancy-navigation-rail', 'schmancy-navigation-bar')
 ```
 
 ### `discoverElement(selector, timeout = 150)`
-Finds any element by CSS selector across shadow DOM. Uses a request ID + universal `schmancy-discover` event. Every `$LitElement` responds if it finds a match in its shadow root.
+Finds any element by CSS selector across shadow DOM. Uses a request ID + universal `schmancy-discover` event. Every `SchmancyElement` responds if it finds a match in its shadow root.
 ```typescript
 discoverElement('[data-section="pricing"]').subscribe(section => section?.scrollIntoView())
 ```
@@ -51,12 +51,12 @@ discoverAllElements('.flagged').subscribe(all => console.log(all.length))
 
 ## How the Handshake Works
 1. Caller creates a unique `requestId` and broadcasts `schmancy-discover` on `window` with `{ selector, requestId }`.
-2. Every `$LitElement` listens for this event (wired up in the base class).
+2. Every `SchmancyElement` listens for this event (wired up in the base class).
 3. Any matching element dispatches `schmancy-discover-response` with `{ requestId, element }`.
 4. Caller collects responses for the timeout window and emits via RxJS.
 
 ## Pattern in Base Class
-Every `$LitElement` inherits auto-response: `discover<T>(tag)` (method on the component) and `{tagName}-where-are-you`/`{tagName}-here-i-am` events. See [mixins.md](./mixins.md).
+Every `SchmancyElement` inherits auto-response: `discover<T>(tag)` (method on the component) and `{tagName}-where-are-you`/`{tagName}-here-i-am` events. See [mixins.md](./mixins.md).
 
 ## When to Use
 - Cross-shadow coordination between unrelated components.

@@ -29,8 +29,8 @@ cart.replace({ items: [], total: 0 })
 cart.update(d => { d.items.push(item) })   // immer
 cart.delete('total')
 
-// Subscribe in a $LitElement — direct read auto-tracks via SignalWatcher
-class CartView extends $LitElement() {
+// Subscribe in a SchmancyElement — direct read auto-tracks via SignalWatcher
+class CartView extends SchmancyElement {
   render() { return html`Items: ${cart.value.items.length}` }
 }
 
@@ -207,18 +207,18 @@ with zero ceremony.
 
 ### (1) Default — direct read inside `render()`
 
-`$LitElement()` composes `SignalWatcher` from `@lit-labs/signals`.
+`SchmancyElement` composes `SignalWatcher` from `@lit-labs/signals`.
 Every signal read inside `render()` auto-tracks; the host re-renders
 on change. No decorator, no field, no binding code.
 
 ```ts
-import { LitElement, html } from 'lit'
+import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
-import { $LitElement } from '@mixins/index'
-import { cart } from './cart.context'
+import { SchmancyElement } from '@mhmo91/schmancy/mixins'
+import { cart } from './cart.state'
 
 @customElement('cart-view')
-export class CartView extends $LitElement() {
+export class CartView extends SchmancyElement {
   render() {
     return html`<span>Items: ${cart.value.items.length}</span>`
   }
@@ -243,7 +243,7 @@ derived methods, DevTools inspection, or readability:
 import { observe } from '@mhmo91/schmancy/state'
 
 @customElement('cart-view')
-export class CartView extends $LitElement() {
+export class CartView extends SchmancyElement {
   @observe(cart) cart!: CartState
 
   onClick() {
@@ -268,12 +268,12 @@ works under the existing tsconfig with no migration.
 
 ### (3) `bindState(host, source)` — imperative form
 
-For hosts that aren't `$LitElement` subclasses (rare):
+For hosts that aren't `SchmancyElement` subclasses (rare):
 
 ```ts
 import { bindState } from '@mhmo91/schmancy/state'
 
-class CustomHost extends LitElement {   // not a $LitElement subclass
+class CustomHost extends LitElement {   // not a SchmancyElement subclass
   cart = bindState(this, cart)
   render() {
     return html`<span>Items: ${this.cart.value.items.length}</span>`
@@ -376,7 +376,7 @@ two side-by-side checkout flows, an `<iframe>`-like wizard, an
 embedded preview — wrap the subtree in `<schmancy-context>`.
 
 ```ts
-class App extends $LitElement() {
+class App extends SchmancyElement {
   render() {
     return html`
       <schmancy-context .provides=${[cart]}>
@@ -402,7 +402,7 @@ after an `await fetch(...)` — all of it auto-resolves to the right
 instance based on tree position.
 
 ```ts
-class CartView extends $LitElement() {
+class CartView extends SchmancyElement {
   render() {
     return html`
       <button @click=${() => cart.set({ total: 0 })}>Clear</button>
@@ -418,22 +418,42 @@ class CartView extends $LitElement() {
 }
 ```
 
-Coverage of the call paths is provided by `SchmancyElement`:
+Coverage of the call paths is provided by `SchmancyElement` and
+`<schmancy-context>`:
 
-- `render()` and every Lit lifecycle hook — wrapped at construction.
+- `render()` and every Lit lifecycle hook — wrapped at construction
+  via the `_activeHost.run(host, fn)` stack.
 - Class methods (`handleAdd`, `handleSubmit`) — wrapped at construction.
-- `await` continuations inside class methods — propagated via the
-  `Promise.then` patch in `state/active-host.ts`.
 - `addEventListener(type, fn)` on the host — wrapped (and unwrapped on
   `removeEventListener`).
-- Inline arrow handlers in templates (`@click=${() => …}`) — resolve
-  via the `window.event.composedPath()` fallback in
-  `resolveActiveHost()`.
+- Explicit `.then(...)` continuations off a class-method Promise —
+  propagated via the `Promise.prototype.then` patch in
+  `state/active-host.ts`, which captures the active host at chain time
+  and restores it inside the callback.
+- Inline arrow handlers in templates (`@click=${() => …}`) and any
+  other DOM event handler attached inside a `<schmancy-context>`
+  subtree — resolved via the capture-phase event listener that
+  `<schmancy-context>` installs on itself for ~18 common event types.
+  The listener publishes the event's target as the active host through
+  the `_publishEventHost(node)` slot for the duration of the
+  synchronous handler chain (slot self-clears in the next microtask).
+
+**Known limitation — native `await` on a native Promise.** V8's await
+optimization (since 7.x) skips the spec-prescribed
+`Promise.resolve(x).then(continuation)` step, so the `Promise.then`
+patch does not see the resumption. Class methods that mutate state
+across an `await` boundary fall back to the module-scoped global, not
+the active-host's isolated copy. To preserve the host across awaits,
+either keep the mutation in the synchronous prelude before the first
+`await`, or chain explicitly with `.then(...)` (which still routes
+through the patched method). A real fix requires either a build-time
+async-function transform or native `AsyncContext.Variable` in the
+runtime.
 
 Pure async callbacks with no DOM origin — a websocket `onmessage`,
-`setInterval` with no triggering user event — fall through to the
-module-scoped global. That is the correct semantic: those callbacks
-have no tree position to resolve to.
+`setInterval` with no triggering user event — also fall through to
+the module-scoped global. That is the correct semantic: those
+callbacks have no tree position to resolve to.
 
 ### Lifecycle
 
