@@ -88,6 +88,14 @@ jobs:
         working-directory: lab
         run: npm version patch --no-git-tag-version
 
+      # Refresh the lockfile so the post-bump main schmancy version + the
+      # post-bump lab version both resolve. Without this, `yarn workspace`
+      # commands fail with "@mhmo91/schmancy@workspace:.: not present in
+      # your lockfile" because the install at the top of the job ran
+      # against the pre-bump versions.
+      - name: Refresh lockfile after version bumps
+        run: yarn install --no-immutable
+
       - name: Build lab
         run: yarn workspace @mhmo91/schmancy-lab build
 
