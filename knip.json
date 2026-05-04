@@ -1,18 +1,24 @@
 {
 	"$schema": "https://unpkg.com/knip@5/schema.json",
-	"entry": [
-		"src/index.ts",
-		"src/*/index.ts",
-		"src/agent/agent-entry.ts",
-		"src/**/*.{test,spec}.ts",
-		"src/**/*.test-d.ts",
-		"plugins/**/*.ts"
-	],
-	"project": ["src/**/*.ts", "mixins/**/*.ts", "plugins/**/*.ts"],
+	"workspaces": {
+		".": {
+			"entry": [
+				"src/index.ts",
+				"src/*/index.ts",
+				"src/agent/agent-entry.ts",
+				"src/**/*.{test,spec}.ts",
+				"src/**/*.test-d.ts",
+				"plugins/**/*.ts"
+			],
+			"project": ["src/**/*.ts", "mixins/**/*.ts", "plugins/**/*.ts"],
+			"ignoreDependencies": ["tailwindcss"]
+		},
+		"lab": {
+			"entry": ["src/index.ts", "src/*/index.ts"],
+			"project": ["src/**/*.ts"]
+		}
+	},
 	"ignoreBinaries": ["ncu"],
-	"ignoreDependencies": [
-		"tailwindcss"
-	],
 	"ignoreExportsUsedInFile": true,
 	"rules": {
 		"duplicates": "off"

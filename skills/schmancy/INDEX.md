@@ -16,13 +16,17 @@ The framework pieces — touch before components.
 ## Components by job
 
 ### Display
-[Typography](./typography.md) · [Icons](./icons.md) · [Avatar](./avatar.md) · [Divider](./divider.md) · [Badge](./badge.md) · [Kbd](./kbd.md) · [Typewriter](./typewriter.md) · [JSON](./json.md) · [Iframe](./iframe.md) · [Map](./map.md) · [Charts](./charts.md)
+[Typography](./typography.md) · [Icons](./icons.md) · [Avatar](./avatar.md) · [Divider](./divider.md) · [Badge](./badge.md) · [Kbd](./kbd.md) · [Typewriter](./typewriter.md) · [JSON](./json.md) · [Iframe](./iframe.md)
+
+> Lab: [Map](../../lab/skills/map.md) · [Charts](../../lab/skills/charts.md) — install `@mhmo91/schmancy-lab`
 
 ### Surfaces & layout
 [Surface](./surface.md) · [Card](./card.md) · [Scroll / Grid / Flex](./layout.md) · [Page](./page.md) · [Content Drawer](./content-drawer.md) · [Window](./window.md) · [Boat](./boat.md) · [Float](./float.md) · [Splash Screen](./splash-screen.md)
 
 ### Forms
-[Form](./form.md) · [Input](./input.md) · [Textarea](./textarea.md) · [Select](./select.md) · [Autocomplete](./autocomplete.md) · [Option](./option.md) · [Checkbox](./checkbox.md) · [Switch](./switch.md) · [Radio Group](./radio-group.md) · [Chips](./chips.md) · [Date Range](./date-range.md) · [Date Range Inline](./date-range-inline.md) · [Range](./range.md) · [Extra (Country/Timezone)](./extra.md)
+[Form](./form.md) · [Input](./input.md) · [Textarea](./textarea.md) · [Select](./select.md) · [Autocomplete](./autocomplete.md) · [Option](./option.md) · [Checkbox](./checkbox.md) · [Switch](./switch.md) · [Radio Group](./radio-group.md) · [Chips](./chips.md) · [Date Range](./date-range.md) · [Date Range Inline](./date-range-inline.md) · [Range](./range.md)
+
+> Lab: [Country/Timezone selects](../../lab/skills/extra.md) — install `@mhmo91/schmancy-lab`
 
 ### Navigation
 [Breadcrumb](./breadcrumb.md) · [Nav Drawer](./nav-drawer.md) · [Tabs](./tabs.md) · [Navigation Bar](./navigation-bar.md) · [Navigation Rail](./navigation-rail.md) · [Steps](./steps.md) · [Teleport](./teleport.md) · [Theme Button](./theme-button.md)
@@ -31,7 +35,9 @@ The framework pieces — touch before components.
 [Overlay](./overlay.md) · [Notification](./notification.md) · [Menu](./menu.md) · [Dropdown](./dropdown.md) · [Tooltip (directive)](./tooltip.md) · [Lightbox](./lightbox.md) · [Expand](./expand.md)
 
 ### Interactive
-[Button](./button.md) · [List](./list.md) · [Details](./details.md) · [Table](./table.md) · [Tree](./tree.md) · [Slider](./slider.md) · [QR Scanner](./qr-scanner.md)
+[Button](./button.md) · [List](./list.md) · [Details](./details.md) · [Table](./table.md) · [Tree](./tree.md) · [Slider](./slider.md)
+
+> Lab: [QR Scanner](../../lab/skills/qr-scanner.md) — install `@mhmo91/schmancy-lab`
 
 ### Feedback
 [Progress](./progress.md) · [Busy](./busy.md) · [Skeleton](./skeleton.md) · [Connectivity](./connectivity.md) · [Delay](./delay.md)

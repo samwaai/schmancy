@@ -14,6 +14,7 @@ on:
       - '.yarnrc.yml'
       - 'vite.config.ts'
       - 'vite.config.agent.ts'
+      - 'lab/**'
 
 permissions:
   contents: write
@@ -79,14 +80,32 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Commit bumped version and Tag
+      # Bump and publish @mhmo91/schmancy-lab as a sibling. Lab versions
+      # independently; both packages share this commit + tag flow but each
+      # ships its own version to npm. See lab/README.md for the Lab
+      # acceptance + graduation policy.
+      - name: Bump lab package version
+        working-directory: lab
+        run: npm version patch --no-git-tag-version
+
+      - name: Build lab
+        run: yarn workspace @mhmo91/schmancy-lab build
+
+      - name: Publish lab to npm
+        working-directory: lab
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Commit bumped versions and Tag
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add .
-          git commit -m "ci: bump package version [skip ci]"
+          git commit -m "ci: bump package versions [skip ci]"
           VERSION=$(node -p "require('./package.json').version")
-          git tag -a "v$VERSION" -m "Release v$VERSION"
+          LAB_VERSION=$(node -p "require('./lab/package.json').version")
+          git tag -a "v$VERSION" -m "Release schmancy v$VERSION + lab v$LAB_VERSION"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git push origin --tags
           git push

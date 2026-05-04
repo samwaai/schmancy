@@ -28,6 +28,9 @@
 		}
 	},
 	"packageManager": "yarn@4.9.2",
+	"workspaces": [
+		"lab"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/samwaai/schmancy.git"
@@ -91,10 +94,8 @@
 		"@lit/context": "^1.1.6",
 		"@material/material-color-utilities": "^0.4.0",
 		"@material/web": "^2.4.1",
-		"cleave.js": "^1.6.0",
 		"dayjs": "^1.11.20",
 		"immer": "^11.1.4",
-		"jsqr": "^1.4.0",
 		"lit": "^3.3.2",
 		"rxjs": "^7.8.2",
 		"ts-is-present": "^1.2.2"
@@ -104,7 +105,6 @@
 		"@rollup/plugin-terser": "^1.0.0",
 		"@tailwindcss/postcss": "^4.2.1",
 		"@tailwindcss/vite": "^4.2.1",
-		"@types/cleave.js": "^1.4.12",
 		"@types/node": "^25.5.0",
 		"@vitest/browser-playwright": "^4.1.4",
 		"@vitest/coverage-v8": "^4.1.5",

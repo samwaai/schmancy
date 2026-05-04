@@ -1,0 +1,13 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"declarationDir": "types",
+		"baseUrl": ".",
+		"paths": {
+			"@schmancy/*": ["../src/*"],
+			"@mixins/*": ["../mixins/*"]
+		}
+	},
+	"include": ["src/**/*.ts", "../src/vite-env.d.ts", "../mixins/scss.d.ts"],
+	"exclude": ["types", "dist", "node_modules"]
+}

@@ -1,0 +1,64 @@
+{
+	"name": "@mhmo91/schmancy-lab",
+	"version": "0.1.0",
+	"description": "Advanced, opinionated components built on @mhmo91/schmancy. See README for the Lab acceptance + graduation policy.",
+	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./types/src/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./types/src/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./*": {
+			"types": "./types/src/*/index.d.ts",
+			"default": "./dist/*.js"
+		}
+	},
+	"files": [
+		"dist",
+		"types",
+		"src",
+		"README.md"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/samwaai/schmancy.git",
+		"directory": "lab"
+	},
+	"keywords": [
+		"lit",
+		"web-components",
+		"schmancy",
+		"lab",
+		"experimental"
+	],
+	"author": "@mhmo91",
+	"license": "Apache-2.0",
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/",
+		"access": "public"
+	},
+	"scripts": {
+		"build": "yarn run -T tsc -p tsconfig.json && yarn run -T vite build --config vite.config.ts",
+		"typecheck": "yarn run -T tsc -p tsconfig.json --noEmit"
+	},
+	"dependencies": {
+		"jsqr": "^1.4.0"
+	},
+	"peerDependencies": {
+		"@mhmo91/schmancy": "*",
+		"lit": "^3.2.1",
+		"rxjs": "^7.8.0"
+	},
+	"devDependencies": {
+		"@rollup/plugin-strip": "^3.0.4",
+		"@rollup/plugin-terser": "^1.0.0",
+		"@tailwindcss/vite": "^4.2.1",
+		"tailwindcss": "^4.2.1",
+		"typescript": "^5.9.3",
+		"vite": "^8.0.0"
+	}
+}
