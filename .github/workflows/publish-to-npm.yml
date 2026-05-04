@@ -124,7 +124,10 @@ jobs:
 
       - name: Commit + tag lab
         run: |
-          git add lab/package.json yarn.lock
+          # yarn.lock is .gitignored in this submodule (CI rebuilds it
+          # every run via --no-immutable). Only the version bump in
+          # lab/package.json is checked in.
+          git add lab/package.json
           git commit -m "ci: bump @mhmo91/schmancy-lab version [skip ci]"
           LAB_VERSION=$(node -p "require('./lab/package.json').version")
           git tag -a "schmancy-lab-v$LAB_VERSION" -m "Release schmancy-lab v$LAB_VERSION"

@@ -1,6 +1,6 @@
 {
 	"name": "@mhmo91/schmancy-lab",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Advanced, opinionated components built on @mhmo91/schmancy. See README for the Lab acceptance + graduation policy.",
 	"type": "module",
 	"main": "./dist/index.js",
