@@ -5,9 +5,8 @@ import { createRef, ref } from 'lit/directives/ref.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { when } from 'lit/directives/when.js'
 import { fromEvent, takeUntil } from 'rxjs'
-import { $dialog } from '../dialog'
 import { $notify } from '../notification'
-import { sheet } from '../sheet/sheet.service'
+import { show } from '../overlay/overlay.service'
 import './email-layout-selector'
 import SchmancyTextarea from '../textarea/textarea'
 import { SchmancyEmailTemplatePicker } from './email-template-picker'
@@ -499,34 +498,34 @@ The Fulfillment Team`
 
 	/** Open layout selection dialog */
 	private openLayoutDialog = () => {
-		$dialog.component(html`
+		// Inline-template overlay; the selector's `layout-select` event is
+		// re-dispatched as `close` so `show()` resolves with the chosen layout.
+		show<string>(html`
 			<schmancy-email-layout-selector
 				@layout-select=${(e: CustomEvent) => {
-					this.applyLayout(e.detail.layout)
-					$dialog.close()
+					e.currentTarget?.dispatchEvent(
+						new CustomEvent('close', { detail: e.detail.layout, bubbles: true, composed: true }),
+					)
 				}}
 			></schmancy-email-layout-selector>
 		`)
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(layout => {
+				if (layout) this.applyLayout(layout)
+			})
 	}
 
 	/** Open template picker */
 	private openTemplatePicker = () => {
-		const picker = new SchmancyEmailTemplatePicker()
-		picker.templates = this.templates
-
-		// Listen for template selection using RxJS
-		fromEvent(picker, 'template-selected').pipe(
-			takeUntil(this.disconnecting)
-		).subscribe(this.handleTemplateSelected)
-		
-		sheet.open({
-			component: picker
-		})
+		show<EmailTemplate>(SchmancyEmailTemplatePicker, { props: { templates: this.templates } })
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(template => {
+				if (template) this.handleTemplateSelected(template)
+			})
 	}
 
 	/** Handle template selection */
-	private handleTemplateSelected = (e: CustomEvent) => {
-		const template: EmailTemplate = e.detail
+	private handleTemplateSelected = (template: EmailTemplate) => {
 		this.subject = template.subject
 		this.body = template.body
 		this.dispatchChange()

@@ -2,8 +2,9 @@ import { consume } from '@lit/context'
 import { SchmancyElement } from '@mixins/index'
 import { css, html } from 'lit'
 import { customElement, property, query, queryAssignedElements, state } from 'lit/decorators.js'
-import { from, merge, Observable, of, takeUntil, tap } from 'rxjs'
-import { SchmancyEvents, sheet } from '..'
+import { Observable, takeUntil } from 'rxjs'
+import { SchmancyEvents } from '..'
+import { OVERLAY_DISMISS_EVENT } from './events'
 import {
 	SchmancyContentDrawerID,
 	SchmancyContentDrawerMaxHeight,
@@ -73,7 +74,7 @@ export class SchmancyContentDrawerSheet extends SchmancyElement {
 					// this.open()
 				}
 			} else if (this.mode === 'push') {
-				sheet.dismiss(this.schmancyContentDrawerID)
+				this.requestOverlayDismiss()
 				if (this.state === 'close') {
 					this.closeAll()
 				} else if (this.state === 'open') {
@@ -110,20 +111,20 @@ export class SchmancyContentDrawerSheet extends SchmancyElement {
 	}
 
 	/**
-	 * Close everything (modal sheet + the sheet itself).
+	 * Ask the parent `<schmancy-content-drawer>` to dismiss any modal overlay
+	 * it currently owns. Bubbling so the parent catches it on itself.
 	 */
-	closeAll() {
-		// Merge them into a single subscription,
-		// so that everything closes in parallel.
-		merge(from(this.closeModalSheet()), from(this.closeSheet())).pipe(takeUntil(this.disconnecting)).subscribe()
+	private requestOverlayDismiss() {
+		this.dispatchEvent(new CustomEvent(OVERLAY_DISMISS_EVENT, { bubbles: true, composed: true }))
 	}
 
 	/**
-	 * Dismiss the "modal sheet."
-	 * This just returns an Observable that completes immediately.
+	 * Close everything (parent's modal overlay + the sheet itself, in
+	 * parallel).
 	 */
-	closeModalSheet() {
-		return of(true).pipe(tap(() => sheet.dismiss(this.schmancyContentDrawerID)))
+	closeAll() {
+		this.requestOverlayDismiss()
+		this.closeSheet().pipe(takeUntil(this.disconnecting)).subscribe()
 	}
 
 	/**

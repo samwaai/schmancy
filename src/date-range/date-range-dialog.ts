@@ -4,7 +4,6 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { repeat } from 'lit/directives/repeat.js'
-import { $dialog } from '../dialog/dialog-service'
 import { DateRangePreset, PresetCategory } from './date-range-presets'
 
 interface PresetGroup {
@@ -111,12 +110,13 @@ export class SchmancyDateRangeDialog extends SchmancyElement {
 
 	private handlePresetSelection(preset: DateRangePreset, e: Event) {
 		e.stopPropagation()
+		// Parent <schmancy-date-range> listens for `preset-select`, applies
+		// the range, and dispatches 'close' on us — `show()` tears down.
 		this.dispatchEvent(new CustomEvent('preset-select', {
 			detail: { preset },
 			bubbles: true,
 			composed: true
 		}))
-		$dialog.dismiss()
 	}
 
 	private applyManualDateSelection(e: Event) {
@@ -134,6 +134,8 @@ export class SchmancyDateRangeDialog extends SchmancyElement {
 			return
 		}
 
+		// Parent <schmancy-date-range> listens for `apply-dates`, applies the
+		// range, and dispatches 'close' on us — `show()` tears down.
 		this.dispatchEvent(new CustomEvent('apply-dates', {
 			detail: {
 				dateFrom: this.dateFrom.value,
@@ -143,8 +145,6 @@ export class SchmancyDateRangeDialog extends SchmancyElement {
 			bubbles: true,
 			composed: true
 		}))
-
-		$dialog.dismiss()
 	}
 
 	render() {

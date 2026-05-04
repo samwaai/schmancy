@@ -1,11 +1,10 @@
 import { SchmancyElement } from '@mixins/index'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
-import { html, PropertyValues, render } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { debounceTime, fromEvent, takeUntil, timer } from 'rxjs'
-import { $dialog } from '../dialog/dialog-service'
-import { sheet } from '../sheet/sheet.service'
+import { fromEvent, Subscription, takeUntil, timer } from 'rxjs'
+import { show } from '../overlay/overlay.service'
 import { detectDateRangeType, formatDateRange } from './date-range-helpers'
 import { DateRangePreset, generatePresetCategories, PresetCategory } from './date-range-presets'
 import { validateInitialDateRange } from './date-utils'
@@ -13,6 +12,13 @@ import './date-range-dialog'
 
 // Add quarter plugin to dayjs
 dayjs.extend(quarterOfYear)
+
+// Bridge the inner-content events used inside the overlay template down to a
+// `close` event on the same element. `show()` translates a bubbling 'close'
+// event into observable completion + an emission of `event.detail`.
+const dispatchClose = (target: EventTarget | null): void => {
+	target?.dispatchEvent(new CustomEvent('close', { bubbles: true, composed: true }))
+}
 
 export type SchmancyDateRangeChangeEvent = CustomEvent<{
 	dateFrom: string
@@ -54,7 +60,6 @@ export class SchmancyDateRange extends SchmancyElement {
 	@state() private selectedDateRange: string = ''
 	@state() private activePreset: string | null = null
 	@state() private announceMessage: string = ''
-	@state() private isMobile = false
 
 	// Default presets
 	private presetRanges: DateRangePreset[] = []
@@ -74,7 +79,6 @@ export class SchmancyDateRange extends SchmancyElement {
 	connectedCallback(): void {
 		super.connectedCallback()
 		this.initPresetRanges()
-		this.checkMobileView()
 
 		// Validate initial date range
 		const dateFormat = this.getDateFormat() as 'YYYY-MM-DD' | 'YYYY-MM-DDTHH:mm'
@@ -101,16 +105,6 @@ export class SchmancyDateRange extends SchmancyElement {
 			.pipe(takeUntil(this.disconnecting))
 			.subscribe(event => {
 				this.handleKeyboardNavigation(event)
-			})
-
-		// Handle window resize with debouncing
-		fromEvent(window, 'resize')
-			.pipe(
-				debounceTime(150),
-				takeUntil(this.disconnecting)
-			)
-			.subscribe(() => {
-				this.checkMobileView()
 			})
 	}
 
@@ -227,12 +221,19 @@ export class SchmancyDateRange extends SchmancyElement {
 		}
 	}
 
+	private _overlaySubscription: Subscription | null = null
+
 	private openDropdown(e?: MouseEvent) {
 		if (this.disabled || this.step !== undefined) return
 
 		this.dispatchEvent(new CustomEvent('beforeopen', { bubbles: true, composed: true }))
 		this.isOpen = true
 
+		// Inline-template overlay. Inner handlers dispatch a 'close' event
+		// from the dialog itself (via the module-scoped `dispatchClose`),
+		// which `show()` translates into observable completion + an emission.
+		// Layout (centered vs sheet) is chosen by the overlay system based on
+		// viewport / anchor presence.
 		const dialogContent = html`
 			<schmancy-date-range-dialog
 				.type="${this.type}"
@@ -242,51 +243,39 @@ export class SchmancyDateRange extends SchmancyElement {
 				.maxDate="${this.maxDate}"
 				.activePreset="${this.activePreset}"
 				.presetCategories="${this.presetCategories}"
-				@preset-select="${(e: CustomEvent) => {
-					this.activePreset = e.detail.preset.label
-					this.setDateRange(e.detail.preset.range.dateFrom, e.detail.preset.range.dateTo)
-					this.closeDropdown()
+				@preset-select="${(ev: CustomEvent) => {
+					this.activePreset = ev.detail.preset.label
+					this.setDateRange(ev.detail.preset.range.dateFrom, ev.detail.preset.range.dateTo)
+					dispatchClose(ev.currentTarget)
 				}}"
 				@date-change="${() => this.updateSelectedDateRange()}"
-				@apply-dates="${(e: CustomEvent) => {
-					const { dateFrom, dateTo, swapIfNeeded } = e.detail
+				@apply-dates="${(ev: CustomEvent) => {
+					const { dateFrom, dateTo, swapIfNeeded } = ev.detail
 					if (swapIfNeeded) {
 						this.setDateRange(dateTo, dateFrom)
 					} else {
 						this.setDateRange(dateFrom, dateTo)
 					}
-					this.closeDropdown()
+					dispatchClose(ev.currentTarget)
 				}}"
-				@announce="${(e: CustomEvent) => this.announceToScreenReader(e.detail.message)}"
+				@announce="${(ev: CustomEvent) => this.announceToScreenReader(ev.detail.message)}"
 			></schmancy-date-range-dialog>
 		`
 
-		if (this.isMobile) {
-			const container = document.createElement('div')
-			render(dialogContent, container)
-			sheet.push({
-				component: container,
-				uid: 'date-range-sheet',
-				close: () => { this.isOpen = false }
+		this._overlaySubscription?.unsubscribe()
+		this._overlaySubscription = show(dialogContent, { anchor: e })
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe({
+				complete: () => {
+					this.isOpen = false
+					this._overlaySubscription = null
+				},
 			})
-		} else {
-			$dialog.component(dialogContent, {
-				title: 'Select Date Range',
-				hideActions: true,
-				position: e
-			}).then(() => {
-				this.isOpen = false
-				return
-			})
-		}
 	}
 
 	private closeDropdown() {
-		if (this.isMobile) {
-			sheet.dismiss('date-range-sheet')
-		} else {
-			$dialog.dismiss()
-		}
+		this._overlaySubscription?.unsubscribe()
+		this._overlaySubscription = null
 		this.isOpen = false
 	}
 
@@ -422,13 +411,6 @@ export class SchmancyDateRange extends SchmancyElement {
 		} else {
 			this.activePreset = null
 		}
-	}
-
-	/**
-	 * Check if view is mobile
-	 */
-	private checkMobileView() {
-		this.isMobile = window.innerWidth < 768
 	}
 
 	/**

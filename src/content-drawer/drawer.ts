@@ -2,8 +2,10 @@ import { provide } from '@lit/context'
 import { SchmancyElement } from '@mixins/index'
 import { css, html, nothing } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
-import { debounceTime, distinctUntilChanged, fromEvent, map, merge, startWith, takeUntil, tap } from 'rxjs'
-import { SchmancyEvents, TRenderCustomEvent, area, sheet } from '..'
+import { debounceTime, distinctUntilChanged, fromEvent, map, merge, startWith, Subscription, takeUntil, tap } from 'rxjs'
+import { SchmancyEvents, TRenderCustomEvent, area } from '..'
+import { show } from '../overlay/overlay.service'
+import { OVERLAY_DISMISS_EVENT } from './events'
 import {
 	SchmancyContentDrawerID,
 	SchmancyContentDrawerMaxHeight,
@@ -114,6 +116,12 @@ export class SchmancyContentDrawer extends SchmancyElement {
 				takeUntil(this.disconnecting)
 			)
 			.subscribe(detail => this.handleRender(detail))
+
+		// Child `<schmancy-content-drawer-sheet>` requests overlay dismissal
+		// via a bubbling event; the drawer owns the subscription.
+		fromEvent<CustomEvent>(this, OVERLAY_DISMISS_EVENT)
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(() => this.dismissOverlay())
 	}
 
 	private updateMaxHeight() {
@@ -131,6 +139,8 @@ export class SchmancyContentDrawer extends SchmancyElement {
 		}
 	}
 
+	private _overlaySubscription: Subscription | null = null
+
 	private handleRender(detail: TRenderCustomEvent['detail']) {
 		if (this.mode === 'push') {
 			area.push({
@@ -142,12 +152,19 @@ export class SchmancyContentDrawer extends SchmancyElement {
 				props: detail.props,
 			})
 		} else if (this.mode === 'overlay') {
-			sheet.open({
-				component: detail.component,
-				uid: this.schmancyContentDrawerID,
-				props: detail.props,
-			})
+			// `show()` mounts the same component as a modal overlay; subscription
+			// = lifecycle, so dropping the previous one closes any prior modal
+			// before opening the next.
+			this._overlaySubscription?.unsubscribe()
+			this._overlaySubscription = show(detail.component, { props: detail.props })
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe({ complete: () => { this._overlaySubscription = null } })
 		}
+	}
+
+	private dismissOverlay() {
+		this._overlaySubscription?.unsubscribe()
+		this._overlaySubscription = null
 	}
 
 	getOffsetTop(element: HTMLElement | null) {

@@ -28,7 +28,7 @@ The framework pieces — touch before components.
 [Breadcrumb](./breadcrumb.md) · [Nav Drawer](./nav-drawer.md) · [Tabs](./tabs.md) · [Navigation Bar](./navigation-bar.md) · [Navigation Rail](./navigation-rail.md) · [Steps](./steps.md) · [Teleport](./teleport.md) · [Theme Button](./theme-button.md)
 
 ### Overlays
-[Overlay](./overlay.md) — canonical · [Dialog](./dialog.md) / [Sheet](./sheet.md) — *deprecated, use Overlay* · [Notification](./notification.md) · [Menu](./menu.md) · [Dropdown](./dropdown.md) · [Tooltip (directive)](./tooltip.md) · [Lightbox](./lightbox.md) · [Expand](./expand.md)
+[Overlay](./overlay.md) · [Notification](./notification.md) · [Menu](./menu.md) · [Dropdown](./dropdown.md) · [Tooltip (directive)](./tooltip.md) · [Lightbox](./lightbox.md) · [Expand](./expand.md)
 
 ### Interactive
 [Button](./button.md) · [List](./list.md) · [Details](./details.md) · [Table](./table.md) · [Tree](./tree.md) · [Slider](./slider.md) · [QR Scanner](./qr-scanner.md)
@@ -44,7 +44,7 @@ The framework pieces — touch before components.
 | Service | Purpose |
 |---------|---------|
 | `area` | Route navigation (see [area](./area.md)) |
-| `$dialog` | Open dialogs (see [dialog](./dialog.md)) |
+| `show` | Open overlays (see [overlay](./overlay.md)) |
 | `$notify` | Toast notifications (see [notification](./notification.md)) |
 | `schmancyContentDrawer` | Side panel (see [content-drawer](./content-drawer.md)) |
 | `theme` | Theme state, `fullscreen$` (see [theme](./theme.md)) |

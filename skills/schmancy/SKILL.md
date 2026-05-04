@@ -29,19 +29,23 @@ All reference files live in this directory. Read by filename.
 
 ## Overlay services (prefer over tags)
 
-For modals, toasts, sheets, side drawers — reach for the **imperative service API** first:
+For modals, toasts, side drawers — reach for the **imperative service API** first.
+`show()` is the single overlay primitive: layout (centered / anchored / sheet)
+is chosen by the system based on viewport + anchor presence. There is no
+`$dialog` or `sheet` service.
 
 ```typescript
-import { $dialog, $notify, schmancyContentDrawer, sheet, SchmancySheetPosition } from '@mhmo91/schmancy'
+import { show, confirm, prompt } from '@mhmo91/schmancy/overlay'
+import { $notify, schmancyContentDrawer } from '@mhmo91/schmancy'
 
-$dialog.component(new EditForm())                       // modal
-$dialog.component(new QuickPicker(), { position: e })    // anchored modal
+show(new EditForm())                                     // centered fallback
+show(new QuickPicker(), { anchor: ev })                  // anchored at click
+show(new Picker())                                       // narrow viewport → sheet (auto)
 $notify.success('Saved'); $notify.error('Failed')        // toast
-schmancyContentDrawer.open({ component: new Detail() })  // side panel
-sheet.open({ component: new Picker(), position: SchmancySheetPosition.BOTTOM })  // bottom sheet
+schmancyContentDrawer.push({ component: new Detail() })  // side panel
 ```
 
-References: `dialog.md`, `notification.md`, `content-drawer.md`, `sheet.md`.
+References: `overlay.md`, `notification.md`, `content-drawer.md`.
 
 Use component tags (`<schmancy-menu>`, `<schmancy-dropdown>`, `<schmancy-tooltip>`, `<schmancy-lightbox>`, `<schmancy-expand>`) only when the tag is the natural fit (anchored panels, tooltips, galleries).
 
@@ -51,8 +55,8 @@ Use component tags (`<schmancy-menu>`, `<schmancy-dropdown>`, `<schmancy-tooltip
   Sources: each rule above names its forbidden patterns explicitly — `TOKEN_FIRST_NO_ARBITRARY` forbids `[...]` arbitrary-value Tailwind utilities; `PRIMITIVE_FIRST` forbids raw HTML elements whose class attribute carries design-system styling (typography/color/surface/spacing-as-design); `NO_LOCAL_CLASS_CSS` forbids class/id/attribute selectors inside the `css` template; `NO_TERNARY_NOTHING_DISPATCH` forbids `${cond ? html\`...\` : nothing}` and `${cond && html\`...\`}` patterns.
   Remediation: before reporting any file compliant, run a grep against each forbidden pattern named by the rule under audit (e.g. `grep -nE '\[(?:[^]]+)\]' <file>` for `TOKEN_FIRST_NO_ARBITRARY`; `grep -nE 'class="[^"]*\b(text-|bg-|border-|rounded-|shadow-|tracking-|leading-|p[xy]?-)' <file>` plus a manual scan for raw `<div>`/`<span>` carrying those classes for `PRIMITIVE_FIRST`). The compliance report's body is the concatenation of those grep outputs annotated with their rule name; an empty body across every pattern under every rule is the only form of "compliant". A claim of compliance unaccompanied by the grep evidence is not a compliance report and is treated as an unverified assertion that the audit loop rejects.
 - **Schmancy primitive first** (`PRIMITIVE_FIRST`). Within `web/**`, every visible UI element is a custom element exported from `packages/schmancy/src/**`, and an element absent from that export set is added there before being imported into `web/**`. The rule sits above the styling rules: a `<div class="text-xs text-surface-on-variant">…</div>` whose role is typography is a violation even when every utility resolves to a registered token, because `<schmancy-typography>` already covers that role; the styling rules apply only to whatever class strings remain after the right primitive has been selected.
-  Sources: [packages/schmancy/skills/schmancy/INDEX.md](../INDEX.md) catalogues the export set by job (foundations / atoms / forms / navigation / overlays / interaction / feedback / display); each role's reference file (`typography.md`, `surface.md`, `button.md`, `dialog.md`, `sheet.md`, …) names the props, slots, and events that displace the equivalent `<div>` + utility-class pattern. The export set is the single source — a primitive that is not exported from `packages/schmancy/src/**` does not satisfy this rule even if it lives in a private file inside the schmancy tree.
-  Remediation: walk every `.ts` and `.html` file under `web/**` and list every raw HTML element whose class string carries design-system styling (typography, color, spacing-as-design-decision, surface, layout-as-design-decision, motion, overlay) — those are the violations. For each, look up the matching schmancy primitive in `INDEX.md` and rewrite the element through that primitive (`<schmancy-typography type=… token=…>` for type-scale text, `<schmancy-surface type=… fill=…>` for elevated/bounded surfaces, `<schmancy-grid>`/`<schmancy-flex>` for layout primitives with design intent, the imperative `$dialog`/`$notify`/`sheet.open`/`schmancyContentDrawer.open` services for overlays, `<schmancy-scroll>` for scroll containers). When a needed primitive is absent from the export set, design and implement it as a new component under `packages/schmancy/src/<role>/` — extending `$LitElement(style?)`, registered in `HTMLElementTagNameMap`, exported through the package barrel, and documented with a sibling `.md` in the skill's reference set — and only then introduce the first call site in `web/**`. The audit subagent iterates the whole `web/**` tree, surfaces the violation list, applies the rewrites, runs `yarn workspace @momo/web tsc --noEmit` plus the colocated `*-view.test.ts` suites, and reports pre-existing violations that require a new schmancy primitive as a separate punch list for designer/architect approval before the implementation lands. The loop exits when every `web/**` file's visible UI elements are schmancy primitives and the typecheck plus the test suites pass.
+  Sources: [packages/schmancy/skills/schmancy/INDEX.md](../INDEX.md) catalogues the export set by job (foundations / atoms / forms / navigation / overlays / interaction / feedback / display); each role's reference file (`typography.md`, `surface.md`, `button.md`, `overlay.md`, …) names the props, slots, and events that displace the equivalent `<div>` + utility-class pattern. The export set is the single source — a primitive that is not exported from `packages/schmancy/src/**` does not satisfy this rule even if it lives in a private file inside the schmancy tree.
+  Remediation: walk every `.ts` and `.html` file under `web/**` and list every raw HTML element whose class string carries design-system styling (typography, color, spacing-as-design-decision, surface, layout-as-design-decision, motion, overlay) — those are the violations. For each, look up the matching schmancy primitive in `INDEX.md` and rewrite the element through that primitive (`<schmancy-typography type=… token=…>` for type-scale text, `<schmancy-surface type=… fill=…>` for elevated/bounded surfaces, `<schmancy-grid>`/`<schmancy-flex>` for layout primitives with design intent, the imperative `show`/`$notify`/`schmancyContentDrawer.push` services for overlays, `<schmancy-scroll>` for scroll containers). When a needed primitive is absent from the export set, design and implement it as a new component under `packages/schmancy/src/<role>/` — extending `$LitElement(style?)`, registered in `HTMLElementTagNameMap`, exported through the package barrel, and documented with a sibling `.md` in the skill's reference set — and only then introduce the first call site in `web/**`. The audit subagent iterates the whole `web/**` tree, surfaces the violation list, applies the rewrites, runs `yarn workspace @momo/web tsc --noEmit` plus the colocated `*-view.test.ts` suites, and reports pre-existing violations that require a new schmancy primitive as a separate punch list for designer/architect approval before the implementation lands. The loop exits when every `web/**` file's visible UI elements are schmancy primitives and the typecheck plus the test suites pass.
 
 ## Non-negotiable conventions
 

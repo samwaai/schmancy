@@ -3,26 +3,25 @@ import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { repeat } from 'lit/directives/repeat.js'
 import { when } from 'lit/directives/when.js'
-import { sheet } from '../sheet/sheet.service'
 import type { EmailTemplate } from './types'
 
 /**
- * Email template picker content component (for use inside sheets)
- * 
+ * Email template picker content component (designed to be opened via `show()`).
+ *
  * Features:
  * - Grid layout for template preview
  * - Search/filter templates
  * - Category filtering
  * - Inline preview with direct selection
  * - Single-click template selection
- * 
+ *
  * @example
  * ```typescript
- * // Open as sheet
- * const picker = new SchmancyEmailTemplatePicker()
- * picker.templates = templates
- * picker.addEventListener('template-selected', handleSelection)
- * sheet.open({ component: picker, title: 'Choose Template' })
+ * import { show } from '@mhmo91/schmancy/overlay'
+ *
+ * show<EmailTemplate>(SchmancyEmailTemplatePicker, { props: { templates } })
+ *   .pipe(takeUntil(this.disconnecting))
+ *   .subscribe(template => { if (template) this.applyTemplate(template) })
  * ```
  */
 @customElement('schmancy-email-template-picker')
@@ -103,17 +102,24 @@ export class SchmancyEmailTemplatePicker extends SchmancyElement {
 
 	/** Select template directly */
 	private selectTemplate = (template: EmailTemplate) => {
+		// `show()` resolves to whatever `detail` we pass on a 'close' event.
+		// We also keep the legacy `template-selected` event for any external
+		// listener that hasn't migrated yet.
 		this.dispatchEvent(new CustomEvent('template-selected', {
 			detail: template,
 			bubbles: true,
-			composed: true
+			composed: true,
 		}))
-		sheet.dismiss()
+		this.dispatchEvent(new CustomEvent('close', {
+			detail: template,
+			bubbles: true,
+			composed: true,
+		}))
 	}
 
-	/** Close the picker */
+	/** Close the picker without a selection */
 	private close = () => {
-		sheet.dismiss()
+		this.dispatchEvent(new CustomEvent('close', { bubbles: true, composed: true }))
 	}
 
 	render() {
