@@ -16,7 +16,7 @@ The framework pieces — touch before components.
 ## Components by job
 
 ### Display
-[Typography](./typography.md) · [Icons](./icons.md) · [Avatar](./avatar.md) · [Divider](./divider.md) · [Badge](./badge.md) · [Kbd](./kbd.md) · [Code Highlight](./code-highlight.md) · [Typewriter](./typewriter.md) · [JSON](./json.md) · [Iframe](./iframe.md) · [Map](./map.md) · [Charts](./charts.md)
+[Typography](./typography.md) · [Icons](./icons.md) · [Avatar](./avatar.md) · [Divider](./divider.md) · [Badge](./badge.md) · [Kbd](./kbd.md) · [Typewriter](./typewriter.md) · [JSON](./json.md) · [Iframe](./iframe.md) · [Map](./map.md) · [Charts](./charts.md)
 
 ### Surfaces & layout
 [Surface](./surface.md) · [Card](./card.md) · [Scroll / Grid / Flex](./layout.md) · [Page](./page.md) · [Content Drawer](./content-drawer.md) · [Window](./window.md) · [Boat](./boat.md) · [Float](./float.md) · [Splash Screen](./splash-screen.md)
@@ -35,9 +35,6 @@ The framework pieces — touch before components.
 
 ### Feedback
 [Progress](./progress.md) · [Busy](./busy.md) · [Skeleton](./skeleton.md) · [Connectivity](./connectivity.md) · [Delay](./delay.md)
-
-### Domain
-[Mailbox](./mailbox.md)
 
 ## Services (imperative APIs)
 
