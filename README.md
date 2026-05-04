@@ -41,17 +41,6 @@ import '@mhmo91/schmancy'
 import { magnetic, cursorGlow, gravity } from '@mhmo91/schmancy/directives'
 ```
 
-## Advanced components — `@mhmo91/schmancy-lab`
-
-Reusable-but-opinionated components live in a sibling package: QR scanner,
-charts, country/timezone selects, map embed. Install separately when you
-need them. Lab governance (acceptance criterion + quarterly graduation
-clock) lives in [`lab/README.md`](./lab/README.md).
-
-```bash
-npm install @mhmo91/schmancy @mhmo91/schmancy-lab
-```
-
 ## Use with Claude Code
 
 Schmancy ships a Claude Code plugin (manifest at `.claude-plugin/plugin.json`,
@@ -105,6 +94,17 @@ Schmancy is organized in four layers:
 ## Tech Stack
 
 [Lit](https://lit.dev) · [RxJS](https://rxjs.dev) · [Tailwind CSS v4](https://tailwindcss.com) · [Blackbird](./src/utils/animation.ts)
+
+## Advanced components — `@mhmo91/schmancy-lab`
+
+Reusable-but-opinionated components live in a sibling package: QR scanner,
+charts, country/timezone selects, map embed. Install separately when you
+need them. Lab governance (acceptance criterion + quarterly graduation
+clock) lives in [`lab/README.md`](./lab/README.md).
+
+```bash
+npm install @mhmo91/schmancy @mhmo91/schmancy-lab
+```
 
 ## License
 
