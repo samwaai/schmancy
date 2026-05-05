@@ -493,3 +493,8 @@ the element — useful when only one or two namespaces need scoping.
   later moves into a different `<schmancy-context>` subtree, the
   cached reference lags. Read inline (`cart.value`, `cart.$`) instead
   of caching.
+- **NO_DUPLICATE_FIELD_ACROSS_STATES.** Two `state(...)` declarations
+  do not carry the same field; the second declaration is removed and
+  consumers read the first. *Remediation:* delete the second
+  `state(...)` and replace its readers with reads of the field on the
+  pre-existing state.
