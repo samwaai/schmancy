@@ -40,6 +40,7 @@ deleted by default.
 | `extra/countries`, `extra/timezone` | Country + timezone data sets |
 | `<schmancy-select-countries>`, `<schmancy-select-timezones>` | Selects backed by `extra/` |
 | `<schmancy-map>` | Map embed |
+| `<schmancy-thinking-bubble>` | Living-organism "something is happening" indicator (Kuramoto-coupled neural blob) |
 
 ## Versioning
 
