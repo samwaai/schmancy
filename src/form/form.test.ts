@@ -154,6 +154,51 @@ describe('schmancy-form', () => {
 		expect((detail as SchmancyFormSubmitDetail<{ email: string }>).data).toEqual({ email: 'parsed' })
 	})
 
+	it('announces server-side form error via assistive-tech live region', async () => {
+		host.innerHTML = `
+			<schmancy-form>
+				<schmancy-input name="x" value="ok"></schmancy-input>
+			</schmancy-form>
+		`
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
+		await nextUpdate()
+		await nextUpdate()
+
+		const liveRegion = sf.shadowRoot!.querySelector('[role="status"]') as HTMLElement
+		expect(liveRegion).toBeTruthy()
+		expect(liveRegion.getAttribute('aria-live')).toBe('assertive')
+		// Idle: empty
+		expect(liveRegion.textContent?.trim()).toBe('')
+
+		sf.setFormError('Network error — please try again.')
+		await nextUpdate()
+		await nextUpdate()
+		expect(liveRegion.textContent?.trim()).toBe('Network error — please try again.')
+	})
+
+	it('clears the live region on form reset', async () => {
+		host.innerHTML = `
+			<schmancy-form>
+				<schmancy-input name="x" value="ok"></schmancy-input>
+				<button id="r" type="reset">Reset</button>
+			</schmancy-form>
+		`
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
+		await nextUpdate()
+		await nextUpdate()
+
+		sf.setFormError('Boom')
+		await nextUpdate()
+		await nextUpdate()
+		const liveRegion = sf.shadowRoot!.querySelector('[role="status"]') as HTMLElement
+		expect(liveRegion.textContent?.trim()).toBe('Boom')
+
+		;(host.querySelector('#r') as HTMLButtonElement).click()
+		await nextUpdate()
+		await nextUpdate()
+		expect(liveRegion.textContent?.trim()).toBe('')
+	})
+
 	it('setFieldError sets custom validity and forces error display', async () => {
 		host.innerHTML = `
 			<schmancy-form>

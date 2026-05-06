@@ -17,7 +17,7 @@
  */
 
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { fromEvent, takeUntil } from 'rxjs'
 import { SchmancyElement } from '../../mixins'
 import { FIELD_CONNECT_EVENT, type IFormFieldMixin } from '../../mixins/formField.mixin'
@@ -26,6 +26,11 @@ import { formSubmitState, type FormSubmitState, type FormError } from './form-st
 /** Structural type matching zod, valibot, ArkType, etc. — any schema with `.parse()`. */
 export interface ParseSchema<T = unknown> {
 	parse(input: unknown): T
+}
+
+const isButton = (node: EventTarget): node is HTMLElement => {
+	if (!(node instanceof HTMLElement)) return false
+	return node.tagName === 'BUTTON' || node.tagName === 'SCHMANCY-BUTTON'
 }
 
 /** Submit event detail. `data` is typed when `schema` is set. */
@@ -59,6 +64,15 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 
 	private _fields = new Set<IFormFieldMixin>()
 	private _submitting = false
+
+	/**
+	 * Local mirror of the submit-state status — drives the inline live region
+	 * synchronously. Independent of the schmancy-state library's resolution
+	 * chain (which has known cross-await fallback semantics) so the AT-facing
+	 * announcement is always correct for this form instance.
+	 */
+	@state() private _liveStatus: 'idle' | 'submitting' | 'success' | 'error' = 'idle'
+	@state() private _liveError: string = ''
 	private _internals: ElementInternals | undefined = (() => {
 		try {
 			return this.attachInternals()
@@ -106,15 +120,21 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 	private _maybeRequestSubmit(e: Event): void {
 		// On click: trigger only when the target is a type=submit button.
 		// On keydown(Enter): always trigger if focus is on a registered field.
+		// type=reset is handled separately in _maybeReset.
 		if (e.type === 'click') {
 			const path = e.composedPath()
-			const submitBtn = path.find(node => {
-				if (!(node instanceof HTMLElement)) return false
-				if (node.getAttribute('type') !== 'submit') return false
-				return (
-					node.tagName === 'BUTTON' || node.tagName === 'SCHMANCY-BUTTON'
-				)
-			})
+			const resetBtn = path.find(
+				node => isButton(node) && node.getAttribute('type') === 'reset',
+			)
+			if (resetBtn) {
+				e.preventDefault()
+				const form = this.shadowRoot?.querySelector('form')
+				form?.reset()
+				return
+			}
+			const submitBtn = path.find(
+				node => isButton(node) && node.getAttribute('type') === 'submit',
+			)
 			if (!submitBtn) return
 			e.preventDefault()
 		}
@@ -144,7 +164,7 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 				status: 'error',
 				error: { message: 'Validation failed' },
 			})
-			this._broadcastStatus('error')
+			this._broadcastStatus('error', 'Validation failed. Please correct the highlighted fields.')
 			const firstInvalid = this._activeFields.find(f => f.error) as unknown as
 				| HTMLElement
 				| undefined
@@ -196,7 +216,7 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 				status: 'error',
 				error: { message },
 			})
-			this._broadcastStatus('error')
+			this._broadcastStatus('error', message)
 		} finally {
 			this._submitting = false
 		}
@@ -210,11 +230,14 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 		this.dispatchEvent(new CustomEvent('reset'))
 	}
 
-	private _broadcastStatus(status: FormSubmitState['status']): void {
+	private _broadcastStatus(status: FormSubmitState['status'], errorMessage?: string): void {
+		this._liveStatus = status
+		this._liveError = errorMessage ?? ''
 		const states = this._internals?.states
-		if (!states) return
-		for (const s of ['submitting', 'success', 'error', 'idle']) states.delete(s)
-		states.add(status)
+		if (states) {
+			for (const s of ['submitting', 'success', 'error', 'idle']) states.delete(s)
+			states.add(status)
+		}
 		// aria-busy on the host while submitting (WCAG 2.2 AA — disabled buttons
 		// drop from tab order; keep them focusable, signal busy via aria).
 		if (status === 'submitting') this.setAttribute('aria-busy', 'true')
@@ -244,7 +267,7 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 			status: 'error',
 			error: { message, code } as FormError,
 		})
-		this._broadcastStatus('error')
+		this._broadcastStatus('error', message)
 	}
 
 	/** Programmatically submit via the native submitter pipeline. */
@@ -288,6 +311,20 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 				>
 					<slot></slot>
 				</form>
+				<!--
+					Form-level live region — assistive tech announces server-side
+					form errors (validation summary, network failure, server reject)
+					here. Visually hidden via the .sr-only convention; consumers
+					render their own visible banner from formSubmitState if they
+					want one. Empty content while idle/submitting/success — only
+					error states populate the region. WCAG 4.1.3 (Status Messages).
+				-->
+				<div
+					role="status"
+					aria-live="assertive"
+					aria-atomic="true"
+					class="sr-only"
+				>${this._liveStatus === 'error' ? this._liveError : ''}</div>
 			</schmancy-context>
 		`
 	}
