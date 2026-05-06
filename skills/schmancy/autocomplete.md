@@ -20,13 +20,18 @@
 | name | string | `''` | Form submission name |
 | required | boolean | `false` | Whether selection is required |
 | multi | boolean | `false` | Enable multi-select with inline chips |
-| size | `'xs'\|'sm'\|'md'\|'lg'` | `'md'` | Input height |
+| size | `'xxs'\|'xs'\|'sm'\|'md'\|'lg'` | `'md'` | Input height (M3 sizes 24–56dp). |
 | maxHeight | string | `'300px'` | Max dropdown height |
 | debounceMs | number | `200` | Search debounce in ms |
 | similarityThreshold | number | `0.3` | Minimum fuzzy match score (0-1) |
-| error | boolean | `false` | Error state |
-| validationMessage | string | `''` | Validation message |
+| error | boolean | `false` | Error state (gated by `validateOn`). From `SchmancyFormField`. |
+| validationMessage | string | `''` | Validation message. |
 | description | string | `''` | Screen reader description |
+| validateOn | `'always'\|'touched'\|'dirty'\|'submitted'` | `'dirty'` | When validation errors display. |
+| disabled | boolean | `false` | Disabled state. |
+| hint | string | `undefined` | Helper text below the field. |
+| touched / dirty / submitted | boolean | — | Validation state from `SchmancyFormField`. |
+| autocomplete | string | `'off'` | Native autocomplete attribute on inner input. |
 
 ## Events
 | Event | Detail | Description |
@@ -51,3 +56,11 @@
 ```
 
 Children must be `<schmancy-option>` elements. In multi mode, selected items appear as removable chips.
+
+## Form-field contract
+
+Extends `SchmancyFormField()`. Auto-discovered by `<schmancy-form>` via `FIELD_CONNECT_EVENT`. Public API: `markTouched()`, `markSubmitted()`, `checkValidity()`, `reportValidity()`, `setCustomValidity()`, `resetForm()` (resets the BehaviorSubjects + clears the input).
+
+Default `validateOn: 'dirty'` — a required-empty autocomplete shows no error until the user types-then-clears or submits. Error UI rendered in a `role="alert"` div linked via `aria-describedby`.
+
+See `form.md` and `form-ux-rules.md` for the binding 4-phase validation contract.

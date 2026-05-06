@@ -22,7 +22,10 @@
 | validationMessage | string | `''` | Custom validation message |
 | hint | string | `undefined` | Hint text below the field |
 | size | `'xxs'\|'xs'\|'sm'\|'md'\|'lg'` | `'md'` | Input height (24-56px) |
-| validateOn | `'always'\|'touched'\|'dirty'\|'submitted'` | `'touched'` | When to show validation |
+| validateOn | `'always'\|'touched'\|'dirty'\|'submitted'` | `'dirty'` | When to display validation errors. Default suppresses errors on pristine fields until submit. |
+| touched | boolean (read-only) | `false` | True after first blur — set by `markTouched()`. |
+| dirty | boolean (getter) | — | True when `value` differs from the captured default. |
+| submitted | boolean (read-only) | `false` | Set by `<schmancy-form>` on submit; flips field to live-correction mode. |
 | align | `'left'\|'center'\|'right'` | `'left'` | Text alignment |
 | pattern | string | `undefined` | Regex validation pattern |
 | inputmode | string | `undefined` | Virtual keyboard hint |
@@ -34,9 +37,21 @@
 ## Events
 | Event | Detail | Description |
 |-------|--------|-------------|
-| input | `{ value: string }` | Every keystroke |
-| change | `{ value: string }` | On blur/native change |
-| enter | `{ value: string }` | When Enter key is pressed |
+| input | `{ value: string }` | Every keystroke (bubbles, composed) |
+| change | `{ value: string }` | On blur/native change (bubbles, composed) |
+| enter | `{ value: string }` | Enter key pressed |
+| focus / blur | — | Standard focus events |
+
+## Public API (from `SchmancyFormField`)
+- `markTouched()` / `markSubmitted()` — flip the `_shouldShowError()` gate.
+- `checkValidity()` / `reportValidity()` — return current validity (used by `<schmancy-form>` and native `<form>`).
+- `setCustomValidity(message)` — server-side error path. `<schmancy-form>` calls this from `setFieldError(name, msg)`.
+- `resetForm()` — restores the captured default; clears `error`, `touched`, `submitted`.
+- `internals.ariaInvalid` / `ariaRequired` — set automatically; reaches AT through shadow DOM.
+
+`<schmancy-form>` auto-discovers this field via `FIELD_CONNECT_EVENT` (composed event). No registration needed.
+
+See `form.md` and `form-ux-rules.md` for the binding 4-phase validation contract.
 
 ## Examples
 ```html

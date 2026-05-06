@@ -17,6 +17,11 @@
 | label | string | `''` | ARIA label on the inner button; also used by axe. |
 | required | boolean | `false` | Must be on for form validity. |
 | disabled | boolean | `false` | Disables interaction. |
+| validateOn | `'always'\|'touched'\|'dirty'\|'submitted'` | `'dirty'` | When validation errors display. From `SchmancyFormField`. |
+| validationMessage | string | `''` | Error text — default `'This switch is required.'` when required and off. |
+| error | boolean | `false` | Error state (gated by `validateOn`). |
+| hint | string | `undefined` | Helper text. |
+| touched / dirty / submitted | boolean | — | Validation state from `SchmancyFormField`. |
 
 ## Events
 | Event | Detail | Description |
@@ -32,10 +37,24 @@
 ## States
 | State | When |
 |-------|------|
-| `:state(checked)` | While the switch is on. Target via `schmancy-switch:state(checked) { … }`. |
+| `:state(checked)`   | switch is on |
+| `:state(touched)`   | user has blurred the host at least once |
+| `:state(dirty)`     | `checked` differs from initial |
+| `:state(submitted)` | parent `<schmancy-form>` has submitted |
+| `:state(invalid)`   | error flag is set (gated by `validateOn`) |
+| `:state(required)`  | required and not disabled |
+| `:state(disabled)`  | disabled |
 
 ## Form association
-Uses `ElementInternals` — participates in `<form>` submission natively. Contributes `name=value` when checked; omitted when unchecked. `formResetCallback` restores the initial `checked` attribute. `formDisabledCallback` propagates `<fieldset disabled>`.
+Extends `SchmancyFormField()` — participates in `<form>` submission natively. FormData contributes `name=value` when checked; omitted when unchecked.
+
+`dirty` is overridden to mean "`checked` diverged from the snapshot taken at first render," not the mixin's value-vs-default. Under default `validateOn: 'dirty'`, an empty-required switch only shows an error after the user toggles it (or submit forces validation), but `internals.checkValidity()` already reports `false` so `<form>.checkValidity()` is correct.
+
+`resetForm()` restores the snapshot taken in `firstUpdated` (the pre-render `checked` value). `formDisabledCallback` propagates `<fieldset disabled>`. ARIA `aria-invalid` / `aria-required` reflect through `ElementInternals`.
+
+Public API: `markTouched()`, `markSubmitted()`, `checkValidity()`, `setCustomValidity()`, `resetForm()`. Auto-discovered by `<schmancy-form>` via `FIELD_CONNECT_EVENT`.
+
+See `form.md` and `form-ux-rules.md` for the binding 4-phase validation contract.
 
 ## Examples
 ```html

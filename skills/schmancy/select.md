@@ -23,7 +23,11 @@
 | multi | boolean | `false` | Enable multi-select mode |
 | hint | string | `''` | Hint text below the select |
 | size | `'xxs'\|'xs'\|'sm'\|'md'\|'lg'` | `'md'` | Input height |
-| validateOn | `'always'\|'touched'\|'dirty'\|'submitted'` | `'touched'` | When to show validation |
+| validateOn | `'always'\|'touched'\|'dirty'\|'submitted'` | `'dirty'` | When validation errors display. From `SchmancyFormField`. |
+| validationMessage | string | `''` | Error message — set by `setCustomValidity()` or `<schmancy-form>.setFieldError()`. |
+| error | boolean (read-only) | — | True when invalid AND `_shouldShowError()` gate is open. |
+| touched / dirty / submitted | boolean | — | Validation state from `SchmancyFormField`. |
+| readonly | boolean | `false` | Read-only mode. |
 
 ## Events
 | Event | Detail | Description |
@@ -47,3 +51,11 @@
 ```
 
 Children must be `<schmancy-option>` elements with `value` and `label` attributes.
+
+## Form-field contract
+
+Extends `SchmancyFormField()` — auto-discovered by `<schmancy-form>` via `FIELD_CONNECT_EVENT`. Exposes `markTouched()`, `markSubmitted()`, `checkValidity()`, `reportValidity()`, `setCustomValidity()`, `resetForm()`. Multi-select serializes to a comma-joined string for native FormData; `toFormEntries()` emits one `[name, value]` per selection for `<schmancy-form>` consumers.
+
+ARIA combobox attributes (`role="combobox"`, `aria-expanded`, `aria-controls`) plus `aria-invalid` / `aria-required` reflect through `ElementInternals` — target via `:state(invalid)` / `:state(required)` in CSS, not host `[aria-*]` selectors.
+
+See `form.md` and `form-ux-rules.md` for the binding 4-phase validation contract.

@@ -40,6 +40,25 @@
 - Hover: luminous glow shadow using primary color
 - Active: spring press `scale(0.97)` / `scale(0.92)` for icon-button
 
+## Submit-state mirroring (`type="submit"` only)
+
+A `<schmancy-button type="submit">` inside a `<schmancy-form>` automatically reflects the form's submit state via a MutationObserver on the form's `aria-busy` attribute:
+
+- While the form's `formSubmitState.status === 'submitting'` (form sets `aria-busy="true"`):
+  - Button mirrors `aria-busy="true"` onto itself.
+  - Broadcasts `:state(submitting)` for CSS targeting.
+  - **Stays focusable** — never gets the `disabled` attribute. Disabled buttons drop from the tab order; AT users would lose their place. WCAG 2.2 AA.
+- Cleared automatically when the form's submit promise settles (success or error).
+
+```css
+schmancy-button:state(submitting) {
+  opacity: 0.6;
+  /* show a spinner via ::before, swap label, etc. */
+}
+```
+
+`schmancy-button` is form-associated (`static formAssociated = true` + `attachInternals()`) — clicking a `type="submit"` inside any `<form>` ancestor (native or schmancy) calls `form.requestSubmit()`. Inside `<schmancy-form>` the click is also intercepted at the form host and bridged across the shadow boundary to the inner shadow-DOM `<form>`.
+
 ## Examples
 ```html
 <!-- Filled primary -->

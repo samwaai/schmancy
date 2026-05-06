@@ -27,6 +27,12 @@
 | collapse | boolean | `false` | Icon-only on mobile |
 | customPresets | array | `[]` | Additional preset ranges |
 | format | string | auto | Date format string |
+| name | string | `''` | Form submission name. From `SchmancyFormField`. |
+| validateOn | `'always'\|'touched'\|'dirty'\|'submitted'` | `'dirty'` | When validation errors display. |
+| validationMessage | string | `''` | Error message — default `'Please select a date range.'` when required and either bound is empty. |
+| error | boolean | `false` | Error state (gated by `validateOn`). |
+| hint | string | `undefined` | Helper text. |
+| touched / dirty / submitted | boolean | — | Validation state. `dirty` tracks `dateFrom.value` / `dateTo.value` against the snapshots taken at first render. |
 
 ## Events
 | Event | Detail | Description |
@@ -48,3 +54,16 @@
 ```
 
 Built-in presets include Today, Yesterday, This Week, This Month, This Year, and more.
+
+## Form association
+
+Extends `SchmancyFormField()`. Multi-entry FormData contribution:
+- Set `name="dates"` and FormData receives **two** keys: `datesFrom` and `datesTo` (flat suffix shape, no bracket-key encoding).
+- `internals.setFormValue(formData)` accepts a `FormData` object whose entries get appended to the parent form — native `new FormData(form)` sees both keys without consumer-side parsing.
+- `<schmancy-form>`'s registry consumer also sees both keys via `toFormEntries()`.
+
+`resetForm()` restores both `dateFrom.value` and `dateTo.value` to the snapshots captured at first render. Validity: required + either bound empty → `internals.setValidity({ valueMissing: true })`. Order/range constraints (start ≤ end, future-only, etc.) are out of scope — handle those in a domain schema layer.
+
+Auto-discovered by `<schmancy-form>` via `FIELD_CONNECT_EVENT`. Public API: `markTouched()`, `markSubmitted()`, `checkValidity()`, `setCustomValidity()`, `resetForm()`.
+
+See `form.md` and `form-ux-rules.md` for the binding 4-phase validation contract.
