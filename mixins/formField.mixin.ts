@@ -77,6 +77,25 @@ export interface IFormFieldMixin extends Element {
 	clearSubmitted(): void
 
 	/**
+	 * `true` while an async validator is in flight. Broadcast as
+	 * `:state(validating)`. `<schmancy-form>` blocks submit until every
+	 * registered field's `isValidating` is back to `false`.
+	 */
+	isValidating: boolean
+
+	/**
+	 * Run an async validator. While the promise is pending, `isValidating` is
+	 * `true` and `:state(validating)` is broadcast. On resolve, the returned
+	 * string is passed to `setCustomValidity` — empty string clears any
+	 * existing custom error; non-empty marks the field invalid with that
+	 * message.
+	 *
+	 * Submitting the form while a validator is pending is queued — the form
+	 * waits for `Promise.all(pending validators)` to settle before proceeding.
+	 */
+	runAsyncValidator(fn: () => Promise<string>): Promise<void>
+
+	/**
 	 * Whether the gate for showing validation errors is open right now. Exposed
 	 * so subclasses with custom error-display channels (e.g. select renders
 	 * errors on a child input) can keep their gate consistent with the mixin's.
@@ -191,6 +210,34 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		}
 
 		/**
+		 * Reactive flag set while an async validator is in flight. Read by
+		 * `<schmancy-form>` to gate submit; broadcast as `:state(validating)`
+		 * for CSS spinner targeting.
+		 */
+		@state() isValidating: boolean = false
+
+		async runAsyncValidator(fn: () => Promise<string>): Promise<void> {
+			if (this.isValidating) {
+				// Cancel-by-supersede semantics — a new call wins; the previous
+				// is best-effort and its result is dropped if it resolves later.
+				this._asyncValidatorEpoch++
+			}
+			const epoch = ++this._asyncValidatorEpoch
+			this.isValidating = true
+			try {
+				const message = await fn()
+				if (epoch !== this._asyncValidatorEpoch) return // superseded
+				this.setCustomValidity(message)
+			} finally {
+				if (epoch === this._asyncValidatorEpoch) {
+					this.isValidating = false
+				}
+			}
+		}
+
+		private _asyncValidatorEpoch: number = 0
+
+		/**
 		 * Whether `checkValidity()` should display errors right now.
 		 * `submitted` overrides every mode — once a submit attempt happens, the
 		 * field stays in live-correction mode (Phase 3) for the rest of the
@@ -268,6 +315,11 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 
 			if (changedProps.has('required') || changedProps.has('disabled')) {
 				this.checkValidity()
+			}
+
+			if (changedProps.has('isValidating')) {
+				if (this.isValidating) this.internals?.states.add('validating')
+				else this.internals?.states.delete('validating')
 			}
 
 			if (changedProps.has('touched')) {

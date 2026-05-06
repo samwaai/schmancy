@@ -152,6 +152,22 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 		e.stopPropagation()
 		if (this._submitting) return
 
+		// If any field has an async validator pending, wait for them all to
+		// settle before deciding validity. This is the hard-block model: the
+		// user clicks submit, the form holds (aria-busy="true"), waits for
+		// validators, then proceeds with the truth they reported.
+		const pendingValidators = this._activeFields.filter(f => f.isValidating)
+		if (pendingValidators.length > 0) {
+			this._broadcastStatus('submitting')
+			await new Promise<void>(resolve => {
+				const tick = () => {
+					if (this._activeFields.every(f => !f.isValidating)) resolve()
+					else requestAnimationFrame(tick)
+				}
+				tick()
+			})
+		}
+
 		// Phase 4 — submit forces error display on every field.
 		this._activeFields.forEach(f => f.markSubmitted())
 

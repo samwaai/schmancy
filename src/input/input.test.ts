@@ -98,6 +98,34 @@ describe('schmancy-input', () => {
 		expect(inp.matches(':state(pattern-mismatch)')).toBe(true)
 	})
 
+	it('runAsyncValidator sets isValidating + :state(validating) and applies the result', async () => {
+		host.innerHTML = `<schmancy-input label="Username" value="taken"></schmancy-input>`
+		const inp = host.querySelector('schmancy-input') as HTMLElement & {
+			isValidating: boolean
+			runAsyncValidator(fn: () => Promise<string>): Promise<void>
+			validationMessage: string
+			updateComplete: Promise<boolean>
+		}
+		await inp.updateComplete
+
+		let resolveValidator: (msg: string) => void
+		const promise = inp.runAsyncValidator(
+			() => new Promise<string>(r => { resolveValidator = r }),
+		)
+		// Yield once for the @state to update.
+		await new Promise(r => requestAnimationFrame(() => r(null)))
+		expect(inp.isValidating).toBe(true)
+		expect(inp.matches(':state(validating)')).toBe(true)
+
+		// Server says: name taken.
+		resolveValidator!('Username is taken')
+		await promise
+		await new Promise(r => requestAnimationFrame(() => r(null)))
+		expect(inp.isValidating).toBe(false)
+		expect(inp.matches(':state(validating)')).toBe(false)
+		expect(inp.validationMessage).toBe('Username is taken')
+	})
+
 	it('has no axe-core a11y violations (idle, with label)', async () => {
 		host.innerHTML = `<schmancy-input label="Email address" type="email"></schmancy-input>`
 		await nextUpdate()
