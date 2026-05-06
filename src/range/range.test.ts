@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import './range'
+import { expectNoA11yViolations } from '../test-utils/a11y'
 
 const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
 
@@ -60,6 +61,13 @@ describe('schmancy-range', () => {
 		await r.updateComplete
 		const input = r.shadowRoot!.querySelector('input[type=range]') as HTMLInputElement
 		expect(input.disabled).toBe(true)
+	})
+
+	it('has no axe-core a11y violations', async () => {
+		host.innerHTML = `<schmancy-range label="Volume" min="0" max="100" value="42"></schmancy-range>`
+		const r = host.querySelector('schmancy-range') as HTMLElement & { updateComplete: Promise<boolean> }
+		await r.updateComplete
+		await expectNoA11yViolations(host)
 	})
 
 	it('resets to default value on form reset', async () => {

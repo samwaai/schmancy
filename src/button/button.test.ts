@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import './button'
 import '../form/form'
 import '../input/input'
+import { expectNoA11yViolations } from '../test-utils/a11y'
 import type { SchmancyFormSubmitDetail } from '../form/form'
 
 const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
@@ -61,6 +62,25 @@ describe('schmancy-button busy mirror', () => {
 		await nextUpdate()
 		expect(btn.hasAttribute('aria-busy')).toBe(false)
 		expect(btn.matches(':state(submitting)')).toBe(false)
+	})
+
+	it('has no axe-core a11y violations in busy state', async () => {
+		host.innerHTML = `
+			<schmancy-form>
+				<schmancy-input name="x" value="ok"></schmancy-input>
+				<schmancy-button type="submit">Send</schmancy-button>
+			</schmancy-form>
+		`
+		const form = host.querySelector('schmancy-form') as HTMLElement
+		await nextUpdate()
+		await nextUpdate()
+		// Idle baseline.
+		await expectNoA11yViolations(host)
+		// Busy state — button gets aria-busy, must remain focusable + AT-clean.
+		form.setAttribute('aria-busy', 'true')
+		await nextUpdate()
+		await nextUpdate()
+		await expectNoA11yViolations(host)
 	})
 
 	it('drives busy through the awaitable submit lifecycle', async () => {

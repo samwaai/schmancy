@@ -185,7 +185,7 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	 * If user did not provide an ID, auto-generate one so <label for="...">
 	 * and various aria-* attributes can reference it.
 	 */
-	protected override willUpdate(changedProps: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
+	protected override willUpdate(changedProps: PropertyValueMap<unknown>) {
 		if (!this.id) {
 			this.id = `sch-input-${SchmancyInput._idCounter++}`
 		}

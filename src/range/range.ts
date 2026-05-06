@@ -103,6 +103,8 @@ export class SchmancyRange extends SchmancyFormField(css`
 					.step=${String(this.step)}
 					.value=${String(this.value)}
 					?disabled=${this.disabled}
+					aria-label=${this.label || 'Range'}
+					aria-valuetext=${String(this.value)}
 					style="--range-progress: ${this.progress}"
 					@input=${(e: Event) => {
 						this.value = Number((e.target as HTMLInputElement).value)

@@ -232,6 +232,12 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		protected firstUpdated(changedProps: PropertyValueMap<any>): void {
 			super.firstUpdated?.(changedProps)
 			if (this._defaultValue === undefined) this._defaultValue = this.value
+			// Sync platform validity (`internals.setValidity`) once after first
+			// render so `<form>.checkValidity()` and `:invalid` reflect truth
+			// even when no property change has fired through `willUpdate` yet
+			// (e.g. for required-empty fields with class-field-initialized
+			// defaults that Lit doesn't see as "changed" on the first cycle).
+			this.checkValidity()
 		}
 
 		protected willUpdate(changedProps: PropertyValueMap<any>): void {
@@ -242,9 +248,16 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 				// :state(dirty) tracks value-vs-default; recompute on every value change.
 				if (this.dirty) this.internals?.states.add('dirty')
 				else this.internals?.states.delete('dirty')
-				// Phase 3 — live correction. Re-validate on every keystroke once the
-				// field is in error-display mode (touched/dirty/submitted).
-				if (this._shouldShowError()) this.checkValidity()
+				// Always sync platform validity (internals.setValidity) so
+				// `<form>.checkValidity()` and `:invalid` reflect truth, even
+				// while the visual `error` gate stays closed for pristine
+				// fields under `validateOn: 'dirty'`. The visibility gate is
+				// inside checkValidity() itself.
+				this.checkValidity()
+			}
+
+			if (changedProps.has('required') || changedProps.has('disabled')) {
+				this.checkValidity()
 			}
 
 			if (changedProps.has('touched')) {

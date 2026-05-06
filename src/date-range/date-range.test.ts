@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import './date-range'
+import { expectNoA11yViolations } from '../test-utils/a11y'
 
 const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
 
@@ -65,6 +66,22 @@ describe('schmancy-date-range', () => {
 		await nextUpdate()
 		expect(dr.checkValidity()).toBe(true)
 		expect(form.checkValidity()).toBe(true)
+	})
+
+	it('has no axe-core a11y violations', async () => {
+		host.innerHTML = `<schmancy-date-range name="window"></schmancy-date-range>`
+		await nextUpdate()
+		await nextUpdate()
+		// Trigger button-group rendering with values populated.
+		const dr = host.querySelector('schmancy-date-range') as HTMLElement & {
+			dateFrom: { label: string; value: string }
+			dateTo: { label: string; value: string }
+		}
+		dr.dateFrom = { label: 'From', value: '2026-01-01' }
+		dr.dateTo = { label: 'To', value: '2026-01-31' }
+		await nextUpdate()
+		await nextUpdate()
+		await expectNoA11yViolations(host)
 	})
 
 	it('omits empty dates from FormData', async () => {

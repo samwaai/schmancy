@@ -3,6 +3,7 @@ import './form'
 import '../input/input'
 import '../button/button'
 import '../checkbox/checkbox'
+import { expectNoA11yViolations } from '../test-utils/a11y'
 import type SchmancyForm from './form'
 import type { SchmancyFormSubmitDetail } from './form'
 
@@ -102,6 +103,34 @@ describe('schmancy-form', () => {
 		await nextUpdate()
 
 		expect(submitted).toBe(true)
+	})
+
+	it('has no axe-core a11y violations when idle', async () => {
+		host.innerHTML = `
+			<schmancy-form>
+				<schmancy-input name="email" label="Email" required></schmancy-input>
+				<schmancy-button type="submit">Send</schmancy-button>
+			</schmancy-form>
+		`
+		await nextUpdate()
+		await nextUpdate()
+		await expectNoA11yViolations(host)
+	})
+
+	it('has no axe-core a11y violations after invalid submit (live region populated)', async () => {
+		host.innerHTML = `
+			<schmancy-form>
+				<schmancy-input name="email" label="Email" required></schmancy-input>
+				<schmancy-button type="submit">Send</schmancy-button>
+			</schmancy-form>
+		`
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
+		await nextUpdate()
+		await nextUpdate()
+		sf.setFormError('Server says no')
+		await nextUpdate()
+		await nextUpdate()
+		await expectNoA11yViolations(host)
 	})
 
 	it('dispatches a single submit event (no double-fire)', async () => {
