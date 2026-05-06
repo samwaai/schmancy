@@ -21,8 +21,16 @@ export const SCHMANCY_FORM_FIELD = Symbol.for('schmancy.form-field')
  */
 export const FIELD_CONNECT_EVENT = 'schmancy:field:connect'
 
-/** Validation modes. `dirty` is the default per the Revolute UX contract. */
-export type ValidateOn = 'always' | 'touched' | 'dirty' | 'submitted'
+/**
+ * Validation modes.
+ * - `dirty` (default per Revolute) — show errors only after value diverged.
+ * - `touched` — show errors after first blur, even if value unchanged.
+ * - `always` — show errors immediately (live search).
+ * - `submitted` — hold all errors until submit (wizard step).
+ * - `length` — fire validation only when `value.length` reaches `maxlength`
+ *   (Stripe pattern for predictable-length fields: ZIP, phone, card number).
+ */
+export type ValidateOn = 'always' | 'touched' | 'dirty' | 'submitted' | 'length'
 
 /**
  * Per-field error-message override map. Keys are `ValidityState` flag names;
@@ -285,6 +293,17 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 					return this.dirty
 				case 'submitted':
 					return false
+				case 'length':
+					// Predictable-length fields: validate once value reaches the
+					// maxlength constraint. Stripe pattern. Falls back to dirty
+					// if no maxlength is set.
+					if (typeof this.value === 'string') {
+						const max = (this as unknown as { maxlength?: number }).maxlength
+						if (typeof max === 'number' && max > 0) {
+							return this.value.length >= max
+						}
+					}
+					return this.dirty
 			}
 		}
 

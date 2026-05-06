@@ -98,6 +98,27 @@ describe('schmancy-input', () => {
 		expect(inp.matches(':state(pattern-mismatch)')).toBe(true)
 	})
 
+	it('validateOn=length shows errors only when value reaches maxlength', async () => {
+		host.innerHTML = `<schmancy-input label="ZIP" maxlength="5" pattern="[0-9]{5}" validateOn="length" value="12"></schmancy-input>`
+		const inp = host.querySelector('schmancy-input') as HTMLElement & {
+			value: string
+			error: boolean
+			validateOn: string
+			updateComplete: Promise<boolean>
+		}
+		await inp.updateComplete
+		await nextUpdate()
+		// Below maxlength: gate closed.
+		expect(inp.error).toBe(false)
+
+		// Reach maxlength with non-matching pattern: gate opens, error shows.
+		inp.value = 'abcde'
+		await inp.updateComplete
+		await nextUpdate()
+		await nextUpdate()
+		expect(inp.error).toBe(true)
+	})
+
 	it('errorMessages overrides the default validity message (i18n)', async () => {
 		host.innerHTML = `<schmancy-input label="Email" type="email" required></schmancy-input>`
 		const inp = host.querySelector('schmancy-input') as HTMLElement & {
