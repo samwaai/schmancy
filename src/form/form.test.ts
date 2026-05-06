@@ -228,6 +228,46 @@ describe('schmancy-form', () => {
 		expect(liveRegion.textContent?.trim()).toBe('')
 	})
 
+	it('clearSubmitted() resets the submitted flag without clearing values', async () => {
+		host.innerHTML = `
+			<schmancy-form>
+				<schmancy-input name="email" required></schmancy-input>
+				<schmancy-button type="submit">Send</schmancy-button>
+			</schmancy-form>
+		`
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
+		const inp = host.querySelector('schmancy-input') as HTMLElement & {
+			value: string
+			submitted: boolean
+			error: boolean
+			updateComplete: Promise<boolean>
+		}
+		await inp.updateComplete
+		await nextUpdate()
+
+		// Fail submit so submitted flag flips and error is displayed.
+		const btn = host.querySelector('schmancy-button[type=submit]') as HTMLElement
+		btn.click()
+		await nextUpdate()
+		await nextUpdate()
+		expect(inp.submitted).toBe(true)
+		expect(inp.error).toBe(true)
+
+		// Type something so the field is dirty.
+		inp.value = 'me@example.com'
+		await nextUpdate()
+		await nextUpdate()
+
+		// Step "back" — clearSubmitted resets the submit-driven mode but
+		// leaves dirty/value/touched alone.
+		sf.clearSubmitted()
+		await nextUpdate()
+		await nextUpdate()
+		expect(inp.submitted).toBe(false)
+		expect(inp.value).toBe('me@example.com') // value preserved
+		expect(sf.matches(':state(idle)')).toBe(true)
+	})
+
 	it('setFieldError sets custom validity and forces error display', async () => {
 		host.innerHTML = `
 			<schmancy-form>

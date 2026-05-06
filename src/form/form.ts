@@ -270,6 +270,26 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 		this._broadcastStatus('error', message)
 	}
 
+	/**
+	 * Clear the `submitted` flag on every registered field without resetting
+	 * their values. Wizard pattern: stepping back from a later step should not
+	 * leave the earlier step's fields in aggressive "show all errors" mode
+	 * (which `submitted = true` triggers via the `_shouldShowError()` gate).
+	 *
+	 * Pristine fields with `validateOn: 'dirty'` go quiet again. Fields the
+	 * user actually dirtied keep showing their errors (correct UX — those are
+	 * still genuine mistakes the user can see).
+	 */
+	public clearSubmitted(): void {
+		this._activeFields.forEach(f => f.clearSubmitted())
+		formSubmitState.set({
+			...formSubmitState.value,
+			status: 'idle',
+			error: null,
+		})
+		this._broadcastStatus('idle')
+	}
+
 	/** Programmatically submit via the native submitter pipeline. */
 	public submit(): boolean {
 		const form = this.shadowRoot?.querySelector('form')

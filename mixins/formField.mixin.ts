@@ -69,6 +69,12 @@ export interface IFormFieldMixin extends Element {
 	markTouched(): void
 	/** Mark the field as submitted (called by `<schmancy-form>` on submit). */
 	markSubmitted(): void
+	/**
+	 * Clear the `submitted` flag without resetting value/touched/error.
+	 * Used by wizards: stepping back from step N to step N-1 should not
+	 * leave step N-1's fields in aggressive "show all errors" mode.
+	 */
+	clearSubmitted(): void
 
 	/**
 	 * Whether the gate for showing validation errors is open right now. Exposed
@@ -178,6 +184,10 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 
 		markSubmitted(): void {
 			if (!this.submitted) this.submitted = true
+		}
+
+		clearSubmitted(): void {
+			if (this.submitted) this.submitted = false
 		}
 
 		/**
