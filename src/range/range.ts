@@ -1,18 +1,17 @@
-import { SchmancyElement } from '@mixins/index'
-import { css, html } from 'lit'
+import { css, html, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
+import { SchmancyFormField } from '@mixins/index'
 
 export type SchmancyRangeChangeEvent = CustomEvent<{ value: number }>
 
 /**
  * @element schmancy-range
  * Range input (numeric slider).
- * @fires change - Fires on value change with { value: number }
+ * @fires change - Fires on value change with `{ value: number }`.
  */
 @customElement('schmancy-range')
-export class SchmancyRange extends SchmancyElement {
-	static styles = [css`
+export class SchmancyRange extends SchmancyFormField(css`
 	input[type='range'] {
 		-webkit-appearance: none;
 		appearance: none;
@@ -54,16 +53,35 @@ export class SchmancyRange extends SchmancyElement {
 		background: var(--color-primary, #6750a4);
 		cursor: pointer;
 	}
-`];
-	@property({ type: Number }) min = 0
-	@property({ type: Number }) max = 1
-	@property({ type: Number }) step = 0.01
-	@property({ type: Number }) value = 0
-	@property({ type: String }) label?: string
-	@property({ type: Boolean }) disabled = false
+`) {
+	// `formAssociated`, `internals`, `name`, `disabled`, `required`, `id`,
+	// `label`, `error`, `validationMessage`, `validateOn`, touched/dirty/submitted,
+	// `markTouched/markSubmitted`, `formResetCallback`, FIELD_CONNECT_EVENT
+	// dispatch — all from the mixin.
+
+	@property({ type: Number }) min: number = 0
+	@property({ type: Number }) max: number = 1
+	@property({ type: Number }) step: number = 0.01
+
+	/** Numeric value — narrowed override of the mixin's wide value union. */
+	@property({ type: Number, reflect: true })
+	override value: number = 0
 
 	private get progress(): string {
 		return `${((this.value - this.min) / (this.max - this.min)) * 100}%`
+	}
+
+	override willUpdate(changed: PropertyValues): void {
+		super.willUpdate(changed)
+		if (changed.has('value') || changed.has('name')) {
+			this.internals?.setFormValue(String(this.value))
+		}
+	}
+
+	/** FormData contributes the value as a string (native range input convention). */
+	override toFormEntries(): Array<[string, FormDataEntryValue]> {
+		if (!this.name || this.disabled) return []
+		return [[this.name, String(this.value)]]
 	}
 
 	render() {
@@ -88,7 +106,8 @@ export class SchmancyRange extends SchmancyElement {
 					style="--range-progress: ${this.progress}"
 					@input=${(e: Event) => {
 						this.value = Number((e.target as HTMLInputElement).value)
-						this.dispatchEvent(new CustomEvent('change', { detail: { value: this.value }, bubbles: true, composed: true }))
+						this.markTouched()
+						this.emitChange({ value: this.value })
 					}}
 				/>
 			</div>
