@@ -18,7 +18,20 @@ const getDirectories = async (source: string) =>
 		.map(dirent => dirent.name)
 		.filter(name => !NON_SHIPPED.has(name))
 
-const components = await getDirectories(resolve(__dirname, './src/'))
+const topLevelComponents = await getDirectories(resolve(__dirname, './src/'))
+
+/**
+ * Form fields live under `src/form/fields/<name>/` per the topology plan.
+ * They still publish as top-level entries (`@mhmo91/schmancy/input` resolves
+ * to `dist/input.js`) so consumer import paths are stable across the move.
+ */
+const formFieldComponents = await getDirectories(
+	resolve(__dirname, './src/form/fields/'),
+).catch(() => [] as string[])
+
+const components = topLevelComponents.filter(
+	name => !formFieldComponents.includes(name),
+)
 
 // Watch mode keeps existing dist/ files so consumers (e.g. the parent
 // monorepo's web vite server) never see a missing dist/index.js between
@@ -29,10 +42,24 @@ export default defineConfig({
 	root: resolve(__dirname),
 	publicDir: resolve(__dirname, './public'),
 	resolve: {
-		alias: {
-			'@schmancy': resolve(__dirname, '/src'),
-			'@mixins': resolve(__dirname, '/mixins'),
-		},
+		alias: [
+			// Field components route to their new home under src/form/fields/<name>/
+			// (set BEFORE the catch-all so they win).
+			...['input', 'textarea', 'select', 'autocomplete', 'checkbox', 'switch', 'radio-group', 'date-range', 'range'].flatMap(
+				name => [
+					{
+						find: new RegExp(`^@schmancy/${name}$`),
+						replacement: resolve(__dirname, `./src/form/fields/${name}/index.ts`),
+					},
+					{
+						find: new RegExp(`^@schmancy/${name}/(.*)$`),
+						replacement: resolve(__dirname, `./src/form/fields/${name}/$1`),
+					},
+				],
+			),
+			{ find: /^@schmancy\/(.*)$/, replacement: resolve(__dirname, './src/$1') },
+			{ find: /^@mixins\/(.*)$/, replacement: resolve(__dirname, './mixins/$1') },
+		],
 	},
 	plugins: [tailwindcss()],
 	build: {
@@ -69,16 +96,28 @@ export default defineConfig({
 				}
 			: null,
 		lib: {
-			entry: components.reduce(
-				(acc, current) => ({
-					...acc,
-					[current]: resolve(__dirname, `./src/${current}/index.ts`),
-				}),
-				{
-					index: resolve(__dirname, './src/index.ts'),
-					mixins: resolve(__dirname, './mixins/index.ts'),
-				},
-			),
+			entry: {
+				...components.reduce(
+					(acc, current) => ({
+						...acc,
+						[current]: resolve(__dirname, `./src/${current}/index.ts`),
+					}),
+					{
+						index: resolve(__dirname, './src/index.ts'),
+						mixins: resolve(__dirname, './mixins/index.ts'),
+					},
+				),
+				// Form-field entries — sourced from src/form/fields/<name>/ but
+				// emitted as top-level dist/<name>.js to preserve the consumer
+				// import surface (`@mhmo91/schmancy/input` → `dist/input.js`).
+				...formFieldComponents.reduce(
+					(acc, current) => ({
+						...acc,
+						[current]: resolve(__dirname, `./src/form/fields/${current}/index.ts`),
+					}),
+					{} as Record<string, string>,
+				),
+			},
 		},
 		sourcemap: 'hidden',
 		rollupOptions: {

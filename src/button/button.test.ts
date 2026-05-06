@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import './button'
 import '../form/form'
-import '../input/input'
+import '../form/fields/input/input'
 import { expectNoA11yViolations } from '../test-utils/a11y'
 import type { SchmancyFormSubmitDetail } from '../form/form'
 

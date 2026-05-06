@@ -4,7 +4,7 @@ import { Subject, fromEvent, takeUntil } from 'rxjs'
 import style from './radio-group.scss?inline'
 import { SchmancyElement } from '@mixins/index'
 import { when } from 'lit/directives/when.js'
-import { FormFieldMixin } from '../../mixins/formField.mixin'
+import { FormFieldMixin } from '@mixins/formField.mixin'
 
 export type SchmancyRadioGroupOption = {
 	label: string

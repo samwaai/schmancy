@@ -18,10 +18,24 @@ import schmancyManifestPlugin from './plugins/vite-plugin-schmancy-manifest'
  */
 export default defineConfig({
 	resolve: {
-		alias: {
-			'@schmancy': resolve(__dirname, './src'),
-			'@mixins': resolve(__dirname, './mixins'),
-		},
+		alias: [
+			// Field-component aliases route to their new home under
+			// src/form/fields/<name>/ (set BEFORE the catch-all so they win).
+			...['input', 'textarea', 'select', 'autocomplete', 'checkbox', 'switch', 'radio-group', 'date-range', 'range'].flatMap(
+				name => [
+					{
+						find: new RegExp(`^@schmancy/${name}$`),
+						replacement: resolve(__dirname, `./src/form/fields/${name}/index.ts`),
+					},
+					{
+						find: new RegExp(`^@schmancy/${name}/(.*)$`),
+						replacement: resolve(__dirname, `./src/form/fields/${name}/$1`),
+					},
+				],
+			),
+			{ find: /^@schmancy\/(.*)$/, replacement: resolve(__dirname, './src/$1') },
+			{ find: /^@mixins\/(.*)$/, replacement: resolve(__dirname, './mixins/$1') },
+		],
 	},
 	plugins: [tailwindcss(), schmancyManifestPlugin({ root: __dirname })],
 	test: {

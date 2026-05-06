@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { expectNoA11yViolations } from '../test-utils/a11y'
+import { expectNoA11yViolations } from '../../../test-utils/a11y'
 import './checkbox'
 
 const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))

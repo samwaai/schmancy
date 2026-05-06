@@ -1,7 +1,7 @@
 import { SchmancyElement } from '@mixins/index'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { FormFieldMixin } from '../../mixins/formField.mixin'
+import { FormFieldMixin } from '@mixins/formField.mixin'
 import { fromEvent, takeUntil } from 'rxjs'
 
 /**

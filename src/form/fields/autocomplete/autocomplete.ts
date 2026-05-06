@@ -23,9 +23,9 @@ import {
 import style from './autocomplete.scss?inline'
 
 // Import the similarity function (or include it inline)
-import { similarity } from '../utils/search'
+import { similarity } from '../../../utils/search'
 // Import chip component for multi-select display
-import '../chips/input-chip'
+import '../../../chips/input-chip'
 
 export type SchmancyAutocompleteChangeEvent = CustomEvent<{
     value: string | string[]

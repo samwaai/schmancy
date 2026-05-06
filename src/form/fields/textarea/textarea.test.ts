@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import './textarea'
-import { expectNoA11yViolations } from '../test-utils/a11y'
+import { expectNoA11yViolations } from '../../../test-utils/a11y'
 
 const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
 
