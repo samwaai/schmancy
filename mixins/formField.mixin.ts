@@ -287,13 +287,12 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 				}
 			}
 
-			if (changedProps.has('error') || changedProps.has('validationMessage')) {
-				if (this.error && this.validationMessage) {
-					this.internals?.setValidity({ customError: true }, this.validationMessage)
-				} else {
-					this.internals?.setValidity({})
-				}
-			}
+			// Note: we do not write to `internals.setValidity` from willUpdate
+			// based on `error` / `validationMessage` changes. `checkValidity`
+			// and `setCustomValidity` are the sole writers — overwriting the
+			// validity flags from willUpdate would clobber structured flags
+			// set by subclass overrides (e.g. input.ts surfaces typeMismatch /
+			// patternMismatch / tooShort / etc.).
 
 			if (changedProps.has('error')) {
 				if (this.error) this.internals?.states.add('invalid')

@@ -57,6 +57,47 @@ describe('schmancy-input', () => {
 		expect(inp.error).toBe(false) // pristine → no error
 	})
 
+	it('surfaces typeMismatch via internals.validity for type=email', async () => {
+		host.innerHTML = `<schmancy-input label="Email" type="email" value="not-an-email"></schmancy-input>`
+		const inp = host.querySelector('schmancy-input') as HTMLElement & {
+			internals?: ElementInternals
+			markSubmitted(): void
+			checkValidity(): boolean
+			updateComplete: Promise<boolean>
+		}
+		await inp.updateComplete
+		await nextUpdate()
+		// Ensure the inner native input has rendered with the value before we
+		// inspect validity (Lit binds .value via property at render time).
+		const innerInput = inp.shadowRoot?.querySelector('input') as HTMLInputElement
+		expect(innerInput.value).toBe('not-an-email')
+		expect(innerInput.validity.typeMismatch).toBe(true)
+		inp.markSubmitted()
+		// Direct call to ensure platform validity is synced.
+		inp.checkValidity()
+		await nextUpdate()
+		await nextUpdate()
+		expect(inp.internals?.validity?.typeMismatch).toBe(true)
+		expect(inp.matches(':state(type-mismatch)')).toBe(true)
+		expect(inp.matches(':state(value-missing)')).toBe(false)
+	})
+
+	it('surfaces patternMismatch via internals.validity', async () => {
+		host.innerHTML = `<schmancy-input label="Code" pattern="[A-Z]{3}" value="abc"></schmancy-input>`
+		const inp = host.querySelector('schmancy-input') as HTMLElement & {
+			internals?: ElementInternals
+			markSubmitted(): void
+			updateComplete: Promise<boolean>
+		}
+		await inp.updateComplete
+		await nextUpdate()
+		inp.markSubmitted()
+		await nextUpdate()
+		await nextUpdate()
+		expect(inp.internals?.validity?.patternMismatch).toBe(true)
+		expect(inp.matches(':state(pattern-mismatch)')).toBe(true)
+	})
+
 	it('has no axe-core a11y violations (idle, with label)', async () => {
 		host.innerHTML = `<schmancy-input label="Email address" type="email"></schmancy-input>`
 		await nextUpdate()

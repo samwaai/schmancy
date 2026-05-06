@@ -244,14 +244,88 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	// `formResetCallback` → `resetForm()` handles reset.
 
 	/**
-	 * Check validity without showing validation UI.
-	 * The mixin's `_shouldShowError()` gate decides display; this just folds in
-	 * the inner native input's validity state.
+	 * Check validity. Folds in the inner native input's structured
+	 * `ValidityState` flags (`typeMismatch`, `patternMismatch`, `tooShort`,
+	 * `tooLong`, `rangeUnderflow`, `rangeOverflow`, `stepMismatch`, `badInput`)
+	 * via `internals.setValidity` so consumers can target specific flags via
+	 * `field.validity.<flag>` and `:state(value-missing|type-mismatch|…)`.
+	 *
+	 * The visual `error` flag is still gated by the mixin's `_shouldShowError()`.
 	 */
 	public override checkValidity() {
-		const inputValid = this.inputRef.value?.checkValidity() ?? true
+		// Prefer @query (always live) over @ref (may lag during initial paint).
+		const native = this.inputElement ?? this.inputRef.value
+		const v = native?.validity
+		if (v && !v.valid) {
+			// Surface the native flags. valueMissing also surfaces here when
+			// `required` + empty — overrides the mixin's coarse check.
+			const flags: ValidityStateFlags = {
+				valueMissing: v.valueMissing || undefined,
+				typeMismatch: v.typeMismatch || undefined,
+				patternMismatch: v.patternMismatch || undefined,
+				tooShort: v.tooShort || undefined,
+				tooLong: v.tooLong || undefined,
+				rangeUnderflow: v.rangeUnderflow || undefined,
+				rangeOverflow: v.rangeOverflow || undefined,
+				stepMismatch: v.stepMismatch || undefined,
+				badInput: v.badInput || undefined,
+				customError: v.customError || undefined,
+			}
+			this.internals?.setValidity(
+				flags,
+				native.validationMessage || this.validationMessage || 'Invalid value',
+			)
+			if (this._shouldShowError()) {
+				this.error = true
+				if (!this.validationMessage) this.validationMessage = native.validationMessage
+				// Mirror flags into :state() so CSS can target specifics.
+				for (const flag of [
+					'value-missing',
+					'type-mismatch',
+					'pattern-mismatch',
+					'too-short',
+					'too-long',
+					'range-underflow',
+					'range-overflow',
+					'step-mismatch',
+					'bad-input',
+				]) {
+					this.internals?.states.delete(flag)
+				}
+				if (v.valueMissing) this.internals?.states.add('value-missing')
+				if (v.typeMismatch) this.internals?.states.add('type-mismatch')
+				if (v.patternMismatch) this.internals?.states.add('pattern-mismatch')
+				if (v.tooShort) this.internals?.states.add('too-short')
+				if (v.tooLong) this.internals?.states.add('too-long')
+				if (v.rangeUnderflow) this.internals?.states.add('range-underflow')
+				if (v.rangeOverflow) this.internals?.states.add('range-overflow')
+				if (v.stepMismatch) this.internals?.states.add('step-mismatch')
+				if (v.badInput) this.internals?.states.add('bad-input')
+			}
+			return false
+		}
+
+		// Native says valid — but the mixin's `required` check might still
+		// fire (mixin checks `value === ''` directly, native may treat empty
+		// differently for type=email/url with no value).
 		const parentValid = super.checkValidity()
-		return inputValid && parentValid
+		if (parentValid) {
+			// Clear specific-flag :state() entries.
+			for (const flag of [
+				'value-missing',
+				'type-mismatch',
+				'pattern-mismatch',
+				'too-short',
+				'too-long',
+				'range-underflow',
+				'range-overflow',
+				'step-mismatch',
+				'bad-input',
+			]) {
+				this.internals?.states.delete(flag)
+			}
+		}
+		return parentValid
 	}
 
 	/**
