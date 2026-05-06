@@ -27,13 +27,14 @@ class SchmancyCheckboxElement extends SchmancyFormField() {
 	// FIELD_CONNECT_EVENT dispatch — all from the mixin.
 
 	/**
-	 * Narrowed `value` — checkbox is boolean, not the mixin's wide union.
-	 * @attr {boolean} value
+	 * Boolean checked state. Test contract: `cb.value = true` flips the state.
+	 * The FormData *string* is read from `true-value` attribute (or `'on'`
+	 * default) — kept separate from `value` to keep the boolean-state ergonomic.
 	 */
 	@property({ type: Boolean, reflect: true })
 	override value: boolean = false
 
-	/** Alias for `value` — common consumer-facing name. */
+	/** Alias for `value` for read-side ergonomics. */
 	@property({ type: Boolean })
 	get checked(): boolean {
 		return this.value
@@ -48,27 +49,24 @@ class SchmancyCheckboxElement extends SchmancyFormField() {
 	@property({ type: String })
 	size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' = 'md'
 
+	private get _trueValue(): string {
+		return this.getAttribute('true-value') ?? 'on'
+	}
+
 	override willUpdate(changed: PropertyValues): void {
 		super.willUpdate(changed)
 		if (changed.has('value') || changed.has('name')) {
-			// FormData expects the value attribute (or 'on') for a checked box;
-			// nothing for an unchecked one — overrides the mixin's default
-			// scalar setFormValue call.
-			this.internals?.setFormValue(this.value ? (this.getAttribute('true-value') ?? 'on') : null)
-		}
-		if (changed.has('value')) {
+			this.internals?.setFormValue(this.value ? this._trueValue : null)
 			if (this.value) this.internals?.states.add('checked')
 			else this.internals?.states.delete('checked')
+			this.checkValidity()
+		}
+		if (changed.has('required') || changed.has('disabled')) {
+			this.checkValidity()
 		}
 	}
 
-	/**
-	 * Override — checkbox validity is `checked === true` when required, not the
-	 * mixin's "non-empty value" semantics. Platform validity (`internals.setValidity`)
-	 * is set unconditionally so `form.checkValidity()` and `:invalid` reflect
-	 * the truth; the `_shouldShowError()` gate only controls whether the visual
-	 * `this.error` flag flips (which drives the component's own UI).
-	 */
+	/** Checkbox validity is `checked === true` when required. */
 	override checkValidity(): boolean {
 		if (this.disabled) {
 			this.internals?.setValidity({})
@@ -77,28 +75,22 @@ class SchmancyCheckboxElement extends SchmancyFormField() {
 		const isValid = !this.required || this.value === true
 		const message = isValid ? '' : 'Please check this box if you want to proceed.'
 
-		// Platform validity: always reflect the truth so native form aggregation works.
 		this.internals?.setValidity(
 			isValid ? {} : { valueMissing: true },
 			isValid ? undefined : message,
 		)
 
-		// Visual error flag: only flip when the gate is open.
 		if (this._shouldShowError()) {
 			this.error = !isValid
 			this.validationMessage = message
 		}
-
 		return isValid
 	}
 
-	/**
-	 * Override — emit only when checked. An unchecked box contributes nothing
-	 * to FormData (HTML form semantics).
-	 */
+	/** Emit only when checked. */
 	override toFormEntries(): Array<[string, FormDataEntryValue]> {
 		if (!this.name || this.disabled || !this.value) return []
-		return [[this.name, this.getAttribute('true-value') ?? 'on']]
+		return [[this.name, this._trueValue]]
 	}
 
 	render() {

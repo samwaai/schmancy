@@ -1,6 +1,6 @@
-import { SchmancyElement } from '@mixins/index'
-import { css, html, LitElement, nothing } from 'lit'
+import { css, html, LitElement, nothing, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
+import { SchmancyFormField } from '@mixins/index'
 
 export type SchmancySwitchChangeEvent = CustomEvent<{ value: boolean }>
 
@@ -12,16 +12,11 @@ export type SchmancySwitchChangeEvent = CustomEvent<{ value: boolean }>
  *
  * @element schmancy-switch
  * @fires change - `CustomEvent<{ value: boolean }>` when the state changes.
- * @attr checked - Initial checked state (also reflected via `value`).
- * @attr disabled - Disables interaction.
- * @attr required - Requires the switch to be on for form validity.
- * @attr name - Form field name for submission.
  * @csspart track - The background track.
  * @csspart thumb - The moving thumb.
  */
 @customElement('schmancy-switch')
-export class SchmancySwitch extends SchmancyElement {
-	static styles = [css`
+export class SchmancySwitch extends SchmancyFormField(css`
 	:host {
 		display: inline-block;
 	}
@@ -74,77 +69,102 @@ export class SchmancySwitch extends SchmancyElement {
 	@media (prefers-reduced-motion: reduce) {
 		.track, .thumb { transition: none; }
 	}
-`];
-	static formAssociated = true
-	private internals: ElementInternals | undefined
+`) {
+	// `formAssociated`, `internals`, `name`, `disabled`, `required`, `id`,
+	// `label`, `error`, `validationMessage`, `validateOn`, touched/dirty/submitted,
+	// `markTouched/markSubmitted`, `formResetCallback`, `formDisabledCallback`,
+	// FIELD_CONNECT_EVENT dispatch — all from the mixin.
 
-	@property({ type: Boolean, reflect: true }) checked = false
-	@property({ type: Boolean, reflect: true }) disabled = false
-	@property({ type: Boolean, reflect: true }) required = false
-	@property({ type: String }) name = ''
-	@property({ type: String }) value = 'on'
-	@property({ type: String }) label = ''
-
+	// Inner <button> is the focusable surface; route host focus to it.
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		delegatesFocus: true,
 	}
 
-	constructor() {
-		super()
-		try {
-			this.internals = this.attachInternals()
-		} catch {
-			this.internals = undefined
-		}
+	/**
+	 * The string written to FormData when the switch is on. Native
+	 * `<input type=checkbox value="...">` semantics. Defaults to `'on'` to
+	 * match HTML checkbox conventions.
+	 */
+	@property({ type: String, reflect: true })
+	override value: string = 'on'
+
+	/** Boolean on/off state. Native `<input type=checkbox>.checked` semantics. */
+	@property({ type: Boolean, reflect: true })
+	checked: boolean = false
+
+	/** Snapshot of `checked` at first render — drives the `dirty` override. */
+	private _checkedDefault: boolean = false
+
+	override firstUpdated(changed: PropertyValues): void {
+		super.firstUpdated(changed)
+		this._checkedDefault = this.checked
 	}
 
-	get form(): HTMLFormElement | null {
-		return this.internals?.form ?? null
+	/**
+	 * Override the mixin's value-vs-default `dirty` getter — for switch the
+	 * meaningful state is `checked`, not the FormData string.
+	 */
+	override get dirty(): boolean {
+		return this.checked !== this._checkedDefault
 	}
 
-	protected updated(changed: Map<string, unknown>) {
-		super.updated?.(changed)
+	override willUpdate(changed: PropertyValues): void {
+		super.willUpdate(changed)
 		if (changed.has('checked') || changed.has('value') || changed.has('name')) {
+			// Switch contributes `value` to FormData when on, nothing when off
+			// (native checkbox semantics; overrides the mixin's scalar default).
 			this.internals?.setFormValue(this.checked ? this.value : null)
 			if (this.checked) this.internals?.states.add('checked')
 			else this.internals?.states.delete('checked')
+			// Mixin's value-changed branch won't fire `checkValidity` here
+			// (validateOn: 'dirty' gate stays closed until checked diverges).
+			// Sync platform validity explicitly so `form.checkValidity()` is
+			// correct from first render.
+			this.checkValidity()
 		}
-		if (changed.has('required') || changed.has('checked')) {
-			if (this.required && !this.checked) {
-				this.internals?.setValidity({ valueMissing: true }, 'This switch is required.')
-			} else {
-				this.internals?.setValidity({})
-			}
+		if (changed.has('required') || changed.has('disabled')) {
+			this.checkValidity()
 		}
 	}
 
-	formResetCallback() {
-		this.checked = this.hasAttribute('checked')
+	/** Override — switch validity is `checked === true` when required. */
+	override checkValidity(): boolean {
+		if (this.disabled) {
+			this.internals?.setValidity({})
+			return true
+		}
+		const isValid = !this.required || this.checked
+		const message = isValid ? '' : 'This switch is required.'
+
+		this.internals?.setValidity(
+			isValid ? {} : { valueMissing: true },
+			isValid ? undefined : message,
+		)
+
+		if (this._shouldShowError()) {
+			this.error = !isValid
+			this.validationMessage = message
+		}
+		return isValid
 	}
 
-	formDisabledCallback(disabled: boolean) {
-		this.disabled = disabled
+	/** Override — emit only when the switch is on. */
+	override toFormEntries(): Array<[string, FormDataEntryValue]> {
+		if (!this.name || this.disabled || !this.checked) return []
+		return [[this.name, this.value]]
 	}
 
-	public checkValidity(): boolean {
-		return this.internals?.checkValidity() ?? true
-	}
-
-	public reportValidity(): boolean {
-		return this.internals?.reportValidity() ?? true
+	override resetForm(): void {
+		this.checked = this._checkedDefault
+		super.resetForm()
 	}
 
 	private _toggle = () => {
 		if (this.disabled) return
 		this.checked = !this.checked
-		this.dispatchEvent(
-			new CustomEvent('change', {
-				detail: { value: this.checked },
-				bubbles: true,
-				composed: true,
-			}),
-		)
+		this.markTouched()
+		this.emitChange({ value: this.checked })
 	}
 
 	private _onKeydown = (e: KeyboardEvent) => {
