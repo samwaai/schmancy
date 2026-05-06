@@ -1,5 +1,5 @@
 import { CSSResult, LitElement, PropertyValueMap } from 'lit'
-import { property } from 'lit/decorators.js'
+import { property, state } from 'lit/decorators.js'
 import { IBaseMixin } from './baseElement'
 import { Constructor } from './constructor'
 import { ITailwindElementMixin } from './tailwind.mixin'
@@ -11,6 +11,18 @@ import { SchmancyElement } from './SchmancyElement'
  * the global registry so detection works across module realms/bundles.
  */
 export const SCHMANCY_FORM_FIELD = Symbol.for('schmancy.form-field')
+
+/**
+ * Composed event a field dispatches in `connectedCallback`. `<schmancy-form>`
+ * subscribes via `fromEvent(this, FIELD_CONNECT_EVENT)` and adds the field to
+ * its registry. No matching disconnect event — composed events from a
+ * disconnected node have an empty composed path; cleanup is via `isConnected`
+ * filter at iteration time.
+ */
+export const FIELD_CONNECT_EVENT = 'schmancy:field:connect'
+
+/** Validation modes. `dirty` is the default per the Revolute UX contract. */
+export type ValidateOn = 'always' | 'touched' | 'dirty' | 'submitted'
 
 /**
  * Interface defining the properties and methods that the FormFieldMixin adds.
@@ -27,11 +39,27 @@ export interface IFormFieldMixin extends Element {
 	hint?: string
 	id: string
 
+	/** Set to `true` once the user has blurred the field at least once. */
+	touched: boolean
+	/** `true` when the current value differs from the captured default. */
+	dirty: boolean
+	/** Inverse of `dirty`. */
+	pristine: boolean
+	/** Set to `true` by `<schmancy-form>` on submit (forces error display). */
+	submitted: boolean
+	/** Validation mode — controls when errors display. Default `'dirty'`. */
+	validateOn: ValidateOn
+
 	form: HTMLFormElement | null
 
 	checkValidity(): boolean
 	reportValidity(): boolean
 	setCustomValidity(message: string): void
+
+	/** Mark the field as touched (component should call on blur). */
+	markTouched(): void
+	/** Mark the field as submitted (called by `<schmancy-form>` on submit). */
+	markSubmitted(): void
 
 	toFormEntries(): Array<[string, FormDataEntryValue]>
 	resetForm(): void
@@ -102,6 +130,58 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		@property({ reflect: true })
 		override id: string = `schmancy-field-${Date.now()}-${Math.floor(Math.random() * 1000)}`
 
+		// ----- Validation UX state (Revolute contract) -----
+
+		/** True after the user has blurred the field at least once. */
+		@state() touched: boolean = false
+
+		/** Set by `<schmancy-form>` on submit; persists until `resetForm()`. */
+		@state() submitted: boolean = false
+
+		/**
+		 * When errors display. Default `'dirty'` — the autofocus+cancel anti-pattern
+		 * is avoided because pristine fields never show errors until submit.
+		 */
+		@property({ type: String, reflect: true })
+		validateOn: ValidateOn = 'dirty'
+
+		/** True when value has been changed from the captured default. */
+		get dirty(): boolean {
+			return this._defaultValue !== undefined && this.value !== this._defaultValue
+		}
+
+		get pristine(): boolean {
+			return !this.dirty
+		}
+
+		markTouched(): void {
+			if (!this.touched) this.touched = true
+		}
+
+		markSubmitted(): void {
+			if (!this.submitted) this.submitted = true
+		}
+
+		/**
+		 * Whether `checkValidity()` should display errors right now.
+		 * `submitted` overrides every mode — once a submit attempt happens, the
+		 * field stays in live-correction mode (Phase 3) for the rest of the
+		 * session, and `resetForm()` is the only way back.
+		 */
+		protected _shouldShowError(): boolean {
+			if (this.submitted) return true
+			switch (this.validateOn) {
+				case 'always':
+					return true
+				case 'touched':
+					return this.touched
+				case 'dirty':
+					return this.dirty
+				case 'submitted':
+					return false
+			}
+		}
+
 		constructor(...args: any[]) {
 			super(...args)
 			try {
@@ -109,6 +189,18 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 			} catch {
 				this.internals = undefined
 			}
+		}
+
+		override connectedCallback(): void {
+			super.connectedCallback()
+			// Register with any ancestor <schmancy-form> via composed event.
+			this.dispatchEvent(
+				new CustomEvent(FIELD_CONNECT_EVENT, {
+					detail: this,
+					bubbles: true,
+					composed: true,
+				}),
+			)
 		}
 
 		/** The form this element is associated with (native FACE behavior). */
@@ -126,6 +218,29 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 
 			if (changedProps.has('value')) {
 				this.internals?.setFormValue(this.value as string | File | FormData | null)
+				// :state(dirty) tracks value-vs-default; recompute on every value change.
+				if (this.dirty) this.internals?.states.add('dirty')
+				else this.internals?.states.delete('dirty')
+				// Phase 3 — live correction. Re-validate on every keystroke once the
+				// field is in error-display mode (touched/dirty/submitted).
+				if (this._shouldShowError()) this.checkValidity()
+			}
+
+			if (changedProps.has('touched')) {
+				if (this.touched) this.internals?.states.add('touched')
+				else this.internals?.states.delete('touched')
+				// Phase 2 — blur on a dirty field. Validate to surface the error.
+				if (this.touched && this.dirty) this.checkValidity()
+			}
+
+			if (changedProps.has('submitted')) {
+				if (this.submitted) {
+					this.internals?.states.add('submitted')
+					// Phase 4 — submit forces error display regardless of dirty/touched.
+					this.checkValidity()
+				} else {
+					this.internals?.states.delete('submitted')
+				}
 			}
 
 			if (changedProps.has('error') || changedProps.has('validationMessage')) {
@@ -136,15 +251,21 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 				}
 			}
 
-			// Broadcast standard field states for consumer CSS: :state(invalid),
-			// :state(required), :state(disabled), :state(readonly).
 			if (changedProps.has('error')) {
 				if (this.error) this.internals?.states.add('invalid')
 				else this.internals?.states.delete('invalid')
+				// ARIA reflection through ElementInternals reaches AT through shadow DOM.
+				if (this.internals) this.internals.ariaInvalid = this.error ? 'true' : 'false'
 			}
-			if (changedProps.has('required')) {
+
+			if (changedProps.has('required') || changedProps.has('disabled')) {
 				if (this.required) this.internals?.states.add('required')
 				else this.internals?.states.delete('required')
+				// Suppress aria-required when disabled — disabled fields shouldn't
+				// announce as required to assistive tech.
+				if (this.internals) {
+					this.internals.ariaRequired = this.required && !this.disabled ? 'true' : 'false'
+				}
 			}
 			if (changedProps.has('disabled')) {
 				if (this.disabled) this.internals?.states.add('disabled')
@@ -183,6 +304,8 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 			this.value = this._defaultValue ?? ''
 			this.error = false
 			this.validationMessage = ''
+			this.touched = false
+			this.submitted = false
 			this.internals?.setValidity({})
 		}
 
@@ -202,12 +325,25 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 
 		checkValidity(): boolean {
 			if (this.disabled) return true
-			if (this.required && (this.value === '' || this.value === undefined || this.value === null)) {
-				this.error = true
-				this.validationMessage = 'This field is required'
-				return false
+
+			const requiredFailed =
+				this.required && (this.value === '' || this.value === undefined || this.value === null)
+			const nativeValid = this.internals?.checkValidity() ?? true
+			const isValid = !requiredFailed && nativeValid
+
+			// Gate error *display* behind _shouldShowError(). The truth value
+			// returned to the caller is always accurate; only `this.error` is
+			// suppressed for pristine fields under `validateOn: 'dirty'`.
+			if (this._shouldShowError()) {
+				this.error = !isValid
+				if (!isValid && !this.validationMessage) {
+					this.validationMessage = requiredFailed ? 'This field is required' : 'Invalid value'
+				} else if (isValid) {
+					this.validationMessage = ''
+				}
 			}
-			return this.internals?.checkValidity() ?? true
+
+			return isValid
 		}
 
 		reportValidity(): boolean {

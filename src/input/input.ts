@@ -148,16 +148,6 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	public size: InputSize = 'md'
 
 	/**
-	 * Controls when validation should show.
-	 * - 'always' - Always show validation
-	 * - 'touched' - Only show after field has been focused and then blurred
-	 * - 'dirty' - Only show after value has changed
-	 * - 'submitted' - Only show after form submission
-	 */
-	@property({ type: String })
-	public validateOn: 'always' | 'touched' | 'dirty' | 'submitted' = 'touched'
-
-	/**
 	 * For datalist support
 	 */
 	@property({ type: String })
@@ -180,23 +170,8 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	@state()
 	private isAutofilled = false
 
-	/**
-	 * Track user interaction state for validation
-	 */
-	@state()
-	private touched = false
-
-	@state()
-	private dirty = false
-
-	@state()
-	private submitted = false
-
-	/**
-	 * Store the default value for reset behavior
-	 */
-	@state()
-	private defaultValue = ''
+	// `touched`, `dirty`, `submitted`, and `validateOn` come from FormFieldMixin.
+	// `_defaultValue` (mixin) replaces the old `defaultValue` field.
 
 	// ----------------------------
 	//  D) Form-associated logic
@@ -205,8 +180,6 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 		...LitElement.shadowRootOptions,
 		delegatesFocus: true, // so focus() goes to <input>
 	}
-
-	private formResetObserver?: MutationObserver
 
 	/**
 	 * If user did not provide an ID, auto-generate one so <label for="...">
@@ -220,79 +193,20 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	}
 
 
-	protected override updated(changedProps: Map<string, unknown>) {
-		super.updated(changedProps)
+	// `updated()` removed — FormFieldMixin's `willUpdate` recomputes `dirty`,
+	// triggers `checkValidity()` when `_shouldShowError()` is true, and updates
+	// `:state(dirty)` automatically.
+	//
+	// Default value capture is also handled by the mixin (`firstUpdated` sets
+	// `_defaultValue` from `value`).
 
-		// Handle value changes
-		if (changedProps.has('value')) {
-			// If value changes from original default, mark as dirty
-			if (this.value !== this.defaultValue) {
-				this.dirty = true
-			}
-
-			// Update validation state when value changes
-			this.validateInput()
-		}
-
-		// Store default value if this is the first update
-		if (!this.hasUpdated && changedProps.has('value')) {
-			this.defaultValue = this.value
-		}
-	}
-
-	/**
-	 * Connect to the closest form element and set up form integration
-	 */
 	connectedCallback() {
 		super.connectedCallback()
 
-		// Store initial default value for form reset
-		this.defaultValue = this.value
-
-		// Set up form integration
-		this.setupFormIntegration()
-
-		// Setup for external label association
+		// Form reset and submit are now handled by the mixin via FACE callbacks
+		// (`formResetCallback`) and by `<schmancy-form>`'s submit sweep
+		// (`markSubmitted()`). No manual form listeners needed.
 		this.setupExternalLabelAssociation()
-	}
-
-	/**
-	 * Set up form integration with ElementInternals
-	 */
-	private setupFormIntegration() {
-		if (this.form) {
-			// Listen for form reset events
-			this.formResetObserver = new MutationObserver(mutations => {
-				for (const mutation of mutations) {
-					if (mutation.type === 'attributes' && mutation.attributeName === 'reset') {
-						this.resetToDefault()
-					}
-				}
-			})
-
-			// Observe the form for reset events
-			this.formResetObserver.observe(this.form, {
-				attributes: true,
-				childList: false,
-				subtree: false,
-			})
-
-			// Use RxJS for form reset events
-			fromEvent(this.form, 'reset')
-				.pipe(takeUntil(this.disconnecting))
-				.subscribe(() => {
-					this.resetToDefault()
-				})
-
-			// Use RxJS for form submit events to mark field as submitted
-			fromEvent(this.form, 'submit')
-				.pipe(takeUntil(this.disconnecting))
-				.subscribe(() => {
-					this.submitted = true
-					// Validate on form submission
-					this.validateInput(true)
-				})
-		}
 	}
 
 	/**
@@ -324,149 +238,39 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 		}
 	}
 
-	disconnectedCallback() {
-		super.disconnectedCallback()
-
-		// Clean up the form observer
-		if (this.formResetObserver) {
-			this.formResetObserver.disconnect()
-		}
-
-		// Note: RxJS subscriptions are automatically cleaned up via takeUntil(this.disconnecting)
-		// No manual removeEventListener calls needed for RxJS-managed events
-	}
+	// `disconnectedCallback`, `resetToDefault`, `shouldShowValidation`, and
+	// `validateInput` are gone — the mixin's `willUpdate` runs `checkValidity()`
+	// at the right moments (Phase 2/3/4 of the validation contract) and
+	// `formResetCallback` → `resetForm()` handles reset.
 
 	/**
-	 * Reset the input to its default state
-	 */
-	private resetToDefault() {
-		this.value = this.defaultValue
-		this.touched = false
-		this.dirty = false
-		this.submitted = false
-		this.error = false
-		this.validationMessage = ''
-		this.dispatchEvent(new CustomEvent('reset', { bubbles: true }))
-	}
-
-	/**
-	 * Determines if validation errors should be shown based on current state
-	 * and validation strategy
-	 */
-	private shouldShowValidation(forceValidation = false): boolean {
-		if (forceValidation) return true
-
-		switch (this.validateOn) {
-			case 'always':
-				return true
-			case 'touched':
-				return this.touched
-			case 'dirty':
-				return this.dirty
-			case 'submitted':
-				return this.submitted
-			default:
-				return this.touched
-		}
-	}
-
-
-	/**
-	 * Validate input based on required, pattern, etc.
-	 * This mimics native validation behavior
-	 */
-	private validateInput(forceValidation = false) {
-		// Skip validation for disabled inputs
-		if (this.disabled) return
-
-		// Only show validation errors if we should based on the validation strategy
-		const shouldValidate = this.shouldShowValidation(forceValidation)
-
-		// Get validity state from internal input if available
-		const validity: ValidityState = this.inputElement?.validity ?? {
-			badInput: false,
-			customError: false,
-			patternMismatch: false,
-			rangeOverflow: false,
-			rangeUnderflow: false,
-			stepMismatch: false,
-			tooLong: false,
-			tooShort: false,
-			typeMismatch: false,
-			valid: true,
-			valueMissing: false,
-		}
-
-		// Check if the input has an actual validation error (not a custom error)
-		const hasError = !validity.valid && !validity.customError
-
-		if (shouldValidate && hasError) {
-			// There's an error and we should show it
-			this.error = true
-			this.validationMessage = this.inputElement?.validationMessage || ''
-		} else if (validity.valid) {
-			// Input is valid, so clear the error state
-			this.error = false
-
-			// Only clear validation message if there's no custom error
-			if (!validity.customError) {
-				this.validationMessage = ''
-			}
-		} else if (!shouldValidate) {
-			// We shouldn't show validation yet, so clear visual error state
-			this.error = false
-		}
-
-		// The mixin will handle updating internals based on error state
-	}
-
-	/**
-	 * Check validity without showing validation UI
+	 * Check validity without showing validation UI.
+	 * The mixin's `_shouldShowError()` gate decides display; this just folds in
+	 * the inner native input's validity state.
 	 */
 	public override checkValidity() {
-		// Check internal input first
 		const inputValid = this.inputRef.value?.checkValidity() ?? true
-
-		// Call parent implementation for basic validation
 		const parentValid = super.checkValidity()
-
 		return inputValid && parentValid
 	}
 
 	/**
-	 * Show validation UI and check validity
+	 * Show validation UI and check validity.
+	 * Marks the field as submitted so the mixin's gate flips to "always show."
 	 */
 	public override reportValidity() {
-		// Mark as touched and submitted to show validation
-		this.touched = true
-		this.submitted = true
-
-		// First check using native input
+		this.markSubmitted()
 		const inputValid = this.inputRef.value?.reportValidity() ?? true
-
-		// Update our component's validation state with force=true
-		this.validateInput(true)
-
-		// Call parent implementation
 		const parentValid = super.reportValidity()
-
 		return inputValid && parentValid
 	}
 
-	/**
-	 * Set a custom validation error message
-	 */
+	/** Set a custom validation error on both the inner input and the mixin. */
 	public override setCustomValidity(message: string) {
-		// Set on the native input
 		if (this.inputRef.value) {
 			this.inputRef.value.setCustomValidity(message)
 		}
-
-		// Call parent implementation
 		super.setCustomValidity(message)
-		
-		// Update error state based on validation strategy
-		this.error = message !== '' && this.shouldShowValidation()
 	}
 
 	// ----------------------------
@@ -515,8 +319,7 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 				// Update component value
 				this.value = eventData.value
 
-				// Mark as dirty when user types
-				this.dirty = this.value !== this.defaultValue
+				// `dirty` is a getter on the mixin (value vs _defaultValue) — no manual set.
 
 				// Fire custom 'input' event with extended details
 				const customEvent = new CustomEvent<EventDetails>('input', {
@@ -534,8 +337,8 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 
 				this.dispatchEvent(customEvent)
 
-				// Run validation like native inputs do on input, but respect the validation strategy
-				this.validateInput()
+				// Mixin's willUpdate runs checkValidity() on value-change when
+				// _shouldShowError() is true — no manual validateInput() call.
 			})
 
 		// Subscribe to native change events (usually on blur)
@@ -551,13 +354,8 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 			)
 			.subscribe(value => {
 				this.value = value
-				this.dirty = this.value !== this.defaultValue
-
-				// Fire regular change event using mixin helper
 				this.emitChange({ value })
-
-				// Run validation on change like native inputs
-				this.validateInput()
+				// Validation runs automatically via mixin's willUpdate.
 			})
 	}
 
@@ -586,13 +384,9 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 		fromEvent<FocusEvent>(this.inputElement, 'blur')
 			.pipe(takeUntil(this.disconnecting))
 			.subscribe(ev => {
-				// Mark as touched when field loses focus
-				this.touched = true
-
-				// Run validation on blur like native inputs, respecting validation strategy
-				if (!this.disabled) {
-					this.validateInput()
-				}
+				// Mark as touched on blur — mixin's willUpdate handles the rest
+				// (validates if dirty, broadcasts :state(touched), etc.).
+				this.markTouched()
 
 				// Create a custom blur event that includes standard props
 				const blurEvent = new CustomEvent('blur', {
@@ -624,7 +418,7 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 				const { value } = ev.target as HTMLInputElement
 				this.value = value
 				this.isAutofilled = true
-				this.dirty = this.value !== this.defaultValue
+				// `dirty` is a getter on the mixin — recomputes from value vs _defaultValue.
 
 				// Dispatch autofill event for integration with autofill systems
 				this.dispatchEvent(
@@ -663,10 +457,9 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 			.subscribe(ev => {
 				const { value } = ev.target as HTMLInputElement
 				
-				// Update value if changed
+				// Update value if changed (mixin recomputes dirty automatically)
 				if (this.value !== value) {
 					this.value = value
-					this.dirty = this.value !== this.defaultValue
 				}
 				
 				// Blur the input to trigger change event naturally
