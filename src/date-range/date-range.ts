@@ -1,9 +1,9 @@
-import { SchmancyElement } from '@mixins/index'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { fromEvent, Subscription, takeUntil, timer } from 'rxjs'
+import { SchmancyFormField } from '@mixins/index'
 import { show } from '../overlay/overlay.service'
 import { detectDateRangeType, formatDateRange } from './date-range-helpers'
 import { DateRangePreset, generatePresetCategories, PresetCategory } from './date-range-presets'
@@ -32,23 +32,23 @@ export type SchmancyDateRangeChangeEvent = CustomEvent<{
  * @fires change - Fired when the date range changes with dateFrom and dateTo values
  */
 @customElement('schmancy-date-range')
-export class SchmancyDateRange extends SchmancyElement {
-	// Core properties
+export class SchmancyDateRange extends SchmancyFormField() {
+	// `name`, `disabled`, `required`, `error`, `validationMessage`, `id`,
+	// `validateOn`, `touched`, `submitted`, `markTouched`, `markSubmitted`,
+	// FACE wiring, FIELD_CONNECT_EVENT dispatch — all from the mixin.
+
 	@property({ type: String }) type: 'date' | 'datetime-local' = 'date'
 	@property({ type: Object }) dateFrom: { label: string; value: string } = { label: 'From', value: '' }
 	@property({ type: Object }) dateTo: { label: string; value: string } = { label: 'To', value: '' }
 	@property({ type: String }) minDate?: string
 	@property({ type: String }) maxDate?: string
 
-	// Enhanced functionality
 	@property({ type: Array }) customPresets: Array<{
 		label: string
 		dateFrom: string
 		dateTo: string
 	}> = []
 	@property({ type: String }) format?: string
-	@property({ type: Boolean }) disabled = false
-	@property({ type: Boolean }) required = false
 	@property({ type: String }) placeholder = 'Select date range'
 	@property({ type: Boolean }) clearable = true
 	@property() step?: 'day' | 'week' | 'month' | 'year' | number
@@ -117,6 +117,89 @@ export class SchmancyDateRange extends SchmancyElement {
 		) {
 			this.updateSelectedDateRange()
 		}
+	}
+
+	override willUpdate(changed: PropertyValues): void {
+		super.willUpdate(changed)
+		if (changed.has('dateFrom') || changed.has('dateTo') || changed.has('name')) {
+			// Multi-entry FACE submission: setFormValue accepts a FormData
+			// object whose entries are appended to the owning form's FormData.
+			// native `new FormData(form)` then sees both `${name}From` and
+			// `${name}To` without any consumer-side parsing.
+			if (this.name && !this.disabled) {
+				const fd = new FormData()
+				if (this.dateFrom?.value) fd.append(`${this.name}From`, this.dateFrom.value)
+				if (this.dateTo?.value) fd.append(`${this.name}To`, this.dateTo.value)
+				this.internals?.setFormValue(fd)
+			} else {
+				this.internals?.setFormValue(null)
+			}
+			this.checkValidity()
+		}
+		if (changed.has('required') || changed.has('disabled')) {
+			this.checkValidity()
+		}
+	}
+
+	/**
+	 * Date-range validity is `both dates non-empty` when required.
+	 * (Order/range constraints are out of scope here — they belong to a
+	 * domain-specific schema layer.)
+	 */
+	override checkValidity(): boolean {
+		if (this.disabled) {
+			this.internals?.setValidity({})
+			return true
+		}
+		const fromEmpty = !this.dateFrom?.value
+		const toEmpty = !this.dateTo?.value
+		const isValid = !this.required || (!fromEmpty && !toEmpty)
+		const message = isValid ? '' : 'Please select a date range.'
+
+		this.internals?.setValidity(
+			isValid ? {} : { valueMissing: true },
+			isValid ? undefined : message,
+		)
+
+		if (this._shouldShowError()) {
+			this.error = !isValid
+			this.validationMessage = message
+		}
+		return isValid
+	}
+
+	/**
+	 * Override — emit `${name}From` and `${name}To` flat-suffix entries (the
+	 * plan's chosen multi-entry encoding; native to JS consumers without
+	 * server-side bracket parsing).
+	 */
+	override toFormEntries(): Array<[string, FormDataEntryValue]> {
+		if (!this.name || this.disabled) return []
+		const entries: Array<[string, FormDataEntryValue]> = []
+		if (this.dateFrom?.value) entries.push([`${this.name}From`, this.dateFrom.value])
+		if (this.dateTo?.value) entries.push([`${this.name}To`, this.dateTo.value])
+		return entries
+	}
+
+	/** `dirty` tracks the underlying date strings, not the wide-union value. */
+	private _dateFromDefault: string = ''
+	private _dateToDefault: string = ''
+	override firstUpdated(changed: PropertyValues): void {
+		super.firstUpdated(changed)
+		this._dateFromDefault = this.dateFrom?.value ?? ''
+		this._dateToDefault = this.dateTo?.value ?? ''
+	}
+	override get dirty(): boolean {
+		return (
+			(this.dateFrom?.value ?? '') !== this._dateFromDefault ||
+			(this.dateTo?.value ?? '') !== this._dateToDefault
+		)
+	}
+
+	override resetForm(): void {
+		this.dateFrom = { ...this.dateFrom, value: this._dateFromDefault }
+		this.dateTo = { ...this.dateTo, value: this._dateToDefault }
+		super.resetForm()
 	}
 
 	private initPresetRanges() {
