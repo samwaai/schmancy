@@ -1,8 +1,8 @@
 import '@material/web/checkbox/checkbox.js'
-import { SchmancyElement } from '@mixins/index'
-import { html, LitElement } from 'lit'
+import { html, LitElement, type PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
+import { SchmancyFormField } from '@mixins/index'
 
 export type schmancyCheckBoxChangeEvent = CustomEvent<{
 	value: boolean
@@ -11,42 +11,31 @@ export type schmancyCheckBoxChangeEvent = CustomEvent<{
 /**
  * @element schmancy-checkbox
  * @slot - The label for the checkbox.
- * @fires valueChange - Event fired when the checkbox value changes.
- **/
-
+ * @fires change - Event fired when the checkbox value changes.
+ */
 @customElement('schmancy-checkbox')
-class SchmancyCheckboxElement extends SchmancyElement {
+class SchmancyCheckboxElement extends SchmancyFormField() {
+	// Inner <md-checkbox> is the focusable surface; route host focus to it.
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		delegatesFocus: true,
 	}
-	static formAssociated = true
-	internals: ElementInternals | undefined
 
-	constructor() {
-		super()
-		try {
-			this.internals = this.attachInternals()
-		} catch {
-			// attachInternals can throw if the element does not support form association
-		}
-	}
-
-	get form() {
-		return this.internals?.form
-	}
+	// FACE wiring (formAssociated, internals, attachInternals), `name`,
+	// `disabled`, `required`, `id`, `label`, `error`, `validationMessage`,
+	// `validateOn`, touched/dirty/submitted, markTouched/markSubmitted,
+	// FIELD_CONNECT_EVENT dispatch — all from the mixin.
 
 	/**
-	 * @attr {boolean} value - The value of the checkbox.
+	 * Narrowed `value` — checkbox is boolean, not the mixin's wide union.
+	 * @attr {boolean} value
 	 */
 	@property({ type: Boolean, reflect: true })
-	value = false
+	override value: boolean = false
 
-	/**
-	 * @attr {boolean} checked - Alternative property for checkbox state (alias for value).
-	 */
+	/** Alias for `value` — common consumer-facing name. */
 	@property({ type: Boolean })
-	get checked() {
+	get checked(): boolean {
 		return this.value
 	}
 	set checked(val: boolean) {
@@ -54,76 +43,63 @@ class SchmancyCheckboxElement extends SchmancyElement {
 	}
 
 	/**
-	 * @attr {boolean} disabled - The disabled state of the checkbox.
-	 */
-	@property({ type: Boolean })
-	disabled = false
-
-	/**
-	 * @attr {boolean} required - The required state of the checkbox.
-	 */
-	@property({ type: Boolean })
-	required = false
-
-	/**
-	 * @attr {string} name - The name of the checkbox.
+	 * M3-aligned sizes: 24dp (xxs) → 32dp (xs) → 40dp (sm) → 48dp (md) → 56dp (lg).
 	 */
 	@property({ type: String })
-	name = 'checkbox-' + Math.random().toString(36)
+	size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' = 'md'
 
-	/**
-	 * @attr {string} id - The id of the checkbox.
-	 */
-	@property({ type: String })
-	id = 'checkbox-' + Math.random().toString(36)
-
-	/**
-	 * @attr {string} label - The label text for the checkbox.
-	 */
-	@property({ type: String })
-	label?: string
-
-	connectedCallback() {
-		super.connectedCallback()
-		this._syncFormValue()
-	}
-
-	updated(changed: Map<string, unknown>) {
-		super.updated?.(changed)
-		if (changed.has('value') || changed.has('name')) this._syncFormValue()
-		if (changed.has('required') || changed.has('value')) this._syncValidity()
+	override willUpdate(changed: PropertyValues): void {
+		super.willUpdate(changed)
+		if (changed.has('value') || changed.has('name')) {
+			// FormData expects the value attribute (or 'on') for a checked box;
+			// nothing for an unchecked one — overrides the mixin's default
+			// scalar setFormValue call.
+			this.internals?.setFormValue(this.value ? (this.getAttribute('true-value') ?? 'on') : null)
+		}
 		if (changed.has('value')) {
 			if (this.value) this.internals?.states.add('checked')
 			else this.internals?.states.delete('checked')
 		}
 	}
 
-	private _syncFormValue() {
-		this.internals?.setFormValue(this.value ? (this.getAttribute('true-value') ?? 'on') : null)
-	}
-
-	private _syncValidity() {
-		if (this.required && !this.value) {
-			this.internals?.setValidity({ valueMissing: true }, 'Please check this box if you want to proceed.')
-		} else {
+	/**
+	 * Override — checkbox validity is `checked === true` when required, not the
+	 * mixin's "non-empty value" semantics. Platform validity (`internals.setValidity`)
+	 * is set unconditionally so `form.checkValidity()` and `:invalid` reflect
+	 * the truth; the `_shouldShowError()` gate only controls whether the visual
+	 * `this.error` flag flips (which drives the component's own UI).
+	 */
+	override checkValidity(): boolean {
+		if (this.disabled) {
 			this.internals?.setValidity({})
+			return true
 		}
-	}
+		const isValid = !this.required || this.value === true
+		const message = isValid ? '' : 'Please check this box if you want to proceed.'
 
-	public checkValidity(): boolean {
-		return this.internals?.checkValidity() ?? true
-	}
+		// Platform validity: always reflect the truth so native form aggregation works.
+		this.internals?.setValidity(
+			isValid ? {} : { valueMissing: true },
+			isValid ? undefined : message,
+		)
 
-	public reportValidity(): boolean {
-		return this.internals?.reportValidity() ?? true
+		// Visual error flag: only flip when the gate is open.
+		if (this._shouldShowError()) {
+			this.error = !isValid
+			this.validationMessage = message
+		}
+
+		return isValid
 	}
 
 	/**
-	 * @attr {xxs | xs | sm | md | lg } size - The size of the checkbox.
-	 * M3 aligned: 24dp (xxs) → 32dp (xs) → 40dp (sm) → 48dp (md) → 56dp (lg)
+	 * Override — emit only when checked. An unchecked box contributes nothing
+	 * to FormData (HTML form semantics).
 	 */
-	@property({ type: String })
-	size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' = 'md'
+	override toFormEntries(): Array<[string, FormDataEntryValue]> {
+		if (!this.name || this.disabled || !this.value) return []
+		return [[this.name, this.getAttribute('true-value') ?? 'on']]
+	}
 
 	render() {
 		return html`
@@ -134,19 +110,15 @@ class SchmancyCheckboxElement extends SchmancyElement {
 					?checked=${this.value === true}
 					@change=${(e: Event) => {
 						this.value = (e.target as HTMLInputElement).checked
-						this.dispatchEvent(
-							new CustomEvent('change', {
-								detail: {
-									value: this.value,
-								},
-							}),
-						)
+						this.markTouched()
+						this.emitChange({ value: this.value })
 					}}
 				>
 				</md-checkbox>
-				${when(this.label, 
-					() => html`<span>${this.label}</span>`, 
-					() => html`<slot></slot>`
+				${when(
+					this.label,
+					() => html`<span>${this.label}</span>`,
+					() => html`<slot></slot>`,
 				)}
 			</label>
 		`

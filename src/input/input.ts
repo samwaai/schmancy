@@ -3,7 +3,7 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
-import { distinctUntilChanged, filter, fromEvent, map, takeUntil } from 'rxjs'
+import { distinctUntilChanged, filter, fromEvent, map, takeUntil, timer } from 'rxjs'
 
 import { SchmancyFormField } from '@mixins/index'
 
@@ -279,10 +279,10 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	firstUpdated() {
 		// Autofocus if desired
 		if (this.autofocus) {
-			// Use setTimeout to match browser behavior - autofocus happens after initial rendering
-			setTimeout(() => {
-				this.focus()
-			}, 0)
+			// Schedule focus after initial render — RxJS timer for cancel-on-disconnect.
+			timer(0)
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe(() => this.focus())
 		}
 
 		// Subscribe to input events

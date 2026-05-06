@@ -3,9 +3,9 @@ import { customElement, property, query } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { when } from 'lit/directives/when.js'
-import { distinctUntilChanged, filter, fromEvent, map } from 'rxjs'
+import { distinctUntilChanged, filter, fromEvent, map, takeUntil, timer } from 'rxjs'
 import style from './textarea.scss?inline'
-import { SchmancyElement } from '@mixins/index'
+import { SchmancyFormField } from '@mixins/index'
 
 /**
  * Textarea component with auto-resize and form integration.
@@ -20,37 +20,20 @@ import { SchmancyElement } from '@mixins/index'
  * @prop {number} maxlength - Maximum character length
  */
 @customElement('schmancy-textarea')
-export default class SchmancyTextarea extends SchmancyElement {
-	static styles = [unsafeCSS(style)];
+export default class SchmancyTextarea extends SchmancyFormField(unsafeCSS(style)) {
 
 	protected static shadowRootOptions = {
 		...LitElement.shadowRootOptions,
 		delegatesFocus: true,
 	}
-	static formAssociated = true
-	// private internals
-	internals: ElementInternals | undefined
+
+	// `formAssociated`, `internals`, `name`, `label`, `required`, `disabled`,
+	// `error`, `validationMessage`, `hint`, `id`, `validateOn`, `touched`,
+	// `dirty`, `submitted`, `markTouched`, `markSubmitted`, `setCustomValidity`,
+	// `formResetCallback`, `formDisabledCallback` — all from the mixin.
 	textareaRef = createRef<HTMLTextAreaElement>()
 
 	private readonly _a11yId = `schmancy-textarea-${Math.random().toString(36).slice(2, 10)}`
-
-	/**
-	 * The label of the control.
-	 * @attr
-	 * @type {string} label
-	 * @default ''
-	 * @public
-	 */
-	@property() label = ''
-
-	/**
-	 * The name of the control.
-	 * @attr name
-	 * @type {string} name
-	 * @default 'name_' + Date.now()
-	 * @public
-	 */
-	@property() name = 'name_' + Date.now()
 
 	/**
 	 * The placeholder of the control.
@@ -62,13 +45,11 @@ export default class SchmancyTextarea extends SchmancyElement {
 	@property() placeholder = ''
 
 	/**
-	 * The value of the control.
+	 * The value of the control. Narrowed from the mixin's wide union to the
+	 * textarea-specific `string` type.
 	 * @attr {string} value - The value of the control.
-	 * @type {string}
-	 * @default ''
-	 * @public
 	 */
-	@property({ type: String, reflect: true }) public value = ''
+	@property({ type: String, reflect: true }) override value: string = ''
 
 	/**
 	 * The minlength attribute of the control.
@@ -148,19 +129,14 @@ export default class SchmancyTextarea extends SchmancyElement {
 	 */
 	@property({ type: String }) dirname: string | undefined
 
-	@property({ type: Boolean, reflect: true }) required = false
-	@property({ type: Boolean, reflect: true }) disabled = false
-	@property({ type: Boolean, reflect: true }) readonly = false
+	// `required`, `disabled`, `readonly`, `error`, `validationMessage`, `hint`
+	// come from the mixin. Textarea-specific extras only:
 	@property({ type: Boolean, reflect: true }) spellcheck = false
 
 	@property({ type: String, reflect: true }) align: 'left' | 'center' | 'right' = 'left'
 
 	/**
 	 * The autofocus attribute of the control.
-	 * @attr
-	 * @type {boolean}
-	 * @default false
-	 * @public
 	 */
 	@property({ type: Boolean })
 	public override autofocus!: boolean
@@ -170,40 +146,16 @@ export default class SchmancyTextarea extends SchmancyElement {
 
 	@query('textarea') textareaElement!: HTMLTextAreaElement
 
-	@property() hint: string | undefined
-
-	@property({ type: Boolean, reflect: true }) public error = false
-
-	constructor() {
-		super()
-		try {
-			this.internals = this.attachInternals()
-		} catch {
-			this.internals = undefined
-		}
-	}
-
-	protected willUpdate(changed: PropertyValues): void {
-		super.willUpdate?.(changed)
-		if (changed.has('value') || changed.has('name')) {
-			this.internals?.setFormValue(this.value ?? '')
-		}
+	// Mixin's willUpdate already calls internals.setFormValue() on value-change
+	// and runs the required-empty / customError validity machinery. Native
+	// `valueMissing` flag is set here for richer ValidityState introspection.
+	override willUpdate(changed: PropertyValues): void {
+		super.willUpdate(changed)
 		if (changed.has('required') || changed.has('value')) {
 			if (this.required && !this.value) {
 				this.internals?.setValidity({ valueMissing: true }, 'Please fill out this field.')
-			} else {
-				this.internals?.setValidity({})
 			}
 		}
-	}
-
-	formResetCallback(): void {
-		this.value = this.getAttribute('value') ?? ''
-		this.error = false
-	}
-
-	formDisabledCallback(disabled: boolean): void {
-		this.disabled = disabled
 	}
 
 	firstUpdated() {
@@ -211,13 +163,16 @@ export default class SchmancyTextarea extends SchmancyElement {
 			this.focus()
 		}
 		if (this.autoHeight) {
-			// Initial adjustment for pre-filled content
-			setTimeout(() => this.adjustHeight(), 0)
+			// Initial adjustment for pre-filled content (cancel-on-disconnect).
+			timer(0)
+				.pipe(takeUntil(this.disconnecting))
+				.subscribe(() => this.adjustHeight())
 		}
 		fromEvent(this.textareaElement, 'input')
 			.pipe(
 				map(event => (event.target as HTMLTextAreaElement).value),
 				distinctUntilChanged(),
+				takeUntil(this.disconnecting),
 			)
 			.subscribe(value => {
 				this.value = value
@@ -236,6 +191,7 @@ export default class SchmancyTextarea extends SchmancyElement {
 			.pipe(
 				map(event => (event.target as HTMLTextAreaElement).value),
 				distinctUntilChanged(),
+				takeUntil(this.disconnecting),
 			)
 			.subscribe(value => {
 				this.value = value
@@ -256,6 +212,7 @@ export default class SchmancyTextarea extends SchmancyElement {
 				filter(event => event.key === 'Enter'),
 				map(event => (event.target as HTMLTextAreaElement).value),
 				distinctUntilChanged(),
+				takeUntil(this.disconnecting),
 			)
 			.subscribe(value => {
 				this.value = value

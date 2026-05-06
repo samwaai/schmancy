@@ -1,5 +1,5 @@
 import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom'
-import { SchmancyElement } from '@mixins/index'
+import { SchmancyFormField } from '@mixins/index'
 import { color } from '@schmancy/directives'
 import SchmancyInput from '@schmancy/input/input'
 import SchmancyOption from '@schmancy/option/option'
@@ -27,7 +27,7 @@ export type SchmancySelectChangeEvent = CustomEvent<{
  * @prop {string[]} values - Selected values (multi-select mode)
  */
 @customElement('schmancy-select')
-export class SchmancySelect extends SchmancyElement {
+export class SchmancySelect extends SchmancyFormField() {
 	static styles = [css`
 	:host {
 		display: block;
@@ -40,22 +40,22 @@ export class SchmancySelect extends SchmancyElement {
 	}
 `]
 
-	// Form association setup
-	static formAssociated = true
-	private internals?: ElementInternals
+	// FACE wiring (formAssociated, internals, attachInternals) comes from
+	// SchmancyFormField. Same for: name, required, disabled, validationMessage,
+	// validateOn, touched/dirty/pristine/submitted, markTouched/markSubmitted,
+	// formResetCallback, formDisabledCallback, FIELD_CONNECT_EVENT dispatch.
 
-	// API
-	@property({ type: String }) name: string | undefined
-	@property({ type: Boolean, reflect: true }) required = false
-	@property({ type: Boolean, reflect: true }) disabled = false
 	@property({ type: String }) placeholder = ''
+
+	// Override `value` with the narrowed select-specific type and a custom
+	// getter/setter pair backed by reactive subjects.
 	@property({ type: String, reflect: true })
-	get value() {
+	override get value(): string | string[] {
 		return this.multi
-			? this._selectedValues$.value  // Return array for multi-select
-			: this._selectedValue$.value   // Return string for single-select
+			? this._selectedValues$.value
+			: this._selectedValue$.value
 	}
-	set value(val: string | string[]) {
+	override set value(val: string | string[]) {
 		if (this.multi) {
 			const values = Array.isArray(val)
 				? val
@@ -76,9 +76,7 @@ export class SchmancySelect extends SchmancyElement {
 	}
 
 	@property({ type: Boolean }) multi = false
-	@property({ type: String }) label = ''
-	@property({ type: String }) hint = ''
-	@property({ type: String }) validateOn: 'always' | 'touched' | 'dirty' | 'submitted' = 'touched'
+	// `label` and `hint` come from the mixin.
 	// M3 aligned sizes: 24dp (xxs) → 32dp (xs) → 40dp (sm) → 48dp (md) → 56dp (lg)
 	@property({ type: String }) size: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' = 'md'
 
@@ -86,10 +84,11 @@ export class SchmancySelect extends SchmancyElement {
 	@state() private isOpen = false
 	@state() private valueLabel = ''
 	@state() private isValid = true
-	@property({ type: String }) validationMessage = ''
 
-	// Store the initial/default value for reset behavior
-	@state() private defaultValue: string | string[] = ''
+	// Store the initial/default value for reset behavior. Distinct from the
+	// mixin's `_defaultValue` (which is `string` only); select needs the wider
+	// shape so resetForm can restore arrays for multi-select.
+	@state() private selectDefaultValue: string | string[] = ''
 
 	@query('ul') private ul!: HTMLUListElement
 	@query('sch-input') private inputRef!: SchmancyInput
@@ -101,67 +100,35 @@ export class SchmancySelect extends SchmancyElement {
 	private _selectedValue$ = new BehaviorSubject<string>('')
 	private _selectedValues$ = new BehaviorSubject<string[]>([])
 	private _optionSelect$ = new Subject<SchmancyOption>()
+
+	/**
+	 * Tracks whether the user has actively interacted (clicked/typed/keyed
+	 * inside the dropdown). Distinct from the mixin's `touched` (which fires on
+	 * blur). Used to gate dropdown-positioning side-effects on user-driven
+	 * actions versus programmatic state changes.
+	 */
 	@state() _userInteracted = false
-	@state() private _touched = false
-	@state() private _dirty = false
-	@state() private _submitted = false
 
 	// Reference to current focused option (for keyboard navigation)
 	@state() private _focusedOptionId = ''
 
-	// Form event handlers
-	private formSubmitHandler = () => {
-		this._submitted = true
-		this.checkValidity()
-	}
-
-	private formResetHandler = () => {
-		this.reset()
-	}
-
-	constructor() {
-		super()
-		// Initialize ElementInternals for form association
-		try {
-			this.internals = this.attachInternals()
-		} catch (e) {
-			console.warn('FormAssociated elements not supported in this browser', e)
-		}
-	}
-
-	get form() {
-		return this.internals?.form
-	}
-
-	connectedCallback() {
+	override connectedCallback() {
 		super.connectedCallback()
 		if (!this.id) {
 			this.id = `schmancy-select-${Math.random().toString(36).substring(2, 9)}`
 		}
 
 		// Store initial value for reset
-		this.defaultValue = this.value
+		this.selectDefaultValue = this.value
 
 		// Add keyboard handling to host element
 		fromEvent<KeyboardEvent>(this, 'keydown').pipe(takeUntil(this.disconnecting)).subscribe(this.handleKeyDown)
 
 		// Setup reactive pipelines
 		this._setupReactivePipelines()
-
-		// Listen for form submission events to mark field as submitted
-		if (this.internals?.form) {
-			fromEvent(this.internals.form, 'submit')
-				.pipe(takeUntil(this.disconnecting))
-				.subscribe(this.formSubmitHandler)
-
-			// Listen for form reset
-			fromEvent(this.internals.form, 'reset')
-				.pipe(takeUntil(this.disconnecting))
-				.subscribe(this.formResetHandler)
-		}
 	}
 
-	disconnectedCallback() {
+	override disconnectedCallback() {
 		super.disconnectedCallback()
 		this.cleanupPositioner?.()
 		// Form event listeners are automatically cleaned up via takeUntil(this.disconnecting)
@@ -177,25 +144,20 @@ export class SchmancySelect extends SchmancyElement {
 		}
 	}
 
-	updated(changedProps: PropertyValues) {
+	override updated(changedProps: PropertyValues) {
 		super.updated(changedProps)
 
 		if (changedProps.has('value')) {
-			// Update form value when component value changes
+			// Multi-select serializes to a comma-joined scalar on FormData; the
+			// mixin's willUpdate already called setFormValue with the raw
+			// value, override here for the joined-string shape.
 			const formValue = this.multi
 				? this._selectedValues$.value.join(',')
 				: this._selectedValue$.value
 			this.internals?.setFormValue(formValue)
 
-			// Mark as dirty if value changes from initial value
-			if (this.hasUpdated) {
-				this._dirty = true
-			}
-
-			// Check validity based on validation strategy
-			if (this.hasUpdated) {
-				this.checkValidity()
-			}
+			// `dirty` is a mixin getter (value !== _defaultValue); no manual flag.
+			// Mixin's willUpdate already calls checkValidity when _shouldShowError().
 		}
 
 		// When open state changes, setup or cleanup the dropdown positioner
@@ -208,26 +170,7 @@ export class SchmancySelect extends SchmancyElement {
 		}
 	}
 
-	/**
-	 * Determines if validation errors should be shown based on current state
-	 * and validation strategy
-	 */
-	private shouldShowValidation(forceValidation = false): boolean {
-		if (forceValidation) return true
-
-		switch (this.validateOn) {
-			case 'always':
-				return true
-			case 'touched':
-				return this._touched
-			case 'dirty':
-				return this._dirty
-			case 'submitted':
-				return this._submitted
-			default:
-				return this._touched
-		}
-	}
+	// `shouldShowValidation` removed — replaced by mixin's `_shouldShowError()`.
 
 	private syncSelection() {
 		if (this.multi) {
@@ -418,7 +361,7 @@ export class SchmancySelect extends SchmancyElement {
 		// Only mark as touched if the user actually interacted with the component
 		// and made a selection or explicitly closed it without selecting
 		if (this._userInteracted) {
-			this._touched = true
+			this.touched = true
 		}
 
 		this.isOpen = false
@@ -433,7 +376,7 @@ export class SchmancySelect extends SchmancyElement {
 
 		// Only check validity when closing if the user has actually interacted
 		// with the component and validation should be shown
-		if (this._userInteracted && this.shouldShowValidation()) {
+		if (this._userInteracted && this._shouldShowError()) {
 			this.checkValidity()
 		}
 	}
@@ -459,8 +402,8 @@ export class SchmancySelect extends SchmancyElement {
 				withLatestFrom(this._selectedValue$, this._selectedValues$),
 				tap(([option, _, currentValues]) => {
 					this._userInteracted = true
-					this._touched = true
-					this._dirty = true
+					this.markTouched()
+					// `dirty` is a mixin getter; setting `value` below triggers it
 
 					if (this.multi) {
 						const index = currentValues.indexOf(option.value)
@@ -602,7 +545,7 @@ export class SchmancySelect extends SchmancyElement {
 
 		// Update the input component to reflect our validation state
 		if (this.inputRef && this.hasUpdated) {
-			const showError = !this.isValid && this.shouldShowValidation()
+			const showError = !this.isValid && this._shouldShowError()
 			this.inputRef.error = showError
 			this.inputRef.hint = showError ? this.validationMessage : this.hint
 		}
@@ -636,7 +579,26 @@ export class SchmancySelect extends SchmancyElement {
 		return valid
 	}
 
-	public setCustomValidity(message: string) {
+	// `markTouched`, `markSubmitted`, `touched`, `dirty`, `pristine`, `submitted`,
+	// `error` (storage) — all from the mixin. Select's `error` semantics
+	// (errors-while-open suppression) live in render() via _shouldShowError() +
+	// !isOpen, not as a separate getter.
+
+	/**
+	 * Multi-value-aware `toFormEntries`. Single-select emits one `[name,value]`;
+	 * multi-select emits N entries with the same name (canonical FormData shape
+	 * for repeated fields).
+	 */
+	override toFormEntries(): Array<[string, FormDataEntryValue]> {
+		if (!this.name || this.disabled) return []
+		const v = this.value
+		if (v === undefined || v === null || v === '') return []
+		if (Array.isArray(v))
+			return v.map(item => [this.name, String(item)] as [string, FormDataEntryValue])
+		return [[this.name, String(v)]]
+	}
+
+	override setCustomValidity(message: string) {
 		this.validationMessage = message
 		if (message) {
 			this.isValid = false
@@ -647,34 +609,41 @@ export class SchmancySelect extends SchmancyElement {
 		}
 
 		// Update input if needed
-		if (this.inputRef && this.shouldShowValidation()) {
+		if (this.inputRef && this._shouldShowError()) {
 			this.inputRef.error = !this.isValid
 			this.inputRef.hint = !this.isValid ? this.validationMessage : this.hint
 		}
 	}
 
-	public reset() {
-		// Reset to initial value
-		this.value = this.defaultValue
+	/**
+	 * Reset to the snapshot captured at connect time. Mixin's `resetForm`
+	 * handles touched/submitted/error/validationMessage; the override layers on
+	 * select-specific cleanup (value subjects, label, validity).
+	 */
+	override resetForm(): void {
+		// Restore value (multi-aware) before super so the mixin's _defaultValue
+		// reset doesn't clobber the array-shape we need.
+		this.value = this.selectDefaultValue
 		this.valueLabel = this.placeholder
 		this.isValid = true
-		this.validationMessage = ''
-		this._touched = false
-		this._dirty = false
-		this._submitted = false
 		this._userInteracted = false
 		this.internals?.setValidity({})
-
+		super.resetForm()
 		if (this.inputRef) {
 			this.inputRef.error = false
 			this.inputRef.hint = this.hint
 		}
 	}
 
+	/** Back-compat alias for callers that used the previous public API. */
+	public reset(): void {
+		this.resetForm()
+	}
+
 	render(): TemplateResult {
 		// Determine if we should show errors based on the validation strategy and interaction
 		// Never show errors on initial render or if the dropdown is open
-		const showErrors = !this.isValid && this.shouldShowValidation() && !this.isOpen
+		const showErrors = !this.isValid && this._shouldShowError() && !this.isOpen
 
 		// Add caret icon based on open state
 		const caretIcon = this.isOpen

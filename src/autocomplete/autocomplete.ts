@@ -1,4 +1,4 @@
-import { SchmancyElement } from '@mixins/index'
+import { SchmancyFormField } from '@mixins/index'
 import { InputSize, SchmancyInput } from '@schmancy/input'
 import SchmancyOption from '@schmancy/option/option'
 import { html, nothing, unsafeCSS } from 'lit'
@@ -10,12 +10,13 @@ import { repeat } from 'lit/directives/repeat.js'
 import { when } from 'lit/directives/when.js'
 import {
     BehaviorSubject,
-    combineLatest
+    combineLatest,
+    fromEvent,
+    timer
 } from 'rxjs'
 import {
     debounceTime,
     distinctUntilChanged,
-    take,
     takeUntil,
     tap
 } from 'rxjs/operators'
@@ -48,26 +49,16 @@ interface FilteredOption {
  * @prop {string[]} values - Selected values (multi-select mode)
  */
 @customElement('schmancy-autocomplete')
-export default class SchmancyAutocomplete extends SchmancyElement {
-    static styles = [unsafeCSS(style)];
+export default class SchmancyAutocomplete extends SchmancyFormField(unsafeCSS(style)) {
 
-    static formAssociated = true
-    internals: ElementInternals | undefined
+    // `formAssociated`, `internals`, `attachInternals`, `name`, `label`,
+    // `required`, `disabled`, `error`, `validationMessage`, `hint`, `id`,
+    // `validateOn`, `touched/dirty/submitted`, `markTouched/markSubmitted`,
+    // `setCustomValidity`, `formDisabledCallback`, FIELD_CONNECT_EVENT dispatch
+    // — all from the mixin.
 
-    constructor() {
-        super()
-        try {
-            this.internals = this.attachInternals()
-        } catch {
-            this.internals = undefined
-        }
-    }
-
-    get form(): HTMLFormElement | null {
-        return this.internals?.form ?? null
-    }
-
-    formResetCallback(): void {
+    /** Override mixin's resetForm with autocomplete-specific subject reset. */
+    override resetForm(): void {
         if (this.multi) {
             this._selectedValues$.next([])
         } else {
@@ -75,25 +66,16 @@ export default class SchmancyAutocomplete extends SchmancyElement {
         }
         this._inputValue = ''
         this._inputValue$.next('')
-        this.error = false
-        this.validationMessage = ''
-    }
-
-    formDisabledCallback(disabled: boolean): void {
-        // The component does not expose a disabled prop directly; propagate via attribute.
-        if (disabled) this.setAttribute('disabled', '')
-        else this.removeAttribute('disabled')
+        super.resetForm()
     }
 
     // Track whether value/values have been explicitly set
      _valueSet: boolean = false
      _valuesSet: boolean = false
 
-    // Public API properties
-    @property({ type: Boolean }) required = false
+    // Autocomplete-specific properties only — `name`, `label`, `required`,
+    // `error`, `validationMessage` come from the mixin.
     @property({ type: String }) placeholder = ''
-    @property({ type: String, reflect: true }) label = ''
-    @property({ type: String }) name = ''
     @property({ type: String }) maxHeight = '300px'
     @property({ type: Boolean }) multi = false
     @property({ type: String }) description = ''
@@ -101,8 +83,6 @@ export default class SchmancyAutocomplete extends SchmancyElement {
     @property({ type: String }) autocomplete = 'off'
     @property({ type: Number }) debounceMs = 200
     @property({ type: Number }) similarityThreshold = 0.3 // Minimum similarity score to show option
-    @property({ type: Boolean }) error = false
-    @property({ type: String }) validationMessage = ''
 
     private readonly _a11yId = `schmancy-autocomplete-${Math.random().toString(36).slice(2, 10)}`
 
@@ -116,14 +96,14 @@ export default class SchmancyAutocomplete extends SchmancyElement {
         this._selectedValues$.next(Array.isArray(vals) ? [...vals] : [])
     }
 
-    // Value property
+    // Value property — narrowed override of the mixin's wide value union.
     @property({ type: String, reflect: true })
-    get value() {
-        return this.multi 
+    override get value(): string {
+        return this.multi
             ? this._selectedValues$.value.join(',')
             : this._selectedValue$.value
     }
-    set value(val: string) {
+    override set value(val: string) {
         this._valueSet = true
         if (this.multi) {
             const newValues = val ? val.split(',').map(v => v.trim()).filter(Boolean) : []
@@ -159,13 +139,9 @@ export default class SchmancyAutocomplete extends SchmancyElement {
     private _selectedValues$ = new BehaviorSubject<string[]>([])
     private _inputValue$ = new BehaviorSubject<string>('')
 
-    connectedCallback() {
+    override connectedCallback() {
+        // FIELD_CONNECT_EVENT is dispatched by the mixin's connectedCallback.
         super.connectedCallback()
-
-        if (!this.id) {
-            this.id = `sch-autocomplete-${Math.random().toString(36).slice(2, 9)}`
-        }
-
         this._setupAutocompleteLogic()
         this._setupDocumentClickHandler()
     }
@@ -218,15 +194,17 @@ export default class SchmancyAutocomplete extends SchmancyElement {
             option.dataset.schmancyAutocompleteHandlers = 'attached'
 
             // Prevent blur handler from interfering with option selection
-            option.addEventListener('mousedown', (e: MouseEvent) => {
-                e.preventDefault() // Prevent focus loss
-            })
+            fromEvent<MouseEvent>(option, 'mousedown')
+                .pipe(takeUntil(this.disconnecting))
+                .subscribe(e => e.preventDefault())
 
             // Handle the actual selection
-            option.addEventListener('click', (e: MouseEvent) => {
-                e.stopPropagation()
-                this._selectOption(option)
-            })
+            fromEvent<MouseEvent>(option, 'click')
+                .pipe(takeUntil(this.disconnecting))
+                .subscribe(e => {
+                    e.stopPropagation()
+                    this._selectOption(option)
+                })
         })
     }
 
@@ -331,23 +309,16 @@ export default class SchmancyAutocomplete extends SchmancyElement {
     }
 
     private _setupDocumentClickHandler() {
-        // Simple document click handler
-        const handleDocumentClick = (e: MouseEvent) => {
-            if (!this._open) return
-
-            const path = e.composedPath()
-            if (!path.includes(this) && !this._options.some(opt => path.includes(opt))) {
-                this._open = false
-                this._updateInputDisplay()
-            }
-        }
-
-        document.addEventListener('click', handleDocumentClick)
-
-        // Cleanup on disconnect
-        this.disconnecting.pipe(take(1)).subscribe(() => {
-            document.removeEventListener('click', handleDocumentClick)
-        })
+        fromEvent<MouseEvent>(document, 'click')
+            .pipe(takeUntil(this.disconnecting))
+            .subscribe(e => {
+                if (!this._open) return
+                const path = e.composedPath()
+                if (!path.includes(this) && !this._options.some(opt => path.includes(opt))) {
+                    this._open = false
+                    this._updateInputDisplay()
+                }
+            })
     }
 
 
@@ -721,10 +692,12 @@ export default class SchmancyAutocomplete extends SchmancyElement {
             event.preventDefault()
             this._openDropdown()
 
-            setTimeout(() => {
-                const firstVisible = this._options.find(opt => !opt.hidden)
-                firstVisible?.focus()
-            }, 10)
+            timer(10)
+                .pipe(takeUntil(this.disconnecting))
+                .subscribe(() => {
+                    const firstVisible = this._options.find(opt => !opt.hidden)
+                    firstVisible?.focus()
+                })
             return
         }
 

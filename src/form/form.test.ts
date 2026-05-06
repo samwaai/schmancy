@@ -3,6 +3,8 @@ import './form'
 import '../input/input'
 import '../button/button'
 import '../checkbox/checkbox'
+import type SchmancyForm from './form'
+import type { SchmancyFormSubmitDetail } from './form'
 
 const nextUpdate = () => new Promise(r => requestAnimationFrame(() => r(null)))
 
@@ -18,42 +20,46 @@ describe('schmancy-form', () => {
 		host.remove()
 	})
 
-	it('wraps children in a real light-DOM <form>', async () => {
+	it('renders a shadow-DOM <form> wrapping a slot', async () => {
 		host.innerHTML = `
 			<schmancy-form>
 				<schmancy-checkbox name="agree"></schmancy-checkbox>
 			</schmancy-form>
 		`
-		const sf = host.querySelector('schmancy-form') as HTMLElement & { form: HTMLFormElement | null }
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
 		await nextUpdate()
-		expect(sf.form).toBeInstanceOf(HTMLFormElement)
-		expect(sf.querySelector(':scope > form')).toBe(sf.form)
-		expect(sf.form!.querySelector('schmancy-checkbox')).toBeTruthy()
+		await nextUpdate()
+		const innerForm = sf.shadowRoot?.querySelector('form')
+		expect(innerForm).toBeInstanceOf(HTMLFormElement)
+		// Field is in light DOM, slotted into the inner form's <slot>.
+		expect(host.querySelector('schmancy-checkbox')).toBeTruthy()
 	})
 
-	it('emits submit with FormData on native submission', async () => {
+	it('emits submit with { data, formData, until } on native submission', async () => {
 		host.innerHTML = `
 			<schmancy-form>
 				<schmancy-checkbox name="agree"></schmancy-checkbox>
 				<button id="go" type="submit">Go</button>
 			</schmancy-form>
 		`
-		const sf = host.querySelector('schmancy-form') as HTMLElement
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
 		const cb = host.querySelector('schmancy-checkbox') as HTMLElement & { value: boolean }
 		cb.value = true
 		await nextUpdate()
 		await nextUpdate()
 
-		const submits: FormData[] = []
+		const submits: SchmancyFormSubmitDetail[] = []
 		sf.addEventListener('submit', (e: Event) => {
-			submits.push((e as CustomEvent).detail as FormData)
+			submits.push((e as CustomEvent<SchmancyFormSubmitDetail>).detail)
 		})
 
 		const btn = host.querySelector('#go') as HTMLButtonElement
 		btn.click()
+		await nextUpdate()
 
 		expect(submits).toHaveLength(1)
-		expect(submits[0].get('agree')).toBe('on')
+		expect(submits[0].formData.get('agree')).toBe('on')
+		expect(typeof submits[0].until).toBe('function')
 	})
 
 	it('blocks submit when a required field is empty', async () => {
@@ -63,7 +69,7 @@ describe('schmancy-form', () => {
 				<button id="go" type="submit">Go</button>
 			</schmancy-form>
 		`
-		const sf = host.querySelector('schmancy-form') as HTMLElement
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
 		await nextUpdate()
 		await nextUpdate()
 
@@ -72,28 +78,9 @@ describe('schmancy-form', () => {
 
 		const btn = host.querySelector('#go') as HTMLButtonElement
 		btn.click()
+		await nextUpdate()
 
 		expect(submitCount).toBe(0)
-	})
-
-	it('respects novalidate attribute', async () => {
-		host.innerHTML = `
-			<schmancy-form novalidate>
-				<schmancy-checkbox name="agree" required></schmancy-checkbox>
-				<button id="go" type="submit">Go</button>
-			</schmancy-form>
-		`
-		const sf = host.querySelector('schmancy-form') as HTMLElement
-		await nextUpdate()
-		await nextUpdate()
-
-		let submitCount = 0
-		sf.addEventListener('submit', () => submitCount++)
-
-		const btn = host.querySelector('#go') as HTMLButtonElement
-		btn.click()
-
-		expect(submitCount).toBe(1)
 	})
 
 	it('schmancy-button type=submit triggers form submission', async () => {
@@ -103,7 +90,7 @@ describe('schmancy-form', () => {
 				<schmancy-button id="sbtn" type="submit">Save</schmancy-button>
 			</schmancy-form>
 		`
-		const sf = host.querySelector('schmancy-form') as HTMLElement
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
 		const btn = host.querySelector('#sbtn') as HTMLElement
 		await nextUpdate()
 		await nextUpdate()
@@ -117,13 +104,14 @@ describe('schmancy-form', () => {
 		expect(submitted).toBe(true)
 	})
 
-	it('dispatches a single submit event (no double-fire from native + custom)', async () => {
+	it('dispatches a single submit event (no double-fire)', async () => {
 		host.innerHTML = `
 			<schmancy-form>
 				<button id="go" type="submit">Go</button>
 			</schmancy-form>
 		`
-		const sf = host.querySelector('schmancy-form') as HTMLElement
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
+		await nextUpdate()
 		await nextUpdate()
 
 		let count = 0
@@ -131,7 +119,62 @@ describe('schmancy-form', () => {
 
 		const btn = host.querySelector('#go') as HTMLButtonElement
 		btn.click()
+		await nextUpdate()
 
 		expect(count).toBe(1)
+	})
+
+	it('parses payload through `schema` when set', async () => {
+		host.innerHTML = `
+			<schmancy-form>
+				<schmancy-input name="email" value="x@y.z"></schmancy-input>
+				<button id="go" type="submit">Go</button>
+			</schmancy-form>
+		`
+		const sf = host.querySelector('schmancy-form') as SchmancyForm<{
+			parse(input: unknown): { email: string }
+		}>
+		// Trivial schema: returns { email: 'parsed' } regardless of input
+		sf.schema = {
+			parse: (_input: unknown) => ({ email: 'parsed' }),
+		}
+		await nextUpdate()
+		await nextUpdate()
+
+		let detail: SchmancyFormSubmitDetail<{ email: string }> | null = null
+		sf.addEventListener('submit', (e: Event) => {
+			detail = (e as CustomEvent<SchmancyFormSubmitDetail<{ email: string }>>).detail
+		})
+
+		const btn = host.querySelector('#go') as HTMLButtonElement
+		btn.click()
+		await nextUpdate()
+
+		expect(detail).toBeTruthy()
+		expect((detail as SchmancyFormSubmitDetail<{ email: string }>).data).toEqual({ email: 'parsed' })
+	})
+
+	it('setFieldError sets custom validity and forces error display', async () => {
+		host.innerHTML = `
+			<schmancy-form>
+				<schmancy-input name="email" value="x@y.z"></schmancy-input>
+			</schmancy-form>
+		`
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
+		const inp = host.querySelector('schmancy-input') as HTMLElement & {
+			error: boolean
+			validationMessage: string
+			submitted: boolean
+		}
+		await nextUpdate()
+		await nextUpdate()
+
+		const ok = sf.setFieldError('email', 'Server says: email is taken')
+		await nextUpdate()
+		await nextUpdate()
+
+		expect(ok).toBe(true)
+		expect(inp.validationMessage).toBe('Server says: email is taken')
+		expect(inp.submitted).toBe(true)
 	})
 })

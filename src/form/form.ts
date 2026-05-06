@@ -1,146 +1,295 @@
-import { customElement } from 'lit/decorators.js'
-
 /**
- * A thin ergonomic wrapper around a native `<form>` element. Its children are
- * reparented into a `<form>` element in light DOM on connection, so:
+ * `<schmancy-form>` — schmancy form owner with isolated submit state.
  *
- * - Form-associated custom elements (FACE) resolve their `internals.form`
- *   correctly via native DOM ancestry.
- * - `new FormData(form)` collects values from every FACE + native control
- *   without any manual walking.
- * - `form.reset()` triggers `formResetCallback()` on every FACE.
- * - `form.reportValidity()` runs native validation UI.
- * - `<button type="submit">` and `<schmancy-button type="submit">` both
- *   submit the form via the native submitter pipeline.
+ * Architecture:
+ * - Extends `SchmancyElement` (shadow DOM, RxJS + `disconnecting` conventions).
+ * - Renders content inside `<schmancy-context .provides=${[formSubmitState]}>`
+ *   so each form instance gets an isolated copy of the submit state via the
+ *   schmancy state library — no `@lit/context` plumbing in user code.
+ * - Inner `<form novalidate>` is the native-semantics trigger for Enter-key
+ *   submit and `type=submit` button activation.
+ * - Fields self-register via `FIELD_CONNECT_EVENT` (composed event from
+ *   `FormFieldMixin.connectedCallback`). Stale refs (from disconnected
+ *   fields) are filtered by `isConnected` at iteration time.
  *
- * This component exists only to translate the native `submit` / `reset`
- * events into the Schmancy event shape (`detail: FormData`). All heavy
- * lifting is the platform's.
- *
- * @element schmancy-form
- * @fires submit - `CustomEvent<FormData>` emitted when the form is submitted.
- * @fires reset - Emitted after the underlying form resets.
+ * Schema seam — pass any `{ parse(input): T }` object (zod, valibot, ArkType,
+ * etc.) via the `schema` property to get typed `submit` event detail.
  */
+
+import { html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
+import { fromEvent, takeUntil } from 'rxjs'
+import { SchmancyElement } from '../../mixins'
+import { FIELD_CONNECT_EVENT, type IFormFieldMixin } from '../../mixins/formField.mixin'
+import { formSubmitState, type FormSubmitState, type FormError } from './form-state'
+
+/** Structural type matching zod, valibot, ArkType, etc. — any schema with `.parse()`. */
+export interface ParseSchema<T = unknown> {
+	parse(input: unknown): T
+}
+
+/** Submit event detail. `data` is typed when `schema` is set. */
+export type SchmancyFormSubmitDetail<T = Record<string, FormDataEntryValue>> = {
+	data: T
+	formData: FormData
+	/**
+	 * Register a promise that gates the form's success/error state. If unused,
+	 * the form synchronously flips to `success` after dispatch. If used,
+	 * `success`/`error` reflect the promise's outcome.
+	 */
+	until(p: Promise<unknown>): void
+}
+
 @customElement('schmancy-form')
-export default class SchmancyForm extends HTMLElement {
+export default class SchmancyForm<TSchema extends ParseSchema | undefined = undefined>
+	extends SchmancyElement {
 	public static readonly tagName: string = 'schmancy-form'
 
-	private _form: HTMLFormElement | null = null
-	private _wrapped = false
+	/**
+	 * Optional schema for parsing FormData on submit. Anything with a
+	 * `.parse(input)` method works (zod, valibot, ArkType). When set, the
+	 * `submit` event's `detail.data` is typed `z.infer<TSchema>`.
+	 */
+	@property({ attribute: false })
+	schema?: TSchema
 
-	/** ElementInternals for `:state(invalid)` / `:state(submitting)` broadcasting. */
-	private readonly _internals: ElementInternals | undefined = (() => {
-		try { return this.attachInternals() } catch { return undefined }
+	/** Skip built-in browser constraint validation. Mirrors `<form novalidate>`. */
+	@property({ type: Boolean })
+	novalidate: boolean = true
+
+	private _fields = new Set<IFormFieldMixin>()
+	private _submitting = false
+	private _internals: ElementInternals | undefined = (() => {
+		try {
+			return this.attachInternals()
+		} catch {
+			return undefined
+		}
 	})()
 
-	/** Skip built-in constraint validation on submit. Mirrors `<form novalidate>`. */
-	get novalidate(): boolean {
-		return this.hasAttribute('novalidate')
-	}
-	set novalidate(value: boolean) {
-		if (value) this.setAttribute('novalidate', '')
-		else this.removeAttribute('novalidate')
-	}
+	override connectedCallback(): void {
+		super.connectedCallback()
 
-	connectedCallback(): void {
-		this.ensureForm()
-	}
-
-	disconnectedCallback(): void {
-		if (this._form) {
-			this._form.removeEventListener('submit', this._onSubmit)
-			this._form.removeEventListener('reset', this._onReset)
+		// Forbid nested <schmancy-form>.
+		if (this.parentElement?.closest('schmancy-form')) {
+			console.error('[schmancy-form] nested <schmancy-form> is not supported')
+			return
 		}
+
+		// Field registry — composed event from FormFieldMixin.connectedCallback.
+		fromEvent<CustomEvent<IFormFieldMixin>>(this, FIELD_CONNECT_EVENT)
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(e => this._fields.add(e.detail))
+
+		// Submit-trigger interception — slotted descendants live in light DOM
+		// while the inner <form> is in shadow DOM, so native form-association
+		// across the shadow boundary doesn't work for `<button type=submit>`.
+		// Capture clicks on type=submit buttons (native + schmancy-button) and
+		// Enter keys on registered fields, then call the inner form's
+		// requestSubmit() which fires the same native submit event handler
+		// chain that a directly-associated button would have triggered.
+		fromEvent<MouseEvent>(this, 'click')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(e => this._maybeRequestSubmit(e))
+		fromEvent<KeyboardEvent>(this, 'keydown')
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe(e => {
+				if (e.key !== 'Enter' || e.shiftKey) return
+				// Skip Enter inside <textarea> (newline) and contenteditable.
+				const target = e.target as HTMLElement | null
+				if (target?.tagName === 'TEXTAREA') return
+				if (target?.isContentEditable) return
+				this._maybeRequestSubmit(e)
+			})
+	}
+
+	private _maybeRequestSubmit(e: Event): void {
+		// On click: trigger only when the target is a type=submit button.
+		// On keydown(Enter): always trigger if focus is on a registered field.
+		if (e.type === 'click') {
+			const path = e.composedPath()
+			const submitBtn = path.find(node => {
+				if (!(node instanceof HTMLElement)) return false
+				if (node.getAttribute('type') !== 'submit') return false
+				return (
+					node.tagName === 'BUTTON' || node.tagName === 'SCHMANCY-BUTTON'
+				)
+			})
+			if (!submitBtn) return
+			e.preventDefault()
+		}
+		const form = this.shadowRoot?.querySelector('form')
+		form?.requestSubmit()
+	}
+
+	/** Active fields — drops stale refs from disconnected nodes. */
+	private get _activeFields(): IFormFieldMixin[] {
+		return [...this._fields].filter(f => f.isConnected)
+	}
+
+	private async _onSubmit(e: SubmitEvent): Promise<void> {
+		e.preventDefault()
+		e.stopPropagation()
+		if (this._submitting) return
+
+		// Phase 4 — submit forces error display on every field.
+		this._activeFields.forEach(f => f.markSubmitted())
+
+		// Validate; success path entered ONLY if all valid.
+		const allValid = this._activeFields.every(f => f.checkValidity())
+		const fs = formSubmitState.value
+		if (!allValid) {
+			formSubmitState.set({
+				...fs,
+				status: 'error',
+				error: { message: 'Validation failed' },
+			})
+			this._broadcastStatus('error')
+			const firstInvalid = this._activeFields.find(f => f.error) as unknown as
+				| HTMLElement
+				| undefined
+			firstInvalid?.focus()
+			return
+		}
+
+		this._submitting = true
+		formSubmitState.set({
+			...fs,
+			status: 'submitting',
+			error: null,
+			submitCount: fs.submitCount + 1,
+		})
+		this._broadcastStatus('submitting')
+
+		// Build payload from the registered fields' contracted toFormEntries().
+		const formData = new FormData()
+		for (const field of this._activeFields) {
+			for (const [k, v] of field.toFormEntries()) formData.append(k, v)
+		}
+		const raw = Object.fromEntries(formData)
+		const data = this.schema ? this.schema.parse(raw) : raw
+
+		// Awaitable submit — consumers register promises via e.detail.until(p).
+		const pending: Promise<unknown>[] = []
+		this.dispatchEvent(
+			new CustomEvent<SchmancyFormSubmitDetail<unknown>>('submit', {
+				detail: {
+					data,
+					formData,
+					until: (p: Promise<unknown>) => pending.push(p),
+				},
+			}),
+		)
+
+		try {
+			await Promise.all(pending)
+			formSubmitState.set({
+				...formSubmitState.value,
+				status: 'success',
+				error: null,
+			})
+			this._broadcastStatus('success')
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err)
+			formSubmitState.set({
+				...formSubmitState.value,
+				status: 'error',
+				error: { message },
+			})
+			this._broadcastStatus('error')
+		} finally {
+			this._submitting = false
+		}
+	}
+
+	private _onReset(e: Event): void {
+		e.stopPropagation()
+		this._activeFields.forEach(f => f.resetForm())
+		formSubmitState.set({ status: 'idle', error: null, submitCount: 0 })
+		this._broadcastStatus('idle')
+		this.dispatchEvent(new CustomEvent('reset'))
+	}
+
+	private _broadcastStatus(status: FormSubmitState['status']): void {
+		const states = this._internals?.states
+		if (!states) return
+		for (const s of ['submitting', 'success', 'error', 'idle']) states.delete(s)
+		states.add(status)
+		// aria-busy on the host while submitting (WCAG 2.2 AA — disabled buttons
+		// drop from tab order; keep them focusable, signal busy via aria).
+		if (status === 'submitting') this.setAttribute('aria-busy', 'true')
+		else this.removeAttribute('aria-busy')
 	}
 
 	/**
-	 * On first connection, create the internal light-DOM `<form>` and move
-	 * existing children into it. Re-entry is a no-op.
+	 * Server-side error mapping (RHF `setError(name, ...)`-equivalent).
+	 * Sets `setCustomValidity(message)` on the matching field and ensures the
+	 * error displays by marking it submitted.
 	 */
-	private ensureForm(): void {
-		if (this._wrapped) return
-
-		// Respect an explicit consumer-supplied wrapping <form>.
-		const existing = Array.from(this.children).find(c => c instanceof HTMLFormElement) as
-			| HTMLFormElement
-			| undefined
-
-		const form = existing ?? document.createElement('form')
-		form.noValidate = true
-
-		if (!existing) {
-			// Snapshot children because appending mutates `this.childNodes`.
-			const children = Array.from(this.childNodes)
-			for (const node of children) form.appendChild(node)
-			this.appendChild(form)
-		}
-
-		form.addEventListener('submit', this._onSubmit)
-		form.addEventListener('reset', this._onReset)
-
-		this._form = form
-		this._wrapped = true
+	public setFieldError(name: string, message: string): boolean {
+		const field = this._activeFields.find(f => f.name === name)
+		if (!field) return false
+		field.setCustomValidity(message)
+		field.markSubmitted()
+		return true
 	}
 
-	private _onSubmit = (e: SubmitEvent): void => {
-		// Prevent the default navigation AND stop the native submit from
-		// bubbling past this wrapper — otherwise consumers listening for
-		// `submit` on <schmancy-form> would see the native event plus our
-		// CustomEvent (two fires per submission).
-		e.preventDefault()
-		e.stopPropagation()
-		if (!this.novalidate && !this._form!.reportValidity()) {
-			this._internals?.states.add('invalid')
-			return
-		}
-		this._internals?.states.delete('invalid')
-		this._internals?.states.add('submitting')
-		try {
-			this.dispatchEvent(
-				new CustomEvent('submit', {
-					detail: new FormData(this._form!),
-				}),
-			)
-		} finally {
-			this._internals?.states.delete('submitting')
-		}
-	}
-
-	private _onReset = (e: Event): void => {
-		e.stopPropagation()
-		this._internals?.states.delete('invalid')
-		this.dispatchEvent(new CustomEvent('reset'))
+	/**
+	 * Top-of-form error (RHF `setError('root.serverError', ...)`-equivalent).
+	 * Flips form status to 'error' with a structured `FormError`.
+	 */
+	public setFormError(message: string, code?: string): void {
+		formSubmitState.set({
+			...formSubmitState.value,
+			status: 'error',
+			error: { message, code } as FormError,
+		})
+		this._broadcastStatus('error')
 	}
 
 	/** Programmatically submit via the native submitter pipeline. */
 	public submit(): boolean {
-		if (!this._form) return false
-		if (!this.novalidate && !this._form.reportValidity()) return false
-		this._form.requestSubmit()
+		const form = this.shadowRoot?.querySelector('form')
+		if (!form) return false
+		form.requestSubmit()
 		return true
 	}
 
 	/** Programmatically reset via native `form.reset()`. */
 	public reset(): void {
-		this._form?.reset()
+		const form = this.shadowRoot?.querySelector('form')
+		form?.reset()
 	}
 
 	public reportValidity(): boolean {
-		return this._form?.reportValidity() ?? true
+		return this._activeFields.every(f => f.reportValidity())
 	}
 
 	public checkValidity(): boolean {
-		return this._form?.checkValidity() ?? true
+		return this._activeFields.every(f => f.checkValidity())
 	}
 
-	/** Snapshot of current form values. Equivalent to `new FormData(this.form)`. */
+	/** Snapshot of current form values from the registered fields. */
 	public getFormData(): FormData {
-		return this._form ? new FormData(this._form) : new FormData()
+		const formData = new FormData()
+		for (const field of this._activeFields) {
+			for (const [k, v] of field.toFormEntries()) formData.append(k, v)
+		}
+		return formData
 	}
 
-	/** The underlying `<form>` element (escape hatch for advanced integration). */
-	public get form(): HTMLFormElement | null {
-		return this._form
+	render() {
+		return html`
+			<schmancy-context .provides=${[formSubmitState]}>
+				<form
+					?novalidate=${this.novalidate}
+					@submit=${this._onSubmit}
+					@reset=${this._onReset}
+				>
+					<slot></slot>
+				</form>
+			</schmancy-context>
+		`
 	}
 }
 
@@ -150,10 +299,9 @@ declare global {
 	}
 }
 
-// === Retained type surface ===
-// These interfaces were part of the old collection-based engine. They're kept
-// exported because downstream code may still import them as documentation.
-// The new implementation no longer uses them internally.
+// Retained type surfaces — kept exported because downstream code may import
+// them as documentation. The new implementation no longer uses them
+// internally.
 
 export interface FormElement extends HTMLElement {
 	name?: string
@@ -173,6 +321,6 @@ export interface ValidatableFormElement extends FormElement {
 }
 
 export interface FormEventMap {
-	submit: CustomEvent<FormData>
+	submit: CustomEvent<SchmancyFormSubmitDetail<unknown>>
 	reset: CustomEvent
 }

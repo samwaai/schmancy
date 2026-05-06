@@ -50,6 +50,15 @@ export interface IFormFieldMixin extends Element {
 	/** Validation mode — controls when errors display. Default `'dirty'`. */
 	validateOn: ValidateOn
 
+	/**
+	 * `ElementInternals` instance attached by the mixin. Exposed so subclasses
+	 * with non-standard validity semantics (date-range, multi-select) can
+	 * surface platform `ValidityStateFlags` directly via
+	 * `internals.setValidity({ valueMissing: true })` rather than rolling their
+	 * own `attachInternals` call.
+	 */
+	internals: ElementInternals | undefined
+
 	form: HTMLFormElement | null
 
 	checkValidity(): boolean
@@ -60,6 +69,15 @@ export interface IFormFieldMixin extends Element {
 	markTouched(): void
 	/** Mark the field as submitted (called by `<schmancy-form>` on submit). */
 	markSubmitted(): void
+
+	/**
+	 * Whether the gate for showing validation errors is open right now. Exposed
+	 * so subclasses with custom error-display channels (e.g. select renders
+	 * errors on a child input) can keep their gate consistent with the mixin's.
+	 * Subclasses should not override this — extend the truth table by changing
+	 * `validateOn` instead.
+	 */
+	_shouldShowError(): boolean
 
 	toFormEntries(): Array<[string, FormDataEntryValue]>
 	resetForm(): void
@@ -166,9 +184,12 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		 * Whether `checkValidity()` should display errors right now.
 		 * `submitted` overrides every mode — once a submit attempt happens, the
 		 * field stays in live-correction mode (Phase 3) for the rest of the
-		 * session, and `resetForm()` is the only way back.
+		 * session, and `resetForm()` is the only way back. The leading
+		 * underscore marks this as an internal API: subclasses may call it but
+		 * should not override it (extend the truth table by changing
+		 * `validateOn` instead).
 		 */
-		protected _shouldShowError(): boolean {
+		_shouldShowError(): boolean {
 			if (this.submitted) return true
 			switch (this.validateOn) {
 				case 'always':
@@ -324,20 +345,39 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		}
 
 		checkValidity(): boolean {
-			if (this.disabled) return true
+			if (this.disabled) {
+				this.internals?.setValidity({})
+				return true
+			}
 
 			const requiredFailed =
 				this.required && (this.value === '' || this.value === undefined || this.value === null)
-			const nativeValid = this.internals?.checkValidity() ?? true
-			const isValid = !requiredFailed && nativeValid
+			// Custom errors set via setCustomValidity() are platform-truth too —
+			// preserve them through re-validation cycles.
+			const customErrorSet = !!this.internals?.validity?.customError
+			const isValid = !requiredFailed && !customErrorSet
+			const defaultMessage = requiredFailed ? 'This field is required' : 'Invalid value'
 
-			// Gate error *display* behind _shouldShowError(). The truth value
-			// returned to the caller is always accurate; only `this.error` is
-			// suppressed for pristine fields under `validateOn: 'dirty'`.
+			// Platform validity (read by `form.checkValidity()` and `:invalid`)
+			// is always set to the truth — independent of the visual gate.
+			if (requiredFailed) {
+				this.internals?.setValidity(
+					{ valueMissing: true },
+					this.validationMessage || defaultMessage,
+				)
+			} else if (!customErrorSet) {
+				// No required failure, no custom error — clear flags.
+				this.internals?.setValidity({})
+			}
+			// (customErrorSet branch falls through — leave the custom validity intact.)
+
+			// Visual `error` flag is gated. The returned boolean tells the caller
+			// the truth; only the in-component error display is suppressed for
+			// pristine fields under `validateOn: 'dirty'`.
 			if (this._shouldShowError()) {
 				this.error = !isValid
 				if (!isValid && !this.validationMessage) {
-					this.validationMessage = requiredFailed ? 'This field is required' : 'Invalid value'
+					this.validationMessage = defaultMessage
 				} else if (isValid) {
 					this.validationMessage = ''
 				}
