@@ -62,6 +62,13 @@ export class SchmancyButton extends SchmancyElement {
 
 	static formAssociated = true
 	private internals: ElementInternals | undefined
+	/**
+	 * When this button is `type="submit"` and lives inside a <schmancy-form>,
+	 * the observer mirrors the form's `aria-busy` attribute onto this button
+	 * while a submit is in flight. Stays focusable; disabled buttons drop from
+	 * the tab order and are unreachable to AT (WCAG 2.2 AA).
+	 */
+	private _formBusyObserver?: MutationObserver
 
 	constructor() {
 		super()
@@ -97,6 +104,35 @@ export class SchmancyButton extends SchmancyElement {
 
 	formDisabledCallback(disabled: boolean): void {
 		this.disabled = disabled
+	}
+
+	override connectedCallback(): void {
+		super.connectedCallback()
+		// Mirror the closest <schmancy-form>'s aria-busy onto this submit button
+		// so the user gets a visible busy state during async submit handlers.
+		// Schmancy-form sets aria-busy="true" while status === 'submitting'.
+		if (this.type !== 'submit') return
+		const form = this.closest('schmancy-form') as HTMLElement | null
+		if (!form) return
+		const sync = () => {
+			const busy = form.getAttribute('aria-busy') === 'true'
+			if (busy) {
+				this.setAttribute('aria-busy', 'true')
+				this.internals?.states.add('submitting')
+			} else {
+				this.removeAttribute('aria-busy')
+				this.internals?.states.delete('submitting')
+			}
+		}
+		sync()
+		this._formBusyObserver = new MutationObserver(sync)
+		this._formBusyObserver.observe(form, { attributes: true, attributeFilter: ['aria-busy'] })
+	}
+
+	override disconnectedCallback(): void {
+		this._formBusyObserver?.disconnect()
+		this._formBusyObserver = undefined
+		super.disconnectedCallback()
 	}
 
 	@query('[part="base"]', true)
