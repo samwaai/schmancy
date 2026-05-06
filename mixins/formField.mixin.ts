@@ -25,6 +25,21 @@ export const FIELD_CONNECT_EVENT = 'schmancy:field:connect'
 export type ValidateOn = 'always' | 'touched' | 'dirty' | 'submitted'
 
 /**
+ * Per-field error-message override map. Keys are `ValidityState` flag names;
+ * values are the message to display when that flag is set. Unset flags fall
+ * back to the mixin's hardcoded defaults (English).
+ *
+ * Use for i18n or domain-specific copy:
+ * ```ts
+ * <schmancy-input
+ *   .errorMessages=${{ valueMissing: 'Adresse e-mail requise', typeMismatch: 'Format e-mail invalide' }}
+ *   type="email" required
+ * ></schmancy-input>
+ * ```
+ */
+export type ErrorMessages = Partial<Record<keyof ValidityState, string>>
+
+/**
  * Interface defining the properties and methods that the FormFieldMixin adds.
  */
 export interface IFormFieldMixin extends Element {
@@ -49,6 +64,12 @@ export interface IFormFieldMixin extends Element {
 	submitted: boolean
 	/** Validation mode — controls when errors display. Default `'dirty'`. */
 	validateOn: ValidateOn
+
+	/**
+	 * Per-field error-message override map (i18n hook). See `ErrorMessages`.
+	 * Unset keys fall back to the mixin's hardcoded English defaults.
+	 */
+	errorMessages?: ErrorMessages
 
 	/**
 	 * `ElementInternals` instance attached by the mixin. Exposed so subclasses
@@ -187,6 +208,13 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 		 */
 		@property({ type: String, reflect: true })
 		validateOn: ValidateOn = 'dirty'
+
+		/**
+		 * Optional override for the validity-flag → message map. See
+		 * `ErrorMessages`. Unset keys fall back to the mixin's defaults.
+		 */
+		@property({ attribute: false })
+		errorMessages?: ErrorMessages
 
 		/** True when value has been changed from the captured default. */
 		get dirty(): boolean {
@@ -430,7 +458,9 @@ export function FormFieldMixin<T extends Constructor<LitElement>>(superClass: T)
 			// preserve them through re-validation cycles.
 			const customErrorSet = !!this.internals?.validity?.customError
 			const isValid = !requiredFailed && !customErrorSet
-			const defaultMessage = requiredFailed ? 'This field is required' : 'Invalid value'
+			const requiredMessage =
+				this.errorMessages?.valueMissing ?? 'This field is required'
+			const defaultMessage = requiredFailed ? requiredMessage : 'Invalid value'
 
 			// Platform validity (read by `form.checkValidity()` and `:invalid`)
 			// is always set to the truth — independent of the visual gate.

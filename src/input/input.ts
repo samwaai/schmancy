@@ -252,6 +252,47 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	 *
 	 * The visual `error` flag is still gated by the mixin's `_shouldShowError()`.
 	 */
+	/**
+	 * Re-run checkValidity AFTER render so the native inner input's `.value`
+	 * binding has propagated. The mixin's willUpdate fires checkValidity too
+	 * early — at that point native.validity still reflects the previous value.
+	 */
+	protected override updated(changedProps: PropertyValueMap<unknown>) {
+		super.updated?.(changedProps)
+		if (
+			changedProps.has('value') ||
+			changedProps.has('required') ||
+			changedProps.has('type') ||
+			changedProps.has('pattern') ||
+			changedProps.has('min') ||
+			changedProps.has('max') ||
+			changedProps.has('minlength') ||
+			changedProps.has('maxlength')
+		) {
+			this.checkValidity()
+		}
+	}
+
+	/**
+	 * Pick the first matching `errorMessages` override for the failing flags.
+	 * Order matches the natural priority of validity flags (valueMissing
+	 * before more specific ones — empty trumps malformed).
+	 */
+	private _firstMatchingErrorMessage(v: ValidityState): string | undefined {
+		const m = this.errorMessages
+		if (!m) return undefined
+		if (v.valueMissing && m.valueMissing) return m.valueMissing
+		if (v.typeMismatch && m.typeMismatch) return m.typeMismatch
+		if (v.patternMismatch && m.patternMismatch) return m.patternMismatch
+		if (v.tooShort && m.tooShort) return m.tooShort
+		if (v.tooLong && m.tooLong) return m.tooLong
+		if (v.rangeUnderflow && m.rangeUnderflow) return m.rangeUnderflow
+		if (v.rangeOverflow && m.rangeOverflow) return m.rangeOverflow
+		if (v.stepMismatch && m.stepMismatch) return m.stepMismatch
+		if (v.badInput && m.badInput) return m.badInput
+		return undefined
+	}
+
 	public override checkValidity() {
 		// Prefer @query (always live) over @ref (may lag during initial paint).
 		const native = this.inputElement ?? this.inputRef.value
@@ -271,13 +312,19 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 				badInput: v.badInput || undefined,
 				customError: v.customError || undefined,
 			}
+			// errorMessages override: pick the first matching flag and use the
+			// consumer-provided copy. Falls back to the native browser message.
+			const overrideMessage = this._firstMatchingErrorMessage(v)
 			this.internals?.setValidity(
 				flags,
-				native.validationMessage || this.validationMessage || 'Invalid value',
+				overrideMessage || native.validationMessage || this.validationMessage || 'Invalid value',
 			)
 			if (this._shouldShowError()) {
 				this.error = true
-				if (!this.validationMessage) this.validationMessage = native.validationMessage
+				// Always reflect the current flag's message — previous
+				// validationMessage may be stale (different flag).
+				const newMessage = overrideMessage || native.validationMessage
+				if (newMessage) this.validationMessage = newMessage
 				// Mirror flags into :state() so CSS can target specifics.
 				for (const flag of [
 					'value-missing',

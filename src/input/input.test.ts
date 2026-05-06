@@ -98,6 +98,37 @@ describe('schmancy-input', () => {
 		expect(inp.matches(':state(pattern-mismatch)')).toBe(true)
 	})
 
+	it('errorMessages overrides the default validity message (i18n)', async () => {
+		host.innerHTML = `<schmancy-input label="Email" type="email" required></schmancy-input>`
+		const inp = host.querySelector('schmancy-input') as HTMLElement & {
+			errorMessages: { valueMissing?: string; typeMismatch?: string }
+			value: string
+			markSubmitted(): void
+			validationMessage: string
+			updateComplete: Promise<boolean>
+		}
+		inp.errorMessages = {
+			valueMissing: 'Adresse e-mail requise',
+			typeMismatch: 'Format e-mail invalide',
+		}
+		await inp.updateComplete
+		await nextUpdate()
+		// Required + empty.
+		inp.markSubmitted()
+		await nextUpdate()
+		await nextUpdate()
+		expect(inp.validationMessage).toBe('Adresse e-mail requise')
+
+		// Now invalid format.
+		inp.value = 'not-an-email'
+		// Reset internal state so we re-evaluate cleanly (clear the previous
+		// validationMessage so the new check assigns the typeMismatch override).
+		inp.validationMessage = ''
+		await nextUpdate()
+		await nextUpdate()
+		expect(inp.validationMessage).toBe('Format e-mail invalide')
+	})
+
 	it('runAsyncValidator sets isValidating + :state(validating) and applies the result', async () => {
 		host.innerHTML = `<schmancy-input label="Username" value="taken"></schmancy-input>`
 		const inp = host.querySelector('schmancy-input') as HTMLElement & {
