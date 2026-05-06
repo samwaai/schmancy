@@ -1,4 +1,4 @@
-import { html, LitElement, nothing, PropertyValueMap, unsafeCSS } from 'lit'
+import { html, LitElement, nothing, unsafeCSS } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { createRef, ref } from 'lit/directives/ref.js'
@@ -185,11 +185,11 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	 * If user did not provide an ID, auto-generate one so <label for="...">
 	 * and various aria-* attributes can reference it.
 	 */
-	protected override willUpdate(changedProps: PropertyValueMap<unknown>) {
+	protected override willUpdate(changedProps: Map<PropertyKey, unknown>) {
 		if (!this.id) {
 			this.id = `sch-input-${SchmancyInput._idCounter++}`
 		}
-		super.willUpdate(changedProps)
+		super.willUpdate(changedProps as never)
 	}
 
 
@@ -257,7 +257,7 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 	 * binding has propagated. The mixin's willUpdate fires checkValidity too
 	 * early — at that point native.validity still reflects the previous value.
 	 */
-	protected override updated(changedProps: PropertyValueMap<unknown>) {
+	protected override updated(changedProps: Map<PropertyKey, unknown>) {
 		super.updated?.(changedProps)
 		if (
 			changedProps.has('value') ||

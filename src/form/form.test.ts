@@ -228,6 +228,32 @@ describe('schmancy-form', () => {
 		expect(liveRegion.textContent?.trim()).toBe('')
 	})
 
+	it('emits formstate event on every submit-state change', async () => {
+		host.innerHTML = `
+			<schmancy-form>
+				<schmancy-input name="x" value="ok"></schmancy-input>
+				<schmancy-button type="submit">Send</schmancy-button>
+			</schmancy-form>
+		`
+		const sf = host.querySelector('schmancy-form') as SchmancyForm
+		await nextUpdate()
+		await nextUpdate()
+		const events: Array<{ status: string; submitCount: number }> = []
+		sf.addEventListener('formstate', (e: Event) => {
+			const d = (e as CustomEvent<{ status: string; submitCount: number }>).detail
+			events.push({ status: d.status, submitCount: d.submitCount })
+		})
+		const btn = host.querySelector('schmancy-button[type=submit]') as HTMLElement
+		btn.click()
+		await nextUpdate()
+		await nextUpdate()
+		await nextUpdate()
+		const statuses = events.map(e => e.status)
+		// At minimum: submitting → success transitions for a successful submit.
+		expect(statuses).toContain('submitting')
+		expect(statuses).toContain('success')
+	})
+
 	it('clearSubmitted() resets the submitted flag without clearing values', async () => {
 		host.innerHTML = `
 			<schmancy-form>

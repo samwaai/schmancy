@@ -258,6 +258,15 @@ export default class SchmancyForm<TSchema extends ParseSchema | undefined = unde
 		// drop from tab order; keep them focusable, signal busy via aria).
 		if (status === 'submitting') this.setAttribute('aria-busy', 'true')
 		else this.removeAttribute('aria-busy')
+		// Public formstate event — external state stores subscribe without
+		// having to consume formSubmitState directly.
+		this.dispatchEvent(
+			new CustomEvent<FormSubmitState>('formstate', {
+				detail: { ...formSubmitState.value },
+				bubbles: true,
+				composed: true,
+			}),
+		)
 	}
 
 	/**
@@ -396,4 +405,5 @@ export interface ValidatableFormElement extends FormElement {
 export interface FormEventMap {
 	submit: CustomEvent<SchmancyFormSubmitDetail<unknown>>
 	reset: CustomEvent
+	formstate: CustomEvent<FormSubmitState>
 }
