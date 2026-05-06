@@ -720,6 +720,7 @@ export default class SchmancyInput extends SchmancyFormField(unsafeCSS(style)) {
 						<div
 							id="hint-${this.id}"
 							class="mt-1 text-sm ${this.error ? 'text-error-default' : 'text-surface-onVariant'}"
+							role=${ifDefined(this.error ? 'alert' : undefined)}
 						>
 							${this.error && this.validationMessage ? this.validationMessage : this.hint}
 						</div>

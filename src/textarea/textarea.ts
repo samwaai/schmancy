@@ -391,15 +391,19 @@ export default class SchmancyTextarea extends SchmancyFormField(unsafeCSS(style)
 				dirname=${ifDefined(this.dirname)}
 				aria-invalid=${this.error ? 'true' : 'false'}
 				aria-required=${this.required ? 'true' : 'false'}
-				aria-describedby=${this.hint ? hintId : nothing}
+				aria-describedby=${this.hint || (this.error && this.validationMessage) ? hintId : nothing}
 				aria-label=${!this.label && this.placeholder ? this.placeholder : nothing}
 			></textarea>
 
 			${when(
-				this.hint,
+				this.hint || (this.error && this.validationMessage),
 				() => html`
-					<div id=${hintId} class="mt-1 text-sm ${this.error ? 'text-error-default' : 'text-surface-onVariant'}">
-						${this.hint}
+					<div
+						id=${hintId}
+						class="mt-1 text-sm ${this.error ? 'text-error-default' : 'text-surface-onVariant'}"
+						role=${ifDefined(this.error ? 'alert' : undefined)}
+					>
+						${this.error && this.validationMessage ? this.validationMessage : this.hint}
 					</div>
 				`,
 			)}
