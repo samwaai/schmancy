@@ -16,7 +16,8 @@ import { ButtonVariant } from './button'
 export class SchmnacyIconButton extends SchmancyElement {
 	static styles = [css`
 	:host {
-		display: block;
+		display: inline-block;
+		width: fit-content;
 		border-radius: 9999px;
 		transition:
 			box-shadow 300ms cubic-bezier(0.34, 1.56, 0.64, 1),

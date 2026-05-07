@@ -20,7 +20,8 @@ export class SchmancySuggestionChip extends SchmancyElement {
 	:host {
 		display: inline-block;
 		outline: none;
-		min-width:fit-content
+		width: fit-content;
+		min-width: fit-content;
 	}
 
 	:host([disabled]) {
@@ -193,7 +194,6 @@ export class SchmancySuggestionChip extends SchmancyElement {
 			'duration-200': true,
 			'select-none': true,
 			'overflow-hidden': true,
-			'border': true,
 
 			// M3 Padding: 8px with icon, 16px without (leading), 16px trailing
 			'pl-2': hasIcon, // 8px with icon
@@ -203,7 +203,6 @@ export class SchmancySuggestionChip extends SchmancyElement {
 			// M3 Colors for suggestion chips
 			'bg-surface-containerLow': true,
 			'text-surface-onVariant': true,
-			'border-outline': true,
 
 			// Suggestion chips are flat by default (no elevation per M3)
 

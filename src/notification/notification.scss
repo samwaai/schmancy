@@ -18,7 +18,6 @@
 	/* Type-colored luminous glow */
 	--notification-glow-color: var(--schmancy-sys-color-primary-default);
 	box-shadow: 0 4px 24px -6px color-mix(in srgb, var(--notification-glow-color) 18%, transparent);
-	border-left: 2px solid color-mix(in srgb, var(--notification-glow-color) 50%, transparent);
 
 	transition:
 		box-shadow 300ms ease,

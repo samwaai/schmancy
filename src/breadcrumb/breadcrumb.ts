@@ -83,6 +83,7 @@ export class SchmancyBreadcrumbItem extends SchmancyElement {
 	static styles = [css`
 	:host {
 		display: inline-block;
+		width: fit-content;
 	}
 	a, span {
 		color: inherit;

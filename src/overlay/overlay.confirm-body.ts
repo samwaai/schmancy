@@ -140,7 +140,7 @@ export class SchmancyOverlayPromptBody extends SchmancyElement {
 					<button
 						type="button"
 						@click=${this.handleCancel}
-						class="px-4 py-2 rounded-md border border-outline-variant bg-transparent cursor-pointer"
+						class="px-4 py-2 rounded-md bg-transparent cursor-pointer hover:bg-surface-on/5"
 					>
 						${this.cancelText}
 					</button>

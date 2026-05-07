@@ -301,7 +301,7 @@ export class SchmancyButton extends SchmancyElement {
 
 		// Compute classes for the interactive element.
 		const classes = {
-			'z-0 transition-all duration-200 relative rounded-2xl inline-flex justify-center items-center outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden w-[inherit] overflow-hidden':
+			'z-0 transition-all duration-200 relative rounded-2xl flex justify-center items-center outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden w-full overflow-hidden':
 				true,
 			// Height - M3 spec: 24dp (xxs) → 32dp (dense) → 40dp (default) → 48dp (large) → 56dp (XL)
 			'h-6': this.size === 'xxs',   // 24px - Ultra-compact

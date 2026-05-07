@@ -14,7 +14,6 @@ export default class SchmancyDetails extends SurfaceMixin(SchmancyElement) {
 	static styles = [css`
 		:host {
 			display: block;
-			transition: box-shadow 400ms cubic-bezier(0.34, 1.2, 0.64, 1);
 		}
 
 		:host([overlay]) {
@@ -22,9 +21,6 @@ export default class SchmancyDetails extends SurfaceMixin(SchmancyElement) {
 		}
 
 		:host([open]) {
-			box-shadow:
-				0 2px 12px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent),
-				0 8px 32px -8px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 8%, transparent);
 			z-index: 10;
 		}
 
@@ -228,8 +224,7 @@ export default class SchmancyDetails extends SurfaceMixin(SchmancyElement) {
 			[this.summaryPadding]: true,
 			'select-none relative flex items-center gap-2 rounded-xl': true,
 			'transition-colors duration-150': true,
-			'ring-1 ring-inset ring-transparent': true,
-			'hover:bg-surface-on/5 active:bg-surface-on/8 hover:ring-outline-variant/40': !this.locked,
+			'hover:bg-surface-on/5 active:bg-surface-on/8': !this.locked,
 			'focus-visible:ring-2 focus-visible:ring-primary-default/50 focus-visible:ring-offset-1': !this.locked,
 			'cursor-pointer group': !this.locked,
 			'cursor-default': this.locked,
@@ -240,7 +235,7 @@ export default class SchmancyDetails extends SurfaceMixin(SchmancyElement) {
 		const contentClasses = this.classMap({
 			[this.contentPadding]: true,
 			'text-sm': true,
-			'absolute inset-x-0 bg-surface-lowest/55 backdrop-blur-[16px] shadow-2xl rounded-b-xl z-20 border border-surface-on/10':
+			'absolute inset-x-0 bg-surface-lowest/55 backdrop-blur-[16px] shadow-2xl rounded-b-xl z-20':
 				this.overlay,
 		})
 

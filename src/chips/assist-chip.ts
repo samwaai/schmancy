@@ -15,7 +15,8 @@ export class SchmancyAssistChip extends SchmancyElement {
 	:host {
 		display: inline-block;
 		outline: none;
-		min-width:fit-content
+		width: fit-content;
+		min-width: fit-content;
 	}
 
 	:host([disabled]) {

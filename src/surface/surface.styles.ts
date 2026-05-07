@@ -23,7 +23,6 @@ export const surfaceTypeStyles = css`
 		--glass-tint: var(--schmancy-sys-color-surface-on);
 		background: color-mix(in srgb, var(--glass-base) 92%, transparent);
 		color: var(--schmancy-sys-color-surface-on);
-		border: 1px solid color-mix(in srgb, var(--glass-tint) 4%, transparent);
 	}
 
 	/* Subtle — frosted glass, clearly readable */
@@ -34,28 +33,17 @@ export const surfaceTypeStyles = css`
 		backdrop-filter: blur(8px) saturate(130%);
 		-webkit-backdrop-filter: blur(8px) saturate(130%);
 		color: var(--schmancy-sys-color-surface-on);
-		border: 1px solid color-mix(in srgb, var(--glass-tint) 7%, transparent);
-		box-shadow: inset 0 1px 0 color-mix(in srgb, var(--glass-tint) 5%, transparent);
 	}
 
 	/* Glass — frosted glass, blur ensures readability */
 	:host([type='glass']) {
 		--glass-base: var(--schmancy-sys-color-surface-lowest);
 		--glass-tint: var(--schmancy-sys-color-surface-on);
-		--glass-border: color-mix(in srgb, var(--glass-tint) 10%, transparent);
-		--glass-border-highlight: color-mix(in srgb, var(--glass-tint) 18%, transparent);
 
 		background: color-mix(in srgb, var(--glass-base) 55%, transparent);
 		backdrop-filter: blur(16px) saturate(180%) brightness(1.05);
 		-webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.05);
 		color: var(--schmancy-sys-color-surface-on);
-		border: 1px solid var(--glass-border);
-		border-top-color: var(--glass-border-highlight);
-		border-left-color: var(--glass-border-highlight);
-		box-shadow:
-			0 4px 24px color-mix(in srgb, black 10%, transparent),
-			inset 0 1px 0 color-mix(in srgb, var(--glass-tint) 8%, transparent),
-			inset 0 -1px 0 color-mix(in srgb, black 3%, transparent);
 		contain: content;
 		position: relative;
 		overflow: hidden;
@@ -67,20 +55,11 @@ export const surfaceTypeStyles = css`
 		--glass-base: var(--schmancy-sys-color-surface-lowest);
 		--glass-tint: var(--schmancy-sys-color-surface-on);
 		--glow-color: var(--schmancy-sys-color-primary-default);
-		--glass-border: color-mix(in srgb, var(--glass-tint) 12%, transparent);
-		--glass-border-highlight: color-mix(in srgb, var(--glass-tint) 22%, transparent);
 
 		background: color-mix(in srgb, var(--glass-base) 42%, transparent);
 		backdrop-filter: blur(20px) saturate(200%) brightness(1.08);
 		-webkit-backdrop-filter: blur(20px) saturate(200%) brightness(1.08);
 		color: var(--schmancy-sys-color-surface-on);
-		border: 1px solid var(--glass-border);
-		border-top-color: var(--glass-border-highlight);
-		border-left-color: var(--glass-border-highlight);
-		box-shadow:
-			0 8px 40px -4px color-mix(in srgb, var(--glow-color) 20%, transparent),
-			0 2px 16px color-mix(in srgb, black 8%, transparent),
-			inset 0 1px 0 color-mix(in srgb, var(--glass-tint) 10%, transparent);
 		contain: content;
 		position: relative;
 		overflow: hidden;
@@ -114,49 +93,42 @@ export const surfaceTypeStyles = css`
 		backdrop-filter: blur(4px) saturate(140%);
 		-webkit-backdrop-filter: blur(4px) saturate(140%);
 		color: var(--schmancy-sys-color-primary-default);
-		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-primary-default) 20%, transparent);
 	}
 	:host([type='secondary']) {
 		background: color-mix(in srgb, var(--schmancy-sys-color-secondary-default) 12%, transparent);
 		backdrop-filter: blur(4px) saturate(140%);
 		-webkit-backdrop-filter: blur(4px) saturate(140%);
 		color: var(--schmancy-sys-color-secondary-default);
-		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-secondary-default) 20%, transparent);
 	}
 	:host([type='tertiary']) {
 		background: color-mix(in srgb, var(--schmancy-sys-color-tertiary-default) 12%, transparent);
 		backdrop-filter: blur(4px) saturate(140%);
 		-webkit-backdrop-filter: blur(4px) saturate(140%);
 		color: var(--schmancy-sys-color-tertiary-default);
-		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-tertiary-default) 20%, transparent);
 	}
 	:host([type='error']) {
 		background: color-mix(in srgb, var(--schmancy-sys-color-error-default) 12%, transparent);
 		backdrop-filter: blur(4px) saturate(140%);
 		-webkit-backdrop-filter: blur(4px) saturate(140%);
 		color: var(--schmancy-sys-color-error-onContainer);
-		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-error-default) 25%, transparent);
 	}
 	:host([type='success']) {
 		background: color-mix(in srgb, var(--schmancy-sys-color-success-default) 12%, transparent);
 		backdrop-filter: blur(4px) saturate(140%);
 		-webkit-backdrop-filter: blur(4px) saturate(140%);
 		color: var(--schmancy-sys-color-success-onContainer);
-		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-success-default) 25%, transparent);
 	}
 	:host([type='warning']) {
 		background: color-mix(in srgb, var(--schmancy-sys-color-warning-default) 12%, transparent);
 		backdrop-filter: blur(4px) saturate(140%);
 		-webkit-backdrop-filter: blur(4px) saturate(140%);
 		color: var(--schmancy-sys-color-warning-onContainer);
-		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-warning-default) 25%, transparent);
 	}
 	:host([type='info']) {
 		background: color-mix(in srgb, var(--schmancy-sys-color-info-default) 12%, transparent);
 		backdrop-filter: blur(4px) saturate(140%);
 		-webkit-backdrop-filter: blur(4px) saturate(140%);
 		color: var(--schmancy-sys-color-info-onContainer);
-		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-info-default) 25%, transparent);
 	}
 
 	/* ================================================================
@@ -173,7 +145,6 @@ export const surfaceTypeStyles = css`
 		--glass-tint: var(--schmancy-sys-color-surface-on);
 		background: color-mix(in srgb, var(--glass-base) 92%, transparent);
 		color: var(--schmancy-sys-color-surface-on);
-		border: 1px solid color-mix(in srgb, var(--glass-tint) 4%, transparent);
 	}
 
 	/* subtle aliases — frosted glass */
@@ -185,8 +156,6 @@ export const surfaceTypeStyles = css`
 		backdrop-filter: blur(8px) saturate(130%);
 		-webkit-backdrop-filter: blur(8px) saturate(130%);
 		color: var(--schmancy-sys-color-surface-on);
-		border: 1px solid color-mix(in srgb, var(--glass-tint) 7%, transparent);
-		box-shadow: inset 0 1px 0 color-mix(in srgb, var(--glass-tint) 5%, transparent);
 	}
 
 	/* glass aliases */
@@ -195,20 +164,11 @@ export const surfaceTypeStyles = css`
 	:host([type='glassOforim']) {
 		--glass-base: var(--schmancy-sys-color-surface-lowest);
 		--glass-tint: var(--schmancy-sys-color-surface-on);
-		--glass-border: color-mix(in srgb, var(--glass-tint) 10%, transparent);
-		--glass-border-highlight: color-mix(in srgb, var(--glass-tint) 18%, transparent);
 
 		background: color-mix(in srgb, var(--glass-base) 55%, transparent);
 		backdrop-filter: blur(16px) saturate(180%) brightness(1.05);
 		-webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.05);
 		color: var(--schmancy-sys-color-surface-on);
-		border: 1px solid var(--glass-border);
-		border-top-color: var(--glass-border-highlight);
-		border-left-color: var(--glass-border-highlight);
-		box-shadow:
-			0 4px 24px color-mix(in srgb, black 10%, transparent),
-			inset 0 1px 0 color-mix(in srgb, var(--glass-tint) 8%, transparent),
-			inset 0 -1px 0 color-mix(in srgb, black 3%, transparent);
 		position: relative;
 		overflow: hidden;
 		isolation: isolate;
@@ -301,19 +261,15 @@ export const surfaceClickableStyles = css`
 	}
 	:host([clickable]:hover) {
 		filter: brightness(1.03);
-		transform: translateY(-1px);
-		box-shadow: 0 4px 20px -6px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent);
 	}
 	:host([clickable]:active) {
 		filter: brightness(0.96);
-		transform: scale(0.97);
-		box-shadow: none;
+		transform: scale(0.98);
 		transition-duration: 100ms;
 	}
 	:host([clickable]:focus-visible) {
 		outline: 2px solid var(--schmancy-sys-color-primary-default);
 		outline-offset: 2px;
-		box-shadow: 0 0 12px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 20%, transparent);
 	}
 	@media (prefers-reduced-motion: reduce) {
 		:host([clickable]) { transition: filter 150ms ease; }

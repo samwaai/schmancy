@@ -24,24 +24,15 @@ export class SchmancyFilterChip extends SchmancyElement {
 	:host {
 		display: inline-block;
 		outline: none;
+		width: fit-content;
 		min-width: fit-content;
 		border-radius: 0.5rem;
-		transition:
-			box-shadow 300ms ease,
-			transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
-	}
-
-	:host(:hover:not([disabled])) {
-		box-shadow: 0 2px 8px -2px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 15%, transparent);
+		transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 	}
 
 	:host(:active:not([disabled])) {
 		transform: scale(0.95);
 		transition-duration: 100ms;
-	}
-
-	:host([selected]) {
-		box-shadow: 0 0 12px -2px color-mix(in srgb, var(--schmancy-sys-color-secondary-default) 20%, transparent);
 	}
 
 	:host([disabled]) {
@@ -51,9 +42,7 @@ export class SchmancyFilterChip extends SchmancyElement {
 
 	@media (prefers-reduced-motion: reduce) {
 		:host { transition: none; }
-		:host(:hover:not([disabled])) { box-shadow: none; }
 		:host(:active:not([disabled])) { transform: none; }
-		:host([selected]) { box-shadow: none; }
 	}
 
 	button {
@@ -184,17 +173,14 @@ export class SchmancyFilterChip extends SchmancyElement {
 			'select-none': true,
 			'text-sm': true,
 			'font-medium': true,
-			'border': true,
 			'relative': true,
 			'min-h-[32px]': true,
 
 			// Background and text colors based on selection state
 			'bg-secondary-container': this._selected,
 			'text-secondary-onContainer': this._selected,
-			'border-secondary-container': this._selected,
 			'bg-surface-container': !this._selected,
 			'text-surface-on': !this._selected,
-			'border-outline': !this._selected,
 
 			// Hover states
 			'hover:brightness-95': this._selected && !this.disabled,

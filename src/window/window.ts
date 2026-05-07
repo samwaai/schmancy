@@ -77,8 +77,6 @@ export default class SchmancyWindow extends SchmancyElement {
 
 	/** Lazy rendering: body content not in DOM until first expand. */
 	@state() private _hasOpened = false
-	/** Whether this window is the focused window in the manager — drives visual ring */
-	@state() private _focused = false
 
 	// Internal position -- plain fields, updated directly during drag
 	private _position: Position = { x: 16, y: 16 }
@@ -398,11 +396,6 @@ export default class SchmancyWindow extends SchmancyElement {
 						if (container) container.style.zIndex = String(record.zIndex)
 					}),
 				),
-				windowManager.selectFocused().pipe(
-					tap(focusedId => {
-						this._focused = focusedId === this.id
-					}),
-				),
 			)),
 			takeUntil(this.disconnecting),
 		).subscribe()
@@ -636,12 +629,7 @@ export default class SchmancyWindow extends SchmancyElement {
 			'flex-col': isBottom,
 			'flex-col-reverse': !isBottom,
 			'z-1000': true,
-			'ring-1': !this._focused,
-			'ring-2': this._focused,
-			'ring-primary-default/30': this._focused,
-			'ring-primary-default/15': this.open && !this._focused,
 			'rounded-2xl': this.open,
-			'ring-outline-variant/40': !this.open && !this._focused,
 			'rounded-[22px]': !this.open,
 			'overflow-hidden': true,
 		})

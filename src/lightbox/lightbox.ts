@@ -329,7 +329,7 @@ export class SchmancyLightbox extends SchmancyElement {
 				>
 					<!-- Close Button -->
 					<button
-						class="absolute top-4 right-4 md:top-4 md:right-4 sm:top-2 sm:right-2 bg-white/15 backdrop-blur-md border border-white/20 text-white w-11 h-11 rounded-full flex items-center justify-center cursor-pointer z-10 transition-all duration-200 hover:bg-white/25 hover:scale-105 active:scale-95"
+						class="absolute top-4 right-4 md:top-4 md:right-4 sm:top-2 sm:right-2 bg-white/15 backdrop-blur-md text-white w-11 h-11 rounded-full flex items-center justify-center cursor-pointer z-10 transition-all duration-200 hover:bg-white/25 hover:scale-105 active:scale-95"
 						@click=${this.handleClose}
 						aria-label="Close lightbox"
 						title="Close (Esc)"
@@ -383,7 +383,7 @@ export class SchmancyLightbox extends SchmancyElement {
 								class="absolute bottom-[-3.5rem] md:bottom-[-3.5rem] sm:bottom-[-3rem] left-1/2 -translate-x-1/2 flex items-center gap-4 z-10"
 							>
 								<button
-									class="bg-white/15 backdrop-blur-md border border-white/20 text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-white/25 hover:scale-105 active:scale-95"
+									class="bg-white/15 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-white/25 hover:scale-105 active:scale-95"
 									@click=${this.handlePrevious}
 									aria-label="Previous image"
 									title="Previous (←)"
@@ -396,7 +396,7 @@ export class SchmancyLightbox extends SchmancyElement {
 								</div>
 
 								<button
-									class="bg-white/15 backdrop-blur-md border border-white/20 text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-white/25 hover:scale-105 active:scale-95"
+									class="bg-white/15 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 hover:bg-white/25 hover:scale-105 active:scale-95"
 									@click=${this.handleNext}
 									aria-label="Next image"
 									title="Next (→)"

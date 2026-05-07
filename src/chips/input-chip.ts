@@ -34,8 +34,8 @@ export class SchmancyInputChip extends SchmancyElement {
 	:host {
 		display: inline-block;
 		outline: none;
-		min-width:fit-content
-
+		width: fit-content;
+		min-width: fit-content;
 	}
 
 	:host([disabled]) {
@@ -295,7 +295,6 @@ export class SchmancyInputChip extends SchmancyElement {
 			'font-medium': true, // M3: 500 weight
 			'relative': true,
 			'overflow-hidden': true,
-			'border': true,
 
 			// M3 Padding: 8px with icon, 16px without (leading), 8px with trailing icon
 			'pl-2': hasLeadingIcon, // 8px with avatar/icon
@@ -306,8 +305,6 @@ export class SchmancyInputChip extends SchmancyElement {
 			// M3 Colors for input chips
 			'bg-surface-containerLow': true,
 			'text-surface-onVariant': true,
-			'border-outline': true,
-			'border-solid':true,
 			// Input chips are flat (no elevation) per M3
 
 			// Focus-visible state
