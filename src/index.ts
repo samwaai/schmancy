@@ -35,6 +35,14 @@ export * from './navigation-bar';
 export * from './navigation-rail';
 export * from './notification';
 export * from './option';
+// Overlay's `show`, `confirm`, `prompt`, etc. need to surface through
+// the main barrel. Module Federation's static-export discovery (and
+// rolldown's tree-shake analysis through MF virtual modules) walks
+// the package's main entry to enumerate available exports, so when
+// downstream code does `import { show } from '@mhmo91/schmancy/overlay'`
+// inside a federated context, the build-time check passes only if
+// `show` is reachable from the main barrel.
+export * from './overlay';
 export * from './page';
 export * from './progress';
 export * from './form/fields/radio-group';

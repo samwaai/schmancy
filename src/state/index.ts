@@ -209,10 +209,22 @@ function detectKind(value: unknown): RuntimeKind {
 // share a single registry. Without this, source-state and dist-state would
 // each maintain their own `claimed` set and could both register the same
 // namespace, producing two singletons with the same name.
+//
+// Module Federation is the load-driver here: when web bundles its own copy
+// of schmancy/state and so does owl (the remote), both modules execute and
+// each tries to register every namespace its consumers declare. The global
+// claim Set is what dedupes that. The instance map below is what makes the
+// dedup TRANSPARENT — `state('user/state').memory(null)` returns the same
+// bound singleton the first caller got, so consumers don't need to know
+// who arrived first.
 const CLAIMED_KEY = Symbol.for('schmancy.state.claimed')
+const INSTANCES_KEY = Symbol.for('schmancy.state.instances')
 const __claimedSlot = (globalThis as { [CLAIMED_KEY]?: Set<string> })
 __claimedSlot[CLAIMED_KEY] ??= new Set<string>()
 const claimed = __claimedSlot[CLAIMED_KEY]!
+const __instancesSlot = (globalThis as { [INSTANCES_KEY]?: Map<string, unknown> })
+__instancesSlot[INSTANCES_KEY] ??= new Map<string, unknown>()
+const instances = __instancesSlot[INSTANCES_KEY]!
 
 // ---------------------------------------------------------------------------
 // Context resolution.
@@ -576,17 +588,27 @@ function createInstance(args: CreateInstanceArgs, options: CreateInstanceOptions
 }
 
 function makeHandle(namespace: string): Record<string, (initial: unknown) => unknown> {
-	if (claimed.has(namespace)) {
-		throw new Error(
-			`[state] namespace "${namespace}" already registered. Each namespace must be unique.`,
-		)
-	}
+	// Idempotent on `(namespace, storage)`. The first caller for a given
+	// namespace+storage combination creates the instance; later callers get
+	// the same instance back regardless of `initial`. (Initial value is
+	// scoped to construction by definition.) This makes the factory safe
+	// under module-duplication conditions — Module Federation's loadShare
+	// proxies, multiple build-time copies of schmancy, dev/HMR re-evaluation.
 	claimed.add(namespace)
+	const ensure = (storage: 'memory' | 'local' | 'session' | 'indexeddb') =>
+		(initial: unknown) => {
+			const key = `${namespace}@${storage}`
+			const cached = instances.get(key)
+			if (cached !== undefined) return cached
+			const instance = createInstance({ namespace, initial, storage })
+			instances.set(key, instance)
+			return instance
+		}
 	return {
-		memory: initial => createInstance({ namespace, initial, storage: 'memory' }),
-		local: initial => createInstance({ namespace, initial, storage: 'local' }),
-		session: initial => createInstance({ namespace, initial, storage: 'session' }),
-		idb: initial => createInstance({ namespace, initial, storage: 'indexeddb' }),
+		memory: ensure('memory'),
+		local: ensure('local'),
+		session: ensure('session'),
+		idb: ensure('indexeddb'),
 	}
 }
 
