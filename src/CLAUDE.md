@@ -18,6 +18,26 @@ by the Claude Code plugin. Drift here means drift everywhere.
 
 ## Source-author rules (not in the consumer docs)
 
+### Host sizing — `inline-flex` + `flex-1` pattern
+
+Every component whose `:host` carries visual affordances (box-shadow, transform) must follow the same pattern native `<button>` uses:
+
+```css
+/* ✓ correct */
+:host { display: inline-flex; }          /* host is a flex container */
+:host([width="full"]) { display: flex; width: 100%; }
+```
+
+```typescript
+/* inner interactive element */
+'flex-1 ...' : true,   /* ✓ resolves against the flex container's available space */
+'w-full ...' : true,   /* ✗ resolves against the containing block content-box — wrong when host is blockified by a parent flex layout */
+```
+
+**Why `flex-1` not `w-full`:** when a flex/grid parent stretches the `<schmancy-button>` host, `width: 100%` on the inner `<button>` resolves against the host's *containing-block content-box*, which remains content-sized for `inline-flex` hosts. The outer (flex-stretched) size and the inner (content-sized) size split — the inner element is narrower than the host, so `:host(:hover)` box-shadow fires across the full stretched area while the visible button fill is narrower. `flex-1` uses `flex-basis: 0` + grow, which resolves against the flex container's *available space* — always the stretched width — with no circular-percentage issue. This matches native `<button>` behavior: content-sized inline, stretches in flex containers.
+
+**Applies to:** `schmancy-button`, `schmancy-icon-button`, and any future component with host-level visual affordances.
+
 ### Component skeleton
 
 Every concrete component:

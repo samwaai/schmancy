@@ -1,104 +1,49 @@
 import { html, unsafeCSS } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
-import { Subject, fromEvent, takeUntil } from 'rxjs'
+import { fromEvent, takeUntil } from 'rxjs'
 import style from './radio-group.scss?inline'
 import { SchmancyElement } from '@mixins/index'
 import { when } from 'lit/directives/when.js'
 import { FormFieldMixin } from '@mixins/formField.mixin'
+import type { RadioButton } from './radio-button.ts'
 
-export type SchmancyRadioGroupOption = {
-	label: string
-	value: string
-}
-export type SchmancyRadioGroupChangeEvent = CustomEvent<{
-	value: string
-}>
+export type SchmancyRadioGroupChangeEvent = CustomEvent<{ value: string }>
+
 @customElement('schmancy-radio-group')
 export class RadioGroup extends FormFieldMixin(SchmancyElement) {
-	static styles = [unsafeCSS(style)];
+	static styles = [unsafeCSS(style)]
 	@property({ type: String }) override label = ''
 	@property({ type: String }) override name = ''
 	@property({ type: String }) override value = ''
-	@property({ type: Array }) options: SchmancyRadioGroupOption[] = []
-	@property({ type: Boolean }) override required: boolean = false
-	private selection$ = new Subject<string>()
+	@property({ type: Boolean }) override required = false
 
 	connectedCallback() {
 		super.connectedCallback()
-		this.selection$.pipe(takeUntil(this.disconnecting)).subscribe(value => {
-			this.value = value
-			this.emitChange({ value })
-			// Update all child radio buttons
-			this.updateChildRadioButtons()
-		})
-
-		// Listen for radio button clicks from children
 		fromEvent<CustomEvent>(this, 'radio-button-click')
 			.pipe(takeUntil(this.disconnecting))
-			.subscribe((e: CustomEvent) => {
-				this.selection$.next(e.detail.value)
+			.subscribe((e: CustomEvent<{ value: string }>) => {
+				this.value = e.detail.value
+				this.emitChange({ value: e.detail.value })
+				this._syncChildren()
 			})
 	}
 
-	disconnectedCallback() {
-		super.disconnectedCallback()
-		// Subscriptions are automatically cleaned up via takeUntil(this.disconnecting)
-		this.selection$?.complete()
+	updated(changed: Map<string, unknown>) {
+		super.updated(changed)
+		if (changed.has('value')) this._syncChildren()
 	}
-	
-	private handleSelection(value: string) {
-		this.selection$.next(value)
-	}
-	
-	private updateChildRadioButtons() {
-		// Update child radio buttons checked state
-		const radioButtons = this.querySelectorAll('schmancy-radio-button')
-		radioButtons.forEach(button => {
-			const buttonValue = button.getAttribute('value')
-			if (buttonValue === this.value) {
-				button.setAttribute('checked', '')
-			} else {
-				button.removeAttribute('checked')
-			}
+
+	private _syncChildren() {
+		this.querySelectorAll<RadioButton>('schmancy-radio-button').forEach(btn => {
+			btn.checked = btn.value === this.value
 		})
-	}
-	
-	// For backwards compatibility with direct option setting
-	updated(changedProperties: Map<string, unknown>) {
-		super.updated(changedProperties)
-		if (changedProperties.has('value')) {
-			this.updateChildRadioButtons()
-		}
 	}
 
 	render() {
-		// Check if we have any slotted radio buttons
-		const hasSlottedContent = this.childElementCount > 0
-		
 		return html`
-			<div class="grid gap-4">
-				${when(this.label, () => html` <label class="text-base font-semibold text-surface-on">${this.label}</label> `)}
-				
-				${hasSlottedContent ? 
-					html`<slot></slot>` :
-					this.options?.map(option => html`
-						<div class="flex items-center">
-							<input
-								.required=${this.required}
-								id=${option.value}
-								class="h-4 w-4 border-outline text-primary-default focus:ring-primary-default"
-								type="radio"
-								name=${this.name}
-								.value=${option.value}
-								.checked=${option.value === this.value}
-								@change=${() => this.handleSelection(option.value)}
-							/>
-							<label for=${option.value} class="ml-3 block text-sm font-medium leading-6 text-surface-on">
-								${option.label || option.value}
-							</label>
-						</div>
-					`)
-				}
+			<div role="radiogroup" aria-label=${this.label} aria-required=${this.required} class="grid gap-2">
+				${when(this.label, () => html`<schmancy-typography type="label" token="lg">${this.label}</schmancy-typography>`)}
+				<slot></slot>
 			</div>
 		`
 	}

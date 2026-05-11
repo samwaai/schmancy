@@ -1,5 +1,5 @@
-import { SchmancyElement } from '@mixins/index'
 import { provide } from '@lit/context'
+import { SchmancyElement } from '@mixins/index'
 import { css, html, LitElement } from 'lit'
 import { customElement, property, query, queryAssignedElements } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
@@ -26,8 +26,7 @@ export type ButtonColor = 'primary' | 'secondary' | 'success' | 'error' | 'warni
 @customElement('schmancy-button')
 export class SchmancyButton extends SchmancyElement {
 	static styles = [css`:host{
-		display: inline-block;
-		min-width: fit-content;
+		display: inline-flex;
 		overflow: hidden;
 		position: relative;
 		touch-action: manipulation;
@@ -35,6 +34,10 @@ export class SchmancyButton extends SchmancyElement {
 		transition:
 			box-shadow 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
 			transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+	:host([width="full"]) {
+		display: flex;
+		width: 100%;
 	}
 	:host(:hover:not([disabled])) {
 		box-shadow: 0 4px 16px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 20%, transparent);
@@ -165,7 +168,7 @@ export class SchmancyButton extends SchmancyElement {
 	 * @default 'auto'
 	 * @public
 	 */
-	@property()
+	@property({ reflect: true })
 	public width: 'full' | 'auto' = 'auto'
 
 	/**
@@ -301,7 +304,7 @@ export class SchmancyButton extends SchmancyElement {
 
 		// Compute classes for the interactive element.
 		const classes = {
-			'z-0 transition-all duration-200 relative rounded-2xl flex justify-center items-center outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden w-full overflow-hidden':
+			'z-0 transition-all duration-200 relative rounded-2xl flex justify-center items-center outline-secondary-default focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 outline-hidden flex-1 overflow-hidden':
 				true,
 			// Height - M3 spec: 24dp (xxs) → 32dp (dense) → 40dp (default) → 48dp (large) → 56dp (XL)
 			'h-6': this.size === 'xxs',   // 24px - Ultra-compact

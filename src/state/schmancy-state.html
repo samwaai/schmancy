@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schmancy State — Complete Developer Reference</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f1117;--ink2:#374151;--ink3:#6b7280;--rule:#e5e7eb;
+  --a:#1d4ed8;--ab:#eff6ff;--g:#15803d;--gb:#f0fdf4;
+  --o:#92400e;--ob:#fffbeb;--r:#be185d;--rb:#fdf2f8;
+  --v:#6d28d9;--vb:#f5f3ff;--t:#0f766e;--tb:#f0fdfa;
+  --mono:'JetBrains Mono','Fira Code','Cascadia Code',Consolas,monospace;
+  --sans:'Inter','Helvetica Neue',Arial,sans-serif;
+  --w:920px;
+}
+html{font-size:13px}
+body{font-family:var(--sans);color:var(--ink);background:#fff;padding:40px 28px;line-height:1.68}
+.page{max-width:var(--w);margin:0 auto}
+
+/* ── Typography ── */
+h1{font-size:2rem;font-weight:900;letter-spacing:-.04em;line-height:1.1;border-bottom:4px solid var(--ink);padding-bottom:10px;margin-bottom:6px}
+.meta{font-size:.72rem;color:var(--ink3);margin-bottom:8px;font-style:italic}
+.intro{font-size:.83rem;color:var(--ink2);margin-bottom:32px;line-height:1.8;max-width:800px}
+
+/* Part titles */
+.part{font-size:1.5rem;font-weight:900;letter-spacing:-.03em;border-bottom:3px solid var(--ink);padding-bottom:8px;margin:44px 0 6px}
+.part-sub{font-size:.75rem;color:var(--ink3);margin-bottom:28px;font-style:italic}
+
+/* Section headers */
+h2{font-size:1rem;font-weight:800;letter-spacing:-.02em;margin:32px 0 4px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.tag{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:100px;white-space:nowrap}
+h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin:16px 0 7px}
+p{font-size:.82rem;margin-bottom:9px;line-height:1.72}
+p:last-child{margin-bottom:0}
+strong{font-weight:700}
+
+/* ── Code ── */
+code{font-family:var(--mono);font-size:.76em;background:#f3f4f6;color:var(--r);padding:1px 4px;border-radius:3px}
+pre{font-family:var(--mono);font-size:.69rem;background:#f3f4f6;border:1px solid var(--rule);border-left:3px solid var(--ink3);border-radius:0 4px 4px 0;padding:11px 14px;overflow-x:auto;line-height:1.58;margin:9px 0;white-space:pre;color:var(--ink)}
+
+/* ── Dark visual blocks ── */
+.viz{font-family:var(--mono);font-size:.67rem;background:#0f1117;color:#e2e8f0;border-radius:6px;padding:14px 17px;margin:9px 0;white-space:pre;line-height:1.62;overflow-x:auto}
+.d{color:#475569}.h{color:#38bdf8;font-weight:700}.g{color:#4ade80;font-weight:600}
+.ac{color:#a78bfa}.y{color:#fde047}.re{color:#f87171}.or{color:#fb923c}
+
+/* ── Callouts ── */
+.box{border-radius:0 4px 4px 0;padding:9px 14px;margin:9px 0;font-size:.79rem;line-height:1.65}
+.box strong{display:block;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.note{border-left:3px solid var(--a);background:var(--ab)}
+.warn{border-left:3px solid #f59e0b;background:var(--ob)}
+.good{border-left:3px solid var(--g);background:var(--gb)}
+.limit{border-left:3px solid var(--r);background:var(--rb)}
+
+/* ── Grid ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:9px 0}
+.card{border:1px solid var(--rule);border-radius:4px;padding:11px 13px;font-size:.79rem}
+.card h4{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:7px}
+
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;font-size:.78rem;margin:10px 0}
+thead tr{background:var(--ink);color:#fff}
+thead th{padding:6px 10px;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr:nth-child(even){background:#f9fafb}
+td{padding:5px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+
+/* ── Pattern header ── */
+.ph{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.pn{font-size:2rem;font-weight:900;color:var(--rule);line-height:1;min-width:40px;letter-spacing:-.04em}
+.pm{flex:1}
+.pname{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.tl{font-size:.79rem;color:var(--ink3);margin-top:4px;font-style:italic}
+
+.mm{background:#fafafa;border:1px solid var(--rule);border-left:3px solid var(--ink);border-radius:0 5px 5px 0;padding:12px 14px;margin:10px 0;font-size:.81rem}
+.mm strong{display:block;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:5px}
+
+hr{border:none;border-top:1.5px solid var(--rule);margin:28px 0}
+.thick{border-top:3px solid var(--ink);margin:40px 0 32px}
+
+@media print{
+  body{padding:0;font-size:11px}
+  .ph,.g2{page-break-inside:avoid}
+  pre,.viz,table{page-break-inside:avoid}
+  h2,h3{page-break-after:avoid}
+  .part{page-break-before:always}
+  @page{size:A4;margin:14mm 13mm}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══ COVER ══ -->
+<h1>Schmancy State — Complete Developer Reference</h1>
+<p class="meta">@mhmo91/schmancy/state · packages/schmancy/src/state/ · 2026-05-08 · source of truth: schmancy-state.md</p>
+<p class="intro">
+  Everything about the schmancy state module in one document: the external libraries it is built on, the design patterns it uses (with mental models and worked examples), and the full technical reference. Read Part 1 first — without understanding TC39 Signals and <code>@lit/context</code>, the patterns are mechanisms without motivation.
+</p>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="part">Part 1 — Foundational Libraries</div>
+<p class="part-sub">TC39 Signals (signal-polyfill · @lit-labs/signals) · @lit/context — how they actually work, from first principles</p>
+
+<!-- ── A: TC39 Signals ── -->
+<div>
+<h2>A &nbsp; TC39 Signals <span class="tag" style="background:var(--ob);color:var(--o)">signal-polyfill</span> <span class="tag" style="background:var(--ob);color:var(--o)">@lit-labs/signals</span></h2>
+
+<h3>The problem</h3>
+<p>A spreadsheet: cell <code>C1 = A1 + B1</code>. When <code>A1</code> changes, <code>C1</code> recomputes automatically — without you calling "recompute C1." JavaScript has no built-in version of this. Every reactive system (MobX, Vue, SolidJS, Svelte) implements the same idea: <em>track which computations read which values, then invalidate those computations when the values change.</em> TC39 Signals standardises this. <code>signal-polyfill</code> ships it today.</p>
+
+<h3>Three primitives</h3>
+<div class="g2">
+  <div class="card">
+    <h4>Signal.State&lt;T&gt; — the mutable leaf</h4>
+    Holds a value. Notifies dependents when replaced. The bottom of the graph.
+    <pre>const n = new Signal.State(0)
+n.get()    // → 0
+n.set(1)   // notifies all dependents
+n.get()    // → 1</pre>
+  </div>
+  <div class="card">
+    <h4>Signal.Computed&lt;T&gt; — the derived cell</h4>
+    Lazy. Caches until a dependency changes. Re-runs only when <code>.get()</code> is called after dirty.
+    <pre>const x2 = new Signal.Computed(
+  () => n.get() * 2
+)
+x2.get()   // runs fn → 2
+x2.get()   // cached  → 2
+n.set(5)
+x2.get()   // re-runs → 10</pre>
+  </div>
+</div>
+<div class="card" style="margin:9px 0">
+  <h4>Signal.subtle.Watcher — the push hook</h4>
+  Low-level. Fires a callback the moment any watched signal becomes dirty. This bridges the pull model to external push systems — RxJS, Lit's <code>requestUpdate()</code>.
+  <pre>const w = new Signal.subtle.Watcher(() => {
+  // fires synchronously when any watched signal is set
+  w.watch()   // must re-arm — Watcher disarms after each notification
+})
+w.watch(n)    // start watching</pre>
+</div>
+
+<h3>How auto-tracking works — the key mechanism</h3>
+<p>The polyfill maintains a single module-level variable: <strong><code>activeConsumer</code></strong>. When a <code>Computed</code>'s callback runs, <code>activeConsumer</code> is set to that computed. Every <code>signal.get()</code> checks <code>activeConsumer</code> and registers itself as a dependency. <strong>The read is the registration. No explicit subscribe call.</strong></p>
+
+<div class="viz"><span class="d">// Trace: what happens inside Computed.get()</span>
+
+<span class="h">activeConsumer = x2_computed</span>     <span class="d">← set before running the callback</span>
+
+  x2_computed.fn():
+    n.get()                        <span class="d">← n checks activeConsumer</span>
+    <span class="g">n._subscribers.add(x2_computed)</span>  <span class="d">← n records x2 as a dependent</span>
+    return n._value  (0)
+
+<span class="h">activeConsumer = null</span>             <span class="d">← cleared after callback</span>
+
+<span class="d">// Later: n.set(5)</span>
+n._value = 5
+<span class="ac">x2_computed.markDirty()</span>          <span class="d">← n notifies all subscribers</span>
+  x2_computed._dirty = true
+  Watcher callback fires          <span class="d">← if a Watcher was watching x2</span></div>
+
+<h3>SignalWatcher — how Lit plugs in</h3>
+<p><code>SignalWatcher</code> (from <code>@lit-labs/signals</code>) wraps Lit's <code>performUpdate()</code> in a <code>Signal.Computed</code>. A <code>Watcher</code> watches that computed. When any signal read during the last render changes, the Watcher fires and calls <code>requestUpdate()</code>. Reading <code>cart.value</code> in <code>render()</code> IS the subscription. <code>SchmancyElement</code> already includes this mixin — no setup needed.</p>
+
+<div class="viz"><span class="d">// Reconstructed from minified source (signal-watcher.js)</span>
+class SignalWatcher extends LitElement {
+  <span class="h">_renderComputed</span> = new Signal.Computed(() =&gt; {
+    super.performUpdate()     <span class="d">← your render() runs in here</span>
+  })
+
+  <span class="ac">_watcher</span> = new Signal.subtle.Watcher(() =&gt; {
+    this.requestUpdate()      <span class="d">← schedule Lit re-render</span>
+    this._watcher.watch()     <span class="d">← re-arm</span>
+  })
+
+  performUpdate() {
+    this._watcher.watch(this._renderComputed)
+    this._renderComputed.get()  <span class="d">← runs render(), auto-tracking all signal reads</span>
+  }
+}</div>
+
+<h3>Full cycle — trace by hand</h3>
+<div class="viz"><span class="y">1. define</span>
+  const cart = new Signal.State({ items: [], total: 0 })
+
+<span class="y">2. render() runs (inside SignalWatcher's Computed)</span>
+  activeConsumer = renderComputed
+  cart.get()  →  <span class="g">cart._subscribers.add(renderComputed)</span>
+  renders "Total: 0"
+  activeConsumer = null
+
+<span class="y">3. cart.set({ items: ['x'], total: 12 }) — called anywhere</span>
+  cart._value = { items: ['x'], total: 12 }
+  <span class="ac">renderComputed.markDirty()</span>
+  _watcher callback fires (synchronous)
+  queueMicrotask(() =&gt; component.requestUpdate())
+
+<span class="y">4. microtask: Lit re-renders</span>
+  renderComputed.get()  →  re-runs render(), re-tracks deps
+  renders "Total: 12"   <span class="g">✓</span></div>
+
+<div class="box good">
+  <strong>What this means in practice</strong>
+  In a <code>SchmancyElement</code>, writing <code>cart.value.items.length</code> inside <code>render()</code> is all you need. No <code>@state</code>, no decorator, no subscription. When <code>cart.set()</code> is called anywhere in the app, the component re-renders automatically.
+</div>
+</div>
+
+<hr>
+
+<!-- ── B: @lit/context ── -->
+<div>
+<h2>B &nbsp; @lit/context <span class="tag" style="background:var(--rb);color:var(--r)">Provider / Consumer</span> <span class="tag" style="background:var(--rb);color:var(--r)">Bubbling event RPC</span></h2>
+
+<h3>The problem</h3>
+<p>You have a value many nested components need. Passing it as a property through every intermediate element ("prop drilling") is brittle and couples unrelated components. <strong>Context</strong> is the alternative: a provider at any tree position announces a value; any descendant requests it without any intermediate element knowing. React has <code>createContext / useContext</code>. <code>@lit/context</code> is the same idea implemented with the DOM's own event system — no framework runtime required.</p>
+
+<h3>The mechanism — one event, one listener</h3>
+<pre>
+// The event — from actual source (context-request-event.js)
+class ContextRequestEvent extends Event {
+  constructor(context, contextTarget, callback) {
+    super('context-request', { bubbles: true, composed: true })
+    this.context = context         // identity key (a Symbol)
+    this.contextTarget = contextTarget
+    this.callback = callback       // "call me with the value"
+  }
+}
+
+// The provider — reconstructed from context-provider.js
+host.addEventListener('context-request', (e) => {
+  if (e.context !== this.context) return   // wrong key — ignore
+  if (e.contextTarget === host)   return   // don't serve yourself
+  e.stopPropagation()                      // closest provider wins
+  e.callback(this.value)                   // deliver the value
+})</pre>
+
+<div class="g2">
+  <div class="box note" style="margin:0">
+    <strong>bubbles: true + composed: true</strong>
+    <code>bubbles</code> lets the event travel up so a nested consumer reaches a distant provider. <code>composed</code> lets it cross shadow DOM boundaries — without it, shadow roots silently block the event.
+  </div>
+  <div class="box warn" style="margin:0">
+    <strong>stopPropagation = closest provider wins</strong>
+    The nearest <code>ContextProvider</code> intercepts and stops the event. Outer providers never see it. This is identical to React's nearest-<code>Provider</code>-wins rule.
+  </div>
+</div>
+
+<h3>Why Symbol.for() — cross-bundle identity</h3>
+<p><code>Symbol('x') !== Symbol('x')</code> — unique every call. <code>Symbol.for('x') === Symbol.for('x')</code> — the runtime-global registry returns the same symbol for the same string across all module copies. Schmancy uses <code>Symbol.for('schmancy.state:' + namespace)</code> so Bundle A's provider matches Bundle B's request even in a Module Federation setup.</p>
+
+<h3>Full resolution — trace by hand</h3>
+<div class="viz"><span class="d">// DOM tree</span>
+&lt;app&gt;
+  &lt;<span class="h">schmancy-context</span> .provides=${[cart]}&gt;   <span class="d">← ContextProvider installed here</span>
+    &lt;checkout-page&gt;
+      &lt;<span class="ac">cart-view</span>&gt;                           <span class="d">← wants isolated copy</span>
+
+<span class="y">Step 1 — cart-view calls cart.value inside render()</span>
+  resolveContextual('hannah/cart', globalFallback)
+    host = resolveActiveHost()  →  &lt;cart-view&gt; element
+
+<span class="y">Step 2 — dispatch ContextRequestEvent from &lt;cart-view&gt;</span>
+  cartViewEl.dispatchEvent(new ContextRequestEvent(
+    Symbol.for('schmancy.state:hannah/cart'),
+    cartViewEl, value =&gt; { resolved = value }
+  ))
+  <span class="d">// bubbles: cart-view → checkout-page → schmancy-context</span>
+
+<span class="y">Step 3 — ContextProvider on &lt;schmancy-context&gt; intercepts</span>
+  e.context === our key?      <span class="g">yes</span>
+  e.contextTarget === host?   <span class="d">no (it's cart-view)</span>
+  <span class="g">e.stopPropagation()</span>        <span class="d">← outer providers never see this</span>
+  <span class="g">e.callback(isolatedCopy)</span>   <span class="d">← resolved = isolatedCopy ✓</span>
+
+<span class="y">Step 4 — resolveContextual caches and returns</span>
+  hostResolverCache[cartViewEl]['hannah/cart'] = isolatedCopy
+  cart.value  →  isolatedCopy.value   <span class="g">✓</span>
+
+<span class="y">Step 5 — same render() called again</span>
+  cache hit → skip event dispatch entirely → O(1)   <span class="g">✓</span></div>
+
+<table>
+<thead><tr><th>Library</th><th>Primitive used</th><th>What it enables in schmancy</th></tr></thead>
+<tbody>
+<tr><td><code>signal-polyfill</code></td><td><code>Signal.State</code>, <code>Signal.Computed</code></td><td>Reactive cell holding each state's value; <code>computed()</code> for derived state</td></tr>
+<tr><td><code>signal-polyfill</code></td><td><code>Signal.subtle.Watcher</code></td><td>Signal change → RxJS Observable emission; used by <code>effect()</code></td></tr>
+<tr><td><code>@lit-labs/signals</code></td><td><code>SignalWatcher</code> mixin</td><td>Auto-tracking inside Lit <code>render()</code> — reading <code>state.value</code> IS the subscription</td></tr>
+<tr><td><code>@lit/context</code></td><td><code>ContextProvider</code></td><td>Installed by <code>&lt;schmancy-context&gt;</code> to serve isolated state copies to descendants</td></tr>
+<tr><td><code>@lit/context</code></td><td><code>ContextRequestEvent</code></td><td>Dispatched by <code>resolveContextual()</code> to ask "is there an isolated copy for me?"</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<hr class="thick">
+<div class="part">Part 2 — Design Patterns</div>
+<p class="part-sub">11 named patterns with mental models, visual diagrams, and code. Pattern 12 shows how they assemble into the whole system.</p>
+
+<!-- PATTERN 01 -->
+<hr>
+<div class="ph"><div class="pn">01</div><div class="pm">
+  <div class="pname">Module-Scoped Singleton</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--vb);color:var(--v)">Singleton</span>
+    <span class="tag" style="background:var(--vb);color:var(--v)">Module system</span>
+  </div>
+  <div class="tl">"One name, one value, everywhere the module is imported."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>A plain JavaScript <code>const</code> at the top of a file. ES module semantics guarantee it is evaluated once and the same object is returned to every importer. The state factory makes this the default: produce an object at module scope, never inside a class or function.</div>
+<div class="viz">export const cart = state&lt;CartState&gt;('hannah/cart').session(initial)
+                         │
+    ┌────────────────────┼────────────────────┐
+    ▼                    ▼                    ▼
+<span class="h">CartView.ts</span>       <span class="h">CartSummary.ts</span>      <span class="h">CheckoutPage.ts</span>
+import {cart}     import {cart}        import {cart}
+<span class="g">← same object ────────────────────────────────────────</span></div>
+<p>The singleton is not managed by a service locator or DI container — it is the JS module system itself. No registry lookup, no <code>getInstance()</code> call. State survives component remounts and navigation because it lives outside any component lifecycle.</p>
+<div class="box warn"><strong>The one rule</strong>Never use <code>using cart = state(...)</code> at module scope. <code>using</code> disposes on block exit — which for a module-level variable is never. Reserve <code>using</code> for test scope.</div>
+
+<!-- PATTERN 02 -->
+<hr>
+<div class="ph"><div class="pn">02</div><div class="pm">
+  <div class="pname">Transparent Proxy</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--ab);color:var(--a)">Proxy</span>
+    <span class="tag" style="background:var(--ab);color:var(--a)">Structural</span>
+  </div>
+  <div class="tl">"The same <code>cart.value</code> call routes to a different object depending on where you are in the DOM tree — and you never know."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>A receptionist who receives every call. Most of the time she routes it to the main office (module-scoped signal). If the call comes in from someone sitting inside a special meeting room (<code>&lt;schmancy-context&gt;</code>), she routes it to the room's private whiteboard. The caller never dials a different number — but who picks up changes based on physical location.</div>
+<div class="viz">DOM tree:
+  &lt;app&gt;
+    ├── <span class="h">&lt;schmancy-context .provides=${[cart]}&gt;</span>   <span class="d">← installs isolated copy</span>
+    │     cart.value  →  <span class="g">isolated copy</span>
+    │     cart.set()  →  <span class="g">isolated copy</span>
+    │
+    └── &lt;sidebar&gt;
+          cart.value  →  <span class="y">module-scoped global</span>
+          cart.set()  →  <span class="y">module-scoped global</span>
+
+<span class="d">Same variable. Different target. No code change in consumers.</span></div>
+<h3>How the proxy is built — without ES Proxy</h3>
+<pre>
+// Every public accessor on the global instance is a live Object.defineProperty getter
+Object.defineProperty(instance, 'value', {
+  get: () => {
+    const target = resolveContextual(namespace, isolatedTarget)
+    return target.value    // reads from whichever target resolved
+  }
+})
+// Every write method also routes through resolveContextual
+instance['set'] = (...args) => {
+  const target = resolveContextual(namespace, isolatedTarget)
+  return target['set'](...args)
+}</pre>
+<div class="box note"><strong>Why not ES Proxy?</strong><code>ES Proxy</code> intercepts property access but cannot natively know the caller's DOM position. <code>Object.defineProperty</code> live getters achieve the same interception with the active-host tracking (Pattern 06) handling position resolution as a separate concern.</div>
+
+<!-- PATTERN 03 -->
+<hr>
+<div class="ph"><div class="pn">03</div><div class="pm">
+  <div class="pname">Adapter / Storage Port</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--gb);color:var(--g)">Adapter</span>
+    <span class="tag" style="background:var(--gb);color:var(--g)">Ports &amp; Adapters</span>
+    <span class="tag" style="background:var(--gb);color:var(--g)">Strategy</span>
+  </div>
+  <div class="tl">"The state logic never touches a storage API directly. It talks to a uniform interface, and the backend is swapped by configuration."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>A document that needs to be filed. It hands the document to a filing clerk. The interface to the clerk is always the same — <em>file this, retrieve this, destroy this</em> — regardless of whether the cabinet is in the same room (memory), a local office (localStorage), or a central warehouse (IndexedDB).</div>
+<pre>
+interface StorageAdapter&lt;T&gt; {
+  load():          Promise&lt;T | null&gt;
+  save(value: T):  Promise&lt;void&gt;
+  clear():         Promise&lt;void&gt;
+  close?():        Promise&lt;void&gt;   // IDB only
+}
+// Four implementations:
+MemoryAdapter      → .memory()    JS heap, no I/O
+WebStorageAdapter  → .local()     localStorage  (+ Map/Set JSON tunnel)
+WebStorageAdapter  → .session()   sessionStorage (+ Map/Set JSON tunnel)
+IndexedDBAdapter   → .idb()       IndexedDB 'SchmancyState'/'states'</pre>
+<p><strong>Map/Set JSON tunnel</strong> (a nested adapter inside <code>WebStorageAdapter</code>): localStorage only stores strings. A custom replacer/reviver pair translates:</p>
+<pre>
+Map  →  { $kind: '__schmancy_state_Map', entries: [[k, v], …] }
+Set  →  { $kind: '__schmancy_state_Set', values: [v, …] }
+// Reviver reconstructs. IDB stores native JS objects — no tunnel needed.</pre>
+<div class="box good"><strong>Extensibility</strong>Adding a new backend (e.g. OPFS) requires one new class implementing <code>StorageAdapter&lt;T&gt;</code> and one case in <code>createAdapter()</code>. Zero changes to the state core.</div>
+
+<!-- PATTERN 04 -->
+<hr>
+<div class="ph"><div class="pn">04</div><div class="pm">
+  <div class="pname">Dual Observer — Signal + Observable</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--ob);color:var(--o)">Observer</span>
+    <span class="tag" style="background:var(--ob);color:var(--o)">Pull + Push</span>
+    <span class="tag" style="background:var(--ob);color:var(--o)">Bridge</span>
+  </div>
+  <div class="tl">"One value, two reactive surfaces — pull (signals) for the render loop, push (Observables) for pipelines."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>Signals are a thermometer on the wall — you glance at it (pull) whenever you need the temperature. Observables are weather alerts — the system pushes a notification when something changes. Both sit over the same measurement.</div>
+<div class="viz">                    <span class="h">Signal.State&lt;T&gt;</span>
+                    signal.set(next) ← writes
+                         │
+         ┌───────────────┼──────────────────────────┐
+         ▼                                          ▼
+  <span class="g">PULL  state.value / signal.get()</span>         <span class="ac">PUSH  state.$  Observable&lt;T&gt;</span>
+  auto-tracked by SignalWatcher              Signal.subtle.Watcher bridge
+  in render() → requestUpdate()             subscriber.next(signal.get())
+                                            microtask-coalesced</div>
+<h3>The bridge — how Signal becomes Observable</h3>
+<pre>
+new Observable(subscriber => {
+  subscriber.next(signal.get())              // ① immediate initial emission
+  let scheduled = false
+  const watcher = new Signal.subtle.Watcher(() => {  // ② fires on signal.set()
+    if (scheduled) return
+    scheduled = true
+    queueMicrotask(() => {
+      scheduled = false
+      subscriber.next(signal.get())          // ③ push latest, coalesced
+      watcher.watch(signal)                  // ④ re-arm
+    })
+  })
+  watcher.watch(signal)
+  return () => watcher.unwatch(signal)       // ⑤ cleanup on unsubscribe
+})</pre>
+<p>Use <strong>signals / <code>.value</code></strong> inside <code>render()</code>, <code>computed()</code>, <code>effect()</code>, or anywhere sync access is needed. Use <strong>Observable / <code>.$</code></strong> for RxJS pipelines: <code>combineLatest</code>, <code>switchMap</code>, debounce, <code>pipe(takeUntil(this.disconnecting))</code>.</p>
+
+<!-- PATTERN 05 -->
+<hr>
+<div class="ph"><div class="pn">05</div><div class="pm">
+  <div class="pname">Type-Driven Command Dispatch</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--gb);color:var(--g)">Command</span>
+    <span class="tag" style="background:var(--gb);color:var(--g)">Strategy</span>
+    <span class="tag" style="background:var(--gb);color:var(--g)">Discriminated Union</span>
+  </div>
+  <div class="tl">"The shape of your data determines which write commands exist. The wrong operation is inexpressible, not just a runtime error."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>A chef's knife block. The shape of the slot tells you exactly which knife fits. If you have a <code>Map</code>, the slot is shaped for <code>MapAPI</code> — you get <code>set(k,v)</code>, <code>delete(k)</code>, <code>clear()</code>. You cannot accidentally call <code>push()</code> on a Map.</div>
+<div class="viz">T = Map&lt;K,V&gt;         →  <span class="h">Kind = 'map'</span>    →  <span class="g">MapAPI</span>   set(k,v) delete(k) replace clear
+T = Set&lt;U&gt;           →  <span class="h">Kind = 'set'</span>    →  <span class="g">SetAPI</span>   add toggle delete replace clear
+T = U[]              →  <span class="h">Kind = 'array'</span>  →  <span class="g">ArrayAPI</span> push update(immer) replace clear
+T = string|number|…  →  <span class="h">Kind = 'prim'</span>   →  <span class="g">ScalarAPI</span> set replace
+T = Foo | null       →  <span class="h">Kind = 'null'</span>   →  <span class="g">ScalarAPI</span> set replace
+T = { … }            →  <span class="h">Kind = 'obj'</span>    →  <span class="g">ObjectAPI</span> set(patch,merge?) update(immer) delete
+
+const sel = state&lt;Set&lt;string&gt;&gt;('ui/sel').memory(new Set())
+sel.add('id')      <span class="g">✓</span>
+sel.toggle('id')   <span class="g">✓</span>
+sel.push('id')     <span class="re">✗  TypeScript error — push does not exist on SetAPI</span></div>
+<h3>All writes funnel into one commit() — immutability by construction</h3>
+<pre>
+const commit = (next) => {
+  internal.signal.set(next)   // synchronous — visible immediately
+  scheduleWrite(internal)     // persist via adapter, microtask-debounced
+}
+// Every method is sugar over commit():
+// ObjectAPI:  set(patch, merge=true) { commit(merge ? {...cur, ...patch} : patch) }
+//             update(recipe)         { commit(produce(cur, recipe)) }  // immer
+// SetAPI:     toggle(v) { const n=new Set(cur); n.has(v)?n.delete(v):n.add(v); commit(n) }</pre>
+<p>Every write produces a new value — spread, <code>new Map()</code>, <code>new Set()</code>, or immer <code>produce()</code>. Nothing mutates in place. Reference inequality = change.</p>
+
+<!-- PATTERN 06 -->
+<hr>
+<div class="ph"><div class="pn">06</div><div class="pm">
+  <div class="pname">Zone / Execution Context Propagation</div>
+  <div class="badges">
+    <span class="tag" style="background:#f1f5f9;color:var(--ink2)">Zone</span>
+    <span class="tag" style="background:#f1f5f9;color:var(--ink2)">AsyncContext polyfill</span>
+    <span class="tag" style="background:#f1f5f9;color:var(--ink2)">Ambient state</span>
+  </div>
+  <div class="tl">"Knowing which DOM element is currently running code — even across async boundaries — without passing it as a parameter."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>A call centre where every agent wears a badge showing which client file they are working on. The badge tells the system which client's records to look up. Zone.js is the classic full implementation. Schmancy implements a minimal version — a per-call-stack badge identifying which DOM element is currently executing — using a global stack and a Promise patch.</div>
+<div class="viz"><span class="h">Tier 1: Explicit stack</span>   <span class="d">← SchmancyElement prototype-wrap</span>
+  _activeHost.run(host, fn): pushes host → calls fn → pops on exit
+  Covers: render(), lifecycle hooks, all class methods
+
+<span class="ac">Tier 2: Promise.prototype.then patch</span>   <span class="d">← propagates across .then() chains</span>
+  fetch('/api').then(data =&gt; { cart.update(…) })   <span class="g">works ✓</span>
+  async fn: const data = await fetch()
+            cart.update(…)                         <span class="re">does NOT work (V8 opt) ✗</span>
+
+<span class="g">Tier 3: Event-host slot</span>   <span class="d">← &lt;schmancy-context&gt; capture-phase listener</span>
+  &lt;button @click=${() =&gt; cart.set(…)}&gt;             <span class="g">works ✓</span>
+  16 event types: click submit change input keydown…
+
+<span class="y">Tier 4: document.activeElement</span>   <span class="d">← keyboard / focus handlers</span>
+
+<span class="d">Tier 5 (implicit): undefined → module-scoped global</span></div>
+<h3>The Promise patch</h3>
+<pre>
+const _origThen = Promise.prototype.then
+Promise.prototype.then = function(onfulfilled, onrejected) {
+  const captured = _stack[_stack.length - 1]    // capture at chain time
+  const wrapFulfilled = v => {
+    _stack.push(captured)                        // restore at callback time
+    try   { return onfulfilled(v) }
+    finally { _stack.pop() }
+  }
+  return _origThen.call(this, wrapFulfilled, wrapRejected)
+}</pre>
+<div class="box limit"><strong>Known limitation — native await</strong>V8's await optimization (since v7.x) bypasses <code>Promise.resolve(x).then(continuation)</code> — the patch never fires for <code>await</code>-resumed continuations. Mutations after the first <code>await</code> fall back to the module-scoped global. Fix: keep mutations before the <code>await</code>, or chain explicitly with <code>.then()</code>.</div>
+
+<!-- PATTERN 07 -->
+<hr>
+<div class="ph"><div class="pn">07</div><div class="pm">
+  <div class="pname">Provider / Consumer (Context Protocol)</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--rb);color:var(--r)">Context</span>
+    <span class="tag" style="background:var(--rb);color:var(--r)">@lit/context</span>
+    <span class="tag" style="background:var(--rb);color:var(--r)">Tree-scoped DI</span>
+  </div>
+  <div class="tl">"A provider in the DOM tree answers requests from consumers below it, without knowing who they are."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>React Context. A <code>&lt;Provider value={x}&gt;</code> wraps a subtree; any <code>useContext()</code> inside receives <code>x</code>. <code>&lt;schmancy-context&gt;</code> is the same idea for Web Components, using DOM events instead of a VDOM tree walk.</div>
+<pre>
+// On <schmancy-context> connectedCallback:
+for (const tmpl of this.provides) {
+  const isolated = tmpl._isolatedInstance()
+  // ^ createInstance({ storage: 'memory', initial: tmpl.value }, { isolated: true })
+  // ^ seeded from global's current value; always memory-backed
+  const ctx = createContext(Symbol.for('schmancy.state:' + tmpl.namespace))
+  new ContextProvider(this, { context: ctx, initialValue: isolated })
+}
+// + capture-phase listeners for 16 event types (Tier 3 of active-host chain)</pre>
+<p>Isolated copies are <strong>always memory-backed</strong> — they share the element's lifetime, never persist to localStorage/sessionStorage/IDB. On disconnect, <code>isolated.destroy()</code> flushes pending writes and releases the namespace claim.</p>
+<div class="box note"><strong>Nested contexts</strong>Two nested <code>&lt;schmancy-context .provides=${[cart]}&gt;</code> — the inner one wins. <code>stopPropagation()</code> in the provider stops the event at the closest provider.</div>
+
+<!-- PATTERN 08 -->
+<hr>
+<div class="ph"><div class="pn">08</div><div class="pm">
+  <div class="pname">Prototype Decoration (ReactiveController)</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--ab);color:var(--a)">Decorator</span>
+    <span class="tag" style="background:var(--ab);color:var(--a)">ReactiveController</span>
+    <span class="tag" style="background:var(--ab);color:var(--a)">Template Method</span>
+  </div>
+  <div class="tl">"Attach subscription lifecycle to a component's class without modifying the class body."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>A Decorator Pattern attaches new behaviour to an object without changing its source. Lit's <code>addInitializer</code> is the hook. <code>ReactiveController</code> is the attachment mechanism — a plugin interface: <em>tell me when the host connects and disconnects, and I'll wire subscriptions.</em></div>
+<pre>
+// Option 1: direct render() read — zero code
+class CartView extends SchmancyElement {
+  render() { return html`${cart.value.items.length}` }
+}
+
+// Option 2: @observe — value as class field
+class CartView extends SchmancyElement {
+  @observe(cart) cart!: CartState
+  onClick() { console.log(this.cart) }   // safe in handlers
+}
+
+// Option 3: bindState — no decorator needed
+class CustomHost extends LitElement {
+  cart = bindState(this, cart)
+  render() { return html`${this.cart.value.items.length}` }
+}</pre>
+<h3>How @observe works — two separate hooks</h3>
+<pre>
+// Hook 1: per-PROTOTYPE accessor (runs on every instance via prototype chain)
+Object.defineProperty(proto, propertyKey, {
+  get(this) { return this[storageKey] ?? source.value },  // latest or fallback
+  set(_)    { console.warn('@observe: read-only') },
+})
+
+// Hook 2: per-INSTANCE subscription (via Lit's addInitializer)
+proto.constructor.addInitializer(host => {
+  let sub
+  host.addController({
+    hostConnected()    { sub = source.$.subscribe(v => { host[key] = v; host.requestUpdate() }) },
+    hostDisconnected() { sub?.unsubscribe() },
+  })
+})</pre>
+<p><code>ReactiveController</code> is Lit's <strong>Template Method</strong> pattern: the framework defines <em>when</em> (<code>hostConnected</code>, <code>hostDisconnected</code>); the controller fills in the <em>what</em>.</p>
+
+<!-- PATTERN 09 -->
+<hr>
+<div class="ph"><div class="pn">09</div><div class="pm">
+  <div class="pname">Microtask Debounce Gate</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--ob);color:var(--o)">Debounce</span>
+    <span class="tag" style="background:var(--ob);color:var(--o)">Event coalescing</span>
+  </div>
+  <div class="tl">"Many writes in one synchronous task collapse to one storage flush — the gate only lets the last one through."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>A postal worker who collects letters all day but makes one trip to the post office at day's end. Ten letters in the outbox → one trip. The microtask debounce works at JS-microtask granularity: many <code>set()</code> calls in the same task collapse to one <code>adapter.save()</code>, always carrying the latest value.</div>
+<div class="viz">cart.set({ total: 10 })     <span class="d">→ signal updated immediately ✓</span>
+cart.set({ total: 20 })     <span class="d">→ signal updated immediately ✓</span>
+cart.set({ total: 30 })     <span class="d">→ signal updated immediately ✓</span>
+
+scheduleWrite():
+  <span class="g">if (scheduledWrite) return</span>  <span class="d">← 2nd and 3rd calls exit here</span>
+  scheduledWrite = true
+  queueMicrotask(() =&gt; {
+    scheduledWrite = false
+    adapter.save(<span class="h">signal.get()</span>)  <span class="d">← reads 30, the latest value</span>
+  })
+
+Result: <span class="g">one adapter.save(30)</span> — not three.
+
+Timeline:
+  sync task  │ set(10) set(20) set(30) │microtask│ save(30) │
+             │ signal always current    │boundary │ one I/O  │</div>
+<p>On <code>destroy()</code>, two microtask drains guarantee the latest value is flushed: wait for in-flight save → drain scheduled microtask → wait for any write from that microtask → close adapter.</p>
+
+<!-- PATTERN 10 -->
+<hr>
+<div class="ph"><div class="pn">10</div><div class="pm">
+  <div class="pname">RAII Lifecycle</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--tb);color:var(--t)">RAII</span>
+    <span class="tag" style="background:var(--tb);color:var(--t)">Symbol.dispose</span>
+    <span class="tag" style="background:var(--tb);color:var(--t)">TC39 Explicit Resource Mgmt</span>
+  </div>
+  <div class="tl">"Acquire the resource when you create the object; release it automatically when the object goes out of scope — even if an exception is thrown."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>C++ RAII, now in JavaScript. <code>using x = acquireResource()</code> guarantees <code>x[Symbol.dispose]()</code> at block exit — even on thrown exceptions. No <code>try/finally</code>, no <code>afterEach(() => cleanup())</code>.</div>
+<pre>
+// WITHOUT RAII — easy to forget
+it('test', () => {
+  const cart = state('test/cart').memory({})   // namespace permanently claimed if forgotten
+  …
+})
+
+// WITH RAII — cleanup is structural
+it('test', () => {
+  using cart = state('test/cart').memory({})
+  …
+}) // [Symbol.dispose]() fires here — even if the test threw
+
+// IDB — async variant
+it('test', async () => {
+  await using cart = state('test/cart').idb({})
+  …
+}) // [Symbol.asyncDispose]() awaited — IDB fully closed before next test</pre>
+<h3>Dispose sequence</h3>
+<pre>
+[Symbol.dispose]():
+  if (disposed) return               // idempotent
+  disposed = true
+  void flushAndClose()               // fire-and-forget sync backends
+  claimed.delete(namespace)          // releases namespace → re-registrable
+
+flushAndClose():
+  await pendingWrite                 // drain in-flight save
+  await new Promise(queueMicrotask)  // drain scheduled microtask
+  await pendingWrite                 // catch write from microtask
+  await adapter.close()             // IDB only</pre>
+
+<!-- PATTERN 11 -->
+<hr>
+<div class="ph"><div class="pn">11</div><div class="pm">
+  <div class="pname">Flyweight / Global Registry</div>
+  <div class="badges">
+    <span class="tag" style="background:var(--vb);color:var(--v)">Flyweight</span>
+    <span class="tag" style="background:var(--vb);color:var(--v)">Global registry</span>
+    <span class="tag" style="background:var(--vb);color:var(--v)">Module Federation</span>
+  </div>
+  <div class="tl">"Share one instance across all importers — even across separate bundle copies — by parking it in a process-global store keyed by Symbol.for()."</div>
+</div></div>
+<div class="mm"><strong>Mental model</strong>In a Module Federation setup, Bundle A and Bundle B each import <code>schmancy/state</code>. Without coordination, each creates its own <code>instances</code> Map — producing two separate <code>cart</code> objects. Writing through A never updates B. Fix: park everything on <code>globalThis</code> under <code>Symbol.for()</code> keys, so the first bundle to load creates the store and every subsequent bundle reuses it.</div>
+<div class="viz"><span class="d">// Five global slots — all under Symbol.for() for cross-bundle sharing</span>
+globalThis[<span class="h">Symbol.for('schmancy.state.claimed')</span>]           = Set&lt;string&gt;
+globalThis[<span class="h">Symbol.for('schmancy.state.instances')</span>]          = Map&lt;'ns@storage', instance&gt;
+globalThis[<span class="h">Symbol.for('schmancy.state.hostResolverCache')</span>]   = WeakMap
+globalThis[<span class="h">Symbol.for('schmancy.state.activeHost.stack')</span>]    = Array
+globalThis[<span class="h">Symbol.for('schmancy.state.activeHost.eventHost')</span>] = slot
+
+Bundle A loads first → creates all five
+Bundle B loads later → <span class="g">finds existing, reuses</span>
+  cart₁.set({x:1}) → cart₂.value === {x:1}   <span class="g">✓</span></div>
+
+<!-- PATTERN 12 -->
+<hr>
+<div class="ph"><div class="pn">12</div><div class="pm">
+  <div class="pname">How the Patterns Assemble</div>
+  <div class="tl">The full stack — each layer's output is the next layer's input.</div>
+</div></div>
+<div class="viz"><span class="d">┌──────────────────────────────────────────────────────────────────┐</span>
+<span class="d">│</span>  <span class="h">Consumer layer</span>                                                  <span class="d">│</span>
+<span class="d">│</span>  cart.value / cart.set() / cart.$ / await cart.ready            <span class="d">│</span>
+<span class="d">│</span>  @observe(cart) / bindState(this, cart) / computed(...)         <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">08 Prototype Decoration</span>  @observe / bindState / ReactiveController <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">02 Transparent Proxy</span>  every read/write → resolveContextual      <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">06 Zone</span>  resolveActiveHost(): stack / Promise patch / event slot <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">07 Provider/Consumer</span>  ContextRequestEvent → nearest context wins <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">01 Singleton</span>  module-scoped global — the fallback               <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">04 Dual Observer</span>  Signal (pull) + Observable (push) over one value <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">05 Command Dispatch</span>  Kind&lt;T&gt; → MapAPI / SetAPI / ObjectAPI / …  <span class="d">│</span>
+<span class="d">│</span>                        all commits funnel through commit(next)    <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">09 Debounce Gate</span>  burst writes → one adapter.save() per microtask <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">03 Adapter</span>  Memory / WebStorage / IndexedDB — uniform interface  <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">10 RAII</span>  Symbol.dispose / Symbol.asyncDispose — flush + close    <span class="d">│</span>
+<span class="d">├──────────────────────────────────────────────────────────────────┤</span>
+<span class="d">│</span>  <span class="ac">11 Flyweight</span>  globalThis[Symbol.for(...)] — cross-bundle sharing  <span class="d">│</span>
+<span class="d">└──────────────────────────────────────────────────────────────────┘</span></div>
+
+<table style="margin-top:14px">
+<thead><tr><th>Pattern</th><th>Problem it solves</th><th>Alternative rejected</th></tr></thead>
+<tbody>
+<tr><td><strong>01 Singleton</strong></td><td>State survives component remounts</td><td>Class-instance state, Redux</td></tr>
+<tr><td><strong>02 Transparent Proxy</strong></td><td>Consumer code unchanged whether scoped or global</td><td>Props drilling, separate variable per scope</td></tr>
+<tr><td><strong>03 Adapter</strong></td><td>Swap storage without touching state logic</td><td>Hardcoded localStorage calls</td></tr>
+<tr><td><strong>04 Dual Observer</strong></td><td>Both Lit (pull) and RxJS (push) need reactivity</td><td>RxJS-only, signals-only</td></tr>
+<tr><td><strong>05 Command Dispatch</strong></td><td>Ergonomic writes per shape, no type casting</td><td>One generic setState()</td></tr>
+<tr><td><strong>06 Zone</strong></td><td>Know which DOM element is executing, across async</td><td>Pass host as parameter, Zone.js (~50 KB)</td></tr>
+<tr><td><strong>07 Provider/Consumer</strong></td><td>Subtree-scoped state, no consumer code changes</td><td>React context (framework-specific)</td></tr>
+<tr><td><strong>08 Prototype Decoration</strong></td><td>State bound to field with lifecycle guarantees</td><td>Manual subscribe/unsubscribe per component</td></tr>
+<tr><td><strong>09 Debounce Gate</strong></td><td>Burst writes → one I/O call</td><td>Write on every set(), manual batching</td></tr>
+<tr><td><strong>10 RAII</strong></td><td>Guaranteed cleanup even on test failure</td><td>afterEach(), try/finally</td></tr>
+<tr><td><strong>11 Flyweight</strong></td><td>One instance across bundle copies</td><td>Module-level singleton (breaks MF)</td></tr>
+</tbody>
+</table>
+
+<!-- ════════════════════════════════════════════════════════ -->
+<hr class="thick">
+<div class="part">Part 3 — Technical Reference</div>
+<p class="part-sub">Low-level detail for every file, every function, every invariant. Use as a reference during debugging or code review.</p>
+
+<h2>File map</h2>
+<pre>
+packages/schmancy/src/state/
+  index.ts            — factory, types, write APIs, context resolution,
+                        observe decorator, bindState, stateFromObservable, effect
+  persist.ts          — StorageAdapter interface + four implementations
+  active-host.ts      — AsyncContext polyfill (stack + Promise.then patch + event-host slot)
+  schmancy-context.ts — &lt;schmancy-context&gt; element (scoping primitive)</pre>
+
+<h2>Factory — three TypeScript overloads</h2>
+<pre>
+// Overload A — registry augmentation (typo-safe, autocomplete)
+declare module '@mhmo91/schmancy/state' {
+  interface SchmancyStateRegistry { 'hannah/cart': CartState }
+}
+const cart = state('hannah/cart').session({ items: [], total: 0 })
+
+// Overload B — explicit T arg (inline literals)
+const cart = state&lt;CartState&gt;('hannah/cart').session({ items: [], total: 0 })
+
+// Overload C — typed const (T inferred, no cast)
+const initial: CartState = { items: [], total: 0 }
+const cart = state('hannah/cart').session(initial)</pre>
+<p>All return a <code>NamespaceHandle</code> with four backend methods. Each returns <code>State&lt;NS, T, StorageBackend&gt;</code> = <code>BaseAPI + WriteAPI&lt;T&gt;</code>. Namespace constraint: <code>FeatureNamespace = `${string}/${string}`</code> — enforced at compile time and at runtime.</p>
+
+<h2>Instance construction (createInstance)</h2>
+<pre>
+createInstance({ namespace, initial, storage }, { isolated? })
+  │
+  ├─ createAdapter(storage, namespace)           → StorageAdapter
+  ├─ new Signal.State&lt;T&gt;(initial)                → TC39 signal
+  ├─ adapter.load()                              → signal.set(stored) if not null
+  │    .then(markLoaded)                         → loaded = true; ready resolves
+  ├─ signalToObservable(signal)                  → Observable via Signal.subtle.Watcher
+  └─ buildWriteApi(internal, detectKind(initial))→ variant write methods</pre>
+<p>Global instances route all reads/writes through <code>resolveContextual</code>. Isolated instances (<code>{ isolated: true }</code>) read/write their own signal directly — no context resolution, no recursion.</p>
+
+<h2>Storage backends</h2>
+<table>
+<thead><tr><th>Method</th><th>Backing</th><th>Survives refresh</th><th>Survives close</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><code>.memory()</code></td><td>JS heap</td><td>❌</td><td>❌</td><td>Default for isolated copies</td></tr>
+<tr><td><code>.session()</code></td><td>sessionStorage</td><td>✅</td><td>❌ (per-tab)</td><td>Map/Set JSON tunnel</td></tr>
+<tr><td><code>.local()</code></td><td>localStorage</td><td>✅</td><td>✅</td><td>Map/Set JSON tunnel</td></tr>
+<tr><td><code>.idb()</code></td><td>IndexedDB</td><td>✅</td><td>✅</td><td>Also AsyncDisposable</td></tr>
+</tbody>
+</table>
+
+<h2>Context resolution (resolveContextual)</h2>
+<pre>
+resolveContextual(namespace, fallback):
+  1. host = resolveActiveHost()         — may return undefined
+  2. if undefined → return fallback     — module-scoped global, done
+  3. check hostResolverCache[host][namespace]
+     → cache hit → return immediately (O(1))
+  4. dispatch ContextRequestEvent from host
+     → provider responds → resolved = isolated copy
+     → no response      → resolved = fallback
+  5. cache result in hostResolverCache[host][namespace]
+  6. return resolved</pre>
+
+<h2>Active-host resolution chain (resolveActiveHost)</h2>
+<pre>
+1. _activeHost.get()          ← explicit stack (SchmancyElement prototype-wrap)
+2. _eventHostSlot.host        ← capture-phase event on &lt;schmancy-context&gt;
+3. document.activeElement     ← keyboard / focus
+4. undefined                  ← caller uses module-scoped global</pre>
+
+<h2>Component binding options</h2>
+<table>
+<thead><tr><th>Option</th><th>When to use</th><th>Mechanism</th></tr></thead>
+<tbody>
+<tr><td><code>cart.value</code> in <code>render()</code></td><td>Default — 80% of cases</td><td>SignalWatcher auto-tracking</td></tr>
+<tr><td><code>@observe(cart) field!: T</code></td><td>Need value as class field (handlers, devtools)</td><td>addInitializer + ReactiveController</td></tr>
+<tr><td><code>bindState(this, cart)</code></td><td>Non-SchmancyElement Lit host</td><td>ReactiveController directly</td></tr>
+</tbody>
+</table>
+
+<h2>computed(), effect(), stateFromObservable()</h2>
+<p><strong><code>computed(fn)</code></strong> — re-export of <code>@lit-labs/signals/computed</code>. Reading <code>state.value</code> inside the callback auto-tracks it. Reference-equality dedup by default.</p>
+<p><strong><code>effect(fn)</code></strong> — runs <code>fn</code> immediately (registers deps), then re-runs microtask-coalesced whenever any read signal changes. Returns <code>Disposable</code>.</p>
+<p><strong><code>stateFromObservable(obs$, namespace, initial)</code></strong> — creates a state, subscribes to the observable, calls <code>signal.set(value)</code> directly on each emission (bypasses <code>resolveContextual</code>). Wraps <code>[Symbol.dispose]</code> to also unsubscribe.</p>
+
+<h2>Full data-flow diagram</h2>
+<div class="viz">User calls <span class="h">cart.set({ total: 12 })</span>
+         │
+         ▼
+<span class="ac">resolveContextual(namespace, isolatedTarget)</span>
+         │
+         ├─ resolveActiveHost()
+         │    ├─ 1. _activeHost stack         <span class="d">(SchmancyElement prototype-wrap)</span>
+         │    ├─ 2. _eventHostSlot            <span class="d">(capture-phase event)</span>
+         │    ├─ 3. document.activeElement
+         │    └─ 4. undefined → isolatedTarget <span class="d">(module global)</span>
+         │
+         ├─ cache hit? → return cached target
+         │
+         └─ dispatch ContextRequestEvent from host
+              ├─ &lt;schmancy-context&gt; responds → <span class="g">isolated copy</span>
+              └─ no response → <span class="y">module-scoped global</span>
+                       │
+                       ▼
+             target.set({ total: 12 })
+             ObjectAPI.set → commit({ ...current, ...patch })
+                       │
+         ┌─────────────┴──────────────────────┐
+         ▼                                    ▼
+  <span class="h">signal.set(next)</span>                  <span class="ac">scheduleWrite(internal)</span>
+  synchronous                              │
+         │                          queueMicrotask
+         │                                  │
+         ▼                                  ▼
+  Signal.subtle.Watcher fires       <span class="g">adapter.save(signal.get())</span>
+         │                          <span class="d">(localStorage / IDB / …)</span>
+         ▼
+  signalToObservable → queueMicrotask → emit
+         │
+  ┌──────┴────────────────────────┐
+  ▼                               ▼
+  <span class="h">SignalWatcher → requestUpdate()</span>  <span class="ac">RxJS subscribers</span>
+  <span class="g">component re-renders</span>             <span class="d">pipe(takeUntil(disconnecting))</span></div>
+
+<h2>Key design invariants</h2>
+<table>
+<thead><tr><th>Invariant</th><th>Where enforced</th></tr></thead>
+<tbody>
+<tr><td>Namespace must contain <code>/</code></td><td>TypeScript template literal type + runtime <code>TypeError</code></td></tr>
+<tr><td>One global per namespace</td><td><code>claimed</code> Set + <code>instances</code> Map on <code>globalThis</code></td></tr>
+<tr><td>Context dispatch is O(1) after first</td><td><code>hostResolverCache</code> WeakMap keyed by <code>(host, namespace)</code></td></tr>
+<tr><td>Isolated copy never calls <code>resolveContextual</code></td><td><code>{ isolated: true }</code> branch in <code>createInstance</code></td></tr>
+<tr><td>Write persists async, never blocks signal</td><td><code>scheduleWrite</code> → <code>queueMicrotask</code></td></tr>
+<tr><td><code>Signal.State.set()</code> is synchronous</td><td>TC39 signal polyfill contract</td></tr>
+<tr><td>Multiple bundle copies share one registry</td><td>All global state under <code>Symbol.for(...)</code> on <code>globalThis</code></td></tr>
+<tr><td>No in-place mutation of held value</td><td>Spread / <code>new Map()</code> / <code>new Set()</code> / immer <code>produce()</code></td></tr>
+</tbody>
+</table>
+
+<h2>Quick-decision guide</h2>
+<table>
+<thead><tr><th>I need…</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>State in a Lit component template</td><td><code>cart.value</code> in <code>render()</code></td></tr>
+<tr><td>State as a class field (event handlers)</td><td><code>@observe(cart) cart!: CartState</code></td></tr>
+<tr><td>State in a non-SchmancyElement Lit host</td><td><code>bindState(this, cart)</code></td></tr>
+<tr><td>Derived / computed value</td><td><code>computed(() => cart.value.items.length)</code></td></tr>
+<tr><td>Side effect that reruns on change</td><td><code>effect(() => { … cart.value … })</code></td></tr>
+<tr><td>Lift an Observable into state</td><td><code>stateFromObservable(obs$, 'ns/key', initial)</code></td></tr>
+<tr><td>Isolated subtree copy</td><td><code>&lt;schmancy-context .provides=${[cart]}&gt;</code></td></tr>
+<tr><td>Per-test isolation</td><td><code>using cart = state('test/x').memory(initial)</code></td></tr>
+<tr><td>Persist across page refresh (same tab)</td><td><code>.session(initial)</code></td></tr>
+<tr><td>Persist across tab close</td><td><code>.local(initial)</code> or <code>.idb(initial)</code></td></tr>
+<tr><td>Large collections (&gt;100 entries)</td><td><code>.idb(initial)</code></td></tr>
+<tr><td>Wait for async hydration before first read</td><td><code>await cart.ready</code> / <code>if (cart.loaded)</code></td></tr>
+</tbody>
+</table>
+
+<hr>
+<p style="font-size:.68rem;color:#9ca3af;text-align:center;padding:6px 0">
+  Schmancy State — Complete Developer Reference · source of truth: <code>docs/schmancy-state.md</code> · 2026-05-08
+</p>
+</div>
+</body>
+</html>

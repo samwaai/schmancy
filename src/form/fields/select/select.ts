@@ -52,10 +52,11 @@ export class SchmancySelect extends SchmancyFormField() {
 	@property({ type: String, reflect: true })
 	override get value(): string | string[] {
 		return this.multi
-			? this._selectedValues$.value
-			: this._selectedValue$.value
+			? (this._selectedValues$?.value ?? [])
+			: (this._selectedValue$?.value ?? '')
 	}
 	override set value(val: string | string[]) {
+		if (!this._selectedValue$ || !this._selectedValues$) return
 		if (this.multi) {
 			const values = Array.isArray(val)
 				? val

@@ -16,12 +16,15 @@ import { ButtonVariant } from './button'
 export class SchmnacyIconButton extends SchmancyElement {
 	static styles = [css`
 	:host {
-		display: inline-block;
-		width: fit-content;
+		display: inline-flex;
 		border-radius: 9999px;
 		transition:
 			box-shadow 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
 			transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+	:host([width="full"]) {
+		display: flex;
+		width: 100%;
 	}
 	:host(:hover:not([disabled])) {
 		box-shadow: 0 2px 12px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 18%, transparent);
@@ -71,7 +74,7 @@ export class SchmnacyIconButton extends SchmancyElement {
 	 * @type {'full' | 'auto'}
 	 * @default 'auto'
 	 */
-	@property()
+	@property({ reflect: true })
 	public width: 'full' | 'auto' = 'auto'
 
 	/**
@@ -189,7 +192,7 @@ export class SchmnacyIconButton extends SchmancyElement {
 		event.stopPropagation()
 	}
 
-	protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+	protected firstUpdated(_changedProperties: PropertyValueMap<unknown> | Map<PropertyKey, unknown>): void {
 		// Add any first-update logic here if needed.
 	}
 
@@ -210,7 +213,7 @@ export class SchmnacyIconButton extends SchmancyElement {
 					effectiveVariant === 'filled' ||
 					effectiveVariant === 'filled tonal'),
 			'hover:shadow-sm': !this.disabled && effectiveVariant === 'elevated',
-			'w-full text-center': this.width === 'full',
+			'flex-1 text-center': this.width === 'full',
 			'bg-surface-low text-primary-default shadow-xs': effectiveVariant === 'elevated',
 			'bg-transparent text-primary-default border-1 border-outline': effectiveVariant === 'outlined',
 			'bg-primary-default text-primary-on': effectiveVariant === 'filled',

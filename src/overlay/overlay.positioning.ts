@@ -145,10 +145,18 @@ function cssForPlacement(p: OverlayPlacement): string {
  * ======================================================================= */
 
 /**
- * Wire the Popover API lifecycle — the surface gets `popover="auto"` and
+ * Wire the Popover API lifecycle — the surface gets `popover="manual"` and
  * `showPopover()` is called to promote it into the native top layer. No
  * position math here; the caller pairs this with `positionFloatingUI` for
  * the geometry, since Tier 2 is Popover-for-stacking + Floating UI-for-math.
+ *
+ * `manual` (not `auto`) so stacked overlays don't fight the browser's
+ * popover-auto light-dismiss algorithm: opening a second `popover="auto"`
+ * that isn't a DOM/invoker descendant of the first closes the first via
+ * the toggle event. Each schmancy overlay is appended as a sibling to
+ * `<body>`, so the browser can't see the nesting and would dismiss the
+ * parent. With `manual`, schmancy owns Esc + outside-click via
+ * `wireCloseTriggers`, and the top-layer rendering is preserved.
  *
  * Returns a cleanup function that hides the popover and strips the attr.
  */
@@ -156,7 +164,7 @@ export function positionPopoverAPI(surface: HTMLElement): () => void {
 	if (!CAPS.popover) {
 		throw new Error('positionPopoverAPI requires Popover API support')
 	}
-	surface.setAttribute('popover', 'auto')
+	surface.setAttribute('popover', 'manual')
 	try {
 		;(surface as unknown as { showPopover(): void }).showPopover()
 	} catch {

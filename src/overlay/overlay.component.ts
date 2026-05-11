@@ -409,51 +409,41 @@ export class SchmancyOverlay extends SchmancyElement {
 			)
 			.subscribe()
 
-		// Modal tier: manual Esc (popover tiers use native toggle event).
-		if (this.tier === 'modal') {
-			fromEvent<KeyboardEvent>(document, 'keydown')
-				.pipe(
-					filter((e) => e.key === 'Escape'),
-					tap((e) => {
-						if (!this.dismissable) {
-							e.preventDefault()
-							return
-						}
+		// Manual Esc — all tiers. Modal has no native dismiss; anchored
+		// tiers use `popover="manual"` so the browser doesn't auto-Esc them
+		// either (the auto popover-stack would close ancestor overlays when
+		// a nested overlay opens — see positionPopoverAPI's comment).
+		fromEvent<KeyboardEvent>(document, 'keydown')
+			.pipe(
+				filter((e) => e.key === 'Escape'),
+				tap((e) => {
+					if (!this.dismissable) {
 						e.preventDefault()
-						void this.close('escape')
-					}),
-					takeUntil(until),
-				)
-				.subscribe()
-		}
+						return
+					}
+					e.preventDefault()
+					void this.close('escape')
+				}),
+				takeUntil(until),
+			)
+			.subscribe()
 
-		// Popover tiers: native `toggle` event fires on open/close, with
-		// `newState: 'closed'` when the browser light-dismisses the popover.
-		if (this.tier === 'popover-fui' || this.tier === 'css-anchor') {
-			fromEvent<ToggleEvent>(this._surface, 'toggle')
-				.pipe(
-					filter((e) => e.newState === 'closed'),
-					take(1),
-					tap(() => {
-						if (!this._closing) void this.close('light-dismiss')
-					}),
-					takeUntil(until),
-				)
-				.subscribe()
-		}
-
-		// Floating-UI-only tier: manual outside-click dismissal.
-		if (this.tier === 'fui-only') {
+		// Manual outside-click — all anchored tiers. Modal layouts have a
+		// backdrop that catches outside clicks via `onBackdropClick`; the
+		// anchored tiers (no backdrop) need a document-level pointerdown
+		// listener that ignores clicks whose composedPath includes the
+		// surface or anchor. Use composedPath membership (not
+		// `Node.contains`) so clicks on elements inside slotted /
+		// shadow-DOM descendants of the surface are correctly classified
+		// as "inside".
+		if (this.tier !== 'modal') {
 			fromEvent<PointerEvent>(document, 'pointerdown', { capture: true })
 				.pipe(
 					filter((e) => {
 						if (!this.dismissable) return false
-						const target = e.composedPath()[0] as Node | undefined
-						if (!target) return false
-						// Clicks inside the surface shouldn't dismiss.
-						if (this._surface?.contains(target as Node)) return false
-						// Clicks on the anchor itself shouldn't dismiss (avoid re-toggle).
-						if (this._resolvedAnchor?.el?.contains(target as Node)) return false
+						const path = e.composedPath()
+						if (this._surface && path.includes(this._surface)) return false
+						if (this._resolvedAnchor?.el && path.includes(this._resolvedAnchor.el)) return false
 						return true
 					}),
 					take(1),

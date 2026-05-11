@@ -22,10 +22,8 @@ import { magnetic } from '../directives/magnetic'
 export class SchmancyFilterChip extends SchmancyElement {
 	static styles = [css`
 	:host {
-		display: inline-block;
+		display: inline-flex;
 		outline: none;
-		width: fit-content;
-		min-width: fit-content;
 		border-radius: 0.5rem;
 		transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 	}

@@ -68,6 +68,18 @@ Use component tags (`<schmancy-menu>`, `<schmancy-dropdown>`, `<schmancy-tooltip
 - Every RxJS subscription ends with `.pipe(takeUntil(this.disconnecting))`.
 - Register the tag in `HTMLElementTagNameMap` for TypeScript.
 
+**SIGNALS_ARE_THE_API**
+State signals are the integration layer between co-located Schmancy view components; each view component owns its IO directly and has zero property inputs and zero custom event outputs when state signals cover the shared state.
+
+- Detection signals: a view component with `.property=${value}` inputs from a parent; a view component dispatching `CustomEvent`s that a sibling or parent handles; an orchestrator file co-located with a view where routing complexity does not exceed schmancy's `.guard`+`@redirect` capability (i.e., the flow is a linear sequence with no branching or cross-route hand-off).
+- Remediation: move shared state into schmancy state signals; have each component read/write signals directly in render() and connectedCallback(); delete the orchestrator if its only job was to pass data down and receive events up.
+
+**EVENTS_UP_PROPS_DOWN** (cross-component communication when signals don't cover it)
+When two components genuinely cannot share a signal (e.g., a generic reusable component that must not import app state), user actions travel upward via `CustomEvent` dispatch and data travels downward via Lit property bindings — not via callable property bindings (`onXxx`, `handleXxx`) set on child elements.
+
+- Detection signals: `.onXxx=${fn}` or `.handleXxx=${fn}` callable property bindings in a parent template.
+- Remediation: dispatch `new CustomEvent('xxx', { detail, bubbles: true, composed: true })` in the child; bind `@xxx=${handler}` in the parent.
+
 **State**
 - States live at module scope. Many small states beat one monolith. Use `state('feature/name').{memory,session,local,idb}(initial)` from `@mhmo91/schmancy/state`.
 - Reading `state.value` inside `render()` auto-tracks via the base class's `SignalWatcher` — no decorator or binding needed for the default case.

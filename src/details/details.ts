@@ -216,7 +216,7 @@ export default class SchmancyDetails extends SurfaceMixin(SchmancyElement) {
 
 		const detailsClasses = this.classMap({
 			'w-full rounded-xl transition-shadow duration-200 ease-out': true,
-			'overflow-hidden': !this.overlay,
+			'overflow-visible': !this.overlay,
 			'overflow-visible relative': this.overlay,
 		})
 
