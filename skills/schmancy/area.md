@@ -10,6 +10,16 @@ Schmancy's client-side router. Three pieces:
 
 Areas can be nested to compose shell-plus-sub-view layouts.
 
+## Layout contract
+
+`<schmancy-area>` is the routing leaf in the layout cascade. Its shadow CSS guarantees:
+
+1. **Stretch the mounted component.** The routed view fills the area (`min-height: 100%; width: 100%`). The area itself is `height: 100%; width: 100%` so it consumes whatever cell its parent gave it (typically a `<schmancy-page>` slot or a grid `1fr` row / column).
+2. **Scroll by default.** The host is `overflow: auto` — when the mounted component grows past the area's box, the area scrolls. Pages that need a custom scroll strategy (virtualized lists, multi-pane scroll) declare `<schmancy-area no-scroll>` and own their scroll.
+3. **Reset scroll on route change.** The area sets `scrollTop = 0` after every route swap so a new view starts at the top.
+
+Consumers do not write `h-full`, `w-full`, or `:host { height: 100% }` on routed components. The area's `::slotted` rule sizes them.
+
 ## Example
 
 ```html
@@ -46,6 +56,8 @@ Areas can be nested to compose shell-plus-sub-view layouts.
 | `component` | `RouteComponent` (required) | Class, tag name, or `lazy()` wrapper |
 | `guard` | `Observable<boolean>` | When emits `false`, blocks and dispatches `redirect` event |
 | `exact` | boolean | Strict-equality matching |
+
+`<schmancy-area>` also accepts the `no-scroll` boolean attribute to opt out of default `overflow: auto` (for virtualized lists or custom scroll containers).
 
 ## `area` service
 
@@ -139,3 +151,4 @@ Areas nest by rendering an inner `<schmancy-area>` inside a route component. A c
 - `when="tag-name"` must match `@customElement('tag-name')` exactly.
 - Guards emit `false` → always use `historyStrategy: 'replace'` in the `@redirect` handler.
 - Every subscription in guards / route state uses `takeUntil(this.disconnecting)`.
+- A routed component never declares `:host { height: 100% }` or `class="h-full"` — the area sizes it. Marketing / long-form leaves that need natural scroll opt out at the host: `:host { height: auto; min-height: 100%; overflow: auto }`.

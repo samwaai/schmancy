@@ -26,6 +26,19 @@ private handlePick = (ev: MouseEvent) => {
 
 Centered is the fallback (no anchor given). Sheet is the responsive adaptation (narrow viewport / touch / oversized content). You never pick layout — the system does.
 
+## Content forms
+
+`show()` accepts four content forms:
+
+| Form | When to use |
+|---|---|
+| `show(MyComponent)` | Component class — most common |
+| `show(html\`...\`)` | Inline template (eager — values frozen at call site) |
+| `show(() => html\`...\`)` | **Preferred for templates** — factory called at mount time; closed-over variables are read lazily, no snapshot staleness |
+| `show(lazy(() => import('./x')))` | Async / code-split component |
+
+Always prefer `() => html\`...\`` over `html\`...\`` when the template closes over any variable — the factory form evaluates those variables at mount time rather than baking them in at the call site.
+
 ## API
 
 | Export | Signature | Purpose |

@@ -25,8 +25,17 @@ export class SchmancyArea extends SchmancyElement {
 	:host {
 		position: relative;
 		display: block;
-		inset: 0;
+		height: 100%;
+		width: 100%;
+		min-height: 0;
+		min-width: 0;
 		contain: layout style;
+	}
+	::slotted(:not(schmancy-route)) {
+		display: block;
+		box-sizing: border-box;
+		min-height: 100%;
+		width: 100%;
 	}
 `]
 
@@ -202,6 +211,7 @@ export class SchmancyArea extends SchmancyElement {
 				if (duration === 0) {
 					old?.remove()
 					this.appendChild(element)
+					this.scrollTop = 0
 				} else if (old) {
 					old.style.willChange = 'opacity'
 					element.style.willChange = 'opacity'
@@ -211,11 +221,13 @@ export class SchmancyArea extends SchmancyElement {
 							if (!this.isConnected) return
 							old.remove()
 							this.appendChild(element)
+							this.scrollTop = 0
 							return element.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: 'ease-in' }).finished
 						})
 						.then(() => (element.style.willChange = 'auto'))
 				} else {
 					this.appendChild(element)
+					this.scrollTop = 0
 					element.animate([{ opacity: 0 }, { opacity: 1 }], {
 						duration: duration > 100 ? Math.max(100, duration * 0.66) : duration,
 						easing: 'ease-in',

@@ -43,7 +43,6 @@ export * from './option';
 // inside a federated context, the build-time check passes only if
 // `show` is reachable from the main barrel.
 export * from './overlay';
-export * from './page';
 export * from './progress';
 export * from './form/fields/radio-group';
 export * from './form/fields/range';

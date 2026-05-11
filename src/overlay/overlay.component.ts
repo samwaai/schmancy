@@ -593,6 +593,11 @@ async function mountContent(
 	host: HTMLElement,
 	props?: Record<string, unknown>,
 ): Promise<HTMLElement> {
+	// TemplateFactory — call at mount time so closed-over variables are read lazily.
+	if (isTemplateFactory(content)) {
+		return mountContent(content(), host, props)
+	}
+
 	// TemplateResult — render via lit's `render`.
 	if (isTemplateResult(content)) {
 		litRender(content, host)
@@ -630,6 +635,10 @@ async function mountContent(
 	}
 
 	throw new Error('schmancy-overlay: unsupported content type')
+}
+
+function isTemplateFactory(x: unknown): x is import('./overlay.types').TemplateFactory {
+	return typeof x === 'function' && !(x as { prototype?: unknown }).prototype
 }
 
 function isTemplateResult(x: unknown): x is TemplateResult {

@@ -4,14 +4,21 @@ import type { ComponentType } from '../area/router.types'
 import type { THistoryStrategy } from '../area/router.types'
 
 /**
+ * Sync factory that returns a TemplateResult. Called at mount time so closed-over
+ * variables are evaluated lazily — no snapshot staleness.
+ */
+export type TemplateFactory = () => TemplateResult
+
+/**
  * What the caller is showing. Flat union — `typeof`-discriminated at runtime.
  * Reuses area's `ComponentType` (class | tag name | HTMLElement | lazy loader)
- * and adds Lit `TemplateResult` for inline templates.
+ * and adds Lit `TemplateResult` for inline templates plus `TemplateFactory` for
+ * lazy template evaluation.
  *
  * The common case is one positional arg: `show(MyEditor)`, `show(html\`...\`)`,
- * `show(el)`, `show('my-tag')`, `show(lazy(() => import('./x')))`.
+ * `show(() => html\`...\`)`, `show(el)`, `show('my-tag')`, `show(lazy(() => import('./x')))`.
  */
-export type Content = ComponentType | TemplateResult
+export type Content = ComponentType | TemplateResult | TemplateFactory
 
 /**
  * Virtual reference object — same contract Floating UI and CSS Anchor

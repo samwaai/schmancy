@@ -11,5 +11,6 @@ export type {
 	OverlayPromptOptions,
 	ShowFn,
 	ShowOptions,
+	TemplateFactory,
 } from './overlay.types'
 export { lazy } from '../area/lazy'

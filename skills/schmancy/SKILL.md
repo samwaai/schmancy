@@ -38,12 +38,16 @@ is chosen by the system based on viewport + anchor presence. There is no
 import { show, confirm, prompt } from '@mhmo91/schmancy/overlay'
 import { $notify, schmancyContentDrawer } from '@mhmo91/schmancy'
 
-show(new EditForm())                                     // centered fallback
-show(new QuickPicker(), { anchor: ev })                  // anchored at click
+show(MyForm)                                             // component class — most common
+show(() => html`<div class="p-4"><my-form .id=${id}></my-form></div>`, { anchor: ev })
+                                                         // factory — lazy, no snapshot staleness
+show(new EditForm())                                     // pre-instantiated element
 show(new Picker())                                       // narrow viewport → sheet (auto)
 $notify.success('Saved'); $notify.error('Failed')        // toast
 schmancyContentDrawer.push({ component: new Detail() })  // side panel
 ```
+
+When passing an inline template, always use the factory form `() => html\`...\`` — it is called at mount time so closed-over variables are read fresh. The eager form `html\`...\`` freezes values at the call site.
 
 References: `overlay.md`, `notification.md`, `content-drawer.md`.
 
