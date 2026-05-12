@@ -26,9 +26,7 @@ Place it once at the root — typically just inside your main `schmancy-theme` o
 ```html
 <schmancy-theme>
   <schmancy-connectivity-status></schmancy-connectivity-status>
-  <schmancy-page>
-    <!-- rest of app -->
-  </schmancy-page>
+  <schmancy-area ${fill()} name="root" .default=${...}>...</schmancy-area>
 </schmancy-theme>
 ```
 

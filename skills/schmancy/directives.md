@@ -5,8 +5,44 @@
 Lit directives that snap onto any element to add behavior. No components to wrap, no CSS to write — just `${directiveName()}` in your template.
 
 ```typescript
+import { fill, overflowWithin } from '@mhmo91/schmancy/directives'
 import { magnetic, cursorGlow, gravity, reveal } from '@mhmo91/schmancy/directives'
 ```
+
+---
+
+## Layout (2 directives — use these for every app shell)
+
+> These replace the deleted `<schmancy-page>` primitive. See `layout.md` for the full paradigm.
+
+### `fill()` — Viewport-anchor a container
+
+Measures the element's position against `visualViewport` and applies an exact `height` (and `width`) in pixels — cascade-independent. Tracks `visualViewport` resize/scroll, orientation change, iOS soft-keyboard (via `focusout`), and `theme.bottomOffset$` for safe-area padding.
+
+```html
+<!-- Root area — anchored to the full viewport -->
+<schmancy-area ${fill()} name="root" .default=${...}>...</schmancy-area>
+
+<!-- Custom element shell — fill() bypasses display:inline collapse -->
+<my-shell class="grid grid-cols-[auto_1fr]" ${fill()}>...</my-shell>
+```
+
+**Sets:** `height: Npx`, `width: Npx`, `overflow: hidden`, `min-height/width: 0`, `box-sizing: border-box`, `padding-bottom` (safe area).
+**Does NOT set:** `display`, `grid-template-*` — put Tailwind layout classes on the same element.
+
+### `overflowWithin()` — Contained scroll region
+
+Turns a grid cell or flex child into a scroll container with `overscroll-behavior: contain`.
+
+```html
+<div ${overflowWithin()} class="grid grid-rows-[auto_1fr] min-h-0">
+  <header>...</header>
+  <schmancy-area name="app">...</schmancy-area>
+</div>
+```
+
+**Sets:** `overflow-y/x: auto`, `overscroll-behavior: contain`, `scroll-behavior: smooth`, `min-height/width: 0`, `box-sizing: border-box`.
+Dispatches debounced `schmancy:scroll` event; listens for `@schmancy:scrollTo` command.
 
 ---
 

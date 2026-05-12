@@ -11,6 +11,7 @@ The framework pieces — touch before components.
 - [Mixins](./mixins.md) — `SchmancyElement` base class.
 - [Theme](./theme.md) — `<schmancy-theme>`, color scheme, CSS variables.
 - [Directives](./directives.md) — Lit directives for physics, effects, text, visibility, interaction.
+- [Layout](./layout.md) — `fill()` + `overflowWithin()` directives for app-shell sizing (replaces `<schmancy-page>`).
 - [Animation](./animation.md) — Spring presets (`SPRING_SMOOTH`, etc.), `createAnimation`.
 
 ## Components by job
@@ -21,7 +22,7 @@ The framework pieces — touch before components.
 > Lab: [Map](../../lab/skills/map.md) · [Charts](../../lab/skills/charts.md) — install `@mhmo91/schmancy-lab`
 
 ### Surfaces & layout
-[Surface](./surface.md) · [Card](./card.md) · [Scroll / Grid / Flex](./layout.md) · [Page](./page.md) · [Content Drawer](./content-drawer.md) · [Window](./window.md) · [Boat](./boat.md) · [Float](./float.md) · [Splash Screen](./splash-screen.md)
+[Surface](./surface.md) · [Card](./card.md) · [Scroll / Grid / Flex](./layout.md) · [Content Drawer](./content-drawer.md) · [Window](./window.md) · [Boat](./boat.md) · [Float](./float.md) · [Splash Screen](./splash-screen.md)
 
 ### Forms
 [Form](./form.md) · [Input](./input.md) · [Textarea](./textarea.md) · [Select](./select.md) · [Autocomplete](./autocomplete.md) · [Option](./option.md) · [Checkbox](./checkbox.md) · [Switch](./switch.md) · [Radio Group](./radio-group.md) · [Chips](./chips.md) · [Date Range](./date-range.md) · [Date Range Inline](./date-range-inline.md) · [Range](./range.md)

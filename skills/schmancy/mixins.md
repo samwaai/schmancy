@@ -8,11 +8,10 @@ factory — composing `LitElement` + Tailwind injection + `BaseElement`
 ## Usage
 
 ```typescript
-import { SchmancyElement } from '@mhmo91/schmancy/mixins'
-import { customElement } from 'lit/decorators.js'
+import { SchmancyElement, schmancyElement } from '@mhmo91/schmancy/mixins'
 import { css, html } from 'lit'
 
-@customElement('my-component')
+@schmancyElement('my-component')
 class MyComponent extends SchmancyElement {
   static styles = [css`
     :host { display: block }
@@ -33,11 +32,33 @@ declare global {
 No styles? Just drop `static styles`:
 
 ```typescript
-@customElement('my-component')
+@schmancyElement('my-component')
 class MyComponent extends SchmancyElement {
   render() { return html`<slot></slot>` }
 }
 ```
+
+### Why `@schmancyElement` instead of Lit's `@customElement`
+
+`@schmancyElement` wraps the class's prototype methods with the active-host
+tracker BEFORE calling `customElements.define`. Lit's `@customElement` only
+calls `define` — the wrap then runs inside the `SchmancyElement` constructor,
+which is too late: per the HTML spec, the browser captures lifecycle callback
+references off the prototype at `define` time and invokes those cached
+references for every connect / disconnect.
+
+If you use plain `@customElement` and read state inside `connectedCallback`,
+the active-host stack is empty, the read falls through to `document.activeElement`,
+misses the enclosing `<schmancy-context>`, and silently resolves to the
+module-scoped global instead of the isolated copy. The constructor-time wrap
+still catches `render`, class methods, and inherited lifecycle methods on
+ancestor prototypes (the browser's cached reference for those is the
+ancestor's, which gets wrapped by an earlier sibling). But your subclass's
+own `connectedCallback` / `disconnectedCallback` overrides fall through.
+The symptom is silent: writes go to the wrong slot, reads return the wrong
+value, and the form looks broken for no obvious reason.
+
+`@schmancyElement` makes this impossible. Use it as the default.
 
 Tailwind is injected automatically — your `static styles` only declares
 component-local CSS.
@@ -99,7 +120,7 @@ Every SchmancyElement responds to `{its-tag}-where-are-you` events with
 ## Component skeleton
 
 ```typescript
-@customElement('my-component')
+@schmancyElement('my-component')
 export class MyComponent extends SchmancyElement {
   static styles = [css`:host { display: block }`]
 

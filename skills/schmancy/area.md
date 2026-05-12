@@ -14,9 +14,10 @@ Areas can be nested to compose shell-plus-sub-view layouts.
 
 `<schmancy-area>` is the routing leaf in the layout cascade. Its shadow CSS guarantees:
 
-1. **Stretch the mounted component.** The routed view fills the area (`min-height: 100%; width: 100%`). The area itself is `height: 100%; width: 100%` so it consumes whatever cell its parent gave it (typically a `<schmancy-page>` slot or a grid `1fr` row / column).
-2. **Scroll by default.** The host is `overflow: auto` — when the mounted component grows past the area's box, the area scrolls. Pages that need a custom scroll strategy (virtualized lists, multi-pane scroll) declare `<schmancy-area no-scroll>` and own their scroll.
-3. **Reset scroll on route change.** The area sets `scrollTop = 0` after every route swap so a new view starts at the top.
+1. **Stretch the mounted component.** `::slotted(:not(schmancy-route))` gives every mounted view `min-height: 100%; width: 100%; min-width: 0` so it fills the area cell.
+2. **Area sizing.** The host is `height: 100%; width: 100%; min-height: 0; min-width: 0` — it fills whatever grid cell or `fill()` box its parent gave it.
+3. **No built-in scroll.** Scroll is opt-in via `${overflowWithin()}` at the use site. Put `overflowWithin()` on the element that should scroll (the area itself, or a wrapper around it), not on the routed component.
+4. **Reset scroll on route change.** The area sets `scrollTop = 0` after every route swap so a new view starts at the top.
 
 Consumers do not write `h-full`, `w-full`, or `:host { height: 100% }` on routed components. The area's `::slotted` rule sizes them.
 
@@ -57,7 +58,7 @@ Consumers do not write `h-full`, `w-full`, or `:host { height: 100% }` on routed
 | `guard` | `Observable<boolean>` | When emits `false`, blocks and dispatches `redirect` event |
 | `exact` | boolean | Strict-equality matching |
 
-`<schmancy-area>` also accepts the `no-scroll` boolean attribute to opt out of default `overflow: auto` (for virtualized lists or custom scroll containers).
+Scroll is opt-in: apply `${overflowWithin()}` to the element (or a wrapper) that should scroll. The area has no `no-scroll` attribute — that concept is gone.
 
 ## `area` service
 

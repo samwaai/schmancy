@@ -1,63 +1,46 @@
-# Schmancy Layout
+# Layout Directives
 
-> Layout primitives: `schmancy-grid`, `schmancy-flex`, `schmancy-scroll`, plus `sch-grid` / `sch-flex` v2 variants.
-
-> **Prefer Tailwind classes directly** for layout in new code. These components exist for quick composition and design-token consistency (`gap="sm|md|lg"` maps to theme spacing).
-
-## schmancy-grid
-```html
-<schmancy-grid cols="1fr 2fr 1fr" gap="md" align="center">
-  <div>Left</div><div>Center</div><div>Right</div>
-</schmancy-grid>
+```typescript
+import { fill, overflowWithin } from '@mhmo91/schmancy/directives'
 ```
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `flow` | `'row' \| 'col' \| 'dense' \| 'row-dense' \| 'col-dense'` | `'row'` | Grid auto-flow |
-| `align` | `'start' \| 'center' \| 'end' \| 'stretch' \| 'baseline'` | `'stretch'` | Item alignment |
-| `justify` | `'start' \| 'center' \| 'end' \| 'stretch'` | `'stretch'` | Item justification |
-| `content` | `'start' \| 'center' \| 'end' \| 'stretch' \| 'around' \| 'evenly' \| 'between'` | — | Align-content |
-| `gap` | `'none' \| 'xs' \| 'sm' \| 'md' \| 'lg'` | `'none'` | Grid gap |
-| `cols` | string | — | grid-template-columns (e.g. `"1fr 2fr"`) |
-| `rows` | string | — | grid-template-rows |
-| `rcols` | object | — | Responsive cols: `{ sm: '1fr', md: '1fr 1fr', lg: '1fr 2fr 1fr' }` |
-| `wrap` | boolean | `false` | Grid auto-wrap |
+## `fill()` — viewport-anchor an element
 
-## schmancy-flex
-```html
-<schmancy-flex flow="row" justify="between" align="center" gap="md">
-  <div>Logo</div><div>Nav</div>
-</schmancy-flex>
+Measures against `visualViewport` and writes exact `height`/`width` in px. Cascade-independent — works even when parent custom elements default to `display: inline`. Tracks iOS keyboard, orientation change, and `theme.bottomOffset$`.
+
+Sets: `height: Npx`, `width: Npx`, `overflow: hidden`, `min-h/w: 0`, `box-sizing: border-box`, `padding-bottom` (safe area).  
+Does **not** set `display` or `grid-template-*` — use Tailwind classes on the same element.
+
+## `overflowWithin()` — contained scroll region
+
+Sets: `overflow: auto`, `overscroll-behavior: contain`, `scroll-behavior: smooth`, `min-h/w: 0`, `box-sizing: border-box`.
+
+## Canonical shell
+
+```typescript
+// app-shell.view.ts
+html`<schmancy-area ${fill()} name="root" .default=${...}>...</schmancy-area>`
+
+// app-home.view.ts
+html`
+  <my-shell class="grid grid-cols-[auto_1fr]" ${fill()}>
+    <app-rail></app-rail>
+    <div ${overflowWithin()} class="grid grid-rows-[auto_1fr] min-h-0">
+      <tree-picker></tree-picker>
+      <schmancy-area name="app" .default=${...}>...</schmancy-area>
+    </div>
+  </my-shell>
+`
 ```
 
-| Property | Type | Default |
-|----------|------|---------|
-| `flow` | `'row' \| 'row-reverse' \| 'col' \| 'col-reverse'` | `'col'` |
-| `wrap` | `'wrap' \| 'nowrap' \| 'wrap-reverse'` | `'wrap'` |
-| `align` | `'start' \| 'center' \| 'end' \| 'stretch' \| 'baseline'` | `'start'` |
-| `justify` | `'start' \| 'center' \| 'end' \| 'stretch' \| 'between'` | `'start'` |
-| `gap` | `'none' \| 'sm' \| 'md' \| 'lg'` | `'none'` |
-
-## schmancy-scroll
-```html
-<schmancy-scroll hide direction="vertical" name="main">
-  <!-- long content -->
-</schmancy-scroll>
+```css
+/* styles.css */
+html, body { margin: 0; padding: 0; overflow: hidden; }
 ```
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `hide` | boolean | `false` | Hide scrollbar in supported browsers |
-| `direction` | `'vertical' \| 'horizontal' \| 'both'` | `'both'` | Scroll axes |
-| `name` | string | — | Identifier for global scroll events |
-| `debounce` | number | — | Debounce time in ms for scroll events |
+## Rules
 
-Smooth scroll-behavior, overscroll containment, and support for flex-shrink sizing.
-
-## sch-grid / sch-flex (v2)
-
-Reflected-attribute variants optimized for styling via CSS selectors. Same prop model as the classic components with a `sch-` prefix. Use when you need to target the layout from parent CSS without Tailwind.
-
-## Notes
-- All layout components extend the base `Layout` class which exposes pass-through CSS properties (padding, margin, width, position, border, etc.).
-- Prefer Tailwind (`class="flex items-center gap-2"`) for new code — these components remain for consistent theme-driven gaps and rapid prototyping.
+- One `fill()` per shell level. Inner levels get `min-h-0` grid cells.
+- `overflowWithin()` goes on the element that should scroll, not on `:host`.
+- Do not write `h-full`, `w-full`, or `:host { height: 100% }` anywhere. `schmancy-area`'s `::slotted` rule sizes mounted views.
+- `<schmancy-page>` is removed — `fill()` replaces it.

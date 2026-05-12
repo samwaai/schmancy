@@ -25,6 +25,7 @@ All reference files live in this directory. Read by filename.
 | Base class (`SchmancyElement`) | `mixins.md` |
 | Theme (`<schmancy-theme>`, `theme` service) | `theme.md` |
 | Directives (`magnetic`, `cursorGlow`, `gravity`, `reveal`, `animateText`, …) | `directives.md` |
+| Layout (`fill()`, `overflowWithin()` — viewport-anchored shell sizing) | `layout.md` |
 | Spring physics presets | `animation.md` |
 
 ## Overlay services (prefer over tags)
@@ -78,6 +79,11 @@ State signals are the integration layer between co-located Schmancy view compone
 - Detection signals: a view component with `.property=${value}` inputs from a parent; a view component dispatching `CustomEvent`s that a sibling or parent handles; an orchestrator file co-located with a view where routing complexity does not exceed schmancy's `.guard`+`@redirect` capability (i.e., the flow is a linear sequence with no branching or cross-route hand-off).
 - Remediation: move shared state into schmancy state signals; have each component read/write signals directly in render() and connectedCallback(); delete the orchestrator if its only job was to pass data down and receive events up.
 
+**TYPOGRAPHY_NO_REDUNDANT_COLOR** (`TYPOGRAPHY_NO_REDUNDANT_COLOR`). `schmancy-typography` color classes override the component's default rendering color.
+
+- Detection signals: `class` attributes on `<schmancy-typography>` containing `text-on-surface`, `text-surface-on`, `text-surface-on-variant`, or any other color utility that matches the component's default — these restate what the component already renders and add no information.
+- Remediation: remove the redundant color class from the `class` attribute. Keep a color class only when it intentionally overrides the default (e.g. `text-primary-default`, `text-error`, a custom accent). The test: if removing the class produces no visual change, it is redundant.
+
 **EVENTS_UP_PROPS_DOWN** (cross-component communication when signals don't cover it)
 When two components genuinely cannot share a signal (e.g., a generic reusable component that must not import app state), user actions travel upward via `CustomEvent` dispatch and data travels downward via Lit property bindings — not via callable property bindings (`onXxx`, `handleXxx`) set on child elements.
 
@@ -125,30 +131,34 @@ Plus a live region: `<div id="live-status" role="status" aria-live="polite" clas
 ## Minimal app skeleton
 
 ```typescript
-<schmancy-theme root scheme="dark">
-  <schmancy-surface type="solid" fill="all">
-    <schmancy-scroll>
-      <schmancy-area
-        name="root"
-        .default=${lazy(() => import('./home.page'))}
-      >
-        <schmancy-route when="home-page"
-          .component=${lazy(() => import('./home.page'))}></schmancy-route>
+// styles.css: html, body { margin: 0; padding: 0; overflow: hidden; }
+import { fill } from '@mhmo91/schmancy/directives'
 
-        <schmancy-route when="app-index"
-          .component=${lazy(() => import('./app.page'))}
-          .guard=${authState$.pipe(
-            map(u => !!u),
-            takeUntil(this.disconnecting),
-          )}
-          @redirect=${() => area.push({
-            component: 'home-page', area: 'root', historyStrategy: 'replace',
-          })}></schmancy-route>
-      </schmancy-area>
-    </schmancy-scroll>
-  </schmancy-surface>
-</schmancy-theme>
+html`
+  <schmancy-theme root scheme="dark">
+    <schmancy-area
+      ${fill()}
+      name="root"
+      .default=${lazy(() => import('./home.page'))}
+    >
+      <schmancy-route when="home-page"
+        .component=${lazy(() => import('./home.page'))}></schmancy-route>
+
+      <schmancy-route when="app-index"
+        .component=${lazy(() => import('./app.page'))}
+        .guard=${authState$.pipe(
+          map(u => !!u),
+          takeUntil(this.disconnecting),
+        )}
+        @redirect=${() => area.push({
+          component: 'home-page', area: 'root', historyStrategy: 'replace',
+        })}></schmancy-route>
+    </schmancy-area>
+  </schmancy-theme>
+`
 ```
+
+See `layout.md` for the full shell pattern with rail + content area.
 
 ## Workflow
 

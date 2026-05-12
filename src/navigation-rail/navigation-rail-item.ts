@@ -264,10 +264,11 @@ export class SchmancyNavigationRailItem extends SchmancyElement {
 
 		// M3 Navigation Rail Item classes with theme integration
 		const containerClasses = this.classMap({
-			// Layout & Spacing (M3 56px height, 12px vertical padding)
-			'flex flex-col items-center justify-center': true,
+			// Layout & Spacing (M3 56px minimum hit target; vertical padding is consumer-controlled)
+			// justify-start pins the icon to the row top so its vertical center is invariant
+			// across label-visibility states — consumer rows can align siblings to it.
+			'flex flex-col items-center justify-start': true,
 			'min-h-14 w-full': true, // min-h-14 = 56px
-			'py-3': true, // py-3 = 12px top/bottom
 			'gap-1': true, // gap-1 = 4px
 
 			// M3 Shape & Interaction
@@ -383,15 +384,9 @@ export class SchmancyNavigationRailItem extends SchmancyElement {
 							when(
 								this.icon,
 								() => html`
-									<span
-										class=${iconClasses}
-										part="icon-text"
-										style="font-family: 'Material Symbols Outlined'; font-variation-settings: 'FILL' ${this.active
-											? '1'
-											: '0'}, 'wght' 400, 'GRAD' 0, 'opsz' ${this.nested ? '20' : '24'};"
-									>
-										${this.icon}
-									</span>
+									<schmancy-icon class=${iconClasses} part="icon-text">
+										${this.active ? `${this.icon}-fill` : this.icon}
+									</schmancy-icon>
 								`,
 							),
 					)}

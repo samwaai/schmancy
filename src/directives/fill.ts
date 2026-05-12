@@ -1,7 +1,7 @@
 import { AsyncDirective, directive } from 'lit/async-directive.js'
 import { ElementPart, PartType } from 'lit/directive.js'
-import { EMPTY, Subject, combineLatest, fromEvent, merge, timer } from 'rxjs'
-import { debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators'
+import { EMPTY, Subject, animationFrameScheduler, combineLatest, fromEvent, merge, timer } from 'rxjs'
+import { auditTime, filter, startWith, switchMap, takeUntil, tap } from 'rxjs/operators'
 import { theme } from '../theme/theme.service'
 import { fromResizeObserver } from './layout'
 
@@ -15,18 +15,12 @@ import { fromResizeObserver } from './layout'
  * the box; inner scroll containers (apply `overflowWithin()` on the
  * appropriate cell) handle scrolling.
  *
- * Layout is the consumer's responsibility — apply Tailwind classes
- * (`grid grid-cols-[auto_1fr] grid-rows-[1fr]`, `flex`, etc.) on the same
- * element to express the layout. The directive provides the definite-pixel
- * box; the consumer decides how it's divided.
- *
- * Cascade-independent — measurement is taken in viewport coordinates
- * rather than computed from CSS, so the directive works regardless of
- * what the element's ancestors declare.
- *
  * Reactive sources: window/visualViewport resize + scroll, orientation
  * change, iOS keyboard focus-out, parent/element ResizeObserver, theme
- * fullscreen toggle, theme bottom offset (safe-area / nav-bar reservation).
+ * fullscreen toggle, theme bottom offset. Updates are frame-aligned via
+ * `auditTime(0, animationFrameScheduler)` — the latest emission of any
+ * source applies once per paint, so the box tracks continuous resize
+ * drags without missing the final state.
  *
  * @example sidebar + main
  *   <app-shell
@@ -41,53 +35,24 @@ class Fill extends AsyncDirective {
 	private element: HTMLElement | null = null
 	private disconnecting$ = new Subject<void>()
 
-	private apply(bottomOffset: number, isFullscreen: boolean) {
-		if (!this.element) return
-		const vv = window.visualViewport
-		const vh = vv?.height ?? window.innerHeight
-		const vw = vv?.width ?? window.innerWidth
-		const rect = this.element.getBoundingClientRect()
-		const height = Math.max(0, vh - rect.top)
-		const width = Math.max(0, vw - rect.left)
-		const padding = isFullscreen ? 0 : bottomOffset
-		const s = this.element.style
-		s.boxSizing = 'border-box'
-		s.height = `${height}px`
-		s.width = `${width}px`
-		s.paddingBottom = `${padding}px`
-		s.minHeight = '0'
-		s.minWidth = '0'
-		s.overflow = 'hidden'
-	}
-
 	private subscribe() {
-		if (!this.element) return
-
-		const windowResize$ = fromEvent(window, 'resize', { passive: true })
-		const viewportEvents$ = window.visualViewport
-			? merge(
-					fromEvent(window.visualViewport, 'resize', { passive: true }),
-					fromEvent(window.visualViewport, 'scroll', { passive: true }),
-				)
-			: windowResize$
-		const orientation$ = fromEvent(window, 'orientationchange')
-		const focusOut$ = fromEvent(document, 'focusout', { passive: true }).pipe(
-			switchMap(() => timer(100)),
-		)
-		const elementResize$ = fromResizeObserver(this.element)
-		const parentResize$ = this.element.parentElement
-			? fromResizeObserver(this.element.parentElement)
-			: EMPTY
+		const el = this.element
+		if (!el) return
 
 		combineLatest([
 			merge(
-				windowResize$,
-				viewportEvents$,
-				orientation$,
-				focusOut$,
-				elementResize$,
-				parentResize$,
-			).pipe(debounceTime(16), startWith(null)),
+				fromEvent(window, 'resize', { passive: true }),
+				window.visualViewport
+					? merge(
+							fromEvent(window.visualViewport, 'resize', { passive: true }),
+							fromEvent(window.visualViewport, 'scroll', { passive: true }),
+						)
+					: EMPTY,
+				fromEvent(window, 'orientationchange'),
+				fromEvent(document, 'focusout', { passive: true }).pipe(switchMap(() => timer(100))),
+				fromResizeObserver(el),
+				el.parentElement ? fromResizeObserver(el.parentElement) : EMPTY,
+			).pipe(auditTime(0, animationFrameScheduler), startWith(null)),
 			theme.bottomOffset$,
 			theme.fullscreen$,
 		])
@@ -96,11 +61,18 @@ class Fill extends AsyncDirective {
 					const vv = window.visualViewport
 					return vv ? Math.abs(vv.scale - 1) <= 0.01 : true
 				}),
-				map(([, bottomOffset, isFullscreen]) => ({ bottomOffset, isFullscreen })),
-				distinctUntilChanged(
-					(a, b) => a.bottomOffset === b.bottomOffset && a.isFullscreen === b.isFullscreen,
-				),
-				tap(({ bottomOffset, isFullscreen }) => this.apply(bottomOffset, isFullscreen)),
+				tap(([, bottomOffset, isFullscreen]) => {
+					const vv = window.visualViewport
+					const rect = el.getBoundingClientRect()
+					const s = el.style
+					s.boxSizing = 'border-box'
+					s.height = `${Math.max(0, (vv?.height ?? window.innerHeight) - rect.top)}px`
+					s.width = `${Math.max(0, (vv?.width ?? window.innerWidth) - rect.left)}px`
+					s.paddingBottom = `${isFullscreen ? 0 : bottomOffset}px`
+					s.minHeight = '0'
+					s.minWidth = '0'
+					s.overflow = 'hidden'
+				}),
 				takeUntil(this.disconnecting$),
 			)
 			.subscribe()

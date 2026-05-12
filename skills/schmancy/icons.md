@@ -1,44 +1,108 @@
 # schmancy-icon
 
-> Material Symbols icon with configurable fill, weight, grade, variant, and size tokens.
+Renders a Material Symbol as an inline SVG. Path data is supplied at build
+time by the `schmancy-icons` Vite plugin — no font file, no network request,
+works offline from first byte.
 
 ## Usage
+
 ```html
-<schmancy-icon>settings</schmancy-icon>
+<schmancy-icon>home</schmancy-icon>
+<schmancy-icon>delete</schmancy-icon>
 ```
 
-## Properties
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| icon | string | `undefined` | Icon name (alternative to slot content, translation-safe) |
-| size | `'xxs'\|'xs'\|'sm'\|'md'\|'lg'\|string` | `'md'` | Icon size (12/16/20/24/32px or custom) |
-| fill | number (0-1) | `0` | Fill level (0=outlined, 1=filled) |
-| weight | number (100-700) | `400` | Stroke thickness |
-| grade | number (-50 to 200) | `0` | Visual weight adjustment |
-| variant | `'outlined'\|'rounded'\|'sharp'` | `'outlined'` | Icon style variant |
+Slot text IS the icon name (Material Symbols ligature name). No properties needed.
 
-## Size Tokens
-| Token | Size | Optical Size | Best For |
-|-------|------|-------------|----------|
-| xxs | 12px | 20 | Ultra-compact UIs |
-| xs | 16px | 20 | 32px buttons |
-| sm | 20px | 20 | 40px buttons |
-| md | 24px | 24 | Default (48px buttons) |
-| lg | 32px | 40 | 56px buttons |
+## Sizing
 
-## Examples
+Size is set with Tailwind `text-*` on the host. Default is `24px` (`text-2xl`).
+`width` and `height` track `font-size` via `1em`.
+
 ```html
-<!-- Filled icon -->
-<schmancy-icon .fill=${1}>favorite</schmancy-icon>
-
-<!-- Large rounded icon -->
-<schmancy-icon size="lg" variant="rounded">home</schmancy-icon>
-
-<!-- Custom size -->
-<schmancy-icon size="48px" .weight=${300}>search</schmancy-icon>
-
-<!-- Translation-safe (use icon property instead of slot) -->
-<schmancy-icon icon="delete"></schmancy-icon>
+<schmancy-icon class="text-base">close</schmancy-icon>   <!-- 16px -->
+<schmancy-icon class="text-xl">search</schmancy-icon>    <!-- 20px -->
+<schmancy-icon class="text-2xl">home</schmancy-icon>     <!-- 24px (default) -->
+<schmancy-icon class="text-4xl">check_circle</schmancy-icon> <!-- 36px -->
 ```
 
-Auto-loads Google Fonts on first use. Translation-protected via `translate="no"` and `notranslate` class.
+## Color
+
+Inherits `currentColor`. Override with Tailwind color utilities:
+
+```html
+<schmancy-icon class="text-primary-default">star</schmancy-icon>
+<schmancy-icon class="opacity-50">info</schmancy-icon>
+```
+
+## Fill variant (active states)
+
+Append `-fill` to the icon name for the filled variant. No CSS animation —
+a clean swap between outlined and filled symbols:
+
+```html
+<!-- Static filled -->
+<schmancy-icon>favorite-fill</schmancy-icon>
+
+<!-- Dynamic active state -->
+<schmancy-icon>${active ? 'home-fill' : 'home'}</schmancy-icon>
+```
+
+The plugin auto-includes `-fill` variants for every detected base icon.
+
+## Vite plugin setup (web workspace)
+
+The plugin scans all `.ts` source files at build start and injects
+`window.__siIcons = { name: 'svgPathData', ... }` inline in `<head>`.
+
+```typescript
+// web/vite.config.ts
+import { schmancyIcons } from './plugins/schmancy-icons.ts'
+
+export default defineConfig({
+  plugins: [
+    schmancyIcons({
+      // Icon names used in runtime variables (not statically detectable).
+      // Type them as SchmancyIconName in consuming code.
+      additional: ['widgets', 'inventory_2', 'description'],
+    }),
+  ],
+})
+```
+
+### Adding icons for dynamic usage
+
+Any icon name carried in a variable at runtime must be declared in `additional`.
+TypeScript enforcement: the plugin generates `src/types/icon-name.d.ts` with
+a `SchmancyIconName` union of every icon in the bundle. Type dynamic icon props
+as `SchmancyIconName` to get compile-time coverage.
+
+```typescript
+import type { SchmancyIconName } from './types/icon-name'
+
+@property({ type: String }) icon: SchmancyIconName = 'home'
+```
+
+## What was removed
+
+The following properties are **gone** — the component has no public API beyond
+slot text content:
+
+| Removed | Replacement |
+|---------|-------------|
+| `size="lg"` | `class="text-4xl"` (Tailwind) |
+| `fill`, `weight`, `grade`, `variant` | n/a — use `-fill` suffix for filled, rest unsupported |
+| `icon="name"` prop | slot text: `<schmancy-icon>name</schmancy-icon>` |
+| Google Fonts auto-load | n/a — self-contained inline SVG |
+
+## How it works
+
+1. Vite plugin walks `web/src/**/*.ts`, extracts icon names from
+   `<schmancy-icon>name</schmancy-icon>` and `icon="name"` patterns.
+2. Reads `@material-symbols/svg-400/outlined/{name}.svg`, extracts the `d`
+   attribute from each `<path>`.
+3. Injects `<script>window.__siIcons={...}</script>` before `</head>`.
+4. `schmancy-icon.connectedCallback` reads `this.textContent`, looks up
+   `window.__siIcons[name]`, and renders `<svg><path d="..."/></svg>` inside
+   its shadow DOM.
+
+No `<use>` references — those can't cross shadow DOM boundaries.

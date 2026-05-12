@@ -379,8 +379,6 @@ export class SchmancyNavigationRail extends SchmancyElement {
 			// Layout & Structure
 			'flex flex-col h-full': true,
 			'box-border relative': true,
-			'py-2': true,
-
 
 			// M3 Colors & Theme
 			'bg-container-lowest text-surface-on': true,

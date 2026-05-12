@@ -172,3 +172,41 @@ export class SchmancyElement extends SchmancyElementBase {
 		super.disconnectedCallback()
 	}
 }
+
+/**
+ * Decorator: `@schmancyElement('tag-name')`. The standard way to register
+ * a `SchmancyElement` subclass.
+ *
+ * Drop-in replacement for Lit's `@customElement`. The difference is
+ * timing: this decorator wraps the prototype's methods with
+ * `_activeHost.run` BEFORE calling `customElements.define`.
+ *
+ * Why this matters: the HTML spec captures the element's lifecycle
+ * callback references (`connectedCallback`, `disconnectedCallback`, etc.)
+ * off the prototype at `customElements.define` time, and the browser
+ * invokes those cached references for the element's lifecycle — it does
+ * NOT re-look-up the prototype each time. SchmancyElement's constructor
+ * installs the active-host wrap on first instantiation, which is strictly
+ * later than `define`, so the browser ends up calling unwrapped
+ * lifecycle callbacks. Reads inside `connectedCallback` then fall through
+ * to `document.activeElement`, miss the enclosing `<schmancy-context>`,
+ * and resolve to the module-scoped global instead of the isolated copy.
+ *
+ * Use this decorator for any subclass that:
+ *   - Reads or writes a state-singleton inside `connectedCallback` or
+ *     `disconnectedCallback`, AND
+ *   - May appear inside a `<schmancy-context>` subtree.
+ *
+ * For elements that never touch state in lifecycle callbacks, plain
+ * `@customElement` from `lit/decorators.js` still works — the
+ * constructor's wrap covers everything else (render, class methods,
+ * event handlers attached via the prototype). The two decorators are
+ * interchangeable for those cases.
+ */
+export function schmancyElement(tagName: string) {
+	return <T extends CustomElementConstructor>(cls: T): T => {
+		wrapPrototypeChain(cls as { prototype: object })
+		customElements.define(tagName, cls)
+		return cls
+	}
+}
