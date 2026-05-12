@@ -41,7 +41,7 @@ export class SchmancyJson extends SchmancyElement {
 				@click=${this.copyJSON}
 			>
 				<div class="flex items-center justify-between mb-1">
-					<schmancy-icon size="12px" class="text-on-surface-variant">content_copy</schmancy-icon>
+					<schmancy-icon class="text-xs text-on-surface-variant">content_copy</schmancy-icon>
 				</div>
 				<pre class="text-[10px] leading-tight">${unsafeHTML(highlighted)}</pre>
 			</div>

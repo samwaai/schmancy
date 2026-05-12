@@ -235,8 +235,7 @@ export class SchmnacyIconButton extends SchmancyElement {
 			'hover:bg-secondary-container': effectiveVariant === 'filled tonal',
 		}
 
-		// Icon size mapping - M3 spec: 24dp standard, scaled for density
-		const iconSize = this.size === 'xxs' ? '12px' : this.size === 'xs' ? '16px' : this.size === 'sm' ? '20px' : this.size === 'md' ? '24px' : this.size === 'lg' ? '24px' : '40px';
+		const iconSizeClass = this.size === 'xxs' ? 'text-xs' : this.size === 'xs' ? 'text-base' : this.size === 'sm' ? 'text-xl' : this.size === 'md' ? 'text-2xl' : this.size === 'lg' ? 'text-2xl' : 'text-4xl';
 
 		// If href is provided, render an anchor element.
 		if (this.href) {
@@ -256,7 +255,7 @@ export class SchmnacyIconButton extends SchmancyElement {
 						? html`<slot></slot>`
 						: html`
 							<slot style="display:none" @slotchange=${this._handleSlotChange}></slot>
-							<schmancy-icon size=${iconSize} icon=${ifDefined(this.icon || this._capturedIcon)}></schmancy-icon>
+							<schmancy-icon class=${iconSizeClass}>${this.icon || this._capturedIcon}</schmancy-icon>
 						`
 					}
 				</a>
@@ -279,7 +278,7 @@ export class SchmnacyIconButton extends SchmancyElement {
 					? html`<slot></slot>`
 					: html`
 						<slot style="display:none" @slotchange=${this._handleSlotChange}></slot>
-						<schmancy-icon size=${iconSize} icon=${ifDefined(this.icon || this._capturedIcon)}></schmancy-icon>
+						<schmancy-icon class=${iconSizeClass}>${this.icon || this._capturedIcon}</schmancy-icon>
 					`
 				}
 			</button>

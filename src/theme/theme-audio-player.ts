@@ -349,7 +349,7 @@ export class SchmancyThemeAudioPlayer extends SchmancyElement {
 						this.currentThemeName !== 'default',
 						() => html`
 							<schmancy-button variant="text" size="sm" @click=${() => this.resetToDefaults()}>
-								<schmancy-icon size="16px">refresh</schmancy-icon>
+								<schmancy-icon class="text-base">refresh</schmancy-icon>
 								Reset
 							</schmancy-button>
 						`

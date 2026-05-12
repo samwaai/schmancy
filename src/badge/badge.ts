@@ -132,17 +132,13 @@ export class SchmancyBadgeV2 extends SchmancyElement {
 	 * Get icon size based on badge size with harmonious proportions
 	 * Using golden ratio-inspired proportions relative to text size
 	 */
-	private getIconSize(): string {
+	private getIconSizeClass(): string {
 		switch (this.size) {
-			case 'xs':
-				return '11px' // Approximately 0.9 × text size (12px × 0.9)
-			case 'sm':
-				return '13px' // Approximately 1.1 × text size (12px × 1.1)
-			case 'lg':
-				return '18px' // Approximately 1.1 × text size (16px × 1.1)
+			case 'xs': return 'text-xs'
+			case 'sm': return 'text-sm'
+			case 'lg': return 'text-lg'
 			case 'md':
-			default:
-				return '15px' // Approximately 1.1 × text size (14px × 1.1)
+			default:   return 'text-sm'
 		}
 	}
 
@@ -219,7 +215,7 @@ export class SchmancyBadgeV2 extends SchmancyElement {
 		const sizeClasses = this.getSizeClasses()
 		const shapeClasses = this.getShapeClasses()
 		const colorStyles = this.getColorStyles()
-		const iconSize = this.getIconSize()
+		const iconSizeClass = this.getIconSizeClass()
 		const exoticStyles = this.getExoticStyles()
 
 		const badgeClasses = {
@@ -259,7 +255,7 @@ export class SchmancyBadgeV2 extends SchmancyElement {
 					${this.icon
 						? html`
 								<div part="icon" class="shrink-0 flex items-center justify-center leading-none">
-									<schmancy-icon .size=${iconSize} class="flex items-center justify-center">${this.icon}</schmancy-icon>
+									<schmancy-icon class="${iconSizeClass} flex items-center justify-center">${this.icon}</schmancy-icon>
 								</div>
 							`
 						: ''}

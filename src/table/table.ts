@@ -182,9 +182,9 @@ export class SchmancyDataTable<T extends Record<string, any> = any> extends Schm
 		return html`
 			<span class="ml-1">
 				${this.sortDirection === 'asc'
-					? html`<schmancy-icon size="16px">arrow_upward</schmancy-icon>`
+					? html`<schmancy-icon class="text-base">arrow_upward</schmancy-icon>`
 					: this.sortDirection === 'desc'
-						? html`<schmancy-icon size="16px">arrow_downward</schmancy-icon>`
+						? html`<schmancy-icon class="text-base">arrow_downward</schmancy-icon>`
 						: null}
 			</span>
 		`
