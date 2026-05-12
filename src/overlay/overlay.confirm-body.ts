@@ -21,13 +21,9 @@ export class SchmancyOverlayPromptBody extends SchmancyElement {
 	static styles = [css`
 	:host {
 		display: block;
-		padding: 20px 24px;
 		min-width: 280px;
 		max-width: 480px;
 		color: var(--schmancy-sys-color-on-surface, #1a1a1a);
-		background: var(--schmancy-sys-color-surface, #ffffff);
-		border-radius: var(--schmancy-sys-shape-corner-large, 16px);
-		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
 	}
 	:host([variant='danger']) .cta-confirm {
 		background: var(--schmancy-sys-color-error, #b3261e);

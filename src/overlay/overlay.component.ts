@@ -102,6 +102,7 @@ export class SchmancyOverlay extends SchmancyElement {
 		background: var(--schmancy-sys-color-surface, #ffffff);
 		color: var(--schmancy-sys-color-on-surface, #1a1a1a);
 		box-shadow: 0 24px 64px -16px rgba(0, 0, 0, 0.35);
+		padding: var(--schmancy-overlay-padding, 1.5rem);
 	}
 	.surface[data-layout='centered'] {
 		top: 50%;
