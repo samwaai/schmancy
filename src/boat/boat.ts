@@ -10,7 +10,7 @@ import { SPRING_SMOOTH, SPRING_SNAPPY } from '../utils/animation.js'
 import { reducedMotion$ } from '../directives/reduced-motion'
 import { theme } from '../theme/theme.service.js'
 
-const FAB_HEIGHT = 44
+const FAB_HEIGHT = 36
 const DRAG_THRESHOLD = 5
 const POSITION_STORAGE_KEY_PREFIX = 'schmancy-boat-'
 
@@ -89,12 +89,12 @@ export default class SchmancyBoat extends SchmancyElement {
 
 	private get closedClipPath(): string {
 		return this.isBottomCorner
-			? `inset(calc(100% - ${FAB_HEIGHT}px) 0px 0px 0px round 22px)`
-			: `inset(0px 0px calc(100% - ${FAB_HEIGHT}px) 0px round 22px)`
+			? `inset(calc(100% - ${FAB_HEIGHT}px) 0px 0px 0px round 10px)`
+			: `inset(0px 0px calc(100% - ${FAB_HEIGHT}px) 0px round 10px)`
 	}
 
 	private get openClipPath(): string {
-		return 'inset(0px 0px 0px 0px round 12px)'
+		return 'inset(0px 0px 0px 0px round 4px)'
 	}
 
 	private get elevation(): 0 | 1 | 2 | 3 | 4 | 5 {
@@ -415,7 +415,7 @@ export default class SchmancyBoat extends SchmancyElement {
 		container.style.overflow = 'hidden'
 
 		const openKeyframes: Keyframe[] = [
-			{ clipPath: this.closedClipPath, opacity: 0.95 },
+			{ clipPath: this.closedClipPath, opacity: 0.85 },
 			{ clipPath: this.openClipPath, opacity: 1 },
 		]
 		const anim = container.animate(openKeyframes, {
@@ -459,7 +459,7 @@ export default class SchmancyBoat extends SchmancyElement {
 
 		const closeKeyframes: Keyframe[] = [
 			{ clipPath: this.openClipPath, opacity: 1 },
-			{ clipPath: this.closedClipPath, opacity: 0.95 },
+			{ clipPath: this.closedClipPath, opacity: 0.85 },
 		]
 		const anim = container.animate(closeKeyframes, {
 			duration: Math.round(SPRING_SNAPPY.duration * 0.9),
@@ -527,10 +527,13 @@ export default class SchmancyBoat extends SchmancyElement {
 			'flex-col-reverse': !isBottom,
 			'will-change-[clip-path]': true,
 			'z-1000': true,
-			'rounded-2xl': this.open,
-			'rounded-[22px]': !this.open,
+			// open: 4px radius (instrument-sharp); closed: 10px (status-bar pill)
+			'rounded': this.open,
+			'rounded-lg': !this.open,
 			'overflow-hidden': true,
-			'opacity-95': this.isDragging,
+			// micro-scale + reduced opacity signals lift during drag
+			'opacity-85': this.isDragging,
+			'scale-95': this.isDragging,
 		})
 
 		const containerStyles = styleMap({
@@ -584,32 +587,39 @@ export default class SchmancyBoat extends SchmancyElement {
 					</schmancy-surface>
 				</section>
 
-				<!-- Gradient separator between header and content — only when open -->
-				${when(
-					this.open,
-					() =>
-						html`<div
-							class="h-px shrink-0 bg-linear-to-r from-transparent via-primary-default/30 to-transparent"
-						></div>`,
-				)}
-
 				<!-- Header / FAB section — always interactive, always visible -->
 				<section
-					class="shrink-0 bg-surface-containerLowest"
+					class="shrink-0 bg-surface-containerLowest relative"
 					style=${styleMap({ 'pointer-events': 'auto', height: `${FAB_HEIGHT}px` })}
 				>
+					<!-- 1px top inner highlight — reads as a lit edge when open, instrument-panel HUD accent -->
+					${when(
+						this.open,
+						() => html`<div
+							class="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary-default/40 to-transparent pointer-events-none"
+						></div>`,
+					)}
 					<div
 						${ref(this._headerRef)}
 						class=${headerClasses}
 						title="Drag to move"
 						aria-label="Drag to reposition panel"
 					>
+						<!-- Grip indicator: only visible when collapsed, signals "this is a handle" -->
+						${when(
+							!this.open,
+							() => html`<div
+								class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-0.5 rounded-full bg-on-surface/20 pointer-events-none"
+								style="z-index:0"
+							></div>`,
+						)}
+
 						<!-- Summary slot rendered once — avoids DOM teardown on toggle -->
-						<div class="flex-1 min-w-0">
+						<div class="flex-1 min-w-0 relative" style="z-index:1">
 							<slot name="summary"></slot>
 						</div>
 
-						<!-- Toggle button: collapse when open, expand when closed -->
+						<!-- Toggle button: chevron up/down matches open/close direction per corner -->
 						${when(
 							this.open,
 							() => html`
@@ -622,7 +632,7 @@ export default class SchmancyBoat extends SchmancyElement {
 									}}
 									title="Collapse"
 								>
-									close_fullscreen
+									${isBottom ? 'expand_more' : 'expand_less'}
 								</schmancy-icon-button>
 							`,
 							() => html`
@@ -635,7 +645,7 @@ export default class SchmancyBoat extends SchmancyElement {
 									}}
 									title="Expand"
 								>
-									fullscreen
+									${isBottom ? 'expand_less' : 'expand_more'}
 								</schmancy-icon-button>
 							`,
 						)}

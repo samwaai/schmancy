@@ -32,13 +32,13 @@
  * ```
  */
 
+import type { ElementPart } from 'lit'
 import { noChange } from 'lit'
 import { AsyncDirective, directive } from 'lit/async-directive.js'
-import type { ElementPart } from 'lit'
-import { SPRING_SMOOTH, SPRING_GENTLE, getEasing } from '../utils/animation'
+import { EMPTY, type Subscription, from, fromEvent, timer } from 'rxjs'
+import { catchError, take, tap } from 'rxjs/operators'
+import { SPRING_GENTLE, SPRING_SMOOTH, getEasing } from '../utils/animation'
 import { reducedMotion$ } from './reduced-motion'
-import { Subscription, timer, fromEvent, from, EMPTY } from 'rxjs'
-import { take, tap, catchError } from 'rxjs/operators'
 
 export interface NebulaOptions {
 	/** Whether the nebula is active/visible. Default: true (auto-shows, auto-hides after autoHideDuration) */
@@ -94,7 +94,7 @@ const DEFAULTS: Required<NebulaOptions> = {
 	idleBreathe: true,
 	temperature: 0,
 	chromaticAberration: 1,
-	particleCount: 30,
+	particleCount: 8,
 }
 
 // =============================================================================
@@ -139,10 +139,11 @@ function injectGlobalStyles(): void {
 	75% { transform: translate3d(calc(var(--nebula-aberration, 3px) * -1.8), 0, 0); }
 }
 
-/* Iridescent core - continuous 360-degree hue rotation (the ONE filter animation) */
+/* Iridescent core - compositor-only rotation. filter is static (baked inline) to avoid
+   per-frame raster cost of animated blur/hue-rotate under mix-blend-mode: screen. */
 @keyframes nebula-iridescent {
-	0% { filter: hue-rotate(0deg) blur(var(--nebula-blur-core, 12px)) saturate(1.6); }
-	100% { filter: hue-rotate(360deg) blur(var(--nebula-blur-core, 12px)) saturate(1.6); }
+	0% { transform: translateZ(0) rotate(0deg); }
+	100% { transform: translateZ(0) rotate(360deg); }
 }
 
 /* Bioluminescent tendrils - organic breathing */
@@ -161,17 +162,17 @@ function injectGlobalStyles(): void {
 	85% { opacity: 0.6; }
 }
 
-/* Idle breathing - gentle pulse when dimmed */
+/* Idle breathing - compositor-only pulse when dimmed.
+   filter: blur is intentionally static (baked on layers) — animating it here
+   would keep re-rasterizing the dimmed overlay forever for no visual gain. */
 @keyframes nebula-idle-breathe {
 	0%, 100% {
 		opacity: var(--nebula-idle-opacity, 0.08);
-		filter: blur(calc(var(--nebula-blur-base, 10px) * 8));
-		transform: scale(1);
+		transform: scale(1) translateZ(0);
 	}
 	50% {
 		opacity: calc(var(--nebula-idle-opacity, 0.08) * 1.4);
-		filter: blur(calc(var(--nebula-blur-base, 10px) * 10));
-		transform: scale(1.005);
+		transform: scale(1.005) translateZ(0);
 	}
 }
 
@@ -185,7 +186,8 @@ function injectGlobalStyles(): void {
 	isolation: isolate;
 }
 
-.nebula-overlay.paused .nebula-layer {
+.nebula-overlay.paused .nebula-layer,
+.nebula-overlay.dimmed .nebula-layer {
 	animation-play-state: paused !important;
 }
 
@@ -216,6 +218,7 @@ interface State {
 	originalContain: string
 	isDimmed: boolean
 	autoHideSub: Subscription | null
+	fadeFinishedSub: Subscription | null
 	options: Required<NebulaOptions>
 	reducedMotion: boolean
 	isVisible: boolean
@@ -352,6 +355,8 @@ class NebulaDirective extends AsyncDirective {
 		if (this.state?.overlay && this.state.isDimmed) {
 			this.state.isDimmed = false
 			this.state.options = opts
+			this.state.fadeFinishedSub?.unsubscribe()
+			this.state.fadeFinishedSub = null
 			this.awakenOverlay(opts, reducedMotion)
 			this.scheduleAutoHide(opts)
 			return
@@ -372,28 +377,26 @@ class NebulaDirective extends AsyncDirective {
 		if (!this.state?.overlay) return
 
 		const overlay = this.state.overlay
-		const awakenDuration = reducedMotion ? 0 : opts.fadeInDuration * 0.6
-		const easing = reducedMotion ? 'linear' : getEasing(SPRING_SMOOTH)
-
-		// Update CSS custom properties
 		overlay.style.setProperty('--nebula-intensity', String(opts.intensity))
 
 		overlay.animate(
 			[
-				{ opacity: opts.idleOpacity, transform: 'scale(0.98)', filter: `blur(${4 * opts.blur}px)` },
-				{ opacity: opts.intensity * 0.7, transform: 'scale(1.01)', filter: `blur(${1 * opts.blur}px)` },
-				{ opacity: opts.intensity, transform: 'scale(1)', filter: 'blur(0px)' },
+				{ opacity: opts.idleOpacity, transform: 'scale(0.98) translateZ(0)' },
+				{ opacity: opts.intensity * 0.7, transform: 'scale(1.01) translateZ(0)' },
+				{ opacity: opts.intensity, transform: 'scale(1) translateZ(0)' },
 			] as Keyframe[],
 			{
-				duration: awakenDuration,
-				easing,
+				duration: reducedMotion ? 0 : opts.fadeInDuration * 0.6,
+				easing: reducedMotion ? 'linear' : getEasing(SPRING_SMOOTH),
 				fill: 'forwards',
 			},
 		)
 
-		// Resume CSS animations
-		overlay.classList.remove('paused')
+		// Clear the dimmed gate + any container-level idle-breathe animation hide() installed,
+		// then resume the per-layer CSS animations.
+		overlay.classList.remove('paused', 'dimmed')
 		overlay.classList.add('running')
+		overlay.style.animation = ''
 	}
 
 	private createOverlay(element: HTMLElement, opts: Required<NebulaOptions>, reducedMotion: boolean): void {
@@ -568,7 +571,11 @@ class NebulaDirective extends AsyncDirective {
 						transparent 100%)`,
 				mixBlendMode: 'screen',
 				transform: 'translateZ(0)',
-				// hue-rotate is the core visual — continuous 360deg cycle
+				transformOrigin: '50% 50%',
+				// Static filter — animating hue-rotate + blur every frame is a GPU pig
+				// under mix-blend-mode: screen. Compositor-only rotation gets the iridescent
+				// shimmer "for free" by sliding the gradient across the blend stack.
+				filter: `blur(${12 * opts.blur}px) saturate(1.6)`,
 				animation: `nebula-iridescent ${28000 / opts.speed}ms linear infinite`,
 			})
 			overlay.appendChild(iridescentLayer)
@@ -635,13 +642,14 @@ class NebulaDirective extends AsyncDirective {
 		const fadeInDuration = reducedMotion ? 0 : opts.fadeInDuration
 		const entranceEasing = reducedMotion ? 'linear' : getEasing(SPRING_SMOOTH)
 
+		// Compositor-only entrance — opacity + transform reach the same "rising into focus"
+		// feel without animating `filter: blur`, which re-rasterizes the full filtered
+		// region every frame under mix-blend-mode: screen.
 		overlay.animate(
 			[
-				{ opacity: 0, transform: 'scale(0.85)', filter: `blur(${25 * opts.blur}px) saturate(0.5)` },
-				{ opacity: opts.intensity * 0.3, transform: 'scale(0.95)', filter: `blur(${12 * opts.blur}px) saturate(0.8)` },
-				{ opacity: opts.intensity * 0.6, transform: 'scale(1.02)', filter: `blur(${4 * opts.blur}px) saturate(1.1)` },
-				{ opacity: opts.intensity * 0.85, transform: 'scale(1.005)', filter: `blur(${1 * opts.blur}px) saturate(1.05)` },
-				{ opacity: opts.intensity, transform: 'scale(1)', filter: 'blur(0px) saturate(1)' },
+				{ opacity: 0, transform: 'scale(0.85) translateZ(0)' },
+				{ opacity: opts.intensity * 0.4, transform: 'scale(0.97) translateZ(0)' },
+				{ opacity: opts.intensity, transform: 'scale(1) translateZ(0)' },
 			] as Keyframe[],
 			{
 				duration: fadeInDuration,
@@ -658,6 +666,7 @@ class NebulaDirective extends AsyncDirective {
 			originalContain,
 			isDimmed: false,
 			autoHideSub: null,
+			fadeFinishedSub: null,
 			options: opts,
 			reducedMotion,
 			isVisible: document.visibilityState === 'visible',
@@ -695,53 +704,46 @@ class NebulaDirective extends AsyncDirective {
 		const overlay = this.state.overlay
 		const currentOpts = this.state.options
 		const reducedMotion = this.state.reducedMotion
-
-		const fadeOutDuration = reducedMotion ? 0 : opts.fadeOutDuration
-		const exitEasing = reducedMotion ? 'linear' : getEasing(SPRING_GENTLE)
+		const duration = reducedMotion ? 0 : opts.fadeOutDuration
+		const easing = reducedMotion ? 'linear' : getEasing(SPRING_GENTLE)
 
 		// Full hide (idleOpacity = 0)
 		if (opts.idleOpacity <= 0) {
 			overlay.animate(
 				[
-					{ opacity: currentOpts.intensity, transform: 'scale(1)', filter: 'blur(0px) saturate(1)' },
-					{ opacity: currentOpts.intensity * 0.4, transform: 'scale(0.95)', filter: `blur(${8 * currentOpts.blur}px) saturate(0.7)` },
-					{ opacity: 0, transform: 'scale(0.9)', filter: `blur(${15 * currentOpts.blur}px) saturate(0.3)` },
+					{ opacity: currentOpts.intensity, transform: 'scale(1) translateZ(0)' },
+					{ opacity: currentOpts.intensity * 0.4, transform: 'scale(0.95) translateZ(0)' },
+					{ opacity: 0, transform: 'scale(0.9) translateZ(0)' },
 				] as Keyframe[],
-				{
-					duration: fadeOutDuration,
-					easing: exitEasing,
-					fill: 'forwards',
-				},
+				{ duration, easing, fill: 'forwards' },
 			)
 			return
 		}
 
-		// Fade to idle with CSS animation for breathing
 		const fadeDown = overlay.animate(
 			[
-				{ opacity: currentOpts.intensity, transform: 'scale(1)', filter: 'blur(0px) saturate(1)' },
-				{ opacity: currentOpts.intensity * 0.5, transform: 'scale(0.99)', filter: `blur(${3 * currentOpts.blur}px) saturate(0.75)` },
-				{ opacity: opts.idleOpacity, transform: 'scale(1)', filter: `blur(${8 * currentOpts.blur}px) saturate(0.4)` },
+				{ opacity: currentOpts.intensity, transform: 'scale(1) translateZ(0)' },
+				{ opacity: currentOpts.intensity * 0.5, transform: 'scale(0.99) translateZ(0)' },
+				{ opacity: opts.idleOpacity, transform: 'scale(1) translateZ(0)' },
 			] as Keyframe[],
-			{
-				duration: fadeOutDuration,
-				easing: exitEasing,
-				fill: 'forwards',
-			},
+			{ duration, easing, fill: 'forwards' },
 		)
 
-		// Switch to CSS animation for idle breathing (more efficient)
-		if (opts.idleBreathe && !reducedMotion) {
-			from(fadeDown.finished).pipe(
-				take(1),
-				catchError(() => EMPTY),
-			).subscribe(() => {
-				if (this.state?.overlay) {
-					// Use pure CSS animation for idle - no JS overhead
+		// After fade-down, gate per-layer animations off via the `dimmed` class — without
+		// this, chromatic/iridescent/tendril/particle keyframes keep burning GPU under
+		// mix-blend-mode: screen forever even though the stack is visually idle.
+		this.state.fadeFinishedSub?.unsubscribe()
+		this.state.fadeFinishedSub = from(fadeDown.finished).pipe(
+			take(1),
+			tap(() => {
+				if (!this.state?.overlay) return
+				this.state.overlay.classList.add('dimmed')
+				if (opts.idleBreathe && !reducedMotion) {
 					this.state.overlay.style.animation = `nebula-idle-breathe ${12000 / currentOpts.speed}ms ${BREATHING_EASING} infinite`
 				}
-			})
-		}
+			}),
+			catchError(() => EMPTY),
+		).subscribe()
 	}
 
 	private cleanup(): void {
@@ -750,6 +752,7 @@ class NebulaDirective extends AsyncDirective {
 		this.coordinator.unregister(this, this.state.element)
 
 		this.state.autoHideSub?.unsubscribe()
+		this.state.fadeFinishedSub?.unsubscribe()
 
 		this.state.overlay?.remove()
 		this.state.element.style.position = this.state.originalPosition
