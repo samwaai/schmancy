@@ -39,6 +39,10 @@ Centered is the fallback (no anchor given). Sheet is the responsive adaptation (
 
 Always prefer `() => html\`...\`` over `html\`...\`` when the template closes over any variable — the factory form evaluates those variables at mount time rather than baking them in at the call site.
 
+## Default padding
+
+The overlay surface applies `padding: var(--schmancy-overlay-padding, 1.5rem)` to all content — `show()`, `confirm()`, and `prompt()` alike. Content components do **not** need their own padding against the surface edge. Override the token via `style="--schmancy-overlay-padding: 0"` on the host if a component supplies its own full-bleed layout.
+
 ## API
 
 | Export | Signature | Purpose |
