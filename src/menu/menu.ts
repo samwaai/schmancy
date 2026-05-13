@@ -53,8 +53,11 @@ export default class SchmancyMenu extends SchmancyElement {
 		if (menuItems.length === 0) return
 
 		// Move slot items into a fresh container so the overlay can adopt them
-		// without leaving stale references in our shadow tree.
+		// without leaving stale references in our shadow tree. The overlay
+		// surface no longer ships padding, so the wrapper owns its breathing
+		// room — menu items shouldn't collide with the surface edge.
 		const overlayContainer = document.createElement('div')
+		overlayContainer.style.padding = '0.5rem'
 		menuItems.forEach(item => overlayContainer.appendChild(item))
 
 		// Anchor at the click so the overlay system positions the menu

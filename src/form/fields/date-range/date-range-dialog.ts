@@ -1,6 +1,6 @@
 import { SchmancyElement } from '@mixins/index'
 import dayjs from 'dayjs'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
 import { repeat } from 'lit/directives/repeat.js'
@@ -25,6 +25,13 @@ interface PresetGroup {
  */
 @customElement('schmancy-date-range-dialog')
 export class SchmancyDateRangeDialog extends SchmancyElement {
+	static styles = [css`
+		:host {
+			display: block;
+			padding: 1.5rem;
+		}
+	`]
+
 	@property({ type: String }) type: 'date' | 'datetime-local' = 'date'
 	@property({ type: Object }) dateFrom: { label: string; value: string } = { label: 'From', value: '' }
 	@property({ type: Object }) dateTo: { label: string; value: string } = { label: 'To', value: '' }
