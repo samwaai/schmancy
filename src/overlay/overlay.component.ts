@@ -24,7 +24,6 @@ import {
 } from './overlay.animations'
 import { swipeToDismiss$ } from './overlay.gestures'
 import {
-	readViewport,
 	resolveAnchorRef,
 	resolveLayout,
 	type ResolvedAnchor,
@@ -35,6 +34,7 @@ import {
 	positionFloatingUI,
 	positionPopoverAPI,
 } from './overlay.positioning'
+import { currentStack } from './overlay.stack'
 import type {
 	Anchor,
 	CloseReason,
@@ -98,7 +98,7 @@ export class SchmancyOverlay extends SchmancyElement {
 	}
 `]
 
-	@property({ type: String, reflect: true }) layout: OverlayLayout = 'centered'
+	@property({ type: String, reflect: true }) layout: OverlayLayout = 'sheet'
 	@property({ type: Boolean, reflect: true }) dismissable = true
 	@property({ type: Boolean, reflect: true }) modal = true
 	@property({ type: String, reflect: true }) tier: OverlayTier = 'modal'
@@ -149,21 +149,11 @@ export class SchmancyOverlay extends SchmancyElement {
 		if (!mount) throw new Error('schmancy-overlay: mount point missing')
 		await mountContent(content, mount, options.props)
 
-		// Measure content after mount for layout dispatch.
-		const viewport = readViewport()
-		const contentSize = {
-			width: mount.scrollWidth,
-			height: mount.scrollHeight,
-		}
-		this.layout = resolveLayout({
-			anchor: options.anchor,
-			content: contentSize,
-			viewport,
-		})
+		// Caller-forced layout (`as`) wins; otherwise resolver decides from anchor.
+		this.layout = options.as ?? resolveLayout({ anchor: options.anchor })
 
-		// Modal defaults per layout, with the caller's `modal` as escape hatch.
-		this.modal =
-			options.modal ?? (this.layout === 'centered' || this.layout === 'sheet')
+		// Modal is derived from layout: sheet is always modal, anchored never is.
+		this.modal = this.layout === 'sheet'
 
 		// Pick the positioning tier. Modal layouts always use the 'modal'
 		// tier (custom shell + manual backdrop); anchored uses the CAPS-driven
@@ -264,11 +254,9 @@ export class SchmancyOverlay extends SchmancyElement {
 			'bg-surface-container/85 text-surface-on backdrop-blur-md ' +
 			'border border-surface-on/8'
 		const layoutClasses =
-			this.layout === 'centered'
-				? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[min(calc(100vw-2rem),560px)] max-h-[90dvh] rounded-3xl shadow-overlay'
-				: this.layout === 'sheet'
-					? 'left-0 right-0 bottom-0 w-full max-h-[90dvh] rounded-t-[28px] shadow-overlay'
-					: 'max-w-[min(480px,calc(100vw-2rem))] max-h-[90dvh] rounded-3xl shadow-overlay-anchored'
+			this.layout === 'sheet'
+				? 'left-0 right-0 bottom-0 w-full max-h-[90dvh] rounded-t-[28px] shadow-overlay'
+				: 'max-w-[min(480px,calc(100vw-2rem))] max-h-[90dvh] rounded-3xl shadow-overlay-anchored'
 		return html`
 			<div class="shell fixed inset-0 pointer-events-none" part="shell">
 				${when(
@@ -301,11 +289,9 @@ export class SchmancyOverlay extends SchmancyElement {
 		if (!surface) return
 		const rect = surface.getBoundingClientRect()
 		const vars =
-			this.layout === 'centered' && !this._anchorOriginAnchor
-				? { '--schmancy-overlay-origin-x': '50%', '--schmancy-overlay-origin-y': '50%' }
-				: this.layout === 'sheet' && !this._anchorOriginAnchor
-					? { '--schmancy-overlay-origin-x': '50%', '--schmancy-overlay-origin-y': '100%' }
-					: anchorOriginVars(this._anchorOriginAnchor, rect)
+			this.layout === 'sheet' && !this._anchorOriginAnchor
+				? { '--schmancy-overlay-origin-x': '50%', '--schmancy-overlay-origin-y': '100%' }
+				: anchorOriginVars(this._anchorOriginAnchor, rect)
 		for (const [k, v] of Object.entries(vars)) {
 			surface.style.setProperty(k, v)
 		}
@@ -407,6 +393,19 @@ export class SchmancyOverlay extends SchmancyElement {
 					const path = e.composedPath()
 					if (this._surface && path.includes(this._surface)) return false
 					if (this._resolvedAnchor?.el && path.includes(this._resolvedAnchor.el)) return false
+					// Suppress dismiss when the click lands inside any overlay that sits
+					// ABOVE this one in the stack (nested overlays sibling-appended to
+					// body). Read the stack fresh per pointerdown — it mutates as overlays
+					// open and close.
+					const stack = currentStack()
+					const myIndex = stack.findIndex((entry) => entry.element === this)
+					if (myIndex !== -1) {
+						for (let i = myIndex + 1; i < stack.length; i++) {
+							if (path.includes(stack[i].element)) return false
+							const aboveSurface = stack[i].element.shadowRoot?.querySelector('.surface')
+							if (aboveSurface && path.includes(aboveSurface)) return false
+						}
+					}
 					return true
 				}),
 				map(() => ({ reason: 'backdrop' as CloseReason })),
@@ -464,14 +463,9 @@ export class SchmancyOverlay extends SchmancyElement {
 			.subscribe((size) => this.maybeReResolve(size))
 	}
 
-	private async maybeReResolve(size: { w: number; h: number }): Promise<void> {
+	private async maybeReResolve(_size: { w: number; h: number }): Promise<void> {
 		if (this._closing) return
-		const viewport = readViewport()
-		const next = resolveLayout({
-			anchor: this._rawAnchor,
-			content: { width: size.w, height: size.h },
-			viewport,
-		})
+		const next = resolveLayout({ anchor: this._rawAnchor })
 		if (next === this.layout) return
 		// Cooldown: prevent churn-driven bouncing.
 		const now = performance.now()
@@ -592,9 +586,7 @@ function isLazy(x: unknown): x is LazyComponent {
 }
 
 function isUpwardTransition(from: OverlayLayout, to: OverlayLayout): boolean {
-	// Upward ladder: centered < sheet. anchored → sheet is also upward
-	// (overflow went past threshold). anchored → centered is NOT upward.
-	if (from === 'centered' && to === 'sheet') return true
-	if (from === 'anchored' && to === 'sheet') return true
-	return false
+	// Anchored → sheet is the only valid runtime transition (content
+	// overflowed and the surface re-resolves to a sheet). Sheet stays sheet.
+	return from === 'anchored' && to === 'sheet'
 }

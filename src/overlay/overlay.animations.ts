@@ -154,35 +154,6 @@ export function surfaceAnimation(layout: OverlayLayout, direction: 'in' | 'out')
 	}
 
 	switch (layout) {
-		case 'centered':
-			// Anchor-origin bloom: scale 0.6 → 1 from the var-driven origin.
-			// More aggressive than dialog's 0.92 because the origin carries the
-			// spatial work, so less translate is needed. Caller sets the origin
-			// vars via anchorOriginVars() before triggering this animation.
-			return direction === 'in'
-				? {
-						keyframes: [
-							{ opacity: 0, transform: 'scale(0.6)', transformOrigin: ORIGIN_CSS },
-							{ opacity: 1, transform: 'scale(1)', transformOrigin: ORIGIN_CSS },
-						],
-						options: {
-							duration: SPRING_SNAPPY.duration,
-							easing: getEasing(SPRING_SNAPPY),
-							fill: 'forwards',
-						},
-					}
-				: {
-						keyframes: [
-							{ opacity: 1, transform: 'scale(1)', transformOrigin: ORIGIN_CSS },
-							{ opacity: 0, transform: 'scale(0.95)', transformOrigin: ORIGIN_CSS },
-						],
-						options: {
-							duration: DURATION_EXIT,
-							easing: getEasing(SPRING_SMOOTH),
-							fill: 'forwards',
-						},
-					}
-
 		case 'sheet':
 			return direction === 'in'
 				? {

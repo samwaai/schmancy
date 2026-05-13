@@ -16,7 +16,7 @@
  * etc.) via the `schema` property to get typed `submit` event detail.
  */
 
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { fromEvent, takeUntil } from 'rxjs'
 import { SchmancyElement } from '../../mixins'
@@ -48,6 +48,10 @@ export type SchmancyFormSubmitDetail<T = Record<string, FormDataEntryValue>> = {
 @customElement('schmancy-form')
 export default class SchmancyForm<TSchema extends ParseSchema | undefined = undefined>
 	extends SchmancyElement {
+	static styles = css`
+		:host { display: block; }
+	`
+
 	public static readonly tagName: string = 'schmancy-form'
 
 	/**

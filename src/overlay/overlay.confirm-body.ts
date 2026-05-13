@@ -7,7 +7,7 @@ import { ifDefined } from 'lit/directives/if-defined.js'
 import { gravity } from '../directives/gravity'
 import type SchmancyInput from '../form/fields/input/input'
 
-import '../icons/icon'
+import '../form/form'
 import '../form/fields/input/input'
 import '../typography/typography'
 import '../button/button'
@@ -30,7 +30,6 @@ export class SchmancyOverlayPromptBody extends SchmancyElement {
 			display: block;
 			min-width: 280px;
 			max-width: 480px;
-			padding: 1.5rem;
 		}
 	`]
 
@@ -99,19 +98,8 @@ export class SchmancyOverlayPromptBody extends SchmancyElement {
 
 	protected render(): TemplateResult {
 		return html`
-			<form @submit=${this.handleSubmit}>
+			<schmancy-form @submit=${this.handleSubmit} class="p-6">
 				<div class="flex flex-col gap-3">
-					${when(
-						this.variant === 'danger',
-						() => html`
-							<schmancy-icon
-								${gravity({ delay: 0, mass: 0.7 })}
-								class="text-error-default"
-								style="font-size:32px"
-							>error_outline</schmancy-icon>
-						`,
-					)}
-
 					${when(
 						this.heading,
 						() => html`
@@ -192,7 +180,7 @@ export class SchmancyOverlayPromptBody extends SchmancyElement {
 						color=${this.variant === 'danger' ? 'error' : 'primary'}
 					>${this.confirmText}</schmancy-button>
 				</div>
-			</form>
+			</schmancy-form>
 		`
 	}
 }

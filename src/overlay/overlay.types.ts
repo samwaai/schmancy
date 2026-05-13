@@ -97,11 +97,11 @@ export interface ShowOptions {
 	 *  dismisses (same as unsubscribe). */
 	signal?: AbortSignal
 
-	/** Rare escape hatch. Defaults: `false` for anchored, `true` for
-	 *  centered/sheet. Setting `modal: true` on an anchored overlay forces
-	 *  <dialog>.showModal() semantics (focus trap + background inert) —
-	 *  use for destructive-confirm menus. */
-	modal?: boolean
+	/** Override the resolved layout. When set, short-circuits the resolver
+	 *  and forces this layout. Use when the caller knows the content's nature
+	 *  better than the resolver can — e.g. `as: 'sheet'` for an immersive
+	 *  takeover view that doesn't have an anchor. */
+	as?: OverlayLayout
 
 	/** Default `'push'`. Same vocabulary as `area.push()`.
 	 *  - `'push'` — new history entry; back dismisses, forward re-opens.
@@ -129,14 +129,20 @@ export interface ShowOptions {
 }
 
 /**
- * Resolved layout. Pure output of the dispatch engine; callers never pick.
- * - `'centered'`  — native <dialog>.showModal(), focus-trapped.
+ * Resolved layout. Two values:
  * - `'anchored'`  — popover="auto" + CSS Anchor Positioning / Floating UI,
- *                    non-modal, background stays interactive.
- * - `'sheet'`     — native <dialog>.showModal() as a bottom sheet,
- *                    swipe-to-dismiss, safe-area aware.
+ *                    non-modal, background stays interactive. Used when the
+ *                    caller passes an anchor (the novel default for menus,
+ *                    popovers, dropdowns).
+ * - `'sheet'`     — bottom sheet (mobile) or modal panel (desktop) with
+ *                    swipe-to-dismiss, safe-area aware. The default for every
+ *                    non-anchored overlay — confirm/prompt, immersive content
+ *                    views, legal pages, takeovers.
+ *
+ * Callers can force a layout with `ShowOptions.as` — useful for an anchored
+ * trigger whose content should still render as a sheet, or vice versa.
  */
-export type OverlayLayout = 'centered' | 'anchored' | 'sheet'
+export type OverlayLayout = 'anchored' | 'sheet'
 
 /**
  * Positioning tier an anchored overlay is using.
