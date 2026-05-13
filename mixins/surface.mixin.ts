@@ -4,12 +4,10 @@ import { property } from 'lit/decorators.js'
 import type { TSurfaceColor } from '../src/types/surface'
 import { surfaceStyles } from '../src/surface/surface.styles'
 
-export type SchmancySurfaceFill = 'all' | 'width' | 'height' | 'auto'
 export type SchmancySurfaceRounded = 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all'
 export type SchmancySurfaceElevation = 0 | 1 | 2 | 3 | 4 | 5
 
 export declare class ISurfaceMixin {
-	fill: SchmancySurfaceFill
 	rounded: SchmancySurfaceRounded
 	elevation: SchmancySurfaceElevation
 	type: TSurfaceColor
@@ -23,7 +21,6 @@ export declare class ISurfaceMixin {
  * This is the recommended pattern for mixins that need to add styles.
  *
  * Provides these reflected properties:
- * - `fill`: 'all' | 'width' | 'height' | 'auto' - Controls element dimensions
  * - `rounded`: 'none' | 'top' | 'left' | 'right' | 'bottom' | 'all' - Corner rounding
  * - `elevation`: 0-5 - Shadow depth level
  * - `type`: TSurfaceColor - Surface color variant (26+ options)
@@ -53,13 +50,6 @@ export const SurfaceMixin = <T extends Constructor<LitElement>>(superClass: T) =
 			// Append surfaceStyles at the end (higher specificity)
 			return [...parentStyles, surfaceStyles as CSSResultOrNative]
 		}
-
-		/**
-		 * Fill the width and/or height of the parent container.
-		 * @default 'auto'
-		 */
-		@property({ type: String, reflect: true })
-		fill: SchmancySurfaceFill = 'auto'
 
 		/**
 		 * Specifies the rounding style of the component's corners.

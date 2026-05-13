@@ -1,6 +1,5 @@
 import { provide } from '@lit/context'
 import { SchmancyElement } from '@mixins/index'
-import { SchmancySurfaceFill } from '@schmancy/surface'
 import { TSurfaceColor } from '@schmancy/types/surface'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -43,16 +42,6 @@ export class List extends SchmancyElement {
 	surface: TSurfaceColor
 
 	/**
-	 * Determines the fill style of the underlying surface.
-	 *
-	 * @attr fill
-	 * @type {SchmancySurfaceFill}
-	 * @default 'auto'
-	 */
-	@property({ type: String, reflect: true })
-	fill: SchmancySurfaceFill = 'auto'
-
-	/**
 	 * Defines the elevation level of the surface.
 	 *
 	 * @attr elevation
@@ -72,7 +61,7 @@ export class List extends SchmancyElement {
 	 */
 	render() {
 		return html`
-			<schmancy-surface .elevation=${this.elevation} .fill=${this.fill} type=${this.surface}>
+			<schmancy-surface .elevation=${this.elevation} type=${this.surface}>
 				<ul>
 					<slot></slot>
 				</ul>

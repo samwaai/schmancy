@@ -180,22 +180,6 @@ export const surfaceTypeStyles = css`
 `
 
 /**
- * Surface fill styles - dimension control
- */
-export const surfaceFillStyles = css`
-	:host([fill='all']) {
-		height: 100%;
-		width: 100%;
-	}
-	:host([fill='width']) {
-		width: 100%;
-	}
-	:host([fill='height']) {
-		height: 100%;
-	}
-`
-
-/**
  * Surface rounded corner styles
  */
 export const surfaceRoundedStyles = css`
@@ -283,7 +267,6 @@ export const surfaceClickableStyles = css`
  */
 export const surfaceStyles = css`
 	${surfaceTypeStyles}
-	${surfaceFillStyles}
 	${surfaceRoundedStyles}
 	${surfaceElevationStyles}
 	${surfaceClickableStyles}

@@ -5,6 +5,7 @@ import { when } from 'lit/directives/when.js'
 import {
 	debounceTime,
 	distinctUntilChanged,
+	EMPTY,
 	filter,
 	fromEvent,
 	map,
@@ -72,66 +73,28 @@ export class SchmancyOverlay extends SchmancyElement {
 	:host {
 		position: fixed;
 		inset: 0;
-		z-index: var(--schmancy-overlay-z, 10000);
+		z-index: 10000;
 		display: none;
 		pointer-events: none;
 	}
 	:host([active]) {
 		display: block;
 	}
-	.shell {
-		position: fixed;
-		inset: 0;
-		pointer-events: none;
-	}
+	/* Vertical-gradient scrim — Tailwind's bg-gradient utilities cannot reach
+	 * these color-mix percentages with sufficient control. */
 	.backdrop {
-		position: fixed;
-		inset: 0;
-		background: color-mix(in srgb, var(--schmancy-sys-color-surface-container, rgba(12, 12, 16, 0.28)) 60%, transparent);
-		backdrop-filter: blur(18px) saturate(150%);
-		-webkit-backdrop-filter: blur(18px) saturate(150%);
-		pointer-events: auto;
+		background: linear-gradient(
+			to bottom,
+			color-mix(in srgb, var(--schmancy-sys-color-scrim) 18%, transparent) 0%,
+			color-mix(in srgb, var(--schmancy-sys-color-scrim) 56%, transparent) 100%
+		);
+		-webkit-backdrop-filter: blur(16px) saturate(160%);
+		backdrop-filter: blur(16px) saturate(160%);
 	}
-	.surface {
-		position: fixed;
-		pointer-events: auto;
-		max-width: calc(100vw - 2rem);
-		max-height: 90dvh;
-		overflow: auto;
-		border-radius: var(--schmancy-sys-shape-corner-large, 16px);
-		background: var(--schmancy-sys-color-surface, #ffffff);
-		color: var(--schmancy-sys-color-on-surface, #1a1a1a);
-		box-shadow: 0 24px 64px -16px rgba(0, 0, 0, 0.35);
-		padding: var(--schmancy-overlay-padding, 1.5rem);
-	}
-	.surface[data-layout='centered'] {
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-	}
-	.surface[data-layout='sheet'] {
-		left: 0;
-		right: 0;
-		bottom: 0;
-		max-width: none;
-		width: 100%;
-		border-radius: var(--schmancy-sys-shape-corner-large, 16px) var(--schmancy-sys-shape-corner-large, 16px) 0 0;
-		padding-bottom: env(safe-area-inset-bottom);
-	}
-	.surface[data-layout='anchored'] {
-		max-width: min(480px, calc(100vw - 2rem));
-		box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.28);
-	}
-	/* Popover top-layer surfaces escape normal z-index — zero out host
-	 * display to avoid two surfaces rendering during transitions. */
+	/* Popover top-layer surfaces — UA defaults push surface off-screen. */
 	.surface:popover-open {
 		margin: 0;
 		border: 0;
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.surface {
-			box-shadow: var(--schmancy-sys-elevation-2, 0 2px 6px rgba(0, 0, 0, 0.2));
-		}
 	}
 `]
 
@@ -223,10 +186,10 @@ export class SchmancyOverlay extends SchmancyElement {
 			})
 			// Pair with Popover API to get native top-layer + light-dismiss.
 			const popoverCleanup = positionPopoverAPI(this._surface)
-			const prior = this._positionerTeardown
+			const cssAnchorTeardown = this._positionerTeardown
 			this._positionerTeardown = () => {
 				popoverCleanup()
-				prior()
+				cssAnchorTeardown?.()
 			}
 		} else if (this.tier === 'popover-fui' && this._resolvedAnchor) {
 			const popoverCleanup = positionPopoverAPI(this._surface)
@@ -265,7 +228,7 @@ export class SchmancyOverlay extends SchmancyElement {
 		this.wireResizeObserver(mount)
 
 		// Play entrance animations.
-		await this.playEnterAnimations()
+		await this.playAnimations('in')
 	}
 
 	/** Play exit animations then dismiss. */
@@ -273,7 +236,7 @@ export class SchmancyOverlay extends SchmancyElement {
 		if (this._closing || !this._mounted) return
 		this._closing = true
 		try {
-			await this.playExitAnimations()
+			await this.playAnimations('out')
 		} catch {
 			// animation cancelled mid-flight — not an error.
 		}
@@ -296,14 +259,24 @@ export class SchmancyOverlay extends SchmancyElement {
 
 	protected render(): TemplateResult {
 		if (!this._active) return html``
+		const baseClasses =
+			'surface fixed pointer-events-auto overflow-auto ' +
+			'bg-surface-container/85 text-surface-on backdrop-blur-md ' +
+			'border border-surface-on/8'
+		const layoutClasses =
+			this.layout === 'centered'
+				? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[min(calc(100vw-2rem),560px)] max-h-[90dvh] rounded-3xl shadow-overlay'
+				: this.layout === 'sheet'
+					? 'left-0 right-0 bottom-0 w-full max-h-[90dvh] rounded-t-[28px] shadow-overlay'
+					: 'max-w-[min(480px,calc(100vw-2rem))] max-h-[90dvh] rounded-3xl shadow-overlay-anchored'
 		return html`
-			<div class="shell" part="shell">
+			<div class="shell fixed inset-0 pointer-events-none" part="shell">
 				${when(
 					this.modal,
-					() => html`<div class="backdrop" part="backdrop" @click=${this.onBackdropClick}></div>`,
+					() => html`<div class="backdrop fixed inset-0 pointer-events-auto" part="backdrop" @click=${this.onBackdropClick}></div>`,
 				)}
 				<section
-					class="surface"
+					class="${baseClasses} ${layoutClasses}"
 					part="surface"
 					data-layout=${this.layout}
 					data-tier=${this.tier}
@@ -378,56 +351,46 @@ export class SchmancyOverlay extends SchmancyElement {
 	private wireCloseTriggers(signal?: AbortSignal): void {
 		const until = this.disconnecting
 
+		// Handle already-aborted signal synchronously — no stream needed.
+		if (signal?.aborted) {
+			queueMicrotask(() => void this.close('abort'))
+			return
+		}
+
 		// Structured close — content dispatches CustomEvent('close', { detail }).
-		fromEvent<CustomEvent>(this, 'close')
-			.pipe(
-				filter((e) => e instanceof CustomEvent),
-				tap((e) => {
-					e.stopPropagation()
-					void this.close('structured', e.detail)
-				}),
-				takeUntil(until),
-			)
-			.subscribe()
+		const structured$ = fromEvent<CustomEvent>(this, 'close').pipe(
+			filter((e) => e instanceof CustomEvent),
+			tap((e) => e.stopPropagation()),
+			map((e) => ({ reason: 'structured' as CloseReason, result: e.detail })),
+		)
 
 		// Native <form method="dialog"> submission bubbles up as a regular
 		// submit event with `submitter.value` (returnValue proxy for our
 		// custom shell). Capture it and resolve with the string value.
-		fromEvent<SubmitEvent>(this, 'submit')
-			.pipe(
-				filter((e) => {
-					const form = e.target as HTMLFormElement | null
-					return !!form && form.method === 'dialog'
-				}),
-				tap((e) => {
-					e.preventDefault()
-					const submitter = (e as SubmitEvent & { submitter?: HTMLButtonElement | HTMLInputElement })
-						.submitter
-					const value = submitter?.value ?? ''
-					void this.close('native-submit', value)
-				}),
-				takeUntil(until),
-			)
-			.subscribe()
+		const nativeSubmit$ = fromEvent<SubmitEvent>(this, 'submit').pipe(
+			filter((e) => {
+				const form = e.target as HTMLFormElement | null
+				return !!form && form.method === 'dialog'
+			}),
+			tap((e) => e.preventDefault()),
+			map((e) => {
+				const submitter = (e as SubmitEvent & { submitter?: HTMLButtonElement | HTMLInputElement })
+					.submitter
+				return { reason: 'native-submit' as CloseReason, result: submitter?.value ?? '' }
+			}),
+		)
 
 		// Manual Esc — all tiers. Modal has no native dismiss; anchored
 		// tiers use `popover="manual"` so the browser doesn't auto-Esc them
 		// either (the auto popover-stack would close ancestor overlays when
 		// a nested overlay opens — see positionPopoverAPI's comment).
-		fromEvent<KeyboardEvent>(document, 'keydown')
-			.pipe(
-				filter((e) => e.key === 'Escape'),
-				tap((e) => {
-					if (!this.dismissable) {
-						e.preventDefault()
-						return
-					}
-					e.preventDefault()
-					void this.close('escape')
-				}),
-				takeUntil(until),
-			)
-			.subscribe()
+		const escape$ = fromEvent<KeyboardEvent>(document, 'keydown').pipe(
+			filter((e) => e.key === 'Escape'),
+			tap((e) => e.preventDefault()),
+			filter(() => this.dismissable),
+			map(() => ({ reason: 'escape' as CloseReason })),
+			take(1),
+		)
 
 		// Manual outside-click — all anchored tiers. Modal layouts have a
 		// backdrop that catches outside clicks via `onBackdropClick`; the
@@ -437,50 +400,49 @@ export class SchmancyOverlay extends SchmancyElement {
 		// `Node.contains`) so clicks on elements inside slotted /
 		// shadow-DOM descendants of the surface are correctly classified
 		// as "inside".
-		if (this.tier !== 'modal') {
-			fromEvent<PointerEvent>(document, 'pointerdown', { capture: true })
-				.pipe(
-					filter((e) => {
-						if (!this.dismissable) return false
-						const path = e.composedPath()
-						if (this._surface && path.includes(this._surface)) return false
-						if (this._resolvedAnchor?.el && path.includes(this._resolvedAnchor.el)) return false
-						return true
-					}),
-					take(1),
-					tap(() => void this.close('backdrop')),
-					takeUntil(until),
-				)
-				.subscribe()
-		}
+		const outsideClick$ = this.tier !== 'modal'
+			? fromEvent<PointerEvent>(document, 'pointerdown', { capture: true }).pipe(
+				filter((e) => {
+					if (!this.dismissable) return false
+					const path = e.composedPath()
+					if (this._surface && path.includes(this._surface)) return false
+					if (this._resolvedAnchor?.el && path.includes(this._resolvedAnchor.el)) return false
+					return true
+				}),
+				map(() => ({ reason: 'backdrop' as CloseReason })),
+				take(1),
+			)
+			: null
 
 		// Swipe-to-dismiss for sheet layout only. No visual drag handle —
 		// the gesture starts from the top 40px of the surface (see
 		// DRAG_START_TOP_PX in overlay.gestures). Escape + backdrop click
 		// cover the other dismiss paths via the modal-tier listeners above.
-		if (this.layout === 'sheet' && this.dismissable) {
-			swipeToDismiss$({
-				surface: this._surface,
-				until$: merge(until, this._closed$),
-			})
-				.pipe(take(1))
-				.subscribe(() => void this.close('swipe'))
-		}
+		const swipe$ = this.layout === 'sheet' && this.dismissable
+			? swipeToDismiss$({ surface: this._surface, until$: merge(until, this._closed$) }).pipe(
+				take(1),
+				map(() => ({ reason: 'swipe' as CloseReason })),
+			)
+			: null
 
 		// AbortSignal — standard cancellation input.
-		if (signal) {
-			if (signal.aborted) {
-				queueMicrotask(() => void this.close('abort'))
-			} else {
-				fromEvent(signal, 'abort')
-					.pipe(
-						take(1),
-						tap(() => void this.close('abort')),
-						takeUntil(until),
-					)
-					.subscribe()
-			}
-		}
+		const abort$ = signal
+			? fromEvent(signal, 'abort').pipe(
+				take(1),
+				map(() => ({ reason: 'abort' as CloseReason })),
+			)
+			: null
+
+		merge(
+			structured$,
+			nativeSubmit$,
+			escape$,
+			outsideClick$ ?? EMPTY,
+			swipe$ ?? EMPTY,
+			abort$ ?? EMPTY,
+		)
+			.pipe(takeUntil(until))
+			.subscribe(({ reason, result }: { reason: CloseReason; result?: unknown }) => void this.close(reason, result))
 	}
 
 	/* ---------------- ResizeObserver FLIP re-resolve ------------------- */
@@ -536,10 +498,10 @@ export class SchmancyOverlay extends SchmancyElement {
 
 	/* ---------------- animations --------------------------------------- */
 
-	private async playEnterAnimations(): Promise<void> {
+	private async playAnimations(direction: 'in' | 'out'): Promise<void> {
 		const surface = this._surface
 		if (!surface) return
-		const spec = surfaceAnimation(this.layout, 'in')
+		const spec = surfaceAnimation(this.layout, direction)
 		const tasks: Promise<unknown>[] = [
 			surface.animate(spec.keyframes, spec.options).finished.catch(() => undefined),
 		]
@@ -548,29 +510,8 @@ export class SchmancyOverlay extends SchmancyElement {
 			tasks.push(
 				backdrop
 					.animate(
-						[{ opacity: 0 }, { opacity: 1 }],
-						{ duration: spec.options.duration, easing: 'ease-out', fill: 'forwards' },
-					)
-					.finished.catch(() => undefined),
-			)
-		}
-		await Promise.all(tasks)
-	}
-
-	private async playExitAnimations(): Promise<void> {
-		const surface = this._surface
-		if (!surface) return
-		const spec = surfaceAnimation(this.layout, 'out')
-		const tasks: Promise<unknown>[] = [
-			surface.animate(spec.keyframes, spec.options).finished.catch(() => undefined),
-		]
-		const backdrop = this._backdrop
-		if (this.modal && backdrop) {
-			tasks.push(
-				backdrop
-					.animate(
-						[{ opacity: 1 }, { opacity: 0 }],
-						{ duration: spec.options.duration, easing: 'ease-in', fill: 'forwards' },
+						direction === 'in' ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 0 }],
+						{ duration: spec.options.duration, easing: direction === 'in' ? 'ease-out' : 'ease-in', fill: 'forwards' },
 					)
 					.finished.catch(() => undefined),
 			)

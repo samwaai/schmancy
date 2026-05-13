@@ -144,6 +144,16 @@
 	--shadow-glow-3: 0 8px 32px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 28%, transparent);
 	--shadow-glow-4: 0 12px 44px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 35%, transparent);
 	--shadow-glow-5: 0 20px 60px -4px color-mix(in srgb, var(--schmancy-sys-color-primary-default) 42%, transparent);
+
+	/* Frosted-glass overlay shadows — use shadow-overlay (centered/sheet) and shadow-overlay-anchored (popover) */
+	--shadow-overlay:
+		0 1px 2px color-mix(in srgb, #000 8%, transparent),
+		0 28px 60px -20px color-mix(in srgb, #000 45%, transparent),
+		inset 0 1px 0 0 color-mix(in srgb, var(--schmancy-sys-color-surface-on) 8%, transparent);
+	--shadow-overlay-anchored:
+		0 1px 2px color-mix(in srgb, #000 8%, transparent),
+		0 12px 28px -12px color-mix(in srgb, #000 35%, transparent),
+		inset 0 1px 0 0 color-mix(in srgb, var(--schmancy-sys-color-surface-on) 8%, transparent);
 	--font-sans:
 		var(--schmancy-font-family), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
 		'Segoe UI Symbol', 'Noto Color Emoji';

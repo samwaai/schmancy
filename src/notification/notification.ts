@@ -9,39 +9,21 @@ import style from './notification.scss?inline'
 export type NotificationType = 'info' | 'success' | 'warning' | 'error'
 
 /**
- * Calculate a point on an arc between two points
- */
-function calculateArcPoint(
-	start: { x: number; y: number },
-	end: { x: number; y: number },
-	arcDirection: 'up' | 'down' = 'up',
-	intensity: number = 0.3,
-): { x: number; y: number } {
-	const midX = (start.x + end.x) / 2
-	const midY = (start.y + end.y) / 2
-	const distance = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2))
-	const arcHeight = Math.min(distance * intensity, 150)
-	return {
-		x: midX,
-		y: arcDirection === 'up' ? midY - arcHeight : midY + arcHeight,
-	}
-}
-
-/**
  * @fires close - When notification is closed
  */
 @customElement('sch-notification')
 export default class SchmancyNotification extends SchmancyElement {
-	static styles = [unsafeCSS(style)];
+	static styles = [unsafeCSS(style)]
 
 	@property({ type: String }) title = ''
 	@property({ type: String }) message = ''
 	@property({ type: String }) type: NotificationType = 'info'
 	@property({ type: Boolean }) closable = true
-	@property({ type: Number }) duration = 5000 // 0 means no auto-close
+	@property({ type: Number }) duration = 5000
 	@property({ type: String }) id = `notification-${Date.now()}-${Math.floor(Math.random() * 10000)}`
 	@property({ type: Boolean }) playSound = true
-	@property({ type: Boolean }) showProgress = false // Show indeterminate progress bar
+	@property({ type: Boolean }) showProgress = false
+	// startPosition retained for API compatibility — not used in entrance animation
 	@property({ type: Object }) startPosition: { x: number; y: number } = { x: 0, y: 0 }
 
 	@state() private _visible = true
@@ -57,14 +39,12 @@ export default class SchmancyNotification extends SchmancyElement {
 	connectedCallback() {
 		super.connectedCallback()
 
-		// Set fixed positioning for blackbird animation
 		this.style.position = 'fixed'
 		this.style.top = '16px'
 		this.style.right = '16px'
 		this.style.zIndex = '10001'
 		this.style.opacity = '0'
 
-		// Animate in after first render
 		this.updateComplete.then(() => {
 			this.animateIn()
 			return
@@ -81,34 +61,17 @@ export default class SchmancyNotification extends SchmancyElement {
 	}
 
 	private async animateIn() {
-		// Get the notification element's final position
-		const rect = this.getBoundingClientRect()
-		const targetX = rect.left + rect.width / 2
-		const targetY = rect.top + rect.height / 2
-
-		// Calculate arc point for upward arc
-		const arcPoint = calculateArcPoint(this.startPosition, { x: targetX, y: targetY }, 'up', 0.3)
-
-		// Animate from click position to final position with arc
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 		await this.animate(
-			[
-				{
-					transform: `translate(${this.startPosition.x - targetX}px, ${this.startPosition.y - targetY}px) scale(0.1)`,
-					opacity: 0,
-				},
-				{
-					transform: `translate(${arcPoint.x - targetX}px, ${arcPoint.y - targetY}px) scale(0.6)`,
-					opacity: 0.9,
-					offset: 0.5,
-				},
-				{
-					transform: 'translate(0, 0) scale(1)',
-					opacity: 1,
-				},
-			],
+			reduced
+				? [{ opacity: 0 }, { opacity: 1 }]
+				: [
+						{ transform: 'translateX(40px) scale(0.96)', opacity: 0 },
+						{ transform: 'translateX(0) scale(1)', opacity: 1 },
+					],
 			{
-				duration: 400,
-				easing: 'cubic-bezier(0.34, 1.2, 0.64, 1)',
+				duration: reduced ? 200 : 360,
+				easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
 				fill: 'forwards',
 			},
 		).finished
@@ -191,14 +154,13 @@ export default class SchmancyNotification extends SchmancyElement {
 		this._closing = true
 		this._visible = false
 
-		// Animate out before dispatching close event
 		await this.animate(
 			[
-				{ transform: 'translate(0, 0) scale(1)', opacity: 1 },
-				{ transform: 'translate(0, -20px) scale(0.8)', opacity: 0 },
+				{ transform: 'translateX(0) scale(1)', opacity: 1 },
+				{ transform: 'translateX(20px) scale(0.98)', opacity: 0 },
 			],
 			{
-				duration: 200,
+				duration: 180,
 				easing: 'cubic-bezier(0.4, 0, 1, 1)',
 				fill: 'forwards',
 			},
@@ -213,16 +175,16 @@ export default class SchmancyNotification extends SchmancyElement {
 		)
 	}
 
-	private _getEmoji(): string {
+	private _getTypeLabel(): string {
 		switch (this.type) {
 			case 'success':
-				return '\u2705'
+				return 'SUCCESS'
 			case 'warning':
-				return '\u26A0\uFE0F'
+				return 'WARNING'
 			case 'error':
-				return '\u274C'
+				return 'ERROR'
 			default:
-				return '\u{1F4A1}'
+				return 'INFO'
 		}
 	}
 
@@ -236,23 +198,24 @@ export default class SchmancyNotification extends SchmancyElement {
 				@mouseenter=${this._handleMouseEnter}
 				@mouseleave=${this._handleMouseLeave}
 			>
-				<span class="emoji">${this._getEmoji()}</span>
+				${this.showProgress || this.duration > 0
+					? html`<schmancy-progress
+							class="progress"
+							size="xs"
+							.value=${this._progress}
+							?indeterminate=${this.showProgress && this.duration === 0}
+						></schmancy-progress>`
+					: ''}
+				<div class="accent-rail"></div>
 				<div class="content">
+					<span class="type-tag">${this._getTypeLabel()}</span>
 					${this.title ? html`<div class="title">${this.title}</div>` : ''}
 					<div class="message">${this.message}</div>
 				</div>
 				${this.closable
 					? html`
-							<button class="close" aria-label="Close notification" @click=${this.close}>x</button>
+							<button class="close" aria-label="Close notification" @click=${this.close}>&#215;</button>
 						`
-					: ''}
-				${this.showProgress || this.duration > 0
-					? html`<schmancy-progress
-						class="progress"
-						size="xs"
-						.value=${this._progress}
-						?indeterminate=${this.showProgress && this.duration === 0}
-					></schmancy-progress>`
 					: ''}
 			</div>
 		`

@@ -14,7 +14,6 @@
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `surface` | `TSurfaceColor` | `undefined` | Surface color type, provided to children via context |
-| `fill` | `SchmancySurfaceFill` | `'auto'` | Surface fill style |
 | `elevation` | `0-5` | `0` | Surface elevation level |
 
 ## Properties (schmancy-list-item)

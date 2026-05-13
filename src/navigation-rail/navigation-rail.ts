@@ -1,9 +1,19 @@
 import { SchmancyElement } from '@mixins/index'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
-import { BehaviorSubject, fromEvent, takeUntil } from 'rxjs'
+import { BehaviorSubject, fromEvent, Observable, takeUntil } from 'rxjs'
 import { distinctUntilChanged, tap } from 'rxjs/operators'
 import { SchmancyNavigationRailItem } from './navigation-rail-item'
+
+/**
+ * Regex matching Tailwind utility prefixes that control items-container layout.
+ * Classes matching this are forwarded from the host's `class` attribute to the
+ * inner `<nav>` element so authors can write e.g. `class="grid gap-2"` on the
+ * host and have the items container adopt that layout.
+ * Classes NOT matching (bg-*, text-*, shadow-*, etc.) stay on the host only.
+ */
+const LAYOUT_CLASS_RE =
+	/^(grid($|-)|flex($|-)|gap-|col-|row-|justify-|items-|content-|place-|auto-|grid-cols-|grid-rows-)/
 
 export type NavigateEvent = CustomEvent<string>
 
@@ -24,6 +34,19 @@ export type LabelVisibility = 'all' | 'selected' | 'none'
  * Navigation rails provide access to between 3-7 primary destinations with a compact footprint.
  * Automatically hides in fullscreen mode when triggered via schmancyTheme.next({ fullscreen: true }).
  *
+ * ## Layout composition
+ * Place layout utilities directly on the host element. They are forwarded to the
+ * items container `<div part="items">` (the direct flat-tree parent of slotted items,
+ * placed inside `<schmancy-scroll>`). When no layout utilities are present on the host,
+ * the items container defaults to `flex flex-col gap-3` plus the `justify-*` class
+ * driven by the `alignment` property.
+ *
+ *   <schmancy-navigation-rail class="grid gap-2">…</schmancy-navigation-rail>
+ *   → items container <div>: `grid gap-2`
+ *
+ *   <schmancy-navigation-rail>…</schmancy-navigation-rail>
+ *   → items container <div>: `flex flex-col gap-3 justify-start`
+ *
  * @element schmancy-navigation-rail
  * @slot fab - Slot for a floating action button at the top
  * @slot menu - Slot for a menu icon or button below the FAB
@@ -37,7 +60,8 @@ export type LabelVisibility = 'all' | 'selected' | 'none'
  *
  * @csspart rail - The main rail container
  * @csspart header - The header section
- * @csspart nav - The navigation items container
+ * @csspart nav - The navigation scroll region (contains items)
+ * @csspart items - The direct layout container for slotted items (inside schmancy-scroll)
  * @csspart footer - The footer section
  *
  * @example
@@ -134,6 +158,14 @@ export class SchmancyNavigationRail extends SchmancyElement {
 	@state()
 	private isFullscreen = false
 
+	/**
+	 * Layout-related classes extracted from the host's `class` attribute.
+	 * Forwarded verbatim to the inner `<nav>` element.
+	 * When empty, the nav falls back to the M3 default: `flex flex-col gap-3`.
+	 */
+	@state()
+	private _hostLayoutClasses = ''
+
 	// Queries
 
 	@queryAssignedElements({ flatten: true })
@@ -167,6 +199,26 @@ export class SchmancyNavigationRail extends SchmancyElement {
 				this.isFullscreen = customEvent.detail
 			}),
 			takeUntil(this.disconnecting)
+		).subscribe()
+
+		// Watch the host's `class` attribute for layout utilities and forward them
+		// to the inner <nav>. The Observable wraps MutationObserver so teardown is
+		// handled by the existing takeUntil(this.disconnecting) pattern.
+		new Observable<string>(subscriber => {
+			const extract = () =>
+				Array.from(this.classList)
+					.filter(c => LAYOUT_CLASS_RE.test(c))
+					.join(' ')
+
+			subscriber.next(extract())
+
+			const mo = new MutationObserver(() => subscriber.next(extract()))
+			mo.observe(this, { attributes: true, attributeFilter: ['class'] })
+			return () => mo.disconnect()
+		}).pipe(
+			distinctUntilChanged(),
+			tap(layoutClasses => { this._hostLayoutClasses = layoutClasses }),
+			takeUntil(this.disconnecting),
 		).subscribe()
 
 		// Listen for navigate events from child items
@@ -355,7 +407,9 @@ export class SchmancyNavigationRail extends SchmancyElement {
 	}
 
 	protected render() {
-		// Host-level classes for the navigation rail
+		// Host-level classes for the navigation rail (width, visibility, z-index).
+		// Layout utilities the author placed on the host are NOT included here —
+		// they are forwarded to the inner <nav> via _hostLayoutClasses instead.
 		const hostClasses = this.classMap({
 			// Layout & Structure - Fixed width to prevent layout shift
 			'flex flex-col': true,
@@ -402,15 +456,27 @@ export class SchmancyNavigationRail extends SchmancyElement {
 			'hidden': !this.hasHeaderContent,
 		})
 
-		// Navigation container classes with alignment
+		// Navigation container <nav> — holds a single <schmancy-scroll> child, so only
+		// vertical fill classes belong here. Layout of the items themselves lives on the
+		// inner <div part="items"> so that the items' flat-tree parent is that div, not nav.
 		const navClasses = this.classMap({
-			'flex-1 flex flex-col gap-3': true, // gap-3 = 12px (M3 spec: 12px item spacing)
+			'flex-1': true,
 			'min-h-0': true, // Allow flex shrinking and proper scroll container height calculation
-			// Alignment variants
-			'justify-start': this.alignment === 'top',
-			'justify-center': this.alignment === 'center',
-			'justify-end': this.alignment === 'bottom',
 		})
+
+		// Items container <div> — the direct flat-tree parent of slotted navigation items
+		// after re-slotting through <schmancy-scroll>. Layout utilities forwarded from the
+		// host land here so that `grid gap-2` (or any other layout) actually shapes items.
+		// When the host carries no layout classes, default to M3 flex-column + alignment.
+		const hasHostLayout = this._hostLayoutClasses.length > 0
+		const itemsContainerClasses = hasHostLayout
+			? this._hostLayoutClasses
+			: this.classMap({
+					'flex flex-col gap-3': true,
+					'justify-start': this.alignment === 'top',
+					'justify-center': this.alignment === 'center',
+					'justify-end': this.alignment === 'bottom',
+				})
 
 		// Footer section classes
 		const footerClasses = this.classMap({
@@ -430,7 +496,9 @@ export class SchmancyNavigationRail extends SchmancyElement {
 
 					<nav class=${navClasses} part="nav" role="list">
 						<schmancy-scroll hide direction="vertical">
-							<slot @slotchange=${this.handleSlotChange}></slot>
+							<div class=${itemsContainerClasses} part="items">
+								<slot @slotchange=${this.handleSlotChange}></slot>
+							</div>
 						</schmancy-scroll>
 					</nav>
 

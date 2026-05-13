@@ -7,16 +7,14 @@ import { customElement, property } from 'lit/decorators.js'
 
 export const SchmancySurfaceTypeContext = createContext<TSurfaceColor>('surface')
 
-// Re-export types for backwards compatibility
-export type { SchmancySurfaceFill, SchmancySurfaceRounded, SchmancySurfaceElevation } from '@mixins/surface.mixin'
+export type { SchmancySurfaceRounded, SchmancySurfaceElevation } from '@mixins/surface.mixin'
 
 /**
  * `<schmancy-surface>` component
  *
- * This component renders a styled container that adapts its dimensions based on the `fill` property.
- * It supports various rounding options, elevation levels, and applies background and text color classes
- * based on the specified surface variant. Additionally, when the `scroller` property is true, the component
- * enables internal scrolling by applying overflow and scroll-behavior styles.
+ * Styled container that supports rounding, elevation, and background/text color variants.
+ * Sizing is the consumer's responsibility — use Tailwind utilities (`class="w-full h-full"`)
+ * on the element directly.
  *
  * SurfaceMixin automatically provides surfaceStyles CSS.
  *
@@ -24,7 +22,7 @@ export type { SchmancySurfaceFill, SchmancySurfaceRounded, SchmancySurfaceElevat
  * @slot - Default slot for projecting child content.
  *
  * @example
- * <schmancy-surface fill="all" rounded="all" elevation="3" type="surfaceBright" scroller>
+ * <schmancy-surface class="w-full h-full" rounded="all" elevation="3" type="surfaceBright" scroller>
  *   <p>Your scrollable content here</p>
  * </schmancy-surface>
  */

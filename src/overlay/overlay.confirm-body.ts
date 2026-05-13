@@ -4,13 +4,20 @@ import { customElement, property, query } from 'lit/decorators.js'
 import { when } from 'lit/directives/when.js'
 import { choose } from 'lit/directives/choose.js'
 import { ifDefined } from 'lit/directives/if-defined.js'
+import { gravity } from '../directives/gravity'
+import type SchmancyInput from '../form/fields/input/input'
+
+import '../icons/icon'
+import '../form/fields/input/input'
+import '../typography/typography'
+import '../button/button'
 
 /**
  * Internal body component used by the `confirm()` / `prompt()` sugar.
  *
- * Minimal, dependency-free — plain HTML buttons / input so this file
- * doesn't need to import schmancy-form / schmancy-button (avoids the
- * risk of circular module graphs during early imports of $overlay).
+ * `overlay.service.ts` lazy-imports this body via `await import('./overlay.confirm-body')`
+ * so by mount time `schmancy-button`, `schmancy-input`, `schmancy-typography`,
+ * and `schmancy-icon` are all registered.
  *
  * Emits a `close` CustomEvent with the typed result; the overlay picks
  * that up as the primary return channel. For custom-styled confirms,
@@ -19,17 +26,13 @@ import { ifDefined } from 'lit/directives/if-defined.js'
 @customElement('schmancy-overlay-prompt-body')
 export class SchmancyOverlayPromptBody extends SchmancyElement {
 	static styles = [css`
-	:host {
-		display: block;
-		min-width: 280px;
-		max-width: 480px;
-		color: var(--schmancy-sys-color-on-surface, #1a1a1a);
-	}
-	:host([variant='danger']) .cta-confirm {
-		background: var(--schmancy-sys-color-error, #b3261e);
-		color: var(--schmancy-sys-color-on-error, #ffffff);
-	}
-`]
+		:host {
+			display: block;
+			min-width: 280px;
+			max-width: 480px;
+			padding: 1.5rem;
+		}
+	`]
 
 	@property({ type: String }) heading?: string
 	@property({ type: String }) subtitle?: string
@@ -58,12 +61,11 @@ export class SchmancyOverlayPromptBody extends SchmancyElement {
 	@property({ type: String }) pattern?: string
 	@property({ type: Boolean }) required = false
 
-	@query('input') private _input?: HTMLInputElement
+	@query('schmancy-input') private _schmancyInput?: SchmancyInput
 
 	override firstUpdated(): void {
-		// Focus the confirm button in confirm mode; focus the input in prompt mode.
 		if (this.mode === 'prompt') {
-			queueMicrotask(() => this._input?.focus())
+			this._schmancyInput?.focus()
 		}
 	}
 
@@ -83,9 +85,8 @@ export class SchmancyOverlayPromptBody extends SchmancyElement {
 
 	private handleConfirm = (): void => {
 		if (this.mode === 'prompt') {
-			const input = this._input
-			if (input && !input.reportValidity()) return
-			this.dismiss(input?.value ?? '')
+			if (this._schmancyInput && !this._schmancyInput.reportValidity()) return
+			this.dismiss(this._schmancyInput?.value ?? '')
 		} else {
 			this.dismiss(true)
 		}
@@ -99,53 +100,97 @@ export class SchmancyOverlayPromptBody extends SchmancyElement {
 	protected render(): TemplateResult {
 		return html`
 			<form @submit=${this.handleSubmit}>
-				${when(
-					this.heading,
-					() => html`<h2 class="text-lg font-semibold mb-1">${this.heading}</h2>`,
-				)}
-				${when(
-					this.subtitle,
-					() => html`<p class="text-sm opacity-70 mb-2">${this.subtitle}</p>`,
-				)}
-				${choose(
-					this.mode,
-					[
-						[
-							'prompt',
-							() => html`
-								${when(this.label, () => html`<label class="block text-sm mb-1">${this.label}</label>`)}
-								<input
-									type=${this.inputType}
-									.value=${this.defaultValue}
-									placeholder=${ifDefined(this.placeholder)}
-									pattern=${ifDefined(this.pattern)}
-									?required=${this.required}
-									class="w-full px-3 py-2 rounded-md border border-outline-variant text-base mb-2"
-								/>
-								${when(
-									this.message,
-									() => html`<p class="text-sm mb-3">${this.message}</p>`,
-								)}
-							`,
-						],
-					],
-					() => html`${when(this.message, () => html`<p class="text-sm mb-4">${this.message}</p>`)}`,
-				)}
+				<div class="flex flex-col gap-3">
+					${when(
+						this.variant === 'danger',
+						() => html`
+							<schmancy-icon
+								${gravity({ delay: 0, mass: 0.7 })}
+								class="text-error-default"
+								style="font-size:32px"
+							>error_outline</schmancy-icon>
+						`,
+					)}
 
-				<div class="flex justify-end gap-2 mt-4">
-					<button
+					${when(
+						this.heading,
+						() => html`
+							<schmancy-typography
+								${gravity({ delay: 0, mass: 0.8 })}
+								type="headline"
+								token="sm"
+							>${this.heading}</schmancy-typography>
+						`,
+					)}
+
+					${when(
+						this.subtitle,
+						() => html`
+							<schmancy-typography
+								${gravity({ delay: 60, mass: 0.9 })}
+								type="body"
+								token="md"
+								class="opacity-70"
+							>${this.subtitle}</schmancy-typography>
+						`,
+					)}
+
+					${choose(
+						this.mode,
+						[
+							[
+								'prompt',
+								() => html`
+									<schmancy-input
+										${gravity({ delay: 120, mass: 1.0 })}
+										.label=${this.label ?? ''}
+										.value=${this.defaultValue}
+										.type=${this.inputType}
+										placeholder=${ifDefined(this.placeholder)}
+										pattern=${ifDefined(this.pattern)}
+										.required=${this.required}
+									></schmancy-input>
+									${when(
+										this.message,
+										() => html`
+											<schmancy-typography
+												${gravity({ delay: 180, mass: 1.0 })}
+												type="body"
+												token="sm"
+												class="opacity-70"
+											>${this.message}</schmancy-typography>
+										`,
+									)}
+								`,
+							],
+						],
+						() => html`
+							${when(
+								this.message,
+								() => html`
+									<schmancy-typography
+										${gravity({ delay: 60, mass: 0.9 })}
+										type="body"
+										token="md"
+										class="opacity-70"
+									>${this.message}</schmancy-typography>
+								`,
+							)}
+						`,
+					)}
+				</div>
+
+				<div ${gravity({ delay: 180, mass: 1.0 })} class="flex justify-end gap-2 mt-6">
+					<schmancy-button
 						type="button"
+						variant="text"
 						@click=${this.handleCancel}
-						class="px-4 py-2 rounded-md bg-transparent cursor-pointer hover:bg-surface-on/5"
-					>
-						${this.cancelText}
-					</button>
-					<button
+					>${this.cancelText}</schmancy-button>
+					<schmancy-button
 						type="submit"
-						class="cta-confirm px-4 py-2 rounded-md border-0 bg-primary text-on-primary cursor-pointer font-medium"
-					>
-						${this.confirmText}
-					</button>
+						variant="filled"
+						color=${this.variant === 'danger' ? 'error' : 'primary'}
+					>${this.confirmText}</schmancy-button>
 				</div>
 			</form>
 		`

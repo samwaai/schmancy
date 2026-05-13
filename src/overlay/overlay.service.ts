@@ -5,17 +5,20 @@ import {
 	distinctUntilChanged,
 	EMPTY,
 	filter,
+	finalize,
 	firstValueFrom,
+	from,
 	fromEvent,
+	ignoreElements,
 	map,
 	merge,
 	Observable,
-	Subject,
 	switchMap,
 	take,
-	takeUntil,
+	tap,
 } from 'rxjs'
 import type { THistoryStrategy } from '../area/router.types'
+import { discoverComponent } from '../discovery/discovery.service'
 import { SchmancyOverlay } from './overlay.component'
 import {
 	clearStack,
@@ -140,116 +143,86 @@ export function show<T = void>(
 	options: ShowOptions = {},
 ): Observable<T | undefined> {
 	return defer(() => {
-		// Resolve anchor at subscribe time: caller's explicit anchor wins,
-		// otherwise the ambient gesture captured by ambientAnchor$ fills in.
+		// Resolve anchor + theme container at subscribe time. Anchor: caller's
+		// explicit value wins, otherwise the ambient gesture fills in. Theme:
+		// dispatch `schmancy-theme-where-are-you` via the discovery service so
+		// the overlay mounts inside the nearest <schmancy-theme> and inherits
+		// its --schmancy-* tokens (same mechanism the old $dialog used). Falls
+		// back to body when no theme responds.
 		const resolvedOptions: ShowOptions = {
 			...options,
 			anchor: options.anchor ?? ambientAnchor(),
 		}
+		const id = generateId()
+		const state = { settled: false, historyPushed: false }
 
-		return new Observable<T | undefined>((subscriber) => {
-			let el: SchmancyOverlay | null = null
-			let entry: OverlayEntry | null = null
-			let historyPushed = false
-			let settled = false
+		return discoverComponent<HTMLElement>('schmancy-theme').pipe(
+			switchMap((theme) => {
+				const el = document.createElement('schmancy-overlay') as SchmancyOverlay
+				;(theme ?? document.body ?? document.documentElement).appendChild(el)
 
-			const teardown$ = new Subject<void>()
+				const opened$ = from(
+					el.updateComplete.then(() => el.open(content, resolvedOptions)),
+				).pipe(
+					tap(() => {
+						pushEntry({
+							id,
+							element: el,
+							layout: el.layout,
+							modal: el.modal,
+							tier: el.tier,
+						})
+						if (el.modal && el.parentElement) markModal(id, el)
 
-			const mount = async () => {
-				try {
-					// Create and append the overlay element.
-					el = document.createElement('schmancy-overlay') as SchmancyOverlay
-					;(document.body ?? document.documentElement).appendChild(el)
-					await el.updateComplete
+						const strategy: THistoryStrategy = resolvedOptions.historyStrategy ?? 'push'
+						if (strategy === 'push') {
+							history.pushState({ __schmancyOverlayId: id }, '', location.href)
+							state.historyPushed = true
+						} else if (strategy === 'replace') {
+							history.replaceState({ __schmancyOverlayId: id }, '', location.href)
+						}
+					}),
+				)
 
-					// Open it — mount content, resolve layout, animate in.
-					await el.open(content, resolvedOptions)
+				// popstate side-channel — listened only after history.pushState
+				// completed inside opened$'s tap. ignoreElements keeps the merge
+				// emitting only the eventual close result.
+				const popstateClose$ = fromEvent<PopStateEvent>(window, 'popstate').pipe(
+					take(1),
+					filter(() => state.historyPushed),
+					tap(() => {
+						state.settled = true
+						void el.close('popstate')
+					}),
+					ignoreElements(),
+				)
 
-					// Register with the stack (post-open so layout, modal, tier are all
-					// resolved by the element).
-					const id = generateId()
-					entry = {
-						id,
-						element: el,
-						layout: el.layout,
-						modal: el.modal,
-						tier: el.tier,
-					}
-					pushEntry(entry)
+				const closed$ = el.closed$.pipe(
+					take(1),
+					tap(() => {
+						state.settled = true
+					}),
+					map(({ result }) => result as T | undefined),
+				)
 
-					// Register modality for the stack-aware inert manager when modal.
-					if (el.modal && el.parentElement) {
-						markModal(id, el)
-					}
-
-					// History integration — push a sentinel unless silent.
-					const strategy: THistoryStrategy = resolvedOptions.historyStrategy ?? 'push'
-					if (strategy === 'push') {
-						history.pushState({ __schmancyOverlayId: id }, '', location.href)
-						historyPushed = true
-					} else if (strategy === 'replace') {
-						history.replaceState({ __schmancyOverlayId: id }, '', location.href)
-					}
-
-					// popstate — close this overlay when the user hits back past us.
-					// If another overlay's popstate fires first, that's fine; each overlay
-					// handles its own via this listener.
-					if (historyPushed) {
-						fromEvent<PopStateEvent>(window, 'popstate')
-							.pipe(take(1), takeUntil(teardown$))
-							.subscribe(() => {
-								// Avoid double-pop on teardown — set settled so the
-								// teardown fn doesn't call history.back() again.
-								settled = true
-								void el?.close('popstate')
-							})
-					}
-
-					// Subscribe to the element's internal close$ — the single source of
-					// truth for lifecycle completion. Emits reason + optional result.
-					el.closed$.pipe(take(1), takeUntil(teardown$)).subscribe(({ result }) => {
-						settled = true
-						subscriber.next(result as T | undefined)
-						subscriber.complete()
-					})
-				} catch (err) {
-					subscriber.error(err)
-				}
-			}
-
-			void mount()
-
-			return () => {
-				teardown$.next()
-				teardown$.complete()
-
-				// Unsubscribe path — caller cancelled. Tear down the overlay.
-				if (el && !settled) {
-					void el.close('programmatic')
-				}
-
-				// Clean up registry entries.
-				if (entry) {
-					unmarkModal(entry.id)
-					removeEntry(entry.id)
-				}
-
-				// Pop history if we pushed one and it's still current.
-				if (historyPushed && !settled) {
-					// Check before calling — if the user already popped, this is a noop.
-					if (history.state?.__schmancyOverlayId === entry?.id) {
-						history.back()
-					}
-					historyPushed = false
-				}
-
-				// Remove element after exit animation has had a chance to play.
-				queueMicrotask(() => {
-					el?.remove()
-					el = null
-				})
-			}
-		})
+				return opened$.pipe(
+					switchMap(() => merge(closed$, popstateClose$).pipe(take(1))),
+					finalize(() => {
+						if (!state.settled) void el.close('programmatic')
+						unmarkModal(id)
+						removeEntry(id)
+						if (
+							state.historyPushed &&
+							!state.settled &&
+							history.state?.__schmancyOverlayId === id
+						) {
+							history.back()
+						}
+						queueMicrotask(() => el.remove())
+					}),
+				)
+			}),
+		)
 	})
 }
 
