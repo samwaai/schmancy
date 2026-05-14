@@ -25,13 +25,15 @@ export const surfaceTypeStyles = css`
 		color: var(--schmancy-sys-color-surface-on);
 	}
 
-	/* Subtle — frosted glass, clearly readable */
+	/* Subtle — bright vibrant glass: near-white tint, saturated blur, top-edge highlight */
 	:host([type='subtle']) {
-		--glass-base: var(--schmancy-sys-color-surface-container);
+		--glass-base: var(--schmancy-sys-color-surface-lowest);
 		--glass-tint: var(--schmancy-sys-color-surface-on);
-		background: color-mix(in srgb, var(--glass-base) 78%, transparent);
-		backdrop-filter: blur(8px) saturate(130%);
-		-webkit-backdrop-filter: blur(8px) saturate(130%);
+		background: color-mix(in srgb, var(--glass-base) 30%, transparent);
+		backdrop-filter: blur(12px) saturate(160%);
+		-webkit-backdrop-filter: blur(12px) saturate(160%);
+		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-outlineVariant) 60%, transparent);
+		box-shadow: inset 0 1px 0 color-mix(in srgb, var(--schmancy-sys-color-surface-on) 8%, transparent);
 		color: var(--schmancy-sys-color-surface-on);
 	}
 
@@ -147,14 +149,16 @@ export const surfaceTypeStyles = css`
 		color: var(--schmancy-sys-color-surface-on);
 	}
 
-	/* subtle aliases — frosted glass */
+	/* subtle aliases — bright vibrant glass */
 	:host([type='containerLow']),
 	:host([type='container']) {
-		--glass-base: var(--schmancy-sys-color-surface-container);
+		--glass-base: var(--schmancy-sys-color-surface-lowest);
 		--glass-tint: var(--schmancy-sys-color-surface-on);
-		background: color-mix(in srgb, var(--glass-base) 78%, transparent);
-		backdrop-filter: blur(8px) saturate(130%);
-		-webkit-backdrop-filter: blur(8px) saturate(130%);
+		background: color-mix(in srgb, var(--glass-base) 30%, transparent);
+		backdrop-filter: blur(12px) saturate(160%);
+		-webkit-backdrop-filter: blur(12px) saturate(160%);
+		border: 1px solid color-mix(in srgb, var(--schmancy-sys-color-outlineVariant) 60%, transparent);
+		box-shadow: inset 0 1px 0 color-mix(in srgb, var(--schmancy-sys-color-surface-on) 8%, transparent);
 		color: var(--schmancy-sys-color-surface-on);
 	}
 

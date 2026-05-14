@@ -85,6 +85,40 @@ async _onSubmit(e: CustomEvent<SchmancyFormSubmitDetail>) {
 }
 ```
 
+## Submit-handler discipline
+
+A `@submit` handler narrows the draft type, then passes the persist promise to `ev.detail.until(...)` in one expression. The form already enforces field-level `required` and renders a rejected `until` promise inline via `formError` state — anything the handler adds on top is duplication.
+
+Anti-patterns:
+
+- Wrapping a single `await api(...)` call in an `(async () => { ... })()` IIFE solely to use `await`. `until(api(...))` accepts a promise directly; the IIFE adds nothing.
+- `if (!draft.name.trim()) throw new Error('Fill in the name.')` when the field is `<schmancy-input required>`. Required-field violations never reach the handler — schmancy-form blocks the submit dispatch before they would.
+- `throw new Error(...)` on a kind-narrowing branch (`if (draft?.kind !== 'organization')`). The other branch is impossible by construction (the form's `<schmancy-context>` isolates that kind's draft). Narrowing branches use `return`, not `throw`.
+
+The remaining legitimate throws are cross-component invariants the form can't see — e.g., "Pick a legal entity first" when a sibling picker writes to a different state singleton. Express them by passing `Promise.reject(new Error(...))` to `until`, not by re-introducing an IIFE.
+
+```ts
+// ❌ wrong
+ev.detail.until((async () => {
+  if (!draft.name.trim()) throw new Error('Fill in the name.');
+  if (auth.currentUser === null) throw new Error('Sign in.');
+  await updateWorkspace(draft.id, { name: draft.name.trim() });
+})());
+
+// ✓ right
+const draft = state.value;
+if (draft?.kind !== 'organization' || !draft.id) return;
+ev.detail.until(updateWorkspace(draft.id, { name: draft.name.trim() }));
+
+// ✓ cross-component invariant: reject inline
+const parent = ws.legalEntity.value;
+if (parent?.kind !== 'legalEntity') {
+  ev.detail.until(Promise.reject(new Error('Pick a legal entity first.')));
+  return;
+}
+ev.detail.until(createWorkspace(/* ...assembled with parent.id... */));
+```
+
 ## CSS state hooks (free)
 
 Every field broadcasts these via `:state(...)`:

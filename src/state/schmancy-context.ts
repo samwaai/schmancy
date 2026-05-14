@@ -12,7 +12,8 @@
 // pending writes flush, their adapters close.
 
 import { type Context, ContextProvider, createContext } from '@lit/context';
-import { html, LitElement } from 'lit';
+import { SchmancyElement } from '@mixins/SchmancyElement';
+import { html } from 'lit';
 import { property } from 'lit/decorators.js';
 import {
   _publishEventHost,
@@ -58,7 +59,7 @@ export interface StateTemplate {
   _isolatedInstance(): { destroy(): void } & Record<string | symbol, unknown>;
 }
 
-export class SchmancyContext extends LitElement {
+export class SchmancyContext extends SchmancyElement {
   /** States to isolate under this subtree. Pass the same instances you import
    *  at module scope (e.g. `provides={[cart, menu]}`). Outside this element
    *  they continue to behave as module-scoped globals; descendants of this

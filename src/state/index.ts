@@ -269,14 +269,25 @@ function resolveContextual(namespace: string, fallback: unknown): unknown {
 		}),
 	)
 
-	const result = resolved !== undefined ? resolved : fallback
-	let perHost = hostResolverCache.get(host)
-	if (!perHost) {
-		perHost = new Map<string, unknown>()
-		hostResolverCache.set(host, perHost)
+	if (resolved !== undefined) {
+		// Real provider in the host's ancestor chain — safe to cache against
+		// the host: the binding lives as long as the host is connected.
+		let perHost = hostResolverCache.get(host)
+		if (!perHost) {
+			perHost = new Map<string, unknown>()
+			hostResolverCache.set(host, perHost)
+		}
+		perHost.set(namespace, resolved)
+		return resolved
 	}
-	perHost.set(namespace, result)
-	return result
+
+	// Host exists (tier 1/2/3 found one) but it's not inside a schmancy-context
+	// for this namespace. Try the ambient registry before falling through to
+	// the global. Don't cache: the ambient provider can be unmounted while
+	// this host remains connected, which would leave a stale isolated copy
+	// pinned in the cache.
+	const ambient = getAmbientProvider(namespace)
+	return ambient !== undefined ? ambient : fallback
 }
 
 interface InternalState {
