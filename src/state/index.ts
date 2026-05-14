@@ -19,11 +19,11 @@ import { Signal } from '@lit-labs/signals'
 // `@lit/context` re-exports `ContextRequestEvent` as `ContextEvent` from
 // its public entry. Same class, just a shorter public name.
 import { ContextEvent as ContextRequestEvent, createContext } from '@lit/context'
-import { Observable } from 'rxjs'
+import { Observable, type MonoTypeOperatorFunction } from 'rxjs'
 import { produce, type Draft } from 'immer'
 
 import { createAdapter, type StorageAdapter, type StorageBackend } from './persist'
-import { resolveActiveHost, stateContextKey } from './active-host'
+import { _activeHost, getAmbientProvider, resolveActiveHost, stateContextKey } from './active-host'
 // Side-effect import: registers the `<schmancy-context>` element so users
 // only need to import from `@mhmo91/schmancy/state` to get both the factory
 // and the scoping primitive.
@@ -31,7 +31,7 @@ import './schmancy-context'
 
 export type { StorageBackend } from './persist'
 export { Signal } from '@lit-labs/signals'
-export { _activeHost } from './active-host'
+export { _activeHost, registerAmbientProvider, deregisterAmbientProvider, getAmbientProvider } from './active-host'
 export { SchmancyContext } from './schmancy-context'
 
 // ---------------------------------------------------------------------------
@@ -253,7 +253,10 @@ const hostResolverCache = __cacheSlot[CACHE_KEY]!
 
 function resolveContextual(namespace: string, fallback: unknown): unknown {
 	const host = resolveActiveHost()
-	if (host === undefined) return fallback
+	if (host === undefined) {
+		const ambient = getAmbientProvider(namespace)
+		return ambient !== undefined ? ambient : fallback
+	}
 
 	const cached = hostResolverCache.get(host)?.get(namespace)
 	if (cached !== undefined) return cached
@@ -896,4 +899,29 @@ export function observe<T>(source: ObservableState<T>) {
 			})
 		})
 	}
+}
+
+
+/**
+ * RxJS operator that restores `host` as the active schmancy context for every
+ * emission. Drop this into any pipeline whose subscriber calls state mutators
+ * from an async scheduler that bypasses the Promise.then patch (Firestore
+ * onSnapshot, WebSockets, native timers, etc.).
+ *
+ * ```ts
+ * snapshotDoc$(ref).pipe(
+ *   schmancyContext(this),
+ *   takeUntil(this.disconnecting),
+ * ).subscribe(snap => { ws.legalEntity.set(parse(snap)) })
+ * ```
+ */
+export function schmancyContext<T>(host: HTMLElement): MonoTypeOperatorFunction<T> {
+	return (source) =>
+		new Observable<T>((subscriber) =>
+			source.subscribe({
+				next: (v) => _activeHost.run(host, () => subscriber.next(v)),
+				error: (e) => subscriber.error(e),
+				complete: () => subscriber.complete(),
+			}),
+		)
 }
