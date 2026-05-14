@@ -177,57 +177,8 @@ export function resolveActiveHost(): HTMLElement | undefined {
 		return document.activeElement
 	}
 
-	// 4. undefined — caller falls back to module-scoped (or ambient tier 5).
+	// 4. undefined — caller falls back to module-scoped.
 	return undefined
-}
-
-// ---------------------------------------------------------------------------
-// Tier 5 — Ambient provider registry.
-//
-// When exactly one <schmancy-context> provides a namespace and no active host
-// is on the stack, state writes from async callbacks (Firestore onSnapshot,
-// setTimeout, WebSocket handlers, etc.) automatically route to that isolated
-// copy. No consumer-side _activeHost.run() boilerplate required.
-//
-// Ambiguity rule: if two or more contexts simultaneously provide the same
-// namespace the entry is marked AMBIGUOUS and getAmbientProvider returns
-// undefined — we fall through to the global rather than guess. Safe
-// degradation: never silently write to the wrong isolated copy.
-//
-// Singleton across module copies via Symbol.for so source + dist share one map.
-// ---------------------------------------------------------------------------
-const AMBIENT_KEY = Symbol.for('schmancy.state.activeHost.ambientProviders')
-type AmbientEntry = { instance: unknown; count: number }
-const _ambientMap: Map<string, AmbientEntry> =
-	((globalThis as { [AMBIENT_KEY]?: Map<string, AmbientEntry> })[AMBIENT_KEY] ??= new Map())
-
-const AMBIGUOUS: unique symbol = Symbol('ambiguous')
-
-export function registerAmbientProvider(namespace: string, instance: unknown): void {
-	const e = _ambientMap.get(namespace)
-	if (e) {
-		e.count++
-		e.instance = AMBIGUOUS
-	} else {
-		_ambientMap.set(namespace, { instance, count: 1 })
-	}
-}
-
-export function deregisterAmbientProvider(namespace: string): void {
-	const e = _ambientMap.get(namespace)
-	if (!e) return
-	if (e.count <= 1) {
-		_ambientMap.delete(namespace)
-	} else {
-		e.count--
-		// Once ambiguous, stays ambiguous until fully deregistered — we've lost
-		// the individual instance references so can't safely restore one.
-	}
-}
-
-export function getAmbientProvider(namespace: string): unknown | undefined {
-	const e = _ambientMap.get(namespace)
-	return e && e.instance !== AMBIGUOUS ? e.instance : undefined
 }
 
 /** Stable context key for a state namespace. `Symbol.for(...)` so the same

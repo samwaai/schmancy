@@ -23,7 +23,7 @@ import { Observable, type MonoTypeOperatorFunction } from 'rxjs'
 import { produce, type Draft } from 'immer'
 
 import { createAdapter, type StorageAdapter, type StorageBackend } from './persist'
-import { _activeHost, getAmbientProvider, resolveActiveHost, stateContextKey } from './active-host'
+import { _activeHost, resolveActiveHost, stateContextKey } from './active-host'
 // Side-effect import: registers the `<schmancy-context>` element so users
 // only need to import from `@mhmo91/schmancy/state` to get both the factory
 // and the scoping primitive.
@@ -31,7 +31,7 @@ import './schmancy-context'
 
 export type { StorageBackend } from './persist'
 export { Signal } from '@lit-labs/signals'
-export { _activeHost, registerAmbientProvider, deregisterAmbientProvider, getAmbientProvider } from './active-host'
+export { _activeHost } from './active-host'
 export { SchmancyContext } from './schmancy-context'
 
 // ---------------------------------------------------------------------------
@@ -253,10 +253,7 @@ const hostResolverCache = __cacheSlot[CACHE_KEY]!
 
 function resolveContextual(namespace: string, fallback: unknown): unknown {
 	const host = resolveActiveHost()
-	if (host === undefined) {
-		const ambient = getAmbientProvider(namespace)
-		return ambient !== undefined ? ambient : fallback
-	}
+	if (host === undefined) return fallback
 
 	const cached = hostResolverCache.get(host)?.get(namespace)
 	if (cached !== undefined) return cached
@@ -269,25 +266,14 @@ function resolveContextual(namespace: string, fallback: unknown): unknown {
 		}),
 	)
 
-	if (resolved !== undefined) {
-		// Real provider in the host's ancestor chain — safe to cache against
-		// the host: the binding lives as long as the host is connected.
-		let perHost = hostResolverCache.get(host)
-		if (!perHost) {
-			perHost = new Map<string, unknown>()
-			hostResolverCache.set(host, perHost)
-		}
-		perHost.set(namespace, resolved)
-		return resolved
+	const result = resolved !== undefined ? resolved : fallback
+	let perHost = hostResolverCache.get(host)
+	if (!perHost) {
+		perHost = new Map<string, unknown>()
+		hostResolverCache.set(host, perHost)
 	}
-
-	// Host exists (tier 1/2/3 found one) but it's not inside a schmancy-context
-	// for this namespace. Try the ambient registry before falling through to
-	// the global. Don't cache: the ambient provider can be unmounted while
-	// this host remains connected, which would leave a stale isolated copy
-	// pinned in the cache.
-	const ambient = getAmbientProvider(namespace)
-	return ambient !== undefined ? ambient : fallback
+	perHost.set(namespace, result)
+	return result
 }
 
 interface InternalState {

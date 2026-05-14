@@ -15,12 +15,7 @@ import { type Context, ContextProvider, createContext } from '@lit/context';
 import { SchmancyElement } from '@mixins/SchmancyElement';
 import { html } from 'lit';
 import { property } from 'lit/decorators.js';
-import {
-  _publishEventHost,
-  deregisterAmbientProvider,
-  registerAmbientProvider,
-  stateContextKey,
-} from './active-host';
+import { _publishEventHost, stateContextKey } from './active-host';
 
 // Curated set of DOM event types that descendants are likely to bind state-
 // mutating handlers to. The capture-phase listener publishes `this` as the
@@ -69,7 +64,6 @@ export class SchmancyContext extends SchmancyElement {
   // Per-mount records. Keep both the provider (so we can release it on
   // disconnect) and the isolated instance (so we can destroy it).
   private _scoped: Array<{
-    namespace: string;
     isolated: { destroy(): void };
     provider: ContextProvider<Context<unknown, unknown>>;
   }> = [];
@@ -100,8 +94,7 @@ export class SchmancyContext extends SchmancyElement {
       // `context-request` events and responds with `isolated` for any
       // requester whose `event.context === ctx`.
       const provider = new ContextProvider(this, { context: ctx, initialValue: isolated });
-      registerAmbientProvider(tmpl.namespace, isolated);
-      this._scoped.push({ namespace: tmpl.namespace, isolated, provider });
+      this._scoped.push({ isolated, provider });
     }
     for (const type of EVENT_TYPES) {
       this.addEventListener(type, this._publishEventTargetAsHost, { capture: true });
@@ -113,7 +106,6 @@ export class SchmancyContext extends SchmancyElement {
       this.removeEventListener(type, this._publishEventTargetAsHost, { capture: true });
     }
     for (const entry of this._scoped) {
-      deregisterAmbientProvider(entry.namespace);
       entry.isolated.destroy();
     }
     this._scoped = [];
