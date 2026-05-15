@@ -1,7 +1,7 @@
 import { directive, type ElementPart, PartType } from 'lit/directive.js'
 import { AsyncDirective } from 'lit/async-directive.js'
 import { animationFrameScheduler, fromEvent, merge, Subject } from 'rxjs'
-import { auditTime, map, takeUntil } from 'rxjs/operators'
+import { auditTime, filter, map, takeUntil } from 'rxjs/operators'
 import { SPRING_SNAPPY } from '../utils/animation'
 import { reducedMotion$ } from './reduced-motion'
 
@@ -77,6 +77,13 @@ class MagneticDirective extends AsyncDirective {
 
 		const move$ = fromEvent<MouseEvent>(target, 'mousemove').pipe(
 			auditTime(0, animationFrameScheduler),
+			filter(() =>
+				this.element.checkVisibility?.({
+					contentVisibilityAuto: true,
+					checkOpacity: true,
+					checkVisibilityCSS: true,
+				} as CheckVisibilityOptions) ?? true,
+			),
 			map(e => {
 				const rect = this.cachedRect ?? this.element.getBoundingClientRect()
 				const centerX = rect.left + rect.width / 2
