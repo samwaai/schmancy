@@ -29,14 +29,15 @@ class ArtDirective extends AsyncDirective {
 
 	override update(part: ElementPart, [options]: [ArtOptions]) {
 		const element = part.element as HTMLElement
-		const { name, color, intensity = 1, speed = 1 } = options
+		const { name, color, intensity = 1, speed = 1, density = 1 } = options
 
 		if (
 			this.state &&
 			(this.state.effect !== name ||
 				this.state.color !== color ||
 				this.state.intensity !== intensity ||
-				this.state.speed !== speed)
+				this.state.speed !== speed ||
+				this.state.density !== density)
 		) {
 			this.cleanup()
 		}
@@ -49,6 +50,7 @@ class ArtDirective extends AsyncDirective {
 				color,
 				intensity,
 				speed,
+				density,
 				element,
 				isVisible: true,
 				initialized: false,
