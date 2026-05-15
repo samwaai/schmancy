@@ -96,6 +96,21 @@ export class SchmancyOverlay extends SchmancyElement {
 		margin: 0;
 		border: 0;
 	}
+	/* Modal tier promotes the whole shell (scrim + surface) into the top
+	 * layer so every overlay — anchored or modal — shares ONE stacking
+	 * domain ordered strictly by show() time. Neutralize the UA popover
+	 * box so the shell stays full-viewport. */
+	.shell:popover-open {
+		inset: 0;
+		margin: 0;
+		border: 0;
+		width: 100%;
+		height: 100%;
+		max-width: none;
+		max-height: none;
+		background: transparent;
+		overflow: visible;
+	}
 `]
 
 	@property({ type: String, reflect: true }) layout: OverlayLayout = 'sheet'
@@ -107,6 +122,7 @@ export class SchmancyOverlay extends SchmancyElement {
 
 	@query('.backdrop') private _backdrop?: HTMLDivElement
 	@query('.surface') private _surface!: HTMLElement
+	@query('.shell') private _shell?: HTMLElement
 
 	/** Close trigger for the service; emits the reason + detail payload. */
 	private readonly _closed$ = new Subject<{ reason: CloseReason; result?: unknown }>()
@@ -203,6 +219,18 @@ export class SchmancyOverlay extends SchmancyElement {
 				.pipe(takeUntil(this.disconnecting))
 				.subscribe()
 			this._positionerTeardown = () => floatSub.unsubscribe()
+		} else if (this.tier === 'modal' && this._shell) {
+			// Promote the whole modal shell (scrim + surface) into the native
+			// top layer — the same domain anchored tiers already use. The top
+			// layer paints strictly in show() order, so a sheet opened from
+			// inside an earlier anchored overlay correctly stacks above it
+			// (and recedes behind anything opened after it). Degrade silently
+			// to the legacy z-index host on browsers without the Popover API.
+			try {
+				this._positionerTeardown = positionPopoverAPI(this._shell)
+			} catch {
+				// no Popover API support — keep the host z-index:10000 path.
+			}
 		}
 
 		// Set the anchor-origin CSS vars so the entrance animation blooms
