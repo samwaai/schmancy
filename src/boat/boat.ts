@@ -1,15 +1,14 @@
 import { SchmancyElement } from '@mixins/index'
-import { css, html, nothing, type PropertyValues } from 'lit'
+import { css, html, type PropertyValues } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { styleMap } from 'lit/directives/style-map.js'
-import { when } from 'lit/directives/when.js'
 import { filter, finalize, fromEvent, map, merge, type Subscription, switchMap, takeUntil, tap } from 'rxjs'
-import { SPRING_SMOOTH } from '../utils/animation.js'
 import { reducedMotion$ } from '../directives/reduced-motion'
 import { show } from '../overlay/overlay.service'
 import { theme } from '../theme/theme.service.js'
+import { SPRING_SMOOTH } from '../utils/animation.js'
 
 const DRAG_THRESHOLD = 5
 const POSITION_STORAGE_KEY_PREFIX = 'schmancy-boat-'
@@ -38,25 +37,22 @@ export default class SchmancyBoat extends SchmancyElement {
 		}
 	`]
 
+	/** Identity for localStorage drag-position persistence. */
 	@property({ type: String }) id: string = 'default'
-	@property({ type: String }) icon?: string
-	@property({ type: String }) label?: string
-	/** When true, uses a lower elevation shadow on the FAB. */
-	@property({ type: Boolean, reflect: true }) lowered: boolean = false
 	/** Corner the FAB is anchored to. */
 	@property({ type: String }) corner: Corner = 'bottom-right'
 	/** Open state. Bind `?open=${…}` to drive the overlay; reflected to the attribute. */
 	@property({ type: Boolean, reflect: true }) open: boolean = false
 
 	@state() private isDragging = false
-	@state() private _currentCorner: Corner = 'bottom-right'
+	@state() private currentCorner: Corner = 'bottom-right'
 
-	@queryAssignedElements() private _slotted!: Element[]
+	@queryAssignedElements() private slotted!: Element[]
 
-	private _position: Position = { x: 16, y: 16 }
-	private _containerRef = createRef<HTMLElement>()
-	private _headerRef = createRef<HTMLElement>()
-	private _currentAnimation?: Animation
+	private position: Position = { x: 16, y: 16 }
+	private containerRef = createRef<HTMLElement>()
+	private headerRef = createRef<HTMLElement>()
+	private currentAnimation?: Animation
 
 	#ready = false
 	#sub?: Subscription
@@ -66,76 +62,76 @@ export default class SchmancyBoat extends SchmancyElement {
 	// POSITION MANAGEMENT
 	// ============================================
 
-	private _applyContainerPosition() {
-		const container = this._containerRef.value
+	private applyContainerPosition() {
+		const container = this.containerRef.value
 		if (!container) return
 		container.style.removeProperty('left')
 		container.style.removeProperty('right')
 		container.style.removeProperty('top')
 		container.style.removeProperty('bottom')
-		const { x, y } = this._position
-		if (this._currentCorner.includes('right')) {
+		const { x, y } = this.position
+		if (this.currentCorner.includes('right')) {
 			container.style.right = `${x}px`
 		} else {
 			container.style.left = `${x}px`
 		}
-		if (this._currentCorner.includes('bottom')) {
+		if (this.currentCorner.includes('bottom')) {
 			container.style.bottom = `${y + theme.bottomOffset}px`
 		} else {
 			container.style.top = `${y}px`
 		}
 	}
 
-	private _loadPosition() {
+	private loadPosition() {
 		try {
 			const saved = localStorage.getItem(POSITION_STORAGE_KEY_PREFIX + this.id)
 			if (saved) {
 				const parsed = JSON.parse(saved) as { x: number; y: number; anchor: Corner }
-				this._position = { x: parsed.x, y: parsed.y }
-				this._currentCorner = parsed.anchor
+				this.position = { x: parsed.x, y: parsed.y }
+				this.currentCorner = parsed.anchor
 			}
 		} catch {
 			// ignore localStorage errors
 		}
 	}
 
-	private _savePosition() {
+	private savePosition() {
 		try {
 			localStorage.setItem(
 				POSITION_STORAGE_KEY_PREFIX + this.id,
-				JSON.stringify({ ...this._position, anchor: this._currentCorner }),
+				JSON.stringify({ ...this.position, anchor: this.currentCorner }),
 			)
 		} catch {
 			// ignore localStorage errors
 		}
 	}
 
-	private _validateBounds() {
-		const container = this._containerRef.value
+	private validateBounds() {
+		const container = this.containerRef.value
 		if (!container) return
 		const rect = container.getBoundingClientRect()
 		if (rect.width === 0) return
 		const vw = window.innerWidth
 		const vh = window.innerHeight
-		const isRight = this._currentCorner.includes('right')
-		const isBottom = this._currentCorner.includes('bottom')
-		const actualLeft = isRight ? vw - this._position.x - rect.width : this._position.x
-		const actualTop = isBottom ? vh - this._position.y - rect.height : this._position.y
+		const isRight = this.currentCorner.includes('right')
+		const isBottom = this.currentCorner.includes('bottom')
+		const actualLeft = isRight ? vw - this.position.x - rect.width : this.position.x
+		const actualTop = isBottom ? vh - this.position.y - rect.height : this.position.y
 		const newLeft = Math.max(0, Math.min(actualLeft, vw - rect.width))
 		const newTop = Math.max(0, Math.min(actualTop, vh - rect.height))
-		this._position = {
+		this.position = {
 			x: isRight ? vw - newLeft - rect.width : newLeft,
 			y: isBottom ? vh - newTop - rect.height : newTop,
 		}
-		this._applyContainerPosition()
+		this.applyContainerPosition()
 	}
 
 	// ============================================
 	// CORNER SNAPPING (FLIP)
 	// ============================================
 
-	private _reorientToNearestCorner(): void {
-		const container = this._containerRef.value
+	private reorientToNearestCorner(): void {
+		const container = this.containerRef.value
 		if (!container) return
 
 		const rect = container.getBoundingClientRect()
@@ -143,12 +139,12 @@ export default class SchmancyBoat extends SchmancyElement {
 		const fabCenterY = rect.top + rect.height / 2
 		const side = fabCenterX > window.innerWidth / 2 ? 'right' : 'left'
 		const vert = fabCenterY > window.innerHeight / 2 ? 'bottom' : 'top'
-		this._currentCorner = `${vert}-${side}` as Corner
-		this._position = { x: 16, y: 16 }
-		this._applyContainerPosition()
+		this.currentCorner = `${vert}-${side}` as Corner
+		this.position = { x: 16, y: 16 }
+		this.applyContainerPosition()
 
 		if (reducedMotion$.value) {
-			this._savePosition()
+			this.savePosition()
 			return
 		}
 
@@ -157,7 +153,7 @@ export default class SchmancyBoat extends SchmancyElement {
 		const dy = rect.top - newRect.top
 		container.style.transform = `translate(${dx}px, ${dy}px)`
 
-		this._currentAnimation?.cancel()
+		this.currentAnimation?.cancel()
 		const anim = container.animate(
 			[{ transform: container.style.transform }, { transform: 'translate(0,0)' }],
 			{
@@ -166,22 +162,22 @@ export default class SchmancyBoat extends SchmancyElement {
 				fill: 'forwards',
 			},
 		)
-		this._currentAnimation = anim
+		this.currentAnimation = anim
 		anim.finished.then(() => {
 			if (container.isConnected) container.style.transform = ''
 			return
 		})
 
-		this._savePosition()
+		this.savePosition()
 	}
 
 	// ============================================
 	// DRAG PIPELINE
 	// ============================================
 
-	private _setupDrag() {
-		const header = this._headerRef.value
-		const container = this._containerRef.value
+	private setupDrag() {
+		const header = this.headerRef.value
+		const container = this.containerRef.value
 		if (!header || !container) return
 
 		let didDrag = false
@@ -228,16 +224,16 @@ export default class SchmancyBoat extends SchmancyElement {
 							const vh = window.innerHeight
 							const left = Math.max(0, Math.min(clientX - offsetX, vw - rect.width))
 							const top = Math.max(0, Math.min(clientY - offsetY, vh - rect.height))
-							this._position = {
-								x: this._currentCorner.includes('right') ? vw - left - rect.width : left,
-								y: this._currentCorner.includes('bottom') ? vh - top - rect.height : top,
+							this.position = {
+								x: this.currentCorner.includes('right') ? vw - left - rect.width : left,
+								y: this.currentCorner.includes('bottom') ? vh - top - rect.height : top,
 							}
-							this._applyContainerPosition()
+							this.applyContainerPosition()
 						}),
 						takeUntil(end$),
 						finalize(() => {
 							if (didDrag) {
-								this._reorientToNearestCorner()
+								this.reorientToNearestCorner()
 								this.isDragging = false
 								didDrag = false
 							} else {
@@ -257,12 +253,12 @@ export default class SchmancyBoat extends SchmancyElement {
 	// OVERLAY DELEGATION
 	// ============================================
 
-	private _openOverlay() {
+	private openOverlay() {
 		if (this.#sub) return
-		const anchor = this._containerRef.value
+		const anchor = this.containerRef.value
 		const wrapper = document.createElement('div')
 		wrapper.className = 'flex flex-col'
-		this.#captured = [...this._slotted]
+		this.#captured = [...this.slotted]
 		this.#captured.forEach(node => wrapper.appendChild(node))
 
 		this.#sub = show(wrapper, {
@@ -271,7 +267,7 @@ export default class SchmancyBoat extends SchmancyElement {
 			historyStrategy: 'silent',
 		})
 			.pipe(
-				finalize(() => this._restoreSlotted()),
+				finalize(() => this.restoreSlotted()),
 				takeUntil(this.disconnecting),
 			)
 			.subscribe()
@@ -279,7 +275,7 @@ export default class SchmancyBoat extends SchmancyElement {
 		this.dispatchScopedEvent('toggle', 'open')
 	}
 
-	private _restoreSlotted() {
+	private restoreSlotted() {
 		this.#captured.forEach(node => this.appendChild(node))
 		this.#captured = []
 		this.#sub = undefined
@@ -296,33 +292,33 @@ export default class SchmancyBoat extends SchmancyElement {
 
 		fromEvent(window, 'resize')
 			.pipe(takeUntil(this.disconnecting))
-			.subscribe(() => this._validateBounds())
+			.subscribe(() => this.validateBounds())
 
 		theme.bottomOffset$.pipe(
-			tap(() => this._applyContainerPosition()),
+			tap(() => this.applyContainerPosition()),
 			takeUntil(this.disconnecting),
 		).subscribe()
 	}
 
 	firstUpdated() {
-		this._currentCorner = this.corner
-		this._loadPosition()
-		if (!this._containerRef.value) return
-		this._applyContainerPosition()
-		this._setupDrag()
+		this.currentCorner = this.corner
+		this.loadPosition()
+		if (!this.containerRef.value) return
+		this.applyContainerPosition()
+		this.setupDrag()
 		this.#ready = true
-		if (this.open) this._openOverlay()
+		if (this.open) this.openOverlay()
 	}
 
 	protected willUpdate(changed: PropertyValues<this>) {
 		if (!this.#ready || !changed.has('open')) return
-		if (this.open && !this.#sub) this._openOverlay()
+		if (this.open && !this.#sub) this.openOverlay()
 		else if (!this.open && this.#sub) this.#sub.unsubscribe()
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback()
-		this._currentAnimation?.cancel()
+		this.currentAnimation?.cancel()
 		this.#sub?.unsubscribe()
 	}
 
@@ -357,50 +353,37 @@ export default class SchmancyBoat extends SchmancyElement {
 
 		const fabClasses = classMap({
 			'h-14': true,
+			'min-w-14': true,
+			'px-4': true,
 			'rounded-full': true,
 			flex: true,
 			'items-center': true,
+			'justify-center': true,
 			'gap-3': true,
 			'select-none': true,
 			'touch-none': true,
 			'cursor-grabbing': this.isDragging,
 			'cursor-pointer': !this.isDragging,
-			'px-5': !!this.label,
-			'w-14': !this.label,
-			'justify-center': !this.label,
 		})
 
 		return html`
 			<schmancy-surface
-				${ref(this._containerRef)}
+				${ref(this.containerRef)}
 				type="glass"
-				.elevation=${this.lowered ? 1 : 3}
+				.elevation=${3}
 				class=${containerClasses}
 				style=${containerStyles}
 				aria-expanded=${this.open}
 			>
 				<div
-					${ref(this._headerRef)}
+					${ref(this.headerRef)}
 					class=${fabClasses}
 					role="button"
 					tabindex="0"
-					aria-label=${this.label ?? 'Open panel'}
+					aria-label="Open panel"
 					title="Drag to move · click to open"
 				>
-					<slot name="header">
-						${when(
-							!!this.icon,
-							() => html`<schmancy-icon>${this.icon}</schmancy-icon>`,
-							() => nothing,
-						)}
-					</slot>
-					${when(
-						!!this.label,
-						() => html`<schmancy-typography type="label" token="lg" class="whitespace-nowrap">
-							${this.label}
-						</schmancy-typography>`,
-						() => nothing,
-					)}
+					<slot name="header"></slot>
 					<slot name="summary"></slot>
 				</div>
 
