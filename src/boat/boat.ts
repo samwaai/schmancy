@@ -1,5 +1,5 @@
 import { SchmancyElement } from '@mixins/index'
-import { css, html, type PropertyValues } from 'lit'
+import { html, type PropertyValues } from 'lit'
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { createRef, ref } from 'lit/directives/ref.js'
