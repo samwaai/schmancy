@@ -1,7 +1,7 @@
 import { AsyncDirective, directive } from 'lit/async-directive.js'
 import { ElementPart, PartType } from 'lit/directive.js'
 import { EMPTY, Subject, animationFrameScheduler, combineLatest, fromEvent, merge, timer } from 'rxjs'
-import { auditTime, filter, startWith, switchMap, takeUntil, tap } from 'rxjs/operators'
+import { auditTime, distinctUntilChanged, filter, map, startWith, switchMap, takeUntil, tap } from 'rxjs/operators'
 import { theme } from '../theme/theme.service'
 import { fromResizeObserver } from './layout'
 
@@ -50,6 +50,15 @@ class Fill extends AsyncDirective {
 					: EMPTY,
 				fromEvent(window, 'orientationchange'),
 				fromEvent(document, 'focusout', { passive: true }).pipe(switchMap(() => timer(100))),
+				// Observe `el` itself: this is the post-layout settle trigger
+				// (its initial callback fires once `rect.top/left` resolve) and
+				// the only DOM trigger for a top-level fill element whose
+				// `el.parentElement` is null. It is loop-safe ONLY because of
+				// the `distinctUntilChanged` gate below: write → RO fires →
+				// recompute → identical value → gate suppresses → no write →
+				// RO quiet (converges in ≤2 frames). The ~20s overlay hang was
+				// the *missing gate*, not the observation — without it every
+				// write re-fired the observer forever.
 				fromResizeObserver(el),
 				el.parentElement ? fromResizeObserver(el.parentElement) : EMPTY,
 			).pipe(auditTime(0, animationFrameScheduler), startWith(null)),
@@ -61,14 +70,28 @@ class Fill extends AsyncDirective {
 					const vv = window.visualViewport
 					return vv ? Math.abs(vv.scale - 1) <= 0.01 : true
 				}),
-				tap(([, bottomOffset, isFullscreen]) => {
+				map(([, bottomOffset, isFullscreen]) => {
 					const vv = window.visualViewport
 					const rect = el.getBoundingClientRect()
+					return {
+						height: `${Math.max(0, (vv?.height ?? window.innerHeight) - rect.top)}px`,
+						width: `${Math.max(0, (vv?.width ?? window.innerWidth) - rect.left)}px`,
+						paddingBottom: `${isFullscreen ? 0 : bottomOffset}px`,
+					}
+				}),
+				// Idempotent gate: once geometry is stable the computed values
+				// stop changing, so no DOM write happens and no resize is
+				// emitted — the parent observer (and any ancestor's, e.g. the
+				// overlay's) goes quiet instead of ping-ponging.
+				distinctUntilChanged(
+					(a, b) => a.height === b.height && a.width === b.width && a.paddingBottom === b.paddingBottom,
+				),
+				tap(({ height, width, paddingBottom }) => {
 					const s = el.style
 					s.boxSizing = 'border-box'
-					s.height = `${Math.max(0, (vv?.height ?? window.innerHeight) - rect.top)}px`
-					s.width = `${Math.max(0, (vv?.width ?? window.innerWidth) - rect.left)}px`
-					s.paddingBottom = `${isFullscreen ? 0 : bottomOffset}px`
+					s.height = height
+					s.width = width
+					s.paddingBottom = paddingBottom
 					s.minHeight = '0'
 					s.minWidth = '0'
 					s.overflow = 'hidden'

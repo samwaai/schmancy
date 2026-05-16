@@ -116,44 +116,32 @@ export class SchmnacyIconButton extends SchmancyElement {
 	@property({ type: String })
 	public icon?: string
 
-	// Reactively captured icon name from slot content (translation-proof)
+	// Reactively captured icon name from slot content (translation-proof).
+	// Mirrors <schmancy-icon>: a MutationObserver on the light DOM keeps this
+	// in sync no matter how the consumer passes the name — a plain text node,
+	// a dynamic ${...} binding (Lit mutates the text node's data in place, so
+	// no slotchange ever fires), or a nested <schmancy-icon> element.
+	// `textContent` flattens through all three.
 	@state()
 	private _capturedIcon?: string
 
+	private _observer?: MutationObserver
+
 	connectedCallback(): void {
 		super.connectedCallback()
-		// Pre-capture icon from children to avoid double render flash
-		this._captureIconFromChildren()
+		this._captureIcon()
+		this._observer = new MutationObserver(() => this._captureIcon())
+		this._observer.observe(this, { childList: true, characterData: true, subtree: true })
 	}
 
-	// Capture icon from direct children (for initial render)
-	private _captureIconFromChildren(): void {
-		if (this.icon || this.text) return
-		for (const node of this.childNodes) {
-			if (node.nodeType === Node.TEXT_NODE) {
-				const text = node.textContent?.trim()
-				if (text) {
-					this._capturedIcon = text
-					return
-				}
-			}
-		}
+	disconnectedCallback(): void {
+		super.disconnectedCallback()
+		this._observer?.disconnect()
 	}
 
-	// Handle slot content changes reactively (for dynamic updates)
-	private _handleSlotChange(e: Event): void {
+	private _captureIcon(): void {
 		if (this.icon || this.text) return
-		const slot = e.target as HTMLSlotElement
-		const nodes = slot.assignedNodes({ flatten: true })
-		for (const node of nodes) {
-			if (node.nodeType === Node.TEXT_NODE) {
-				const text = node.textContent?.trim()
-				if (text) {
-					this._capturedIcon = text
-					return
-				}
-			}
-		}
+		this._capturedIcon = this.textContent?.trim() || undefined
 	}
 
 	// Manage aria-label manually so that we can always use our internal property.
@@ -254,7 +242,7 @@ export class SchmnacyIconButton extends SchmancyElement {
 					${this.text
 						? html`<slot></slot>`
 						: html`
-							<slot style="display:none" @slotchange=${this._handleSlotChange}></slot>
+							<slot style="display:none"></slot>
 							<schmancy-icon class=${iconSizeClass}>${this.icon || this._capturedIcon}</schmancy-icon>
 						`
 					}
@@ -277,7 +265,7 @@ export class SchmnacyIconButton extends SchmancyElement {
 				${this.text
 					? html`<slot></slot>`
 					: html`
-						<slot style="display:none" @slotchange=${this._handleSlotChange}></slot>
+						<slot style="display:none"></slot>
 						<schmancy-icon class=${iconSizeClass}>${this.icon || this._capturedIcon}</schmancy-icon>
 					`
 				}

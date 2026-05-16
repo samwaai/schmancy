@@ -9,6 +9,7 @@ import { formatTheme } from './theme.format'
 import { TSchmancyTheme } from './theme.interface'
 import { ThemeHereIAm, ThemeWhereAreYou, ThemeWhereAreYouEvent } from './theme.events'
 import style from './theme.style.css?inline'
+import '../surface/surface'
 export const tailwindStyles = unsafeCSS(style)
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 const $colorScheme = new Observable<string>(subscriber => {

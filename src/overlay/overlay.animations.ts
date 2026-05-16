@@ -1,7 +1,6 @@
 import {
 	DURATION_EXIT,
 	getEasing,
-	SPRING_GENTLE,
 	SPRING_SMOOTH,
 	SPRING_SNAPPY,
 } from '../utils/animation'
@@ -162,8 +161,8 @@ export function surfaceAnimation(layout: OverlayLayout, direction: 'in' | 'out')
 							{ opacity: 1, transform: 'translateY(0)' },
 						],
 						options: {
-							duration: SPRING_GENTLE.duration,
-							easing: getEasing(SPRING_GENTLE),
+							duration: SPRING_SNAPPY.duration,
+							easing: getEasing(SPRING_SNAPPY),
 							fill: 'forwards',
 						},
 					}

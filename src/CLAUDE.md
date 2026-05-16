@@ -116,10 +116,12 @@ connectedCallback() {
 ```
 
 - Every subscription ends with `.pipe(takeUntil(this.disconnecting))`.
-- Form components (`select`, `autocomplete`, `chips`) track explicit
-  property assignment with flags (`_valueSet`, `_valuesSet`) and
-  resync the visible label via `_updateInputDisplay()` in
-  `firstUpdated()` and on every programmatic value change.
+- Form components (`select`, `autocomplete`, `chips`) carry an explicit
+  `multi: boolean` mode flag and route `value` through two
+  BehaviorSubjects (`_value$`, `_values$`). They never infer mode from
+  which setter was called. Before writing a new field, read
+  `mixins/formField.mixin.ts` and mirror
+  `src/form/fields/select/select.ts` (the canonical single/multi field).
 
 ### Custom events
 
@@ -136,6 +138,13 @@ this.dispatchEvent(
   }),
 )
 ```
+
+For a **form field** (a control `<schmancy-form>` collects), emit `change`
+through the mixin's `emitChange({ value })` instead of hand-rolling
+`dispatchEvent`. It guarantees `composed: true` so the event crosses the
+shadow boundary the form listens across — the recurring field bug is a
+hand-rolled dispatch that forgets that flag. See `emitChange` in
+`mixins/formField.mixin.ts`.
 
 ### Accessibility
 
@@ -183,18 +192,15 @@ the Tailwind shortcut utilities (`bg-surface-default`,
 
 ## Validation patterns (form components)
 
-```typescript
-public checkValidity(): boolean {
-  if (!this.required) return true
-  return this.multi
-    ? this._selectedValues$.value.length > 0
-    : Boolean(this._selectedValue$.value)
-}
-
-public reportValidity(): boolean {
-  return this._inputElementRef.value?.reportValidity() ?? this.checkValidity()
-}
-```
+`checkValidity()`, `reportValidity()`, `setCustomValidity()`, the
+`validateOn` truth table, and `internals.setValidity` wiring all come from
+`FormFieldMixin` (`mixins/formField.mixin.ts`). A new field adopts them by
+extending `SchmancyFormField(styles)` — it does not hand-roll its own
+validity. The two cases that *do* require an override are array-typed
+values: empty-array `required` (the mixin's `value === ''` test passes for
+`[]`) and `setFormValue` for arrays (the platform API rejects arrays).
+`src/form/fields/select/select.ts` shows both — read it before authoring a
+field's validity.
 
 ## Pointers
 

@@ -4,7 +4,7 @@ import { customElement, property, queryAssignedElements, state } from 'lit/decor
 import { classMap } from 'lit/directives/class-map.js'
 import { createRef, ref } from 'lit/directives/ref.js'
 import { styleMap } from 'lit/directives/style-map.js'
-import { filter, finalize, fromEvent, map, merge, type Subscription, switchMap, takeUntil, tap } from 'rxjs'
+import { exhaustMap, filter, finalize, fromEvent, merge, type Subscription, takeUntil, tap } from 'rxjs'
 import { reducedMotion$ } from '../directives/reduced-motion'
 import { show } from '../overlay/overlay.service'
 import { theme } from '../theme/theme.service.js'
@@ -20,38 +20,50 @@ interface Position {
 }
 
 /**
- * Material-3 extended FAB that delegates its expanded panel to the `show()`
- * overlay service. Collapsed: a draggable, corner-anchored pill (icon + label,
- * circular when no label). Activated: the default-slot content blooms from the
- * FAB as an overlay (backdrop / Esc / back-button / sheet-on-narrow handled by
- * the overlay primitive).
+ * Corner-anchored launcher that delegates its expanded panel to the `show()`
+ * overlay service.
+ *
+ * Three slots, three non-overlapping intents — no element-type sniffing,
+ * ever:
+ *
+ *   - `trigger`  — pure consumer content. A native click anywhere on it
+ *     opens the panel; interactive children (buttons, FABs, inputs) work
+ *     with zero special-casing because the boat never calls
+ *     `preventDefault` / `stopPropagation` / `setPointerCapture` here.
+ *   - `drag-handle` — opt-in. Pointer-drag is wired ONLY to this slot's
+ *     boat-owned wrapper. Slot it to make the boat draggable; omit it and
+ *     the boat is static at its corner. (A no-move tap on the handle also
+ *     opens, so the grip doubles as a launcher.)
+ *   - _(default)_ — the panel body; parked hidden while collapsed,
+ *     relocated into the `show()` overlay on open.
+ *
+ * The boat owns drag, corner-snapping, position persistence and the glass
+ * surface — never the collapsed shape.
  */
 @customElement('schmancy-boat')
 export default class SchmancyBoat extends SchmancyElement {
-	static styles = [css`
-		:host {
-			display: contents;
-		}
-		:host([hidden]) {
-			display: none !important;
-		}
-	`]
+
 
 	/** Identity for localStorage drag-position persistence. */
 	@property({ type: String }) id: string = 'default'
-	/** Corner the FAB is anchored to. */
+	/** Corner the launcher is anchored to. */
 	@property({ type: String }) corner: Corner = 'bottom-right'
 	/** Open state. Bind `?open=${…}` to drive the overlay; reflected to the attribute. */
 	@property({ type: Boolean, reflect: true }) open: boolean = false
 
 	@state() private isDragging = false
 	@state() private currentCorner: Corner = 'bottom-right'
+	@state() private hasHandle = false
 
+	/** Default-slot nodes — the overlay body. */
 	@queryAssignedElements() private slotted!: Element[]
+	/** Slotted drag-handle nodes — presence toggles draggability. */
+	@queryAssignedElements({ slot: 'drag-handle' }) private handleNodes!: Element[]
 
 	private position: Position = { x: 16, y: 16 }
 	private containerRef = createRef<HTMLElement>()
-	private headerRef = createRef<HTMLElement>()
+	private triggerRef = createRef<HTMLElement>()
+	private handleRef = createRef<HTMLElement>()
 	private currentAnimation?: Animation
 
 	#ready = false
@@ -172,84 +184,6 @@ export default class SchmancyBoat extends SchmancyElement {
 	}
 
 	// ============================================
-	// DRAG PIPELINE
-	// ============================================
-
-	private setupDrag() {
-		const header = this.headerRef.value
-		const container = this.containerRef.value
-		if (!header || !container) return
-
-		let didDrag = false
-
-		fromEvent<PointerEvent>(header, 'pointerdown')
-			.pipe(
-				filter(e => e.button === 0),
-				tap(e => {
-					e.preventDefault()
-					e.stopPropagation()
-					header.setPointerCapture(e.pointerId)
-				}),
-				map(e => {
-					const rect = container.getBoundingClientRect()
-					didDrag = false
-					return {
-						pointerId: e.pointerId,
-						startX: e.clientX,
-						startY: e.clientY,
-						offsetX: e.clientX - rect.left,
-						offsetY: e.clientY - rect.top,
-						rect,
-					}
-				}),
-				switchMap(({ pointerId, startX, startY, offsetX, offsetY, rect }) => {
-					const sameId = (e: PointerEvent) => e.pointerId === pointerId
-					const move$ = fromEvent<PointerEvent>(window, 'pointermove').pipe(filter(sameId))
-					const end$ = merge(
-						fromEvent<PointerEvent>(window, 'pointerup'),
-						fromEvent<PointerEvent>(window, 'pointercancel'),
-					).pipe(filter(sameId))
-
-					return move$.pipe(
-						tap(({ clientX, clientY }) => {
-							const dx = clientX - startX
-							const dy = clientY - startY
-							if (Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD && !didDrag) {
-								didDrag = true
-								this.isDragging = true
-							}
-							if (!didDrag) return
-
-							const vw = window.innerWidth
-							const vh = window.innerHeight
-							const left = Math.max(0, Math.min(clientX - offsetX, vw - rect.width))
-							const top = Math.max(0, Math.min(clientY - offsetY, vh - rect.height))
-							this.position = {
-								x: this.currentCorner.includes('right') ? vw - left - rect.width : left,
-								y: this.currentCorner.includes('bottom') ? vh - top - rect.height : top,
-							}
-							this.applyContainerPosition()
-						}),
-						takeUntil(end$),
-						finalize(() => {
-							if (didDrag) {
-								this.reorientToNearestCorner()
-								this.isDragging = false
-								didDrag = false
-							} else {
-								this.isDragging = false
-								didDrag = false
-								this.toggle()
-							}
-						}),
-					)
-				}),
-				takeUntil(this.disconnecting),
-			)
-			.subscribe()
-	}
-
-	// ============================================
 	// OVERLAY DELEGATION
 	// ============================================
 
@@ -290,22 +224,102 @@ export default class SchmancyBoat extends SchmancyElement {
 	connectedCallback() {
 		super.connectedCallback()
 
-		fromEvent(window, 'resize')
+		// One concern: keep the container in place when the environment
+		// shifts. Viewport resize re-validates bounds; a theme bottom-offset
+		// change (e.g. a snackbar pushing the safe area) re-applies position.
+		merge(
+			fromEvent(window, 'resize').pipe(tap(() => this.validateBounds())),
+			theme.bottomOffset$.pipe(tap(() => this.applyContainerPosition())),
+		)
 			.pipe(takeUntil(this.disconnecting))
-			.subscribe(() => this.validateBounds())
-
-		theme.bottomOffset$.pipe(
-			tap(() => this.applyContainerPosition()),
-			takeUntil(this.disconnecting),
-		).subscribe()
+			.subscribe()
 	}
 
 	firstUpdated() {
 		this.currentCorner = this.corner
+		this.hasHandle = this.handleNodes.length > 0
 		this.loadPosition()
-		if (!this.containerRef.value) return
+		const container = this.containerRef.value
+		const trigger = this.triggerRef.value
+		const handle = this.handleRef.value
+		if (!container || !trigger || !handle) return
 		this.applyContainerPosition()
-		this.setupDrag()
+
+		// Three intents, three sources, one pipeline, one subscribe.
+		//
+		// open$  — a plain click/Enter/Space on the trigger region. No
+		//          preventDefault/stopPropagation: a slotted button's own
+		//          click still fires; it merely also bubbles to "open".
+		// drag$  — pointerdown on the boat-owned drag-handle wrapper. A
+		//          dedicated region, so every pointerdown there is a drag
+		//          intent — no element-type sniffing. A session ends on
+		//          pointerup/cancel; settle = move past threshold ? snap to
+		//          the nearest corner : treat as a tap and open.
+		merge(
+			fromEvent<MouseEvent>(trigger, 'click').pipe(tap(() => this.toggle())),
+			fromEvent<KeyboardEvent>(trigger, 'keydown').pipe(
+				filter(e => e.key === 'Enter' || e.key === ' '),
+				tap(e => {
+					e.preventDefault()
+					this.toggle()
+				}),
+			),
+			fromEvent<PointerEvent>(handle, 'pointerdown').pipe(
+				filter(e => e.button === 0),
+				tap(e => {
+					e.preventDefault()
+					// Capture can throw InvalidStateError if the pointer is
+					// already released (fast tap) — drag still works without it.
+					try {
+						handle.setPointerCapture(e.pointerId)
+					} catch {
+						// no active pointer to capture; ignore
+					}
+				}),
+				exhaustMap(down => {
+					const rect = container.getBoundingClientRect()
+					const offsetX = down.clientX - rect.left
+					const offsetY = down.clientY - rect.top
+					let moved = false
+					const sameId = (e: PointerEvent) => e.pointerId === down.pointerId
+					const end$ = merge(
+						fromEvent<PointerEvent>(window, 'pointerup'),
+						fromEvent<PointerEvent>(window, 'pointercancel'),
+					).pipe(filter(sameId))
+
+					return fromEvent<PointerEvent>(window, 'pointermove').pipe(
+						filter(sameId),
+						tap(e => {
+							const dx = e.clientX - down.clientX
+							const dy = e.clientY - down.clientY
+							if (!moved && Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD) {
+								moved = true
+								this.isDragging = true
+							}
+							if (!moved) return
+							const vw = window.innerWidth
+							const vh = window.innerHeight
+							const left = Math.max(0, Math.min(e.clientX - offsetX, vw - rect.width))
+							const top = Math.max(0, Math.min(e.clientY - offsetY, vh - rect.height))
+							this.position = {
+								x: this.currentCorner.includes('right') ? vw - left - rect.width : left,
+								y: this.currentCorner.includes('bottom') ? vh - top - rect.height : top,
+							}
+							this.applyContainerPosition()
+						}),
+						takeUntil(end$),
+						finalize(() => {
+							if (moved) this.reorientToNearestCorner()
+							else this.toggle()
+							this.isDragging = false
+						}),
+					)
+				}),
+			),
+		)
+			.pipe(takeUntil(this.disconnecting))
+			.subscribe()
+
 		this.#ready = true
 		if (this.open) this.openOverlay()
 	}
@@ -335,11 +349,13 @@ export default class SchmancyBoat extends SchmancyElement {
 	// RENDER
 	// ============================================
 
+	private onHandleSlotChange = () => {
+		this.hasHandle = this.handleNodes.length > 0
+	}
+
 	protected render(): unknown {
 		const containerClasses = classMap({
 			'inline-flex': true,
-			'rounded-full': true,
-			'overflow-hidden': true,
 			'transition-opacity': true,
 			'duration-200': true,
 			'opacity-85': this.isDragging,
@@ -351,40 +367,47 @@ export default class SchmancyBoat extends SchmancyElement {
 			'pointer-events': 'auto',
 		})
 
-		const fabClasses = classMap({
-			'h-14': true,
-			'min-w-14': true,
-			'px-4': true,
-			'rounded-full': true,
+		// Boat-owned drag region — wraps ONLY the drag-handle slot, so every
+		// pointerdown inside it is unambiguously a drag intent. Hidden (and
+		// out of layout) when the consumer slots no handle: the boat is then
+		// simply not draggable.
+		const handleClasses = classMap({
 			flex: true,
 			'items-center': true,
-			'justify-center': true,
-			'gap-3': true,
-			'select-none': true,
 			'touch-none': true,
+			'select-none': true,
+			hidden: !this.hasHandle,
 			'cursor-grabbing': this.isDragging,
-			'cursor-pointer': !this.isDragging,
+			'cursor-grab': !this.isDragging,
 		})
 
 		return html`
 			<schmancy-surface
 				${ref(this.containerRef)}
 				type="glass"
+				rounded="all"
 				.elevation=${3}
-				class=${containerClasses}
+				class="${containerClasses} overflow-hidden rounded-2xl"
 				style=${containerStyles}
 				aria-expanded=${this.open}
 			>
 				<div
-					${ref(this.headerRef)}
-					class=${fabClasses}
+					${ref(this.handleRef)}
+					class=${handleClasses}
+					aria-label="Drag to move"
+				>
+					<slot name="drag-handle" @slotchange=${this.onHandleSlotChange}></slot>
+				</div>
+
+				<div
+					${ref(this.triggerRef)}
+					class="flex items-center cursor-pointer"
 					role="button"
 					tabindex="0"
 					aria-label="Open panel"
-					title="Drag to move · click to open"
+					title="Click to open"
 				>
-					<slot name="header"></slot>
-					<slot name="summary"></slot>
+					<slot name="trigger"></slot>
 				</div>
 
 				<!-- Default-slot content parks here (hidden) while collapsed;

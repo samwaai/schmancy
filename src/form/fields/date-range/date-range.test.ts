@@ -68,6 +68,50 @@ describe('schmancy-date-range', () => {
 		expect(form.checkValidity()).toBe(true)
 	})
 
+	it('paints both validity surfaces when required, empty, and submitted', async () => {
+		host.innerHTML = `<form><schmancy-date-range name="w" required></schmancy-date-range></form>`
+		const form = host.querySelector('form') as HTMLFormElement
+		const dr = host.querySelector('schmancy-date-range') as HTMLElement & {
+			dateFrom: { label: string; value: string }
+			dateTo: { label: string; value: string }
+			markSubmitted(): void
+			checkValidity(): boolean
+		}
+		await nextUpdate()
+		await nextUpdate()
+		dr.dateFrom = { label: 'From', value: '' }
+		dr.dateTo = { label: 'To', value: '' }
+		await nextUpdate()
+
+		// Platform surface: the form blocks submit.
+		expect(form.checkValidity()).toBe(false)
+
+		// Rendered surface is gated until submit (validateOn default 'dirty').
+		dr.markSubmitted()
+		dr.checkValidity()
+		await nextUpdate()
+		await nextUpdate()
+
+		const root = (dr as unknown as { shadowRoot: ShadowRoot }).shadowRoot
+		const alert = root.querySelector('[role="alert"]')
+		expect(alert, 'a role=alert message must render').not.toBeNull()
+		expect(alert?.textContent?.trim()).toBe('Please select a date range.')
+		// Control itself carries a visible invalid treatment.
+		expect(
+			root.querySelector('section.outline-error-default'),
+			'the control must carry an invalid treatment',
+		).not.toBeNull()
+
+		// Filling the range clears both surfaces.
+		dr.dateFrom = { label: 'From', value: '2026-01-01' }
+		dr.dateTo = { label: 'To', value: '2026-01-31' }
+		await nextUpdate()
+		await nextUpdate()
+		expect(form.checkValidity()).toBe(true)
+		expect(root.querySelector('[role="alert"]')).toBeNull()
+		expect(root.querySelector('section.outline-error-default')).toBeNull()
+	})
+
 	it('has no axe-core a11y violations', async () => {
 		host.innerHTML = `<schmancy-date-range name="window"></schmancy-date-range>`
 		await nextUpdate()

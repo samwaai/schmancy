@@ -1,5 +1,6 @@
 export * from './autocomplete'
 export * from './checkbox'
+export * from './chips'
 export * from './date-range'
 export * from './input'
 export * from './radio-group'

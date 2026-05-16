@@ -407,6 +407,9 @@
 	--tracking-wide: 0.025em;
 	--tracking-wider: 0.05em;
 	--tracking-widest: 0.1em;
+	--tracking-eyebrow: 0.18em;
+	--tracking-label: 0.14em;
+	--leading-display: 0.95;
 	--leading-tight: 1.25;
 	--leading-snug: 1.375;
 	--leading-normal: 1.5;

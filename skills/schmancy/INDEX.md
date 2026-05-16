@@ -36,7 +36,7 @@ The framework pieces — touch before components.
 [Overlay](./overlay.md) · [Notification](./notification.md) · [Menu](./menu.md) · [Dropdown](./dropdown.md) · [Tooltip (directive)](./tooltip.md) · [Lightbox](./lightbox.md) · [Expand](./expand.md)
 
 ### Interactive
-[Button](./button.md) · [List](./list.md) · [Details](./details.md) · [Table](./table.md) · [Tree](./tree.md) · [Slider](./slider.md)
+[Button](./button.md) · [FAB](./fab.md) · [List](./list.md) · [Details](./details.md) · [Table](./table.md) · [Tree](./tree.md) · [Slider](./slider.md)
 
 > Lab: [QR Scanner](../../lab/skills/qr-scanner.md) — install `@mhmo91/schmancy-lab`
 

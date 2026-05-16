@@ -75,7 +75,7 @@ Every `--schmancy-sys-color-*` token is aliased as `--color-*` in the theme styl
 --schmancy-sys-color-{token}   →   --color-{token}   →   bg-{token} · text-{token} · border-{token}
 ```
 
-**Prefer the shortcut utility over the arbitrary-value escape hatch.** `border-outline-variant` is equivalent to `border-[var(--schmancy-sys-color-outlineVariant)]` but far more readable.
+**The shortcut utility is the readable form of a token that exists for genuine semantic reuse and is registered in the workspace being edited.** `border-outline-variant` reads better than `border-[var(--schmancy-sys-color-outlineVariant)]` because `outlineVariant` is a reused semantic color aliased into every consuming workspace. A trivial or one-off layout value (`grid-rows-[auto_1fr]`, `max-w-[720px]`) stays in its portable arbitrary form — aliasing it behind a workspace-local `@theme` token adds a name no second call site uses and a build dependency a sibling workspace's Tailwind does not resolve.
 
 Multi-word tokens are registered in **both** camelCase and kebab-case — both forms work. Use whichever reads better:
 

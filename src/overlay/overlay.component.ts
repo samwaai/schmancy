@@ -119,6 +119,7 @@ export class SchmancyOverlay extends SchmancyElement {
 	@property({ type: String, reflect: true }) tier: OverlayTier = 'modal'
 
 	@state() private _active = false
+	@state() private _full = false
 
 	@query('.backdrop') private _backdrop?: HTMLDivElement
 	@query('.surface') private _surface!: HTMLElement
@@ -152,6 +153,7 @@ export class SchmancyOverlay extends SchmancyElement {
 		this._mounted = true
 
 		this.dismissable = options.dismissable !== false
+		this._full = options.full ?? false
 		this._rawAnchor = options.anchor
 		this._anchorOriginAnchor = options.anchor
 		this._resolvedAnchor = resolveAnchorRef(options.anchor)
@@ -278,13 +280,15 @@ export class SchmancyOverlay extends SchmancyElement {
 	protected render(): TemplateResult {
 		if (!this._active) return html``
 		const baseClasses =
-			'surface fixed pointer-events-auto overflow-auto ' +
+			'surface fixed pointer-events-auto ' +
 			'bg-surface-container/85 text-surface-on backdrop-blur-md ' +
 			'border border-surface-on/8'
 		const layoutClasses =
 			this.layout === 'sheet'
-				? 'left-0 right-0 bottom-0 w-full max-h-[90dvh] rounded-t-[28px] shadow-overlay'
-				: 'max-w-[min(480px,calc(100vw-2rem))] max-h-[90dvh] rounded-3xl shadow-overlay-anchored'
+				? this._full
+					? 'left-0 right-0 bottom-0 w-full h-[90dvh] rounded-t-[28px] shadow-overlay flex flex-col overflow-hidden'
+					: 'left-0 right-0 bottom-0 w-full max-h-[90dvh] rounded-t-[28px] shadow-overlay overflow-auto'
+				: 'max-w-[min(480px,calc(100vw-2rem))] max-h-[90dvh] rounded-3xl shadow-overlay-anchored overflow-auto'
 		return html`
 			<div class="shell fixed inset-0 pointer-events-none" part="shell">
 				${when(
@@ -300,7 +304,7 @@ export class SchmancyOverlay extends SchmancyElement {
 					aria-modal=${this.modal ? 'true' : 'false'}
 					tabindex="-1"
 				>
-					<div id=${MOUNT_POINT_ID}></div>
+					<div id=${MOUNT_POINT_ID} class=${this.layout === 'sheet' && this._full ? 'flex-1 min-h-0 overflow-hidden' : ''}></div>
 				</section>
 			</div>
 		`

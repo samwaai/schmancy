@@ -1,8 +1,8 @@
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
-import { html, PropertyValues } from 'lit'
+import { html, nothing, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { fromEvent, Subscription, takeUntil, timer } from 'rxjs'
+import { concat, exhaustMap, finalize, fromEvent, map, merge, of, Subject, switchMap, takeUntil, tap, timer } from 'rxjs'
 import { SchmancyFormField } from '@mixins/index'
 import { show } from '../../../overlay/overlay.service'
 import { detectDateRangeType, formatDateRange } from './date-range-helpers'
@@ -55,6 +55,12 @@ export class SchmancyDateRange extends SchmancyFormField() {
 	/** When true, collapses to just an icon button on mobile screens */
 	@property({ type: Boolean }) collapse = false
 
+	// Session inputs — driven by handlers, consumed by the single pipeline
+	// in connectedCallback (rxjs ONE_PIPELINE_ONE_SUBSCRIBE / SESSIONS).
+	private readonly open$ = new Subject<MouseEvent | undefined>()
+	private readonly close$ = new Subject<void>()
+	private readonly announce$ = new Subject<string>()
+
 	// Internal states
 	@state() private isOpen = false
 	@state() private selectedDateRange: string = ''
@@ -95,17 +101,71 @@ export class SchmancyDateRange extends SchmancyFormField() {
 			this.updateSelectedDateRange()
 		}
 
-		// Set up global event handlers using RxJS
-		this.setupEventHandlers()
-	}
-
-	private setupEventHandlers() {
-		// Handle keyboard navigation
-		fromEvent<KeyboardEvent>(document, 'keydown')
+		// One pipeline, one subscribe (rxjs ONE_PIPELINE_ONE_SUBSCRIBE): the
+		// dropdown open/close session, screen-reader announcements, and
+		// document keyboard navigation merge into a single chain torn down by
+		// takeUntil(this.disconnecting).
+		merge(
+			// Dropdown is a session (rxjs SESSIONS_USE_HIGHER_ORDER_OBSERVABLES):
+			// open$ opens the overlay; show() completes when an inner handler
+			// dispatches `close`, close$ dismisses it externally; finalize
+			// resets isOpen on either teardown path.
+			this.open$.pipe(
+				tap(() => {
+					this.dispatchEvent(new CustomEvent('beforeopen', { bubbles: true, composed: true }))
+					this.isOpen = true
+				}),
+				exhaustMap(anchor =>
+					show(
+						html`
+							<schmancy-date-range-dialog
+								.type="${this.type}"
+								.dateFrom="${this.dateFrom}"
+								.dateTo="${this.dateTo}"
+								.minDate="${this.minDate}"
+								.maxDate="${this.maxDate}"
+								.activePreset="${this.activePreset}"
+								.presetCategories="${this.presetCategories}"
+								@preset-select="${(ev: CustomEvent) => {
+									this.activePreset = ev.detail.preset.label
+									this.setDateRange(ev.detail.preset.range.dateFrom, ev.detail.preset.range.dateTo)
+									dispatchClose(ev.currentTarget)
+								}}"
+								@date-change="${() => this.updateSelectedDateRange()}"
+								@apply-dates="${(ev: CustomEvent) => {
+									const { dateFrom, dateTo, swapIfNeeded } = ev.detail
+									if (swapIfNeeded) {
+										this.setDateRange(dateTo, dateFrom)
+									} else {
+										this.setDateRange(dateFrom, dateTo)
+									}
+									dispatchClose(ev.currentTarget)
+								}}"
+								@announce="${(ev: CustomEvent) => this.announce$.next(ev.detail.message)}"
+							></schmancy-date-range-dialog>
+						`,
+						{ anchor },
+					).pipe(
+						takeUntil(this.close$),
+						finalize(() => {
+							this.isOpen = false
+						}),
+					),
+				),
+			),
+			// Announcements (rxjs LIFT_EVERY_ASYNC_SOURCE): one Subject, one
+			// switchMap-cleared timer — not a fresh timer().subscribe() per call.
+			this.announce$.pipe(
+				switchMap(message => concat(of(message), timer(100).pipe(map(() => '')))),
+				tap(message => {
+					this.announceMessage = message
+				}),
+			),
+			// Document keyboard navigation.
+			fromEvent<KeyboardEvent>(document, 'keydown').pipe(tap(event => this.handleKeyboardNavigation(event))),
+		)
 			.pipe(takeUntil(this.disconnecting))
-			.subscribe(event => {
-				this.handleKeyboardNavigation(event)
-			})
+			.subscribe()
 	}
 
 	updated(changedProps: PropertyValues) {
@@ -182,23 +242,23 @@ export class SchmancyDateRange extends SchmancyFormField() {
 	}
 
 	/** `dirty` tracks the underlying date strings, not the wide-union value. */
-	private _dateFromDefault: string = ''
-	private _dateToDefault: string = ''
+	private dateFromDefault: string = ''
+	private dateToDefault: string = ''
 	override firstUpdated(changed: PropertyValues): void {
 		super.firstUpdated(changed)
-		this._dateFromDefault = this.dateFrom?.value ?? ''
-		this._dateToDefault = this.dateTo?.value ?? ''
+		this.dateFromDefault = this.dateFrom?.value ?? ''
+		this.dateToDefault = this.dateTo?.value ?? ''
 	}
 	override get dirty(): boolean {
 		return (
-			(this.dateFrom?.value ?? '') !== this._dateFromDefault ||
-			(this.dateTo?.value ?? '') !== this._dateToDefault
+			(this.dateFrom?.value ?? '') !== this.dateFromDefault ||
+			(this.dateTo?.value ?? '') !== this.dateToDefault
 		)
 	}
 
 	override resetForm(): void {
-		this.dateFrom = { ...this.dateFrom, value: this._dateFromDefault }
-		this.dateTo = { ...this.dateTo, value: this._dateToDefault }
+		this.dateFrom = { ...this.dateFrom, value: this.dateFromDefault }
+		this.dateTo = { ...this.dateTo, value: this.dateToDefault }
 		super.resetForm()
 	}
 
@@ -282,7 +342,7 @@ export class SchmancyDateRange extends SchmancyFormField() {
 		this.updateSelectedDateRange()
 
 		// Announce change to screen readers
-		this.announceToScreenReader(`Date range updated: ${this.selectedDateRange}`)
+		this.announce$.next(`Date range updated: ${this.selectedDateRange}`)
 
 		this.dispatchEvent(
 			new CustomEvent<{ dateFrom: string; dateTo: string }>('change', {
@@ -296,70 +356,13 @@ export class SchmancyDateRange extends SchmancyFormField() {
 	private toggleDropdown(e: MouseEvent) {
 		e.stopPropagation()
 		if (this.disabled || this.step !== undefined) return
-
+		// Drive the session pipeline (connectedCallback) — no imperative
+		// open/close, no manual subscription field.
 		if (this.isOpen) {
-			this.closeDropdown()
+			this.close$.next()
 		} else {
-			this.openDropdown(e)
+			this.open$.next(e)
 		}
-	}
-
-	private _overlaySubscription: Subscription | null = null
-
-	private openDropdown(e?: MouseEvent) {
-		if (this.disabled || this.step !== undefined) return
-
-		this.dispatchEvent(new CustomEvent('beforeopen', { bubbles: true, composed: true }))
-		this.isOpen = true
-
-		// Inline-template overlay. Inner handlers dispatch a 'close' event
-		// from the dialog itself (via the module-scoped `dispatchClose`),
-		// which `show()` translates into observable completion + an emission.
-		// Layout (centered vs sheet) is chosen by the overlay system based on
-		// viewport / anchor presence.
-		const dialogContent = html`
-			<schmancy-date-range-dialog
-				.type="${this.type}"
-				.dateFrom="${this.dateFrom}"
-				.dateTo="${this.dateTo}"
-				.minDate="${this.minDate}"
-				.maxDate="${this.maxDate}"
-				.activePreset="${this.activePreset}"
-				.presetCategories="${this.presetCategories}"
-				@preset-select="${(ev: CustomEvent) => {
-					this.activePreset = ev.detail.preset.label
-					this.setDateRange(ev.detail.preset.range.dateFrom, ev.detail.preset.range.dateTo)
-					dispatchClose(ev.currentTarget)
-				}}"
-				@date-change="${() => this.updateSelectedDateRange()}"
-				@apply-dates="${(ev: CustomEvent) => {
-					const { dateFrom, dateTo, swapIfNeeded } = ev.detail
-					if (swapIfNeeded) {
-						this.setDateRange(dateTo, dateFrom)
-					} else {
-						this.setDateRange(dateFrom, dateTo)
-					}
-					dispatchClose(ev.currentTarget)
-				}}"
-				@announce="${(ev: CustomEvent) => this.announceToScreenReader(ev.detail.message)}"
-			></schmancy-date-range-dialog>
-		`
-
-		this._overlaySubscription?.unsubscribe()
-		this._overlaySubscription = show(dialogContent, { anchor: e })
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe({
-				complete: () => {
-					this.isOpen = false
-					this._overlaySubscription = null
-				},
-			})
-	}
-
-	private closeDropdown() {
-		this._overlaySubscription?.unsubscribe()
-		this._overlaySubscription = null
-		this.isOpen = false
 	}
 
 	/**
@@ -522,20 +525,15 @@ export class SchmancyDateRange extends SchmancyFormField() {
 		return toDate.isBefore(maxDate)
 	}
 
-	/**
-	 * Announce messages to screen readers
-	 */
-	private announceToScreenReader(message: string) {
-		this.announceMessage = message
-		// Clear the message after announcement
-		timer(100)
-			.pipe(takeUntil(this.disconnecting))
-			.subscribe(() => {
-				this.announceMessage = ''
-			})
-	}
 
 	render() {
+		// Step 6 — validity is two surfaces: when checkValidity() has flipped
+		// `error` (gated by `_shouldShowError`), the control must visibly carry
+		// the invalid treatment AND render the message. Platform validity is
+		// set in checkValidity(); this paints the user-facing half.
+		const showError = this.error && !!this.validationMessage
+		const errorRing = showError ? ' rounded outline outline-2 outline-error-default' : ''
+
 		return html`
 			<div class="relative ${this.disabled ? 'opacity-60 pointer-events-none' : ''}">
 				<!-- Screen reader announcements -->
@@ -545,18 +543,22 @@ export class SchmancyDateRange extends SchmancyFormField() {
 
 				<!-- Collapsed: icon-only on mobile when collapse=true -->
 				<schmancy-icon-button
-					class="${this.collapse ? 'lg:hidden' : 'hidden'}"
+					class="${this.collapse ? 'lg:hidden' : 'hidden'}${errorRing}"
 					variant="outlined"
 					type="button"
+					aria-invalid=${showError ? 'true' : 'false'}
 					aria-label="Select date range. Current: ${this.selectedDateRange || 'No date selected'}"
 					@click=${(e: MouseEvent) => this.toggleDropdown(e)}
 					?disabled=${this.disabled}
 				>
-					date_range
+				date_range
 				</schmancy-icon-button>
 
 				<!-- Full UI: always visible when collapse=false, or lg+ when collapse=true -->
-				<section @click=${(event: Event) => event.stopPropagation()} class="${this.collapse ? 'hidden lg:flex' : 'flex'}">
+				<section
+					@click=${(event: Event) => event.stopPropagation()}
+					aria-invalid=${showError ? 'true' : 'false'}
+					class="${this.collapse ? 'hidden lg:flex' : 'flex'}${errorRing}">
 						<schmancy-icon-button
 							type="button"
 							aria-label="Previous ${this.activePreset ? this.activePreset.toLowerCase() : 'date range'}"
@@ -590,6 +592,10 @@ export class SchmancyDateRange extends SchmancyFormField() {
 							arrow_right
 						</schmancy-icon-button>
 				</section>
+
+				${showError
+					? html`<div role="alert" class="text-error-default text-sm mt-1">${this.validationMessage}</div>`
+					: nothing}
 			</div>
 		`
 	}

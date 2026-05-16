@@ -7,6 +7,12 @@
    `bg-primary-default`, `border-outline`, `text-primary-on` silently no-op. */
 @source "../src/**/*.{ts,tsx,js,jsx,html}";
 
+/* grid-rows-[auto_1fr] is an arbitrary-value utility used in shadow-DOM
+   templates (app-home, workspace-settings, counterparties-page, orders-page).
+   Tailwind v4's scanner only sees ../src; force-emit it so those templates
+   get the correct grid layout inside shadow roots. */
+@source inline("grid-rows-[auto_1fr]");
+
 /* Cascade-layer order contract. Consumer (unlayered) CSS always overrides
    library styles regardless of specificity. Library-internal tokens and
    components live in named layers so consumers can target them precisely. */

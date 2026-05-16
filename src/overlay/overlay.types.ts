@@ -1,7 +1,6 @@
 import type { TemplateResult } from 'lit'
 import type { Observable } from 'rxjs'
-import type { ComponentType } from '../area/router.types'
-import type { THistoryStrategy } from '../area/router.types'
+import type { ComponentType, THistoryStrategy } from '../area/router.types'
 
 /**
  * Sync factory that returns a TemplateResult. Called at mount time so closed-over
@@ -102,6 +101,19 @@ export interface ShowOptions {
 	 *  better than the resolver can — e.g. `as: 'sheet'` for an immersive
 	 *  takeover view that doesn't have an anchor. */
 	as?: OverlayLayout
+
+	/** When `true` and layout resolves to `'sheet'`, the surface takes the
+	 *  full available height (`h-[90dvh]`) instead of sizing to content.
+	 *  The mount point becomes `flex-1 min-h-0 overflow-hidden` so the
+	 *  mounted component can fill it via `height: 100%`. Default `false`. */
+	full?: boolean
+
+	/** When `true` and layout is `'sheet'`, the surface takes the full
+	 *  available height (`h-[90dvh]`) rather than sizing to content. The
+	 *  mount point becomes `flex-1` so the mounted component can fill it
+	 *  via `height: 100%`. Use for immersive full-height panels (e.g. a
+	 *  document review). Default `false`. */
+	fillHeight?: boolean
 
 	/** Default `'push'`. Same vocabulary as `area.push()`.
 	 *  - `'push'` — new history entry; back dismisses, forward re-opens.
